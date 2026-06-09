@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
-import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
 import '../../domain/entities/current_company_context.dart';
 import '../../domain/policies/company_permission_policy.dart';
@@ -93,7 +92,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
             return _CompanyUsersList(
               users: state.users,
-              currentCompanyContext: currentCompanyContext,
+              canChangeCompanyUserRole:
+                  permissions.canChangeCompanyUserRole,
             );
           }
 
@@ -121,11 +121,11 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
 class _CompanyUsersList extends StatelessWidget {
   final List<CompanyUser> users;
-  final CurrentCompanyContext currentCompanyContext;
+  final bool canChangeCompanyUserRole;
 
   const _CompanyUsersList({
     required this.users,
-    required this.currentCompanyContext,
+    required this.canChangeCompanyUserRole,
   });
 
   @override
@@ -137,8 +137,7 @@ class _CompanyUsersList extends StatelessWidget {
 
         return _CompanyUserTile(
           user: user,
-          isCurrentUserRoleOwner:
-              currentCompanyContext.role == CompanyRole.owner,
+          canChangeCompanyUserRole: canChangeCompanyUserRole,
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
@@ -149,23 +148,22 @@ class _CompanyUsersList extends StatelessWidget {
 
 class _CompanyUserTile extends StatelessWidget {
   final CompanyUser user;
-  final bool isCurrentUserRoleOwner;
+  final bool canChangeCompanyUserRole;
 
   const _CompanyUserTile({
     required this.user,
-    required this.isCurrentUserRoleOwner,
+    required this.canChangeCompanyUserRole,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final statusText = user.isActive ? 'Active' : 'Inactive';
+    final roleInitial = user.role.label.substring(0, 1);
 
     return Card(
       child: ListTile(
-        leading: CircleAvatar(
-          child: Text(user.role.label.characters.first),
-        ),
+        leading: CircleAvatar(child: Text(roleInitial)),
         title: Text(user.title),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +177,7 @@ class _CompanyUserTile extends StatelessWidget {
             ),
           ],
         ),
-        trailing: isCurrentUserRoleOwner
+        trailing: canChangeCompanyUserRole
             ? const Icon(Icons.admin_panel_settings_outlined)
             : null,
       ),
