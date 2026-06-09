@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
-import '../../domain/entities/current_company_context.dart';
 import '../../domain/policies/company_permission_policy.dart';
 import '../cubit/company_users_cubit.dart';
 import '../cubit/company_users_state.dart';
@@ -139,7 +138,8 @@ class _CompanyUsersList extends StatelessWidget {
           canChangeCompanyUserRole: canChangeCompanyUserRole,
         );
       },
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: AppSpacing.sm),
       itemCount: users.length,
     );
   }
