@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
+import '../cubit/current_company_cubit.dart';
 
 class CompanyOnboardingPage extends StatefulWidget {
   const CompanyOnboardingPage({super.key});
@@ -44,6 +45,10 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
       listener: (context, state) {
+        if (state is CompanyOnboardingLoaded) {
+          context.read<CurrentCompanyCubit>().loadCurrentCompanyContext();
+        }
+
         if (state is CompanyOnboardingFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.failure.message)),
