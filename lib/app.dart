@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/presentation/pages/auth_gate.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
+import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
 import 'l10n/app_localizations.dart';
 
@@ -28,6 +29,9 @@ class HorusApp extends StatelessWidget {
         ),
         BlocProvider<CompanyOnboardingCubit>(
           create: (_) => AppDependencies.createCompanyOnboardingCubit(),
+        ),
+        BlocProvider<CompanyUsersCubit>(
+          create: (_) => AppDependencies.createCompanyUsersCubit(),
         ),
       ],
       child: MaterialApp(
