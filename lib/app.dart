@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
+import 'core/localization/app_localizations_extension.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
+import 'l10n/app_localizations.dart';
 
 class HorusApp extends StatelessWidget {
   const HorusApp({super.key});
@@ -11,9 +13,11 @@ class HorusApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'H.O.R.U.S System',
+      onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const HorusLaunchPage(),
     );
   }
@@ -77,25 +81,26 @@ class _LaunchContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'H.O.R.U.S System',
+          l10n.appTitle,
           textAlign: TextAlign.center,
           style: textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Heavy Operations & Route Unified System',
+          l10n.appSubtitle,
           textAlign: TextAlign.center,
           style: textTheme.titleMedium,
         ),
         const SizedBox(height: AppSpacing.xl),
         Text(
-          'SaaS platform for heavy transport operations.',
+          l10n.launchDescription,
           textAlign: TextAlign.center,
           style: textTheme.bodyLarge,
         ),
@@ -112,6 +117,7 @@ class _ArchitectureBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -121,7 +127,7 @@ class _ArchitectureBadge extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         child: Text(
-          'Clean Architecture by the book • SOLID Principles',
+          l10n.architectureBadge,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: colorScheme.onPrimaryContainer,

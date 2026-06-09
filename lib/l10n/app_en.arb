@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "appTitle": "H.O.R.U.S System",
+  "@appTitle": {
+    "description": "The application title."
+  },
+  "appSubtitle": "Heavy Operations & Route Unified System",
+  "@appSubtitle": {
+    "description": "The application subtitle."
+  },
+  "launchDescription": "SaaS platform for heavy transport operations.",
+  "@launchDescription": {
+    "description": "Short description displayed on the launch page."
+  },
+  "architectureBadge": "Clean Architecture by the book • SOLID Principles",
+  "@architectureBadge": {
+    "description": "Architecture rule badge displayed on the launch page."
+  }
+}

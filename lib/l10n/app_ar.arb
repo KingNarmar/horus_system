@@ -1,0 +1,19 @@
+{
+  "@@locale": "ar",
+  "appTitle": "نظام حورس",
+  "@appTitle": {
+    "description": "The application title."
+  },
+  "appSubtitle": "نظام موحّد لإدارة عمليات النقل الثقيل والمسارات",
+  "@appSubtitle": {
+    "description": "The application subtitle."
+  },
+  "launchDescription": "منصة SaaS لإدارة عمليات النقل الثقيل.",
+  "@launchDescription": {
+    "description": "Short description displayed on the launch page."
+  },
+  "architectureBadge": "Clean Architecture كما قال الكتاب • مبادئ SOLID",
+  "@architectureBadge": {
+    "description": "Architecture rule badge displayed on the launch page."
+  }
+}
