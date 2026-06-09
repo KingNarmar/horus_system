@@ -9,6 +9,7 @@ import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/presentation/pages/auth_gate.dart';
+import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
 import 'l10n/app_localizations.dart';
 
 class HorusApp extends StatelessWidget {
@@ -16,8 +17,15 @@ class HorusApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (_) => AppDependencies.createAuthCubit()..checkCurrentUser(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(
+          create: (_) => AppDependencies.createAuthCubit()..checkCurrentUser(),
+        ),
+        BlocProvider<CompanyOnboardingCubit>(
+          create: (_) => AppDependencies.createCompanyOnboardingCubit(),
+        ),
+      ],
       child: MaterialApp(
         onGenerateTitle: (context) => context.l10n.appTitle,
         debugShowCheckedModeBanner: false,
