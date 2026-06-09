@@ -10,7 +10,7 @@ abstract final class SupabaseClientProvider {
 
     await Supabase.initialize(
       url: EnvConfig.supabaseUrl,
-      anonKey: EnvConfig.supabaseAnonKey,
+      publishableKey: EnvConfig.supabasePublishableKey,
     );
   }
 }
