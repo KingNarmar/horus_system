@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
 import 'company_onboarding_page.dart';
@@ -71,7 +72,17 @@ class _CurrentCompanyLoadedView extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('H.O.R.U.S System')),
+      appBar: AppBar(
+        title: const Text('H.O.R.U.S System'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.read<AuthCubit>().logout(),
+            icon: const Icon(Icons.logout),
+            label: const Text('Logout'),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -96,6 +107,12 @@ class _CurrentCompanyLoadedView extends StatelessWidget {
                 'Next step: responsive app shell and protected business modules.',
                 textAlign: TextAlign.center,
                 style: textTheme.bodyMedium,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              FilledButton.icon(
+                onPressed: () => context.read<AuthCubit>().logout(),
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
               ),
             ],
           ),
