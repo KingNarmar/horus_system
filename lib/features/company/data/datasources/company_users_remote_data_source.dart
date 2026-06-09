@@ -18,18 +18,48 @@ class SupabaseCompanyUsersRemoteDataSource
   Future<List<CompanyUserModel>> getCompanyUsers({
     required String companyId,
   }) async {
-    final response = await _client
+    final companyUsersResponse = await _client
         .from('company_users')
         .select('id,company_id,user_id,role,is_active')
         .eq('company_id', companyId)
         .order('created_at');
 
-    return response
-        .map(
-          (item) => CompanyUserModel.fromMap(
-            Map<String, dynamic>.from(item),
-          ),
-        )
+    final companyUserMaps = companyUsersResponse
+        .map((item) => Map<String, dynamic>.from(item))
         .toList();
+
+    if (companyUserMaps.isEmpty) {
+      return const [];
+    }
+
+    final userIds = companyUserMaps
+        .map((item) => item['user_id'] as String)
+        .toSet()
+        .toList();
+
+    final userProfilesResponse = await _client
+        .from('user_profiles')
+        .select('id,full_name,phone')
+        .inFilter('id', userIds);
+
+    final profilesByUserId = <String, Map<String, dynamic>>{};
+
+    for (final item in userProfilesResponse) {
+      final profileMap = Map<String, dynamic>.from(item);
+      final userId = profileMap['id'] as String?;
+
+      if (userId != null) {
+        profilesByUserId[userId] = profileMap;
+      }
+    }
+
+    return companyUserMaps.map((companyUserMap) {
+      final userId = companyUserMap['user_id'] as String;
+
+      return CompanyUserModel.fromMaps(
+        companyUserMap: companyUserMap,
+        userProfileMap: profilesByUserId[userId],
+      );
+    }).toList();
   }
 }
