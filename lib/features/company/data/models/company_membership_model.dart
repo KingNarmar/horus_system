@@ -17,20 +17,8 @@ class CompanyMembershipModel {
 
     return CompanyMembershipModel(
       company: CompanyModel.fromMap(companyMap),
-      role: _roleFromValue(map['role'] as String),
+      role: CompanyRoleMapper.fromValue(map['role'] as String?),
       isActive: map['is_active'] as bool? ?? true,
     );
-  }
-
-  static CompanyRole _roleFromValue(String value) {
-    return switch (value) {
-      'owner' => CompanyRole.owner,
-      'admin' => CompanyRole.admin,
-      'operations' => CompanyRole.operations,
-      'accountant' => CompanyRole.accountant,
-      'viewer' => CompanyRole.viewer,
-      'driver' => CompanyRole.driver,
-      _ => CompanyRole.viewer,
-    };
   }
 }
