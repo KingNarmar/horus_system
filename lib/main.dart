@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app.dart';
+import 'core/data/supabase/supabase_client_provider.dart';
 
-void main() => runApp(const HorusApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: '.env');
+  await SupabaseClientProvider.initialize();
+
+  runApp(const HorusApp());
+}
