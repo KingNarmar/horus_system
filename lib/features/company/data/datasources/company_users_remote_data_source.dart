@@ -37,21 +37,7 @@ class SupabaseCompanyUsersRemoteDataSource
         .toSet()
         .toList();
 
-    final userProfilesResponse = await _client
-        .from('user_profiles')
-        .select('id,full_name,phone')
-        .inFilter('id', userIds);
-
-    final profilesByUserId = <String, Map<String, dynamic>>{};
-
-    for (final item in userProfilesResponse) {
-      final profileMap = Map<String, dynamic>.from(item);
-      final userId = profileMap['id'] as String?;
-
-      if (userId != null) {
-        profilesByUserId[userId] = profileMap;
-      }
-    }
+    final profilesByUserId = await _loadProfilesByUserId(userIds);
 
     return companyUserMaps.map((companyUserMap) {
       final userId = companyUserMap['user_id'] as String;
@@ -61,5 +47,31 @@ class SupabaseCompanyUsersRemoteDataSource
         userProfileMap: profilesByUserId[userId],
       );
     }).toList();
+  }
+
+  Future<Map<String, Map<String, dynamic>>> _loadProfilesByUserId(
+    List<String> userIds,
+  ) async {
+    try {
+      final userProfilesResponse = await _client
+          .from('user_profiles')
+          .select('id,full_name,phone')
+          .inFilter('id', userIds);
+
+      final profilesByUserId = <String, Map<String, dynamic>>{};
+
+      for (final item in userProfilesResponse) {
+        final profileMap = Map<String, dynamic>.from(item);
+        final userId = profileMap['id'] as String?;
+
+        if (userId != null) {
+          profilesByUserId[userId] = profileMap;
+        }
+      }
+
+      return profilesByUserId;
+    } on PostgrestException {
+      return const {};
+    }
   }
 }
