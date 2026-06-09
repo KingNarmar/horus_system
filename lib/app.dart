@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
@@ -27,15 +28,15 @@ class HorusLaunchPage extends StatelessWidget {
       body: SafeArea(
         child: ResponsiveLayout(
           mobile: _LaunchLayout(
-            maxWidth: 420,
+            maxWidth: AppSizes.mobileMaxContentWidth,
             horizontalPadding: AppSpacing.lg,
           ),
           tablet: _LaunchLayout(
-            maxWidth: 620,
+            maxWidth: AppSizes.tabletMaxContentWidth,
             horizontalPadding: AppSpacing.xl,
           ),
           desktop: _LaunchLayout(
-            maxWidth: 720,
+            maxWidth: AppSizes.desktopMaxContentWidth,
             horizontalPadding: AppSpacing.xxl,
           ),
         ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-abstract final class AppTheme {
-  static const Color _seedColor = Color(0xFF1F3A5F);
+import '../constants/app_sizes.dart';
+import 'app_colors.dart';
+import 'app_radius.dart';
 
+abstract final class AppTheme {
   static ThemeData get light {
-    final colorScheme = ColorScheme.fromSeed(seedColor: _seedColor);
+    final colorScheme = ColorScheme.fromSeed(seedColor: AppColors.brandSeed);
 
     return ThemeData(
       useMaterial3: true,
@@ -17,14 +19,34 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.6),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size(120, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          minimumSize: const Size(
+            AppSizes.minButtonWidth,
+            AppSizes.buttonHeight,
           ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),
     );
