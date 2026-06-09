@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
+import 'core/di/app_dependencies.dart';
 import 'core/localization/app_localizations_extension.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/auth/presentation/pages/auth_gate.dart';
 import 'l10n/app_localizations.dart';
 
 class HorusApp extends StatelessWidget {
@@ -12,13 +16,16 @@ class HorusApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      onGenerateTitle: (context) => context.l10n.appTitle,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const HorusLaunchPage(),
+    return BlocProvider<AuthCubit>(
+      create: (_) => AppDependencies.createAuthCubit()..checkCurrentUser(),
+      child: MaterialApp(
+        onGenerateTitle: (context) => context.l10n.appTitle,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const AuthGate(),
+      ),
     );
   }
 }
