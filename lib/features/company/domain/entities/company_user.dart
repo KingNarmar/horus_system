@@ -5,7 +5,7 @@ class CompanyUser {
   final String companyId;
   final String userId;
   final String? displayName;
-  final String? email;
+  final String? phone;
   final CompanyRole role;
   final bool isActive;
 
@@ -16,7 +16,7 @@ class CompanyUser {
     required this.role,
     required this.isActive,
     this.displayName,
-    this.email,
+    this.phone,
   });
 
   String get title {
@@ -26,12 +26,16 @@ class CompanyUser {
       return normalizedDisplayName;
     }
 
-    final normalizedEmail = email?.trim();
+    return 'Unknown User';
+  }
 
-    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
-      return normalizedEmail;
+  String get subtitle {
+    final normalizedPhone = phone?.trim();
+
+    if (normalizedPhone != null && normalizedPhone.isNotEmpty) {
+      return normalizedPhone;
     }
 
-    return userId;
+    return 'Profile details not set yet';
   }
 }
