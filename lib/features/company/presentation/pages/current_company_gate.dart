@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../domain/entities/company_role.dart';
 import '../../domain/entities/current_company_context.dart';
 import '../../domain/policies/company_permission_policy.dart';
 import '../cubit/current_company_cubit.dart';
