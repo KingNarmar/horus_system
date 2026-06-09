@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
 import '../../domain/entities/current_company_context.dart';
 import '../../domain/policies/company_permission_policy.dart';
@@ -24,9 +25,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (_didLoad) {
-      return;
-    }
+    if (_didLoad) return;
 
     _didLoad = true;
 
