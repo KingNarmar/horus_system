@@ -26,15 +26,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return Success(userModel.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(
-          message: error.message,
-          code: error.code ?? error.statusCode,
-        ),
+        AuthFailure(message: error.message, code: error.statusCode),
       );
     } catch (error) {
-      return FailureResult(
-        UnexpectedFailure(message: error.toString()),
-      );
+      return FailureResult(UnexpectedFailure(message: error.toString()));
     }
   }
 
@@ -42,18 +37,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<void>> logout() async {
     try {
       await _remoteDataSource.logout();
-      return const Success(null);
+      return const Success<void>(null);
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(
-          message: error.message,
-          code: error.code ?? error.statusCode,
-        ),
+        AuthFailure(message: error.message, code: error.statusCode),
       );
     } catch (error) {
-      return FailureResult(
-        UnexpectedFailure(message: error.toString()),
-      );
+      return FailureResult(UnexpectedFailure(message: error.toString()));
     }
   }
 
@@ -64,15 +54,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return Success(userModel?.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(
-          message: error.message,
-          code: error.code ?? error.statusCode,
-        ),
+        AuthFailure(message: error.message, code: error.statusCode),
       );
     } catch (error) {
-      return FailureResult(
-        UnexpectedFailure(message: error.toString()),
-      );
+      return FailureResult(UnexpectedFailure(message: error.toString()));
     }
   }
 }
