@@ -1,3 +1,4 @@
+import '../policies/company_permission_policy.dart';
 import 'company.dart';
 import 'company_role.dart';
 
@@ -13,6 +14,6 @@ class CurrentCompanyContext {
   String get companyId => company.id;
 
   bool get canManageCompany {
-    return role == CompanyRole.owner || role == CompanyRole.admin;
+    return CompanyPermissionPolicy.canManageCompanySettings(role);
   }
 }
