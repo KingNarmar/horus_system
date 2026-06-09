@@ -31,7 +31,7 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     final user = response.user;
 
     if (user == null) {
-      throw const AuthException('Login failed. No user returned.');
+      throw AuthException('Login failed. No user returned.');
     }
 
     return _toModel(user);
