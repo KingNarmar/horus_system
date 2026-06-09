@@ -262,7 +262,6 @@ begin
     add constraint payments_company_invoice_fk
     foreign key (company_id, invoice_id)
     references public.invoices(company_id, id)
-    on delete set null
     not valid;
   end if;
 
@@ -323,7 +322,6 @@ begin
     add constraint driver_deductions_company_trip_fk
     foreign key (company_id, trip_id)
     references public.trips(company_id, id)
-    on delete set null
     not valid;
   end if;
 end $$;
