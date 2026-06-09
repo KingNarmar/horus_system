@@ -8,7 +8,7 @@ extension CompanyUserModelMapper on CompanyUserModel {
       companyId: companyId,
       userId: userId,
       displayName: displayName,
-      email: email,
+      phone: phone,
       role: role,
       isActive: isActive,
     );
