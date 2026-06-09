@@ -5,7 +5,7 @@ class CompanyUserModel {
   final String companyId;
   final String userId;
   final String? displayName;
-  final String? email;
+  final String? phone;
   final CompanyRole role;
   final bool isActive;
 
@@ -16,18 +16,21 @@ class CompanyUserModel {
     required this.role,
     required this.isActive,
     this.displayName,
-    this.email,
+    this.phone,
   });
 
-  factory CompanyUserModel.fromMap(Map<String, dynamic> map) {
+  factory CompanyUserModel.fromMaps({
+    required Map<String, dynamic> companyUserMap,
+    Map<String, dynamic>? userProfileMap,
+  }) {
     return CompanyUserModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      userId: map['user_id'] as String,
-      displayName: map['display_name'] as String?,
-      email: map['email'] as String?,
-      role: CompanyRoleMapper.fromValue(map['role'] as String?),
-      isActive: map['is_active'] as bool? ?? true,
+      id: companyUserMap['id'] as String,
+      companyId: companyUserMap['company_id'] as String,
+      userId: companyUserMap['user_id'] as String,
+      displayName: userProfileMap?['full_name'] as String?,
+      phone: userProfileMap?['phone'] as String?,
+      role: CompanyRoleMapper.fromValue(companyUserMap['role'] as String?),
+      isActive: companyUserMap['is_active'] as bool? ?? true,
     );
   }
 }
