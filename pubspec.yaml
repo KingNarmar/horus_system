@@ -17,6 +17,8 @@ dependencies:
   intl: any
 
   cupertino_icons: ^1.0.8
+  flutter_dotenv: ^6.0.1
+  supabase_flutter: ^2.14.1
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +29,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  assets:
+    - .env
