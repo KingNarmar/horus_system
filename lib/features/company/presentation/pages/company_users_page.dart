@@ -168,12 +168,14 @@ class _CompanyUserTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: AppSpacing.xs),
+            Text(user.subtitle),
             Text('Role: ${user.role.label}'),
             Text('Status: $statusText'),
-            Text(
-              'User ID: ${user.userId}',
-              style: textTheme.bodySmall,
-            ),
+            if (user.displayName == null || user.displayName!.trim().isEmpty)
+              Text(
+                'Profile is incomplete. Ask this user to complete their profile.',
+                style: textTheme.bodySmall,
+              ),
           ],
         ),
         trailing: canChangeCompanyUserRole
