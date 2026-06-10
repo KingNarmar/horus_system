@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,9 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _openRegisterPage() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const RegisterPage()),
-    );
+    Navigator.of(context).pushNamed(AppRoutes.register);
   }
 
   @override
