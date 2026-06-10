@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -46,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
+      appBar: AppBar(title: Text(context.l10n.createAccountTitle)),
       body: SafeArea(
         child: ResponsiveLayout(
           mobile: _RegisterLayout(
@@ -108,6 +109,8 @@ class _RegisterLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
@@ -140,13 +143,13 @@ class _RegisterLayout extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Create your H.O.R.U.S account',
+                      l10n.registerTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Full name and phone are required for company user management.',
+                      l10n.registerSubtitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -154,13 +157,13 @@ class _RegisterLayout extends StatelessWidget {
                     TextFormField(
                       controller: fullNameController,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Full name',
-                        prefixIcon: Icon(Icons.person_outline),
+                      decoration: InputDecoration(
+                        labelText: l10n.fullNameLabel,
+                        prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
-                          return 'Full name is required.';
+                          return l10n.fullNameRequired;
                         }
 
                         return null;
@@ -171,13 +174,13 @@ class _RegisterLayout extends StatelessWidget {
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone number',
-                        prefixIcon: Icon(Icons.phone_outlined),
+                      decoration: InputDecoration(
+                        labelText: l10n.phoneNumberLabel,
+                        prefixIcon: const Icon(Icons.phone_outlined),
                       ),
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
-                          return 'Phone number is required.';
+                          return l10n.phoneNumberRequired;
                         }
 
                         return null;
@@ -188,13 +191,13 @@ class _RegisterLayout extends StatelessWidget {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        labelText: l10n.emailLabel,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
-                          return 'Email is required.';
+                          return l10n.emailRequired;
                         }
 
                         return null;
@@ -206,13 +209,13 @@ class _RegisterLayout extends StatelessWidget {
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outline),
+                      decoration: InputDecoration(
+                        labelText: l10n.passwordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
                       ),
                       validator: (value) {
                         if ((value ?? '').length < 6) {
-                          return 'Password must be at least 6 characters.';
+                          return l10n.passwordMinLength;
                         }
 
                         return null;
@@ -227,7 +230,7 @@ class _RegisterLayout extends StatelessWidget {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Create account'),
+                          : Text(l10n.createAccountButton),
                     ),
                   ],
                 ),
@@ -251,6 +254,8 @@ class _EmailConfirmationRequiredView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -264,13 +269,13 @@ class _EmailConfirmationRequiredView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Check your email',
+              l10n.checkYourEmailTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'We sent a confirmation link to $email. Open the email, confirm your account, then return to H.O.R.U.S System and log in.',
+              l10n.emailConfirmationMessage(email),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -278,7 +283,7 @@ class _EmailConfirmationRequiredView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onBackToLogin,
               icon: const Icon(Icons.login_outlined),
-              label: const Text('Back to login'),
+              label: Text(l10n.backToLoginButton),
             ),
           ],
         ),
