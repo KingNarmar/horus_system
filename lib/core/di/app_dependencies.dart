@@ -3,6 +3,7 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
+import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
@@ -37,6 +38,7 @@ abstract final class AppDependencies {
     final authRepository = AuthRepositoryImpl(authRemoteDataSource);
 
     return AuthCubit(
+      registerUseCase: RegisterUseCase(authRepository),
       loginUseCase: LoginUseCase(authRepository),
       logoutUseCase: LogoutUseCase(authRepository),
       getCurrentUserUseCase: GetCurrentUserUseCase(authRepository),
