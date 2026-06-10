@@ -21,8 +21,8 @@ abstract final class AppShellMobileMoreSheet {
             return ListTile(
               selected: index == selectedIndex,
               leading: Icon(index == selectedIndex ? item.selectedIcon : item.icon),
-              title: Text(item.label),
-              subtitle: Text(item.description),
+              title: Text(item.label(context)),
+              subtitle: Text(item.description(context)),
               onTap: () {
                 Navigator.of(context).pop();
                 onSelect(index);
