@@ -1,4 +1,5 @@
 import '../../domain/entities/company_role.dart';
+import '../mappers/company_role_model_mapper.dart';
 import 'company_model.dart';
 
 class CompanyMembershipModel {
@@ -17,7 +18,7 @@ class CompanyMembershipModel {
 
     return CompanyMembershipModel(
       company: CompanyModel.fromMap(companyMap),
-      role: CompanyRoleMapper.fromValue(map['role'] as String?),
+      role: CompanyRoleModelMapper.fromDatabaseValue(map['role'] as String?),
       isActive: map['is_active'] as bool? ?? true,
     );
   }
