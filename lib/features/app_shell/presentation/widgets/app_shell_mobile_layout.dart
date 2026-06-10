@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
 import 'app_shell_content.dart';
@@ -30,12 +32,15 @@ class AppShellMobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(selected.label),
+        title: Text(selected.label(context)),
         actions: [
+          const AppLanguageToggleButton.compact(),
           IconButton(
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
             onPressed: onLogout,
             icon: const Icon(Icons.logout_outlined),
           ),
@@ -56,31 +61,31 @@ class AppShellMobileLayout extends StatelessWidget {
 
           onSelect(primaryIndexes[index]);
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: appShellDestinations[0].label(context),
           ),
           NavigationDestination(
-            icon: Icon(Icons.route_outlined),
-            selectedIcon: Icon(Icons.route),
-            label: 'Trips',
+            icon: const Icon(Icons.route_outlined),
+            selectedIcon: const Icon(Icons.route),
+            label: appShellDestinations[5].label(context),
           ),
           NavigationDestination(
-            icon: Icon(Icons.local_shipping_outlined),
-            selectedIcon: Icon(Icons.local_shipping),
-            label: 'Fleet',
+            icon: const Icon(Icons.local_shipping_outlined),
+            selectedIcon: const Icon(Icons.local_shipping),
+            label: appShellDestinations[3].label(context),
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Reports',
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: appShellDestinations[8].label(context),
           ),
           NavigationDestination(
-            icon: Icon(Icons.apps_outlined),
-            selectedIcon: Icon(Icons.apps),
-            label: 'More',
+            icon: const Icon(Icons.apps_outlined),
+            selectedIcon: const Icon(Icons.apps),
+            label: l10n.appShellMoreLabel,
           ),
         ],
       ),
