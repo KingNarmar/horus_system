@@ -4,6 +4,7 @@ abstract final class AppSizes {
 
   static const double desktopSidebarWidth = 280;
   static const double tabletRailWidth = 80;
+  static const double desktopMinWidth = 720;
 
   static const double mobileMaxContentWidth = 420;
   static const double tabletMaxContentWidth = 620;
