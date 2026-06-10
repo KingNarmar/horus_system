@@ -13,6 +13,31 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this._remoteDataSource);
 
   @override
+  Future<Result<AuthUser>> register({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userModel = await _remoteDataSource.register(
+        fullName: fullName,
+        phone: phone,
+        email: email,
+        password: password,
+      );
+
+      return Success(userModel.toEntity());
+    } on AuthException catch (error) {
+      return FailureResult(
+        AuthFailure(message: error.message, code: error.statusCode),
+      );
+    } catch (error) {
+      return FailureResult(UnexpectedFailure(message: error.toString()));
+    }
+  }
+
+  @override
   Future<Result<AuthUser>> login({
     required String email,
     required String password,
