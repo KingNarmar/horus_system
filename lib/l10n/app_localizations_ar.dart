@@ -107,10 +107,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get companySettingsTitle => 'إعدادات الشركة';
+  String get manageUsers => 'إدارة المستخدمين';
 
   @override
-  String get manageUsers => 'إدارة المستخدمين';
+  String get companySettingsTitle => 'إعدادات الشركة';
 
   @override
   String get noPermissionManageUsers => 'ليس لديك صلاحية لإدارة المستخدمين.';
@@ -278,4 +278,88 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get incompleteProfileMessage =>
       'الملف الشخصي غير مكتمل. اطلب من هذا المستخدم استكمال ملفه الشخصي.';
+
+  @override
+  String get customersTitle => 'العملاء';
+
+  @override
+  String get addCustomerButton => 'إضافة عميل';
+
+  @override
+  String get addCustomerTitle => 'إضافة عميل';
+
+  @override
+  String get editCustomerTitle => 'تعديل عميل';
+
+  @override
+  String get editCustomerButton => 'تعديل';
+
+  @override
+  String get deactivateCustomerButton => 'إيقاف';
+
+  @override
+  String get customerNameLabel => 'اسم العميل';
+
+  @override
+  String get customerNameRequired => 'اسم العميل مطلوب.';
+
+  @override
+  String get contactPersonLabel => 'الشخص المسؤول';
+
+  @override
+  String get taxRegistrationNumberLabel => 'الرقم الضريبي / TRN';
+
+  @override
+  String get addressLabel => 'العنوان';
+
+  @override
+  String get creditLimitLabel => 'حد الائتمان';
+
+  @override
+  String get creditLimitInvalid =>
+      'حد الائتمان يجب أن يكون رقمًا صحيحًا غير سالب.';
+
+  @override
+  String get saveButton => 'حفظ';
+
+  @override
+  String get cancelButton => 'إلغاء';
+
+  @override
+  String get retryButton => 'إعادة المحاولة';
+
+  @override
+  String get noCustomersFound => 'لا يوجد عملاء.';
+
+  @override
+  String get customerNameHeader => 'العميل';
+
+  @override
+  String get contactHeader => 'التواصل';
+
+  @override
+  String get statusHeader => 'الحالة';
+
+  @override
+  String get actionsHeader => 'الإجراءات';
+
+  @override
+  String contactPersonLine(String contactPerson) {
+    return 'المسؤول: $contactPerson';
+  }
+
+  @override
+  String phoneLine(String phone) {
+    return 'الهاتف: $phone';
+  }
+
+  @override
+  String emailLine(String email) {
+    return 'البريد: $email';
+  }
+
+  @override
+  String cityLine(String city) {
+    return 'المدينة: $city';
+  }
 }
