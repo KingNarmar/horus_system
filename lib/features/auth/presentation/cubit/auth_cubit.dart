@@ -4,18 +4,22 @@ import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
+import '../../domain/usecases/register_usecase.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
+  final RegisterUseCase _registerUseCase;
   final LoginUseCase _loginUseCase;
   final LogoutUseCase _logoutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
 
   AuthCubit({
+    required RegisterUseCase registerUseCase,
     required LoginUseCase loginUseCase,
     required LogoutUseCase logoutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
-  })  : _loginUseCase = loginUseCase,
+  })  : _registerUseCase = registerUseCase,
+        _loginUseCase = loginUseCase,
         _logoutUseCase = logoutUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
         super(const AuthInitial());
@@ -34,6 +38,29 @@ class AuthCubit extends Cubit<AuthState> {
 
         emit(AuthAuthenticated(user));
       },
+      failure: (failure) => emit(AuthFailureState(failure)),
+    );
+  }
+
+  Future<void> register({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+  }) async {
+    emit(const AuthLoading());
+
+    final result = await _registerUseCase(
+      RegisterParams(
+        fullName: fullName,
+        phone: phone,
+        email: email,
+        password: password,
+      ),
+    );
+
+    result.when(
+      success: (user) => emit(AuthAuthenticated(user)),
       failure: (failure) => emit(AuthFailureState(failure)),
     );
   }
