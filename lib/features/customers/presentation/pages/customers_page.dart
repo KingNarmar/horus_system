@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../cubit/customers_cubit.dart';
@@ -111,6 +110,8 @@ class _CustomersPageState extends State<CustomersPage> {
 }
 
 class _CustomersStateView extends StatelessWidget {
+  static const double _tableBreakpoint = 760;
+
   final CustomersState state;
   final VoidCallback onRetry;
   final ValueChanged<Customer> onEdit;
@@ -169,25 +170,26 @@ class _CustomersStateView extends StatelessWidget {
       );
     }
 
-    return ResponsiveLayout(
-      mobile: _CustomersCards(
-        customers: currentState.customers,
-        canManageCustomers: currentState.canManageCustomers,
-        onEdit: onEdit,
-        onDeactivate: onDeactivate,
-      ),
-      tablet: _CustomersCards(
-        customers: currentState.customers,
-        canManageCustomers: currentState.canManageCustomers,
-        onEdit: onEdit,
-        onDeactivate: onDeactivate,
-      ),
-      desktop: _CustomersTable(
-        customers: currentState.customers,
-        canManageCustomers: currentState.canManageCustomers,
-        onEdit: onEdit,
-        onDeactivate: onDeactivate,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldUseTable = constraints.maxWidth >= _tableBreakpoint;
+
+        if (shouldUseTable) {
+          return _CustomersTable(
+            customers: currentState.customers,
+            canManageCustomers: currentState.canManageCustomers,
+            onEdit: onEdit,
+            onDeactivate: onDeactivate,
+          );
+        }
+
+        return _CustomersCards(
+          customers: currentState.customers,
+          canManageCustomers: currentState.canManageCustomers,
+          onEdit: onEdit,
+          onDeactivate: onDeactivate,
+        );
+      },
     );
   }
 }
@@ -322,7 +324,8 @@ class _CustomersTable extends StatelessWidget {
               DataColumn(label: Text(l10n.emailLabel)),
               DataColumn(label: Text(l10n.cityLabel)),
               DataColumn(label: Text(l10n.statusHeader)),
-              if (canManageCustomers) DataColumn(label: Text(l10n.actionsHeader)),
+              if (canManageCustomers)
+                DataColumn(label: Text(l10n.actionsHeader)),
             ],
             rows: customers.map((customer) {
               return DataRow(
