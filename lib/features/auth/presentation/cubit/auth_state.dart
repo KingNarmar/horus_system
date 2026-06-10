@@ -19,6 +19,12 @@ class AuthAuthenticated extends AuthState {
   const AuthAuthenticated(this.user);
 }
 
+class AuthEmailConfirmationRequired extends AuthState {
+  final String email;
+
+  const AuthEmailConfirmationRequired(this.email);
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
