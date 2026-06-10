@@ -7,6 +7,7 @@ import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../widgets/company_logout_button.dart';
 
 class CompanyOnboardingPage extends StatefulWidget {
   const CompanyOnboardingPage({super.key});
@@ -121,6 +122,13 @@ class _CompanyOnboardingForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create company'),
+        actions: const [
+          CompanyLogoutButton(),
+          SizedBox(width: AppSpacing.sm),
+        ],
+      ),
       body: SafeArea(
         child: ResponsiveLayout(
           mobile: _CompanyOnboardingFormBody(
