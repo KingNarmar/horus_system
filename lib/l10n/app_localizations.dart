@@ -71,6 +71,7 @@ abstract class AppLocalizations {
   String get noPermissionManageUsers;
   String get switchToArabic;
   String get switchToEnglish;
+  String get adaptiveAccessNotice;
 
   String get roleOwner;
   String get roleAdmin;
