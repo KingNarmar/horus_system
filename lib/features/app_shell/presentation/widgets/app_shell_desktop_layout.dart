@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:horus_system/features/company/domain/entities/company_role.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../models/app_shell_destination.dart';
 import 'app_shell_body.dart';
 import 'app_shell_sidebar_nav.dart';
@@ -27,6 +29,7 @@ class AppShellDesktopLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -47,8 +50,13 @@ class AppShellDesktopLayout extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(contextData.company.name),
-                    Text('Role: ${contextData.role.label}'),
-                    const SizedBox(height: AppSpacing.xl),
+                    Text(l10n.roleWithName(contextData.role.localizedLabel(context))),
+                    const SizedBox(height: AppSpacing.lg),
+                    const Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: AppLanguageToggleButton(),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
                     Expanded(
                       child: AppShellSidebarNav(
                         selectedIndex: selectedIndex,
@@ -58,7 +66,7 @@ class AppShellDesktopLayout extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onLogout,
                       icon: const Icon(Icons.logout_outlined),
-                      label: const Text('Logout'),
+                      label: Text(l10n.logout),
                     ),
                   ],
                 ),
