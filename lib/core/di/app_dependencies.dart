@@ -86,7 +86,6 @@ abstract final class AppDependencies {
     );
     final companyUsersRepository = CompanyUsersRepositoryImpl(
       remoteDataSource: companyUsersRemoteDataSource,
-      currentCompanyProvider: _currentCompanyProvider,
     );
 
     return CompanyUsersCubit(
