@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/context/current_company_provider.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/company_user.dart';
@@ -10,27 +9,31 @@ import '../mappers/company_user_mapper.dart';
 
 class CompanyUsersRepositoryImpl implements CompanyUsersRepository {
   final CompanyUsersRemoteDataSource _remoteDataSource;
-  final CurrentCompanyProvider _currentCompanyProvider;
 
   const CompanyUsersRepositoryImpl({
     required CompanyUsersRemoteDataSource remoteDataSource,
-    required CurrentCompanyProvider currentCompanyProvider,
-  })  : _remoteDataSource = remoteDataSource,
-        _currentCompanyProvider = currentCompanyProvider;
+  }) : _remoteDataSource = remoteDataSource;
 
   @override
-  Future<Result<List<CompanyUser>>> getCompanyUsers() async {
+  Future<Result<List<CompanyUser>>> getCompanyUsers({
+    required String companyId,
+  }) async {
     try {
-      final companyId = _currentCompanyProvider.requireCurrentCompanyId();
+      final normalizedCompanyId = companyId.trim();
+
+      if (normalizedCompanyId.isEmpty) {
+        return const FailureResult(
+          ValidationFailure(message: 'Company id is required.'),
+        );
+      }
+
       final models = await _remoteDataSource.getCompanyUsers(
-        companyId: companyId,
+        companyId: normalizedCompanyId,
       );
 
       return Success(
         models.map((model) => model.toEntity()).toList(),
       );
-    } on MissingCompanyContextException catch (error) {
-      return FailureResult(PermissionFailure(message: error.message));
     } on PostgrestException catch (error) {
       return FailureResult(
         ServerFailure(message: error.message, code: error.code),
