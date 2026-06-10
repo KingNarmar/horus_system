@@ -20,8 +20,9 @@ class GetCompanyUsersUseCase
 
   @override
   Future<Result<List<CompanyUser>>> call(GetCompanyUsersParams params) {
+    final currentCompanyContext = params.currentCompanyContext;
     final canViewUsers = CompanyPermissionPolicy.canViewCompanyUsers(
-      params.currentCompanyContext.role,
+      currentCompanyContext.role,
     );
 
     if (!canViewUsers) {
@@ -32,6 +33,8 @@ class GetCompanyUsersUseCase
       );
     }
 
-    return _repository.getCompanyUsers();
+    return _repository.getCompanyUsers(
+      companyId: currentCompanyContext.companyId,
+    );
   }
 }
