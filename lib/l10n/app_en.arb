@@ -15,5 +15,155 @@
   "architectureBadge": "Clean Architecture by the book • SOLID Principles",
   "@architectureBadge": {
     "description": "Architecture rule badge displayed on the launch page."
+  },
+  "appShellDashboardLabel": "Dashboard",
+  "@appShellDashboardLabel": {
+    "description": "App shell dashboard destination label."
+  },
+  "appShellDashboardDescription": "Live overview for company operations and finance.",
+  "@appShellDashboardDescription": {
+    "description": "App shell dashboard destination description."
+  },
+  "appShellCustomersLabel": "Customers",
+  "@appShellCustomersLabel": {
+    "description": "App shell customers destination label."
+  },
+  "appShellCustomersDescription": "Manage customer master data and account activity.",
+  "@appShellCustomersDescription": {
+    "description": "App shell customers destination description."
+  },
+  "appShellDriversLabel": "Drivers",
+  "@appShellDriversLabel": {
+    "description": "App shell drivers destination label."
+  },
+  "appShellDriversDescription": "Manage drivers, status, and driver actions.",
+  "@appShellDriversDescription": {
+    "description": "App shell drivers destination description."
+  },
+  "appShellFleetLabel": "Fleet",
+  "@appShellFleetLabel": {
+    "description": "App shell fleet destination label."
+  },
+  "appShellFleetDescription": "Manage tractor heads, trailers, and availability.",
+  "@appShellFleetDescription": {
+    "description": "App shell fleet destination description."
+  },
+  "appShellRoutesLabel": "Routes",
+  "@appShellRoutesLabel": {
+    "description": "App shell routes destination label."
+  },
+  "appShellRoutesDescription": "Manage loading points, delivery points, and lanes.",
+  "@appShellRoutesDescription": {
+    "description": "App shell routes destination description."
+  },
+  "appShellTripsLabel": "Trips",
+  "@appShellTripsLabel": {
+    "description": "App shell trips destination label."
+  },
+  "appShellTripsDescription": "Create, track, and update trips.",
+  "@appShellTripsDescription": {
+    "description": "App shell trips destination description."
+  },
+  "appShellExpensesLabel": "Expenses",
+  "@appShellExpensesLabel": {
+    "description": "App shell expenses destination label."
+  },
+  "appShellExpensesDescription": "Track trip costs, fees, and financial movements.",
+  "@appShellExpensesDescription": {
+    "description": "App shell expenses destination description."
+  },
+  "appShellInvoicesLabel": "Invoices",
+  "@appShellInvoicesLabel": {
+    "description": "App shell invoices destination label."
+  },
+  "appShellInvoicesDescription": "Create invoices, register payments, and track balances.",
+  "@appShellInvoicesDescription": {
+    "description": "App shell invoices destination description."
+  },
+  "appShellReportsLabel": "Reports",
+  "@appShellReportsLabel": {
+    "description": "App shell reports destination label."
+  },
+  "appShellReportsDescription": "Review operational and financial reports.",
+  "@appShellReportsDescription": {
+    "description": "App shell reports destination description."
+  },
+  "appShellSettingsLabel": "Settings",
+  "@appShellSettingsLabel": {
+    "description": "App shell settings destination label."
+  },
+  "appShellSettingsDescription": "Manage company settings, users, roles, and access.",
+  "@appShellSettingsDescription": {
+    "description": "App shell settings destination description."
+  },
+  "appShellMoreLabel": "More",
+  "@appShellMoreLabel": {
+    "description": "Mobile bottom navigation label for extra modules."
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout action label and tooltip."
+  },
+  "companyWithName": "Company: {companyName}",
+  "@companyWithName": {
+    "description": "Company name display line.",
+    "placeholders": {
+      "companyName": {
+        "type": "String"
+      }
+    }
+  },
+  "roleWithName": "Role: {roleName}",
+  "@roleWithName": {
+    "description": "User role display line.",
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
+  "companySettingsTitle": "Company settings",
+  "@companySettingsTitle": {
+    "description": "Company settings card title."
+  },
+  "manageUsers": "Manage users",
+  "@manageUsers": {
+    "description": "Button label to open company users management."
+  },
+  "noPermissionManageUsers": "You do not have permission to manage users.",
+  "@noPermissionManageUsers": {
+    "description": "Message shown when the current user cannot manage company users."
+  },
+  "switchToArabic": "Arabic",
+  "@switchToArabic": {
+    "description": "Language toggle label when the next language is Arabic."
+  },
+  "switchToEnglish": "English",
+  "@switchToEnglish": {
+    "description": "Language toggle label when the next language is English."
+  },
+  "roleOwner": "Owner",
+  "@roleOwner": {
+    "description": "Company owner role label."
+  },
+  "roleAdmin": "Admin",
+  "@roleAdmin": {
+    "description": "Company admin role label."
+  },
+  "roleOperations": "Operations",
+  "@roleOperations": {
+    "description": "Company operations role label."
+  },
+  "roleAccountant": "Accountant",
+  "@roleAccountant": {
+    "description": "Company accountant role label."
+  },
+  "roleViewer": "Viewer",
+  "@roleViewer": {
+    "description": "Company viewer role label."
+  },
+  "roleDriver": "Driver",
+  "@roleDriver": {
+    "description": "Company driver role label."
   }
 }
