@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
 import 'core/di/app_dependencies.dart';
+import 'core/localization/app_locale_cubit.dart';
 import 'core/localization/app_localizations_extension.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
@@ -22,6 +23,7 @@ class HorusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<AppLocaleCubit>(create: (_) => AppLocaleCubit()),
         BlocProvider<AuthCubit>(
           create: (_) => AppDependencies.createAuthCubit()..checkCurrentUser(),
         ),
@@ -35,15 +37,19 @@ class HorusApp extends StatelessWidget {
           create: (_) => AppDependencies.createCompanyUsersCubit(),
         ),
       ],
-      child: MaterialApp(
-        onGenerateTitle: (context) => context.l10n.appTitle,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        locale: DevicePreview.locale(context),
-        builder: DevicePreview.appBuilder,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const AuthGate(),
+      child: BlocBuilder<AppLocaleCubit, Locale>(
+        builder: (context, locale) {
+          return MaterialApp(
+            onGenerateTitle: (context) => context.l10n.appTitle,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            locale: locale,
+            builder: DevicePreview.appBuilder,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AuthGate(),
+          );
+        },
       ),
     );
   }
