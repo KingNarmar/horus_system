@@ -11,21 +11,40 @@ import '../widgets/app_shell_tablet_layout.dart';
 
 class AppShellPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
+  final AppShellModule initialModule;
 
-  const AppShellPage({required this.currentCompanyContext, super.key});
+  const AppShellPage({
+    required this.currentCompanyContext,
+    this.initialModule = AppShellModule.dashboard,
+    super.key,
+  });
 
   @override
   State<AppShellPage> createState() => _AppShellPageState();
 }
 
 class _AppShellPageState extends State<AppShellPage> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   AppShellDestination get _selected => appShellDestinations[_selectedIndex];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = _indexForModule(widget.initialModule);
+  }
 
   void _select(int index) => setState(() => _selectedIndex = index);
 
   void _logout() => context.read<AuthCubit>().logout();
+
+  int _indexForModule(AppShellModule module) {
+    final index = appShellDestinations.indexWhere(
+      (destination) => destination.module == module,
+    );
+
+    return index == -1 ? 0 : index;
+  }
 
   @override
   Widget build(BuildContext context) {
