@@ -33,12 +33,12 @@ class AppShellBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      selected.label,
+                      selected.label(context),
                       style: textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(selected.description),
+                    Text(selected.description(context)),
                   ],
                 ),
               ),
