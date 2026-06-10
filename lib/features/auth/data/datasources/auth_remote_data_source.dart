@@ -3,6 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/auth_user_model.dart';
 
 abstract class AuthRemoteDataSource {
+  Future<AuthUserModel> register({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+  });
+
   Future<AuthUserModel> login({
     required String email,
     required String password,
@@ -17,6 +24,37 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final SupabaseClient _client;
 
   const SupabaseAuthRemoteDataSource(this._client);
+
+  @override
+  Future<AuthUserModel> register({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+  }) async {
+    final response = await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'full_name': fullName,
+        'phone': phone,
+      },
+    );
+
+    final user = response.user;
+
+    if (user == null) {
+      throw AuthException('Registration failed. No user returned.');
+    }
+
+    await _upsertUserProfile(
+      userId: user.id,
+      fullName: fullName,
+      phone: phone,
+    );
+
+    return _toModel(user);
+  }
 
   @override
   Future<AuthUserModel> login({
@@ -53,13 +91,31 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     return _toModel(user);
   }
 
+  Future<void> _upsertUserProfile({
+    required String userId,
+    required String fullName,
+    required String phone,
+  }) async {
+    final session = _client.auth.currentSession;
+
+    if (session == null) {
+      return;
+    }
+
+    await _client.from('user_profiles').upsert({
+      'id': userId,
+      'full_name': fullName,
+      'phone': phone,
+    });
+  }
+
   AuthUserModel _toModel(User user) {
     final metadata = user.userMetadata ?? const <String, dynamic>{};
 
     return AuthUserModel(
       id: user.id,
       email: user.email,
-      phone: user.phone,
+      phone: user.phone ?? _readStringMetadata(metadata, 'phone'),
       fullName: _readStringMetadata(metadata, 'full_name') ??
           _readStringMetadata(metadata, 'name'),
       isEmailConfirmed: user.emailConfirmedAt != null,
