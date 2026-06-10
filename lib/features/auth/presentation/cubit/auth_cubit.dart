@@ -60,7 +60,14 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     result.when(
-      success: (user) => emit(AuthAuthenticated(user)),
+      success: (user) {
+        if (!user.isEmailConfirmed) {
+          emit(AuthEmailConfirmationRequired(user.email ?? email));
+          return;
+        }
+
+        emit(AuthAuthenticated(user));
+      },
       failure: (failure) => emit(AuthFailureState(failure)),
     );
   }
