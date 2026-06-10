@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
@@ -121,9 +122,11 @@ class _CompanyOnboardingForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create company'),
+        title: Text(l10n.createCompanyTitle),
         actions: const [
           CompanyLogoutButton(),
           SizedBox(width: AppSpacing.sm),
@@ -201,6 +204,7 @@ class _CompanyOnboardingFormBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Center(
       child: SingleChildScrollView(
@@ -216,7 +220,7 @@ class _CompanyOnboardingFormBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Create your company',
+                  l10n.createCompanyFormTitle,
                   textAlign: TextAlign.center,
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -224,20 +228,20 @@ class _CompanyOnboardingFormBody extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Set up the first company workspace for H.O.R.U.S System.',
+                  l10n.createCompanySubtitle,
                   textAlign: TextAlign.center,
                   style: textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Company name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.companyNameLabel,
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Company name is required.';
+                      return l10n.companyNameRequired;
                     }
 
                     return null;
@@ -246,47 +250,47 @@ class _CompanyOnboardingFormBody extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: businessTypeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Business type',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessTypeLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.emailLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: countryController,
-                  decoration: const InputDecoration(
-                    labelText: 'Country',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.countryLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: cityController,
-                  decoration: const InputDecoration(
-                    labelText: 'City',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.cityLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 FilledButton(
                   onPressed: onSubmit,
-                  child: const Text('Create company'),
+                  child: Text(l10n.createCompanyButton),
                 ),
               ],
             ),
@@ -305,9 +309,10 @@ class _CompanyLoadedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('H.O.R.U.S System')),
+      appBar: AppBar(title: Text(l10n.appTitle)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -315,7 +320,7 @@ class _CompanyLoadedView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Company context loaded',
+                l10n.companyContextLoadedTitle,
                 textAlign: TextAlign.center,
                 style: textTheme.headlineSmall,
               ),
@@ -329,7 +334,7 @@ class _CompanyLoadedView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Next step: current company context and app shell.',
+                l10n.companyContextNextStep,
                 textAlign: TextAlign.center,
                 style: textTheme.bodyMedium,
               ),
