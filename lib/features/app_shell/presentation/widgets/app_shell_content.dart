@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -7,7 +8,6 @@ import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
-import '../../../company/presentation/pages/company_users_page.dart';
 import '../models/app_shell_destination.dart';
 import 'adaptive_access_notice.dart';
 
@@ -148,10 +148,8 @@ class _SettingsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             if (permissions.canViewCompanyUsers)
               FilledButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const CompanyUsersPage(),
-                  ),
+                onPressed: () => Navigator.of(context).pushNamed(
+                  AppRoutes.companyUsers,
                 ),
                 icon: const Icon(Icons.group_outlined),
                 label: Text(l10n.manageUsers),
