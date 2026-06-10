@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class CompanyLogoutButton extends StatelessWidget {
@@ -11,7 +12,7 @@ class CompanyLogoutButton extends StatelessWidget {
     return TextButton.icon(
       onPressed: () => context.read<AuthCubit>().logout(),
       icon: const Icon(Icons.logout_outlined),
-      label: const Text('Logout'),
+      label: Text(context.l10n.logout),
     );
   }
 }
