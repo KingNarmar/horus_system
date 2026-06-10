@@ -105,6 +105,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get switchToEnglish => 'English';
 
   @override
+  String get adaptiveAccessNotice => 'Same modules on every device. The screen layout changes, not the available actions.';
+
+  @override
   String get roleOwner => 'Owner';
 
   @override
