@@ -125,6 +125,13 @@ class _RegisterLayout extends StatelessWidget {
               }
             },
             builder: (context, state) {
+              if (state is AuthEmailConfirmationRequired) {
+                return _EmailConfirmationRequiredView(
+                  email: state.email,
+                  onBackToLogin: () => Navigator.of(context).pop(),
+                );
+              }
+
               final isLoading = state is AuthLoading;
 
               return Form(
@@ -227,6 +234,53 @@ class _RegisterLayout extends StatelessWidget {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmailConfirmationRequiredView extends StatelessWidget {
+  final String email;
+  final VoidCallback onBackToLogin;
+
+  const _EmailConfirmationRequiredView({
+    required this.email,
+    required this.onBackToLogin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(
+              Icons.mark_email_read_outlined,
+              size: 56,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Check your email',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'We sent a confirmation link to $email. Open the email, confirm your account, then return to H.O.R.U.S System and log in.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            FilledButton.icon(
+              onPressed: onBackToLogin,
+              icon: const Icon(Icons.login_outlined),
+              label: const Text('Back to login'),
+            ),
+          ],
         ),
       ),
     );
