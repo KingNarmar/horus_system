@@ -1,169 +1,83 @@
 {
   "@@locale": "ar",
   "appTitle": "نظام حورس",
-  "@appTitle": {
-    "description": "The application title."
-  },
+  "@appTitle": {"description": "The application title."},
   "appSubtitle": "نظام موحّد لإدارة عمليات النقل الثقيل والمسارات",
-  "@appSubtitle": {
-    "description": "The application subtitle."
-  },
+  "@appSubtitle": {"description": "The application subtitle."},
   "launchDescription": "منصة SaaS لإدارة عمليات النقل الثقيل.",
-  "@launchDescription": {
-    "description": "Short description displayed on the launch page."
-  },
+  "@launchDescription": {"description": "Short description displayed on the launch page."},
   "architectureBadge": "Clean Architecture كما قال الكتاب • مبادئ SOLID",
-  "@architectureBadge": {
-    "description": "Architecture rule badge displayed on the launch page."
-  },
+  "@architectureBadge": {"description": "Architecture rule badge displayed on the launch page."},
   "appShellDashboardLabel": "لوحة التحكم",
-  "@appShellDashboardLabel": {
-    "description": "App shell dashboard destination label."
-  },
+  "@appShellDashboardLabel": {"description": "App shell dashboard destination label."},
   "appShellDashboardDescription": "نظرة مباشرة على عمليات الشركة والماليات.",
-  "@appShellDashboardDescription": {
-    "description": "App shell dashboard destination description."
-  },
+  "@appShellDashboardDescription": {"description": "App shell dashboard destination description."},
   "appShellCustomersLabel": "العملاء",
-  "@appShellCustomersLabel": {
-    "description": "App shell customers destination label."
-  },
+  "@appShellCustomersLabel": {"description": "App shell customers destination label."},
   "appShellCustomersDescription": "إدارة بيانات العملاء وحركة الحسابات.",
-  "@appShellCustomersDescription": {
-    "description": "App shell customers destination description."
-  },
+  "@appShellCustomersDescription": {"description": "App shell customers destination description."},
   "appShellDriversLabel": "السائقون",
-  "@appShellDriversLabel": {
-    "description": "App shell drivers destination label."
-  },
+  "@appShellDriversLabel": {"description": "App shell drivers destination label."},
   "appShellDriversDescription": "إدارة السائقين والحالة والإجراءات الخاصة بهم.",
-  "@appShellDriversDescription": {
-    "description": "App shell drivers destination description."
-  },
+  "@appShellDriversDescription": {"description": "App shell drivers destination description."},
   "appShellFleetLabel": "الأسطول",
-  "@appShellFleetLabel": {
-    "description": "App shell fleet destination label."
-  },
+  "@appShellFleetLabel": {"description": "App shell fleet destination label."},
   "appShellFleetDescription": "إدارة رؤوس الجر والمقطورات والتوافر.",
-  "@appShellFleetDescription": {
-    "description": "App shell fleet destination description."
-  },
+  "@appShellFleetDescription": {"description": "App shell fleet destination description."},
   "appShellRoutesLabel": "المسارات",
-  "@appShellRoutesLabel": {
-    "description": "App shell routes destination label."
-  },
+  "@appShellRoutesLabel": {"description": "App shell routes destination label."},
   "appShellRoutesDescription": "إدارة نقاط التحميل والتسليم وخطوط السير.",
-  "@appShellRoutesDescription": {
-    "description": "App shell routes destination description."
-  },
+  "@appShellRoutesDescription": {"description": "App shell routes destination description."},
   "appShellTripsLabel": "الرحلات",
-  "@appShellTripsLabel": {
-    "description": "App shell trips destination label."
-  },
+  "@appShellTripsLabel": {"description": "App shell trips destination label."},
   "appShellTripsDescription": "إنشاء الرحلات ومتابعتها وتحديث حالتها.",
-  "@appShellTripsDescription": {
-    "description": "App shell trips destination description."
-  },
+  "@appShellTripsDescription": {"description": "App shell trips destination description."},
   "appShellExpensesLabel": "المصروفات",
-  "@appShellExpensesLabel": {
-    "description": "App shell expenses destination label."
-  },
+  "@appShellExpensesLabel": {"description": "App shell expenses destination label."},
   "appShellExpensesDescription": "تسجيل تكاليف الرحلات والرسوم والحركات المالية.",
-  "@appShellExpensesDescription": {
-    "description": "App shell expenses destination description."
-  },
+  "@appShellExpensesDescription": {"description": "App shell expenses destination description."},
   "appShellInvoicesLabel": "الفواتير",
-  "@appShellInvoicesLabel": {
-    "description": "App shell invoices destination label."
-  },
+  "@appShellInvoicesLabel": {"description": "App shell invoices destination label."},
   "appShellInvoicesDescription": "إنشاء الفواتير وتسجيل المدفوعات ومتابعة الأرصدة.",
-  "@appShellInvoicesDescription": {
-    "description": "App shell invoices destination description."
-  },
+  "@appShellInvoicesDescription": {"description": "App shell invoices destination description."},
   "appShellReportsLabel": "التقارير",
-  "@appShellReportsLabel": {
-    "description": "App shell reports destination label."
-  },
+  "@appShellReportsLabel": {"description": "App shell reports destination label."},
   "appShellReportsDescription": "مراجعة التقارير التشغيلية والمالية.",
-  "@appShellReportsDescription": {
-    "description": "App shell reports destination description."
-  },
+  "@appShellReportsDescription": {"description": "App shell reports destination description."},
   "appShellSettingsLabel": "الإعدادات",
-  "@appShellSettingsLabel": {
-    "description": "App shell settings destination label."
-  },
+  "@appShellSettingsLabel": {"description": "App shell settings destination label."},
   "appShellSettingsDescription": "إدارة إعدادات الشركة والمستخدمين والأدوار والصلاحيات.",
-  "@appShellSettingsDescription": {
-    "description": "App shell settings destination description."
-  },
+  "@appShellSettingsDescription": {"description": "App shell settings destination description."},
   "appShellMoreLabel": "المزيد",
-  "@appShellMoreLabel": {
-    "description": "Mobile bottom navigation label for extra modules."
-  },
+  "@appShellMoreLabel": {"description": "Mobile bottom navigation label for extra modules."},
   "logout": "تسجيل الخروج",
-  "@logout": {
-    "description": "Logout action label and tooltip."
-  },
+  "@logout": {"description": "Logout action label and tooltip."},
   "companyWithName": "الشركة: {companyName}",
-  "@companyWithName": {
-    "description": "Company name display line.",
-    "placeholders": {
-      "companyName": {
-        "type": "String"
-      }
-    }
-  },
+  "@companyWithName": {"description": "Company name display line.", "placeholders": {"companyName": {"type": "String"}}},
   "roleWithName": "الدور: {roleName}",
-  "@roleWithName": {
-    "description": "User role display line.",
-    "placeholders": {
-      "roleName": {
-        "type": "String"
-      }
-    }
-  },
+  "@roleWithName": {"description": "User role display line.", "placeholders": {"roleName": {"type": "String"}}},
   "companySettingsTitle": "إعدادات الشركة",
-  "@companySettingsTitle": {
-    "description": "Company settings card title."
-  },
+  "@companySettingsTitle": {"description": "Company settings card title."},
   "manageUsers": "إدارة المستخدمين",
-  "@manageUsers": {
-    "description": "Button label to open company users management."
-  },
+  "@manageUsers": {"description": "Button label to open company users management."},
   "noPermissionManageUsers": "ليس لديك صلاحية لإدارة المستخدمين.",
-  "@noPermissionManageUsers": {
-    "description": "Message shown when the current user cannot manage company users."
-  },
+  "@noPermissionManageUsers": {"description": "Message shown when the current user cannot manage company users."},
   "switchToArabic": "العربية",
-  "@switchToArabic": {
-    "description": "Language toggle label when the next language is Arabic."
-  },
+  "@switchToArabic": {"description": "Language toggle label when the next language is Arabic."},
   "switchToEnglish": "English",
-  "@switchToEnglish": {
-    "description": "Language toggle label when the next language is English."
-  },
+  "@switchToEnglish": {"description": "Language toggle label when the next language is English."},
+  "adaptiveAccessNotice": "نفس الموديولات متاحة على كل الأجهزة. الذي يتغير هو شكل الشاشة فقط وليس الإجراءات المتاحة.",
+  "@adaptiveAccessNotice": {"description": "Notice explaining responsive access rule."},
   "roleOwner": "مالك الشركة",
-  "@roleOwner": {
-    "description": "Company owner role label."
-  },
+  "@roleOwner": {"description": "Company owner role label."},
   "roleAdmin": "مدير الشركة",
-  "@roleAdmin": {
-    "description": "Company admin role label."
-  },
+  "@roleAdmin": {"description": "Company admin role label."},
   "roleOperations": "التشغيل",
-  "@roleOperations": {
-    "description": "Company operations role label."
-  },
+  "@roleOperations": {"description": "Company operations role label."},
   "roleAccountant": "المحاسب",
-  "@roleAccountant": {
-    "description": "Company accountant role label."
-  },
+  "@roleAccountant": {"description": "Company accountant role label."},
   "roleViewer": "مشاهد",
-  "@roleViewer": {
-    "description": "Company viewer role label."
-  },
+  "@roleViewer": {"description": "Company viewer role label."},
   "roleDriver": "سائق",
-  "@roleDriver": {
-    "description": "Company driver role label."
-  }
+  "@roleDriver": {"description": "Company driver role label."}
 }
