@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,6 +38,12 @@ class _LoginPageState extends State<LoginPage> {
         );
   }
 
+  void _openRegisterPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const RegisterPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             emailController: _emailController,
             passwordController: _passwordController,
             onSubmit: _submit,
+            onCreateAccount: _openRegisterPage,
           ),
           tablet: _LoginLayout(
             maxWidth: AppSizes.tabletMaxContentWidth,
@@ -57,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
             emailController: _emailController,
             passwordController: _passwordController,
             onSubmit: _submit,
+            onCreateAccount: _openRegisterPage,
           ),
           desktop: _LoginLayout(
             maxWidth: 520,
@@ -65,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             emailController: _emailController,
             passwordController: _passwordController,
             onSubmit: _submit,
+            onCreateAccount: _openRegisterPage,
           ),
         ),
       ),
@@ -79,6 +89,7 @@ class _LoginLayout extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final VoidCallback onSubmit;
+  final VoidCallback onCreateAccount;
 
   const _LoginLayout({
     required this.maxWidth,
@@ -87,6 +98,7 @@ class _LoginLayout extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.onSubmit,
+    required this.onCreateAccount,
   });
 
   @override
@@ -171,6 +183,11 @@ class _LoginLayout extends StatelessWidget {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Login'),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextButton(
+                      onPressed: isLoading ? null : onCreateAccount,
+                      child: const Text('Create a new account'),
                     ),
                   ],
                 ),
