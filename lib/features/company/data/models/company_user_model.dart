@@ -1,4 +1,5 @@
 import '../../domain/entities/company_role.dart';
+import '../mappers/company_role_model_mapper.dart';
 
 class CompanyUserModel {
   final String id;
@@ -29,7 +30,9 @@ class CompanyUserModel {
       userId: companyUserMap['user_id'] as String,
       displayName: userProfileMap?['full_name'] as String?,
       phone: userProfileMap?['phone'] as String?,
-      role: CompanyRoleMapper.fromValue(companyUserMap['role'] as String?),
+      role: CompanyRoleModelMapper.fromDatabaseValue(
+        companyUserMap['role'] as String?,
+      ),
       isActive: companyUserMap['is_active'] as bool? ?? true,
     );
   }
