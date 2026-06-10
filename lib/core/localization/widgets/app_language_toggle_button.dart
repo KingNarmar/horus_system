@@ -17,7 +17,10 @@ class AppLanguageToggleButton extends StatelessWidget {
       builder: (context, locale) {
         final isArabic = locale.languageCode == AppLocaleCubit.arabic.languageCode;
         final label = isArabic ? context.l10n.switchToEnglish : context.l10n.switchToArabic;
-        final onPressed = () => context.read<AppLocaleCubit>().toggleLanguage();
+
+        void onPressed() {
+          context.read<AppLocaleCubit>().toggleLanguage();
+        }
 
         if (!showLabel) {
           return IconButton(
