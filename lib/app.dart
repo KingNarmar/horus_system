@@ -2,6 +2,8 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'app/routing/app_router.dart';
+import 'app/routing/app_routes.dart';
 import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
 import 'core/di/app_dependencies.dart';
@@ -10,7 +12,6 @@ import 'core/localization/app_localizations_extension.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
-import 'features/auth/presentation/pages/auth_gate.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
 import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
@@ -47,7 +48,8 @@ class HorusApp extends StatelessWidget {
             builder: DevicePreview.appBuilder,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const AuthGate(),
+            initialRoute: AppRoutes.root,
+            onGenerateRoute: AppRouter.onGenerateRoute,
           );
         },
       ),
