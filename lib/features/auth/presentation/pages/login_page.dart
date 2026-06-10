@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -103,6 +104,8 @@ class _LoginLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
@@ -128,13 +131,13 @@ class _LoginLayout extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Welcome to H.O.R.U.S System',
+                      l10n.loginWelcomeTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Sign in to continue managing heavy transport operations.',
+                      l10n.loginSubtitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -143,13 +146,13 @@ class _LoginLayout extends StatelessWidget {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        labelText: l10n.emailLabel,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
-                          return 'Email is required.';
+                          return l10n.emailRequired;
                         }
 
                         return null;
@@ -161,13 +164,13 @@ class _LoginLayout extends StatelessWidget {
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outline),
+                      decoration: InputDecoration(
+                        labelText: l10n.passwordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
                       ),
                       validator: (value) {
                         if ((value ?? '').isEmpty) {
-                          return 'Password is required.';
+                          return l10n.passwordRequired;
                         }
 
                         return null;
@@ -182,12 +185,12 @@ class _LoginLayout extends StatelessWidget {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Login'),
+                          : Text(l10n.loginButton),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     TextButton(
                       onPressed: isLoading ? null : onCreateAccount,
-                      child: const Text('Create a new account'),
+                      child: Text(l10n.createNewAccountButton),
                     ),
                   ],
                 ),
