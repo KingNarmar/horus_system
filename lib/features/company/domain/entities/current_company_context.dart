@@ -6,10 +6,7 @@ class CurrentCompanyContext {
   final Company company;
   final CompanyRole role;
 
-  const CurrentCompanyContext({
-    required this.company,
-    required this.role,
-  });
+  const CurrentCompanyContext({required this.company, required this.role});
 
   String get companyId => company.id;
 

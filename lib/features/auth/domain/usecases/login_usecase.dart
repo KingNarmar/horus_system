@@ -8,10 +8,7 @@ class LoginParams {
   final String email;
   final String password;
 
-  const LoginParams({
-    required this.email,
-    required this.password,
-  });
+  const LoginParams({required this.email, required this.password});
 }
 
 class LoginUseCase implements UseCase<AuthUser, LoginParams> {
@@ -40,9 +37,6 @@ class LoginUseCase implements UseCase<AuthUser, LoginParams> {
       );
     }
 
-    return _repository.login(
-      email: email,
-      password: password,
-    );
+    return _repository.login(email: email, password: password);
   }
 }

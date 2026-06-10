@@ -35,10 +35,7 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {
-        'full_name': fullName,
-        'phone': phone,
-      },
+      data: {'full_name': fullName, 'phone': phone},
     );
 
     final user = response.user;
@@ -47,11 +44,7 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
       throw AuthException('Registration failed. No user returned.');
     }
 
-    await _upsertUserProfile(
-      userId: user.id,
-      fullName: fullName,
-      phone: phone,
-    );
+    await _upsertUserProfile(userId: user.id, fullName: fullName, phone: phone);
 
     return _toModel(user);
   }
@@ -116,7 +109,8 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
       id: user.id,
       email: user.email,
       phone: user.phone ?? _readStringMetadata(metadata, 'phone'),
-      fullName: _readStringMetadata(metadata, 'full_name') ??
+      fullName:
+          _readStringMetadata(metadata, 'full_name') ??
           _readStringMetadata(metadata, 'name'),
       isEmailConfirmed: user.emailConfirmedAt != null,
     );

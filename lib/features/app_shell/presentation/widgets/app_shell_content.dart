@@ -148,9 +148,8 @@ class _SettingsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             if (permissions.canViewCompanyUsers)
               FilledButton.icon(
-                onPressed: () => Navigator.of(context).pushNamed(
-                  AppRoutes.companyUsers,
-                ),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.companyUsers),
                 icon: const Icon(Icons.group_outlined),
                 label: Text(l10n.manageUsers),
               )

@@ -47,10 +47,7 @@ class AppShellBody extends StatelessWidget {
         ),
         const Divider(height: 1),
         Expanded(
-          child: AppShellContent(
-            contextData: contextData,
-            selected: selected,
-          ),
+          child: AppShellContent(contextData: contextData, selected: selected),
         ),
       ],
     );

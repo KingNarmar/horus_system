@@ -13,9 +13,6 @@ extension CompanyMembershipModelMapper on CompanyMembershipModel {
   }
 
   CurrentCompanyContext toCurrentCompanyContext() {
-    return CurrentCompanyContext(
-      company: company.toEntity(),
-      role: role,
-    );
+    return CurrentCompanyContext(company: company.toEntity(), role: role);
   }
 }

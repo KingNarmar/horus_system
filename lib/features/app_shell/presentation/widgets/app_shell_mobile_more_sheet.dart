@@ -20,7 +20,9 @@ abstract final class AppShellMobileMoreSheet {
 
             return ListTile(
               selected: index == selectedIndex,
-              leading: Icon(index == selectedIndex ? item.selectedIcon : item.icon),
+              leading: Icon(
+                index == selectedIndex ? item.selectedIcon : item.icon,
+              ),
               title: Text(item.label(context)),
               subtitle: Text(item.description(context)),
               onTap: () {

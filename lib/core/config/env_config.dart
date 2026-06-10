@@ -3,7 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 abstract final class EnvConfig {
   static const String supabaseUrlKey = 'SUPABASE_URL';
   static const String supabasePublishableKeyKey =
-      'SUPABASE_' 'PUBLISHABLE_' 'KEY';
+      'SUPABASE_'
+      'PUBLISHABLE_'
+      'KEY';
 
   static String get supabaseUrl => dotenv.get(supabaseUrlKey);
 

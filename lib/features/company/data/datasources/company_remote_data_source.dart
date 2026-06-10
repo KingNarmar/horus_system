@@ -76,7 +76,9 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   Future<List<CompanyModel>> getMyCompanies() async {
     final response = await _client
         .from('companies')
-        .select('id,name,business_type,phone,email,country,city,logo_url,is_active')
+        .select(
+          'id,name,business_type,phone,email,country,city,logo_url,is_active',
+        )
         .eq('is_active', true)
         .order('created_at');
 

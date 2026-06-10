@@ -14,11 +14,12 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   CurrentCompanyCubit({
     required LoadCurrentCompanyContextUseCase loadCurrentCompanyContextUseCase,
     required SelectCurrentCompanyUseCase selectCurrentCompanyUseCase,
-    required ClearCurrentCompanyContextUseCase clearCurrentCompanyContextUseCase,
-  })  : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
-        _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
-        _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
-        super(const CurrentCompanyInitial());
+    required ClearCurrentCompanyContextUseCase
+    clearCurrentCompanyContextUseCase,
+  }) : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
+       _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
+       _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
+       super(const CurrentCompanyInitial());
 
   Future<void> loadCurrentCompanyContext() async {
     emit(const CurrentCompanyLoading());

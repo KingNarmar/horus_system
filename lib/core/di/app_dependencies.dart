@@ -59,9 +59,7 @@ abstract final class AppDependencies {
 
   static CurrentCompanyCubit createCurrentCompanyCubit() {
     final companyContextRemoteDataSource =
-        SupabaseCompanyContextRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
+        SupabaseCompanyContextRemoteDataSource(SupabaseClientProvider.client);
     final companyContextRepository = CompanyContextRepositoryImpl(
       remoteDataSource: companyContextRemoteDataSource,
       currentCompanyProvider: _currentCompanyProvider,

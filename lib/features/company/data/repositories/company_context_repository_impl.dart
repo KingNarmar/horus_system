@@ -1,4 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show AuthException, PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, PostgrestException;
 
 import '../../../../core/context/current_company_provider.dart';
 import '../../../../core/errors/common_failures.dart';
@@ -17,8 +18,8 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
   CompanyContextRepositoryImpl({
     required CompanyContextRemoteDataSource remoteDataSource,
     required CurrentCompanyProvider currentCompanyProvider,
-  })  : _remoteDataSource = remoteDataSource,
-        _currentCompanyProvider = currentCompanyProvider;
+  }) : _remoteDataSource = remoteDataSource,
+       _currentCompanyProvider = currentCompanyProvider;
 
   @override
   Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async {

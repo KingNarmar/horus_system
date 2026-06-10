@@ -50,7 +50,11 @@ class AppShellDesktopLayout extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(contextData.company.name),
-                    Text(l10n.roleWithName(contextData.role.localizedLabel(context))),
+                    Text(
+                      l10n.roleWithName(
+                        contextData.role.localizedLabel(context),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                     const Align(
                       alignment: AlignmentDirectional.centerStart,
@@ -74,10 +78,7 @@ class AppShellDesktopLayout extends StatelessWidget {
             ),
             const VerticalDivider(width: 1),
             Expanded(
-              child: AppShellBody(
-                contextData: contextData,
-                selected: selected,
-              ),
+              child: AppShellBody(contextData: contextData, selected: selected),
             ),
           ],
         ),

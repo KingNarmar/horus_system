@@ -61,10 +61,7 @@ class AppShellTabletLayout extends StatelessWidget {
             ),
             const VerticalDivider(width: 1),
             Expanded(
-              child: AppShellBody(
-                contextData: contextData,
-                selected: selected,
-              ),
+              child: AppShellBody(contextData: contextData, selected: selected),
             ),
           ],
         ),

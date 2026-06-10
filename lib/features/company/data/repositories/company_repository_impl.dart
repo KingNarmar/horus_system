@@ -1,4 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show AuthException, PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, PostgrestException;
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
@@ -49,7 +50,9 @@ class CompanyRepositoryImpl implements CompanyRepository {
   Future<Result<List<Company>>> getMyCompanies() async {
     try {
       final companyModels = await _remoteDataSource.getMyCompanies();
-      return Success(companyModels.map((company) => company.toEntity()).toList());
+      return Success(
+        companyModels.map((company) => company.toEntity()).toList(),
+      );
     } on AuthException catch (error) {
       return FailureResult(
         AuthFailure(message: error.message, code: error.statusCode),

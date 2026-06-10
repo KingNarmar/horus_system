@@ -79,8 +79,7 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
   Widget build(BuildContext context) {
     return BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
       builder: (context, state) {
-        if (state is CurrentCompanyInitial ||
-            state is CurrentCompanyLoading) {
+        if (state is CurrentCompanyInitial || state is CurrentCompanyLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -99,10 +98,7 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(
-                  state.failure.message,
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(state.failure.message, textAlign: TextAlign.center),
               ),
             ),
           );

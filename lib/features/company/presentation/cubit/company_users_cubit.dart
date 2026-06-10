@@ -8,8 +8,8 @@ class CompanyUsersCubit extends Cubit<CompanyUsersState> {
   final GetCompanyUsersUseCase _getCompanyUsersUseCase;
 
   CompanyUsersCubit({required GetCompanyUsersUseCase getCompanyUsersUseCase})
-      : _getCompanyUsersUseCase = getCompanyUsersUseCase,
-        super(const CompanyUsersInitial());
+    : _getCompanyUsersUseCase = getCompanyUsersUseCase,
+      super(const CompanyUsersInitial());
 
   Future<void> loadCompanyUsers({
     required CurrentCompanyContext currentCompanyContext,

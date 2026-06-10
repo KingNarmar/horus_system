@@ -24,11 +24,11 @@ abstract final class AppRouter {
       AppRoutes.login => const LoginPage(),
       AppRoutes.register => const RegisterPage(),
       AppRoutes.companyOnboarding => const AuthenticatedRouteGuard(
-          child: CompanyOnboardingPage(),
-        ),
+        child: CompanyOnboardingPage(),
+      ),
       AppRoutes.companyUsers => CompanyRequiredRouteGuard(
-          builder: (_) => const CompanyUsersPage(),
-        ),
+        builder: (_) => const CompanyUsersPage(),
+      ),
       _ when AppRoutes.companyRequiredRoutes.contains(routeName) =>
         CompanyRequiredRouteGuard(
           builder: (currentCompanyContext) => AppShellPage(

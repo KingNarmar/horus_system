@@ -17,7 +17,9 @@ class SupabaseCompanyContextRemoteDataSource
     final userId = _client.auth.currentUser?.id;
 
     if (userId == null) {
-      throw AuthException('User must be authenticated to load company context.');
+      throw AuthException(
+        'User must be authenticated to load company context.',
+      );
     }
 
     final response = await _client
@@ -32,9 +34,8 @@ class SupabaseCompanyContextRemoteDataSource
 
     return response
         .map(
-          (item) => CompanyMembershipModel.fromMap(
-            Map<String, dynamic>.from(item),
-          ),
+          (item) =>
+              CompanyMembershipModel.fromMap(Map<String, dynamic>.from(item)),
         )
         .toList();
   }

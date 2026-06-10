@@ -1,11 +1,4 @@
-enum CompanyRole {
-  owner,
-  admin,
-  operations,
-  accountant,
-  viewer,
-  driver,
-}
+enum CompanyRole { owner, admin, operations, accountant, viewer, driver }
 
 extension CompanyRoleX on CompanyRole {
   String get value {

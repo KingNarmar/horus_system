@@ -33,8 +33,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
     if (currentCompanyState is CurrentCompanyLoaded) {
       context.read<CompanyUsersCubit>().loadCompanyUsers(
-            currentCompanyContext: currentCompanyState.context,
-          );
+        currentCompanyContext: currentCompanyState.context,
+      );
     }
   }
 
@@ -77,10 +77,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(
-                  state.failure.message,
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(state.failure.message, textAlign: TextAlign.center),
               ),
             );
           }
@@ -92,8 +89,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
             return _CompanyUsersList(
               users: state.users,
-              canChangeCompanyUserRole:
-                  permissions.canChangeCompanyUserRole,
+              canChangeCompanyUserRole: permissions.canChangeCompanyUserRole,
             );
           }
 
@@ -111,11 +107,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
   }
 
   void _showInvitePlaceholder(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.inviteFlowComingSoon),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.inviteFlowComingSoon)));
   }
 }
 
@@ -176,10 +170,7 @@ class _CompanyUserTile extends StatelessWidget {
             Text(l10n.roleLine(roleLabel)),
             Text(l10n.statusLine(statusText)),
             if (user.displayName == null || user.displayName!.trim().isEmpty)
-              Text(
-                l10n.incompleteProfileMessage,
-                style: textTheme.bodySmall,
-              ),
+              Text(l10n.incompleteProfileMessage, style: textTheme.bodySmall),
           ],
         ),
         trailing: canChangeCompanyUserRole

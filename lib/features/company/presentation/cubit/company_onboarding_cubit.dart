@@ -12,9 +12,9 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
   CompanyOnboardingCubit({
     required CreateCompanyUseCase createCompanyUseCase,
     required GetMyCompaniesUseCase getMyCompaniesUseCase,
-  })  : _createCompanyUseCase = createCompanyUseCase,
-        _getMyCompaniesUseCase = getMyCompaniesUseCase,
-        super(const CompanyOnboardingInitial());
+  }) : _createCompanyUseCase = createCompanyUseCase,
+       _getMyCompaniesUseCase = getMyCompaniesUseCase,
+       super(const CompanyOnboardingInitial());
 
   Future<void> loadMyCompanies() async {
     emit(const CompanyOnboardingLoading());
@@ -62,10 +62,7 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
 
     result.when(
       success: (company) => emit(
-        CompanyOnboardingLoaded(
-          companies: [company],
-          activeCompany: company,
-        ),
+        CompanyOnboardingLoaded(companies: [company], activeCompany: company),
       ),
       failure: (failure) => emit(CompanyOnboardingFailure(failure)),
     );

@@ -3,9 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/company_user_model.dart';
 
 abstract class CompanyUsersRemoteDataSource {
-  Future<List<CompanyUserModel>> getCompanyUsers({
-    required String companyId,
-  });
+  Future<List<CompanyUserModel>> getCompanyUsers({required String companyId});
 }
 
 class SupabaseCompanyUsersRemoteDataSource

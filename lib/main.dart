@@ -13,9 +13,6 @@ Future<void> main() async {
   await SupabaseClientProvider.initialize();
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (_) => const HorusApp(),
-    ),
+    DevicePreview(enabled: !kReleaseMode, builder: (_) => const HorusApp()),
   );
 }

@@ -34,9 +34,9 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     context.read<AuthCubit>().login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
   }
 
   void _openRegisterPage() {
@@ -115,9 +115,9 @@ class _LoginLayout extends StatelessWidget {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthFailureState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.failure.message)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.failure.message)));
               }
             },
             builder: (context, state) {

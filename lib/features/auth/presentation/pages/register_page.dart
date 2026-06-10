@@ -37,11 +37,11 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     context.read<AuthCubit>().register(
-          fullName: _fullNameController.text,
-          phone: _phoneController.text,
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+      fullName: _fullNameController.text,
+      phone: _phoneController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
   }
 
   @override
@@ -122,9 +122,9 @@ class _RegisterLayout extends StatelessWidget {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthFailureState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.failure.message)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.failure.message)));
               }
             },
             builder: (context, state) {

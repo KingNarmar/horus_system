@@ -23,7 +23,9 @@ class AppShellSidebarNav extends StatelessWidget {
           selected: selectedIndex == index,
           leading: Icon(selectedIndex == index ? item.selectedIcon : item.icon),
           title: Text(item.label(context)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           onTap: () => onSelect(index),
         );
       },

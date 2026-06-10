@@ -25,8 +25,7 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
   Widget build(BuildContext context) {
     return BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
       builder: (context, state) {
-        if (state is CurrentCompanyLoading ||
-            state is CurrentCompanyInitial) {
+        if (state is CurrentCompanyLoading || state is CurrentCompanyInitial) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -45,10 +44,7 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(
-                  state.failure.message,
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(state.failure.message, textAlign: TextAlign.center),
               ),
             ),
           );

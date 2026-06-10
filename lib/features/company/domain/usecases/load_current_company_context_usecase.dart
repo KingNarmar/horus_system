@@ -29,7 +29,8 @@ class LoadCurrentCompanyContextUseCase
           failure: (failure) => FailureResult<CurrentCompanyContext?>(failure),
         );
       },
-      failure: (failure) async => FailureResult<CurrentCompanyContext?>(failure),
+      failure: (failure) async =>
+          FailureResult<CurrentCompanyContext?>(failure),
     );
   }
 }

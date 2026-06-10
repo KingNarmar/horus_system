@@ -19,9 +19,7 @@ class GetCompanyPermissionsUseCase
     GetCompanyPermissionsParams params,
   ) async {
     return Success(
-      CompanyPermissionPolicy.permissionsFor(
-        params.currentCompanyContext.role,
-      ),
+      CompanyPermissionPolicy.permissionsFor(params.currentCompanyContext.role),
     );
   }
 }

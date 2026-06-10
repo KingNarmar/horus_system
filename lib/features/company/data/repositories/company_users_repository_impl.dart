@@ -31,9 +31,7 @@ class CompanyUsersRepositoryImpl implements CompanyUsersRepository {
         companyId: normalizedCompanyId,
       );
 
-      return Success(
-        models.map((model) => model.toEntity()).toList(),
-      );
+      return Success(models.map((model) => model.toEntity()).toList());
     } on PostgrestException catch (error) {
       return FailureResult(
         ServerFailure(message: error.message, code: error.code),

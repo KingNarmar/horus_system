@@ -52,9 +52,9 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
         }
 
         if (state is CompanyOnboardingFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.failure.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.failure.message)));
         }
       },
       builder: (context, state) {
@@ -89,13 +89,13 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
     }
 
     context.read<CompanyOnboardingCubit>().createCompany(
-          name: _nameController.text,
-          businessType: _businessTypeController.text,
-          phone: _phoneController.text,
-          email: _emailController.text,
-          country: _countryController.text,
-          city: _cityController.text,
-        );
+      name: _nameController.text,
+      businessType: _businessTypeController.text,
+      phone: _phoneController.text,
+      email: _emailController.text,
+      country: _countryController.text,
+      city: _cityController.text,
+    );
   }
 }
 
