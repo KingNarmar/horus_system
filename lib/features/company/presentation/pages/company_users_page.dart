@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
-import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
 import '../../domain/policies/company_permission_policy.dart';
 import '../cubit/company_users_cubit.dart';
 import '../cubit/company_users_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
+import '../extensions/company_role_localization.dart';
 
 class CompanyUsersPage extends StatefulWidget {
   const CompanyUsersPage({super.key});
@@ -158,7 +158,8 @@ class _CompanyUserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final statusText = user.isActive ? 'Active' : 'Inactive';
-    final roleInitial = user.role.label.substring(0, 1);
+    final roleLabel = user.role.displayLabel;
+    final roleInitial = roleLabel.substring(0, 1);
 
     return Card(
       child: ListTile(
@@ -169,7 +170,7 @@ class _CompanyUserTile extends StatelessWidget {
           children: [
             const SizedBox(height: AppSpacing.xs),
             Text(user.subtitle),
-            Text('Role: ${user.role.label}'),
+            Text('Role: $roleLabel'),
             Text('Status: $statusText'),
             if (user.displayName == null || user.displayName!.trim().isEmpty)
               Text(
