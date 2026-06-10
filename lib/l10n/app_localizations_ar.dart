@@ -105,6 +105,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get switchToEnglish => 'English';
 
   @override
+  String get adaptiveAccessNotice => 'نفس الموديولات متاحة على كل الأجهزة. الذي يتغير هو شكل الشاشة فقط وليس الإجراءات المتاحة.';
+
+  @override
   String get roleOwner => 'مالك الشركة';
 
   @override
