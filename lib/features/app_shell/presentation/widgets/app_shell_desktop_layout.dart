@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';

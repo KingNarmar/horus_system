@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -97,7 +98,9 @@ class _PlaceholderCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Text(
               selected.label,
-              style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(selected.description),
@@ -120,7 +123,9 @@ class _SettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final permissions = CompanyPermissionPolicy.permissionsFor(contextData.role);
+    final permissions = CompanyPermissionPolicy.permissionsFor(
+      contextData.role,
+    );
 
     return Card(
       child: Padding(
@@ -130,7 +135,9 @@ class _SettingsCard extends StatelessWidget {
           children: [
             Text(
               'Company settings',
-              style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text('Company: ${contextData.company.name}'),
@@ -139,7 +146,9 @@ class _SettingsCard extends StatelessWidget {
             if (permissions.canViewCompanyUsers)
               FilledButton.icon(
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const CompanyUsersPage()),
+                  MaterialPageRoute<void>(
+                    builder: (_) => const CompanyUsersPage(),
+                  ),
                 ),
                 icon: const Icon(Icons.group_outlined),
                 label: const Text('Manage users'),
