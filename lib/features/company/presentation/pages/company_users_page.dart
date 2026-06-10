@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_user.dart';
 import '../../domain/policies/company_permission_policy.dart';
 import '../cubit/company_users_cubit.dart';
@@ -39,11 +40,12 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final currentCompanyState = context.watch<CurrentCompanyCubit>().state;
 
     if (currentCompanyState is! CurrentCompanyLoaded) {
-      return const Scaffold(
-        body: Center(child: Text('Current company context is required.')),
+      return Scaffold(
+        body: Center(child: Text(l10n.currentCompanyContextRequired)),
       );
     }
 
@@ -54,13 +56,13 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Company Users'),
+        title: Text(l10n.companyUsersTitle),
         actions: [
           if (permissions.canInviteCompanyUsers)
             TextButton.icon(
               onPressed: () => _showInvitePlaceholder(context),
               icon: const Icon(Icons.person_add_alt_1),
-              label: const Text('Invite'),
+              label: Text(l10n.inviteButton),
             ),
           const SizedBox(width: AppSpacing.sm),
         ],
@@ -85,7 +87,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
           if (state is CompanyUsersLoaded) {
             if (state.users.isEmpty) {
-              return const Center(child: Text('No company users found.'));
+              return Center(child: Text(l10n.noCompanyUsersFound));
             }
 
             return _CompanyUsersList(
@@ -102,7 +104,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           ? FloatingActionButton.extended(
               onPressed: () => _showInvitePlaceholder(context),
               icon: const Icon(Icons.person_add_alt_1),
-              label: const Text('Invite'),
+              label: Text(l10n.inviteButton),
             )
           : null,
     );
@@ -110,8 +112,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
   void _showInvitePlaceholder(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Invite flow will be implemented in a later issue.'),
+      SnackBar(
+        content: Text(context.l10n.inviteFlowComingSoon),
       ),
     );
   }
@@ -157,8 +159,9 @@ class _CompanyUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final statusText = user.isActive ? 'Active' : 'Inactive';
-    final roleLabel = user.role.displayLabel;
+    final l10n = context.l10n;
+    final statusText = user.isActive ? l10n.activeStatus : l10n.inactiveStatus;
+    final roleLabel = user.role.localizedLabel(context);
     final roleInitial = roleLabel.substring(0, 1);
 
     return Card(
@@ -170,11 +173,11 @@ class _CompanyUserTile extends StatelessWidget {
           children: [
             const SizedBox(height: AppSpacing.xs),
             Text(user.subtitle),
-            Text('Role: $roleLabel'),
-            Text('Status: $statusText'),
+            Text(l10n.roleLine(roleLabel)),
+            Text(l10n.statusLine(statusText)),
             if (user.displayName == null || user.displayName!.trim().isEmpty)
               Text(
-                'Profile is incomplete. Ask this user to complete their profile.',
+                l10n.incompleteProfileMessage,
                 style: textTheme.bodySmall,
               ),
           ],
