@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 
 class AdaptiveAccessNotice extends StatelessWidget {
   const AdaptiveAccessNotice({super.key});
@@ -22,7 +23,7 @@ class AdaptiveAccessNotice extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
-                'Same modules on every device. The screen layout changes, not the available actions.',
+                context.l10n.adaptiveAccessNotice,
                 style: TextStyle(color: colorScheme.onPrimaryContainer),
               ),
             ),
