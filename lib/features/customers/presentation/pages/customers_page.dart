@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -111,7 +112,7 @@ class _CustomersPageState extends State<CustomersPage> {
                 if (state is CustomersLoaded && state.canManageCustomers)
                   FilledButton.icon(
                     onPressed: () => _openCustomerForm(),
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(AppIcons.add),
                     label: Text(l10n.addCustomerButton),
                   ),
               ],
@@ -135,8 +136,6 @@ class _CustomersPageState extends State<CustomersPage> {
 }
 
 class _CustomersStateView extends StatelessWidget {
-  static const double _tableBreakpoint = 760;
-
   final CustomersState state;
   final VoidCallback onRetry;
   final ValueChanged<Customer> onViewDetails;
@@ -199,7 +198,7 @@ class _CustomersStateView extends StatelessWidget {
         else
           LayoutBuilder(
             builder: (context, constraints) {
-              final shouldUseTable = constraints.maxWidth >= _tableBreakpoint;
+              final shouldUseTable = constraints.maxWidth >= AppSizes.dataTableBreakpoint;
 
               if (shouldUseTable) {
                 return _CustomersTable(
@@ -248,11 +247,11 @@ class _CustomersFilters extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
+          constraints: const BoxConstraints(maxWidth: AppSizes.searchFieldMaxWidth),
           child: TextField(
             onChanged: onSearchChanged,
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(AppIcons.search),
               hintText: l10n.searchCustomersHint,
               border: const OutlineInputBorder(),
             ),
@@ -274,8 +273,7 @@ class _CustomersFilters extends StatelessWidget {
             ),
           ],
           selected: {statusFilter},
-          onSelectionChanged: (selected) =>
-              onStatusFilterChanged(selected.first),
+          onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
         ),
       ],
     );
@@ -389,25 +387,25 @@ class _CustomerCard extends StatelessWidget {
               children: [
                 OutlinedButton.icon(
                   onPressed: () => onViewDetails(customer),
-                  icon: const Icon(Icons.visibility_outlined),
+                  icon: const Icon(AppIcons.view),
                   label: Text(text.viewDetails),
                 ),
                 if (canManageCustomers) ...[
                   OutlinedButton.icon(
                     onPressed: () => onEdit(customer),
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: const Icon(AppIcons.edit),
                     label: Text(l10n.editCustomerButton),
                   ),
                   if (customer.isActive)
                     OutlinedButton.icon(
                       onPressed: () => onDeactivate(customer),
-                      icon: const Icon(Icons.block_outlined),
+                      icon: const Icon(AppIcons.deactivate),
                       label: Text(l10n.deactivateCustomerButton),
                     )
                   else
                     OutlinedButton.icon(
                       onPressed: () => onReactivate(customer),
-                      icon: const Icon(Icons.check_circle_outline),
+                      icon: const Icon(AppIcons.reactivate),
                       label: Text(l10n.reactivateCustomerButton),
                     ),
                 ],
@@ -467,9 +465,7 @@ class _CustomersTable extends StatelessWidget {
                   DataCell(Text(customer.city ?? '-')),
                   DataCell(
                     Text(
-                      customer.isActive
-                          ? l10n.activeStatus
-                          : l10n.inactiveStatus,
+                      customer.isActive ? l10n.activeStatus : l10n.inactiveStatus,
                     ),
                   ),
                   DataCell(
@@ -479,25 +475,25 @@ class _CustomersTable extends StatelessWidget {
                         IconButton(
                           tooltip: text.viewDetails,
                           onPressed: () => onViewDetails(customer),
-                          icon: const Icon(Icons.visibility_outlined),
+                          icon: const Icon(AppIcons.view),
                         ),
                         if (canManageCustomers) ...[
                           IconButton(
                             tooltip: l10n.editCustomerButton,
                             onPressed: () => onEdit(customer),
-                            icon: const Icon(Icons.edit_outlined),
+                            icon: const Icon(AppIcons.edit),
                           ),
                           if (customer.isActive)
                             IconButton(
                               tooltip: l10n.deactivateCustomerButton,
                               onPressed: () => onDeactivate(customer),
-                              icon: const Icon(Icons.block_outlined),
+                              icon: const Icon(AppIcons.deactivate),
                             )
                           else
                             IconButton(
                               tooltip: l10n.reactivateCustomerButton,
                               onPressed: () => onReactivate(customer),
-                              icon: const Icon(Icons.check_circle_outline),
+                              icon: const Icon(AppIcons.reactivate),
                             ),
                         ],
                       ],
@@ -536,7 +532,7 @@ class _CustomerDetailsDialog extends StatelessWidget {
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 760),
+        constraints: const BoxConstraints(maxWidth: AppSizes.detailsDialogMaxWidth),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -555,7 +551,7 @@ class _CustomerDetailsDialog extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(AppIcons.clear),
                   ),
                 ],
               ),
@@ -629,9 +625,11 @@ class _CustomerDetailsDialog extends StatelessWidget {
                     Row(
                       children: [
                         const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          height: AppSizes.iconSm,
+                          width: AppSizes.iconSm,
+                          child: CircularProgressIndicator(
+                            strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                          ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(text.loadingActivity),
@@ -718,7 +716,7 @@ class _DetailRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 160,
+            width: AppSizes.detailsLabelWidth,
             child: Text(
               label,
               style: const TextStyle(fontWeight: FontWeight.w600),
@@ -753,8 +751,8 @@ class _ActivityTimelineItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 4),
-            child: Icon(Icons.history, size: 18),
+            padding: EdgeInsets.only(top: AppSpacing.xs),
+            child: Icon(AppIcons.auditHistory, size: AppSizes.iconSm),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
