@@ -1,3 +1,5 @@
+import 'driver_status.dart';
+
 class Driver {
   final String id;
   final String companyId;
@@ -7,7 +9,7 @@ class Driver {
   final String? licenseNumber;
   final DateTime? licenseExpiryDate;
   final String? notes;
-  final bool isActive;
+  final DriverStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,12 +17,12 @@ class Driver {
     required this.id,
     required this.companyId,
     required this.fullName,
+    required this.status,
     this.phone,
     this.nationalId,
     this.licenseNumber,
     this.licenseExpiryDate,
     this.notes,
-    this.isActive = true,
     this.createdAt,
     this.updatedAt,
   });
