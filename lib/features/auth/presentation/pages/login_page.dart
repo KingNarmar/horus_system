@@ -116,9 +116,11 @@ class _LoginLayout extends StatelessWidget {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthFailureState) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.failure.message)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.localizedErrorMessage(state.failure.message)),
+                  ),
+                );
               }
             },
             builder: (context, state) {
