@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -24,8 +26,6 @@ class DriversPage extends StatefulWidget {
 }
 
 class _DriversPageState extends State<DriversPage> {
-  static const double _tableBreakpoint = 760;
-
   @override
   void initState() {
     super.initState();
@@ -91,7 +91,7 @@ class _DriversPageState extends State<DriversPage> {
               children: [
                 Expanded(child: Text(l10n.driversTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
                 if (state is DriversLoaded && state.canManageDrivers)
-                  FilledButton.icon(onPressed: () => _openForm(), icon: const Icon(Icons.add), label: Text(l10n.addDriverButton)),
+                  FilledButton.icon(onPressed: () => _openForm(), icon: const Icon(AppIcons.add), label: Text(l10n.addDriverButton)),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -113,7 +113,7 @@ class _DriversPageState extends State<DriversPage> {
               else
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    if (constraints.maxWidth >= _tableBreakpoint) {
+                    if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
                       return DriversTable(
                         drivers: state.drivers,
                         canManageDrivers: state.canManageDrivers,
@@ -157,10 +157,10 @@ class _Filters extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
+          constraints: const BoxConstraints(maxWidth: AppSizes.searchFieldMaxWidth),
           child: TextField(
             onChanged: onSearchChanged,
-            decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: l10n.searchDriversHint, border: const OutlineInputBorder()),
+            decoration: InputDecoration(prefixIcon: const Icon(AppIcons.search), hintText: l10n.searchDriversHint, border: const OutlineInputBorder()),
           ),
         ),
         SegmentedButton<DriverStatusFilter>(
