@@ -298,6 +298,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deactivateCustomerButton => 'إيقاف';
 
   @override
+  String get reactivateCustomerButton => 'إعادة تفعيل';
+
+  @override
+  String get searchCustomersHint =>
+      'ابحث في العملاء بالاسم أو المسؤول أو الهاتف أو البريد أو المدينة أو الدولة أو الرقم الضريبي';
+
+  @override
+  String get customersStatusAllFilter => 'الكل';
+
+  @override
+  String get customersStatusActiveFilter => 'النشط';
+
+  @override
+  String get customersStatusInactiveFilter => 'غير النشط';
+
+  @override
   String get customerNameLabel => 'اسم العميل';
 
   @override
@@ -330,6 +346,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noCustomersFound => 'لا يوجد عملاء.';
+
+  @override
+  String get noCustomersMatchFilters =>
+      'لا يوجد عملاء مطابقون للبحث أو فلتر الحالة الحالي.';
 
   @override
   String get customerNameHeader => 'العميل';

@@ -303,6 +303,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deactivateCustomerButton => 'Deactivate';
 
   @override
+  String get reactivateCustomerButton => 'Reactivate';
+
+  @override
+  String get searchCustomersHint =>
+      'Search customers by name, contact, phone, email, city, country, or TRN';
+
+  @override
+  String get customersStatusAllFilter => 'All';
+
+  @override
+  String get customersStatusActiveFilter => 'Active';
+
+  @override
+  String get customersStatusInactiveFilter => 'Inactive';
+
+  @override
   String get customerNameLabel => 'Customer name';
 
   @override
@@ -335,6 +351,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noCustomersFound => 'No customers found.';
+
+  @override
+  String get noCustomersMatchFilters =>
+      'No customers match the current search or status filter.';
 
   @override
   String get customerNameHeader => 'Customer';

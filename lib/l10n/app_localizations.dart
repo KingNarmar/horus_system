@@ -626,6 +626,36 @@ abstract class AppLocalizations {
   /// **'Deactivate'**
   String get deactivateCustomerButton;
 
+  /// No description provided for @reactivateCustomerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivateCustomerButton;
+
+  /// No description provided for @searchCustomersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customers by name, contact, phone, email, city, country, or TRN'**
+  String get searchCustomersHint;
+
+  /// No description provided for @customersStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get customersStatusAllFilter;
+
+  /// No description provided for @customersStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get customersStatusActiveFilter;
+
+  /// No description provided for @customersStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get customersStatusInactiveFilter;
+
   /// No description provided for @customerNameLabel.
   ///
   /// In en, this message translates to:
@@ -691,6 +721,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No customers found.'**
   String get noCustomersFound;
+
+  /// No description provided for @noCustomersMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers match the current search or status filter.'**
+  String get noCustomersMatchFilters;
 
   /// No description provided for @customerNameHeader.
   ///
