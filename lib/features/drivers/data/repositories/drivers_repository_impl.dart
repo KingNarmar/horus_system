@@ -35,25 +35,20 @@ class DriversRepositoryImpl implements DriversRepository {
         );
       }
 
-      final models = await remoteDataSource.getDrivers(
-        companyId: normalizedCompanyId,
-      );
+      final models = await remoteDataSource.getDrivers(companyId: normalizedCompanyId);
       return Success(models.map((model) => model.toEntity()).toList());
     });
   }
 
   @override
-  Future<Result<Driver>> addDriver({
-    required DriverWriteData data,
-    required String actorRole,
-  }) {
+  Future<Result<Driver>> addDriver({required DriverWriteData data, required String actorRole}) {
     return _guard(() async {
       final model = await remoteDataSource.addDriver(data: data);
       return _withAudit(
         model: model,
         actorRole: actorRole,
         action: AuditAction.created,
-        description: 'Driver created: ${model.fullName}',
+        description: 'driver_created',
       );
     });
   }
@@ -65,50 +60,38 @@ class DriversRepositoryImpl implements DriversRepository {
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getDriverById(
-        companyId: data.companyId,
-        driverId: driverId,
-      );
-      final model = await remoteDataSource.updateDriver(
-        driverId: driverId,
-        data: data,
-      );
+      final oldModel = await remoteDataSource.getDriverById(companyId: data.companyId, driverId: driverId);
+      final model = await remoteDataSource.updateDriver(driverId: driverId, data: data);
       return _withAudit(
         model: model,
         actorRole: actorRole,
         action: AuditAction.updated,
-        description: 'Driver updated: ${model.fullName}',
+        description: 'driver_updated',
         oldValues: oldModel.toAuditValues(),
       );
     });
   }
 
   @override
-  Future<Result<Driver>> deactivateDriver({
-    required String companyId,
-    required String driverId,
-    required String actorRole,
-  }) {
+  Future<Result<Driver>> deactivateDriver({required String companyId, required String driverId, required String actorRole}) {
     return _changeStatus(
       companyId: companyId,
       driverId: driverId,
       actorRole: actorRole,
       action: AuditAction.deactivated,
+      description: 'driver_deactivated',
       mutate: remoteDataSource.deactivateDriver,
     );
   }
 
   @override
-  Future<Result<Driver>> reactivateDriver({
-    required String companyId,
-    required String driverId,
-    required String actorRole,
-  }) {
+  Future<Result<Driver>> reactivateDriver({required String companyId, required String driverId, required String actorRole}) {
     return _changeStatus(
       companyId: companyId,
       driverId: driverId,
       actorRole: actorRole,
       action: AuditAction.reactivated,
+      description: 'driver_reactivated',
       mutate: remoteDataSource.reactivateDriver,
     );
   }
@@ -118,23 +101,17 @@ class DriversRepositoryImpl implements DriversRepository {
     required String driverId,
     required String actorRole,
     required AuditAction action,
-    required Future<DriverModel> Function({
-      required String companyId,
-      required String driverId,
-    }) mutate,
+    required String description,
+    required Future<DriverModel> Function({required String companyId, required String driverId}) mutate,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getDriverById(
-        companyId: companyId,
-        driverId: driverId,
-      );
+      final oldModel = await remoteDataSource.getDriverById(companyId: companyId, driverId: driverId);
       final model = await mutate(companyId: companyId, driverId: driverId);
-      final actionText = action.value.replaceAll('_', ' ');
       return _withAudit(
         model: model,
         actorRole: actorRole,
         action: action,
-        description: 'Driver $actionText: ${model.fullName}',
+        description: description,
         oldValues: oldModel.toAuditValues(),
       );
     });
@@ -195,9 +172,7 @@ class DriversRepositoryImpl implements DriversRepository {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
-      );
+      return FailureResult(ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message));
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
     }
