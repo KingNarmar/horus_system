@@ -25,6 +25,9 @@ extension DriversLocalizationsX on AppLocalizations {
   String get nationalIdLabel => _isArabic ? 'الرقم القومي' : 'National ID';
   String get licenseNumberLabel => _isArabic ? 'رقم الرخصة' : 'License number';
   String get licenseExpiryDateLabel => _isArabic ? 'تاريخ انتهاء الرخصة' : 'License expiry date';
+  String get licenseExpiryDateMustBeFuture => _isArabic
+      ? 'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.'
+      : 'License expiry date must be today or a future date.';
   String get notesLabel => _isArabic ? 'ملاحظات' : 'Notes';
   String get saveButton => _isArabic ? 'حفظ' : 'Save';
   String get basicInfo => _isArabic ? 'البيانات الأساسية' : 'Basic information';
