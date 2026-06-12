@@ -39,7 +39,6 @@ class _CustomersPageState extends State<CustomersPage> {
         customer: customer,
         onSubmit: (data) {
           final cubit = context.read<CustomersCubit>();
-
           if (customer == null) {
             return cubit.addCustomer(
               name: data.name,
@@ -53,7 +52,6 @@ class _CustomersPageState extends State<CustomersPage> {
               creditLimit: data.creditLimit,
             );
           }
-
           return cubit.updateCustomer(
             customer: customer,
             name: data.name,
@@ -74,7 +72,6 @@ class _CustomersPageState extends State<CustomersPage> {
   Future<void> _openCustomerDetails(Customer customer) async {
     final cubit = context.read<CustomersCubit>();
     cubit.loadCustomerActivity(customer);
-
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<CustomersCubit, CustomersState>(
@@ -86,18 +83,15 @@ class _CustomersPageState extends State<CustomersPage> {
         },
       ),
     );
-
     cubit.clearCustomerActivity();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
     return BlocBuilder<CustomersCubit, CustomersState>(
       builder: (context, state) {
         final cubit = context.read<CustomersCubit>();
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -173,7 +167,10 @@ class _CustomersStateView extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             children: [
-              Text(currentState.failure.message, textAlign: TextAlign.center),
+              Text(
+                l10n.localizedErrorMessage(currentState.failure.message),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: AppSpacing.md),
               OutlinedButton(onPressed: onRetry, child: Text(l10n.retryButton)),
             ],
@@ -200,9 +197,7 @@ class _CustomersStateView extends StatelessWidget {
         else
           LayoutBuilder(
             builder: (context, constraints) {
-              final shouldUseTable = constraints.maxWidth >= AppSizes.dataTableBreakpoint;
-
-              if (shouldUseTable) {
+              if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
                 return _CustomersTable(
                   customers: currentState.customers,
                   canManageCustomers: currentState.canManageCustomers,
@@ -212,7 +207,6 @@ class _CustomersStateView extends StatelessWidget {
                   onReactivate: onReactivate,
                 );
               }
-
               return _CustomersCards(
                 customers: currentState.customers,
                 canManageCustomers: currentState.canManageCustomers,
@@ -242,7 +236,6 @@ class _CustomersFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
     return Wrap(
       spacing: AppSpacing.md,
       runSpacing: AppSpacing.md,
@@ -261,18 +254,9 @@ class _CustomersFilters extends StatelessWidget {
         ),
         SegmentedButton<CustomerStatusFilter>(
           segments: [
-            ButtonSegment(
-              value: CustomerStatusFilter.all,
-              label: Text(l10n.customersStatusAllFilter),
-            ),
-            ButtonSegment(
-              value: CustomerStatusFilter.active,
-              label: Text(l10n.customersStatusActiveFilter),
-            ),
-            ButtonSegment(
-              value: CustomerStatusFilter.inactive,
-              label: Text(l10n.customersStatusInactiveFilter),
-            ),
+            ButtonSegment(value: CustomerStatusFilter.all, label: Text(l10n.customersStatusAllFilter)),
+            ButtonSegment(value: CustomerStatusFilter.active, label: Text(l10n.customersStatusActiveFilter)),
+            ButtonSegment(value: CustomerStatusFilter.inactive, label: Text(l10n.customersStatusInactiveFilter)),
           ],
           selected: {statusFilter},
           onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
@@ -357,7 +341,6 @@ class _CustomerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -371,16 +354,11 @@ class _CustomerCard extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            if (customer.contactPerson != null)
-              Text(l10n.contactPersonLine(customer.contactPerson!)),
+            if (customer.contactPerson != null) Text(l10n.contactPersonLine(customer.contactPerson!)),
             if (customer.phone != null) Text(l10n.phoneLine(customer.phone!)),
             if (customer.email != null) Text(l10n.emailLine(customer.email!)),
             if (customer.city != null) Text(l10n.cityLine(customer.city!)),
-            Text(
-              l10n.statusLine(
-                customer.isActive ? l10n.activeStatus : l10n.inactiveStatus,
-              ),
-            ),
+            Text(l10n.statusLine(customer.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
             const SizedBox(height: AppSpacing.md),
             Wrap(
               spacing: AppSpacing.sm,
@@ -439,7 +417,6 @@ class _CustomersTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
     return Card(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -456,51 +433,43 @@ class _CustomersTable extends StatelessWidget {
               DataColumn(label: Text(l10n.actionsHeader)),
             ],
             rows: customers.map((customer) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(customer.name)),
-                  DataCell(Text(customer.contactPerson ?? '-')),
-                  DataCell(Text(customer.phone ?? '-')),
-                  DataCell(Text(customer.email ?? '-')),
-                  DataCell(Text(customer.city ?? '-')),
-                  DataCell(
-                    Text(
-                      customer.isActive ? l10n.activeStatus : l10n.inactiveStatus,
+              return DataRow(cells: [
+                DataCell(Text(customer.name)),
+                DataCell(Text(customer.contactPerson ?? '-')),
+                DataCell(Text(customer.phone ?? '-')),
+                DataCell(Text(customer.email ?? '-')),
+                DataCell(Text(customer.city ?? '-')),
+                DataCell(Text(customer.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
+                DataCell(Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: l10n.customerViewDetails,
+                      onPressed: () => onViewDetails(customer),
+                      icon: const Icon(AppIcons.view),
                     ),
-                  ),
-                  DataCell(
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                    if (canManageCustomers) ...[
+                      IconButton(
+                        tooltip: l10n.editCustomerButton,
+                        onPressed: () => onEdit(customer),
+                        icon: const Icon(AppIcons.edit),
+                      ),
+                      if (customer.isActive)
                         IconButton(
-                          tooltip: l10n.customerViewDetails,
-                          onPressed: () => onViewDetails(customer),
-                          icon: const Icon(AppIcons.view),
+                          tooltip: l10n.deactivateCustomerButton,
+                          onPressed: () => onDeactivate(customer),
+                          icon: const Icon(AppIcons.deactivate),
+                        )
+                      else
+                        IconButton(
+                          tooltip: l10n.reactivateCustomerButton,
+                          onPressed: () => onReactivate(customer),
+                          icon: const Icon(AppIcons.reactivate),
                         ),
-                        if (canManageCustomers) ...[
-                          IconButton(
-                            tooltip: l10n.editCustomerButton,
-                            onPressed: () => onEdit(customer),
-                            icon: const Icon(AppIcons.edit),
-                          ),
-                          if (customer.isActive)
-                            IconButton(
-                              tooltip: l10n.deactivateCustomerButton,
-                              onPressed: () => onDeactivate(customer),
-                              icon: const Icon(AppIcons.deactivate),
-                            )
-                          else
-                            IconButton(
-                              tooltip: l10n.reactivateCustomerButton,
-                              onPressed: () => onReactivate(customer),
-                              icon: const Icon(AppIcons.reactivate),
-                            ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              );
+                    ],
+                  ],
+                )),
+              ]);
             }).toList(),
           ),
         ),
@@ -518,14 +487,9 @@ class _CustomerDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final activity = state?.selectedCustomer?.id == customer.id
-        ? state!.selectedCustomerActivity
-        : const <AuditLog>[];
-    final isLoading = state?.selectedCustomer?.id == customer.id &&
-        (state?.isActivityLoading ?? false);
-    final failure = state?.selectedCustomer?.id == customer.id
-        ? state?.activityFailure
-        : null;
+    final activity = state?.selectedCustomer?.id == customer.id ? state!.selectedCustomerActivity : const <AuditLog>[];
+    final isLoading = state?.selectedCustomer?.id == customer.id && (state?.isActivityLoading ?? false);
+    final failure = state?.selectedCustomer?.id == customer.id ? state?.activityFailure : null;
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
@@ -559,61 +523,27 @@ class _CustomerDetailsDialog extends StatelessWidget {
                 title: l10n.customerBasicInfo,
                 children: [
                   _DetailRow(label: l10n.customerNameLabel, value: customer.name),
-                  _DetailRow(
-                    label: l10n.contactPersonLabel,
-                    value: _optional(customer.contactPerson, l10n),
-                  ),
+                  _DetailRow(label: l10n.contactPersonLabel, value: _optional(customer.contactPerson, l10n)),
                   _DetailRow(label: l10n.phoneLabel, value: _optional(customer.phone, l10n)),
                   _DetailRow(label: l10n.emailLabel, value: _optional(customer.email, l10n)),
                   _DetailRow(label: l10n.addressLabel, value: _optional(customer.address, l10n)),
                   _DetailRow(label: l10n.cityLabel, value: _optional(customer.city, l10n)),
                   _DetailRow(label: l10n.countryLabel, value: _optional(customer.country, l10n)),
-                  _DetailRow(
-                    label: l10n.taxRegistrationNumberLabel,
-                    value: _optional(customer.taxRegistrationNumber, l10n),
-                  ),
-                  _DetailRow(
-                    label: l10n.creditLimitLabel,
-                    value: customer.creditLimit?.toStringAsFixed(2) ?? l10n.customerEmptyValue,
-                  ),
-                  _DetailRow(
-                    label: l10n.statusHeader,
-                    value: customer.isActive ? l10n.activeStatus : l10n.inactiveStatus,
-                  ),
+                  _DetailRow(label: l10n.taxRegistrationNumberLabel, value: _optional(customer.taxRegistrationNumber, l10n)),
+                  _DetailRow(label: l10n.creditLimitLabel, value: customer.creditLimit?.toStringAsFixed(2) ?? l10n.customerEmptyValue),
+                  _DetailRow(label: l10n.statusHeader, value: customer.isActive ? l10n.activeStatus : l10n.inactiveStatus),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               _DetailsSection(
                 title: l10n.customerAccountability,
                 children: [
-                  _DetailRow(
-                    label: l10n.customerCreatedBy,
-                    value: _actorName(createdLog, l10n),
-                  ),
-                  _DetailRow(
-                    label: l10n.customerCreatedRole,
-                    value: l10n.customerAuditRoleLabel(createdLog?.actorRole),
-                  ),
-                  _DetailRow(
-                    label: l10n.customerCreatedAt,
-                    value: createdLog == null
-                        ? l10n.customerNotAvailable
-                        : _formatDateTime(context, createdLog.createdAt),
-                  ),
-                  _DetailRow(
-                    label: l10n.customerLastActivityBy,
-                    value: _actorName(latestLog, l10n),
-                  ),
-                  _DetailRow(
-                    label: l10n.customerLastActivityRole,
-                    value: l10n.customerAuditRoleLabel(latestLog?.actorRole),
-                  ),
-                  _DetailRow(
-                    label: l10n.customerLastActivityAt,
-                    value: latestLog == null
-                        ? l10n.customerNotAvailable
-                        : _formatDateTime(context, latestLog.createdAt),
-                  ),
+                  _DetailRow(label: l10n.customerCreatedBy, value: _actorName(createdLog, l10n)),
+                  _DetailRow(label: l10n.customerCreatedRole, value: l10n.customerAuditRoleLabel(createdLog?.actorRole)),
+                  _DetailRow(label: l10n.customerCreatedAt, value: createdLog == null ? l10n.customerNotAvailable : _formatDateTime(context, createdLog.createdAt)),
+                  _DetailRow(label: l10n.customerLastActivityBy, value: _actorName(latestLog, l10n)),
+                  _DetailRow(label: l10n.customerLastActivityRole, value: l10n.customerAuditRoleLabel(latestLog?.actorRole)),
+                  _DetailRow(label: l10n.customerLastActivityAt, value: latestLog == null ? l10n.customerNotAvailable : _formatDateTime(context, latestLog.createdAt)),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -626,16 +556,14 @@ class _CustomerDetailsDialog extends StatelessWidget {
                         const SizedBox(
                           height: AppSizes.iconSm,
                           width: AppSizes.iconSm,
-                          child: CircularProgressIndicator(
-                            strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: AppSizes.loadingIndicatorStrokeWidth),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(l10n.customerLoadingActivity),
                       ],
                     )
                   else if (failure != null)
-                    Text(failure.message)
+                    Text(l10n.localizedErrorMessage(failure.message))
                   else if (activity.isEmpty)
                     Text(l10n.customerNoActivityFound)
                   else
@@ -714,10 +642,7 @@ class _DetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: AppSizes.detailsLabelWidth,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
           Expanded(child: Text(value)),
         ],
@@ -737,9 +662,7 @@ class _ActivityTimelineItem extends StatelessWidget {
     final changes = _buildChanges(log, l10n);
     final actorName = log.actorDisplayName?.trim().isNotEmpty == true
         ? log.actorDisplayName!.trim()
-        : (log.actorEmail?.trim().isNotEmpty == true
-            ? log.actorEmail!.trim()
-            : l10n.customerUnknownUser);
+        : (log.actorEmail?.trim().isNotEmpty == true ? log.actorEmail!.trim() : l10n.customerUnknownUser);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -759,21 +682,12 @@ class _ActivityTimelineItem extends StatelessWidget {
                   l10n.customerAuditActionLabel(log.action.value),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                Text(
-                  '$actorName • ${l10n.customerAuditRoleLabel(log.actorRole)} • ${_formatDateTime(context, log.createdAt)}',
-                ),
+                Text('$actorName • ${l10n.customerAuditRoleLabel(log.actorRole)} • ${_formatDateTime(context, log.createdAt)}'),
                 if (changes.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    l10n.customerChanges,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
+                  Text(l10n.customerChanges, style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: AppSpacing.xs),
-                  ...changes.map(
-                    (change) => Text(
-                      '${change.label}: ${change.oldValue} → ${change.newValue}',
-                    ),
-                  ),
+                  ...changes.map((change) => Text('${change.label}: ${change.oldValue} → ${change.newValue}')),
                 ],
               ],
             ),
@@ -806,7 +720,6 @@ class _ActivityTimelineItem extends StatelessWidget {
       final oldValue = oldValues[key];
       final newValue = newValues[key];
       if (_valuesEqual(oldValue, newValue)) continue;
-
       changes.add(
         _AuditChange(
           label: l10n.customerAuditFieldLabel(key),
