@@ -105,7 +105,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                       children: [
                         if (_licenseExpiryController.text.isNotEmpty)
                           IconButton(
-                            tooltip: l10n.clearButton,
+                            tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                             icon: const Icon(Icons.close),
                             onPressed: _isSubmitting ? null : _clearLicenseExpiryDate,
                           ),
