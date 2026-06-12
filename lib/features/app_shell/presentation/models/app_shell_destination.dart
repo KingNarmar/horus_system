@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 
 enum AppShellModule {
@@ -60,52 +61,52 @@ class AppShellDestination {
 const List<AppShellDestination> appShellDestinations = [
   AppShellDestination(
     module: AppShellModule.dashboard,
-    icon: Icons.dashboard_outlined,
-    selectedIcon: Icons.dashboard,
+    icon: AppIcons.dashboard,
+    selectedIcon: AppIcons.dashboardSelected,
   ),
   AppShellDestination(
     module: AppShellModule.customers,
-    icon: Icons.apartment_outlined,
-    selectedIcon: Icons.apartment,
+    icon: AppIcons.customers,
+    selectedIcon: AppIcons.customersSelected,
   ),
   AppShellDestination(
     module: AppShellModule.drivers,
-    icon: Icons.badge_outlined,
-    selectedIcon: Icons.badge,
+    icon: AppIcons.drivers,
+    selectedIcon: AppIcons.driversSelected,
   ),
   AppShellDestination(
     module: AppShellModule.fleet,
-    icon: Icons.local_shipping_outlined,
-    selectedIcon: Icons.local_shipping,
+    icon: AppIcons.fleet,
+    selectedIcon: AppIcons.fleetSelected,
   ),
   AppShellDestination(
     module: AppShellModule.routes,
-    icon: Icons.alt_route_outlined,
-    selectedIcon: Icons.alt_route,
+    icon: AppIcons.routes,
+    selectedIcon: AppIcons.routesSelected,
   ),
   AppShellDestination(
     module: AppShellModule.trips,
-    icon: Icons.route_outlined,
-    selectedIcon: Icons.route,
+    icon: AppIcons.trips,
+    selectedIcon: AppIcons.tripsSelected,
   ),
   AppShellDestination(
     module: AppShellModule.expenses,
-    icon: Icons.receipt_long_outlined,
-    selectedIcon: Icons.receipt_long,
+    icon: AppIcons.expenses,
+    selectedIcon: AppIcons.expensesSelected,
   ),
   AppShellDestination(
     module: AppShellModule.invoices,
-    icon: Icons.request_quote_outlined,
-    selectedIcon: Icons.request_quote,
+    icon: AppIcons.invoices,
+    selectedIcon: AppIcons.invoicesSelected,
   ),
   AppShellDestination(
     module: AppShellModule.reports,
-    icon: Icons.bar_chart_outlined,
-    selectedIcon: Icons.bar_chart,
+    icon: AppIcons.reports,
+    selectedIcon: AppIcons.reportsSelected,
   ),
   AppShellDestination(
     module: AppShellModule.settings,
-    icon: Icons.settings_outlined,
-    selectedIcon: Icons.settings,
+    icon: AppIcons.settings,
+    selectedIcon: AppIcons.settingsSelected,
   ),
 ];
