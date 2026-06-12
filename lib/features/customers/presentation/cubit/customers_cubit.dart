@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_module.dart';
+import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_status_filter.dart';
@@ -17,6 +20,7 @@ class CustomersCubit extends Cubit<CustomersState> {
   final UpdateCustomerUseCase updateCustomerUseCase;
   final DeactivateCustomerUseCase deactivateCustomerUseCase;
   final ReactivateCustomerUseCase reactivateCustomerUseCase;
+  final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -26,6 +30,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     required this.updateCustomerUseCase,
     required this.deactivateCustomerUseCase,
     required this.reactivateCustomerUseCase,
+    required this.getEntityAuditLogsUseCase,
   }) : super(const CustomersInitial());
 
   Future<void> loadCustomers(CurrentCompanyContext currentCompanyContext) async {
@@ -71,6 +76,68 @@ class CustomersCubit extends Cubit<CustomersState> {
     final currentState = state;
     if (currentState is CustomersLoaded) {
       emit(currentState.copyWith(statusFilter: statusFilter));
+    }
+  }
+
+  Future<void> loadCustomerActivity(Customer customer) async {
+    final currentCompanyContext = _currentCompanyContext;
+    final currentState = state;
+    if (currentCompanyContext == null || currentState is! CustomersLoaded) {
+      return;
+    }
+
+    emit(
+      currentState.copyWith(
+        selectedCustomer: customer,
+        selectedCustomerActivity: const [],
+        isActivityLoading: true,
+        activityFailure: null,
+      ),
+    );
+
+    final result = await getEntityAuditLogsUseCase(
+      GetEntityAuditLogsParams(
+        companyId: currentCompanyContext.companyId,
+        module: AuditModule.customers,
+        entityType: AuditEntityType.customer,
+        entityId: customer.id,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! CustomersLoaded ||
+        latestState.selectedCustomer?.id != customer.id) {
+      return;
+    }
+
+    result.when(
+      success: (activity) => emit(
+        latestState.copyWith(
+          selectedCustomerActivity: activity,
+          isActivityLoading: false,
+          activityFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isActivityLoading: false,
+          activityFailure: failure,
+        ),
+      ),
+    );
+  }
+
+  void clearCustomerActivity() {
+    final currentState = state;
+    if (currentState is CustomersLoaded) {
+      emit(
+        currentState.copyWith(
+          selectedCustomer: null,
+          selectedCustomerActivity: const [],
+          isActivityLoading: false,
+          activityFailure: null,
+        ),
+      );
     }
   }
 
