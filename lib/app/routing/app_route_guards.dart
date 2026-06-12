@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/app_spacing.dart';
+import '../../core/localization/app_localizations_extension.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -77,6 +78,8 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
       builder: (context, state) {
         if (state is CurrentCompanyInitial || state is CurrentCompanyLoading) {
@@ -98,7 +101,10 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(state.failure.message, textAlign: TextAlign.center),
+                child: Text(
+                  l10n.localizedErrorMessage(state.failure.message),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           );
