@@ -10,6 +10,8 @@ abstract final class AppSizes {
   static const double tabletMaxContentWidth = 620;
   static const double desktopAuthFormMaxWidth = 520;
   static const double desktopMaxContentWidth = 1200;
+  static const double searchFieldMaxWidth = 420;
+  static const double dataTableBreakpoint = 760;
 
   static const double iconSm = 18;
   static const double iconMd = 24;
