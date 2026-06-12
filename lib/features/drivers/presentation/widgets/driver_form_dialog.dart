@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_date_constraints.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
@@ -106,12 +108,12 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                         if (_licenseExpiryController.text.isNotEmpty)
                           IconButton(
                             tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                            icon: const Icon(Icons.close),
+                            icon: const Icon(AppIcons.clear),
                             onPressed: _isSubmitting ? null : _clearLicenseExpiryDate,
                           ),
                         IconButton(
                           tooltip: l10n.licenseExpiryDateLabel,
-                          icon: const Icon(Icons.calendar_month_outlined),
+                          icon: const Icon(AppIcons.calendar),
                           onPressed: _isSubmitting ? null : _pickLicenseExpiryDate,
                         ),
                       ],
@@ -141,8 +143,8 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: today,
-      lastDate: DateTime(today.year + 30, today.month, today.day),
+      firstDate: _driverLicenseExpiryFirstDate(today),
+      lastDate: _driverLicenseExpiryLastDate(today),
     );
 
     if (pickedDate == null || !mounted) return;
@@ -186,6 +188,22 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     final normalized = value.trim();
     return normalized.isEmpty ? null : normalized;
   }
+}
+
+DateTime _driverLicenseExpiryFirstDate(DateTime today) {
+  return DateTime(
+    today.year - AppDateConstraints.driverLicenseExpiryPastYears,
+    today.month,
+    today.day,
+  );
+}
+
+DateTime _driverLicenseExpiryLastDate(DateTime today) {
+  return DateTime(
+    today.year + AppDateConstraints.driverLicenseExpiryFutureYears,
+    today.month,
+    today.day,
+  );
 }
 
 String _dateOnly(DateTime value) {
