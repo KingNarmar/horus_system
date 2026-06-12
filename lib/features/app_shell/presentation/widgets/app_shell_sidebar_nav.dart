@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_radius.dart';
 import '../models/app_shell_destination.dart';
 
 class AppShellSidebarNav extends StatelessWidget {
@@ -24,7 +25,7 @@ class AppShellSidebarNav extends StatelessWidget {
           leading: Icon(selectedIndex == index ? item.selectedIcon : item.icon),
           title: Text(item.label(context)),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           onTap: () => onSelect(index),
         );
