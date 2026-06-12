@@ -5,6 +5,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -12,6 +13,7 @@ import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_status_filter.dart';
 import '../cubit/customers_cubit.dart';
 import '../cubit/customers_state.dart';
+import '../localization/customers_localizations_x.dart';
 import '../widgets/customer_form_dialog.dart';
 
 class CustomersPage extends StatefulWidget {
@@ -355,7 +357,6 @@ class _CustomerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final text = _CustomerActivityText(l10n.localeName);
 
     return Card(
       child: Padding(
@@ -388,7 +389,7 @@ class _CustomerCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => onViewDetails(customer),
                   icon: const Icon(AppIcons.view),
-                  label: Text(text.viewDetails),
+                  label: Text(l10n.customerViewDetails),
                 ),
                 if (canManageCustomers) ...[
                   OutlinedButton.icon(
@@ -438,7 +439,6 @@ class _CustomersTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final text = _CustomerActivityText(l10n.localeName);
 
     return Card(
       child: SingleChildScrollView(
@@ -473,7 +473,7 @@ class _CustomersTable extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          tooltip: text.viewDetails,
+                          tooltip: l10n.customerViewDetails,
                           onPressed: () => onViewDetails(customer),
                           icon: const Icon(AppIcons.view),
                         ),
@@ -518,7 +518,6 @@ class _CustomerDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final text = _CustomerActivityText(l10n.localeName);
     final activity = state?.selectedCustomer?.id == customer.id
         ? state!.selectedCustomerActivity
         : const <AuditLog>[];
@@ -543,7 +542,7 @@ class _CustomerDetailsDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      text.customerDetailsTitle(customer.name),
+                      l10n.customerDetailsTitle(customer.name),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -557,25 +556,25 @@ class _CustomerDetailsDialog extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
               _DetailsSection(
-                title: text.basicInfo,
+                title: l10n.customerBasicInfo,
                 children: [
                   _DetailRow(label: l10n.customerNameLabel, value: customer.name),
                   _DetailRow(
                     label: l10n.contactPersonLabel,
-                    value: _optional(customer.contactPerson, text),
+                    value: _optional(customer.contactPerson, l10n),
                   ),
-                  _DetailRow(label: l10n.phoneLabel, value: _optional(customer.phone, text)),
-                  _DetailRow(label: l10n.emailLabel, value: _optional(customer.email, text)),
-                  _DetailRow(label: l10n.addressLabel, value: _optional(customer.address, text)),
-                  _DetailRow(label: l10n.cityLabel, value: _optional(customer.city, text)),
-                  _DetailRow(label: l10n.countryLabel, value: _optional(customer.country, text)),
+                  _DetailRow(label: l10n.phoneLabel, value: _optional(customer.phone, l10n)),
+                  _DetailRow(label: l10n.emailLabel, value: _optional(customer.email, l10n)),
+                  _DetailRow(label: l10n.addressLabel, value: _optional(customer.address, l10n)),
+                  _DetailRow(label: l10n.cityLabel, value: _optional(customer.city, l10n)),
+                  _DetailRow(label: l10n.countryLabel, value: _optional(customer.country, l10n)),
                   _DetailRow(
                     label: l10n.taxRegistrationNumberLabel,
-                    value: _optional(customer.taxRegistrationNumber, text),
+                    value: _optional(customer.taxRegistrationNumber, l10n),
                   ),
                   _DetailRow(
                     label: l10n.creditLimitLabel,
-                    value: customer.creditLimit?.toStringAsFixed(2) ?? text.empty,
+                    value: customer.creditLimit?.toStringAsFixed(2) ?? l10n.customerEmptyValue,
                   ),
                   _DetailRow(
                     label: l10n.statusHeader,
@@ -585,41 +584,41 @@ class _CustomerDetailsDialog extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               _DetailsSection(
-                title: text.accountability,
+                title: l10n.customerAccountability,
                 children: [
                   _DetailRow(
-                    label: text.createdBy,
-                    value: _actorName(createdLog, text),
+                    label: l10n.customerCreatedBy,
+                    value: _actorName(createdLog, l10n),
                   ),
                   _DetailRow(
-                    label: text.createdRole,
-                    value: text.roleLabel(createdLog?.actorRole, l10n),
+                    label: l10n.customerCreatedRole,
+                    value: l10n.customerAuditRoleLabel(createdLog?.actorRole),
                   ),
                   _DetailRow(
-                    label: text.createdAt,
+                    label: l10n.customerCreatedAt,
                     value: createdLog == null
-                        ? text.notAvailable
+                        ? l10n.customerNotAvailable
                         : _formatDateTime(context, createdLog.createdAt),
                   ),
                   _DetailRow(
-                    label: text.lastActivityBy,
-                    value: _actorName(latestLog, text),
+                    label: l10n.customerLastActivityBy,
+                    value: _actorName(latestLog, l10n),
                   ),
                   _DetailRow(
-                    label: text.lastActivityRole,
-                    value: text.roleLabel(latestLog?.actorRole, l10n),
+                    label: l10n.customerLastActivityRole,
+                    value: l10n.customerAuditRoleLabel(latestLog?.actorRole),
                   ),
                   _DetailRow(
-                    label: text.lastActivityAt,
+                    label: l10n.customerLastActivityAt,
                     value: latestLog == null
-                        ? text.notAvailable
+                        ? l10n.customerNotAvailable
                         : _formatDateTime(context, latestLog.createdAt),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               _DetailsSection(
-                title: text.activityTimeline,
+                title: l10n.customerActivityTimeline,
                 children: [
                   if (isLoading)
                     Row(
@@ -632,17 +631,15 @@ class _CustomerDetailsDialog extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        Text(text.loadingActivity),
+                        Text(l10n.customerLoadingActivity),
                       ],
                     )
                   else if (failure != null)
                     Text(failure.message)
                   else if (activity.isEmpty)
-                    Text(text.noActivityFound)
+                    Text(l10n.customerNoActivityFound)
                   else
-                    ...activity.map(
-                      (log) => _ActivityTimelineItem(log: log, text: text),
-                    ),
+                    ...activity.map((log) => _ActivityTimelineItem(log: log)),
                 ],
               ),
             ],
@@ -659,17 +656,17 @@ class _CustomerDetailsDialog extends StatelessWidget {
     return null;
   }
 
-  String _actorName(AuditLog? log, _CustomerActivityText text) {
+  String _actorName(AuditLog? log, AppLocalizations l10n) {
     final name = log?.actorDisplayName?.trim();
     if (name != null && name.isNotEmpty) return name;
     final email = log?.actorEmail?.trim();
     if (email != null && email.isNotEmpty) return email;
-    return text.unknownUser;
+    return l10n.customerUnknownUser;
   }
 
-  String _optional(String? value, _CustomerActivityText text) {
+  String _optional(String? value, AppLocalizations l10n) {
     final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? text.empty : normalized;
+    return normalized == null || normalized.isEmpty ? l10n.customerEmptyValue : normalized;
   }
 }
 
@@ -731,19 +728,18 @@ class _DetailRow extends StatelessWidget {
 
 class _ActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
-  final _CustomerActivityText text;
 
-  const _ActivityTimelineItem({required this.log, required this.text});
+  const _ActivityTimelineItem({required this.log});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final changes = _buildChanges(log, l10n, text);
+    final changes = _buildChanges(log, l10n);
     final actorName = log.actorDisplayName?.trim().isNotEmpty == true
         ? log.actorDisplayName!.trim()
         : (log.actorEmail?.trim().isNotEmpty == true
             ? log.actorEmail!.trim()
-            : text.unknownUser);
+            : l10n.customerUnknownUser);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -760,16 +756,16 @@ class _ActivityTimelineItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  text.actionLabel(log.action.value),
+                  l10n.customerAuditActionLabel(log.action.value),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  '$actorName • ${text.roleLabel(log.actorRole, l10n)} • ${_formatDateTime(context, log.createdAt)}',
+                  '$actorName • ${l10n.customerAuditRoleLabel(log.actorRole)} • ${_formatDateTime(context, log.createdAt)}',
                 ),
                 if (changes.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    text.changes,
+                    l10n.customerChanges,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: AppSpacing.xs),
@@ -787,11 +783,7 @@ class _ActivityTimelineItem extends StatelessWidget {
     );
   }
 
-  List<_AuditChange> _buildChanges(
-    AuditLog log,
-    dynamic l10n,
-    _CustomerActivityText text,
-  ) {
+  List<_AuditChange> _buildChanges(AuditLog log, AppLocalizations l10n) {
     final oldValues = log.oldValues;
     final newValues = log.newValues;
     if (oldValues == null || newValues == null) return const [];
@@ -817,9 +809,9 @@ class _ActivityTimelineItem extends StatelessWidget {
 
       changes.add(
         _AuditChange(
-          label: text.fieldLabel(key, l10n),
-          oldValue: text.valueLabel(key, oldValue, l10n),
-          newValue: text.valueLabel(key, newValue, l10n),
+          label: l10n.customerAuditFieldLabel(key),
+          oldValue: l10n.customerAuditValueLabel(key, oldValue),
+          newValue: l10n.customerAuditValueLabel(key, newValue),
         ),
       );
     }
@@ -841,89 +833,6 @@ class _AuditChange {
     required this.oldValue,
     required this.newValue,
   });
-}
-
-class _CustomerActivityText {
-  final String localeName;
-
-  const _CustomerActivityText(this.localeName);
-
-  bool get isArabic => localeName.startsWith('ar');
-
-  String get viewDetails => isArabic ? 'التفاصيل' : 'Details';
-  String get basicInfo => isArabic ? 'البيانات الأساسية' : 'Basic information';
-  String get accountability => isArabic ? 'المسؤولية والمتابعة' : 'Accountability';
-  String get activityTimeline => isArabic ? 'سجل النشاط' : 'Activity timeline';
-  String get createdBy => isArabic ? 'أنشأه' : 'Created by';
-  String get createdRole => isArabic ? 'دور المنشئ' : 'Created role';
-  String get createdAt => isArabic ? 'تاريخ الإنشاء' : 'Created at';
-  String get lastActivityBy => isArabic ? 'آخر إجراء بواسطة' : 'Last activity by';
-  String get lastActivityRole => isArabic ? 'دور آخر مستخدم' : 'Last activity role';
-  String get lastActivityAt => isArabic ? 'وقت آخر إجراء' : 'Last activity at';
-  String get loadingActivity => isArabic ? 'جاري تحميل سجل النشاط...' : 'Loading activity...';
-  String get noActivityFound => isArabic ? 'لا يوجد نشاط مسجل لهذا العميل.' : 'No activity found for this customer.';
-  String get changes => isArabic ? 'التغييرات' : 'Changes';
-  String get empty => isArabic ? 'فارغ' : 'Empty';
-  String get unknownUser => isArabic ? 'مستخدم غير معروف' : 'Unknown user';
-  String get notAvailable => isArabic ? 'غير متاح' : 'Not available';
-
-  String customerDetailsTitle(String name) {
-    return isArabic ? 'تفاصيل $name' : 'Customer details: $name';
-  }
-
-  String actionLabel(String action) {
-    return switch (action) {
-      'created' => isArabic ? 'تم الإنشاء' : 'Created',
-      'updated' => isArabic ? 'تم التعديل' : 'Updated',
-      'deactivated' => isArabic ? 'تم التعطيل' : 'Deactivated',
-      'reactivated' => isArabic ? 'تم التفعيل' : 'Reactivated',
-      'status_changed' => isArabic ? 'تم تغيير الحالة' : 'Status changed',
-      _ => action,
-    };
-  }
-
-  String roleLabel(String? role, dynamic l10n) {
-    if (role == null || role.trim().isEmpty) return notAvailable;
-
-    return switch (role) {
-      'owner' => l10n.roleOwner,
-      'admin' => l10n.roleAdmin,
-      'operations' => l10n.roleOperations,
-      'accountant' => l10n.roleAccountant,
-      'viewer' => l10n.roleViewer,
-      'driver' => l10n.roleDriver,
-      _ => role,
-    };
-  }
-
-  String fieldLabel(String key, dynamic l10n) {
-    return switch (key) {
-      'name' => l10n.customerNameLabel,
-      'contact_person' => l10n.contactPersonLabel,
-      'phone' => l10n.phoneLabel,
-      'email' => l10n.emailLabel,
-      'tax_registration_number' => l10n.taxRegistrationNumberLabel,
-      'address' => l10n.addressLabel,
-      'city' => l10n.cityLabel,
-      'country' => l10n.countryLabel,
-      'credit_limit' => l10n.creditLimitLabel,
-      'is_active' => l10n.statusHeader,
-      _ => key,
-    };
-  }
-
-  String valueLabel(String key, Object? value, dynamic l10n) {
-    if (value == null) return empty;
-    final stringValue = value.toString().trim();
-    if (stringValue.isEmpty) return empty;
-
-    if (key == 'is_active') {
-      if (value == true || stringValue == 'true') return l10n.activeStatus;
-      if (value == false || stringValue == 'false') return l10n.inactiveStatus;
-    }
-
-    return stringValue;
-  }
 }
 
 String _formatDateTime(BuildContext context, DateTime value) {
