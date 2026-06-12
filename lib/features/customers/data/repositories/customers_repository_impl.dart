@@ -13,6 +13,7 @@ import '../../domain/entities/customer_write_data.dart';
 import '../../domain/repositories/customers_repository.dart';
 import '../datasources/customers_remote_data_source.dart';
 import '../mappers/customer_mapper.dart';
+import '../models/customer_model.dart';
 
 class CustomersRepositoryImpl implements CustomersRepository {
   final CustomersRemoteDataSource remoteDataSource;
@@ -116,7 +117,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
     required String customerId,
     required String actorRole,
     required AuditAction action,
-    required Future<dynamic> Function({
+    required Future<CustomerModel> Function({
       required String companyId,
       required String customerId,
     }) mutate,
@@ -139,16 +140,16 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   Future<Result<Customer>> _withAudit({
-    required dynamic model,
+    required CustomerModel model,
     required String actorRole,
     required AuditAction action,
     required String description,
     Map<String, Object?>? oldValues,
   }) async {
     final auditFailure = await _writeCustomerAudit(
-      companyId: model.companyId as String,
+      companyId: model.companyId,
       actorRole: actorRole,
-      entityId: model.id as String,
+      entityId: model.id,
       action: action,
       description: description,
       oldValues: oldValues,
