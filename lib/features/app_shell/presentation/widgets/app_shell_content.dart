@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -154,7 +155,7 @@ class _SettingsCard extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () =>
                     Navigator.of(context).pushNamed(AppRoutes.companyUsers),
-                icon: const Icon(Icons.group_outlined),
+                icon: const Icon(AppIcons.unavailableModule),
                 label: Text(l10n.manageUsers),
               )
             else
