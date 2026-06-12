@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/theme/app_radius.dart';
 
 class AdaptiveAccessNotice extends StatelessWidget {
   const AdaptiveAccessNotice({super.key});
@@ -13,13 +15,13 @@ class AdaptiveAccessNotice extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Row(
           children: [
-            Icon(Icons.devices_outlined, color: colorScheme.onPrimaryContainer),
+            Icon(AppIcons.supportedDevices, color: colorScheme.onPrimaryContainer),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
