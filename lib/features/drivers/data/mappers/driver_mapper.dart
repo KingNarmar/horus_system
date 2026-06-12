@@ -1,4 +1,5 @@
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_status.dart';
 import '../../domain/entities/driver_write_data.dart';
 import '../models/driver_model.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
@@ -11,12 +12,12 @@ extension DriverModelMapper on DriverModel {
       id: id,
       companyId: companyId,
       fullName: fullName,
+      status: isActive ? DriverStatus.active : DriverStatus.inactive,
       phone: phone,
       nationalId: nationalId,
       licenseNumber: licenseNumber,
       licenseExpiryDate: licenseExpiryDate,
       notes: notes,
-      isActive: isActive,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
