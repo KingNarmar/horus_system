@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -69,7 +70,7 @@ class AppShellDesktopLayout extends StatelessWidget {
                     ),
                     OutlinedButton.icon(
                       onPressed: onLogout,
-                      icon: const Icon(Icons.logout_outlined),
+                      icon: const Icon(AppIcons.logout),
                       label: Text(l10n.logout),
                     ),
                   ],
