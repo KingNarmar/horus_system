@@ -7,6 +7,11 @@ import '../models/customer_model.dart';
 abstract class CustomersRemoteDataSource {
   Future<List<CustomerModel>> getCustomers({required String companyId});
 
+  Future<CustomerModel> getCustomerById({
+    required String companyId,
+    required String customerId,
+  });
+
   Future<CustomerModel> addCustomer({required CustomerWriteData data});
 
   Future<CustomerModel> updateCustomer({
@@ -15,6 +20,11 @@ abstract class CustomersRemoteDataSource {
   });
 
   Future<CustomerModel> deactivateCustomer({
+    required String companyId,
+    required String customerId,
+  });
+
+  Future<CustomerModel> reactivateCustomer({
     required String companyId,
     required String customerId,
   });
@@ -39,6 +49,21 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
     return response
         .map((item) => CustomerModel.fromMap(Map<String, dynamic>.from(item)))
         .toList();
+  }
+
+  @override
+  Future<CustomerModel> getCustomerById({
+    required String companyId,
+    required String customerId,
+  }) async {
+    final response = await client
+        .from('customers')
+        .select(columns)
+        .eq('id', customerId)
+        .eq('company_id', companyId)
+        .single();
+
+    return CustomerModel.fromMap(Map<String, dynamic>.from(response));
   }
 
   @override
@@ -77,6 +102,25 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
         .from('customers')
         .update({
           'is_active': false,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', customerId)
+        .eq('company_id', companyId)
+        .select(columns)
+        .single();
+
+    return CustomerModel.fromMap(Map<String, dynamic>.from(response));
+  }
+
+  @override
+  Future<CustomerModel> reactivateCustomer({
+    required String companyId,
+    required String customerId,
+  }) async {
+    final response = await client
+        .from('customers')
+        .update({
+          'is_active': true,
           'updated_at': DateTime.now().toUtc().toIso8601String(),
         })
         .eq('id', customerId)
