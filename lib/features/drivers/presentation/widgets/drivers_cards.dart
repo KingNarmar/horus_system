@@ -73,7 +73,7 @@ class _DriverCard extends StatelessWidget {
             Text(driver.fullName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: AppSpacing.sm),
             if (driver.phone != null) Text(l10n.phoneLine(driver.phone!)),
-            Text(l10n.statusLine(driver.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
+            Text(l10n.statusLine(l10n.driverStatusLabel(driver.status))),
             const SizedBox(height: AppSpacing.md),
             Wrap(
               spacing: AppSpacing.sm,
@@ -82,7 +82,7 @@ class _DriverCard extends StatelessWidget {
                 OutlinedButton.icon(onPressed: () => onViewDetails(driver), icon: const Icon(AppIcons.view), label: Text(l10n.viewDriverDetails)),
                 if (canManageDrivers) ...[
                   OutlinedButton.icon(onPressed: () => onEdit(driver), icon: const Icon(AppIcons.edit), label: Text(l10n.editDriverButton)),
-                  if (driver.isActive)
+                  if (driver.status.isActive)
                     OutlinedButton.icon(onPressed: () => onDeactivate(driver), icon: const Icon(AppIcons.deactivate), label: Text(l10n.deactivateDriverButton))
                   else
                     OutlinedButton.icon(onPressed: () => onReactivate(driver), icon: const Icon(AppIcons.reactivate), label: Text(l10n.reactivateDriverButton)),
