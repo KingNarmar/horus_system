@@ -7,9 +7,12 @@ class AuditLog {
   final String companyId;
   final String? actorUserId;
   final String? actorRole;
+  final String? actorDisplayName;
+  final String? actorEmail;
   final AuditModule module;
   final AuditEntityType entityType;
   final String entityId;
+  final String? entityDisplayName;
   final AuditAction action;
   final String description;
   final Map<String, Object?>? oldValues;
@@ -22,9 +25,12 @@ class AuditLog {
     required this.companyId,
     this.actorUserId,
     this.actorRole,
+    this.actorDisplayName,
+    this.actorEmail,
     required this.module,
     required this.entityType,
     required this.entityId,
+    this.entityDisplayName,
     required this.action,
     required this.description,
     this.oldValues,
