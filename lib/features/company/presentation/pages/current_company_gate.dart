@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../app_shell/presentation/pages/app_shell_page.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
@@ -23,6 +24,8 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
       builder: (context, state) {
         if (state is CurrentCompanyLoading || state is CurrentCompanyInitial) {
@@ -44,7 +47,10 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(state.failure.message, textAlign: TextAlign.center),
+                child: Text(
+                  l10n.localizedErrorMessage(state.failure.message),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           );
