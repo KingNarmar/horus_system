@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_user.dart';
@@ -61,7 +62,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           if (permissions.canInviteCompanyUsers)
             TextButton.icon(
               onPressed: () => _showInvitePlaceholder(context),
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(AppIcons.userAdd),
               label: Text(l10n.inviteButton),
             ),
           const SizedBox(width: AppSpacing.sm),
@@ -99,7 +100,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
       floatingActionButton: permissions.canInviteCompanyUsers
           ? FloatingActionButton.extended(
               onPressed: () => _showInvitePlaceholder(context),
-              icon: const Icon(Icons.person_add_alt_1),
+              icon: const Icon(AppIcons.userAdd),
               label: Text(l10n.inviteButton),
             )
           : null,
@@ -174,7 +175,7 @@ class _CompanyUserTile extends StatelessWidget {
           ],
         ),
         trailing: canChangeCompanyUserRole
-            ? const Icon(Icons.admin_panel_settings_outlined)
+            ? const Icon(AppIcons.userAdmin)
             : null,
       ),
     );
