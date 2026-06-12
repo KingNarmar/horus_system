@@ -1,3 +1,6 @@
+import '../../features/audit/data/datasources/audit_logs_remote_data_source.dart';
+import '../../features/audit/data/repositories/audit_log_repository_impl.dart';
+import '../../features/audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -25,6 +28,7 @@ import '../../features/customers/data/repositories/customers_repository_impl.dar
 import '../../features/customers/domain/usecases/add_customer_usecase.dart';
 import '../../features/customers/domain/usecases/deactivate_customer_usecase.dart';
 import '../../features/customers/domain/usecases/get_customers_usecase.dart';
+import '../../features/customers/domain/usecases/reactivate_customer_usecase.dart';
 import '../../features/customers/domain/usecases/update_customer_usecase.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
 import '../context/current_company_provider.dart';
@@ -99,11 +103,20 @@ abstract final class AppDependencies {
   }
 
   static CustomersCubit createCustomersCubit() {
+    final auditRemoteDataSource = SupabaseAuditLogsRemoteDataSource(
+      SupabaseClientProvider.client,
+    );
+    final auditRepository = AuditLogRepositoryImpl(
+      remoteDataSource: auditRemoteDataSource,
+    );
+    final createAuditLogUseCase = CreateAuditLogUseCase(auditRepository);
+
     final customersRemoteDataSource = SupabaseCustomersRemoteDataSource(
       SupabaseClientProvider.client,
     );
     final customersRepository = CustomersRepositoryImpl(
       remoteDataSource: customersRemoteDataSource,
+      createAuditLogUseCase: createAuditLogUseCase,
     );
 
     return CustomersCubit(
@@ -111,6 +124,7 @@ abstract final class AppDependencies {
       addCustomerUseCase: AddCustomerUseCase(customersRepository),
       updateCustomerUseCase: UpdateCustomerUseCase(customersRepository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(customersRepository),
+      reactivateCustomerUseCase: ReactivateCustomerUseCase(customersRepository),
     );
   }
 }
