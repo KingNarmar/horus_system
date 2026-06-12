@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../constants/app_icons.dart';
 import '../app_locale_cubit.dart';
 import '../app_localizations_extension.dart';
 
@@ -29,13 +30,13 @@ class AppLanguageToggleButton extends StatelessWidget {
           return IconButton(
             tooltip: label,
             onPressed: onPressed,
-            icon: const Icon(Icons.translate_outlined),
+            icon: const Icon(AppIcons.language),
           );
         }
 
         return TextButton.icon(
           onPressed: onPressed,
-          icon: const Icon(Icons.translate_outlined),
+          icon: const Icon(AppIcons.language),
           label: Text(label),
         );
       },
