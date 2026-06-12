@@ -80,7 +80,7 @@ class DriverDetailsDialog extends StatelessWidget {
                   if (isLoading)
                     Text(l10n.loadingActivity)
                   else if (failure != null)
-                    Text(failure.message)
+                    Text(l10n.localizedErrorMessage(failure.message))
                   else if (activity.isEmpty)
                     Text(l10n.noActivityFound)
                   else
