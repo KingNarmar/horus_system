@@ -11,6 +11,7 @@ import 'core/localization/app_locale_cubit.dart';
 import 'core/localization/app_locale_storage.dart';
 import 'core/localization/app_localizations_extension.dart';
 import 'core/responsive/responsive_layout.dart';
+import 'core/theme/app_radius.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
@@ -169,10 +170,13 @@ class _ArchitectureBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
         child: Text(
           l10n.architectureBadge,
           textAlign: TextAlign.center,
