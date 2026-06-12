@@ -1,7 +1,10 @@
 import '../../../../core/errors/failure.dart';
+import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_status_filter.dart';
+
+const Object _notSet = Object();
 
 sealed class CustomersState {
   const CustomersState();
@@ -21,6 +24,10 @@ class CustomersLoaded extends CustomersState {
   final bool canManageCustomers;
   final String searchQuery;
   final CustomerStatusFilter statusFilter;
+  final Customer? selectedCustomer;
+  final List<AuditLog> selectedCustomerActivity;
+  final bool isActivityLoading;
+  final Failure? activityFailure;
 
   const CustomersLoaded({
     required this.currentCompanyContext,
@@ -28,6 +35,10 @@ class CustomersLoaded extends CustomersState {
     required this.canManageCustomers,
     this.searchQuery = '',
     this.statusFilter = CustomerStatusFilter.active,
+    this.selectedCustomer,
+    this.selectedCustomerActivity = const [],
+    this.isActivityLoading = false,
+    this.activityFailure,
   });
 
   List<Customer> get customers {
@@ -57,6 +68,10 @@ class CustomersLoaded extends CustomersState {
     bool? canManageCustomers,
     String? searchQuery,
     CustomerStatusFilter? statusFilter,
+    Object? selectedCustomer = _notSet,
+    List<AuditLog>? selectedCustomerActivity,
+    bool? isActivityLoading,
+    Object? activityFailure = _notSet,
   }) {
     return CustomersLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -64,6 +79,15 @@ class CustomersLoaded extends CustomersState {
       canManageCustomers: canManageCustomers ?? this.canManageCustomers,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
+      selectedCustomer: selectedCustomer == _notSet
+          ? this.selectedCustomer
+          : selectedCustomer as Customer?,
+      selectedCustomerActivity:
+          selectedCustomerActivity ?? this.selectedCustomerActivity,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      activityFailure: activityFailure == _notSet
+          ? this.activityFailure
+          : activityFailure as Failure?,
     );
   }
 }
