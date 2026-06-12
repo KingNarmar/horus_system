@@ -118,6 +118,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                     ),
                   ),
                   onTap: _isSubmitting ? null : _pickLicenseExpiryDate,
+                  validator: (_) => _isLicenseExpiryDateValid ? null : l10n.licenseExpiryDateMustBeFuture,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(controller: _notesController, decoration: InputDecoration(labelText: l10n.notesLabel), maxLines: 3),
@@ -134,19 +135,20 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   }
 
   Future<void> _pickLicenseExpiryDate() async {
-    final now = DateTime.now();
-    final initialDate = _selectedLicenseExpiryDate ?? now;
+    final today = _dateOnlyValue(DateTime.now());
+    final currentSelection = _selectedLicenseExpiryDate == null ? null : _dateOnlyValue(_selectedLicenseExpiryDate!);
+    final initialDate = currentSelection == null || currentSelection.isBefore(today) ? today : currentSelection;
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(now.year - 30),
-      lastDate: DateTime(now.year + 30),
+      firstDate: today,
+      lastDate: DateTime(today.year + 30, today.month, today.day),
     );
 
     if (pickedDate == null || !mounted) return;
 
     setState(() {
-      _selectedLicenseExpiryDate = pickedDate;
+      _selectedLicenseExpiryDate = _dateOnlyValue(pickedDate);
       _licenseExpiryController.text = _dateOnly(pickedDate);
     });
   }
@@ -167,11 +169,17 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         phone: _optional(_phoneController.text),
         nationalId: _optional(_nationalIdController.text),
         licenseNumber: _optional(_licenseNumberController.text),
-        licenseExpiryDate: _selectedLicenseExpiryDate,
+        licenseExpiryDate: _selectedLicenseExpiryDate == null ? null : _dateOnlyValue(_selectedLicenseExpiryDate!),
         notes: _optional(_notesController.text),
       ),
     );
     if (mounted) Navigator.of(context).pop();
+  }
+
+  bool get _isLicenseExpiryDateValid {
+    final selectedDate = _selectedLicenseExpiryDate;
+    if (selectedDate == null) return true;
+    return !_dateOnlyValue(selectedDate).isBefore(_dateOnlyValue(DateTime.now()));
   }
 
   String? _optional(String value) {
@@ -183,4 +191,9 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
 String _dateOnly(DateTime value) {
   final local = value.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+DateTime _dateOnlyValue(DateTime value) {
+  final local = value.toLocal();
+  return DateTime(local.year, local.month, local.day);
 }
