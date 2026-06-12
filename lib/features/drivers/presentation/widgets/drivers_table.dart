@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
@@ -83,13 +84,13 @@ class _DriverActions extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(tooltip: l10n.viewDriverDetails, onPressed: () => onViewDetails(driver), icon: const Icon(Icons.visibility_outlined)),
+        IconButton(tooltip: l10n.viewDriverDetails, onPressed: () => onViewDetails(driver), icon: const Icon(AppIcons.view)),
         if (canManageDrivers) ...[
-          IconButton(tooltip: l10n.editDriverButton, onPressed: () => onEdit(driver), icon: const Icon(Icons.edit_outlined)),
+          IconButton(tooltip: l10n.editDriverButton, onPressed: () => onEdit(driver), icon: const Icon(AppIcons.edit)),
           if (driver.isActive)
-            IconButton(tooltip: l10n.deactivateDriverButton, onPressed: () => onDeactivate(driver), icon: const Icon(Icons.block_outlined))
+            IconButton(tooltip: l10n.deactivateDriverButton, onPressed: () => onDeactivate(driver), icon: const Icon(AppIcons.deactivate))
           else
-            IconButton(tooltip: l10n.reactivateDriverButton, onPressed: () => onReactivate(driver), icon: const Icon(Icons.check_circle_outline)),
+            IconButton(tooltip: l10n.reactivateDriverButton, onPressed: () => onReactivate(driver), icon: const Icon(AppIcons.reactivate)),
         ],
       ],
     );
