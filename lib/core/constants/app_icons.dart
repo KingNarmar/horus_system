@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+abstract final class AppIcons {
+  const AppIcons._();
+
+  static const IconData add = Icons.add;
+  static const IconData apps = Icons.apps;
+  static const IconData appsOutlined = Icons.apps_outlined;
+  static const IconData auditHistory = Icons.history;
+  static const IconData calendar = Icons.calendar_month_outlined;
+  static const IconData clear = Icons.close;
+  static const IconData customers = Icons.apartment_outlined;
+  static const IconData customersSelected = Icons.apartment;
+  static const IconData dashboard = Icons.dashboard_outlined;
+  static const IconData dashboardSelected = Icons.dashboard;
+  static const IconData deactivate = Icons.block_outlined;
+  static const IconData drivers = Icons.badge_outlined;
+  static const IconData driversSelected = Icons.badge;
+  static const IconData edit = Icons.edit_outlined;
+  static const IconData email = Icons.email_outlined;
+  static const IconData expenses = Icons.receipt_long_outlined;
+  static const IconData expensesSelected = Icons.receipt_long;
+  static const IconData fleet = Icons.local_shipping_outlined;
+  static const IconData fleetSelected = Icons.local_shipping;
+  static const IconData invitationSent = Icons.mark_email_read_outlined;
+  static const IconData invoices = Icons.request_quote_outlined;
+  static const IconData invoicesSelected = Icons.request_quote;
+  static const IconData language = Icons.translate_outlined;
+  static const IconData login = Icons.login_outlined;
+  static const IconData logout = Icons.logout_outlined;
+  static const IconData password = Icons.lock_outline;
+  static const IconData phone = Icons.phone_outlined;
+  static const IconData reactivate = Icons.check_circle_outline;
+  static const IconData reports = Icons.bar_chart_outlined;
+  static const IconData reportsSelected = Icons.bar_chart;
+  static const IconData routes = Icons.alt_route_outlined;
+  static const IconData routesSelected = Icons.alt_route;
+  static const IconData search = Icons.search;
+  static const IconData settings = Icons.settings_outlined;
+  static const IconData settingsSelected = Icons.settings;
+  static const IconData trips = Icons.route_outlined;
+  static const IconData tripsSelected = Icons.route;
+  static const IconData user = Icons.person_outline;
+  static const IconData userAdd = Icons.person_add_alt_1;
+  static const IconData userAdmin = Icons.admin_panel_settings_outlined;
+  static const IconData view = Icons.visibility_outlined;
+  static const IconData supportedDevices = Icons.devices_outlined;
+  static const IconData unavailableModule = Icons.group_outlined;
+}
