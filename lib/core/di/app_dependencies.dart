@@ -32,23 +32,26 @@ import '../../features/customers/domain/usecases/get_customers_usecase.dart';
 import '../../features/customers/domain/usecases/reactivate_customer_usecase.dart';
 import '../../features/customers/domain/usecases/update_customer_usecase.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
+import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
+import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
+import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
+import '../../features/drivers/domain/usecases/deactivate_driver_usecase.dart';
+import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
+import '../../features/drivers/domain/usecases/reactivate_driver_usecase.dart';
+import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
+import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
 import '../context/current_company_provider.dart';
 import '../context/in_memory_current_company_provider.dart';
 import '../data/supabase/supabase_client_provider.dart';
 
 abstract final class AppDependencies {
-  static final CurrentCompanyProvider _currentCompanyProvider =
-      InMemoryCurrentCompanyProvider();
+  static final CurrentCompanyProvider _currentCompanyProvider = InMemoryCurrentCompanyProvider();
 
-  static CurrentCompanyProvider get currentCompanyProvider =>
-      _currentCompanyProvider;
+  static CurrentCompanyProvider get currentCompanyProvider => _currentCompanyProvider;
 
   static AuthCubit createAuthCubit() {
-    final authRemoteDataSource = SupabaseAuthRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
+    final authRemoteDataSource = SupabaseAuthRemoteDataSource(SupabaseClientProvider.client);
     final authRepository = AuthRepositoryImpl(authRemoteDataSource);
-
     return AuthCubit(
       registerUseCase: RegisterUseCase(authRepository),
       loginUseCase: LoginUseCase(authRepository),
@@ -58,11 +61,8 @@ abstract final class AppDependencies {
   }
 
   static CompanyOnboardingCubit createCompanyOnboardingCubit() {
-    final companyRemoteDataSource = SupabaseCompanyRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
+    final companyRemoteDataSource = SupabaseCompanyRemoteDataSource(SupabaseClientProvider.client);
     final companyRepository = CompanyRepositoryImpl(companyRemoteDataSource);
-
     return CompanyOnboardingCubit(
       createCompanyUseCase: CreateCompanyUseCase(companyRepository),
       getMyCompaniesUseCase: GetMyCompaniesUseCase(companyRepository),
@@ -70,65 +70,60 @@ abstract final class AppDependencies {
   }
 
   static CurrentCompanyCubit createCurrentCompanyCubit() {
-    final companyContextRemoteDataSource =
-        SupabaseCompanyContextRemoteDataSource(SupabaseClientProvider.client);
+    final companyContextRemoteDataSource = SupabaseCompanyContextRemoteDataSource(SupabaseClientProvider.client);
     final companyContextRepository = CompanyContextRepositoryImpl(
       remoteDataSource: companyContextRemoteDataSource,
       currentCompanyProvider: _currentCompanyProvider,
     );
-
     return CurrentCompanyCubit(
-      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
-        companyContextRepository,
-      ),
-      selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
-        companyContextRepository,
-      ),
-      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
-        companyContextRepository,
-      ),
+      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(companyContextRepository),
+      selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(companyContextRepository),
+      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(companyContextRepository),
     );
   }
 
   static CompanyUsersCubit createCompanyUsersCubit() {
-    final companyUsersRemoteDataSource = SupabaseCompanyUsersRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
-    final companyUsersRepository = CompanyUsersRepositoryImpl(
-      remoteDataSource: companyUsersRemoteDataSource,
-    );
-
-    return CompanyUsersCubit(
-      getCompanyUsersUseCase: GetCompanyUsersUseCase(companyUsersRepository),
-    );
+    final companyUsersRemoteDataSource = SupabaseCompanyUsersRemoteDataSource(SupabaseClientProvider.client);
+    final companyUsersRepository = CompanyUsersRepositoryImpl(remoteDataSource: companyUsersRemoteDataSource);
+    return CompanyUsersCubit(getCompanyUsersUseCase: GetCompanyUsersUseCase(companyUsersRepository));
   }
 
   static CustomersCubit createCustomersCubit() {
-    final auditRemoteDataSource = SupabaseAuditLogsRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
-    final auditRepository = AuditLogRepositoryImpl(
-      remoteDataSource: auditRemoteDataSource,
-    );
+    final auditRemoteDataSource = SupabaseAuditLogsRemoteDataSource(SupabaseClientProvider.client);
+    final auditRepository = AuditLogRepositoryImpl(remoteDataSource: auditRemoteDataSource);
     final createAuditLogUseCase = CreateAuditLogUseCase(auditRepository);
-    final getEntityAuditLogsUseCase = GetEntityAuditLogsUseCase(
-      auditRepository,
-    );
-
-    final customersRemoteDataSource = SupabaseCustomersRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
+    final getEntityAuditLogsUseCase = GetEntityAuditLogsUseCase(auditRepository);
+    final customersRemoteDataSource = SupabaseCustomersRemoteDataSource(SupabaseClientProvider.client);
     final customersRepository = CustomersRepositoryImpl(
       remoteDataSource: customersRemoteDataSource,
       createAuditLogUseCase: createAuditLogUseCase,
     );
-
     return CustomersCubit(
       getCustomersUseCase: GetCustomersUseCase(customersRepository),
       addCustomerUseCase: AddCustomerUseCase(customersRepository),
       updateCustomerUseCase: UpdateCustomerUseCase(customersRepository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(customersRepository),
       reactivateCustomerUseCase: ReactivateCustomerUseCase(customersRepository),
+      getEntityAuditLogsUseCase: getEntityAuditLogsUseCase,
+    );
+  }
+
+  static DriversCubit createDriversCubit() {
+    final auditRemoteDataSource = SupabaseAuditLogsRemoteDataSource(SupabaseClientProvider.client);
+    final auditRepository = AuditLogRepositoryImpl(remoteDataSource: auditRemoteDataSource);
+    final createAuditLogUseCase = CreateAuditLogUseCase(auditRepository);
+    final getEntityAuditLogsUseCase = GetEntityAuditLogsUseCase(auditRepository);
+    final driversRemoteDataSource = SupabaseDriversRemoteDataSource(SupabaseClientProvider.client);
+    final driversRepository = DriversRepositoryImpl(
+      remoteDataSource: driversRemoteDataSource,
+      createAuditLogUseCase: createAuditLogUseCase,
+    );
+    return DriversCubit(
+      getDriversUseCase: GetDriversUseCase(driversRepository),
+      addDriverUseCase: AddDriverUseCase(driversRepository),
+      updateDriverUseCase: UpdateDriverUseCase(driversRepository),
+      deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
+      reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
       getEntityAuditLogsUseCase: getEntityAuditLogsUseCase,
     );
   }
