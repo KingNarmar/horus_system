@@ -52,7 +52,7 @@ create policy drivers_insert_operations
       where cu.company_id = drivers.company_id
         and cu.user_id = auth.uid()
         and cu.is_active = true
-        and cu.role in ('owner', 'admin', 'operations')
+        and cu.role::text in ('owner', 'admin', 'operations')
     )
   );
 
@@ -68,7 +68,7 @@ create policy drivers_update_operations
       where cu.company_id = drivers.company_id
         and cu.user_id = auth.uid()
         and cu.is_active = true
-        and cu.role in ('owner', 'admin', 'operations')
+        and cu.role::text in ('owner', 'admin', 'operations')
     )
   )
   with check (
@@ -78,6 +78,6 @@ create policy drivers_update_operations
       where cu.company_id = drivers.company_id
         and cu.user_id = auth.uid()
         and cu.is_active = true
-        and cu.role in ('owner', 'admin', 'operations')
+        and cu.role::text in ('owner', 'admin', 'operations')
     )
   );
