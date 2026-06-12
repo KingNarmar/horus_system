@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -42,7 +43,7 @@ class AppShellMobileLayout extends StatelessWidget {
           IconButton(
             tooltip: l10n.logout,
             onPressed: onLogout,
-            icon: const Icon(Icons.logout_outlined),
+            icon: const Icon(AppIcons.logout),
           ),
         ],
       ),
@@ -63,28 +64,28 @@ class AppShellMobileLayout extends StatelessWidget {
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard),
+            icon: const Icon(AppIcons.dashboard),
+            selectedIcon: const Icon(AppIcons.dashboardSelected),
             label: appShellDestinations[0].label(context),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.route_outlined),
-            selectedIcon: const Icon(Icons.route),
+            icon: const Icon(AppIcons.trips),
+            selectedIcon: const Icon(AppIcons.tripsSelected),
             label: appShellDestinations[5].label(context),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.local_shipping_outlined),
-            selectedIcon: const Icon(Icons.local_shipping),
+            icon: const Icon(AppIcons.fleet),
+            selectedIcon: const Icon(AppIcons.fleetSelected),
             label: appShellDestinations[3].label(context),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.bar_chart_outlined),
-            selectedIcon: const Icon(Icons.bar_chart),
+            icon: const Icon(AppIcons.reports),
+            selectedIcon: const Icon(AppIcons.reportsSelected),
             label: appShellDestinations[8].label(context),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.apps_outlined),
-            selectedIcon: const Icon(Icons.apps),
+            icon: const Icon(AppIcons.appsOutlined),
+            selectedIcon: const Icon(AppIcons.apps),
             label: l10n.appShellMoreLabel,
           ),
         ],
