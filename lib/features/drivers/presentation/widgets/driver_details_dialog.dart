@@ -59,7 +59,7 @@ class DriverDetailsDialog extends StatelessWidget {
                   _DetailRow(label: l10n.licenseNumberLabel, value: _optional(driver.licenseNumber, l10n)),
                   _DetailRow(label: l10n.licenseExpiryDateLabel, value: driver.licenseExpiryDate == null ? l10n.emptyValue : _dateOnly(driver.licenseExpiryDate!)),
                   _DetailRow(label: l10n.notesLabel, value: _optional(driver.notes, l10n)),
-                  _DetailRow(label: l10n.statusHeader, value: driver.isActive ? l10n.activeStatus : l10n.inactiveStatus),
+                  _DetailRow(label: l10n.statusHeader, value: l10n.driverStatusLabel(driver.status)),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
