@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/widgets/app_language_toggle_button.dart';
@@ -45,7 +46,7 @@ class AppShellTabletLayout extends StatelessWidget {
                   child: IconButton(
                     tooltip: l10n.logout,
                     onPressed: onLogout,
-                    icon: const Icon(Icons.logout_outlined),
+                    icon: const Icon(AppIcons.logout),
                   ),
                 ),
               ),
