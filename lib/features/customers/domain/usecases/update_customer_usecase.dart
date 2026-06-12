@@ -1,6 +1,7 @@
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/customer.dart';
 import '../entities/customer_write_data.dart';
@@ -81,6 +82,7 @@ class UpdateCustomerUseCase
 
     return _repository.updateCustomer(
       customerId: normalizedCustomerId,
+      actorRole: context.role.value,
       data: CustomerWriteData(
         companyId: context.companyId,
         name: normalizedName,
