@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -46,7 +47,7 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (!CustomersPermissionPolicy.canManageCustomers(context.role)) {
       return Future.value(
         const FailureResult<Customer>(
-          PermissionFailure(message: 'Customers management is not allowed.'),
+          PermissionFailure(code: FailureCodes.permissionCustomersManagement, message: 'Customers management is not allowed.'),
         ),
       );
     }
@@ -56,7 +57,7 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (normalizedName.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(message: 'Customer name is required.'),
+          ValidationFailure(code: FailureCodes.validationCustomerNameRequired, message: 'Customer name is required.'),
         ),
       );
     }
@@ -64,7 +65,7 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (params.creditLimit != null && params.creditLimit! < 0) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(message: 'Credit limit cannot be negative.'),
+          ValidationFailure(code: FailureCodes.validationCreditLimitNegative, message: 'Credit limit cannot be negative.'),
         ),
       );
     }

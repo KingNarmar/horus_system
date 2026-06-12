@@ -1,6 +1,9 @@
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_write_data.dart';
 import '../models/driver_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../constants/driver_db_fields.dart';
 
 extension DriverModelMapper on DriverModel {
   Driver toEntity() {
@@ -23,17 +26,17 @@ extension DriverModelMapper on DriverModel {
 extension DriverAuditMapper on DriverModel {
   Map<String, Object?> toAuditValues() {
     return {
-      'id': id,
-      'company_id': companyId,
-      'full_name': fullName,
-      'phone': phone,
-      'national_id': nationalId,
-      'license_number': licenseNumber,
-      'license_expiry_date': licenseExpiryDate?.toUtc().toIso8601String(),
-      'notes': notes,
-      'is_active': isActive,
-      'created_at': createdAt?.toUtc().toIso8601String(),
-      'updated_at': updatedAt?.toUtc().toIso8601String(),
+      DbCommonFields.id: id,
+      DbCommonFields.companyId: companyId,
+      DriverDbFields.fullName: fullName,
+      DriverDbFields.phone: phone,
+      DriverDbFields.nationalId: nationalId,
+      DriverDbFields.licenseNumber: licenseNumber,
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.notes: notes,
+      DbCommonFields.isActive: isActive,
+      DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
+      DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
     };
   }
 }
@@ -41,25 +44,25 @@ extension DriverAuditMapper on DriverModel {
 extension DriverWriteDataMapper on DriverWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
-      'company_id': companyId,
-      'full_name': fullName,
-      'phone': phone,
-      'national_id': nationalId,
-      'license_number': licenseNumber,
-      'license_expiry_date': licenseExpiryDate?.toUtc().toIso8601String(),
-      'notes': notes,
+      DbCommonFields.companyId: companyId,
+      DriverDbFields.fullName: fullName,
+      DriverDbFields.phone: phone,
+      DriverDbFields.nationalId: nationalId,
+      DriverDbFields.licenseNumber: licenseNumber,
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.notes: notes,
     };
   }
 
   Map<String, dynamic> toUpdateMap() {
     return {
-      'full_name': fullName,
-      'phone': phone,
-      'national_id': nationalId,
-      'license_number': licenseNumber,
-      'license_expiry_date': licenseExpiryDate?.toUtc().toIso8601String(),
-      'notes': notes,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      DriverDbFields.fullName: fullName,
+      DriverDbFields.phone: phone,
+      DriverDbFields.nationalId: nationalId,
+      DriverDbFields.licenseNumber: licenseNumber,
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.notes: notes,
+      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
 }

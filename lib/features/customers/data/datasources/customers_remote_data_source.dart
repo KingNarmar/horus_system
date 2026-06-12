@@ -3,6 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/customer_write_data.dart';
 import '../mappers/customer_mapper.dart';
 import '../models/customer_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../constants/customer_db_fields.dart';
 
 abstract class CustomersRemoteDataSource {
   Future<List<CustomerModel>> getCustomers({required String companyId});
@@ -31,8 +34,7 @@ abstract class CustomersRemoteDataSource {
 }
 
 class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
-  static const String columns =
-      'id,company_id,name,contact_person,phone,email,tax_registration_number,address,city,country,credit_limit,is_active,created_at,updated_at';
+  static const String columns = CustomerDbFields.allColumns;
 
   final SupabaseClient client;
 
@@ -41,10 +43,10 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
   @override
   Future<List<CustomerModel>> getCustomers({required String companyId}) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .select(columns)
-        .eq('company_id', companyId)
-        .order('name');
+        .eq(DbCommonFields.companyId, companyId)
+        .order(CustomerDbFields.name);
 
     return response
         .map((item) => CustomerModel.fromMap(Map<String, dynamic>.from(item)))
@@ -57,10 +59,10 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
     required String customerId,
   }) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .select(columns)
-        .eq('id', customerId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, customerId)
+        .eq(DbCommonFields.companyId, companyId)
         .single();
 
     return CustomerModel.fromMap(Map<String, dynamic>.from(response));
@@ -69,7 +71,7 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
   @override
   Future<CustomerModel> addCustomer({required CustomerWriteData data}) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .insert(data.toInsertMap())
         .select(columns)
         .single();
@@ -83,10 +85,10 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
     required CustomerWriteData data,
   }) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .update(data.toUpdateMap())
-        .eq('id', customerId)
-        .eq('company_id', data.companyId)
+        .eq(DbCommonFields.id, customerId)
+        .eq(DbCommonFields.companyId, data.companyId)
         .select(columns)
         .single();
 
@@ -99,13 +101,13 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
     required String customerId,
   }) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .update({
-          'is_active': false,
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          DbCommonFields.isActive: false,
+          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
-        .eq('id', customerId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, customerId)
+        .eq(DbCommonFields.companyId, companyId)
         .select(columns)
         .single();
 
@@ -118,13 +120,13 @@ class SupabaseCustomersRemoteDataSource implements CustomersRemoteDataSource {
     required String customerId,
   }) async {
     final response = await client
-        .from('customers')
+        .from(CustomerDbFields.tableName)
         .update({
-          'is_active': true,
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          DbCommonFields.isActive: true,
+          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
-        .eq('id', customerId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, customerId)
+        .eq(DbCommonFields.companyId, companyId)
         .select(columns)
         .single();
 

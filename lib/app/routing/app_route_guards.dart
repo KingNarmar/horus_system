@@ -102,7 +102,7 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Text(
-                  l10n.localizedErrorMessage(state.failure.message),
+                  l10n.localizedErrorMessage(state.failure),
                   textAlign: TextAlign.center,
                 ),
               ),

@@ -30,7 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Success(userModel.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(message: error.message, code: error.statusCode),
+        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -51,7 +51,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Success(userModel.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(message: error.message, code: error.statusCode),
+        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -65,7 +65,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Success<void>(null);
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(message: error.message, code: error.statusCode),
+        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -79,7 +79,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Success(userModel?.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(message: error.message, code: error.statusCode),
+        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));

@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/errors/common_failures.dart';
@@ -30,7 +31,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
       final normalizedCompanyId = companyId.trim();
       if (normalizedCompanyId.isEmpty) {
         return const FailureResult<List<Customer>>(
-          ValidationFailure(message: 'Company id is required.'),
+          ValidationFailure(code: FailureCodes.validationCompanyIdRequired, message: 'Company id is required.'),
         );
       }
 
@@ -198,7 +199,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
       return await action();
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(message: error.message, code: error.code),
+        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));

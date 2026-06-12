@@ -382,4 +382,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String cityLine(String city) {
     return 'المدينة: $city';
   }
+
+  @override
+  String auditTimelineHeader(String actorName, String role, String dateTime) {
+    return '$actorName • $role • $dateTime';
+  }
+
+  @override
+  String auditChangeLine(String field, String oldValue, String newValue) {
+    return '$field: $oldValue → $newValue';
+  }
+
+  @override
+  String get unknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get profileDetailsNotSetYet => 'لم يتم تعيين تفاصيل الملف الشخصي بعد';
 }

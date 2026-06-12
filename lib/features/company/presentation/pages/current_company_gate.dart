@@ -48,7 +48,7 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Text(
-                  l10n.localizedErrorMessage(state.failure.message),
+                  l10n.localizedErrorMessage(state.failure),
                   textAlign: TextAlign.center,
                 ),
               ),

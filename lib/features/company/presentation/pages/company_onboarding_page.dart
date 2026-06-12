@@ -56,7 +56,7 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
         if (state is CompanyOnboardingFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.localizedErrorMessage(state.failure.message)),
+              content: Text(l10n.localizedErrorMessage(state.failure)),
             ),
           );
         }

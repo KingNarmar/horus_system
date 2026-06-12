@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -28,7 +29,7 @@ class GetCompanyUsersUseCase
     if (!canViewUsers) {
       return Future.value(
         const FailureResult<List<CompanyUser>>(
-          PermissionFailure(message: 'This role cannot view company users.'),
+          PermissionFailure(code: FailureCodes.permissionCompanyUsersView, message: 'This role cannot view company users.'),
         ),
       );
     }

@@ -1,6 +1,9 @@
 import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_write_data.dart';
 import '../models/customer_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../constants/customer_db_fields.dart';
 
 extension CustomerModelMapper on CustomerModel {
   Customer toEntity() {
@@ -26,20 +29,20 @@ extension CustomerModelMapper on CustomerModel {
 extension CustomerAuditMapper on CustomerModel {
   Map<String, Object?> toAuditValues() {
     return {
-      'id': id,
-      'company_id': companyId,
-      'name': name,
-      'contact_person': contactPerson,
-      'phone': phone,
-      'email': email,
-      'tax_registration_number': taxRegistrationNumber,
-      'address': address,
-      'city': city,
-      'country': country,
-      'credit_limit': creditLimit,
-      'is_active': isActive,
-      'created_at': createdAt?.toUtc().toIso8601String(),
-      'updated_at': updatedAt?.toUtc().toIso8601String(),
+      DbCommonFields.id: id,
+      DbCommonFields.companyId: companyId,
+      CustomerDbFields.name: name,
+      CustomerDbFields.contactPerson: contactPerson,
+      CustomerDbFields.phone: phone,
+      CustomerDbFields.email: email,
+      CustomerDbFields.taxRegistrationNumber: taxRegistrationNumber,
+      CustomerDbFields.address: address,
+      CustomerDbFields.city: city,
+      CustomerDbFields.country: country,
+      CustomerDbFields.creditLimit: creditLimit,
+      DbCommonFields.isActive: isActive,
+      DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
+      DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
     };
   }
 }
@@ -47,31 +50,31 @@ extension CustomerAuditMapper on CustomerModel {
 extension CustomerWriteDataMapper on CustomerWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
-      'company_id': companyId,
-      'name': name,
-      'contact_person': contactPerson,
-      'phone': phone,
-      'email': email,
-      'tax_registration_number': taxRegistrationNumber,
-      'address': address,
-      'city': city,
-      'country': country,
-      'credit_limit': creditLimit,
+      DbCommonFields.companyId: companyId,
+      CustomerDbFields.name: name,
+      CustomerDbFields.contactPerson: contactPerson,
+      CustomerDbFields.phone: phone,
+      CustomerDbFields.email: email,
+      CustomerDbFields.taxRegistrationNumber: taxRegistrationNumber,
+      CustomerDbFields.address: address,
+      CustomerDbFields.city: city,
+      CustomerDbFields.country: country,
+      CustomerDbFields.creditLimit: creditLimit,
     };
   }
 
   Map<String, dynamic> toUpdateMap() {
     return {
-      'name': name,
-      'contact_person': contactPerson,
-      'phone': phone,
-      'email': email,
-      'tax_registration_number': taxRegistrationNumber,
-      'address': address,
-      'city': city,
-      'country': country,
-      'credit_limit': creditLimit,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      CustomerDbFields.name: name,
+      CustomerDbFields.contactPerson: contactPerson,
+      CustomerDbFields.phone: phone,
+      CustomerDbFields.email: email,
+      CustomerDbFields.taxRegistrationNumber: taxRegistrationNumber,
+      CustomerDbFields.address: address,
+      CustomerDbFields.city: city,
+      CustomerDbFields.country: country,
+      CustomerDbFields.creditLimit: creditLimit,
+      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
 }

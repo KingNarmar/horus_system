@@ -1,6 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/auth_user_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/constants/user_profile_db_fields.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> register({
@@ -35,7 +37,7 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {'full_name': fullName, 'phone': phone},
+      data: {UserProfileDbFields.fullName: fullName, UserProfileDbFields.phone: phone},
     );
 
     final user = response.user;
@@ -95,10 +97,10 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
       return;
     }
 
-    await _client.from('user_profiles').upsert({
-      'id': userId,
-      'full_name': fullName,
-      'phone': phone,
+    await _client.from(UserProfileDbFields.tableName).upsert({
+      DbCommonFields.id: userId,
+      UserProfileDbFields.fullName: fullName,
+      UserProfileDbFields.phone: phone,
     });
   }
 
@@ -108,9 +110,9 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     return AuthUserModel(
       id: user.id,
       email: user.email,
-      phone: user.phone ?? _readStringMetadata(metadata, 'phone'),
+      phone: user.phone ?? _readStringMetadata(metadata, UserProfileDbFields.phone),
       fullName:
-          _readStringMetadata(metadata, 'full_name') ??
+          _readStringMetadata(metadata, UserProfileDbFields.fullName) ??
           _readStringMetadata(metadata, 'name'),
       isEmailConfirmed: user.emailConfirmedAt != null,
     );

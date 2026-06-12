@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
+import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/driver.dart';
 import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
@@ -80,7 +81,7 @@ class DriverDetailsDialog extends StatelessWidget {
                   if (isLoading)
                     Text(l10n.loadingActivity)
                   else if (failure != null)
-                    Text(l10n.localizedErrorMessage(failure.message))
+                    Text(l10n.localizedErrorMessage(failure))
                   else if (activity.isEmpty)
                     Text(l10n.noActivityFound)
                   else
@@ -130,7 +131,7 @@ class _ActivityTimelineItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l10n.auditActionLabel(log.action.value), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-          Text('${_actorName(log, l10n)} • ${_formatDateTime(context, log.createdAt)}'),
+          Text(l10n.auditTimelineHeader(_actorName(log, l10n), log.actorRole ?? l10n.notAvailable, _formatDateTime(context, log.createdAt))),
           if (changes.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             ...changes,
@@ -141,14 +142,15 @@ class _ActivityTimelineItem extends StatelessWidget {
   }
 
   List<Widget> _changedFields(AuditLog log, AppLocalizations l10n) {
-    final oldValues = log.oldValues;
-    final newValues = log.newValues;
-    if (oldValues == null || newValues == null) return const [];
     const fields = ['full_name', 'phone', 'national_id', 'license_number', 'license_expiry_date', 'notes', 'is_active'];
-    return fields.where((field) => oldValues[field] != newValues[field]).map((field) {
-      final oldValue = l10n.driverValueLabel(field, oldValues[field]);
-      final newValue = l10n.driverValueLabel(field, newValues[field]);
-      return Text('${l10n.driverFieldLabel(field)}: $oldValue → $newValue');
+    final changes = AuditChangeBuilder.buildChanges(
+      log: log,
+      visibleKeys: fields,
+      fieldLabelBuilder: l10n.driverFieldLabel,
+      valueLabelBuilder: l10n.driverValueLabel,
+    );
+    return changes.map((change) {
+      return Text(l10n.auditChangeLine(change.label, change.oldValue, change.newValue));
     }).toList();
   }
 

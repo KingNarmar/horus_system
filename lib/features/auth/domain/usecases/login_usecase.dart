@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -24,7 +25,7 @@ class LoginUseCase implements UseCase<AuthUser, LoginParams> {
     if (email.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Email is required.'),
+          ValidationFailure(code: FailureCodes.authEmailRequired, message: 'Email is required.'),
         ),
       );
     }
@@ -32,7 +33,7 @@ class LoginUseCase implements UseCase<AuthUser, LoginParams> {
     if (password.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Password is required.'),
+          ValidationFailure(code: FailureCodes.authPasswordRequired, message: 'Password is required.'),
         ),
       );
     }

@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/company_db_fields.dart';
+
 class CompanyModel {
   final String id;
   final String name;
@@ -23,15 +26,15 @@ class CompanyModel {
 
   factory CompanyModel.fromMap(Map<String, dynamic> map) {
     return CompanyModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
+      id: map[DbCommonFields.id] as String,
+      name: map[CompanyDbFields.name] as String,
       businessType: map['business_type'] as String?,
       phone: map['phone'] as String?,
       email: map['email'] as String?,
       country: map['country'] as String?,
       city: map['city'] as String?,
       logoUrl: map['logo_url'] as String?,
-      isActive: map['is_active'] as bool? ?? true,
+      isActive: map[DbCommonFields.isActive] as bool? ?? true,
     );
   }
 }

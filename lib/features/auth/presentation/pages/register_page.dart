@@ -125,7 +125,7 @@ class _RegisterLayout extends StatelessWidget {
               if (state is AuthFailureState) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(l10n.localizedErrorMessage(state.failure.message)),
+                    content: Text(l10n.localizedErrorMessage(state.failure)),
                   ),
                 );
               }

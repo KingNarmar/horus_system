@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -23,7 +24,7 @@ class GetDriversUseCase implements UseCase<List<Driver>, GetDriversParams> {
     if (!DriversPermissionPolicy.canViewDrivers(context.role)) {
       return Future.value(
         const FailureResult<List<Driver>>(
-          PermissionFailure(message: 'You are not allowed to view drivers.'),
+          PermissionFailure(code: FailureCodes.permissionDriversView, message: 'You are not allowed to view drivers.'),
         ),
       );
     }

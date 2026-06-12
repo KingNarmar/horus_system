@@ -125,5 +125,23 @@
   "emailLine": "البريد: {email}",
   "@emailLine": {"placeholders": {"email": {"type": "String"}}},
   "cityLine": "المدينة: {city}",
-  "@cityLine": {"placeholders": {"city": {"type": "String"}}}
+  "@cityLine": {"placeholders": {"city": {"type": "String"}}},
+  "auditTimelineHeader": "{actorName} • {role} • {dateTime}",
+  "@auditTimelineHeader": {
+    "placeholders": {
+      "actorName": {"type": "String"},
+      "role": {"type": "String"},
+      "dateTime": {"type": "String"}
+    }
+  },
+  "auditChangeLine": "{field}: {oldValue} → {newValue}",
+  "@auditChangeLine": {
+    "placeholders": {
+      "field": {"type": "String"},
+      "oldValue": {"type": "String"},
+      "newValue": {"type": "String"}
+    }
+  },
+  "unknownUser": "مستخدم غير معروف",
+  "profileDetailsNotSetYet": "لم يتم تعيين تفاصيل الملف الشخصي بعد"
 }

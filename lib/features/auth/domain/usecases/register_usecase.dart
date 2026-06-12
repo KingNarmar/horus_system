@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -33,7 +34,7 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (fullName.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Full name is required.'),
+          ValidationFailure(code: FailureCodes.authFullNameRequired, message: 'Full name is required.'),
         ),
       );
     }
@@ -41,7 +42,7 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (phone.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Phone number is required.'),
+          ValidationFailure(code: FailureCodes.authPhoneRequired, message: 'Phone number is required.'),
         ),
       );
     }
@@ -49,7 +50,7 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (email.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Email is required.'),
+          ValidationFailure(code: FailureCodes.authEmailRequired, message: 'Email is required.'),
         ),
       );
     }
@@ -57,7 +58,7 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (password.length < 6) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(message: 'Password must be at least 6 characters.'),
+          ValidationFailure(code: FailureCodes.authPasswordTooShort, message: 'Password must be at least 6 characters.'),
         ),
       );
     }

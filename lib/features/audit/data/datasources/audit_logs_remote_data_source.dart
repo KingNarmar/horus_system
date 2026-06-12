@@ -5,6 +5,9 @@ import '../../domain/entities/audit_log_write_data.dart';
 import '../../domain/entities/audit_module.dart';
 import '../mappers/audit_log_mapper.dart';
 import '../models/audit_log_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/audit_db_fields.dart';
+import '../../../../core/data/constants/user_profile_db_fields.dart';
 
 abstract class AuditLogsRemoteDataSource {
   Future<void> createAuditLog({required AuditLogWriteData data});
@@ -35,7 +38,7 @@ class SupabaseAuditLogsRemoteDataSource implements AuditLogsRemoteDataSource {
         resolvedActorEmail ??
         _normalizeOptional(data.actorRole);
 
-    await _client.from('audit_logs').insert(
+    await _client.from(AuditDbFields.tableName).insert(
           data.toInsertMap(
             resolvedActorUserId: resolvedActorUserId,
             resolvedActorDisplayName: resolvedActorDisplayName,
@@ -52,13 +55,13 @@ class SupabaseAuditLogsRemoteDataSource implements AuditLogsRemoteDataSource {
     required String entityId,
   }) async {
     final rows = await _client
-        .from('audit_logs')
+        .from(AuditDbFields.tableName)
         .select()
-        .eq('company_id', companyId)
-        .eq('module', module.value)
-        .eq('entity_type', entityType.value)
-        .eq('entity_id', entityId)
-        .order('created_at', ascending: false);
+        .eq(DbCommonFields.companyId, companyId)
+        .eq(AuditDbFields.module, module.value)
+        .eq(AuditDbFields.entityType, entityType.value)
+        .eq(AuditDbFields.entityId, entityId)
+        .order(DbCommonFields.createdAt, ascending: false);
 
     return rows
         .map((row) => AuditLogModel.fromMap(Map<String, dynamic>.from(row)))
@@ -70,14 +73,14 @@ class SupabaseAuditLogsRemoteDataSource implements AuditLogsRemoteDataSource {
     if (normalizedActorUserId == null) return null;
 
     final rows = await _client
-        .from('user_profiles')
-        .select('full_name')
-        .eq('id', normalizedActorUserId)
+        .from(UserProfileDbFields.tableName)
+        .select(UserProfileDbFields.fullName)
+        .eq(DbCommonFields.id, normalizedActorUserId)
         .limit(1);
 
     if (rows.isEmpty) return null;
     final firstRow = Map<String, dynamic>.from(rows.first);
-    return _normalizeOptional(firstRow['full_name'] as String?);
+    return _normalizeOptional(firstRow[UserProfileDbFields.fullName] as String?);
   }
 
   String? _normalizeOptional(String? value) {

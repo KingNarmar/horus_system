@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../errors/failure.dart';
+import '../errors/failure_codes.dart';
 
 extension AppLocalizationsX on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
@@ -9,23 +11,31 @@ extension AppLocalizationsX on BuildContext {
 extension CommonErrorLocalizationsX on AppLocalizations {
   bool get _isArabicError => localeName.startsWith('ar');
 
-  String localizedErrorMessage(String message) {
-    return switch (message) {
-      'Unexpected error occurred.' => _isArabicError ? 'حدث خطأ غير متوقع.' : message,
-      'Company id is required.' => _isArabicError ? 'معرّف الشركة مطلوب.' : message,
-      'Company context is required.' => _isArabicError ? 'سياق الشركة مطلوب.' : message,
-      'Selected company is not available for the current user.' => _isArabicError ? 'الشركة المحددة غير متاحة للمستخدم الحالي.' : message,
-      'This role cannot view company users.' => _isArabicError ? 'هذا الدور لا يمكنه عرض مستخدمي الشركة.' : message,
-      'Customers access is not allowed.' => _isArabicError ? 'لا يوجد صلاحية للوصول إلى العملاء.' : message,
-      'Customers management is not allowed.' => _isArabicError ? 'لا يوجد صلاحية لإدارة العملاء.' : message,
-      'Customer id is required.' => _isArabicError ? 'معرّف العميل مطلوب.' : message,
-      'Customer name is required.' => _isArabicError ? 'اسم العميل مطلوب.' : message,
-      'Credit limit cannot be negative.' => _isArabicError ? 'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.' : message,
-      'Audit entity id is required.' => _isArabicError ? 'معرّف سجل المراجعة مطلوب.' : message,
-      'Audit description is required.' => _isArabicError ? 'وصف سجل المراجعة مطلوب.' : message,
-      'Password is required.' => _isArabicError ? 'كلمة المرور مطلوبة.' : message,
-      'Password must be at least 6 characters.' => _isArabicError ? 'كلمة المرور يجب ألا تقل عن 6 أحرف.' : message,
-      _ => message,
+  String localizedErrorMessage(Failure failure) {
+    return switch (failure.code) {
+      FailureCodes.unexpectedError => _isArabicError ? 'حدث خطأ غير متوقع.' : 'Unexpected error occurred.',
+      FailureCodes.validationCompanyIdRequired => _isArabicError ? 'معرّف الشركة مطلوب.' : 'Company id is required.',
+      FailureCodes.validationCompanyContextRequired => _isArabicError ? 'سياق الشركة مطلوب.' : 'Company context is required.',
+      'company_not_available' => _isArabicError ? 'الشركة المحددة غير متاحة للمستخدم الحالي.' : 'Selected company is not available for the current user.',
+      FailureCodes.permissionCompanyUsersView => _isArabicError ? 'هذا الدور لا يمكنه عرض مستخدمي الشركة.' : 'This role cannot view company users.',
+      FailureCodes.permissionCustomersView => _isArabicError ? 'لا يوجد صلاحية للوصول إلى العملاء.' : 'Customers access is not allowed.',
+      FailureCodes.permissionCustomersManagement => _isArabicError ? 'لا يوجد صلاحية لإدارة العملاء.' : 'Customers management is not allowed.',
+      FailureCodes.validationCustomerIdRequired => _isArabicError ? 'معرّف العميل مطلوب.' : 'Customer id is required.',
+      FailureCodes.validationCustomerNameRequired => _isArabicError ? 'اسم العميل مطلوب.' : 'Customer name is required.',
+      FailureCodes.validationCreditLimitNegative => _isArabicError ? 'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.' : 'Credit limit cannot be negative.',
+      FailureCodes.validationAuditEntityIdRequired => _isArabicError ? 'معرّف سجل المراجعة مطلوب.' : 'Audit entity id is required.',
+      FailureCodes.validationAuditDescriptionRequired => _isArabicError ? 'وصف سجل المراجعة مطلوب.' : 'Audit description is required.',
+      FailureCodes.authPasswordRequired => _isArabicError ? 'كلمة المرور مطلوبة.' : 'Password is required.',
+      FailureCodes.authPasswordTooShort => _isArabicError ? 'كلمة المرور يجب ألا تقل عن 6 أحرف.' : 'Password must be at least 6 characters.',
+      FailureCodes.authEmailRequired => _isArabicError ? 'البريد الإلكتروني مطلوب.' : 'Email is required.',
+      FailureCodes.authFullNameRequired => _isArabicError ? 'الاسم بالكامل مطلوب.' : 'Full name is required.',
+      FailureCodes.authPhoneRequired => _isArabicError ? 'رقم الهاتف مطلوب.' : 'Phone number is required.',
+      FailureCodes.validationDriverNameRequired => _isArabicError ? 'اسم السائق مطلوب.' : 'Driver name is required.',
+      FailureCodes.permissionDriversManagement => _isArabicError ? 'لا يوجد صلاحية لإدارة السائقين.' : 'Drivers management is not allowed.',
+      FailureCodes.permissionDriversView => _isArabicError ? 'لا يوجد صلاحية للوصول إلى السائقين.' : 'You are not allowed to view drivers.',
+      FailureCodes.validationCompanyNameRequired => _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
+      FailureCodes.serverError => failure.message ?? (_isArabicError ? 'حدث خطأ في الخادم.' : 'Server error occurred.'),
+      _ => failure.message ?? failure.code,
     };
   }
 }

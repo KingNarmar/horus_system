@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -41,7 +42,7 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
     if (!DriversPermissionPolicy.canManageDrivers(context.role)) {
       return Future.value(
         const FailureResult<Driver>(
-          PermissionFailure(message: 'Drivers management is not allowed.'),
+          PermissionFailure(code: FailureCodes.permissionDriversManagement, message: 'Drivers management is not allowed.'),
         ),
       );
     }
@@ -50,7 +51,7 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
     if (fullName.isEmpty) {
       return Future.value(
         const FailureResult<Driver>(
-          ValidationFailure(message: 'Driver name is required.'),
+          ValidationFailure(code: FailureCodes.validationDriverNameRequired, message: 'Driver name is required.'),
         ),
       );
     }

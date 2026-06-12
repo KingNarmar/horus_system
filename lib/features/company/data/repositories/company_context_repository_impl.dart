@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
@@ -33,11 +34,11 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
       return Success(_loadedContexts);
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(message: error.message, code: error.statusCode),
+        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
       );
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(message: error.message, code: error.code),
+        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -67,11 +68,12 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
 
       return const FailureResult(
         ValidationFailure(
+          code: 'company_not_available',
           message: 'Selected company is not available for the current user.',
         ),
       );
     } on MissingCompanyContextException catch (error) {
-      return FailureResult(ValidationFailure(message: error.message));
+      return FailureResult(ValidationFailure(code: 'validation_error', message: error.message));
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
     }

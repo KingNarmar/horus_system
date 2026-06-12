@@ -3,6 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/driver_write_data.dart';
 import '../mappers/driver_mapper.dart';
 import '../models/driver_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../constants/driver_db_fields.dart';
 
 abstract class DriversRemoteDataSource {
   Future<List<DriverModel>> getDrivers({required String companyId});
@@ -31,8 +34,7 @@ abstract class DriversRemoteDataSource {
 }
 
 class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
-  static const String columns =
-      'id,company_id,full_name,phone,national_id,license_number,license_expiry_date,notes,is_active,created_at,updated_at';
+  static const String columns = DriverDbFields.allColumns;
 
   final SupabaseClient client;
 
@@ -41,10 +43,10 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
   @override
   Future<List<DriverModel>> getDrivers({required String companyId}) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .select(columns)
-        .eq('company_id', companyId)
-        .order('full_name');
+        .eq(DbCommonFields.companyId, companyId)
+        .order(DriverDbFields.fullName);
 
     return response
         .map((item) => DriverModel.fromMap(Map<String, dynamic>.from(item)))
@@ -57,10 +59,10 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
     required String driverId,
   }) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .select(columns)
-        .eq('id', driverId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, driverId)
+        .eq(DbCommonFields.companyId, companyId)
         .single();
 
     return DriverModel.fromMap(Map<String, dynamic>.from(response));
@@ -69,7 +71,7 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
   @override
   Future<DriverModel> addDriver({required DriverWriteData data}) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .insert(data.toInsertMap())
         .select(columns)
         .single();
@@ -83,10 +85,10 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
     required DriverWriteData data,
   }) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .update(data.toUpdateMap())
-        .eq('id', driverId)
-        .eq('company_id', data.companyId)
+        .eq(DbCommonFields.id, driverId)
+        .eq(DbCommonFields.companyId, data.companyId)
         .select(columns)
         .single();
 
@@ -99,13 +101,13 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
     required String driverId,
   }) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .update({
-          'is_active': false,
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          DbCommonFields.isActive: false,
+          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
-        .eq('id', driverId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, driverId)
+        .eq(DbCommonFields.companyId, companyId)
         .select(columns)
         .single();
 
@@ -118,13 +120,13 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
     required String driverId,
   }) async {
     final response = await client
-        .from('drivers')
+        .from(DriverDbFields.tableName)
         .update({
-          'is_active': true,
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          DbCommonFields.isActive: true,
+          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
-        .eq('id', driverId)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.id, driverId)
+        .eq(DbCommonFields.companyId, companyId)
         .select(columns)
         .single();
 

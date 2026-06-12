@@ -14,7 +14,7 @@ class FakeFailureUseCase implements UseCase<String, NoParams> {
   @override
   Future<Result<String>> call(NoParams params) async {
     return const FailureResult<String>(
-      ValidationFailure(message: 'Invalid input'),
+      ValidationFailure(code: 'validation_error', message: 'Invalid input'),
     );
   }
 }

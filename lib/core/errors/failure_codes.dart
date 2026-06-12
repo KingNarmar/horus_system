@@ -1,0 +1,30 @@
+class FailureCodes {
+  // Auth
+  static const String authEmailRequired = 'auth_email_required';
+  static const String authPasswordRequired = 'auth_password_required';
+  static const String authFullNameRequired = 'auth_full_name_required';
+  static const String authPhoneRequired = 'auth_phone_required';
+  static const String authPasswordTooShort = 'auth_password_too_short';
+
+  // Permissions
+  static const String permissionDriversManagement = 'permission_drivers_management';
+  static const String permissionDriversView = 'permission_drivers_view';
+  static const String permissionCustomersManagement = 'permission_customers_management';
+  static const String permissionCustomersView = 'permission_customers_view';
+  static const String permissionCompanyUsersView = 'permission_company_users_view';
+
+  // Validation
+  static const String validationCompanyIdRequired = 'validation_company_id_required';
+  static const String validationDriverNameRequired = 'validation_driver_name_required';
+  static const String validationCustomerNameRequired = 'validation_customer_name_required';
+  static const String validationCreditLimitNegative = 'validation_credit_limit_negative';
+  static const String validationCustomerIdRequired = 'validation_customer_id_required';
+  static const String validationCompanyNameRequired = 'validation_company_name_required';
+  static const String validationCompanyContextRequired = 'validation_company_context_required';
+  static const String validationAuditEntityIdRequired = 'validation_audit_entity_id_required';
+  static const String validationAuditDescriptionRequired = 'validation_audit_description_required';
+
+  // Generic
+  static const String serverError = 'server_error';
+  static const String unexpectedError = 'unexpected_error';
+}

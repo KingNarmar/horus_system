@@ -2,6 +2,8 @@ import '../../domain/entities/audit_action.dart';
 import '../../domain/entities/audit_entity_type.dart';
 import '../../domain/entities/audit_log.dart';
 import '../../domain/entities/audit_module.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/audit_db_fields.dart';
 
 class AuditLogModel {
   final String id;
@@ -43,20 +45,20 @@ class AuditLogModel {
   factory AuditLogModel.fromMap(Map<String, dynamic> map) {
     return AuditLogModel(
       id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      actorUserId: map['actor_user_id'] as String?,
-      actorRole: map['actor_role'] as String?,
-      actorDisplayName: map['actor_display_name'] as String?,
-      actorEmail: map['actor_email'] as String?,
-      module: map['module'] as String,
-      entityType: map['entity_type'] as String,
-      entityId: map['entity_id'] as String,
-      entityDisplayName: map['entity_display_name'] as String?,
-      action: map['action'] as String,
-      description: map['description'] as String,
-      oldValues: _toMap(map['old_values']),
-      newValues: _toMap(map['new_values']),
-      metadata: _toMap(map['metadata']),
+      companyId: map[DbCommonFields.companyId] as String,
+      actorUserId: map[AuditDbFields.actorUserId] as String?,
+      actorRole: map[AuditDbFields.actorRole] as String?,
+      actorDisplayName: map[AuditDbFields.actorDisplayName] as String?,
+      actorEmail: map[AuditDbFields.actorEmail] as String?,
+      module: map[AuditDbFields.module] as String,
+      entityType: map[AuditDbFields.entityType] as String,
+      entityId: map[AuditDbFields.entityId] as String,
+      entityDisplayName: map[AuditDbFields.entityDisplayName] as String?,
+      action: map[AuditDbFields.action] as String,
+      description: map[AuditDbFields.description] as String,
+      oldValues: _toMap(map[AuditDbFields.oldValues]),
+      newValues: _toMap(map[AuditDbFields.newValues]),
+      metadata: _toMap(map[AuditDbFields.metadata]),
       createdAt: DateTime.parse(map['created_at'].toString()),
     );
   }

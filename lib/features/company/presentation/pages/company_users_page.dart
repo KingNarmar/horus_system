@@ -79,7 +79,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Text(
-                  l10n.localizedErrorMessage(state.failure.message),
+                  l10n.localizedErrorMessage(state.failure),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -162,15 +162,23 @@ class _CompanyUserTile extends StatelessWidget {
     final roleLabel = user.role.localizedLabel(context);
     final roleInitial = roleLabel.substring(0, 1);
 
+    final titleText = (user.displayName != null && user.displayName!.trim().isNotEmpty)
+        ? user.displayName!.trim()
+        : l10n.unknownUser;
+
+    final subtitleText = (user.phone != null && user.phone!.trim().isNotEmpty)
+        ? user.phone!.trim()
+        : l10n.profileDetailsNotSetYet;
+
     return Card(
       child: ListTile(
         leading: CircleAvatar(child: Text(roleInitial)),
-        title: Text(user.title),
+        title: Text(titleText),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: AppSpacing.xs),
-            Text(user.subtitle),
+            Text(subtitleText),
             Text(l10n.roleLine(roleLabel)),
             Text(l10n.statusLine(statusText)),
             if (user.displayName == null || user.displayName!.trim().isEmpty)

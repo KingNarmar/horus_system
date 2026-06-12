@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -22,7 +23,7 @@ class CreateAuditLogUseCase implements UseCase<void, CreateAuditLogParams> {
     if (data.companyId.trim().isEmpty) {
       return Future.value(
         const FailureResult<void>(
-          ValidationFailure(message: 'Company id is required.'),
+          ValidationFailure(code: FailureCodes.validationCompanyIdRequired, message: 'Company id is required.'),
         ),
       );
     }
@@ -30,7 +31,7 @@ class CreateAuditLogUseCase implements UseCase<void, CreateAuditLogParams> {
     if (data.entityId.trim().isEmpty) {
       return Future.value(
         const FailureResult<void>(
-          ValidationFailure(message: 'Audit entity id is required.'),
+          ValidationFailure(code: FailureCodes.validationAuditEntityIdRequired, message: 'Audit entity id is required.'),
         ),
       );
     }
@@ -38,7 +39,7 @@ class CreateAuditLogUseCase implements UseCase<void, CreateAuditLogParams> {
     if (data.description.trim().isEmpty) {
       return Future.value(
         const FailureResult<void>(
-          ValidationFailure(message: 'Audit description is required.'),
+          ValidationFailure(code: FailureCodes.validationAuditDescriptionRequired, message: 'Audit description is required.'),
         ),
       );
     }

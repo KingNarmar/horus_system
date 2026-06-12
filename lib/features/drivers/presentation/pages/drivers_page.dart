@@ -98,7 +98,7 @@ class _DriversPageState extends State<DriversPage> {
             if (state is DriversInitial || state is DriversLoading)
               const Center(child: CircularProgressIndicator())
             else if (state is DriversFailure)
-              _MessageCard(message: l10n.localizedErrorMessage(state.failure.message), action: OutlinedButton(onPressed: () => cubit.loadDrivers(widget.currentCompanyContext), child: Text(l10n.retryButton)))
+              _MessageCard(message: l10n.localizedErrorMessage(state.failure), action: OutlinedButton(onPressed: () => cubit.loadDrivers(widget.currentCompanyContext), child: Text(l10n.retryButton)))
             else if (state is DriversLoaded) ...[
               _Filters(
                 statusFilter: state.statusFilter,

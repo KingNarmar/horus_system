@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -31,7 +32,7 @@ class DeactivateCustomerUseCase
     if (!CustomersPermissionPolicy.canManageCustomers(context.role)) {
       return Future.value(
         const FailureResult<Customer>(
-          PermissionFailure(message: 'Customers management is not allowed.'),
+          PermissionFailure(code: FailureCodes.permissionCustomersManagement, message: 'Customers management is not allowed.'),
         ),
       );
     }
@@ -39,7 +40,7 @@ class DeactivateCustomerUseCase
     if (normalizedCustomerId.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(message: 'Customer id is required.'),
+          ValidationFailure(code: FailureCodes.validationCustomerIdRequired, message: 'Customer id is required.'),
         ),
       );
     }

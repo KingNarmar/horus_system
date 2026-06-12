@@ -1,13 +1,13 @@
 abstract class Failure {
-  final String message;
-  final String? code;
+  final String code;
+  final String? message;
 
-  const Failure({required this.message, this.code});
+  const Failure({required this.code, this.message});
 
   @override
   String toString() {
-    if (code == null || code!.isEmpty) {
-      return message;
+    if (message == null || message!.isEmpty) {
+      return code;
     }
 
     return '$code: $message';
@@ -18,10 +18,9 @@ abstract class Failure {
     return identical(this, other) ||
         other.runtimeType == runtimeType &&
             other is Failure &&
-            other.message == message &&
             other.code == code;
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, message, code);
+  int get hashCode => Object.hash(runtimeType, code);
 }

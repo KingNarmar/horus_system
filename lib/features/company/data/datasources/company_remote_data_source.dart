@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/company_model.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/company_db_fields.dart';
 
 abstract class CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
@@ -40,8 +42,8 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
     final companyId = _generateUuidV4();
 
     final companyPayload = _removeNullValues({
-      'id': companyId,
-      'name': name,
+      DbCommonFields.id: companyId,
+      CompanyDbFields.name: name,
       'business_type': businessType,
       'phone': phone,
       'email': email,
@@ -51,12 +53,12 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
       'updated_by': userId,
     });
 
-    await _client.from('companies').insert(companyPayload);
+    await _client.from(CompanyDbFields.companiesTable).insert(companyPayload);
 
-    await _client.from('company_users').insert({
-      'company_id': companyId,
-      'user_id': userId,
-      'role': 'owner',
+    await _client.from(CompanyDbFields.companyUsersTable).insert({
+      DbCommonFields.companyId: companyId,
+      CompanyDbFields.userId: userId,
+      CompanyDbFields.role: 'owner',
       'created_by': userId,
       'updated_by': userId,
     });
@@ -75,12 +77,12 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   @override
   Future<List<CompanyModel>> getMyCompanies() async {
     final response = await _client
-        .from('companies')
+        .from(CompanyDbFields.companiesTable)
         .select(
           'id,name,business_type,phone,email,country,city,logo_url,is_active',
         )
-        .eq('is_active', true)
-        .order('created_at');
+        .eq(DbCommonFields.isActive, true)
+        .order(DbCommonFields.createdAt);
 
     return response
         .map((item) => CompanyModel.fromMap(Map<String, dynamic>.from(item)))

@@ -3,6 +3,8 @@ import 'package:horus_system/features/audit/domain/entities/audit_entity_type.da
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 
 import '../../domain/entities/audit_log_write_data.dart';
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/audit_db_fields.dart';
 
 extension AuditLogWriteDataMapper on AuditLogWriteData {
   Map<String, dynamic> toInsertMap({
@@ -11,20 +13,20 @@ extension AuditLogWriteDataMapper on AuditLogWriteData {
     String? resolvedActorEmail,
   }) {
     return {
-      'company_id': companyId,
-      'actor_user_id': resolvedActorUserId ?? actorUserId,
-      'actor_role': actorRole,
-      'actor_display_name': resolvedActorDisplayName ?? actorDisplayName,
-      'actor_email': resolvedActorEmail ?? actorEmail,
-      'module': module.value,
-      'entity_type': entityType.value,
-      'entity_id': entityId,
-      'entity_display_name': entityDisplayName,
-      'action': action.value,
-      'description': description,
-      'old_values': oldValues,
-      'new_values': newValues,
-      'metadata': metadata,
+      DbCommonFields.companyId: companyId,
+      AuditDbFields.actorUserId: resolvedActorUserId ?? actorUserId,
+      AuditDbFields.actorRole: actorRole,
+      AuditDbFields.actorDisplayName: resolvedActorDisplayName ?? actorDisplayName,
+      AuditDbFields.actorEmail: resolvedActorEmail ?? actorEmail,
+      AuditDbFields.module: module.value,
+      AuditDbFields.entityType: entityType.value,
+      AuditDbFields.entityId: entityId,
+      AuditDbFields.entityDisplayName: entityDisplayName,
+      AuditDbFields.action: action.value,
+      AuditDbFields.description: description,
+      AuditDbFields.oldValues: oldValues,
+      AuditDbFields.newValues: newValues,
+      AuditDbFields.metadata: metadata,
     };
   }
 }

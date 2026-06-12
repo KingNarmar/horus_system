@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -25,7 +26,7 @@ class SelectCurrentCompanyUseCase
     if (companyId.isEmpty) {
       return Future.value(
         const FailureResult<CurrentCompanyContext>(
-          ValidationFailure(message: 'Company context is required.'),
+          ValidationFailure(code: FailureCodes.validationCompanyContextRequired, message: 'Company context is required.'),
         ),
       );
     }

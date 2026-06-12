@@ -775,6 +775,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'City: {city}'**
   String cityLine(String city);
+
+  /// No description provided for @auditTimelineHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{actorName} • {role} • {dateTime}'**
+  String auditTimelineHeader(String actorName, String role, String dateTime);
+
+  /// No description provided for @auditChangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{field}: {oldValue} → {newValue}'**
+  String auditChangeLine(String field, String oldValue, String newValue);
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown User'**
+  String get unknownUser;
+
+  /// No description provided for @profileDetailsNotSetYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile details not set yet'**
+  String get profileDetailsNotSetYet;
 }
 
 class _AppLocalizationsDelegate

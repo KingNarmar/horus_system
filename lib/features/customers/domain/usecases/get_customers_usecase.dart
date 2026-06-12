@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -25,7 +26,7 @@ class GetCustomersUseCase
     if (!CustomersPermissionPolicy.canViewCustomers(currentContext.role)) {
       return Future.value(
         const FailureResult<List<Customer>>(
-          PermissionFailure(message: 'Customers access is not allowed.'),
+          PermissionFailure(code: FailureCodes.permissionCustomersView, message: 'Customers access is not allowed.'),
         ),
       );
     }
