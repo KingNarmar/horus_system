@@ -23,6 +23,27 @@ extension CustomerModelMapper on CustomerModel {
   }
 }
 
+extension CustomerAuditMapper on CustomerModel {
+  Map<String, Object?> toAuditValues() {
+    return {
+      'id': id,
+      'company_id': companyId,
+      'name': name,
+      'contact_person': contactPerson,
+      'phone': phone,
+      'email': email,
+      'tax_registration_number': taxRegistrationNumber,
+      'address': address,
+      'city': city,
+      'country': country,
+      'credit_limit': creditLimit,
+      'is_active': isActive,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'updated_at': updatedAt?.toUtc().toIso8601String(),
+    };
+  }
+}
+
 extension CustomerWriteDataMapper on CustomerWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
