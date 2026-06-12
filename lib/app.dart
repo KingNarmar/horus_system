@@ -17,6 +17,7 @@ import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
 import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
 import 'features/customers/presentation/cubit/customers_cubit.dart';
+import 'features/drivers/presentation/cubit/drivers_cubit.dart';
 import 'l10n/app_localizations.dart';
 
 class HorusApp extends StatelessWidget {
@@ -45,6 +46,9 @@ class HorusApp extends StatelessWidget {
         ),
         BlocProvider<CustomersCubit>(
           create: (_) => AppDependencies.createCustomersCubit(),
+        ),
+        BlocProvider<DriversCubit>(
+          create: (_) => AppDependencies.createDriversCubit(),
         ),
       ],
       child: BlocBuilder<AppLocaleCubit, Locale>(
