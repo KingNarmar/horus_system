@@ -1,6 +1,7 @@
 import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
+import '../../domain/entities/customer_status_filter.dart';
 
 sealed class CustomersState {
   const CustomersState();
@@ -16,14 +17,55 @@ class CustomersLoading extends CustomersState {
 
 class CustomersLoaded extends CustomersState {
   final CurrentCompanyContext currentCompanyContext;
-  final List<Customer> customers;
+  final List<Customer> allCustomers;
   final bool canManageCustomers;
+  final String searchQuery;
+  final CustomerStatusFilter statusFilter;
 
   const CustomersLoaded({
     required this.currentCompanyContext,
-    required this.customers,
+    required this.allCustomers,
     required this.canManageCustomers,
+    this.searchQuery = '',
+    this.statusFilter = CustomerStatusFilter.active,
   });
+
+  List<Customer> get customers {
+    final normalizedSearch = searchQuery.trim().toLowerCase();
+
+    return allCustomers.where((customer) {
+      if (!statusFilter.matches(customer)) return false;
+      if (normalizedSearch.isEmpty) return true;
+
+      return customer.name.toLowerCase().contains(normalizedSearch) ||
+          (customer.contactPerson?.toLowerCase().contains(normalizedSearch) ??
+              false) ||
+          (customer.phone?.toLowerCase().contains(normalizedSearch) ?? false) ||
+          (customer.email?.toLowerCase().contains(normalizedSearch) ?? false) ||
+          (customer.city?.toLowerCase().contains(normalizedSearch) ?? false) ||
+          (customer.country?.toLowerCase().contains(normalizedSearch) ??
+              false) ||
+          (customer.taxRegistrationNumber?.toLowerCase().contains(
+                    normalizedSearch,
+                  ) ??
+              false);
+    }).toList();
+  }
+
+  CustomersLoaded copyWith({
+    List<Customer>? allCustomers,
+    bool? canManageCustomers,
+    String? searchQuery,
+    CustomerStatusFilter? statusFilter,
+  }) {
+    return CustomersLoaded(
+      currentCompanyContext: currentCompanyContext,
+      allCustomers: allCustomers ?? this.allCustomers,
+      canManageCustomers: canManageCustomers ?? this.canManageCustomers,
+      searchQuery: searchQuery ?? this.searchQuery,
+      statusFilter: statusFilter ?? this.statusFilter,
+    );
+  }
 }
 
 class CustomersFailure extends CustomersState {
