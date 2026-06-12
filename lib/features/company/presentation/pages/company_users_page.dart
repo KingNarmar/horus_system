@@ -78,7 +78,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(state.failure.message, textAlign: TextAlign.center),
+                child: Text(
+                  l10n.localizedErrorMessage(state.failure.message),
+                  textAlign: TextAlign.center,
+                ),
               ),
             );
           }
