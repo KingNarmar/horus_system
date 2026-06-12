@@ -45,6 +45,8 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
       listener: (context, state) {
         if (state is CompanyOnboardingLoaded) {
@@ -52,9 +54,11 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
         }
 
         if (state is CompanyOnboardingFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.failure.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.localizedErrorMessage(state.failure.message)),
+            ),
+          );
         }
       },
       builder: (context, state) {
