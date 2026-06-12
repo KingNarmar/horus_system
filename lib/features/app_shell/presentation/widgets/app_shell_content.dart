@@ -9,6 +9,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
+import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../models/app_shell_destination.dart';
 import 'adaptive_access_notice.dart';
 
@@ -47,6 +48,7 @@ class AppShellContent extends StatelessWidget {
   Widget _contentForSelectedModule() {
     return switch (selected.module) {
       AppShellModule.customers => CustomersPage(currentCompanyContext: contextData),
+      AppShellModule.drivers => DriversPage(currentCompanyContext: contextData),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };
