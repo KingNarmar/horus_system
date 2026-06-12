@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -67,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
             onCreateAccount: _openRegisterPage,
           ),
           desktop: _LoginLayout(
-            maxWidth: 520,
+            maxWidth: AppSizes.desktopAuthFormMaxWidth,
             horizontalPadding: AppSpacing.xxl,
             formKey: _formKey,
             emailController: _emailController,
@@ -146,7 +147,7 @@ class _LoginLayout extends StatelessWidget {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: l10n.emailLabel,
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(AppIcons.email),
                       ),
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
@@ -164,7 +165,7 @@ class _LoginLayout extends StatelessWidget {
                       onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
                       decoration: InputDecoration(
                         labelText: l10n.passwordLabel,
-                        prefixIcon: const Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(AppIcons.password),
                       ),
                       validator: (value) {
                         if ((value ?? '').isEmpty) {
@@ -179,9 +180,11 @@ class _LoginLayout extends StatelessWidget {
                       onPressed: isLoading ? null : onSubmit,
                       child: isLoading
                           ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              width: AppSizes.loadingIndicatorSm,
+                              height: AppSizes.loadingIndicatorSm,
+                              child: CircularProgressIndicator(
+                                strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                              ),
                             )
                           : Text(l10n.loginButton),
                     ),
