@@ -8,9 +8,12 @@ class AuditLogModel {
   final String companyId;
   final String? actorUserId;
   final String? actorRole;
+  final String? actorDisplayName;
+  final String? actorEmail;
   final String module;
   final String entityType;
   final String entityId;
+  final String? entityDisplayName;
   final String action;
   final String description;
   final Map<String, dynamic>? oldValues;
@@ -23,9 +26,12 @@ class AuditLogModel {
     required this.companyId,
     this.actorUserId,
     this.actorRole,
+    this.actorDisplayName,
+    this.actorEmail,
     required this.module,
     required this.entityType,
     required this.entityId,
+    this.entityDisplayName,
     required this.action,
     required this.description,
     this.oldValues,
@@ -40,9 +46,12 @@ class AuditLogModel {
       companyId: map['company_id'] as String,
       actorUserId: map['actor_user_id'] as String?,
       actorRole: map['actor_role'] as String?,
+      actorDisplayName: map['actor_display_name'] as String?,
+      actorEmail: map['actor_email'] as String?,
       module: map['module'] as String,
       entityType: map['entity_type'] as String,
       entityId: map['entity_id'] as String,
+      entityDisplayName: map['entity_display_name'] as String?,
       action: map['action'] as String,
       description: map['description'] as String,
       oldValues: _toMap(map['old_values']),
@@ -58,9 +67,12 @@ class AuditLogModel {
       companyId: companyId,
       actorUserId: actorUserId,
       actorRole: actorRole,
+      actorDisplayName: actorDisplayName,
+      actorEmail: actorEmail,
       module: _moduleFromValue(module),
       entityType: _entityTypeFromValue(entityType),
       entityId: entityId,
+      entityDisplayName: entityDisplayName,
       action: _actionFromValue(action),
       description: description,
       oldValues: oldValues,
