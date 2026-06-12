@@ -1,6 +1,7 @@
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/customer.dart';
 import '../policies/customers_permission_policy.dart';
@@ -46,6 +47,7 @@ class DeactivateCustomerUseCase
     return _repository.deactivateCustomer(
       companyId: context.companyId,
       customerId: normalizedCustomerId,
+      actorRole: context.role.value,
     );
   }
 }
