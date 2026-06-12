@@ -1,4 +1,5 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/driver_status.dart';
 
 extension DriversLocalizationsX on AppLocalizations {
   bool get _isArabic => localeName.startsWith('ar');
@@ -47,6 +48,13 @@ extension DriversLocalizationsX on AppLocalizations {
 
   String driverDetailsTitle(String name) => _isArabic ? 'تفاصيل السائق: $name' : 'Driver details: $name';
 
+  String driverStatusLabel(DriverStatus status) {
+    if (status == DriverStatus.active) {
+      return _isArabic ? 'نشط' : 'Active';
+    }
+    return _isArabic ? 'غير نشط' : 'Inactive';
+  }
+
   String auditActionLabel(String action) {
     return switch (action) {
       'created' => _isArabic ? 'تم الإنشاء' : 'Created',
@@ -72,9 +80,8 @@ extension DriversLocalizationsX on AppLocalizations {
 
   String driverValueLabel(String field, Object? value) {
     if (field == 'is_active') {
-      return value == true
-          ? (_isArabic ? 'نشط' : 'Active')
-          : (_isArabic ? 'غير نشط' : 'Inactive');
+      final status = value == true ? DriverStatus.active : DriverStatus.inactive;
+      return driverStatusLabel(status);
     }
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? emptyValue : text;
