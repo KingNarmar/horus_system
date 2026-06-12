@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
@@ -78,13 +79,13 @@ class _DriverCard extends StatelessWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                OutlinedButton.icon(onPressed: () => onViewDetails(driver), icon: const Icon(Icons.visibility_outlined), label: Text(l10n.viewDriverDetails)),
+                OutlinedButton.icon(onPressed: () => onViewDetails(driver), icon: const Icon(AppIcons.view), label: Text(l10n.viewDriverDetails)),
                 if (canManageDrivers) ...[
-                  OutlinedButton.icon(onPressed: () => onEdit(driver), icon: const Icon(Icons.edit_outlined), label: Text(l10n.editDriverButton)),
+                  OutlinedButton.icon(onPressed: () => onEdit(driver), icon: const Icon(AppIcons.edit), label: Text(l10n.editDriverButton)),
                   if (driver.isActive)
-                    OutlinedButton.icon(onPressed: () => onDeactivate(driver), icon: const Icon(Icons.block_outlined), label: Text(l10n.deactivateDriverButton))
+                    OutlinedButton.icon(onPressed: () => onDeactivate(driver), icon: const Icon(AppIcons.deactivate), label: Text(l10n.deactivateDriverButton))
                   else
-                    OutlinedButton.icon(onPressed: () => onReactivate(driver), icon: const Icon(Icons.check_circle_outline), label: Text(l10n.reactivateDriverButton)),
+                    OutlinedButton.icon(onPressed: () => onReactivate(driver), icon: const Icon(AppIcons.reactivate), label: Text(l10n.reactivateDriverButton)),
                 ],
               ],
             ),
