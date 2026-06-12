@@ -41,18 +41,20 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   late final TextEditingController _licenseNumberController;
   late final TextEditingController _licenseExpiryController;
   late final TextEditingController _notesController;
+  DateTime? _selectedLicenseExpiryDate;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     final driver = widget.driver;
+    _selectedLicenseExpiryDate = driver?.licenseExpiryDate;
     _nameController = TextEditingController(text: driver?.fullName ?? '');
     _phoneController = TextEditingController(text: driver?.phone ?? '');
     _nationalIdController = TextEditingController(text: driver?.nationalId ?? '');
     _licenseNumberController = TextEditingController(text: driver?.licenseNumber ?? '');
     _licenseExpiryController = TextEditingController(
-      text: driver?.licenseExpiryDate == null ? '' : _dateOnly(driver!.licenseExpiryDate!),
+      text: _selectedLicenseExpiryDate == null ? '' : _dateOnly(_selectedLicenseExpiryDate!),
     );
     _notesController = TextEditingController(text: driver?.notes ?? '');
   }
@@ -93,7 +95,30 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(controller: _licenseNumberController, decoration: InputDecoration(labelText: l10n.licenseNumberLabel)),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _licenseExpiryController, decoration: InputDecoration(labelText: l10n.licenseExpiryDateLabel)),
+                TextFormField(
+                  controller: _licenseExpiryController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.licenseExpiryDateLabel,
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_licenseExpiryController.text.isNotEmpty)
+                          IconButton(
+                            tooltip: l10n.clearButton,
+                            icon: const Icon(Icons.close),
+                            onPressed: _isSubmitting ? null : _clearLicenseExpiryDate,
+                          ),
+                        IconButton(
+                          tooltip: l10n.licenseExpiryDateLabel,
+                          icon: const Icon(Icons.calendar_month_outlined),
+                          onPressed: _isSubmitting ? null : _pickLicenseExpiryDate,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: _isSubmitting ? null : _pickLicenseExpiryDate,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(controller: _notesController, decoration: InputDecoration(labelText: l10n.notesLabel), maxLines: 3),
               ],
@@ -108,6 +133,31 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     );
   }
 
+  Future<void> _pickLicenseExpiryDate() async {
+    final now = DateTime.now();
+    final initialDate = _selectedLicenseExpiryDate ?? now;
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year - 30),
+      lastDate: DateTime(now.year + 30),
+    );
+
+    if (pickedDate == null || !mounted) return;
+
+    setState(() {
+      _selectedLicenseExpiryDate = pickedDate;
+      _licenseExpiryController.text = _dateOnly(pickedDate);
+    });
+  }
+
+  void _clearLicenseExpiryDate() {
+    setState(() {
+      _selectedLicenseExpiryDate = null;
+      _licenseExpiryController.clear();
+    });
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
@@ -117,7 +167,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         phone: _optional(_phoneController.text),
         nationalId: _optional(_nationalIdController.text),
         licenseNumber: _optional(_licenseNumberController.text),
-        licenseExpiryDate: DateTime.tryParse(_licenseExpiryController.text.trim()),
+        licenseExpiryDate: _selectedLicenseExpiryDate,
         notes: _optional(_notesController.text),
       ),
     );
