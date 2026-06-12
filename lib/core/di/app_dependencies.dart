@@ -1,6 +1,7 @@
 import '../../features/audit/data/datasources/audit_logs_remote_data_source.dart';
 import '../../features/audit/data/repositories/audit_log_repository_impl.dart';
 import '../../features/audit/domain/usecases/create_audit_log_usecase.dart';
+import '../../features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -110,6 +111,9 @@ abstract final class AppDependencies {
       remoteDataSource: auditRemoteDataSource,
     );
     final createAuditLogUseCase = CreateAuditLogUseCase(auditRepository);
+    final getEntityAuditLogsUseCase = GetEntityAuditLogsUseCase(
+      auditRepository,
+    );
 
     final customersRemoteDataSource = SupabaseCustomersRemoteDataSource(
       SupabaseClientProvider.client,
@@ -125,6 +129,7 @@ abstract final class AppDependencies {
       updateCustomerUseCase: UpdateCustomerUseCase(customersRepository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(customersRepository),
       reactivateCustomerUseCase: ReactivateCustomerUseCase(customersRepository),
+      getEntityAuditLogsUseCase: getEntityAuditLogsUseCase,
     );
   }
 }
