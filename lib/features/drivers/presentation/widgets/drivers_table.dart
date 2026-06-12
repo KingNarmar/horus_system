@@ -42,8 +42,8 @@ class DriversTable extends StatelessWidget {
             rows: drivers.map((driver) {
               return DataRow(cells: [
                 DataCell(Text(driver.fullName)),
-                DataCell(Text(driver.phone ?? '-')),
-                DataCell(Text(driver.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
+                DataCell(Text(driver.phone ?? l10n.emptyValue)),
+                DataCell(Text(l10n.driverStatusLabel(driver.status))),
                 DataCell(_DriverActions(
                   driver: driver,
                   canManageDrivers: canManageDrivers,
@@ -87,7 +87,7 @@ class _DriverActions extends StatelessWidget {
         IconButton(tooltip: l10n.viewDriverDetails, onPressed: () => onViewDetails(driver), icon: const Icon(AppIcons.view)),
         if (canManageDrivers) ...[
           IconButton(tooltip: l10n.editDriverButton, onPressed: () => onEdit(driver), icon: const Icon(AppIcons.edit)),
-          if (driver.isActive)
+          if (driver.status.isActive)
             IconButton(tooltip: l10n.deactivateDriverButton, onPressed: () => onDeactivate(driver), icon: const Icon(AppIcons.deactivate))
           else
             IconButton(tooltip: l10n.reactivateDriverButton, onPressed: () => onReactivate(driver), icon: const Icon(AppIcons.reactivate)),
