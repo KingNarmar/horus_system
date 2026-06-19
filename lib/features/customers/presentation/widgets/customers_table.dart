@@ -9,6 +9,7 @@ import '../localization/customers_localizations_x.dart';
 class CustomersTable extends StatelessWidget {
   final List<Customer> customers;
   final bool canManageCustomers;
+  final String? pendingActionCustomerId;
   final ValueChanged<Customer> onViewDetails;
   final ValueChanged<Customer> onEdit;
   final ValueChanged<Customer> onDeactivate;
@@ -17,6 +18,7 @@ class CustomersTable extends StatelessWidget {
   const CustomersTable({
     required this.customers,
     required this.canManageCustomers,
+    required this.pendingActionCustomerId,
     required this.onViewDetails,
     required this.onEdit,
     required this.onDeactivate,
@@ -49,6 +51,7 @@ class CustomersTable extends StatelessWidget {
                   DataColumn(label: Text(l10n.actionsHeader)),
                 ],
                 rows: customers.map((customer) {
+                  final isActionInProgress = pendingActionCustomerId == customer.id;
                   return DataRow(cells: [
                     DataCell(Text(customer.name)),
                     DataCell(Text(customer.contactPerson ?? l10n.customerEmptyValue)),
@@ -67,20 +70,20 @@ class CustomersTable extends StatelessWidget {
                         if (canManageCustomers) ...[
                           IconButton(
                             tooltip: l10n.editCustomerButton,
-                            onPressed: () => onEdit(customer),
+                            onPressed: isActionInProgress ? null : () => onEdit(customer),
                             icon: const Icon(AppIcons.edit),
                           ),
                           if (customer.isActive)
                             IconButton(
                               tooltip: l10n.deactivateCustomerButton,
-                              onPressed: () => onDeactivate(customer),
-                              icon: const Icon(AppIcons.deactivate),
+                              onPressed: isActionInProgress ? null : () => onDeactivate(customer),
+                              icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.deactivate),
                             )
                           else
                             IconButton(
                               tooltip: l10n.reactivateCustomerButton,
-                              onPressed: () => onReactivate(customer),
-                              icon: const Icon(AppIcons.reactivate),
+                              onPressed: isActionInProgress ? null : () => onReactivate(customer),
+                              icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.reactivate),
                             ),
                         ],
                       ],
@@ -92,6 +95,26 @@ class CustomersTable extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final bool isLoading;
+  final IconData icon;
+
+  const _ActionIcon({required this.isLoading, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isLoading) return Icon(icon);
+
+    return const SizedBox(
+      width: AppSizes.iconMd,
+      height: AppSizes.iconMd,
+      child: CircularProgressIndicator(
+        strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+      ),
     );
   }
 }
