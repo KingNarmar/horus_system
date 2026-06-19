@@ -2,6 +2,7 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/tractor_head_write_data.dart';
 import '../../domain/entities/trailer_entity.dart';
+import '../../domain/entities/trailer_write_data.dart';
 import '../../domain/repositories/fleet_repository.dart';
 import '../datasources/fleet_remote_data_source.dart';
 import '../mappers/tractor_mapper.dart';
@@ -33,6 +34,18 @@ class FleetRepositoryImpl implements FleetRepository {
   @override
   Future<Result<TractorHead>> saveTractorHead({required String id, required TractorHeadWriteData data, required String actorRole}) async {
     final model = await remoteDataSource.saveTractorHead(id: id, data: data);
+    return Success(model.toEntity());
+  }
+
+  @override
+  Future<Result<TrailerEntity>> addTrailer({required TrailerWriteData data, required String actorRole}) async {
+    final model = await remoteDataSource.addTrailer(data: data);
+    return Success(model.toEntity());
+  }
+
+  @override
+  Future<Result<TrailerEntity>> editTrailer({required String id, required TrailerWriteData data, required String actorRole}) async {
+    final model = await remoteDataSource.editTrailer(id: id, data: data);
     return Success(model.toEntity());
   }
 }
