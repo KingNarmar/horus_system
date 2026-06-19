@@ -1,0 +1,157 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
+import '../../domain/entities/tractor_head.dart';
+import '../../domain/entities/trailer_entity.dart';
+import '../localization/fleet_localizations_x.dart';
+
+class TractorHeadCards extends StatelessWidget {
+  final List<TractorHead> tractorHeads;
+  final bool canManageFleet;
+  final ValueChanged<TractorHead> onEdit;
+
+  const TractorHeadCards({
+    required this.tractorHeads,
+    required this.canManageFleet,
+    required this.onEdit,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: tractorHeads
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: _FleetAssetCard(
+                plateNumber: item.plateNumber,
+                status: context.l10n.vehicleStatusText(item.status),
+                licenseExpiryDate: item.licenseExpiryDate,
+                notes: item.notes,
+                canManageFleet: canManageFleet,
+                onEdit: () => onEdit(item),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class TrailerCards extends StatelessWidget {
+  final List<TrailerEntity> trailers;
+  final bool canManageFleet;
+  final ValueChanged<TrailerEntity> onEdit;
+
+  const TrailerCards({
+    required this.trailers,
+    required this.canManageFleet,
+    required this.onEdit,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: trailers
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: _FleetAssetCard(
+                plateNumber: item.plateNumber,
+                status: context.l10n.vehicleStatusText(item.status),
+                licenseExpiryDate: item.licenseExpiryDate,
+                notes: item.technicalNotes,
+                canManageFleet: canManageFleet,
+                onEdit: () => onEdit(item),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _FleetAssetCard extends StatelessWidget {
+  final String plateNumber;
+  final String status;
+  final DateTime? licenseExpiryDate;
+  final String? notes;
+  final bool canManageFleet;
+  final VoidCallback onEdit;
+
+  const _FleetAssetCard({
+    required this.plateNumber,
+    required this.status,
+    required this.licenseExpiryDate,
+    required this.notes,
+    required this.canManageFleet,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    plateNumber,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Chip(label: Text(status)),
+                if (canManageFleet) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  IconButton(
+                    tooltip: l10n.editButton,
+                    onPressed: onEdit,
+                    icon: const Icon(AppIcons.edit),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _InfoLine(label: l10n.vehicleLicenseExpiryDateLabel, value: licenseExpiryDate == null ? l10n.emptyValue : _dateOnly(licenseExpiryDate!)),
+            _InfoLine(label: l10n.vehicleNotesLabel, value: notes == null || notes!.isEmpty ? l10n.emptyValue : notes!),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoLine extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoLine({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Wrap(
+        spacing: AppSpacing.sm,
+        children: [
+          Text('$label:', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(value),
+        ],
+      ),
+    );
+  }
+}
+
+String _dateOnly(DateTime value) {
+  final local = value.toLocal();
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
