@@ -1,5 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/tractor_head.dart';
+import '../../domain/entities/tractor_head_write_data.dart';
 import '../../domain/entities/trailer_entity.dart';
 import '../../domain/repositories/fleet_repository.dart';
 import '../datasources/fleet_remote_data_source.dart';
@@ -21,5 +22,11 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<List<TrailerEntity>>> getTrailers({required String companyId}) async {
     final models = await remoteDataSource.getTrailers(companyId: companyId);
     return Success(models.map((model) => model.toEntity()).toList());
+  }
+
+  @override
+  Future<Result<TractorHead>> addTractorHead({required TractorHeadWriteData data, required String actorRole}) async {
+    final model = await remoteDataSource.addTractorHead(data: data);
+    return Success(model.toEntity());
   }
 }
