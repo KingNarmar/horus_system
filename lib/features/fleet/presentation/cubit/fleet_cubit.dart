@@ -14,6 +14,10 @@ class FleetCubit extends Cubit<FleetState> {
   final GetTrailersUseCase getTrailersUseCase;
   final SaveTractorHeadUseCase saveTractorHeadUseCase;
   final SaveTrailerUseCase saveTrailerUseCase;
+  final DeactivateTractorHeadUseCase deactivateTractorHeadUseCase;
+  final ReactivateTractorHeadUseCase reactivateTractorHeadUseCase;
+  final DeactivateTrailerUseCase deactivateTrailerUseCase;
+  final ReactivateTrailerUseCase reactivateTrailerUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -22,6 +26,10 @@ class FleetCubit extends Cubit<FleetState> {
     required this.getTrailersUseCase,
     required this.saveTractorHeadUseCase,
     required this.saveTrailerUseCase,
+    required this.deactivateTractorHeadUseCase,
+    required this.reactivateTractorHeadUseCase,
+    required this.deactivateTrailerUseCase,
+    required this.reactivateTrailerUseCase,
   }) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
@@ -64,23 +72,17 @@ class FleetCubit extends Cubit<FleetState> {
 
   void setSearchQuery(String query) {
     final currentState = state;
-    if (currentState is FleetLoaded) {
-      emit(currentState.copyWith(searchQuery: query));
-    }
+    if (currentState is FleetLoaded) emit(currentState.copyWith(searchQuery: query));
   }
 
   void setStatusFilter(VehicleStatusFilter filter) {
     final currentState = state;
-    if (currentState is FleetLoaded) {
-      emit(currentState.copyWith(statusFilter: filter));
-    }
+    if (currentState is FleetLoaded) emit(currentState.copyWith(statusFilter: filter));
   }
 
   void selectTab(FleetAssetTab tab) {
     final currentState = state;
-    if (currentState is FleetLoaded) {
-      emit(currentState.copyWith(selectedTab: tab, searchQuery: ''));
-    }
+    if (currentState is FleetLoaded) emit(currentState.copyWith(selectedTab: tab, searchQuery: ''));
   }
 
   Future<void> saveTractorHead({
@@ -128,6 +130,42 @@ class FleetCubit extends Cubit<FleetState> {
       ),
     );
 
+    result.when(success: _upsertTrailer, failure: (failure) => emit(FleetFailure(failure)));
+  }
+
+  Future<void> deactivateTractorHead(TractorHead tractorHead) async {
+    await _changeTractorHeadActiveState(tractorHead.id, deactivateTractorHeadUseCase);
+  }
+
+  Future<void> reactivateTractorHead(TractorHead tractorHead) async {
+    await _changeTractorHeadActiveState(tractorHead.id, reactivateTractorHeadUseCase);
+  }
+
+  Future<void> deactivateTrailer(TrailerEntity trailer) async {
+    await _changeTrailerActiveState(trailer.id, deactivateTrailerUseCase);
+  }
+
+  Future<void> reactivateTrailer(TrailerEntity trailer) async {
+    await _changeTrailerActiveState(trailer.id, reactivateTrailerUseCase);
+  }
+
+  Future<void> _changeTractorHeadActiveState(
+    String id,
+    Future<dynamic> Function(FleetAssetStatusParams params) useCase,
+  ) async {
+    final context = _currentCompanyContext;
+    if (context == null) return;
+    final result = await useCase(FleetAssetStatusParams(currentCompanyContext: context, id: id));
+    result.when(success: _upsertTractorHead, failure: (failure) => emit(FleetFailure(failure)));
+  }
+
+  Future<void> _changeTrailerActiveState(
+    String id,
+    Future<dynamic> Function(FleetAssetStatusParams params) useCase,
+  ) async {
+    final context = _currentCompanyContext;
+    if (context == null) return;
+    final result = await useCase(FleetAssetStatusParams(currentCompanyContext: context, id: id));
     result.when(success: _upsertTrailer, failure: (failure) => emit(FleetFailure(failure)));
   }
 
