@@ -82,6 +82,7 @@ class CustomersStateView extends StatelessWidget {
                 return CustomersTable(
                   customers: currentState.customers,
                   canManageCustomers: currentState.canManageCustomers,
+                  pendingActionCustomerId: currentState.pendingActionCustomerId,
                   onViewDetails: onViewDetails,
                   onEdit: onEdit,
                   onDeactivate: onDeactivate,
@@ -91,6 +92,7 @@ class CustomersStateView extends StatelessWidget {
               return CustomersCards(
                 customers: currentState.customers,
                 canManageCustomers: currentState.canManageCustomers,
+                pendingActionCustomerId: currentState.pendingActionCustomerId,
                 onViewDetails: onViewDetails,
                 onEdit: onEdit,
                 onDeactivate: onDeactivate,
