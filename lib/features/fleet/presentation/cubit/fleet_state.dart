@@ -2,6 +2,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
+import '../../domain/entities/vehicle_status.dart';
 import '../../domain/entities/vehicle_status_filter.dart';
 
 sealed class FleetState {
