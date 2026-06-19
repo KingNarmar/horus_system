@@ -40,13 +40,16 @@ class _FleetPageState extends State<FleetPage> {
         initialPlateNumber: tractorHead?.plateNumber,
         initialStatus: tractorHead?.status ?? VehicleStatus.available,
         initialLicenseExpiryDate: tractorHead?.licenseExpiryDate,
+        initialExpectedFuelConsumption: tractorHead?.expectedFuelConsumption,
         initialNotes: tractorHead?.notes,
         notesLabel: l10n.vehicleNotesLabel,
+        showExpectedFuelConsumption: true,
         onSubmit: (data) => context.read<FleetCubit>().saveTractorHead(
               tractorHead: tractorHead,
               plateNumber: data.plateNumber,
               status: data.status,
               licenseExpiryDate: data.licenseExpiryDate,
+              expectedFuelConsumption: data.expectedFuelConsumption,
               notes: data.notes,
             ),
       ),
@@ -126,9 +129,7 @@ class _FleetPageState extends State<FleetPage> {
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(l10n.fleetTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                ),
+                Expanded(child: Text(l10n.fleetTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
                 if (state is FleetLoaded && state.canManageFleet)
                   _AddButton(selectedTab: state.selectedTab, onAddTractorHead: () => _openTractorHeadForm(), onAddTrailer: () => _openTrailerForm()),
               ],
