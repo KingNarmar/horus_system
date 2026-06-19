@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
@@ -134,24 +135,24 @@ class FleetCubit extends Cubit<FleetState> {
   }
 
   Future<void> deactivateTractorHead(TractorHead tractorHead) async {
-    await _changeTractorHeadActiveState(tractorHead.id, deactivateTractorHeadUseCase);
+    await _changeTractorHeadActiveState(tractorHead.id, deactivateTractorHeadUseCase.call);
   }
 
   Future<void> reactivateTractorHead(TractorHead tractorHead) async {
-    await _changeTractorHeadActiveState(tractorHead.id, reactivateTractorHeadUseCase);
+    await _changeTractorHeadActiveState(tractorHead.id, reactivateTractorHeadUseCase.call);
   }
 
   Future<void> deactivateTrailer(TrailerEntity trailer) async {
-    await _changeTrailerActiveState(trailer.id, deactivateTrailerUseCase);
+    await _changeTrailerActiveState(trailer.id, deactivateTrailerUseCase.call);
   }
 
   Future<void> reactivateTrailer(TrailerEntity trailer) async {
-    await _changeTrailerActiveState(trailer.id, reactivateTrailerUseCase);
+    await _changeTrailerActiveState(trailer.id, reactivateTrailerUseCase.call);
   }
 
   Future<void> _changeTractorHeadActiveState(
     String id,
-    Future<dynamic> Function(FleetAssetStatusParams params) useCase,
+    Future<Result<TractorHead>> Function(FleetAssetStatusParams params) useCase,
   ) async {
     final context = _currentCompanyContext;
     if (context == null) return;
@@ -161,7 +162,7 @@ class FleetCubit extends Cubit<FleetState> {
 
   Future<void> _changeTrailerActiveState(
     String id,
-    Future<dynamic> Function(FleetAssetStatusParams params) useCase,
+    Future<Result<TrailerEntity>> Function(FleetAssetStatusParams params) useCase,
   ) async {
     final context = _currentCompanyContext;
     if (context == null) return;
