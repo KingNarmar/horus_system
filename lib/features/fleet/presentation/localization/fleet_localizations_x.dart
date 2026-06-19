@@ -15,6 +15,8 @@ extension FleetLocalizationsX on AppLocalizations {
   String get plateNumberRequired => _isArabic ? 'رقم اللوحة مطلوب.' : 'Plate number is required.';
   String get vehicleStatusLabel => _isArabic ? 'حالة المركبة' : 'Vehicle status';
   String get vehicleLicenseExpiryDateLabel => _isArabic ? 'تاريخ انتهاء الترخيص' : 'License expiry date';
+  String get expectedFuelConsumptionLabel => _isArabic ? 'استهلاك الوقود المتوقع' : 'Expected fuel consumption';
+  String get expectedFuelConsumptionInvalid => _isArabic ? 'أدخل رقم صحيح غير سالب.' : 'Enter a valid non-negative number.';
   String get vehicleNotesLabel => _isArabic ? 'ملاحظات' : 'Notes';
   String get technicalNotesLabel => _isArabic ? 'ملاحظات فنية' : 'Technical notes';
   String get searchFleetHint => _isArabic ? 'ابحث برقم اللوحة أو الحالة أو الملاحظات' : 'Search by plate, status, or notes';
@@ -27,6 +29,10 @@ extension FleetLocalizationsX on AppLocalizations {
   String get editButton => _isArabic ? 'تعديل' : 'Edit';
   String get fleetDeactivateButton => _isArabic ? 'إلغاء التفعيل' : 'Deactivate';
   String get fleetReactivateButton => _isArabic ? 'إعادة التفعيل' : 'Reactivate';
+  String get fleetConfirmDeactivateTitle => _isArabic ? 'تأكيد إلغاء التفعيل' : 'Confirm deactivation';
+  String get fleetConfirmReactivateTitle => _isArabic ? 'تأكيد إعادة التفعيل' : 'Confirm reactivation';
+  String get fleetConfirmDeactivateMessage => _isArabic ? 'هل تريد إلغاء تفعيل هذا الأصل؟' : 'Do you want to deactivate this asset?';
+  String get fleetConfirmReactivateMessage => _isArabic ? 'هل تريد إعادة تفعيل هذا الأصل؟' : 'Do you want to reactivate this asset?';
   String get emptyValue => '-';
 
   String vehicleStatusText(VehicleStatus status) {
