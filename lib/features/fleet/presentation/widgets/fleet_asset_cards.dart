@@ -11,11 +11,15 @@ class TractorHeadCards extends StatelessWidget {
   final List<TractorHead> tractorHeads;
   final bool canManageFleet;
   final ValueChanged<TractorHead> onEdit;
+  final ValueChanged<TractorHead> onDeactivate;
+  final ValueChanged<TractorHead> onReactivate;
 
   const TractorHeadCards({
     required this.tractorHeads,
     required this.canManageFleet,
     required this.onEdit,
+    required this.onDeactivate,
+    required this.onReactivate,
     super.key,
   });
 
@@ -29,10 +33,13 @@ class TractorHeadCards extends StatelessWidget {
               child: _FleetAssetCard(
                 plateNumber: item.plateNumber,
                 status: context.l10n.vehicleStatusText(item.status),
+                isActive: item.isActive,
                 licenseExpiryDate: item.licenseExpiryDate,
                 notes: item.notes,
                 canManageFleet: canManageFleet,
                 onEdit: () => onEdit(item),
+                onDeactivate: () => onDeactivate(item),
+                onReactivate: () => onReactivate(item),
               ),
             ),
           )
@@ -45,11 +52,15 @@ class TrailerCards extends StatelessWidget {
   final List<TrailerEntity> trailers;
   final bool canManageFleet;
   final ValueChanged<TrailerEntity> onEdit;
+  final ValueChanged<TrailerEntity> onDeactivate;
+  final ValueChanged<TrailerEntity> onReactivate;
 
   const TrailerCards({
     required this.trailers,
     required this.canManageFleet,
     required this.onEdit,
+    required this.onDeactivate,
+    required this.onReactivate,
     super.key,
   });
 
@@ -63,10 +74,13 @@ class TrailerCards extends StatelessWidget {
               child: _FleetAssetCard(
                 plateNumber: item.plateNumber,
                 status: context.l10n.vehicleStatusText(item.status),
+                isActive: item.isActive,
                 licenseExpiryDate: item.licenseExpiryDate,
                 notes: item.technicalNotes,
                 canManageFleet: canManageFleet,
                 onEdit: () => onEdit(item),
+                onDeactivate: () => onDeactivate(item),
+                onReactivate: () => onReactivate(item),
               ),
             ),
           )
@@ -78,18 +92,24 @@ class TrailerCards extends StatelessWidget {
 class _FleetAssetCard extends StatelessWidget {
   final String plateNumber;
   final String status;
+  final bool isActive;
   final DateTime? licenseExpiryDate;
   final String? notes;
   final bool canManageFleet;
   final VoidCallback onEdit;
+  final VoidCallback onDeactivate;
+  final VoidCallback onReactivate;
 
   const _FleetAssetCard({
     required this.plateNumber,
     required this.status,
+    required this.isActive,
     required this.licenseExpiryDate,
     required this.notes,
     required this.canManageFleet,
     required this.onEdit,
+    required this.onDeactivate,
+    required this.onReactivate,
   });
 
   @override
@@ -116,6 +136,11 @@ class _FleetAssetCard extends StatelessWidget {
                     tooltip: l10n.editButton,
                     onPressed: onEdit,
                     icon: const Icon(AppIcons.edit),
+                  ),
+                  IconButton(
+                    tooltip: isActive ? l10n.fleetDeactivateButton : l10n.fleetReactivateButton,
+                    onPressed: isActive ? onDeactivate : onReactivate,
+                    icon: Icon(isActive ? AppIcons.deactivate : AppIcons.reactivate),
                   ),
                 ],
               ],
