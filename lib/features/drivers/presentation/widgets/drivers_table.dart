@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status.dart';
+import '../cubit/drivers_cubit.dart';
+import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
 
 class DriversTable extends StatelessWidget {
@@ -28,6 +31,11 @@ class DriversTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final pendingActionDriverId = context.select<DriversCubit, String?>((cubit) {
+      final state = cubit.state;
+      return state is DriversLoaded ? state.pendingActionDriverId : null;
+    });
+
     return Card(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -48,6 +56,7 @@ class DriversTable extends StatelessWidget {
                 DataCell(_DriverActions(
                   driver: driver,
                   canManageDrivers: canManageDrivers,
+                  isActionInProgress: pendingActionDriverId == driver.id,
                   onViewDetails: onViewDetails,
                   onEdit: onEdit,
                   onDeactivate: onDeactivate,
@@ -65,6 +74,7 @@ class DriversTable extends StatelessWidget {
 class _DriverActions extends StatelessWidget {
   final Driver driver;
   final bool canManageDrivers;
+  final bool isActionInProgress;
   final ValueChanged<Driver> onViewDetails;
   final ValueChanged<Driver> onEdit;
   final ValueChanged<Driver> onDeactivate;
@@ -73,6 +83,7 @@ class _DriverActions extends StatelessWidget {
   const _DriverActions({
     required this.driver,
     required this.canManageDrivers,
+    required this.isActionInProgress,
     required this.onViewDetails,
     required this.onEdit,
     required this.onDeactivate,
@@ -87,13 +98,41 @@ class _DriverActions extends StatelessWidget {
       children: [
         IconButton(tooltip: l10n.viewDriverDetails, onPressed: () => onViewDetails(driver), icon: const Icon(AppIcons.view)),
         if (canManageDrivers) ...[
-          IconButton(tooltip: l10n.editDriverButton, onPressed: () => onEdit(driver), icon: const Icon(AppIcons.edit)),
+          IconButton(tooltip: l10n.editDriverButton, onPressed: isActionInProgress ? null : () => onEdit(driver), icon: const Icon(AppIcons.edit)),
           if (driver.status.isActive)
-            IconButton(tooltip: l10n.deactivateDriverButton, onPressed: () => onDeactivate(driver), icon: const Icon(AppIcons.deactivate))
+            IconButton(
+              tooltip: l10n.deactivateDriverButton,
+              onPressed: isActionInProgress ? null : () => onDeactivate(driver),
+              icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.deactivate),
+            )
           else
-            IconButton(tooltip: l10n.reactivateDriverButton, onPressed: () => onReactivate(driver), icon: const Icon(AppIcons.reactivate)),
+            IconButton(
+              tooltip: l10n.reactivateDriverButton,
+              onPressed: isActionInProgress ? null : () => onReactivate(driver),
+              icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.reactivate),
+            ),
         ],
       ],
+    );
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final bool isLoading;
+  final IconData icon;
+
+  const _ActionIcon({required this.isLoading, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isLoading) return Icon(icon);
+
+    return const SizedBox(
+      width: AppSizes.iconMd,
+      height: AppSizes.iconMd,
+      child: CircularProgressIndicator(
+        strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+      ),
     );
   }
 }
