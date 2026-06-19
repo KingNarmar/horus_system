@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../domain/entities/tractor_head.dart';
+import '../../domain/entities/trailer_entity.dart';
+import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_cubit.dart';
 import '../cubit/fleet_state.dart';
 import '../localization/fleet_localizations_x.dart';
+import '../widgets/fleet_asset_cards.dart';
+import '../widgets/fleet_filters.dart';
+import '../widgets/fleet_form_dialog.dart';
 
 class FleetPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
@@ -24,29 +31,175 @@ class _FleetPageState extends State<FleetPage> {
     context.read<FleetCubit>().loadFleet(widget.currentCompanyContext);
   }
 
+  Future<void> _openTractorHeadForm({TractorHead? tractorHead}) async {
+    final l10n = context.l10n;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => FleetFormDialog(
+        title: tractorHead == null ? l10n.addTractorHeadButton : l10n.editTractorHeadTitle,
+        initialPlateNumber: tractorHead?.plateNumber,
+        initialStatus: tractorHead?.status ?? VehicleStatus.available,
+        initialLicenseExpiryDate: tractorHead?.licenseExpiryDate,
+        initialNotes: tractorHead?.notes,
+        notesLabel: l10n.vehicleNotesLabel,
+        onSubmit: (data) => context.read<FleetCubit>().saveTractorHead(
+              tractorHead: tractorHead,
+              plateNumber: data.plateNumber,
+              status: data.status,
+              licenseExpiryDate: data.licenseExpiryDate,
+              notes: data.notes,
+            ),
+      ),
+    );
+  }
+
+  Future<void> _openTrailerForm({TrailerEntity? trailer}) async {
+    final l10n = context.l10n;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => FleetFormDialog(
+        title: trailer == null ? l10n.addTrailerButton : l10n.editTrailerTitle,
+        initialPlateNumber: trailer?.plateNumber,
+        initialStatus: trailer?.status ?? VehicleStatus.available,
+        initialLicenseExpiryDate: trailer?.licenseExpiryDate,
+        initialNotes: trailer?.technicalNotes,
+        notesLabel: l10n.technicalNotesLabel,
+        onSubmit: (data) => context.read<FleetCubit>().saveTrailer(
+              trailer: trailer,
+              plateNumber: data.plateNumber,
+              status: data.status,
+              licenseExpiryDate: data.licenseExpiryDate,
+              technicalNotes: data.notes,
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return BlocBuilder<FleetCubit, FleetState>(
       builder: (context, state) {
-        if (state is FleetInitial || state is FleetLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (state is FleetFailure) {
-          return Text(l10n.localizedErrorMessage(state.failure));
-        }
-        if (state is! FleetLoaded) return const SizedBox.shrink();
-
+        final cubit = context.read<FleetCubit>();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.fleetTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.fleetTitle,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (state is FleetLoaded && state.canManageFleet)
+                  _AddButton(
+                    selectedTab: state.selectedTab,
+                    onAddTractorHead: () => _openTractorHeadForm(),
+                    onAddTrailer: () => _openTrailerForm(),
+                  ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.lg),
-            Text('${l10n.tractorHeadsTab}: ${state.allTractorHeads.length}'),
-            Text('${l10n.trailersTab}: ${state.allTrailers.length}'),
+            if (state is FleetInitial || state is FleetLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (state is FleetFailure)
+              _MessageCard(
+                message: l10n.localizedErrorMessage(state.failure),
+                action: OutlinedButton(
+                  onPressed: () => cubit.loadFleet(widget.currentCompanyContext),
+                  child: Text(l10n.retryButton),
+                ),
+              )
+            else if (state is FleetLoaded) ...[
+              FleetFilters(
+                selectedTab: state.selectedTab,
+                statusFilter: state.statusFilter,
+                onTabChanged: cubit.selectTab,
+                onSearchChanged: cubit.setSearchQuery,
+                onStatusFilterChanged: cubit.setStatusFilter,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _FleetAssetBody(
+                state: state,
+                onEditTractorHead: (tractorHead) => _openTractorHeadForm(tractorHead: tractorHead),
+                onEditTrailer: (trailer) => _openTrailerForm(trailer: trailer),
+              ),
+            ],
           ],
         );
       },
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  final FleetAssetTab selectedTab;
+  final VoidCallback onAddTractorHead;
+  final VoidCallback onAddTrailer;
+
+  const _AddButton({required this.selectedTab, required this.onAddTractorHead, required this.onAddTrailer});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isTractorHead = selectedTab == FleetAssetTab.tractorHeads;
+    return FilledButton.icon(
+      onPressed: isTractorHead ? onAddTractorHead : onAddTrailer,
+      icon: const Icon(AppIcons.add),
+      label: Text(isTractorHead ? l10n.addTractorHeadButton : l10n.addTrailerButton),
+    );
+  }
+}
+
+class _FleetAssetBody extends StatelessWidget {
+  final FleetLoaded state;
+  final ValueChanged<TractorHead> onEditTractorHead;
+  final ValueChanged<TrailerEntity> onEditTrailer;
+
+  const _FleetAssetBody({required this.state, required this.onEditTractorHead, required this.onEditTrailer});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    if (state.selectedTab == FleetAssetTab.tractorHeads) {
+      if (state.allTractorHeads.isEmpty) return _MessageCard(message: l10n.noTractorHeadsFound);
+      if (state.tractorHeads.isEmpty) return _MessageCard(message: l10n.noFleetMatchFilters);
+      return TractorHeadCards(
+        tractorHeads: state.tractorHeads,
+        canManageFleet: state.canManageFleet,
+        onEdit: onEditTractorHead,
+      );
+    }
+
+    if (state.allTrailers.isEmpty) return _MessageCard(message: l10n.noTrailersFound);
+    if (state.trailers.isEmpty) return _MessageCard(message: l10n.noFleetMatchFilters);
+    return TrailerCards(
+      trailers: state.trailers,
+      canManageFleet: state.canManageFleet,
+      onEdit: onEditTrailer,
+    );
+  }
+}
+
+class _MessageCard extends StatelessWidget {
+  final String message;
+  final Widget? action;
+
+  const _MessageCard({required this.message, this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          children: [
+            Text(message, textAlign: TextAlign.center),
+            if (action != null) ...[const SizedBox(height: AppSpacing.md), action!],
+          ],
+        ),
+      ),
     );
   }
 }
