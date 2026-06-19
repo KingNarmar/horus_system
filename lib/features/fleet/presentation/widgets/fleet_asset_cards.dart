@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
@@ -6,24 +7,26 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
+import '../cubit/fleet_cubit.dart';
+import '../cubit/fleet_state.dart';
 import '../localization/fleet_localizations_x.dart';
+import 'fleet_details_dialog.dart';
 
 class TractorHeadCards extends StatelessWidget {
   final List<TractorHead> tractorHeads;
   final bool canManageFleet;
   final bool Function(String id) isActionLoading;
-  final ValueChanged<TractorHead> onViewDetails;
   final ValueChanged<TractorHead> onEdit;
   final ValueChanged<TractorHead> onDeactivate;
   final ValueChanged<TractorHead> onReactivate;
 
-  const TractorHeadCards({required this.tractorHeads, required this.canManageFleet, required this.isActionLoading, required this.onViewDetails, required this.onEdit, required this.onDeactivate, required this.onReactivate, super.key});
+  const TractorHeadCards({required this.tractorHeads, required this.canManageFleet, required this.isActionLoading, required this.onEdit, required this.onDeactivate, required this.onReactivate, super.key});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) return _TractorHeadsTable(view: this);
-      return _FleetCardsLayout(children: tractorHeads.map((item) => _FleetAssetCard(plateNumber: item.plateNumber, status: context.l10n.vehicleStatusText(item.status), isActive: item.isActive, isActionLoading: isActionLoading(item.id), licenseExpiryDate: item.licenseExpiryDate, expectedFuelConsumption: item.expectedFuelConsumption, notes: item.notes, canManageFleet: canManageFleet, onViewDetails: () => onViewDetails(item), onEdit: () => onEdit(item), onDeactivate: () => onDeactivate(item), onReactivate: () => onReactivate(item))).toList());
+      return _FleetCardsLayout(children: tractorHeads.map((item) => _FleetAssetCard(plateNumber: item.plateNumber, status: context.l10n.vehicleStatusText(item.status), isActive: item.isActive, isActionLoading: isActionLoading(item.id), licenseExpiryDate: item.licenseExpiryDate, expectedFuelConsumption: item.expectedFuelConsumption, notes: item.notes, canManageFleet: canManageFleet, onViewDetails: () => _openTractorHeadDetails(context, item), onEdit: () => onEdit(item), onDeactivate: () => onDeactivate(item), onReactivate: () => onReactivate(item))).toList());
     });
   }
 }
@@ -32,18 +35,17 @@ class TrailerCards extends StatelessWidget {
   final List<TrailerEntity> trailers;
   final bool canManageFleet;
   final bool Function(String id) isActionLoading;
-  final ValueChanged<TrailerEntity> onViewDetails;
   final ValueChanged<TrailerEntity> onEdit;
   final ValueChanged<TrailerEntity> onDeactivate;
   final ValueChanged<TrailerEntity> onReactivate;
 
-  const TrailerCards({required this.trailers, required this.canManageFleet, required this.isActionLoading, required this.onViewDetails, required this.onEdit, required this.onDeactivate, required this.onReactivate, super.key});
+  const TrailerCards({required this.trailers, required this.canManageFleet, required this.isActionLoading, required this.onEdit, required this.onDeactivate, required this.onReactivate, super.key});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) return _TrailersTable(view: this);
-      return _FleetCardsLayout(children: trailers.map((item) => _FleetAssetCard(plateNumber: item.plateNumber, status: context.l10n.vehicleStatusText(item.status), isActive: item.isActive, isActionLoading: isActionLoading(item.id), licenseExpiryDate: item.licenseExpiryDate, notes: item.technicalNotes, canManageFleet: canManageFleet, onViewDetails: () => onViewDetails(item), onEdit: () => onEdit(item), onDeactivate: () => onDeactivate(item), onReactivate: () => onReactivate(item))).toList());
+      return _FleetCardsLayout(children: trailers.map((item) => _FleetAssetCard(plateNumber: item.plateNumber, status: context.l10n.vehicleStatusText(item.status), isActive: item.isActive, isActionLoading: isActionLoading(item.id), licenseExpiryDate: item.licenseExpiryDate, notes: item.technicalNotes, canManageFleet: canManageFleet, onViewDetails: () => _openTrailerDetails(context, item), onEdit: () => onEdit(item), onDeactivate: () => onDeactivate(item), onReactivate: () => onReactivate(item))).toList());
     });
   }
 }
@@ -57,15 +59,7 @@ class _TractorHeadsTable extends StatelessWidget {
     final l10n = context.l10n;
     return _TableShell(
       child: DataTable(
-        columns: [
-          DataColumn(label: Text(l10n.plateNumberLabel)),
-          DataColumn(label: Text(l10n.vehicleStatusLabel)),
-          DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)),
-          DataColumn(label: Text(l10n.expectedFuelConsumptionLabel)),
-          DataColumn(label: Text(l10n.vehicleNotesLabel)),
-          DataColumn(label: Text(l10n.statusHeader)),
-          DataColumn(label: Text(l10n.actionsHeader)),
-        ],
+        columns: [DataColumn(label: Text(l10n.plateNumberLabel)), DataColumn(label: Text(l10n.vehicleStatusLabel)), DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)), DataColumn(label: Text(l10n.expectedFuelConsumptionLabel)), DataColumn(label: Text(l10n.vehicleNotesLabel)), DataColumn(label: Text(l10n.statusHeader)), DataColumn(label: Text(l10n.actionsHeader))],
         rows: view.tractorHeads.map((item) {
           final loading = view.isActionLoading(item.id);
           return DataRow(cells: [
@@ -75,7 +69,7 @@ class _TractorHeadsTable extends StatelessWidget {
             DataCell(Text(item.expectedFuelConsumption == null ? l10n.emptyValue : _numberText(item.expectedFuelConsumption!))),
             DataCell(Text(item.notes ?? l10n.emptyValue)),
             DataCell(Text(item.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
-            DataCell(_Actions(canManage: view.canManageFleet, isActive: item.isActive, isLoading: loading, onViewDetails: () => view.onViewDetails(item), onEdit: () => view.onEdit(item), onDeactivate: () => view.onDeactivate(item), onReactivate: () => view.onReactivate(item))),
+            DataCell(_Actions(canManage: view.canManageFleet, isActive: item.isActive, isLoading: loading, onViewDetails: () => _openTractorHeadDetails(context, item), onEdit: () => view.onEdit(item), onDeactivate: () => view.onDeactivate(item), onReactivate: () => view.onReactivate(item))),
           ]);
         }).toList(),
       ),
@@ -92,14 +86,7 @@ class _TrailersTable extends StatelessWidget {
     final l10n = context.l10n;
     return _TableShell(
       child: DataTable(
-        columns: [
-          DataColumn(label: Text(l10n.plateNumberLabel)),
-          DataColumn(label: Text(l10n.vehicleStatusLabel)),
-          DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)),
-          DataColumn(label: Text(l10n.technicalNotesLabel)),
-          DataColumn(label: Text(l10n.statusHeader)),
-          DataColumn(label: Text(l10n.actionsHeader)),
-        ],
+        columns: [DataColumn(label: Text(l10n.plateNumberLabel)), DataColumn(label: Text(l10n.vehicleStatusLabel)), DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)), DataColumn(label: Text(l10n.technicalNotesLabel)), DataColumn(label: Text(l10n.statusHeader)), DataColumn(label: Text(l10n.actionsHeader))],
         rows: view.trailers.map((item) {
           final loading = view.isActionLoading(item.id);
           return DataRow(cells: [
@@ -108,7 +95,7 @@ class _TrailersTable extends StatelessWidget {
             DataCell(Text(_dateOnlyOrEmpty(context, item.licenseExpiryDate))),
             DataCell(Text(item.technicalNotes ?? l10n.emptyValue)),
             DataCell(Text(item.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
-            DataCell(_Actions(canManage: view.canManageFleet, isActive: item.isActive, isLoading: loading, onViewDetails: () => view.onViewDetails(item), onEdit: () => view.onEdit(item), onDeactivate: () => view.onDeactivate(item), onReactivate: () => view.onReactivate(item))),
+            DataCell(_Actions(canManage: view.canManageFleet, isActive: item.isActive, isLoading: loading, onViewDetails: () => _openTrailerDetails(context, item), onEdit: () => view.onEdit(item), onDeactivate: () => view.onDeactivate(item), onReactivate: () => view.onReactivate(item))),
           ]);
         }).toList(),
       ),
@@ -199,6 +186,20 @@ class _ActionIcon extends StatelessWidget {
   const _ActionIcon({required this.isLoading, required this.icon});
   @override
   Widget build(BuildContext context) => isLoading ? const SizedBox(width: AppSizes.iconMd, height: AppSizes.iconMd, child: CircularProgressIndicator(strokeWidth: AppSizes.loadingIndicatorStrokeWidth)) : Icon(icon);
+}
+
+Future<void> _openTractorHeadDetails(BuildContext context, TractorHead item) async {
+  final cubit = context.read<FleetCubit>();
+  cubit.loadTractorHeadActivity(item);
+  await showDialog<void>(context: context, builder: (_) => BlocBuilder<FleetCubit, FleetState>(builder: (context, state) => FleetDetailsDialog(assetId: item.id, plateNumber: item.plateNumber, status: item.status, isActive: item.isActive, licenseExpiryDate: item.licenseExpiryDate, expectedFuelConsumption: item.expectedFuelConsumption, notes: item.notes, notesLabel: context.l10n.vehicleNotesLabel, state: state is FleetLoaded ? state : null)));
+  cubit.clearFleetAssetActivity();
+}
+
+Future<void> _openTrailerDetails(BuildContext context, TrailerEntity item) async {
+  final cubit = context.read<FleetCubit>();
+  cubit.loadTrailerActivity(item);
+  await showDialog<void>(context: context, builder: (_) => BlocBuilder<FleetCubit, FleetState>(builder: (context, state) => FleetDetailsDialog(assetId: item.id, plateNumber: item.plateNumber, status: item.status, isActive: item.isActive, licenseExpiryDate: item.licenseExpiryDate, notes: item.technicalNotes, notesLabel: context.l10n.technicalNotesLabel, state: state is FleetLoaded ? state : null)));
+  cubit.clearFleetAssetActivity();
 }
 
 String _dateOnlyOrEmpty(BuildContext context, DateTime? value) {
