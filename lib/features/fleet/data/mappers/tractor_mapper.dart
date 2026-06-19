@@ -15,6 +15,7 @@ extension TractorHeadModelMapper on TractorHeadModel {
       status: VehicleStatusX.fromValue(status),
       isActive: isActive,
       licenseExpiryDate: licenseExpiryDate,
+      expectedFuelConsumption: expectedFuelConsumption,
       notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -28,6 +29,7 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
       TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
     };
@@ -37,6 +39,7 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
     return {
       TractorHeadDbFields.plateNumber: plateNumber,
       TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
