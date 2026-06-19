@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
@@ -222,7 +223,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     return true;
   }
 
-  void _emitMutationFailure(failure) {
+  void _emitMutationFailure(Failure failure) {
     final currentState = state;
     if (currentState is CustomersLoaded) {
       emit(currentState.copyWith(pendingActionCustomerId: null));
