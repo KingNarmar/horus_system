@@ -36,18 +36,12 @@ class CustomersCubit extends Cubit<CustomersState> {
   Future<void> loadCustomers(CurrentCompanyContext currentCompanyContext) async {
     _currentCompanyContext = currentCompanyContext;
     final previousState = state;
-    final previousSearchQuery = previousState is CustomersLoaded
-        ? previousState.searchQuery
-        : '';
-    final previousStatusFilter = previousState is CustomersLoaded
-        ? previousState.statusFilter
-        : CustomerStatusFilter.active;
+    final previousSearchQuery = previousState is CustomersLoaded ? previousState.searchQuery : '';
+    final previousStatusFilter = previousState is CustomersLoaded ? previousState.statusFilter : CustomerStatusFilter.active;
 
     emit(const CustomersLoading());
 
-    final result = await getCustomersUseCase(
-      GetCustomersParams(currentCompanyContext: currentCompanyContext),
-    );
+    final result = await getCustomersUseCase(GetCustomersParams(currentCompanyContext: currentCompanyContext));
 
     result.when(
       success: (customers) => emit(
@@ -56,9 +50,7 @@ class CustomersCubit extends Cubit<CustomersState> {
           allCustomers: customers,
           searchQuery: previousSearchQuery,
           statusFilter: previousStatusFilter,
-          canManageCustomers: CustomersPermissionPolicy.canManageCustomers(
-            currentCompanyContext.role,
-          ),
+          canManageCustomers: CustomersPermissionPolicy.canManageCustomers(currentCompanyContext.role),
         ),
       ),
       failure: (failure) => emit(CustomersFailure(failure)),
@@ -82,9 +74,7 @@ class CustomersCubit extends Cubit<CustomersState> {
   Future<void> loadCustomerActivity(Customer customer) async {
     final currentCompanyContext = _currentCompanyContext;
     final currentState = state;
-    if (currentCompanyContext == null || currentState is! CustomersLoaded) {
-      return;
-    }
+    if (currentCompanyContext == null || currentState is! CustomersLoaded) return;
 
     emit(
       currentState.copyWith(
@@ -105,10 +95,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     );
 
     final latestState = state;
-    if (latestState is! CustomersLoaded ||
-        latestState.selectedCustomer?.id != customer.id) {
-      return;
-    }
+    if (latestState is! CustomersLoaded || latestState.selectedCustomer?.id != customer.id) return;
 
     result.when(
       success: (activity) => emit(
@@ -119,10 +106,7 @@ class CustomersCubit extends Cubit<CustomersState> {
         ),
       ),
       failure: (failure) => emit(
-        latestState.copyWith(
-          isActivityLoading: false,
-          activityFailure: failure,
-        ),
+        latestState.copyWith(isActivityLoading: false, activityFailure: failure),
       ),
     );
   }
@@ -170,10 +154,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    result.when(
-      success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
-    );
+    result.when(success: _upsertCustomer, failure: (failure) => emit(CustomersFailure(failure)));
   }
 
   Future<void> updateCustomer({
@@ -207,48 +188,29 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    result.when(
-      success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
-    );
+    result.when(success: _upsertCustomer, failure: (failure) => emit(CustomersFailure(failure)));
   }
 
   Future<void> deactivateCustomer(Customer customer) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null || !_startPendingAction(customer.id)) {
-      return;
-    }
+    if (currentCompanyContext == null || !_startPendingAction(customer.id)) return;
 
     final result = await deactivateCustomerUseCase(
-      DeactivateCustomerParams(
-        currentCompanyContext: currentCompanyContext,
-        customerId: customer.id,
-      ),
+      DeactivateCustomerParams(currentCompanyContext: currentCompanyContext, customerId: customer.id),
     );
 
-    result.when(
-      success: _upsertCustomer,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
   Future<void> reactivateCustomer(Customer customer) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null || !_startPendingAction(customer.id)) {
-      return;
-    }
+    if (currentCompanyContext == null || !_startPendingAction(customer.id)) return;
 
     final result = await reactivateCustomerUseCase(
-      ReactivateCustomerParams(
-        currentCompanyContext: currentCompanyContext,
-        customerId: customer.id,
-      ),
+      ReactivateCustomerParams(currentCompanyContext: currentCompanyContext, customerId: customer.id),
     );
 
-    result.when(
-      success: _upsertCustomer,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
   bool _startPendingAction(String customerId) {
@@ -260,12 +222,12 @@ class CustomersCubit extends Cubit<CustomersState> {
     return true;
   }
 
-  void _emitMutationFailure(Object failure) {
+  void _emitMutationFailure(failure) {
     final currentState = state;
     if (currentState is CustomersLoaded) {
       emit(currentState.copyWith(pendingActionCustomerId: null));
     }
-    emit(CustomersFailure(failure as dynamic));
+    emit(CustomersFailure(failure));
   }
 
   void _upsertCustomer(Customer customer) {
@@ -273,17 +235,13 @@ class CustomersCubit extends Cubit<CustomersState> {
     final currentCompanyContext = _currentCompanyContext;
 
     if (currentState is! CustomersLoaded) {
-      if (currentCompanyContext != null) {
-        loadCustomers(currentCompanyContext);
-      }
+      if (currentCompanyContext != null) loadCustomers(currentCompanyContext);
       return;
     }
 
     final exists = currentState.allCustomers.any((item) => item.id == customer.id);
     final updatedCustomers = exists
-        ? currentState.allCustomers
-            .map((item) => item.id == customer.id ? customer : item)
-            .toList()
+        ? currentState.allCustomers.map((item) => item.id == customer.id ? customer : item).toList()
         : [customer, ...currentState.allCustomers];
 
     if (currentState.selectedCustomer?.id == customer.id) {
@@ -297,11 +255,6 @@ class CustomersCubit extends Cubit<CustomersState> {
       return;
     }
 
-    emit(
-      currentState.copyWith(
-        allCustomers: updatedCustomers,
-        pendingActionCustomerId: null,
-      ),
-    );
+    emit(currentState.copyWith(allCustomers: updatedCustomers, pendingActionCustomerId: null));
   }
 }
