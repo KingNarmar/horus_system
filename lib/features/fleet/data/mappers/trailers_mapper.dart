@@ -30,7 +30,6 @@ extension TrailerWriteDataMapper on TrailerWriteData {
       TrailerDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
-      DbCommonFields.isActive: status.isActive,
     };
   }
 
@@ -40,7 +39,6 @@ extension TrailerWriteDataMapper on TrailerWriteData {
       TrailerDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
-      DbCommonFields.isActive: status.isActive,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
