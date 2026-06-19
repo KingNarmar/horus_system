@@ -27,6 +27,7 @@ class FleetLoaded extends FleetState {
   final String searchQuery;
   final VehicleStatusFilter statusFilter;
   final FleetAssetTab selectedTab;
+  final Set<String> activeStateChangingAssetIds;
 
   const FleetLoaded({
     required this.currentCompanyContext,
@@ -36,7 +37,12 @@ class FleetLoaded extends FleetState {
     this.searchQuery = '',
     this.statusFilter = VehicleStatusFilter.active,
     this.selectedTab = FleetAssetTab.tractorHeads,
+    this.activeStateChangingAssetIds = const <String>{},
   });
+
+  bool isActiveStateChanging(String id) {
+    return activeStateChangingAssetIds.contains(id);
+  }
 
   List<TractorHead> get tractorHeads {
     final query = searchQuery.trim().toLowerCase();
@@ -67,6 +73,7 @@ class FleetLoaded extends FleetState {
     String? searchQuery,
     VehicleStatusFilter? statusFilter,
     FleetAssetTab? selectedTab,
+    Set<String>? activeStateChangingAssetIds,
   }) {
     return FleetLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -76,6 +83,7 @@ class FleetLoaded extends FleetState {
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
       selectedTab: selectedTab ?? this.selectedTab,
+      activeStateChangingAssetIds: activeStateChangingAssetIds ?? this.activeStateChangingAssetIds,
     );
   }
 }
