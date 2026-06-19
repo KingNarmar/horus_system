@@ -24,6 +24,7 @@ class DriversLoaded extends DriversState {
   final bool canManageDrivers;
   final String searchQuery;
   final DriverStatusFilter statusFilter;
+  final String? pendingActionDriverId;
   final Driver? selectedDriver;
   final List<AuditLog> selectedDriverActivity;
   final bool isActivityLoading;
@@ -35,6 +36,7 @@ class DriversLoaded extends DriversState {
     required this.canManageDrivers,
     this.searchQuery = '',
     this.statusFilter = DriverStatusFilter.active,
+    this.pendingActionDriverId,
     this.selectedDriver,
     this.selectedDriverActivity = const [],
     this.isActivityLoading = false,
@@ -65,6 +67,7 @@ class DriversLoaded extends DriversState {
     bool? canManageDrivers,
     String? searchQuery,
     DriverStatusFilter? statusFilter,
+    Object? pendingActionDriverId = _notSet,
     Object? selectedDriver = _notSet,
     List<AuditLog>? selectedDriverActivity,
     bool? isActivityLoading,
@@ -76,6 +79,9 @@ class DriversLoaded extends DriversState {
       canManageDrivers: canManageDrivers ?? this.canManageDrivers,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
+      pendingActionDriverId: pendingActionDriverId == _notSet
+          ? this.pendingActionDriverId
+          : pendingActionDriverId as String?,
       selectedDriver: selectedDriver == _notSet
           ? this.selectedDriver
           : selectedDriver as Driver?,
