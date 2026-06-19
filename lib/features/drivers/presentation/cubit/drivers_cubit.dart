@@ -36,18 +36,12 @@ class DriversCubit extends Cubit<DriversState> {
   Future<void> loadDrivers(CurrentCompanyContext currentCompanyContext) async {
     _currentCompanyContext = currentCompanyContext;
     final previousState = state;
-    final previousSearchQuery = previousState is DriversLoaded
-        ? previousState.searchQuery
-        : '';
-    final previousStatusFilter = previousState is DriversLoaded
-        ? previousState.statusFilter
-        : DriverStatusFilter.active;
+    final previousSearchQuery = previousState is DriversLoaded ? previousState.searchQuery : '';
+    final previousStatusFilter = previousState is DriversLoaded ? previousState.statusFilter : DriverStatusFilter.active;
 
     emit(const DriversLoading());
 
-    final result = await getDriversUseCase(
-      GetDriversParams(currentCompanyContext: currentCompanyContext),
-    );
+    final result = await getDriversUseCase(GetDriversParams(currentCompanyContext: currentCompanyContext));
 
     result.when(
       success: (drivers) => emit(
@@ -56,9 +50,7 @@ class DriversCubit extends Cubit<DriversState> {
           allDrivers: drivers,
           searchQuery: previousSearchQuery,
           statusFilter: previousStatusFilter,
-          canManageDrivers: DriversPermissionPolicy.canManageDrivers(
-            currentCompanyContext.role,
-          ),
+          canManageDrivers: DriversPermissionPolicy.canManageDrivers(currentCompanyContext.role),
         ),
       ),
       failure: (failure) => emit(DriversFailure(failure)),
@@ -103,10 +95,7 @@ class DriversCubit extends Cubit<DriversState> {
     );
 
     final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
-      return;
-    }
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
 
     result.when(
       success: (activity) => emit(
@@ -159,10 +148,7 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    result.when(success: _upsertDriver, failure: (failure) => emit(DriversFailure(failure)));
   }
 
   Future<void> updateDriver({
@@ -190,44 +176,46 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    result.when(success: _upsertDriver, failure: (failure) => emit(DriversFailure(failure)));
   }
 
   Future<void> deactivateDriver(Driver driver) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null || !_startPendingAction(driver.id)) return;
 
     final result = await deactivateDriverUseCase(
-      DeactivateDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        driverId: driver.id,
-      ),
+      DeactivateDriverParams(currentCompanyContext: currentCompanyContext, driverId: driver.id),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    result.when(success: _upsertDriver, failure: _emitMutationFailure);
   }
 
   Future<void> reactivateDriver(Driver driver) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null || !_startPendingAction(driver.id)) return;
 
     final result = await reactivateDriverUseCase(
-      ReactivateDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        driverId: driver.id,
-      ),
+      ReactivateDriverParams(currentCompanyContext: currentCompanyContext, driverId: driver.id),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    result.when(success: _upsertDriver, failure: _emitMutationFailure);
+  }
+
+  bool _startPendingAction(String driverId) {
+    final currentState = state;
+    if (currentState is! DriversLoaded) return true;
+    if (currentState.pendingActionDriverId != null) return false;
+
+    emit(currentState.copyWith(pendingActionDriverId: driverId));
+    return true;
+  }
+
+  void _emitMutationFailure(failure) {
+    final currentState = state;
+    if (currentState is DriversLoaded) {
+      emit(currentState.copyWith(pendingActionDriverId: null));
+    }
+    emit(DriversFailure(failure));
   }
 
   void _upsertDriver(Driver driver) {
@@ -235,24 +223,26 @@ class DriversCubit extends Cubit<DriversState> {
     final currentCompanyContext = _currentCompanyContext;
 
     if (currentState is! DriversLoaded) {
-      if (currentCompanyContext != null) {
-        loadDrivers(currentCompanyContext);
-      }
+      if (currentCompanyContext != null) loadDrivers(currentCompanyContext);
       return;
     }
 
     final exists = currentState.allDrivers.any((item) => item.id == driver.id);
     final updatedDrivers = exists
-        ? currentState.allDrivers
-            .map((item) => item.id == driver.id ? driver : item)
-            .toList()
+        ? currentState.allDrivers.map((item) => item.id == driver.id ? driver : item).toList()
         : [driver, ...currentState.allDrivers];
 
     if (currentState.selectedDriver?.id == driver.id) {
-      emit(currentState.copyWith(allDrivers: updatedDrivers, selectedDriver: driver));
+      emit(
+        currentState.copyWith(
+          allDrivers: updatedDrivers,
+          pendingActionDriverId: null,
+          selectedDriver: driver,
+        ),
+      );
       return;
     }
 
-    emit(currentState.copyWith(allDrivers: updatedDrivers));
+    emit(currentState.copyWith(allDrivers: updatedDrivers, pendingActionDriverId: null));
   }
 }
