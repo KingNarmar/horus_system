@@ -184,6 +184,7 @@ class _FleetAssetBody extends StatelessWidget {
       return TractorHeadCards(
         tractorHeads: state.tractorHeads,
         canManageFleet: state.canManageFleet,
+        isActionLoading: state.isActiveStateChanging,
         onEdit: onEditTractorHead,
         onDeactivate: onDeactivateTractorHead,
         onReactivate: onReactivateTractorHead,
@@ -195,6 +196,7 @@ class _FleetAssetBody extends StatelessWidget {
     return TrailerCards(
       trailers: state.trailers,
       canManageFleet: state.canManageFleet,
+      isActionLoading: state.isActiveStateChanging,
       onEdit: onEditTrailer,
       onDeactivate: onDeactivateTrailer,
       onReactivate: onReactivateTrailer,
