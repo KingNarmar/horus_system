@@ -1,4 +1,5 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -54,7 +55,8 @@ class SaveTrailerParams {
   });
 }
 
-class GetTractorHeadsUseCase implements UseCase<List<TractorHead>, GetFleetParams> {
+class GetTractorHeadsUseCase
+    implements UseCase<List<TractorHead>, GetFleetParams> {
   final FleetRepository _repository;
 
   const GetTractorHeadsUseCase(this._repository);
@@ -65,7 +67,10 @@ class GetTractorHeadsUseCase implements UseCase<List<TractorHead>, GetFleetParam
     if (!FleetPermissionPolicy.canViewFleet(context.role)) {
       return Future.value(
         const FailureResult<List<TractorHead>>(
-          PermissionFailure(code: FailureCodes.permissionFleetView, message: 'Fleet access is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionFleetView,
+            message: 'Fleet access is not allowed.',
+          ),
         ),
       );
     }
@@ -73,7 +78,8 @@ class GetTractorHeadsUseCase implements UseCase<List<TractorHead>, GetFleetParam
   }
 }
 
-class GetTrailersUseCase implements UseCase<List<TrailerEntity>, GetFleetParams> {
+class GetTrailersUseCase
+    implements UseCase<List<TrailerEntity>, GetFleetParams> {
   final FleetRepository _repository;
 
   const GetTrailersUseCase(this._repository);
@@ -84,7 +90,10 @@ class GetTrailersUseCase implements UseCase<List<TrailerEntity>, GetFleetParams>
     if (!FleetPermissionPolicy.canViewFleet(context.role)) {
       return Future.value(
         const FailureResult<List<TrailerEntity>>(
-          PermissionFailure(code: FailureCodes.permissionFleetView, message: 'Fleet access is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionFleetView,
+            message: 'Fleet access is not allowed.',
+          ),
         ),
       );
     }
@@ -92,7 +101,8 @@ class GetTrailersUseCase implements UseCase<List<TrailerEntity>, GetFleetParams>
   }
 }
 
-class SaveTractorHeadUseCase implements UseCase<TractorHead, SaveTractorHeadParams> {
+class SaveTractorHeadUseCase
+    implements UseCase<TractorHead, SaveTractorHeadParams> {
   final FleetRepository _repository;
 
   const SaveTractorHeadUseCase(this._repository);
@@ -103,7 +113,10 @@ class SaveTractorHeadUseCase implements UseCase<TractorHead, SaveTractorHeadPara
     if (!FleetPermissionPolicy.canManageFleet(context.role)) {
       return Future.value(
         const FailureResult<TractorHead>(
-          PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionFleetManagement,
+            message: 'Fleet management is not allowed.',
+          ),
         ),
       );
     }
@@ -112,7 +125,10 @@ class SaveTractorHeadUseCase implements UseCase<TractorHead, SaveTractorHeadPara
     if (plateNumber.isEmpty) {
       return Future.value(
         const FailureResult<TractorHead>(
-          ValidationFailure(code: FailureCodes.validationFleetPlateRequired, message: 'Plate number is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationFleetPlateRequired,
+            message: 'Plate number is required.',
+          ),
         ),
       );
     }
@@ -127,9 +143,16 @@ class SaveTractorHeadUseCase implements UseCase<TractorHead, SaveTractorHeadPara
 
     final id = _normalizeOptional(params.id);
     if (id == null) {
-      return _repository.addTractorHead(data: data, actorRole: context.role.value);
+      return _repository.addTractorHead(
+        data: data,
+        actorRole: context.role.value,
+      );
     }
-    return _repository.saveTractorHead(id: id, data: data, actorRole: context.role.value);
+    return _repository.saveTractorHead(
+      id: id,
+      data: data,
+      actorRole: context.role.value,
+    );
   }
 }
 
@@ -144,7 +167,10 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
     if (!FleetPermissionPolicy.canManageFleet(context.role)) {
       return Future.value(
         const FailureResult<TrailerEntity>(
-          PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionFleetManagement,
+            message: 'Fleet management is not allowed.',
+          ),
         ),
       );
     }
@@ -153,7 +179,10 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
     if (plateNumber.isEmpty) {
       return Future.value(
         const FailureResult<TrailerEntity>(
-          ValidationFailure(code: FailureCodes.validationFleetPlateRequired, message: 'Plate number is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationFleetPlateRequired,
+            message: 'Plate number is required.',
+          ),
         ),
       );
     }
@@ -170,7 +199,11 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
     if (id == null) {
       return _repository.addTrailer(data: data, actorRole: context.role.value);
     }
-    return _repository.editTrailer(id: id, data: data, actorRole: context.role.value);
+    return _repository.editTrailer(
+      id: id,
+      data: data,
+      actorRole: context.role.value,
+    );
   }
 }
 
