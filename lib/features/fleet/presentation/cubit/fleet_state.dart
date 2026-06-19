@@ -1,9 +1,12 @@
 import '../../../../core/errors/failure.dart';
+import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../../domain/entities/vehicle_status_filter.dart';
+
+const Object _notSet = Object();
 
 sealed class FleetState {
   const FleetState();
@@ -28,6 +31,10 @@ class FleetLoaded extends FleetState {
   final VehicleStatusFilter statusFilter;
   final FleetAssetTab selectedTab;
   final Set<String> activeStateChangingAssetIds;
+  final String? selectedAssetId;
+  final List<AuditLog> selectedAssetActivity;
+  final bool isActivityLoading;
+  final Failure? activityFailure;
 
   const FleetLoaded({
     required this.currentCompanyContext,
@@ -38,6 +45,10 @@ class FleetLoaded extends FleetState {
     this.statusFilter = VehicleStatusFilter.active,
     this.selectedTab = FleetAssetTab.tractorHeads,
     this.activeStateChangingAssetIds = const <String>{},
+    this.selectedAssetId,
+    this.selectedAssetActivity = const [],
+    this.isActivityLoading = false,
+    this.activityFailure,
   });
 
   bool isActiveStateChanging(String id) => activeStateChangingAssetIds.contains(id);
@@ -72,6 +83,10 @@ class FleetLoaded extends FleetState {
     VehicleStatusFilter? statusFilter,
     FleetAssetTab? selectedTab,
     Set<String>? activeStateChangingAssetIds,
+    Object? selectedAssetId = _notSet,
+    List<AuditLog>? selectedAssetActivity,
+    bool? isActivityLoading,
+    Object? activityFailure = _notSet,
   }) {
     return FleetLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -82,6 +97,10 @@ class FleetLoaded extends FleetState {
       statusFilter: statusFilter ?? this.statusFilter,
       selectedTab: selectedTab ?? this.selectedTab,
       activeStateChangingAssetIds: activeStateChangingAssetIds ?? this.activeStateChangingAssetIds,
+      selectedAssetId: selectedAssetId == _notSet ? this.selectedAssetId : selectedAssetId as String?,
+      selectedAssetActivity: selectedAssetActivity ?? this.selectedAssetActivity,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      activityFailure: activityFailure == _notSet ? this.activityFailure : activityFailure as Failure?,
     );
   }
 }
