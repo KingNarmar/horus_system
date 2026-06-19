@@ -45,9 +45,7 @@ extension CustomerFilterLocalizationsX on AppLocalizations {
 
   String get reactivateCustomerButton => _isArabic ? 'إعادة تفعيل' : 'Reactivate';
 
-  String get searchCustomersHint => _isArabic
-      ? 'ابحث في العملاء بالاسم أو المسؤول أو الهاتف أو البريد أو المدينة أو الدولة أو الرقم الضريبي'
-      : 'Search customers by name, contact, phone, email, city, country, or TRN';
+  String get searchCustomersHint => _isArabic ? 'ابحث في العملاء' : 'Search customers';
 
   String get customersStatusAllFilter => _isArabic ? 'الكل' : 'All';
 
