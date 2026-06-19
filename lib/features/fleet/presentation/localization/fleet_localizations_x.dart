@@ -25,6 +25,8 @@ extension FleetLocalizationsX on AppLocalizations {
   String get noTrailersFound => _isArabic ? 'لا توجد مقطورات.' : 'No trailers found.';
   String get noFleetMatchFilters => _isArabic ? 'لا توجد أصول مطابقة للبحث أو الفلتر الحالي.' : 'No fleet assets match the current search or filter.';
   String get editButton => _isArabic ? 'تعديل' : 'Edit';
+  String get fleetDeactivateButton => _isArabic ? 'إلغاء التفعيل' : 'Deactivate';
+  String get fleetReactivateButton => _isArabic ? 'إعادة التفعيل' : 'Reactivate';
   String get emptyValue => '-';
 
   String vehicleStatusText(VehicleStatus status) {
