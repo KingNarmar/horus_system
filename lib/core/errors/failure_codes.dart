@@ -12,6 +12,8 @@ class FailureCodes {
   static const String permissionCustomersManagement = 'permission_customers_management';
   static const String permissionCustomersView = 'permission_customers_view';
   static const String permissionCompanyUsersView = 'permission_company_users_view';
+  static const String permissionFleetManagement = 'permission_fleet_management';
+  static const String permissionFleetView = 'permission_fleet_view';
 
   // Validation
   static const String validationCompanyIdRequired = 'validation_company_id_required';
@@ -23,6 +25,8 @@ class FailureCodes {
   static const String validationCompanyContextRequired = 'validation_company_context_required';
   static const String validationAuditEntityIdRequired = 'validation_audit_entity_id_required';
   static const String validationAuditDescriptionRequired = 'validation_audit_description_required';
+  static const String validationFleetPlateRequired = 'validation_fleet_plate_required';
+  static const String validationFleetFuelConsumptionNegative = 'validation_fleet_fuel_consumption_negative';
 
   // Generic
   static const String serverError = 'server_error';

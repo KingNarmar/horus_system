@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/di/fleet_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -11,6 +13,8 @@ import '../../../company/domain/policies/company_permission_policy.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
+import '../../../fleet/presentation/cubit/fleet_cubit.dart';
+import '../../../fleet/presentation/pages/fleet_page.dart';
 import '../models/app_shell_destination.dart';
 import 'adaptive_access_notice.dart';
 
@@ -50,6 +54,10 @@ class AppShellContent extends StatelessWidget {
     return switch (selected.module) {
       AppShellModule.customers => CustomersPage(currentCompanyContext: contextData),
       AppShellModule.drivers => DriversPage(currentCompanyContext: contextData),
+      AppShellModule.fleet => BlocProvider<FleetCubit>(
+          create: (_) => FleetDependencies.createFleetCubit(),
+          child: FleetPage(currentCompanyContext: contextData),
+        ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };
@@ -153,8 +161,7 @@ class _SettingsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             if (permissions.canViewCompanyUsers)
               FilledButton.icon(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.companyUsers),
+                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.companyUsers),
                 icon: const Icon(AppIcons.unavailableModule),
                 label: Text(l10n.manageUsers),
               )
