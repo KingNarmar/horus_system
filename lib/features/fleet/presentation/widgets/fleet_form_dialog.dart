@@ -45,6 +45,15 @@ class FleetFormDialog extends StatefulWidget {
 }
 
 class _FleetFormDialogState extends State<FleetFormDialog> {
+  static const _operationalStatuses = [
+    VehicleStatus.available,
+    VehicleStatus.onTrip,
+    VehicleStatus.loading,
+    VehicleStatus.unloading,
+    VehicleStatus.maintenance,
+    VehicleStatus.stopped,
+  ];
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _plateController;
   late final TextEditingController _licenseExpiryController;
@@ -56,7 +65,7 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedStatus = widget.initialStatus;
+    _selectedStatus = _operationalStatuses.contains(widget.initialStatus) ? widget.initialStatus : VehicleStatus.available;
     _selectedLicenseExpiryDate = widget.initialLicenseExpiryDate;
     _plateController = TextEditingController(text: widget.initialPlateNumber ?? '');
     _licenseExpiryController = TextEditingController(
@@ -96,7 +105,7 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
                 DropdownButtonFormField<VehicleStatus>(
                   initialValue: _selectedStatus,
                   decoration: InputDecoration(labelText: l10n.vehicleStatusLabel),
-                  items: VehicleStatus.values
+                  items: _operationalStatuses
                       .map((status) => DropdownMenuItem(value: status, child: Text(l10n.vehicleStatusText(status))))
                       .toList(),
                   onChanged: _isSubmitting ? null : (value) => setState(() => _selectedStatus = value ?? VehicleStatus.available),
