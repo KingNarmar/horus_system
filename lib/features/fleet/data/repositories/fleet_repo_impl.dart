@@ -18,8 +18,6 @@ import '../datasources/fleet_remote_data_source.dart';
 import '../mappers/fleet_audit_mapper.dart';
 import '../mappers/tractor_mapper.dart';
 import '../mappers/trailers_mapper.dart';
-import '../models/tractor_head_model.dart';
-import '../models/trailer_model.dart';
 
 class FleetRepositoryImpl implements FleetRepository {
   final FleetRemoteDataSource remoteDataSource;
@@ -84,6 +82,48 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
+  Future<Result<TractorHead>> deactivateTractorHead({required String companyId, required String id, required String actorRole}) {
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getTractorHeadById(companyId: companyId, id: id);
+      final model = await remoteDataSource.deactivateTractorHead(companyId: companyId, id: id);
+      final auditFailure = await _writeAudit(
+        companyId: model.companyId,
+        actorRole: actorRole,
+        entityType: AuditEntityType.tractorHead,
+        entityId: model.id,
+        entityDisplayName: model.plateNumber,
+        action: AuditAction.deactivated,
+        description: 'Tractor head deactivated: ${model.plateNumber}',
+        oldValues: oldModel.toAuditValues(),
+        newValues: model.toAuditValues(),
+      );
+      if (auditFailure != null) return FailureResult(auditFailure);
+      return Success(model.toEntity());
+    });
+  }
+
+  @override
+  Future<Result<TractorHead>> reactivateTractorHead({required String companyId, required String id, required String actorRole}) {
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getTractorHeadById(companyId: companyId, id: id);
+      final model = await remoteDataSource.reactivateTractorHead(companyId: companyId, id: id);
+      final auditFailure = await _writeAudit(
+        companyId: model.companyId,
+        actorRole: actorRole,
+        entityType: AuditEntityType.tractorHead,
+        entityId: model.id,
+        entityDisplayName: model.plateNumber,
+        action: AuditAction.reactivated,
+        description: 'Tractor head reactivated: ${model.plateNumber}',
+        oldValues: oldModel.toAuditValues(),
+        newValues: model.toAuditValues(),
+      );
+      if (auditFailure != null) return FailureResult(auditFailure);
+      return Success(model.toEntity());
+    });
+  }
+
+  @override
   Future<Result<TrailerEntity>> addTrailer({required TrailerWriteData data, required String actorRole}) {
     return _guard(() async {
       final model = await remoteDataSource.addTrailer(data: data);
@@ -115,6 +155,48 @@ class FleetRepositoryImpl implements FleetRepository {
         entityDisplayName: model.plateNumber,
         action: AuditAction.updated,
         description: 'Trailer updated: ${model.plateNumber}',
+        oldValues: oldModel.toAuditValues(),
+        newValues: model.toAuditValues(),
+      );
+      if (auditFailure != null) return FailureResult(auditFailure);
+      return Success(model.toEntity());
+    });
+  }
+
+  @override
+  Future<Result<TrailerEntity>> deactivateTrailer({required String companyId, required String id, required String actorRole}) {
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getTrailerById(companyId: companyId, id: id);
+      final model = await remoteDataSource.deactivateTrailer(companyId: companyId, id: id);
+      final auditFailure = await _writeAudit(
+        companyId: model.companyId,
+        actorRole: actorRole,
+        entityType: AuditEntityType.trailer,
+        entityId: model.id,
+        entityDisplayName: model.plateNumber,
+        action: AuditAction.deactivated,
+        description: 'Trailer deactivated: ${model.plateNumber}',
+        oldValues: oldModel.toAuditValues(),
+        newValues: model.toAuditValues(),
+      );
+      if (auditFailure != null) return FailureResult(auditFailure);
+      return Success(model.toEntity());
+    });
+  }
+
+  @override
+  Future<Result<TrailerEntity>> reactivateTrailer({required String companyId, required String id, required String actorRole}) {
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getTrailerById(companyId: companyId, id: id);
+      final model = await remoteDataSource.reactivateTrailer(companyId: companyId, id: id);
+      final auditFailure = await _writeAudit(
+        companyId: model.companyId,
+        actorRole: actorRole,
+        entityType: AuditEntityType.trailer,
+        entityId: model.id,
+        entityDisplayName: model.plateNumber,
+        action: AuditAction.reactivated,
+        description: 'Trailer reactivated: ${model.plateNumber}',
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
