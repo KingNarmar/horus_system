@@ -11,24 +11,18 @@ extension DriversLocalizationsX on AppLocalizations {
   String get reactivateDriverButton => _isArabic ? 'إعادة تفعيل' : 'Reactivate';
   String get viewDriverDetails => _isArabic ? 'عرض التفاصيل' : 'View details';
   String get driverDetails => _isArabic ? 'تفاصيل السائق' : 'Driver details';
-  String get searchDriversHint => _isArabic
-      ? 'ابحث بالاسم أو الهاتف أو الرقم القومي أو الرخصة'
-      : 'Search by name, phone, national ID, or license';
+  String get searchDriversHint => _isArabic ? 'ابحث بالاسم أو الهاتف أو الرقم القومي أو الرخصة' : 'Search by name, phone, national ID, or license';
   String get driversStatusAllFilter => _isArabic ? 'الكل' : 'All';
   String get driversStatusActiveFilter => _isArabic ? 'النشط' : 'Active';
   String get driversStatusInactiveFilter => _isArabic ? 'غير النشط' : 'Inactive';
   String get noDriversFound => _isArabic ? 'لا يوجد سائقون.' : 'No drivers found.';
-  String get noDriversMatchFilters => _isArabic
-      ? 'لا يوجد سائقون مطابقون للبحث أو فلتر الحالة الحالي.'
-      : 'No drivers match the current search or status filter.';
+  String get noDriversMatchFilters => _isArabic ? 'لا يوجد سائقون مطابقون للبحث أو فلتر الحالة الحالي.' : 'No drivers match the current search or status filter.';
   String get driverNameLabel => _isArabic ? 'اسم السائق' : 'Driver name';
   String get driverNameRequired => _isArabic ? 'اسم السائق مطلوب.' : 'Driver name is required.';
   String get nationalIdLabel => _isArabic ? 'الرقم القومي' : 'National ID';
   String get licenseNumberLabel => _isArabic ? 'رقم الرخصة' : 'License number';
   String get licenseExpiryDateLabel => _isArabic ? 'تاريخ انتهاء الرخصة' : 'License expiry date';
-  String get licenseExpiryDateMustBeFuture => _isArabic
-      ? 'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.'
-      : 'License expiry date must be today or a future date.';
+  String get licenseExpiryDateMustBeFuture => _isArabic ? 'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.' : 'License expiry date must be today or a future date.';
   String get notesLabel => _isArabic ? 'ملاحظات' : 'Notes';
   String get saveButton => _isArabic ? 'حفظ' : 'Save';
   String get basicInfo => _isArabic ? 'البيانات الأساسية' : 'Basic information';
@@ -45,15 +39,14 @@ extension DriversLocalizationsX on AppLocalizations {
   String get emptyValue => '-';
   String get unknownUser => _isArabic ? 'مستخدم غير معروف' : 'Unknown user';
   String get notAvailable => _isArabic ? 'غير متاح' : 'Not available';
+  String get driverConfirmDeactivateTitle => _isArabic ? 'تأكيد إيقاف السائق' : 'Confirm driver deactivation';
+  String get driverConfirmReactivateTitle => _isArabic ? 'تأكيد إعادة تفعيل السائق' : 'Confirm driver reactivation';
+  String get driverConfirmDeactivateMessage => _isArabic ? 'هل تريد إيقاف هذا السائق؟' : 'Do you want to deactivate this driver?';
+  String get driverConfirmReactivateMessage => _isArabic ? 'هل تريد إعادة تفعيل هذا السائق؟' : 'Do you want to reactivate this driver?';
 
   String driverDetailsTitle(String name) => _isArabic ? 'تفاصيل السائق: $name' : 'Driver details: $name';
 
-  String driverStatusLabel(DriverStatus status) {
-    if (status == DriverStatus.active) {
-      return _isArabic ? 'نشط' : 'Active';
-    }
-    return _isArabic ? 'غير نشط' : 'Inactive';
-  }
+  String driverStatusLabel(DriverStatus status) => status == DriverStatus.active ? (_isArabic ? 'نشط' : 'Active') : (_isArabic ? 'غير نشط' : 'Inactive');
 
   String auditActionLabel(String action) {
     return switch (action) {
@@ -79,10 +72,7 @@ extension DriversLocalizationsX on AppLocalizations {
   }
 
   String driverValueLabel(String field, Object? value) {
-    if (field == 'is_active') {
-      final status = value == true ? DriverStatus.active : DriverStatus.inactive;
-      return driverStatusLabel(status);
-    }
+    if (field == 'is_active') return driverStatusLabel(value == true ? DriverStatus.active : DriverStatus.inactive);
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? emptyValue : text;
   }
