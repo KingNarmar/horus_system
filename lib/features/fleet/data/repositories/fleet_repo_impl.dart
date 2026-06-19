@@ -29,4 +29,10 @@ class FleetRepositoryImpl implements FleetRepository {
     final model = await remoteDataSource.addTractorHead(data: data);
     return Success(model.toEntity());
   }
+
+  @override
+  Future<Result<TractorHead>> saveTractorHead({required String id, required TractorHeadWriteData data, required String actorRole}) async {
+    final model = await remoteDataSource.saveTractorHead(id: id, data: data);
+    return Success(model.toEntity());
+  }
 }
