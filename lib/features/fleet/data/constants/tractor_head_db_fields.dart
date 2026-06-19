@@ -3,9 +3,10 @@ abstract class TractorHeadDbFields {
 
   static const plateNumber = 'plate_number';
   static const licenseExpiryDate = 'license_expiry_date';
+  static const expectedFuelConsumption = 'expected_fuel_consumption';
   static const status = 'status';
   static const notes = 'notes';
 
   static const allColumns =
-      'id, company_id, plate_number, license_expiry_date, status, notes, is_active, created_at, updated_at';
+      'id, company_id, plate_number, license_expiry_date, expected_fuel_consumption, status, notes, is_active, created_at, updated_at';
 }
