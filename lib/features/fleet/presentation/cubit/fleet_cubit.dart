@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
+import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_module.dart';
+import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
@@ -19,9 +22,10 @@ class FleetCubit extends Cubit<FleetState> {
   final ReactivateTractorHeadUseCase reactivateTractorHeadUseCase;
   final DeactivateTrailerUseCase deactivateTrailerUseCase;
   final ReactivateTrailerUseCase reactivateTrailerUseCase;
+  final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
   CurrentCompanyContext? _currentCompanyContext;
 
-  FleetCubit({required this.getTractorHeadsUseCase, required this.getTrailersUseCase, required this.saveTractorHeadUseCase, required this.saveTrailerUseCase, required this.deactivateTractorHeadUseCase, required this.reactivateTractorHeadUseCase, required this.deactivateTrailerUseCase, required this.reactivateTrailerUseCase}) : super(const FleetInitial());
+  FleetCubit({required this.getTractorHeadsUseCase, required this.getTrailersUseCase, required this.saveTractorHeadUseCase, required this.saveTrailerUseCase, required this.deactivateTractorHeadUseCase, required this.reactivateTractorHeadUseCase, required this.deactivateTrailerUseCase, required this.reactivateTrailerUseCase, required this.getEntityAuditLogsUseCase}) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
     _currentCompanyContext = currentCompanyContext;
@@ -44,6 +48,25 @@ class FleetCubit extends Cubit<FleetState> {
   void setSearchQuery(String query) => _mapLoaded((s) => s.copyWith(searchQuery: query));
   void setStatusFilter(VehicleStatusFilter filter) => _mapLoaded((s) => s.copyWith(statusFilter: filter));
   void selectTab(FleetAssetTab tab) => _mapLoaded((s) => s.copyWith(selectedTab: tab, searchQuery: ''));
+
+  Future<void> loadTractorHeadActivity(TractorHead item) => _loadActivity(item.id, AuditEntityType.tractorHead);
+  Future<void> loadTrailerActivity(TrailerEntity item) => _loadActivity(item.id, AuditEntityType.trailer);
+
+  Future<void> _loadActivity(String assetId, AuditEntityType entityType) async {
+    final context = _currentCompanyContext;
+    final current = state;
+    if (context == null || current is! FleetLoaded) return;
+    emit(current.copyWith(selectedAssetId: assetId, selectedAssetActivity: const [], isActivityLoading: true, activityFailure: null));
+    final result = await getEntityAuditLogsUseCase(GetEntityAuditLogsParams(companyId: context.companyId, module: AuditModule.fleet, entityType: entityType, entityId: assetId));
+    final latest = state;
+    if (latest is! FleetLoaded || latest.selectedAssetId != assetId) return;
+    result.when(
+      success: (activity) => emit(latest.copyWith(selectedAssetActivity: activity, isActivityLoading: false, activityFailure: null)),
+      failure: (failure) => emit(latest.copyWith(isActivityLoading: false, activityFailure: failure)),
+    );
+  }
+
+  void clearFleetAssetActivity() => _mapLoaded((s) => s.copyWith(selectedAssetId: null, selectedAssetActivity: const [], isActivityLoading: false, activityFailure: null));
 
   Future<void> saveTractorHead({TractorHead? tractorHead, required String plateNumber, required VehicleStatus status, DateTime? licenseExpiryDate, double? expectedFuelConsumption, String? notes}) async {
     final context = _currentCompanyContext;
@@ -106,7 +129,6 @@ List<T> _upsert<T>(List<T> items, T next, String id) {
     final dynamic current = item;
     return current.id == id;
   }
-
   final exists = items.any(matches);
   if (!exists) return [next, ...items];
   return items.map((item) => matches(item) ? next : item).toList();
