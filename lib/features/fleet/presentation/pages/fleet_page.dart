@@ -123,7 +123,11 @@ class _FleetPageState extends State<FleetPage> {
               _FleetAssetBody(
                 state: state,
                 onEditTractorHead: (tractorHead) => _openTractorHeadForm(tractorHead: tractorHead),
+                onDeactivateTractorHead: cubit.deactivateTractorHead,
+                onReactivateTractorHead: cubit.reactivateTractorHead,
                 onEditTrailer: (trailer) => _openTrailerForm(trailer: trailer),
+                onDeactivateTrailer: cubit.deactivateTrailer,
+                onReactivateTrailer: cubit.reactivateTrailer,
               ),
             ],
           ],
@@ -155,9 +159,21 @@ class _AddButton extends StatelessWidget {
 class _FleetAssetBody extends StatelessWidget {
   final FleetLoaded state;
   final ValueChanged<TractorHead> onEditTractorHead;
+  final ValueChanged<TractorHead> onDeactivateTractorHead;
+  final ValueChanged<TractorHead> onReactivateTractorHead;
   final ValueChanged<TrailerEntity> onEditTrailer;
+  final ValueChanged<TrailerEntity> onDeactivateTrailer;
+  final ValueChanged<TrailerEntity> onReactivateTrailer;
 
-  const _FleetAssetBody({required this.state, required this.onEditTractorHead, required this.onEditTrailer});
+  const _FleetAssetBody({
+    required this.state,
+    required this.onEditTractorHead,
+    required this.onDeactivateTractorHead,
+    required this.onReactivateTractorHead,
+    required this.onEditTrailer,
+    required this.onDeactivateTrailer,
+    required this.onReactivateTrailer,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +185,8 @@ class _FleetAssetBody extends StatelessWidget {
         tractorHeads: state.tractorHeads,
         canManageFleet: state.canManageFleet,
         onEdit: onEditTractorHead,
+        onDeactivate: onDeactivateTractorHead,
+        onReactivate: onReactivateTractorHead,
       );
     }
 
@@ -178,6 +196,8 @@ class _FleetAssetBody extends StatelessWidget {
       trailers: state.trailers,
       canManageFleet: state.canManageFleet,
       onEdit: onEditTrailer,
+      onDeactivate: onDeactivateTrailer,
+      onReactivate: onReactivateTrailer,
     );
   }
 }
