@@ -2,6 +2,8 @@
 -- This migration is intentionally idempotent. It makes the repository self-contained
 -- for the Fleet module instead of relying on manually prepared Supabase objects.
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Vehicle operational status enum.
 DO $$
 BEGIN
@@ -43,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.tractor_heads (
 );
 
 ALTER TABLE public.tractor_heads
+  ADD COLUMN IF NOT EXISTS id uuid DEFAULT gen_random_uuid(),
   ADD COLUMN IF NOT EXISTS company_id uuid,
   ADD COLUMN IF NOT EXISTS plate_number text,
   ADD COLUMN IF NOT EXISTS license_expiry_date date,
@@ -50,17 +53,20 @@ ALTER TABLE public.tractor_heads
   ADD COLUMN IF NOT EXISTS status public.vehicle_status DEFAULT 'available',
   ADD COLUMN IF NOT EXISTS notes text,
   ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true,
-  ADD COLUMN IF NOT EXISTS created_by uuid,
+  ADD COLUMN IF NOT EXISTS created_by uuid DEFAULT auth.uid(),
   ADD COLUMN IF NOT EXISTS updated_by uuid,
   ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
   ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
 
+ALTER TABLE public.tractor_heads ALTER COLUMN id SET DEFAULT gen_random_uuid();
+ALTER TABLE public.tractor_heads ALTER COLUMN id SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN company_id SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN plate_number SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN status SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN status SET DEFAULT 'available';
 ALTER TABLE public.tractor_heads ALTER COLUMN is_active SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN is_active SET DEFAULT true;
+ALTER TABLE public.tractor_heads ALTER COLUMN created_by SET DEFAULT auth.uid();
 ALTER TABLE public.tractor_heads ALTER COLUMN created_at SET NOT NULL;
 ALTER TABLE public.tractor_heads ALTER COLUMN created_at SET DEFAULT now();
 ALTER TABLE public.tractor_heads ALTER COLUMN updated_at SET NOT NULL;
@@ -68,6 +74,17 @@ ALTER TABLE public.tractor_heads ALTER COLUMN updated_at SET DEFAULT now();
 
 DO $$
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.table_constraints
+    WHERE table_schema = 'public'
+      AND table_name = 'tractor_heads'
+      AND constraint_type = 'PRIMARY KEY'
+  ) THEN
+    ALTER TABLE public.tractor_heads
+      ADD CONSTRAINT tractor_heads_pkey PRIMARY KEY (id);
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1
     FROM information_schema.table_constraints
@@ -100,23 +117,27 @@ CREATE TABLE IF NOT EXISTS public.trailers (
 );
 
 ALTER TABLE public.trailers
+  ADD COLUMN IF NOT EXISTS id uuid DEFAULT gen_random_uuid(),
   ADD COLUMN IF NOT EXISTS company_id uuid,
   ADD COLUMN IF NOT EXISTS plate_number text,
   ADD COLUMN IF NOT EXISTS license_expiry_date date,
   ADD COLUMN IF NOT EXISTS status public.vehicle_status DEFAULT 'available',
   ADD COLUMN IF NOT EXISTS technical_notes text,
   ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true,
-  ADD COLUMN IF NOT EXISTS created_by uuid,
+  ADD COLUMN IF NOT EXISTS created_by uuid DEFAULT auth.uid(),
   ADD COLUMN IF NOT EXISTS updated_by uuid,
   ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
   ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
 
+ALTER TABLE public.trailers ALTER COLUMN id SET DEFAULT gen_random_uuid();
+ALTER TABLE public.trailers ALTER COLUMN id SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN company_id SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN plate_number SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN status SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN status SET DEFAULT 'available';
 ALTER TABLE public.trailers ALTER COLUMN is_active SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN is_active SET DEFAULT true;
+ALTER TABLE public.trailers ALTER COLUMN created_by SET DEFAULT auth.uid();
 ALTER TABLE public.trailers ALTER COLUMN created_at SET NOT NULL;
 ALTER TABLE public.trailers ALTER COLUMN created_at SET DEFAULT now();
 ALTER TABLE public.trailers ALTER COLUMN updated_at SET NOT NULL;
@@ -124,6 +145,17 @@ ALTER TABLE public.trailers ALTER COLUMN updated_at SET DEFAULT now();
 
 DO $$
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.table_constraints
+    WHERE table_schema = 'public'
+      AND table_name = 'trailers'
+      AND constraint_type = 'PRIMARY KEY'
+  ) THEN
+    ALTER TABLE public.trailers
+      ADD CONSTRAINT trailers_pkey PRIMARY KEY (id);
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1
     FROM information_schema.table_constraints
