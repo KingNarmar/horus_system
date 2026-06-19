@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/tractor_head.dart';
@@ -10,6 +11,7 @@ import '../localization/fleet_localizations_x.dart';
 class TractorHeadCards extends StatelessWidget {
   final List<TractorHead> tractorHeads;
   final bool canManageFleet;
+  final bool Function(String id) isActionLoading;
   final ValueChanged<TractorHead> onEdit;
   final ValueChanged<TractorHead> onDeactivate;
   final ValueChanged<TractorHead> onReactivate;
@@ -17,6 +19,7 @@ class TractorHeadCards extends StatelessWidget {
   const TractorHeadCards({
     required this.tractorHeads,
     required this.canManageFleet,
+    required this.isActionLoading,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -34,6 +37,7 @@ class TractorHeadCards extends StatelessWidget {
                 plateNumber: item.plateNumber,
                 status: context.l10n.vehicleStatusText(item.status),
                 isActive: item.isActive,
+                isActionLoading: isActionLoading(item.id),
                 licenseExpiryDate: item.licenseExpiryDate,
                 notes: item.notes,
                 canManageFleet: canManageFleet,
@@ -51,6 +55,7 @@ class TractorHeadCards extends StatelessWidget {
 class TrailerCards extends StatelessWidget {
   final List<TrailerEntity> trailers;
   final bool canManageFleet;
+  final bool Function(String id) isActionLoading;
   final ValueChanged<TrailerEntity> onEdit;
   final ValueChanged<TrailerEntity> onDeactivate;
   final ValueChanged<TrailerEntity> onReactivate;
@@ -58,6 +63,7 @@ class TrailerCards extends StatelessWidget {
   const TrailerCards({
     required this.trailers,
     required this.canManageFleet,
+    required this.isActionLoading,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -75,6 +81,7 @@ class TrailerCards extends StatelessWidget {
                 plateNumber: item.plateNumber,
                 status: context.l10n.vehicleStatusText(item.status),
                 isActive: item.isActive,
+                isActionLoading: isActionLoading(item.id),
                 licenseExpiryDate: item.licenseExpiryDate,
                 notes: item.technicalNotes,
                 canManageFleet: canManageFleet,
@@ -93,6 +100,7 @@ class _FleetAssetCard extends StatelessWidget {
   final String plateNumber;
   final String status;
   final bool isActive;
+  final bool isActionLoading;
   final DateTime? licenseExpiryDate;
   final String? notes;
   final bool canManageFleet;
@@ -104,6 +112,7 @@ class _FleetAssetCard extends StatelessWidget {
     required this.plateNumber,
     required this.status,
     required this.isActive,
+    required this.isActionLoading,
     required this.licenseExpiryDate,
     required this.notes,
     required this.canManageFleet,
@@ -134,13 +143,19 @@ class _FleetAssetCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   IconButton(
                     tooltip: l10n.editButton,
-                    onPressed: onEdit,
+                    onPressed: isActionLoading ? null : onEdit,
                     icon: const Icon(AppIcons.edit),
                   ),
                   IconButton(
                     tooltip: isActive ? l10n.fleetDeactivateButton : l10n.fleetReactivateButton,
-                    onPressed: isActive ? onDeactivate : onReactivate,
-                    icon: Icon(isActive ? AppIcons.deactivate : AppIcons.reactivate),
+                    onPressed: isActionLoading ? null : (isActive ? onDeactivate : onReactivate),
+                    icon: isActionLoading
+                        ? const SizedBox(
+                            width: AppSizes.iconSm,
+                            height: AppSizes.iconSm,
+                            child: CircularProgressIndicator(strokeWidth: AppSizes.loadingIndicatorStrokeWidth),
+                          )
+                        : Icon(isActive ? AppIcons.deactivate : AppIcons.reactivate),
                   ),
                 ],
               ],
