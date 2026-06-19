@@ -29,11 +29,28 @@ extension FleetLocalizationsX on AppLocalizations {
   String get editButton => _isArabic ? 'تعديل' : 'Edit';
   String get fleetDeactivateButton => _isArabic ? 'إلغاء التفعيل' : 'Deactivate';
   String get fleetReactivateButton => _isArabic ? 'إعادة التفعيل' : 'Reactivate';
+  String get fleetDetailsButton => _isArabic ? 'التفاصيل' : 'Details';
+  String get fleetBasicInfo => _isArabic ? 'البيانات الأساسية' : 'Basic information';
+  String get fleetAccountability => _isArabic ? 'المسؤولية والمتابعة' : 'Accountability';
+  String get fleetActivityTimeline => _isArabic ? 'سجل النشاط' : 'Activity timeline';
+  String get fleetCreatedBy => _isArabic ? 'أنشأه' : 'Created by';
+  String get fleetCreatedRole => _isArabic ? 'دور المنشئ' : 'Created role';
+  String get fleetCreatedAt => _isArabic ? 'تاريخ الإنشاء' : 'Created at';
+  String get fleetLastActivityBy => _isArabic ? 'آخر إجراء بواسطة' : 'Last activity by';
+  String get fleetLastActivityRole => _isArabic ? 'دور آخر مستخدم' : 'Last activity role';
+  String get fleetLastActivityAt => _isArabic ? 'وقت آخر إجراء' : 'Last activity at';
+  String get fleetLoadingActivity => _isArabic ? 'جاري تحميل سجل النشاط...' : 'Loading activity...';
+  String get fleetNoActivityFound => _isArabic ? 'لا يوجد نشاط مسجل لهذا الأصل.' : 'No activity found for this asset.';
+  String get fleetUnknownUser => _isArabic ? 'مستخدم غير معروف' : 'Unknown user';
+  String get fleetNotAvailable => _isArabic ? 'غير متاح' : 'Not available';
+  String get fleetChanges => _isArabic ? 'التغييرات' : 'Changes';
   String get fleetConfirmDeactivateTitle => _isArabic ? 'تأكيد إلغاء التفعيل' : 'Confirm deactivation';
   String get fleetConfirmReactivateTitle => _isArabic ? 'تأكيد إعادة التفعيل' : 'Confirm reactivation';
   String get fleetConfirmDeactivateMessage => _isArabic ? 'هل تريد إلغاء تفعيل هذا الأصل؟' : 'Do you want to deactivate this asset?';
   String get fleetConfirmReactivateMessage => _isArabic ? 'هل تريد إعادة تفعيل هذا الأصل؟' : 'Do you want to reactivate this asset?';
   String get emptyValue => '-';
+
+  String fleetDetailsTitle(String plateNumber) => _isArabic ? 'تفاصيل الأصل: $plateNumber' : 'Fleet asset details: $plateNumber';
 
   String vehicleStatusText(VehicleStatus status) {
     return switch (status) {
@@ -45,5 +62,54 @@ extension FleetLocalizationsX on AppLocalizations {
       VehicleStatus.stopped => _isArabic ? 'متوقف' : 'Stopped',
       VehicleStatus.inactive => _isArabic ? 'غير نشط' : 'Inactive',
     };
+  }
+
+  String fleetAuditActionLabel(String action) {
+    return switch (action) {
+      'created' => _isArabic ? 'تم الإنشاء' : 'Created',
+      'updated' => _isArabic ? 'تم التعديل' : 'Updated',
+      'deactivated' => _isArabic ? 'تم التعطيل' : 'Deactivated',
+      'reactivated' => _isArabic ? 'تم التفعيل' : 'Reactivated',
+      'status_changed' => _isArabic ? 'تم تغيير الحالة' : 'Status changed',
+      _ => action,
+    };
+  }
+
+  String fleetAuditRoleLabel(String? role) {
+    if (role == null || role.trim().isEmpty) return fleetNotAvailable;
+    return switch (role) {
+      'owner' => roleOwner,
+      'admin' => roleAdmin,
+      'operations' => roleOperations,
+      'accountant' => roleAccountant,
+      'viewer' => roleViewer,
+      'driver' => roleDriver,
+      _ => role,
+    };
+  }
+
+  String fleetAuditFieldLabel(String key) {
+    return switch (key) {
+      'plate_number' => plateNumberLabel,
+      'license_expiry_date' => vehicleLicenseExpiryDateLabel,
+      'expected_fuel_consumption' => expectedFuelConsumptionLabel,
+      'status' => vehicleStatusLabel,
+      'notes' => vehicleNotesLabel,
+      'technical_notes' => technicalNotesLabel,
+      'is_active' => fleetStatusActiveFilter,
+      _ => key,
+    };
+  }
+
+  String fleetAuditValueLabel(String key, Object? value) {
+    if (value == null) return emptyValue;
+    final text = value.toString().trim();
+    if (text.isEmpty) return emptyValue;
+    if (key == 'is_active') {
+      if (value == true || text == 'true') return activeStatus;
+      if (value == false || text == 'false') return inactiveStatus;
+    }
+    if (key == 'status') return vehicleStatusText(VehicleStatusX.fromValue(text));
+    return text;
   }
 }
