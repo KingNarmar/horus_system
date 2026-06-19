@@ -8,6 +8,7 @@ import 'customer_card.dart';
 class CustomersCards extends StatelessWidget {
   final List<Customer> customers;
   final bool canManageCustomers;
+  final String? pendingActionCustomerId;
   final ValueChanged<Customer> onViewDetails;
   final ValueChanged<Customer> onEdit;
   final ValueChanged<Customer> onDeactivate;
@@ -16,6 +17,7 @@ class CustomersCards extends StatelessWidget {
   const CustomersCards({
     required this.customers,
     required this.canManageCustomers,
+    required this.pendingActionCustomerId,
     required this.onViewDetails,
     required this.onEdit,
     required this.onDeactivate,
@@ -43,6 +45,7 @@ class CustomersCards extends StatelessWidget {
                 child: CustomerCard(
                   customer: customer,
                   canManageCustomers: canManageCustomers,
+                  isActionInProgress: pendingActionCustomerId == customer.id,
                   onViewDetails: onViewDetails,
                   onEdit: onEdit,
                   onDeactivate: onDeactivate,
