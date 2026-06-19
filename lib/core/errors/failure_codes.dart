@@ -26,6 +26,7 @@ class FailureCodes {
   static const String validationAuditEntityIdRequired = 'validation_audit_entity_id_required';
   static const String validationAuditDescriptionRequired = 'validation_audit_description_required';
   static const String validationFleetPlateRequired = 'validation_fleet_plate_required';
+  static const String validationFleetFuelConsumptionNegative = 'validation_fleet_fuel_consumption_negative';
 
   // Generic
   static const String serverError = 'server_error';
