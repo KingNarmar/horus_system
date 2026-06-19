@@ -215,7 +215,9 @@ class CustomersCubit extends Cubit<CustomersState> {
 
   Future<void> deactivateCustomer(Customer customer) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null || !_startPendingAction(customer.id)) {
+      return;
+    }
 
     final result = await deactivateCustomerUseCase(
       DeactivateCustomerParams(
@@ -226,13 +228,15 @@ class CustomersCubit extends Cubit<CustomersState> {
 
     result.when(
       success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
+      failure: _emitMutationFailure,
     );
   }
 
   Future<void> reactivateCustomer(Customer customer) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null || !_startPendingAction(customer.id)) {
+      return;
+    }
 
     final result = await reactivateCustomerUseCase(
       ReactivateCustomerParams(
@@ -243,8 +247,25 @@ class CustomersCubit extends Cubit<CustomersState> {
 
     result.when(
       success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
+      failure: _emitMutationFailure,
     );
+  }
+
+  bool _startPendingAction(String customerId) {
+    final currentState = state;
+    if (currentState is! CustomersLoaded) return true;
+    if (currentState.pendingActionCustomerId != null) return false;
+
+    emit(currentState.copyWith(pendingActionCustomerId: customerId));
+    return true;
+  }
+
+  void _emitMutationFailure(Object failure) {
+    final currentState = state;
+    if (currentState is CustomersLoaded) {
+      emit(currentState.copyWith(pendingActionCustomerId: null));
+    }
+    emit(CustomersFailure(failure as dynamic));
   }
 
   void _upsertCustomer(Customer customer) {
@@ -266,10 +287,21 @@ class CustomersCubit extends Cubit<CustomersState> {
         : [customer, ...currentState.allCustomers];
 
     if (currentState.selectedCustomer?.id == customer.id) {
-      emit(currentState.copyWith(allCustomers: updatedCustomers, selectedCustomer: customer));
+      emit(
+        currentState.copyWith(
+          allCustomers: updatedCustomers,
+          pendingActionCustomerId: null,
+          selectedCustomer: customer,
+        ),
+      );
       return;
     }
 
-    emit(currentState.copyWith(allCustomers: updatedCustomers));
+    emit(
+      currentState.copyWith(
+        allCustomers: updatedCustomers,
+        pendingActionCustomerId: null,
+      ),
+    );
   }
 }
