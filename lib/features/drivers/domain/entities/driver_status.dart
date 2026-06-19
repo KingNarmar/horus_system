@@ -1,8 +1,6 @@
 enum DriverStatus {
   active,
-  inactive,
-}
+  inactive;
 
-extension DriverStatusX on DriverStatus {
   bool get isActive => this == DriverStatus.active;
 }
