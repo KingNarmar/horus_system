@@ -40,16 +40,14 @@ class FleetLoaded extends FleetState {
     this.activeStateChangingAssetIds = const <String>{},
   });
 
-  bool isActiveStateChanging(String id) {
-    return activeStateChangingAssetIds.contains(id);
-  }
+  bool isActiveStateChanging(String id) => activeStateChangingAssetIds.contains(id);
 
   List<TractorHead> get tractorHeads {
     final query = searchQuery.trim().toLowerCase();
     return allTractorHeads.where((item) {
       if (!statusFilter.matches(item.isActive)) return false;
       if (query.isEmpty) return true;
-      return [item.plateNumber, item.status.value, item.notes]
+      return [item.plateNumber, item.status.value, item.expectedFuelConsumption?.toString(), item.notes]
           .whereType<String>()
           .any((value) => value.toLowerCase().contains(query));
     }).toList();
