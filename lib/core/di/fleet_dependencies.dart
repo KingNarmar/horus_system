@@ -22,6 +22,10 @@ abstract final class FleetDependencies {
       getTrailersUseCase: GetTrailersUseCase(repository),
       saveTractorHeadUseCase: SaveTractorHeadUseCase(repository),
       saveTrailerUseCase: SaveTrailerUseCase(repository),
+      deactivateTractorHeadUseCase: DeactivateTractorHeadUseCase(repository),
+      reactivateTractorHeadUseCase: ReactivateTractorHeadUseCase(repository),
+      deactivateTrailerUseCase: DeactivateTrailerUseCase(repository),
+      reactivateTrailerUseCase: ReactivateTrailerUseCase(repository),
     );
   }
 }
