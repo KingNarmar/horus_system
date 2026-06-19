@@ -159,9 +159,9 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadDrivers(currentCompanyContext),
-      failure: (failure) async => emit(DriversFailure(failure)),
+    result.when(
+      success: _upsertDriver,
+      failure: (failure) => emit(DriversFailure(failure)),
     );
   }
 
@@ -190,9 +190,9 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadDrivers(currentCompanyContext),
-      failure: (failure) async => emit(DriversFailure(failure)),
+    result.when(
+      success: _upsertDriver,
+      failure: (failure) => emit(DriversFailure(failure)),
     );
   }
 
@@ -207,9 +207,9 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadDrivers(currentCompanyContext),
-      failure: (failure) async => emit(DriversFailure(failure)),
+    result.when(
+      success: _upsertDriver,
+      failure: (failure) => emit(DriversFailure(failure)),
     );
   }
 
@@ -224,9 +224,35 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadDrivers(currentCompanyContext),
-      failure: (failure) async => emit(DriversFailure(failure)),
+    result.when(
+      success: _upsertDriver,
+      failure: (failure) => emit(DriversFailure(failure)),
     );
+  }
+
+  void _upsertDriver(Driver driver) {
+    final currentState = state;
+    final currentCompanyContext = _currentCompanyContext;
+
+    if (currentState is! DriversLoaded) {
+      if (currentCompanyContext != null) {
+        loadDrivers(currentCompanyContext);
+      }
+      return;
+    }
+
+    final exists = currentState.allDrivers.any((item) => item.id == driver.id);
+    final updatedDrivers = exists
+        ? currentState.allDrivers
+            .map((item) => item.id == driver.id ? driver : item)
+            .toList()
+        : [driver, ...currentState.allDrivers];
+
+    if (currentState.selectedDriver?.id == driver.id) {
+      emit(currentState.copyWith(allDrivers: updatedDrivers, selectedDriver: driver));
+      return;
+    }
+
+    emit(currentState.copyWith(allDrivers: updatedDrivers));
   }
 }
