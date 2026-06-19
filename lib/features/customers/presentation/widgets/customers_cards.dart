@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/customer.dart';
 import 'customer_card.dart';
@@ -24,22 +25,34 @@ class CustomersCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: customers
-          .map(
-            (customer) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: CustomerCard(
-                customer: customer,
-                canManageCustomers: canManageCustomers,
-                onViewDetails: onViewDetails,
-                onEdit: onEdit,
-                onDeactivate: onDeactivate,
-                onReactivate: onReactivate,
-              ),
-            ),
-          )
-          .toList(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useTwoColumns = constraints.maxWidth >= AppSizes.tabletMaxContentWidth;
+        final cardWidth = useTwoColumns
+            ? (constraints.maxWidth - AppSpacing.md) / 2
+            : constraints.maxWidth;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
+          child: Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: customers.map((customer) {
+              return SizedBox(
+                width: cardWidth,
+                child: CustomerCard(
+                  customer: customer,
+                  canManageCustomers: canManageCustomers,
+                  onViewDetails: onViewDetails,
+                  onEdit: onEdit,
+                  onDeactivate: onDeactivate,
+                  onReactivate: onReactivate,
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }
