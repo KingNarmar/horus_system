@@ -170,9 +170,9 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadCustomers(currentCompanyContext),
-      failure: (failure) async => emit(CustomersFailure(failure)),
+    result.when(
+      success: _upsertCustomer,
+      failure: (failure) => emit(CustomersFailure(failure)),
     );
   }
 
@@ -207,9 +207,9 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadCustomers(currentCompanyContext),
-      failure: (failure) async => emit(CustomersFailure(failure)),
+    result.when(
+      success: _upsertCustomer,
+      failure: (failure) => emit(CustomersFailure(failure)),
     );
   }
 
@@ -224,9 +224,9 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadCustomers(currentCompanyContext),
-      failure: (failure) async => emit(CustomersFailure(failure)),
+    result.when(
+      success: _upsertCustomer,
+      failure: (failure) => emit(CustomersFailure(failure)),
     );
   }
 
@@ -241,9 +241,35 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    await result.when(
-      success: (_) => loadCustomers(currentCompanyContext),
-      failure: (failure) async => emit(CustomersFailure(failure)),
+    result.when(
+      success: _upsertCustomer,
+      failure: (failure) => emit(CustomersFailure(failure)),
     );
+  }
+
+  void _upsertCustomer(Customer customer) {
+    final currentState = state;
+    final currentCompanyContext = _currentCompanyContext;
+
+    if (currentState is! CustomersLoaded) {
+      if (currentCompanyContext != null) {
+        loadCustomers(currentCompanyContext);
+      }
+      return;
+    }
+
+    final exists = currentState.allCustomers.any((item) => item.id == customer.id);
+    final updatedCustomers = exists
+        ? currentState.allCustomers
+            .map((item) => item.id == customer.id ? customer : item)
+            .toList()
+        : [customer, ...currentState.allCustomers];
+
+    if (currentState.selectedCustomer?.id == customer.id) {
+      emit(currentState.copyWith(allCustomers: updatedCustomers, selectedCustomer: customer));
+      return;
+    }
+
+    emit(currentState.copyWith(allCustomers: updatedCustomers));
   }
 }
