@@ -24,4 +24,10 @@ abstract class FleetRepository {
     required TrailerWriteData data,
     required String actorRole,
   });
+
+  Future<Result<TrailerEntity>> editTrailer({
+    required String id,
+    required TrailerWriteData data,
+    required String actorRole,
+  });
 }
