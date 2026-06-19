@@ -24,6 +24,7 @@ class CustomersLoaded extends CustomersState {
   final bool canManageCustomers;
   final String searchQuery;
   final CustomerStatusFilter statusFilter;
+  final String? pendingActionCustomerId;
   final Customer? selectedCustomer;
   final List<AuditLog> selectedCustomerActivity;
   final bool isActivityLoading;
@@ -35,6 +36,7 @@ class CustomersLoaded extends CustomersState {
     required this.canManageCustomers,
     this.searchQuery = '',
     this.statusFilter = CustomerStatusFilter.active,
+    this.pendingActionCustomerId,
     this.selectedCustomer,
     this.selectedCustomerActivity = const [],
     this.isActivityLoading = false,
@@ -68,6 +70,7 @@ class CustomersLoaded extends CustomersState {
     bool? canManageCustomers,
     String? searchQuery,
     CustomerStatusFilter? statusFilter,
+    Object? pendingActionCustomerId = _notSet,
     Object? selectedCustomer = _notSet,
     List<AuditLog>? selectedCustomerActivity,
     bool? isActivityLoading,
@@ -79,6 +82,9 @@ class CustomersLoaded extends CustomersState {
       canManageCustomers: canManageCustomers ?? this.canManageCustomers,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
+      pendingActionCustomerId: pendingActionCustomerId == _notSet
+          ? this.pendingActionCustomerId
+          : pendingActionCustomerId as String?,
       selectedCustomer: selectedCustomer == _notSet
           ? this.selectedCustomer
           : selectedCustomer as Customer?,
