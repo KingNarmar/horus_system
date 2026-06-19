@@ -32,6 +32,82 @@ The platform must be designed as a commercial product that can be sold to multip
 
 ---
 
+## Current Roadmap Status
+
+Last updated: 2026-06-19
+
+The project has completed the core foundation and most of the required master-data foundation before Trips.
+
+Completed foundations include:
+
+* Clean Architecture project structure
+* SaaS multi-tenant company scoping
+* Supabase RLS foundation
+* Authentication and current company context foundation
+* Customers module
+* Drivers module
+* Audit & Accountability foundation
+* Fleet module for tractor heads and trailers
+
+Recently completed:
+
+* Issue #15 — Fleet Module was completed and closed.
+* PR #41 — Fleet module foundation was merged.
+* PR #42 — Fleet schema/RLS guard migration was merged.
+* PR #43 — Tightened Fleet authenticated grants was merged.
+
+Current phase:
+
+* The project is currently in **Phase 2 — Master Data**.
+* Customers, Drivers, Tractor Heads, and Trailers are done.
+* The next primary business module is **Routes**.
+* Trips must not start before Routes because trips need loading/unloading routes and default freight prices.
+
+Next planned issue:
+
+* Issue #16 — Routes Module.
+
+Planned Routes scope:
+
+* `routes` table with `company_id`
+* RLS and authenticated grants
+* Domain entity and repository abstraction
+* Data model, mapper, remote data source, repository implementation
+* Use cases
+* Routes Cubit
+* Routes list page
+* Add/edit route form
+* Active/inactive filtering
+* Deactivate/reactivate flow
+* Audit logs for create/update/deactivate/reactivate
+* Localization keys
+
+Implementation order from here:
+
+1. Routes Module — Issue #16
+2. Trips Module
+3. Trip Expenses Module
+4. Dashboard Foundation
+5. Basic Reports
+6. Customer Statement
+7. Invoices and Payments
+8. Subscription placeholders and plan limits
+9. Documentation polish: README, contribution rules, testing strategy
+10. Responsive UI polish issues
+
+Supabase workflow rule:
+
+* Any Supabase-related change must be handled manually and carefully.
+* Send one SQL query at a time.
+* Wait for the result before sending the next query.
+* Verify schema, RLS, policies, grants, enum values, and audit behavior before closing an issue.
+
+Stop point:
+
+* No new implementation should start until Mina explicitly says to continue.
+
+---
+
 # 1. Core Architecture Decision
 
 H.O.R.U.S System must strictly follow:
