@@ -155,8 +155,10 @@ class FleetCubit extends Cubit<FleetState> {
     Future<Result<TractorHead>> Function(FleetAssetStatusParams params) useCase,
   ) async {
     final context = _currentCompanyContext;
-    if (context == null) return;
+    if (context == null || _isAssetActionRunning(id)) return;
+    _setAssetActionRunning(id, true);
     final result = await useCase(FleetAssetStatusParams(currentCompanyContext: context, id: id));
+    _setAssetActionRunning(id, false);
     result.when(success: _upsertTractorHead, failure: (failure) => emit(FleetFailure(failure)));
   }
 
@@ -165,9 +167,28 @@ class FleetCubit extends Cubit<FleetState> {
     Future<Result<TrailerEntity>> Function(FleetAssetStatusParams params) useCase,
   ) async {
     final context = _currentCompanyContext;
-    if (context == null) return;
+    if (context == null || _isAssetActionRunning(id)) return;
+    _setAssetActionRunning(id, true);
     final result = await useCase(FleetAssetStatusParams(currentCompanyContext: context, id: id));
+    _setAssetActionRunning(id, false);
     result.when(success: _upsertTrailer, failure: (failure) => emit(FleetFailure(failure)));
+  }
+
+  bool _isAssetActionRunning(String id) {
+    final currentState = state;
+    return currentState is FleetLoaded && currentState.isActiveStateChanging(id);
+  }
+
+  void _setAssetActionRunning(String id, bool isRunning) {
+    final currentState = state;
+    if (currentState is! FleetLoaded) return;
+    final updatedIds = {...currentState.activeStateChangingAssetIds};
+    if (isRunning) {
+      updatedIds.add(id);
+    } else {
+      updatedIds.remove(id);
+    }
+    emit(currentState.copyWith(activeStateChangingAssetIds: updatedIds));
   }
 
   void _upsertTractorHead(TractorHead tractorHead) {
