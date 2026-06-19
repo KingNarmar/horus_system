@@ -14,6 +14,12 @@ abstract class FleetRepository {
     required String actorRole,
   });
 
+  Future<Result<TractorHead>> saveTractorHead({
+    required String id,
+    required TractorHeadWriteData data,
+    required String actorRole,
+  });
+
   Future<Result<TrailerEntity>> addTrailer({
     required TrailerWriteData data,
     required String actorRole,
