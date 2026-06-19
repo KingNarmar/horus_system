@@ -36,6 +36,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.permissionFleetManagement => _isArabicError ? 'لا يوجد صلاحية لإدارة الأسطول.' : 'Fleet management is not allowed.',
       FailureCodes.permissionFleetView => _isArabicError ? 'لا يوجد صلاحية للوصول إلى الأسطول.' : 'You are not allowed to view fleet.',
       FailureCodes.validationFleetPlateRequired => _isArabicError ? 'رقم اللوحة مطلوب.' : 'Plate number is required.',
+      FailureCodes.validationFleetFuelConsumptionNegative => _isArabicError ? 'استهلاك الوقود المتوقع لا يمكن أن يكون رقمًا سالبًا.' : 'Expected fuel consumption cannot be negative.',
       FailureCodes.validationCompanyNameRequired => _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
       FailureCodes.serverError => failure.message ?? (_isArabicError ? 'حدث خطأ في الخادم.' : 'Server error occurred.'),
       _ => failure.message ?? failure.code,
