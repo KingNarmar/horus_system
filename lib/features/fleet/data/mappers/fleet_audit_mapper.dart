@@ -11,6 +11,7 @@ extension TractorHeadAuditMapper on TractorHeadModel {
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
       TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status,
       TractorHeadDbFields.notes: notes,
       DbCommonFields.isActive: isActive,
