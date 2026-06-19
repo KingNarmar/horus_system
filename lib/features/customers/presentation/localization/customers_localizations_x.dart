@@ -19,10 +19,12 @@ extension CustomersLocalizationsX on AppLocalizations {
   String get customerEmptyValue => _isArabic ? 'فارغ' : 'Empty';
   String get customerUnknownUser => _isArabic ? 'مستخدم غير معروف' : 'Unknown user';
   String get customerNotAvailable => _isArabic ? 'غير متاح' : 'Not available';
+  String get customerConfirmDeactivateTitle => _isArabic ? 'تأكيد إلغاء التفعيل' : 'Confirm deactivation';
+  String get customerConfirmReactivateTitle => _isArabic ? 'تأكيد إعادة التفعيل' : 'Confirm reactivation';
+  String get customerConfirmDeactivateMessage => _isArabic ? 'هل تريد إلغاء تفعيل هذا العميل؟' : 'Do you want to deactivate this customer?';
+  String get customerConfirmReactivateMessage => _isArabic ? 'هل تريد إعادة تفعيل هذا العميل؟' : 'Do you want to reactivate this customer?';
 
-  String customerDetailsTitle(String name) {
-    return _isArabic ? 'تفاصيل $name' : 'Customer details: $name';
-  }
+  String customerDetailsTitle(String name) => _isArabic ? 'تفاصيل $name' : 'Customer details: $name';
 
   String customerAuditActionLabel(String action) {
     return switch (action) {
@@ -37,7 +39,6 @@ extension CustomersLocalizationsX on AppLocalizations {
 
   String customerAuditRoleLabel(String? role) {
     if (role == null || role.trim().isEmpty) return customerNotAvailable;
-
     return switch (role) {
       'owner' => roleOwner,
       'admin' => roleAdmin,
@@ -69,12 +70,10 @@ extension CustomersLocalizationsX on AppLocalizations {
     if (value == null) return customerEmptyValue;
     final stringValue = value.toString().trim();
     if (stringValue.isEmpty) return customerEmptyValue;
-
     if (key == 'is_active') {
       if (value == true || stringValue == 'true') return activeStatus;
       if (value == false || stringValue == 'false') return inactiveStatus;
     }
-
     return stringValue;
   }
 }
