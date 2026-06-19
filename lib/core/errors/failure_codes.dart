@@ -12,6 +12,7 @@ class FailureCodes {
   static const String permissionCustomersManagement = 'permission_customers_management';
   static const String permissionCustomersView = 'permission_customers_view';
   static const String permissionCompanyUsersView = 'permission_company_users_view';
+  static const String permissionFleetManagement = 'permission_fleet_management';
 
   // Validation
   static const String validationCompanyIdRequired = 'validation_company_id_required';
