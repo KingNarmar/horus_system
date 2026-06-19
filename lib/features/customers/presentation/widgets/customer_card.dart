@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/customer.dart';
@@ -9,6 +10,7 @@ import '../localization/customers_localizations_x.dart';
 class CustomerCard extends StatelessWidget {
   final Customer customer;
   final bool canManageCustomers;
+  final bool isActionInProgress;
   final ValueChanged<Customer> onViewDetails;
   final ValueChanged<Customer> onEdit;
   final ValueChanged<Customer> onDeactivate;
@@ -17,6 +19,7 @@ class CustomerCard extends StatelessWidget {
   const CustomerCard({
     required this.customer,
     required this.canManageCustomers,
+    required this.isActionInProgress,
     required this.onViewDetails,
     required this.onEdit,
     required this.onDeactivate,
@@ -57,20 +60,20 @@ class CustomerCard extends StatelessWidget {
                 ),
                 if (canManageCustomers) ...[
                   OutlinedButton.icon(
-                    onPressed: () => onEdit(customer),
+                    onPressed: isActionInProgress ? null : () => onEdit(customer),
                     icon: const Icon(AppIcons.edit),
                     label: Text(l10n.editCustomerButton),
                   ),
                   if (customer.isActive)
                     OutlinedButton.icon(
-                      onPressed: () => onDeactivate(customer),
-                      icon: const Icon(AppIcons.deactivate),
+                      onPressed: isActionInProgress ? null : () => onDeactivate(customer),
+                      icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.deactivate),
                       label: Text(l10n.deactivateCustomerButton),
                     )
                   else
                     OutlinedButton.icon(
-                      onPressed: () => onReactivate(customer),
-                      icon: const Icon(AppIcons.reactivate),
+                      onPressed: isActionInProgress ? null : () => onReactivate(customer),
+                      icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.reactivate),
                       label: Text(l10n.reactivateCustomerButton),
                     ),
                 ],
@@ -78,6 +81,26 @@ class CustomerCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final bool isLoading;
+  final IconData icon;
+
+  const _ActionIcon({required this.isLoading, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isLoading) return Icon(icon);
+
+    return const SizedBox(
+      width: AppSizes.iconMd,
+      height: AppSizes.iconMd,
+      child: CircularProgressIndicator(
+        strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
       ),
     );
   }
