@@ -30,7 +30,6 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
       TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
-      DbCommonFields.isActive: status.isActive,
     };
   }
 
@@ -40,7 +39,6 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
       TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
-      DbCommonFields.isActive: status.isActive,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
