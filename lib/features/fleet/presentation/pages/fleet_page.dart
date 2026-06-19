@@ -17,7 +17,6 @@ import '../widgets/fleet_form_dialog.dart';
 
 class FleetPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
-
   const FleetPage({required this.currentCompanyContext, super.key});
 
   @override
@@ -45,13 +44,13 @@ class _FleetPageState extends State<FleetPage> {
         notesLabel: l10n.vehicleNotesLabel,
         showExpectedFuelConsumption: true,
         onSubmit: (data) => context.read<FleetCubit>().saveTractorHead(
-              tractorHead: tractorHead,
-              plateNumber: data.plateNumber,
-              status: data.status,
-              licenseExpiryDate: data.licenseExpiryDate,
-              expectedFuelConsumption: data.expectedFuelConsumption,
-              notes: data.notes,
-            ),
+          tractorHead: tractorHead,
+          plateNumber: data.plateNumber,
+          status: data.status,
+          licenseExpiryDate: data.licenseExpiryDate,
+          expectedFuelConsumption: data.expectedFuelConsumption,
+          notes: data.notes,
+        ),
       ),
     );
   }
@@ -68,38 +67,34 @@ class _FleetPageState extends State<FleetPage> {
         initialNotes: trailer?.technicalNotes,
         notesLabel: l10n.technicalNotesLabel,
         onSubmit: (data) => context.read<FleetCubit>().saveTrailer(
-              trailer: trailer,
-              plateNumber: data.plateNumber,
-              status: data.status,
-              licenseExpiryDate: data.licenseExpiryDate,
-              technicalNotes: data.notes,
-            ),
+          trailer: trailer,
+          plateNumber: data.plateNumber,
+          status: data.status,
+          licenseExpiryDate: data.licenseExpiryDate,
+          technicalNotes: data.notes,
+        ),
       ),
     );
   }
 
-  Future<void> _deactivateTractorHead(TractorHead tractorHead) async {
-    if (await _confirmActiveStateChange(isDeactivate: true)) {
-      await context.read<FleetCubit>().deactivateTractorHead(tractorHead);
-    }
+  Future<void> _deactivateTractorHead(TractorHead item) async {
+    final cubit = context.read<FleetCubit>();
+    if (await _confirmActiveStateChange(isDeactivate: true)) await cubit.deactivateTractorHead(item);
   }
 
-  Future<void> _reactivateTractorHead(TractorHead tractorHead) async {
-    if (await _confirmActiveStateChange(isDeactivate: false)) {
-      await context.read<FleetCubit>().reactivateTractorHead(tractorHead);
-    }
+  Future<void> _reactivateTractorHead(TractorHead item) async {
+    final cubit = context.read<FleetCubit>();
+    if (await _confirmActiveStateChange(isDeactivate: false)) await cubit.reactivateTractorHead(item);
   }
 
-  Future<void> _deactivateTrailer(TrailerEntity trailer) async {
-    if (await _confirmActiveStateChange(isDeactivate: true)) {
-      await context.read<FleetCubit>().deactivateTrailer(trailer);
-    }
+  Future<void> _deactivateTrailer(TrailerEntity item) async {
+    final cubit = context.read<FleetCubit>();
+    if (await _confirmActiveStateChange(isDeactivate: true)) await cubit.deactivateTrailer(item);
   }
 
-  Future<void> _reactivateTrailer(TrailerEntity trailer) async {
-    if (await _confirmActiveStateChange(isDeactivate: false)) {
-      await context.read<FleetCubit>().reactivateTrailer(trailer);
-    }
+  Future<void> _reactivateTrailer(TrailerEntity item) async {
+    final cubit = context.read<FleetCubit>();
+    if (await _confirmActiveStateChange(isDeactivate: false)) await cubit.reactivateTrailer(item);
   }
 
   Future<bool> _confirmActiveStateChange({required bool isDeactivate}) async {
@@ -124,36 +119,22 @@ class _FleetPageState extends State<FleetPage> {
     return BlocBuilder<FleetCubit, FleetState>(
       builder: (context, state) {
         final cubit = context.read<FleetCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(child: Text(l10n.fleetTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
-                if (state is FleetLoaded && state.canManageFleet)
-                  _AddButton(selectedTab: state.selectedTab, onAddTractorHead: () => _openTractorHeadForm(), onAddTrailer: () => _openTrailerForm()),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is FleetInitial || state is FleetLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state is FleetFailure)
-              _MessageCard(message: l10n.localizedErrorMessage(state.failure), action: OutlinedButton(onPressed: () => cubit.loadFleet(widget.currentCompanyContext), child: Text(l10n.retryButton)))
-            else if (state is FleetLoaded) ...[
-              FleetFilters(selectedTab: state.selectedTab, statusFilter: state.statusFilter, onTabChanged: cubit.selectTab, onSearchChanged: cubit.setSearchQuery, onStatusFilterChanged: cubit.setStatusFilter),
-              const SizedBox(height: AppSpacing.md),
-              _FleetAssetBody(
-                state: state,
-                onEditTractorHead: (tractorHead) => _openTractorHeadForm(tractorHead: tractorHead),
-                onDeactivateTractorHead: _deactivateTractorHead,
-                onReactivateTractorHead: _reactivateTractorHead,
-                onEditTrailer: (trailer) => _openTrailerForm(trailer: trailer),
-                onDeactivateTrailer: _deactivateTrailer,
-                onReactivateTrailer: _reactivateTrailer,
-              ),
-            ],
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Expanded(child: Text(l10n.fleetTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
+            if (state is FleetLoaded && state.canManageFleet) _AddButton(selectedTab: state.selectedTab, onAddTractorHead: () => _openTractorHeadForm(), onAddTrailer: () => _openTrailerForm()),
+          ]),
+          const SizedBox(height: AppSpacing.lg),
+          if (state is FleetInitial || state is FleetLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (state is FleetFailure)
+            _MessageCard(message: l10n.localizedErrorMessage(state.failure), action: OutlinedButton(onPressed: () => cubit.loadFleet(widget.currentCompanyContext), child: Text(l10n.retryButton)))
+          else if (state is FleetLoaded) ...[
+            FleetFilters(selectedTab: state.selectedTab, statusFilter: state.statusFilter, onTabChanged: cubit.selectTab, onSearchChanged: cubit.setSearchQuery, onStatusFilterChanged: cubit.setStatusFilter),
+            const SizedBox(height: AppSpacing.md),
+            _FleetAssetBody(state: state, onEditTractorHead: (item) => _openTractorHeadForm(tractorHead: item), onDeactivateTractorHead: _deactivateTractorHead, onReactivateTractorHead: _reactivateTractorHead, onEditTrailer: (item) => _openTrailerForm(trailer: item), onDeactivateTrailer: _deactivateTrailer, onReactivateTrailer: _reactivateTrailer),
           ],
-        );
+        ]);
       },
     );
   }
@@ -163,7 +144,6 @@ class _AddButton extends StatelessWidget {
   final FleetAssetTab selectedTab;
   final VoidCallback onAddTractorHead;
   final VoidCallback onAddTrailer;
-
   const _AddButton({required this.selectedTab, required this.onAddTractorHead, required this.onAddTrailer});
 
   @override
@@ -182,7 +162,6 @@ class _FleetAssetBody extends StatelessWidget {
   final ValueChanged<TrailerEntity> onEditTrailer;
   final ValueChanged<TrailerEntity> onDeactivateTrailer;
   final ValueChanged<TrailerEntity> onReactivateTrailer;
-
   const _FleetAssetBody({required this.state, required this.onEditTractorHead, required this.onDeactivateTractorHead, required this.onReactivateTractorHead, required this.onEditTrailer, required this.onDeactivateTrailer, required this.onReactivateTrailer});
 
   @override
@@ -202,11 +181,8 @@ class _FleetAssetBody extends StatelessWidget {
 class _MessageCard extends StatelessWidget {
   final String message;
   final Widget? action;
-
   const _MessageCard({required this.message, this.action});
 
   @override
-  Widget build(BuildContext context) {
-    return Card(child: Padding(padding: const EdgeInsets.all(AppSpacing.xl), child: Column(children: [Text(message, textAlign: TextAlign.center), if (action != null) ...[const SizedBox(height: AppSpacing.md), action!]])));
-  }
+  Widget build(BuildContext context) => Card(child: Padding(padding: const EdgeInsets.all(AppSpacing.xl), child: Column(children: [Text(message, textAlign: TextAlign.center), if (action != null) ...[const SizedBox(height: AppSpacing.md), action!]])));
 }
