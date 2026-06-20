@@ -42,11 +42,11 @@ actual_delivery_at,
 notes,
 created_at,
 updated_at,
-customers(name),
-routes(loading_location, unloading_location),
-drivers(full_name),
-tractor_heads(plate_number),
-trailers(plate_number)
+customers!trips_company_customer_fk(name),
+routes!trips_company_route_fk(loading_location, unloading_location),
+drivers!trips_company_driver_fk(full_name),
+tractor_heads!trips_company_tractor_fk(plate_number),
+trailers!trips_company_trailer_fk(plate_number)
 ''';
 
 const _tripStatusHistoryColumns = '''
