@@ -1,8 +1,8 @@
-import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
-
 import '../../../../core/utils/result.dart';
 import '../entities/trip_entity.dart';
+import '../entities/trip_form_lookups.dart';
 import '../entities/trip_status.dart';
+import '../entities/trip_status_history.dart';
 import '../entities/trip_write_data.dart';
 
 abstract class TripsRepository {
@@ -11,6 +11,10 @@ abstract class TripsRepository {
   Future<Result<TripEntity>> getTripDetails({
     required String companyId,
     required String id,
+  });
+
+  Future<Result<TripFormLookups>> getTripFormLookups({
+    required String companyId,
   });
 
   Future<Result<TripEntity>> createTrip({

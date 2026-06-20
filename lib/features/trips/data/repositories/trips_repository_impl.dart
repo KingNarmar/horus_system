@@ -10,6 +10,7 @@ import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/trip_entity.dart';
+import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_write_data.dart';
@@ -47,6 +48,19 @@ class TripsRepositoryImpl implements TripsRepository {
       );
 
       return Success(model.toEntity());
+    });
+  }
+
+  @override
+  Future<Result<TripFormLookups>> getTripFormLookups({
+    required String companyId,
+  }) {
+    return _guard(() async {
+      final lookups = await remoteDataSource.getTripFormLookups(
+        companyId: companyId,
+      );
+
+      return Success(lookups);
     });
   }
 

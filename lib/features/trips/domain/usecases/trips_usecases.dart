@@ -1,12 +1,12 @@
-import 'package:horus_system/core/errors/failure.dart';
-
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/trip_entity.dart';
+import '../entities/trip_form_lookups.dart';
 import '../entities/trip_status.dart';
 import '../entities/trip_status_history.dart';
 import '../entities/trip_write_data.dart';
@@ -27,6 +27,12 @@ class GetTripDetailsParams {
     required this.currentCompanyContext,
     required this.id,
   });
+}
+
+class GetTripFormLookupsParams {
+  final CurrentCompanyContext currentCompanyContext;
+
+  const GetTripFormLookupsParams({required this.currentCompanyContext});
 }
 
 class CreateTripParams {
@@ -195,6 +201,31 @@ class GetTripDetailsUseCase
     }
 
     return _repository.getTripDetails(companyId: context.companyId, id: id);
+  }
+}
+
+class GetTripFormLookupsUseCase
+    implements UseCase<TripFormLookups, GetTripFormLookupsParams> {
+  final TripsRepository _repository;
+
+  const GetTripFormLookupsUseCase(this._repository);
+
+  @override
+  Future<Result<TripFormLookups>> call(GetTripFormLookupsParams params) {
+    final context = params.currentCompanyContext;
+
+    if (!TripsPermissionPolicy.canManageTrips(context.role)) {
+      return Future.value(
+        const FailureResult<TripFormLookups>(
+          PermissionFailure(
+            code: FailureCodes.permissionTripsManagement,
+            message: 'Trips management is not allowed.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getTripFormLookups(companyId: context.companyId);
   }
 }
 

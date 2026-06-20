@@ -4,6 +4,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/trip_entity.dart';
+import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
 
@@ -39,6 +40,9 @@ class TripsLoaded extends TripsState {
   final Failure? detailsFailure;
   final Failure? activityFailure;
   final Failure? statusHistoryFailure;
+  final TripFormLookups? formLookups;
+  final bool isFormLookupsLoading;
+  final Failure? formLookupsFailure;
 
   const TripsLoaded({
     required this.currentCompanyContext,
@@ -58,6 +62,9 @@ class TripsLoaded extends TripsState {
     this.detailsFailure,
     this.activityFailure,
     this.statusHistoryFailure,
+    this.formLookups,
+    this.isFormLookupsLoading = false,
+    this.formLookupsFailure,
   });
 
   bool isStatusChanging(String id) {
@@ -108,6 +115,9 @@ class TripsLoaded extends TripsState {
     Object? detailsFailure = _notSet,
     Object? activityFailure = _notSet,
     Object? statusHistoryFailure = _notSet,
+    Object? formLookups = _notSet,
+    bool? isFormLookupsLoading,
+    Object? formLookupsFailure = _notSet,
   }) {
     return TripsLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -139,6 +149,13 @@ class TripsLoaded extends TripsState {
       statusHistoryFailure: statusHistoryFailure == _notSet
           ? this.statusHistoryFailure
           : statusHistoryFailure as Failure?,
+      formLookups: formLookups == _notSet
+          ? this.formLookups
+          : formLookups as TripFormLookups?,
+      isFormLookupsLoading: isFormLookupsLoading ?? this.isFormLookupsLoading,
+      formLookupsFailure: formLookupsFailure == _notSet
+          ? this.formLookupsFailure
+          : formLookupsFailure as Failure?,
     );
   }
 }
