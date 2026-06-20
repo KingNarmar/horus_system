@@ -29,6 +29,10 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripVehicleHeader => _isArabic ? 'المركبة' : 'Vehicle';
 
+  String get tripTractorHeadLabel => _isArabic ? 'رأس الجرار' : 'Tractor head';
+
+  String get tripTrailerLabel => _isArabic ? 'المقطورة' : 'Trailer';
+
   String get tripLoadingOrderHeader =>
       _isArabic ? 'أمر التحميل' : 'Loading order';
 
@@ -51,9 +55,13 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripViewDetails => _isArabic ? 'عرض التفاصيل' : 'View details';
 
+  String get tripEditButton => _isArabic ? 'تعديل' : 'Edit';
+
   String get tripUpdateStatus => _isArabic ? 'تحديث الحالة' : 'Update status';
 
   String get tripEmptyValue => '-';
+
+  String get tripOptionalNone => _isArabic ? 'بدون' : 'None';
 
   String get tripNotesLabel => _isArabic ? 'ملاحظات' : 'Notes';
 
@@ -85,6 +93,13 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripLoadingStatusHistory =>
       _isArabic ? 'جاري تحميل سجل الحالات...' : 'Loading status history...';
+
+  String get tripLoadingLookups =>
+      _isArabic ? 'جاري تحميل بيانات النموذج...' : 'Loading form data...';
+
+  String get tripRequiredLookupsMissing => _isArabic
+      ? 'لازم يكون عندك عميل واحد ومسار واحد على الأقل قبل إنشاء رحلة.'
+      : 'At least one customer and one route are required before creating a trip.';
 
   String get tripNoActivityFound =>
       _isArabic ? 'لا يوجد نشاط بعد.' : 'No activity yet.';
@@ -128,6 +143,27 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripNoAvailableStatusActions => _isArabic
       ? 'لا توجد حالات متاحة بعد الحالة الحالية.'
       : 'No available status actions for the current status.';
+
+  String get tripCustomerRequired =>
+      _isArabic ? 'العميل مطلوب.' : 'Customer is required.';
+
+  String get tripRouteRequired =>
+      _isArabic ? 'المسار مطلوب.' : 'Route is required.';
+
+  String get tripNumberInvalid => _isArabic
+      ? 'أدخل رقم صحيح غير سالب.'
+      : 'Enter a valid non-negative number.';
+
+  String get tripDateTimeHelperText => _isArabic
+      ? 'اختياري - مثال: 2026-06-20 14:30'
+      : 'Optional - example: 2026-06-20 14:30';
+
+  String get tripDateTimeInvalid =>
+      _isArabic ? 'أدخل تاريخ ووقت صحيحين.' : 'Enter a valid date and time.';
+
+  String get tripDeliveryBeforeLoadingInvalid => _isArabic
+      ? 'موعد التسليم لا يمكن أن يكون قبل موعد التحميل.'
+      : 'Delivery cannot be before loading.';
 
   String get tripsStatusAllFilter => _isArabic ? 'الكل' : 'All';
 
@@ -253,8 +289,8 @@ extension TripsLocalizationsX on AppLocalizations {
       'customer_id' => tripCustomerHeader,
       'route_id' => tripRouteHeader,
       'driver_id' => tripDriverHeader,
-      'tractor_head_id' => _isArabic ? 'رأس الجرار' : 'Tractor head',
-      'trailer_id' => _isArabic ? 'المقطورة' : 'Trailer',
+      'tractor_head_id' => tripTractorHeadLabel,
+      'trailer_id' => tripTrailerLabel,
       'status' => tripStatusHeader,
       'loading_order_number' => tripLoadingOrderHeader,
       'waybill_number' => tripWaybillHeader,

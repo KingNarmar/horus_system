@@ -26,6 +26,7 @@ abstract final class TripsDependencies {
     return TripsCubit(
       getTripsUseCase: GetTripsUseCase(tripsRepository),
       getTripDetailsUseCase: GetTripDetailsUseCase(tripsRepository),
+      getTripFormLookupsUseCase: GetTripFormLookupsUseCase(tripsRepository),
       createTripUseCase: CreateTripUseCase(tripsRepository),
       saveTripUseCase: SaveTripUseCase(tripsRepository),
       updateTripStatusUseCase: UpdateTripStatusUseCase(tripsRepository),

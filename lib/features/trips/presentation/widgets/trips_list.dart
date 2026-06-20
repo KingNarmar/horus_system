@@ -10,18 +10,22 @@ import '../localization/trips_localizations_x.dart';
 
 class TripsList extends StatelessWidget {
   final List<TripEntity> trips;
+  final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
   final bool Function(String id) isStatusChanging;
   final ValueChanged<TripEntity> onViewDetails;
+  final ValueChanged<TripEntity> onEdit;
   final ValueChanged<TripEntity> onUpdateStatus;
 
   const TripsList({
     required this.trips,
+    required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
     required this.isStatusChanging,
     required this.onViewDetails,
+    required this.onEdit,
     required this.onUpdateStatus,
     super.key,
   });
@@ -33,20 +37,24 @@ class TripsList extends StatelessWidget {
         if (constraints.maxWidth >= 900) {
           return _TripsTable(
             trips: trips,
+            canManageTrips: canManageTrips,
             canUpdateTripStatus: canUpdateTripStatus,
             canViewTripFinancials: canViewTripFinancials,
             isStatusChanging: isStatusChanging,
             onViewDetails: onViewDetails,
+            onEdit: onEdit,
             onUpdateStatus: onUpdateStatus,
           );
         }
 
         return _TripsCards(
           trips: trips,
+          canManageTrips: canManageTrips,
           canUpdateTripStatus: canUpdateTripStatus,
           canViewTripFinancials: canViewTripFinancials,
           isStatusChanging: isStatusChanging,
           onViewDetails: onViewDetails,
+          onEdit: onEdit,
           onUpdateStatus: onUpdateStatus,
         );
       },
@@ -56,18 +64,22 @@ class TripsList extends StatelessWidget {
 
 class _TripsTable extends StatelessWidget {
   final List<TripEntity> trips;
+  final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
   final bool Function(String id) isStatusChanging;
   final ValueChanged<TripEntity> onViewDetails;
+  final ValueChanged<TripEntity> onEdit;
   final ValueChanged<TripEntity> onUpdateStatus;
 
   const _TripsTable({
     required this.trips,
+    required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
     required this.isStatusChanging,
     required this.onViewDetails,
+    required this.onEdit,
     required this.onUpdateStatus,
   });
 
@@ -89,7 +101,7 @@ class _TripsTable extends StatelessWidget {
             if (canViewTripFinancials)
               DataColumn(label: Text(l10n.tripFreightPriceHeader)),
             DataColumn(label: Text(l10n.tripStatusHeader)),
-            const DataColumn(label: SizedBox(width: 92)),
+            const DataColumn(label: SizedBox(width: 128)),
           ],
           rows: trips.map((trip) {
             final isChanging = isStatusChanging(trip.id);
@@ -152,14 +164,16 @@ class _TripsTable extends StatelessWidget {
                 DataCell(_TripStatusChip(trip: trip)),
                 DataCell(
                   SizedBox(
-                    width: 92,
+                    width: 128,
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: _TripActions(
                         trip: trip,
+                        canManageTrips: canManageTrips,
                         canUpdateTripStatus: canUpdateTripStatus,
                         isChanging: isChanging,
                         onViewDetails: onViewDetails,
+                        onEdit: onEdit,
                         onUpdateStatus: onUpdateStatus,
                       ),
                     ),
@@ -176,18 +190,22 @@ class _TripsTable extends StatelessWidget {
 
 class _TripsCards extends StatelessWidget {
   final List<TripEntity> trips;
+  final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
   final bool Function(String id) isStatusChanging;
   final ValueChanged<TripEntity> onViewDetails;
+  final ValueChanged<TripEntity> onEdit;
   final ValueChanged<TripEntity> onUpdateStatus;
 
   const _TripsCards({
     required this.trips,
+    required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
     required this.isStatusChanging,
     required this.onViewDetails,
+    required this.onEdit,
     required this.onUpdateStatus,
   });
 
@@ -272,9 +290,11 @@ class _TripsCards extends StatelessWidget {
                   alignment: AlignmentDirectional.centerEnd,
                   child: _TripActions(
                     trip: trip,
+                    canManageTrips: canManageTrips,
                     canUpdateTripStatus: canUpdateTripStatus,
                     isChanging: isChanging,
                     onViewDetails: onViewDetails,
+                    onEdit: onEdit,
                     onUpdateStatus: onUpdateStatus,
                   ),
                 ),
@@ -314,16 +334,20 @@ class _TripStatusChip extends StatelessWidget {
 
 class _TripActions extends StatelessWidget {
   final TripEntity trip;
+  final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool isChanging;
   final ValueChanged<TripEntity> onViewDetails;
+  final ValueChanged<TripEntity> onEdit;
   final ValueChanged<TripEntity> onUpdateStatus;
 
   const _TripActions({
     required this.trip,
+    required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.isChanging,
     required this.onViewDetails,
+    required this.onEdit,
     required this.onUpdateStatus,
   });
 
@@ -341,6 +365,12 @@ class _TripActions extends StatelessWidget {
           onPressed: () => onViewDetails(trip),
           icon: const Icon(AppIcons.view),
         ),
+        if (canManageTrips)
+          _ActionIconButton(
+            tooltip: l10n.tripEditButton,
+            onPressed: isChanging ? null : () => onEdit(trip),
+            icon: const Icon(AppIcons.edit),
+          ),
         if (canUpdateTripStatus)
           _ActionIconButton(
             tooltip: l10n.tripUpdateStatus,

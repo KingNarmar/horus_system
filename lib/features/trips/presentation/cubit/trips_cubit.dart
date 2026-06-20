@@ -15,6 +15,7 @@ import 'trips_state.dart';
 class TripsCubit extends Cubit<TripsState> {
   final GetTripsUseCase getTripsUseCase;
   final GetTripDetailsUseCase getTripDetailsUseCase;
+  final GetTripFormLookupsUseCase getTripFormLookupsUseCase;
   final CreateTripUseCase createTripUseCase;
   final SaveTripUseCase saveTripUseCase;
   final UpdateTripStatusUseCase updateTripStatusUseCase;
@@ -27,6 +28,7 @@ class TripsCubit extends Cubit<TripsState> {
   TripsCubit({
     required this.getTripsUseCase,
     required this.getTripDetailsUseCase,
+    required this.getTripFormLookupsUseCase,
     required this.createTripUseCase,
     required this.saveTripUseCase,
     required this.updateTripStatusUseCase,
@@ -80,6 +82,48 @@ class TripsCubit extends Cubit<TripsState> {
 
   void setStatusFilter(TripStatusFilter filter) {
     _mapLoaded((state) => state.copyWith(statusFilter: filter));
+  }
+
+  Future<void> loadTripFormLookups() async {
+    final current = state;
+    if (current is! TripsLoaded || current.isFormLookupsLoading) return;
+
+    if (current.formLookups != null && current.formLookupsFailure == null) {
+      return;
+    }
+
+    emit(
+      current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null),
+    );
+
+    final result = await getTripFormLookupsUseCase(
+      GetTripFormLookupsParams(
+        currentCompanyContext: current.currentCompanyContext,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! TripsLoaded) return;
+
+    result.when(
+      success: (lookups) {
+        emit(
+          latestState.copyWith(
+            formLookups: lookups,
+            isFormLookupsLoading: false,
+            formLookupsFailure: null,
+          ),
+        );
+      },
+      failure: (failure) {
+        emit(
+          latestState.copyWith(
+            isFormLookupsLoading: false,
+            formLookupsFailure: failure,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> loadTripDetails(TripEntity trip) async {
