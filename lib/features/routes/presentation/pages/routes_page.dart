@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/widgets/active_state_confirmation_dialog.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_cubit.dart';
@@ -30,47 +31,7 @@ class _RoutesPageState extends State<RoutesPage> {
     context.read<RoutesCubit>().loadRoutes(widget.currentCompanyContext);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return BlocConsumer<RoutesCubit, RoutesState>(
-      listener: (context, state) {
-        if (state is RoutesFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
-          );
-        }
-      },
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _RoutesHeader(
-              canAdd: state is RoutesLoaded && state.canManageRoutes,
-              onAddPressed: () => _showRouteForm(context),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is RoutesInitial || state is RoutesLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state is RoutesLoaded)
-              _RoutesLoadedBody(state: state)
-            else if (state is RoutesFailure)
-              _RoutesFailureView(
-                failureText: l10n.localizedErrorMessage(state.failure),
-                onRetry: () {
-                  context.read<RoutesCubit>().loadRoutes(
-                    widget.currentCompanyContext,
-                  );
-                },
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showRouteForm(BuildContext context, {RouteEntity? route}) {
+  Future<void> _showRouteForm({RouteEntity? route}) {
     final cubit = context.read<RoutesCubit>();
     final l10n = context.l10n;
 
@@ -91,6 +52,111 @@ class _RoutesPageState extends State<RoutesPage> {
               notes: data.notes,
             );
           },
+        );
+      },
+    );
+  }
+
+  Future<void> _openRouteDetails(RouteEntity route) async {
+    final cubit = context.read<RoutesCubit>();
+
+    cubit.loadRouteActivity(route);
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) {
+        return BlocProvider.value(
+          value: cubit,
+          child: BlocBuilder<RoutesCubit, RoutesState>(
+            builder: (context, state) {
+              return RouteDetailsDialog(
+                route: route,
+                state: state is RoutesLoaded ? state : null,
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    cubit.clearRouteActivity();
+  }
+
+  Future<void> _deactivateRoute(RouteEntity route) async {
+    final cubit = context.read<RoutesCubit>();
+    final l10n = context.l10n;
+
+    final confirmed = await showActiveStateConfirmationDialog(
+      context: context,
+      title: l10n.confirmRouteDeactivateTitle,
+      message: l10n.confirmRouteDeactivateMessage,
+      confirmLabel: l10n.routeDeactivateButton,
+      cancelLabel: l10n.cancelButton,
+    );
+
+    if (!confirmed) return;
+
+    await cubit.deactivateRoute(route);
+  }
+
+  Future<void> _reactivateRoute(RouteEntity route) async {
+    final cubit = context.read<RoutesCubit>();
+    final l10n = context.l10n;
+
+    final confirmed = await showActiveStateConfirmationDialog(
+      context: context,
+      title: l10n.confirmRouteReactivateTitle,
+      message: l10n.confirmRouteReactivateMessage,
+      confirmLabel: l10n.routeReactivateButton,
+      cancelLabel: l10n.cancelButton,
+    );
+
+    if (!confirmed) return;
+
+    await cubit.reactivateRoute(route);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return BlocConsumer<RoutesCubit, RoutesState>(
+      listener: (context, state) {
+        if (state is RoutesFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _RoutesHeader(
+              canAdd: state is RoutesLoaded && state.canManageRoutes,
+              onAddPressed: () => _showRouteForm(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (state is RoutesInitial || state is RoutesLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (state is RoutesLoaded)
+              _RoutesLoadedBody(
+                state: state,
+                onViewDetails: _openRouteDetails,
+                onEdit: (route) => _showRouteForm(route: route),
+                onDeactivate: _deactivateRoute,
+                onReactivate: _reactivateRoute,
+              )
+            else if (state is RoutesFailure)
+              _RoutesFailureView(
+                failureText: l10n.localizedErrorMessage(state.failure),
+                onRetry: () {
+                  context.read<RoutesCubit>().loadRoutes(
+                    widget.currentCompanyContext,
+                  );
+                },
+              ),
+          ],
         );
       },
     );
@@ -132,8 +198,18 @@ class _RoutesHeader extends StatelessWidget {
 
 class _RoutesLoadedBody extends StatelessWidget {
   final RoutesLoaded state;
+  final ValueChanged<RouteEntity> onViewDetails;
+  final ValueChanged<RouteEntity> onEdit;
+  final ValueChanged<RouteEntity> onDeactivate;
+  final ValueChanged<RouteEntity> onReactivate;
 
-  const _RoutesLoadedBody({required this.state});
+  const _RoutesLoadedBody({
+    required this.state,
+    required this.onViewDetails,
+    required this.onEdit,
+    required this.onDeactivate,
+    required this.onReactivate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,117 +235,13 @@ class _RoutesLoadedBody extends StatelessWidget {
             routes: routes,
             canManageRoutes: state.canManageRoutes,
             isActiveStateChanging: state.isActiveStateChanging,
-            onViewActivity: (route) =>
-                _showRouteActivity(context, route: route),
-            onEdit: (route) => _showRouteForm(context, route: route),
-            onDeactivate: (route) => _confirmActiveStateChange(
-              context,
-              route: route,
-              isReactivation: false,
-            ),
-            onReactivate: (route) => _confirmActiveStateChange(
-              context,
-              route: route,
-              isReactivation: true,
-            ),
+            onViewDetails: onViewDetails,
+            onEdit: onEdit,
+            onDeactivate: onDeactivate,
+            onReactivate: onReactivate,
           ),
       ],
     );
-  }
-
-  Future<void> _showRouteActivity(
-    BuildContext context, {
-    required RouteEntity route,
-  }) {
-    final cubit = context.read<RoutesCubit>();
-
-    return showDialog<void>(
-      context: context,
-      builder: (_) {
-        return BlocProvider.value(
-          value: cubit,
-          child: RouteActivityDialog(route: route),
-        );
-      },
-    );
-  }
-
-  Future<void> _showRouteForm(
-    BuildContext context, {
-    required RouteEntity route,
-  }) {
-    final cubit = context.read<RoutesCubit>();
-    final l10n = context.l10n;
-
-    return showDialog<void>(
-      context: context,
-      builder: (_) {
-        return RouteFormDialog(
-          title: l10n.editRouteTitle,
-          route: route,
-          onSubmit: (data) {
-            return cubit.saveRoute(
-              route: route,
-              loadingLocation: data.loadingLocation,
-              unloadingLocation: data.unloadingLocation,
-              governorateFrom: data.governorateFrom,
-              governorateTo: data.governorateTo,
-              defaultFreightPrice: data.defaultFreightPrice,
-              notes: data.notes,
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _confirmActiveStateChange(
-    BuildContext context, {
-    required RouteEntity route,
-    required bool isReactivation,
-  }) async {
-    final cubit = context.read<RoutesCubit>();
-    final l10n = context.l10n;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: Text(
-            isReactivation
-                ? l10n.confirmRouteReactivateTitle
-                : l10n.confirmRouteDeactivateTitle,
-          ),
-          content: Text(
-            isReactivation
-                ? l10n.confirmRouteReactivateMessage
-                : l10n.confirmRouteDeactivateMessage,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l10n.cancelButton),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                isReactivation
-                    ? l10n.routeReactivateButton
-                    : l10n.routeDeactivateButton,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true) return;
-
-    if (isReactivation) {
-      await cubit.reactivateRoute(route);
-    } else {
-      await cubit.deactivateRoute(route);
-    }
   }
 }
 

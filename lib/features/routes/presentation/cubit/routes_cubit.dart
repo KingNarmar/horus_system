@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -70,30 +69,65 @@ class RoutesCubit extends Cubit<RoutesState> {
     _mapLoaded((state) => state.copyWith(statusFilter: filter));
   }
 
-  Future<Result<List<AuditLog>>> getRouteActivity(RouteEntity route) {
-    final context = _currentCompanyContext;
-    if (context == null) {
-      final current = state;
-      if (current is RoutesLoaded) {
-        return getRouteAuditLogsUseCase(
-          GetEntityAuditLogsParams(
-            companyId: current.currentCompanyContext.companyId,
-            module: AuditModule.routes,
-            entityType: AuditEntityType.route,
-            entityId: route.id,
-          ),
-        );
-      }
-    }
+  Future<void> loadRouteActivity(RouteEntity route) async {
+    final current = state;
+    if (current is! RoutesLoaded) return;
 
-    return getRouteAuditLogsUseCase(
+    emit(
+      current.copyWith(
+        selectedRoute: route,
+        selectedRouteActivity: const [],
+        isActivityLoading: true,
+        activityFailure: null,
+      ),
+    );
+
+    final result = await getRouteAuditLogsUseCase(
       GetEntityAuditLogsParams(
-        companyId: context!.companyId,
+        companyId: current.currentCompanyContext.companyId,
         module: AuditModule.routes,
         entityType: AuditEntityType.route,
         entityId: route.id,
       ),
     );
+
+    final latestState = state;
+    if (latestState is! RoutesLoaded) return;
+
+    result.when(
+      success: (activity) {
+        emit(
+          latestState.copyWith(
+            selectedRoute: route,
+            selectedRouteActivity: activity,
+            isActivityLoading: false,
+            activityFailure: null,
+          ),
+        );
+      },
+      failure: (failure) {
+        emit(
+          latestState.copyWith(
+            isActivityLoading: false,
+            activityFailure: failure,
+          ),
+        );
+      },
+    );
+  }
+
+  void clearRouteActivity() {
+    final current = state;
+    if (current is RoutesLoaded) {
+      emit(
+        current.copyWith(
+          selectedRoute: null,
+          selectedRouteActivity: const [],
+          isActivityLoading: false,
+          activityFailure: null,
+        ),
+      );
+    }
   }
 
   Future<void> saveRoute({
@@ -167,6 +201,9 @@ class RoutesCubit extends Cubit<RoutesState> {
     _mapLoaded((state) {
       return state.copyWith(
         allRoutes: _upsertRouteInList(state.allRoutes, route),
+        selectedRoute: state.selectedRoute?.id == route.id
+            ? route
+            : state.selectedRoute,
       );
     });
   }

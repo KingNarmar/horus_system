@@ -1,7 +1,10 @@
 import '../../../../core/errors/failure.dart';
+import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../../domain/entities/route_status_filter.dart';
+
+const Object _notSet = Object();
 
 sealed class RoutesState {
   const RoutesState();
@@ -22,6 +25,10 @@ class RoutesLoaded extends RoutesState {
   final String searchQuery;
   final RouteStatusFilter statusFilter;
   final Set<String> activeStateChangingRouteIds;
+  final RouteEntity? selectedRoute;
+  final List<AuditLog> selectedRouteActivity;
+  final bool isActivityLoading;
+  final Failure? activityFailure;
 
   const RoutesLoaded({
     required this.currentCompanyContext,
@@ -30,6 +37,10 @@ class RoutesLoaded extends RoutesState {
     this.searchQuery = '',
     this.statusFilter = RouteStatusFilter.active,
     this.activeStateChangingRouteIds = const <String>{},
+    this.selectedRoute,
+    this.selectedRouteActivity = const <AuditLog>[],
+    this.isActivityLoading = false,
+    this.activityFailure,
   });
 
   bool isActiveStateChanging(String id) {
@@ -62,6 +73,10 @@ class RoutesLoaded extends RoutesState {
     String? searchQuery,
     RouteStatusFilter? statusFilter,
     Set<String>? activeStateChangingRouteIds,
+    Object? selectedRoute = _notSet,
+    List<AuditLog>? selectedRouteActivity,
+    bool? isActivityLoading,
+    Object? activityFailure = _notSet,
   }) {
     return RoutesLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -71,6 +86,15 @@ class RoutesLoaded extends RoutesState {
       statusFilter: statusFilter ?? this.statusFilter,
       activeStateChangingRouteIds:
           activeStateChangingRouteIds ?? this.activeStateChangingRouteIds,
+      selectedRoute: selectedRoute == _notSet
+          ? this.selectedRoute
+          : selectedRoute as RouteEntity?,
+      selectedRouteActivity:
+          selectedRouteActivity ?? this.selectedRouteActivity,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      activityFailure: activityFailure == _notSet
+          ? this.activityFailure
+          : activityFailure as Failure?,
     );
   }
 }
