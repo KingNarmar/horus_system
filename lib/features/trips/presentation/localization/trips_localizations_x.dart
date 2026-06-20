@@ -36,6 +36,8 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripQuantityHeader => _isArabic ? 'الكمية' : 'Quantity';
 
+  String get tripTonsSuffix => _isArabic ? 'طن' : 't';
+
   String get tripFreightPriceHeader => _isArabic ? 'سعر النقل' : 'Freight';
 
   String get tripNetProfitHeader => _isArabic ? 'صافي الربح' : 'Net profit';
