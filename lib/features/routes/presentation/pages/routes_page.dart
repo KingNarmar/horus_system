@@ -9,6 +9,7 @@ import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_cubit.dart';
 import '../cubit/routes_state.dart';
 import '../localization/routes_localizations_x.dart';
+import '../widgets/route_activity_dialog.dart';
 import '../widgets/route_form_dialog.dart';
 import '../widgets/routes_filters.dart';
 import '../widgets/routes_list.dart';
@@ -158,6 +159,8 @@ class _RoutesLoadedBody extends StatelessWidget {
             routes: routes,
             canManageRoutes: state.canManageRoutes,
             isActiveStateChanging: state.isActiveStateChanging,
+            onViewActivity: (route) =>
+                _showRouteActivity(context, route: route),
             onEdit: (route) => _showRouteForm(context, route: route),
             onDeactivate: (route) => _confirmActiveStateChange(
               context,
@@ -171,6 +174,23 @@ class _RoutesLoadedBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Future<void> _showRouteActivity(
+    BuildContext context, {
+    required RouteEntity route,
+  }) {
+    final cubit = context.read<RoutesCubit>();
+
+    return showDialog<void>(
+      context: context,
+      builder: (_) {
+        return BlocProvider.value(
+          value: cubit,
+          child: RouteActivityDialog(route: route),
+        );
+      },
     );
   }
 

@@ -10,6 +10,7 @@ class RoutesList extends StatelessWidget {
   final List<RouteEntity> routes;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
+  final ValueChanged<RouteEntity> onViewActivity;
   final ValueChanged<RouteEntity> onEdit;
   final ValueChanged<RouteEntity> onDeactivate;
   final ValueChanged<RouteEntity> onReactivate;
@@ -18,6 +19,7 @@ class RoutesList extends StatelessWidget {
     required this.routes,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
+    required this.onViewActivity,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -33,6 +35,7 @@ class RoutesList extends StatelessWidget {
             routes: routes,
             canManageRoutes: canManageRoutes,
             isActiveStateChanging: isActiveStateChanging,
+            onViewActivity: onViewActivity,
             onEdit: onEdit,
             onDeactivate: onDeactivate,
             onReactivate: onReactivate,
@@ -43,6 +46,7 @@ class RoutesList extends StatelessWidget {
           routes: routes,
           canManageRoutes: canManageRoutes,
           isActiveStateChanging: isActiveStateChanging,
+          onViewActivity: onViewActivity,
           onEdit: onEdit,
           onDeactivate: onDeactivate,
           onReactivate: onReactivate,
@@ -56,6 +60,7 @@ class _RoutesTable extends StatelessWidget {
   final List<RouteEntity> routes;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
+  final ValueChanged<RouteEntity> onViewActivity;
   final ValueChanged<RouteEntity> onEdit;
   final ValueChanged<RouteEntity> onDeactivate;
   final ValueChanged<RouteEntity> onReactivate;
@@ -64,6 +69,7 @@ class _RoutesTable extends StatelessWidget {
     required this.routes,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
+    required this.onViewActivity,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -83,7 +89,7 @@ class _RoutesTable extends StatelessWidget {
             DataColumn(label: Text(l10n.routeGovernoratesHeader)),
             DataColumn(label: Text(l10n.routeDefaultPriceHeader)),
             DataColumn(label: Text(l10n.routeStatusHeader)),
-            const DataColumn(label: SizedBox(width: 96)),
+            const DataColumn(label: SizedBox(width: 132)),
           ],
           rows: routes.map((route) {
             final isChanging = isActiveStateChanging(route.id);
@@ -96,13 +102,20 @@ class _RoutesTable extends StatelessWidget {
                 DataCell(Text(_priceText(route, l10n.emptyValue))),
                 DataCell(_RouteStatusChip(route: route)),
                 DataCell(
-                  _RouteActions(
-                    route: route,
-                    canManageRoutes: canManageRoutes,
-                    isChanging: isChanging,
-                    onEdit: onEdit,
-                    onDeactivate: onDeactivate,
-                    onReactivate: onReactivate,
+                  SizedBox(
+                    width: 132,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: _RouteActions(
+                        route: route,
+                        canManageRoutes: canManageRoutes,
+                        isChanging: isChanging,
+                        onViewActivity: onViewActivity,
+                        onEdit: onEdit,
+                        onDeactivate: onDeactivate,
+                        onReactivate: onReactivate,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -118,6 +131,7 @@ class _RoutesCards extends StatelessWidget {
   final List<RouteEntity> routes;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
+  final ValueChanged<RouteEntity> onViewActivity;
   final ValueChanged<RouteEntity> onEdit;
   final ValueChanged<RouteEntity> onDeactivate;
   final ValueChanged<RouteEntity> onReactivate;
@@ -126,6 +140,7 @@ class _RoutesCards extends StatelessWidget {
     required this.routes,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
+    required this.onViewActivity,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -178,6 +193,7 @@ class _RoutesCards extends StatelessWidget {
                     route: route,
                     canManageRoutes: canManageRoutes,
                     isChanging: isChanging,
+                    onViewActivity: onViewActivity,
                     onEdit: onEdit,
                     onDeactivate: onDeactivate,
                     onReactivate: onReactivate,
@@ -225,6 +241,7 @@ class _RouteActions extends StatelessWidget {
   final RouteEntity route;
   final bool canManageRoutes;
   final bool isChanging;
+  final ValueChanged<RouteEntity> onViewActivity;
   final ValueChanged<RouteEntity> onEdit;
   final ValueChanged<RouteEntity> onDeactivate;
   final ValueChanged<RouteEntity> onReactivate;
@@ -233,6 +250,7 @@ class _RouteActions extends StatelessWidget {
     required this.route,
     required this.canManageRoutes,
     required this.isChanging,
+    required this.onViewActivity,
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
@@ -246,37 +264,66 @@ class _RouteActions extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Wrap(
-      spacing: AppSpacing.sm,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
+        _ActionIconButton(
+          tooltip: l10n.routeActivityTitle,
+          onPressed: () => onViewActivity(route),
+          icon: const Icon(AppIcons.auditHistory),
+        ),
+        _ActionIconButton(
           tooltip: l10n.editButton,
           onPressed: isChanging ? null : () => onEdit(route),
           icon: const Icon(AppIcons.edit),
         ),
         if (route.isActive)
-          IconButton(
+          _ActionIconButton(
             tooltip: l10n.routeDeactivateButton,
             onPressed: isChanging ? null : () => onDeactivate(route),
             icon: isChanging
                 ? const SizedBox.square(
-                    dimension: 20,
+                    dimension: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(AppIcons.deactivate),
           )
         else
-          IconButton(
+          _ActionIconButton(
             tooltip: l10n.routeReactivateButton,
             onPressed: isChanging ? null : () => onReactivate(route),
             icon: isChanging
                 ? const SizedBox.square(
-                    dimension: 20,
+                    dimension: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(AppIcons.reactivate),
           ),
       ],
+    );
+  }
+}
+
+class _ActionIconButton extends StatelessWidget {
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final Widget icon;
+
+  const _ActionIconButton({
+    required this.tooltip,
+    required this.onPressed,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: icon,
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints.tightFor(width: 36, height: 36),
     );
   }
 }

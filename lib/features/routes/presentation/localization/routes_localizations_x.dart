@@ -92,5 +92,32 @@ extension RoutesLocalizationsX on AppLocalizations {
 
   String get editButton => _isArabic ? 'تعديل' : 'Edit';
 
+  String get routeActivityTitle => _isArabic ? 'نشاط المسار' : 'Route activity';
+
+  String get noRouteActivityFound => _isArabic
+      ? 'لا يوجد سجل نشاط لهذا المسار.'
+      : 'No activity found for this route.';
+
+  String get routeActivityCloseButton => _isArabic ? 'إغلاق' : 'Close';
+
+  String get routeActivityByLabel => _isArabic ? 'بواسطة' : 'By';
+
+  String get routeActivityAtLabel => _isArabic ? 'في' : 'At';
+
+  String get routeActivityCreatedLabel =>
+      _isArabic ? 'تم إنشاء المسار' : 'Route created';
+
+  String get routeActivityUpdatedLabel =>
+      _isArabic ? 'تم تعديل المسار' : 'Route updated';
+
+  String get routeActivityDeactivatedLabel =>
+      _isArabic ? 'تم إلغاء تفعيل المسار' : 'Route deactivated';
+
+  String get routeActivityReactivatedLabel =>
+      _isArabic ? 'تم إعادة تفعيل المسار' : 'Route reactivated';
+
+  String get routeActivityStatusChangedLabel =>
+      _isArabic ? 'تم تغيير حالة المسار' : 'Route status changed';
+
   String get emptyValue => '-';
 }
