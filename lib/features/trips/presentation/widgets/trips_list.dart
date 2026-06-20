@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
+import '../../domain/entities/trip_status.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
 
@@ -136,6 +136,7 @@ class _TripsTable extends StatelessWidget {
                     TripFormatters.quantityTons(
                       trip.quantityTons,
                       l10n.tripEmptyValue,
+                      l10n.tripTonsSuffix,
                     ),
                   ),
                 ),
@@ -248,6 +249,7 @@ class _TripsCards extends StatelessWidget {
                       value: TripFormatters.quantityTons(
                         trip.quantityTons,
                         l10n.tripEmptyValue,
+                        l10n.tripTonsSuffix,
                       ),
                     ),
                     if (canViewTripFinancials)
