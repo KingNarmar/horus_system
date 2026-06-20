@@ -1,6 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
+import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_log.dart';
+import '../../../audit/domain/entities/audit_module.dart';
+import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../../domain/entities/route_status_filter.dart';
@@ -13,6 +17,7 @@ class RoutesCubit extends Cubit<RoutesState> {
   final SaveRouteUseCase saveRouteUseCase;
   final DeactivateRouteUseCase deactivateRouteUseCase;
   final ReactivateRouteUseCase reactivateRouteUseCase;
+  final GetEntityAuditLogsUseCase getRouteAuditLogsUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -21,6 +26,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     required this.saveRouteUseCase,
     required this.deactivateRouteUseCase,
     required this.reactivateRouteUseCase,
+    required this.getRouteAuditLogsUseCase,
   }) : super(const RoutesInitial());
 
   Future<void> loadRoutes(CurrentCompanyContext currentCompanyContext) async {
@@ -62,6 +68,32 @@ class RoutesCubit extends Cubit<RoutesState> {
 
   void setStatusFilter(RouteStatusFilter filter) {
     _mapLoaded((state) => state.copyWith(statusFilter: filter));
+  }
+
+  Future<Result<List<AuditLog>>> getRouteActivity(RouteEntity route) {
+    final context = _currentCompanyContext;
+    if (context == null) {
+      final current = state;
+      if (current is RoutesLoaded) {
+        return getRouteAuditLogsUseCase(
+          GetEntityAuditLogsParams(
+            companyId: current.currentCompanyContext.companyId,
+            module: AuditModule.routes,
+            entityType: AuditEntityType.route,
+            entityId: route.id,
+          ),
+        );
+      }
+    }
+
+    return getRouteAuditLogsUseCase(
+      GetEntityAuditLogsParams(
+        companyId: context!.companyId,
+        module: AuditModule.routes,
+        entityType: AuditEntityType.route,
+        entityId: route.id,
+      ),
+    );
   }
 
   Future<void> saveRoute({
