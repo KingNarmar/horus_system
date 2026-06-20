@@ -20,6 +20,10 @@ class FailureCodes {
   static const String permissionRoutesManagement =
       'permission_routes_management';
   static const String permissionRoutesView = 'permission_routes_view';
+  static const String permissionTripsManagement = 'permission_trips_management';
+  static const String permissionTripsView = 'permission_trips_view';
+  static const String permissionTripStatusUpdate =
+      'permission_trip_status_update';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -50,6 +54,25 @@ class FailureCodes {
       'validation_route_unloading_location_required';
   static const String validationRouteFreightPriceNegative =
       'validation_route_freight_price_negative';
+  static const String validationTripIdRequired = 'validation_trip_id_required';
+  static const String validationTripCustomerRequired =
+      'validation_trip_customer_required';
+  static const String validationTripRouteRequired =
+      'validation_trip_route_required';
+  static const String validationTripQuantityNegative =
+      'validation_trip_quantity_negative';
+  static const String validationTripFreightPriceNegative =
+      'validation_trip_freight_price_negative';
+  static const String validationTripExpensesNegative =
+      'validation_trip_expenses_negative';
+  static const String validationTripDeliveryBeforeLoading =
+      'validation_trip_delivery_before_loading';
+  static const String validationTripStatusTransitionInvalid =
+      'validation_trip_status_transition_invalid';
+
+  // Conflicts
+  static const String conflictTripVehicleAlreadyOpen =
+      'conflict_trip_vehicle_already_open';
 
   // Generic
   static const String serverError = 'server_error';
