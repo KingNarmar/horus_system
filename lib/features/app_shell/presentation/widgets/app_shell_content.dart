@@ -7,6 +7,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/di/fleet_dependencies.dart';
 import '../../../../core/di/routes_dependencies.dart';
+import '../../../../core/di/trips_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -18,6 +19,8 @@ import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
+import '../../../trips/presentation/cubit/trips_cubit.dart';
+import '../../../trips/presentation/pages/trips_page.dart';
 import '../models/app_shell_destination.dart';
 import 'adaptive_access_notice.dart';
 
@@ -66,6 +69,10 @@ class AppShellContent extends StatelessWidget {
       AppShellModule.routes => BlocProvider<RoutesCubit>(
         create: (_) => RoutesDependencies.createRoutesCubit(),
         child: RoutesPage(currentCompanyContext: contextData),
+      ),
+      AppShellModule.trips => BlocProvider<TripsCubit>(
+        create: (_) => TripsDependencies.createTripsCubit(),
+        child: TripsPage(currentCompanyContext: contextData),
       ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),

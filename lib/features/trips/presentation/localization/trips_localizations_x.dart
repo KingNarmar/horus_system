@@ -40,6 +40,9 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripFreightPriceHeader => _isArabic ? 'سعر النقل' : 'Freight';
 
+  String get tripTotalExpensesLabel =>
+      _isArabic ? 'إجمالي المصروفات' : 'Total expenses';
+
   String get tripNetProfitHeader => _isArabic ? 'صافي الربح' : 'Net profit';
 
   String get tripStatusHeader => _isArabic ? 'الحالة' : 'Status';
@@ -51,6 +54,80 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripUpdateStatus => _isArabic ? 'تحديث الحالة' : 'Update status';
 
   String get tripEmptyValue => '-';
+
+  String get tripNotesLabel => _isArabic ? 'ملاحظات' : 'Notes';
+
+  String get tripScheduledLoadingAtLabel =>
+      _isArabic ? 'موعد التحميل المخطط' : 'Scheduled loading';
+
+  String get tripScheduledDeliveryAtLabel =>
+      _isArabic ? 'موعد التسليم المخطط' : 'Scheduled delivery';
+
+  String get tripActualLoadingAtLabel =>
+      _isArabic ? 'وقت التحميل الفعلي' : 'Actual loading';
+
+  String get tripActualDeliveryAtLabel =>
+      _isArabic ? 'وقت التسليم الفعلي' : 'Actual delivery';
+
+  String get tripBasicInfo =>
+      _isArabic ? 'البيانات الأساسية' : 'Basic information';
+
+  String get tripAccountability => _isArabic ? 'المساءلة' : 'Accountability';
+
+  String get tripActivityTimeline =>
+      _isArabic ? 'سجل النشاط' : 'Activity timeline';
+
+  String get tripStatusHistoryTitle =>
+      _isArabic ? 'سجل حالات الرحلة' : 'Status history';
+
+  String get tripLoadingActivity =>
+      _isArabic ? 'جاري تحميل النشاط...' : 'Loading activity...';
+
+  String get tripLoadingStatusHistory =>
+      _isArabic ? 'جاري تحميل سجل الحالات...' : 'Loading status history...';
+
+  String get tripNoActivityFound =>
+      _isArabic ? 'لا يوجد نشاط بعد.' : 'No activity yet.';
+
+  String get tripNoStatusHistoryFound =>
+      _isArabic ? 'لا يوجد سجل حالات بعد.' : 'No status history yet.';
+
+  String get tripCreatedBy => _isArabic ? 'تم الإنشاء بواسطة' : 'Created by';
+
+  String get tripCreatedRole => _isArabic ? 'دور منشئ السجل' : 'Created role';
+
+  String get tripCreatedAt => _isArabic ? 'وقت الإنشاء' : 'Created at';
+
+  String get tripLastActivityBy =>
+      _isArabic ? 'آخر نشاط بواسطة' : 'Last activity by';
+
+  String get tripLastActivityRole =>
+      _isArabic ? 'دور آخر نشاط' : 'Last activity role';
+
+  String get tripLastActivityAt =>
+      _isArabic ? 'وقت آخر نشاط' : 'Last activity at';
+
+  String get tripUnknownUser => _isArabic ? 'مستخدم غير معروف' : 'Unknown user';
+
+  String get tripChanges => _isArabic ? 'التغييرات' : 'Changes';
+
+  String get tripCloseButton => _isArabic ? 'إغلاق' : 'Close';
+
+  String get tripSaveButton => _isArabic ? 'حفظ' : 'Save';
+
+  String get tripCancelButton => _isArabic ? 'إلغاء' : 'Cancel';
+
+  String get tripRetryButton => _isArabic ? 'إعادة المحاولة' : 'Retry';
+
+  String get tripNextStatusLabel =>
+      _isArabic ? 'الحالة التالية' : 'Next status';
+
+  String get tripStatusNotesLabel =>
+      _isArabic ? 'ملاحظات تغيير الحالة' : 'Status change notes';
+
+  String get tripNoAvailableStatusActions => _isArabic
+      ? 'لا توجد حالات متاحة بعد الحالة الحالية.'
+      : 'No available status actions for the current status.';
 
   String get tripsStatusAllFilter => _isArabic ? 'الكل' : 'All';
 
@@ -78,6 +155,30 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripsStatusPaidFilter => _isArabic ? 'مدفوعة' : 'Paid';
 
   String get tripsStatusCancelledFilter => _isArabic ? 'ملغاة' : 'Cancelled';
+
+  String tripDetailsTitle(String name) {
+    return _isArabic ? 'تفاصيل الرحلة: $name' : 'Trip details: $name';
+  }
+
+  String tripUpdateStatusTitle(String name) {
+    return _isArabic ? 'تحديث حالة الرحلة: $name' : 'Update trip status: $name';
+  }
+
+  String tripCurrentStatusLine(String status) {
+    return _isArabic ? 'الحالة الحالية: $status' : 'Current status: $status';
+  }
+
+  String tripStatusHistoryLine(String oldStatus, String newStatus) {
+    return _isArabic
+        ? 'من $oldStatus إلى $newStatus'
+        : 'From $oldStatus to $newStatus';
+  }
+
+  String tripChangedByLine(String actor, String role, String dateTime) {
+    return _isArabic
+        ? '$actor ($role) - $dateTime'
+        : '$actor ($role) - $dateTime';
+  }
 
   String tripStatusFilterLabel(TripStatusFilter filter) {
     return switch (filter) {
@@ -109,5 +210,79 @@ extension TripsLocalizationsX on AppLocalizations {
       TripStatus.paid => tripsStatusPaidFilter,
       TripStatus.cancelled => tripsStatusCancelledFilter,
     };
+  }
+
+  String tripAuditActionLabel(String action) {
+    return switch (action) {
+      'created' => _isArabic ? 'تم الإنشاء' : 'Created',
+      'updated' => _isArabic ? 'تم التعديل' : 'Updated',
+      'status_changed' => _isArabic ? 'تم تغيير الحالة' : 'Status changed',
+      'deactivated' => _isArabic ? 'تم إلغاء التفعيل' : 'Deactivated',
+      'reactivated' => _isArabic ? 'تمت إعادة التفعيل' : 'Reactivated',
+      _ => action,
+    };
+  }
+
+  String tripAuditRoleLabel(String? role) {
+    return switch (role) {
+      'owner' => _isArabic ? 'مالك' : 'Owner',
+      'admin' => _isArabic ? 'مدير' : 'Admin',
+      'operations' => _isArabic ? 'تشغيل' : 'Operations',
+      'accountant' => _isArabic ? 'محاسب' : 'Accountant',
+      'viewer' => _isArabic ? 'مشاهد' : 'Viewer',
+      'driver' => _isArabic ? 'سائق' : 'Driver',
+      null || '' => tripEmptyValue,
+      _ => role,
+    };
+  }
+
+  String tripAuditTimelineHeader(String actor, String role, String dateTime) {
+    return _isArabic
+        ? '$actor ($role) - $dateTime'
+        : '$actor ($role) - $dateTime';
+  }
+
+  String tripAuditChangeLine(String label, String oldValue, String newValue) {
+    return _isArabic
+        ? '$label: من $oldValue إلى $newValue'
+        : '$label: from $oldValue to $newValue';
+  }
+
+  String tripAuditFieldLabel(String key) {
+    return switch (key) {
+      'customer_id' => tripCustomerHeader,
+      'route_id' => tripRouteHeader,
+      'driver_id' => tripDriverHeader,
+      'tractor_head_id' => _isArabic ? 'رأس الجرار' : 'Tractor head',
+      'trailer_id' => _isArabic ? 'المقطورة' : 'Trailer',
+      'status' => tripStatusHeader,
+      'loading_order_number' => tripLoadingOrderHeader,
+      'waybill_number' => tripWaybillHeader,
+      'quantity_tons' => tripQuantityHeader,
+      'freight_price' => tripFreightPriceHeader,
+      'total_expenses' => tripTotalExpensesLabel,
+      'scheduled_loading_at' => tripScheduledLoadingAtLabel,
+      'scheduled_delivery_at' => tripScheduledDeliveryAtLabel,
+      'actual_loading_at' => tripActualLoadingAtLabel,
+      'actual_delivery_at' => tripActualDeliveryAtLabel,
+      'notes' => tripNotesLabel,
+      'customer_name' => tripCustomerHeader,
+      'route_name' => tripRouteHeader,
+      'driver_name' => tripDriverHeader,
+      'tractor_head_plate_number' =>
+        _isArabic ? 'رقم رأس الجرار' : 'Tractor plate',
+      'trailer_plate_number' => _isArabic ? 'رقم المقطورة' : 'Trailer plate',
+      _ => key,
+    };
+  }
+
+  String tripAuditValueLabel(String key, Object? value) {
+    if (value == null) return tripEmptyValue;
+
+    if (key == 'status' && value is String) {
+      return tripStatusLabel(TripStatusX.fromValue(value));
+    }
+
+    return value.toString();
   }
 }
