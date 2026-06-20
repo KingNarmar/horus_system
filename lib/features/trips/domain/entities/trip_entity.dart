@@ -62,16 +62,28 @@ class TripEntity {
   }
 
   String get displayName {
-    final orderNumber = loadingOrderNumber?.trim();
-    if (orderNumber != null && orderNumber.isNotEmpty) {
-      return orderNumber;
+    final orderNumber = _textOrNull(loadingOrderNumber);
+    if (orderNumber != null) return orderNumber;
+
+    final waybill = _textOrNull(waybillNumber);
+    if (waybill != null) return waybill;
+
+    final customer = _textOrNull(customerName);
+    final route = _textOrNull(routeName);
+
+    if (customer != null && route != null) {
+      return '$customer - $route';
     }
 
-    final waybill = waybillNumber?.trim();
-    if (waybill != null && waybill.isNotEmpty) {
-      return waybill;
-    }
+    if (customer != null) return customer;
+    if (route != null) return route;
 
-    return id;
+    return 'Trip';
   }
+}
+
+String? _textOrNull(String? value) {
+  final text = value?.trim();
+  if (text == null || text.isEmpty) return null;
+  return text;
 }
