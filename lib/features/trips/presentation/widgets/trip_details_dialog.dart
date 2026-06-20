@@ -171,14 +171,10 @@ class _AccountabilitySection extends StatelessWidget {
     }
 
     final failure = state!.activityFailure;
-    if (failure != null) {
-      return _FailureText(failure: failure);
-    }
+    if (failure != null) return _FailureText(failure: failure);
 
     final activity = state!.selectedTripActivity;
-    final created = activity.reversed
-        .where((log) => log.action == AuditAction.created)
-        .firstOrNull;
+    final created = _firstCreatedAuditLog(activity);
     final latest = activity.isEmpty ? null : activity.first;
 
     return _DetailsCard(
@@ -226,9 +222,7 @@ class _StatusHistorySection extends StatelessWidget {
     }
 
     final failure = state!.statusHistoryFailure;
-    if (failure != null) {
-      return _FailureText(failure: failure);
-    }
+    if (failure != null) return _FailureText(failure: failure);
 
     final history = state!.selectedTripStatusHistory;
     if (history.isEmpty) {
@@ -236,9 +230,7 @@ class _StatusHistorySection extends StatelessWidget {
     }
 
     return Column(
-      children: history.map((item) {
-        return _StatusHistoryItem(item: item);
-      }).toList(),
+      children: history.map((item) => _StatusHistoryItem(item: item)).toList(),
     );
   }
 }
@@ -257,9 +249,7 @@ class _ActivityTimelineSection extends StatelessWidget {
     }
 
     final failure = state!.activityFailure;
-    if (failure != null) {
-      return _FailureText(failure: failure);
-    }
+    if (failure != null) return _FailureText(failure: failure);
 
     final activity = state!.selectedTripActivity;
     if (activity.isEmpty) {
@@ -267,9 +257,7 @@ class _ActivityTimelineSection extends StatelessWidget {
     }
 
     return Column(
-      children: activity.map((log) {
-        return _ActivityTimelineItem(log: log);
-      }).toList(),
+      children: activity.map((log) => _ActivityTimelineItem(log: log)).toList(),
     );
   }
 }
@@ -348,7 +336,7 @@ class _ActivityTimelineItem extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(l10n.tripAuditTimelineHeader(actor, role, date)),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(log.description),
+                  Text(_localizedAuditDescription(context, log)),
                   ..._changeLines(context, log),
                 ],
               ),
@@ -458,6 +446,54 @@ class _FailureText extends StatelessWidget {
       children: [Text(context.l10n.localizedErrorMessage(failure))],
     );
   }
+}
+
+AuditLog? _firstCreatedAuditLog(List<AuditLog> activity) {
+  for (final log in activity.reversed) {
+    if (log.action == AuditAction.created) return log;
+  }
+  return null;
+}
+
+String _localizedAuditDescription(BuildContext context, AuditLog log) {
+  final l10n = context.l10n;
+  final actionLabel = l10n.tripAuditActionLabel(log.action.value);
+  final entityName = _firstText([
+        log.entityDisplayName,
+        log.newValues?['customer_name'],
+        log.oldValues?['customer_name'],
+        log.newValues?['route_name'],
+        log.oldValues?['route_name'],
+      ]) ??
+      l10n.tripEmptyValue;
+
+  if (log.action == AuditAction.statusChanged) {
+    final oldStatus = l10n.tripAuditValueLabel(
+      'status',
+      log.metadata?['old_status'] ?? log.oldValues?['status'],
+    );
+    final newStatus = l10n.tripAuditValueLabel(
+      'status',
+      log.metadata?['new_status'] ?? log.newValues?['status'],
+    );
+
+    return l10n.tripAuditChangeLine(
+      l10n.tripStatusHeader,
+      oldStatus,
+      newStatus,
+    );
+  }
+
+  return '$actionLabel: $entityName';
+}
+
+String? _firstText(List<Object?> values) {
+  for (final value in values) {
+    final text = value?.toString().trim();
+    if (text != null && text.isNotEmpty) return text;
+  }
+
+  return null;
 }
 
 String _formatDateTime(DateTime? value, String emptyValue) {
