@@ -398,6 +398,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   Future<String?> _getCurrentActorDisplayName() async {
     final currentUser = client.auth.currentUser;
     final currentUserId = currentUser?.id;
+    final currentUserEmail = currentUser?.email;
     if (currentUserId == null) return null;
 
     final rows = await client
@@ -414,7 +415,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
       if (fullName != null) return fullName;
     }
 
-    return _normalizeOptional(currentUser.email);
+    return _normalizeOptional(currentUserEmail);
   }
 
   String? _normalizeOptional(String? value) {
