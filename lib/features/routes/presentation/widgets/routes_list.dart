@@ -289,7 +289,7 @@ String _governoratesText(RouteEntity route, String emptyValue) {
     return emptyValue;
   }
 
-  return '${from == null || from.isEmpty ? emptyValue : from} â†’ ${to == null || to.isEmpty ? emptyValue : to}';
+  return '${from == null || from.isEmpty ? emptyValue : from} -> ${to == null || to.isEmpty ? emptyValue : to}';
 }
 
 String _priceText(RouteEntity route, String emptyValue) {
