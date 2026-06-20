@@ -1,4 +1,16 @@
-enum AuditEntityType { customer, driver, tractorHead, trailer, trip, expense, invoice, payment, companyUser, companySettings }
+enum AuditEntityType {
+  customer,
+  driver,
+  tractorHead,
+  trailer,
+  route,
+  trip,
+  expense,
+  invoice,
+  payment,
+  companyUser,
+  companySettings,
+}
 
 extension AuditEntityTypeX on AuditEntityType {
   String get value {
@@ -7,6 +19,7 @@ extension AuditEntityTypeX on AuditEntityType {
       AuditEntityType.driver => 'driver',
       AuditEntityType.tractorHead => 'tractor_head',
       AuditEntityType.trailer => 'trailer',
+      AuditEntityType.route => 'route',
       AuditEntityType.trip => 'trip',
       AuditEntityType.expense => 'expense',
       AuditEntityType.invoice => 'invoice',

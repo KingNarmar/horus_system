@@ -1,4 +1,15 @@
-enum AuditModule { customers, drivers, fleet, trips, expenses, invoices, payments, companyUsers, companySettings }
+enum AuditModule {
+  customers,
+  drivers,
+  fleet,
+  routes,
+  trips,
+  expenses,
+  invoices,
+  payments,
+  companyUsers,
+  companySettings,
+}
 
 extension AuditModuleX on AuditModule {
   String get value {
@@ -6,6 +17,7 @@ extension AuditModuleX on AuditModule {
       AuditModule.customers => 'customers',
       AuditModule.drivers => 'drivers',
       AuditModule.fleet => 'fleet',
+      AuditModule.routes => 'routes',
       AuditModule.trips => 'trips',
       AuditModule.expenses => 'expenses',
       AuditModule.invoices => 'invoices',
