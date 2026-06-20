@@ -60,6 +60,20 @@ extension RoutesLocalizationsX on AppLocalizations {
   String get routeReactivateButton =>
       _isArabic ? 'إعادة التفعيل' : 'Reactivate';
 
+  String get confirmRouteDeactivateTitle =>
+      _isArabic ? 'تأكيد إلغاء تفعيل المسار' : 'Confirm route deactivation';
+
+  String get confirmRouteReactivateTitle =>
+      _isArabic ? 'تأكيد إعادة تفعيل المسار' : 'Confirm route reactivation';
+
+  String get confirmRouteDeactivateMessage => _isArabic
+      ? 'هل تريد إلغاء تفعيل هذا المسار؟'
+      : 'Do you want to deactivate this route?';
+
+  String get confirmRouteReactivateMessage => _isArabic
+      ? 'هل تريد إعادة تفعيل هذا المسار؟'
+      : 'Do you want to reactivate this route?';
+
   String get routeLoadingHeader => _isArabic ? 'التحميل' : 'Loading';
 
   String get routeUnloadingHeader => _isArabic ? 'التفريغ' : 'Unloading';
