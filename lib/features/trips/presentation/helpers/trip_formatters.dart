@@ -19,9 +19,13 @@ abstract final class TripFormatters {
     return number(value, emptyValue);
   }
 
-  static String quantityTons(double? value, String emptyValue) {
+  static String quantityTons(
+    double? value,
+    String emptyValue,
+    String tonsSuffix,
+  ) {
     if (value == null) return emptyValue;
-    return '${number(value, emptyValue)} t';
+    return '${number(value, emptyValue)} $tonsSuffix';
   }
 
   static String vehicleText(TripEntity trip, String emptyValue) {
