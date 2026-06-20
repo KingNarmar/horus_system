@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/trip_entity.dart';
 import 'trip_card.dart';
 
 class TripsCards extends StatelessWidget {
+  static const double _twoColumnsBreakpoint = 1100;
+
   final List<TripEntity> trips;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
@@ -31,7 +32,7 @@ class TripsCards extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final useTwoColumns = constraints.maxWidth >= AppSizes.tabletMaxContentWidth;
+        final useTwoColumns = constraints.maxWidth >= _twoColumnsBreakpoint;
         final cardWidth = useTwoColumns
             ? (constraints.maxWidth - AppSpacing.md) / 2
             : constraints.maxWidth;
