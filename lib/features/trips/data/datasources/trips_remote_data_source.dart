@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/constants/user_profile_db_fields.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_lookup_option.dart';
 import '../../domain/entities/trip_status.dart';
@@ -231,17 +232,22 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String actorRole,
     String? notes,
   }) async {
+    final insertMap = newStatus.toHistoryInsertMap(
+      companyId: companyId,
+      tripId: tripId,
+      oldStatus: oldStatus,
+      actorRole: actorRole,
+      notes: notes,
+    );
+
+    final actorDisplayName = await _getCurrentActorDisplayName();
+    if (actorDisplayName != null) {
+      insertMap['changed_by_name'] = actorDisplayName;
+    }
+
     final row = await client
         .from(_tripStatusHistoryTable)
-        .insert(
-          newStatus.toHistoryInsertMap(
-            companyId: companyId,
-            tripId: tripId,
-            oldStatus: oldStatus,
-            actorRole: actorRole,
-            notes: notes,
-          ),
-        )
+        .insert(insertMap)
         .select(_tripStatusHistoryColumns)
         .single();
 
@@ -387,5 +393,33 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
         .limit(1);
 
     return rows.isNotEmpty;
+  }
+
+  Future<String?> _getCurrentActorDisplayName() async {
+    final currentUser = client.auth.currentUser;
+    final currentUserId = currentUser?.id;
+    if (currentUserId == null) return null;
+
+    final rows = await client
+        .from(UserProfileDbFields.tableName)
+        .select(UserProfileDbFields.fullName)
+        .eq(DbCommonFields.id, currentUserId)
+        .limit(1);
+
+    if (rows.isNotEmpty) {
+      final firstRow = Map<String, dynamic>.from(rows.first);
+      final fullName = _normalizeOptional(
+        firstRow[UserProfileDbFields.fullName] as String?,
+      );
+      if (fullName != null) return fullName;
+    }
+
+    return _normalizeOptional(currentUser.email);
+  }
+
+  String? _normalizeOptional(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return null;
+    return text;
   }
 }
