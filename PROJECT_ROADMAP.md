@@ -1,4 +1,4 @@
-# H.O.R.U.S System — Project Roadmap
+# H.O.R.U.S System - Project Roadmap
 
 ## Project Name
 
@@ -34,9 +34,9 @@ The platform must be designed as a commercial product that can be sold to multip
 
 ## Current Roadmap Status
 
-Last updated: 2026-06-19
+Last updated: 2026-06-20
 
-The project has completed the core foundation and most of the required master-data foundation before Trips.
+The project has completed the core SaaS foundation and the required master-data foundation needed before Trips.
 
 Completed foundations include:
 
@@ -48,57 +48,94 @@ Completed foundations include:
 * Drivers module
 * Audit & Accountability foundation
 * Fleet module for tractor heads and trailers
+* Routes module
 
 Recently completed:
 
-* Issue #15 — Fleet Module was completed and closed.
-* PR #41 — Fleet module foundation was merged.
-* PR #42 — Fleet schema/RLS guard migration was merged.
-* PR #43 — Tightened Fleet authenticated grants was merged.
+* Issue #15 - Fleet Module was completed and closed.
+* PR #41 - Fleet module foundation was merged.
+* PR #42 - Fleet schema/RLS guard migration was merged.
+* PR #43 - Tightened Fleet authenticated grants was merged.
+* Issue #16 - Routes Module was completed and closed.
+* PR #44 - Routes module was merged.
 
 Current phase:
 
-* The project is currently in **Phase 2 — Master Data**.
-* Customers, Drivers, Tractor Heads, and Trailers are done.
-* The next primary business module is **Routes**.
-* Trips must not start before Routes because trips need loading/unloading routes and default freight prices.
+* Phase 2 - Master Data is complete for Customers, Drivers, Fleet, and Routes.
+* The project is ready to move into Phase 3 - Trip Operations.
+* The next primary business module is Trips.
+* Trips can now start because Routes are available for loading/unloading route references and default freight prices.
 
-Next planned issue:
+Next planned issues:
 
-* Issue #16 — Routes Module.
+* Issue #18 - Implement trips domain foundation.
+* Issue #19 - Implement trips data layer.
+* Issue #20 - Implement trips presentation layer.
+* Issue #21 - Implement trip status history.
 
-Planned Routes scope:
+Planned Trips scope:
 
-* `routes` table with `company_id`
-* RLS and authenticated grants
-* Domain entity and repository abstraction
-* Data model, mapper, remote data source, repository implementation
-* Use cases
-* Routes Cubit
-* Routes list page
-* Add/edit route form
-* Active/inactive filtering
-* Deactivate/reactivate flow
-* Audit logs for create/update/deactivate/reactivate
-* Localization keys
+* `trips` table with `company_id`.
+* `trip_status_history` table with `company_id`.
+* RLS and authenticated grants for Trips tables.
+* Pure Domain layer:
+  * `TripEntity`.
+  * `TripStatus`.
+  * `TripStatusHistory`.
+  * `TripWriteData` / create params.
+  * `UpdateTripStatusParams`.
+  * `TripsRepository` abstraction.
+  * Use cases for create, list, details, status update, and net profit calculation.
+* Data layer:
+  * Supabase remote data source.
+  * Trip model.
+  * Trip status history model.
+  * Mappers.
+  * Repository implementation.
+* Presentation layer:
+  * Trips Cubit and State.
+  * Trips list page.
+  * Add/edit trip form.
+  * Trip details dialog/page.
+  * Desktop table.
+  * Mobile/tablet cards.
+  * Search and status filters.
+  * Status update action.
+* Audit logs for important trip actions:
+  * created
+  * updated
+  * assigned
+  * status_changed
+  * cancelled
+  * completed
+* Accountability UI inside Trip Details.
+* Activity timeline inside Trip Details.
+* Trip status history visible in Trip Details.
+* Localization keys in English and Arabic.
 
 Implementation order from here:
 
-1. Routes Module — Issue #16
-2. Trips Module
-3. Trip Expenses Module
-4. Dashboard Foundation
-5. Basic Reports
-6. Customer Statement
-7. Invoices and Payments
-8. Subscription placeholders and plan limits
-9. Documentation polish: README, contribution rules, testing strategy
-10. Responsive UI polish issues
+1. Trips Domain Foundation - Issue #18
+2. Trips Data Layer - Issue #19
+3. Trips Presentation Layer - Issue #20
+4. Trip Status History - Issue #21
+5. Trip Expenses Module - Issue #22
+6. Trip Net Profit Calculation - Issue #23
+7. Driver Advances and Deductions Foundation - Issue #24
+8. Invoices Foundation - Issue #25
+9. Invoices Data and Presentation - Issue #26
+10. Payments Module - Issue #27
+11. Dashboard Foundation - Issue #29
+12. Basic Reports - Issue #30
+13. Customer Statement
+14. Subscription placeholders and plan limits
+15. Documentation polish: README, contribution rules, testing strategy
+16. Responsive UI polish issues
 
 Supabase workflow rule:
 
 * Any Supabase-related change must be handled manually and carefully.
-* Send one SQL query at a time.
+* Send one SQL verification query at a time.
 * Wait for the result before sending the next query.
 * Verify schema, RLS, policies, grants, enum values, and audit behavior before closing an issue.
 
@@ -110,9 +147,7 @@ Stop point:
 
 # 1. Core Architecture Decision
 
-H.O.R.U.S System must strictly follow:
-
-## Clean Architecture by the book
+H.O.R.U.S System must strictly follow Clean Architecture by the book.
 
 The project must respect the Dependency Rule.
 
@@ -123,21 +158,22 @@ The Domain Layer must not know anything about:
 * Flutter
 * Supabase
 * Cubit
+* Bloc
 * UI
 * JSON
 * HTTP
 * Database tables
 * External services
+* Data models
+* Data sources
 
 The correct dependency direction is:
 
 ```text
-Presentation → Domain ← Data
+Presentation -> Domain <- Data
 ```
 
 The Domain Layer is the core of the application.
-
----
 
 ## SOLID Principles
 
@@ -171,9 +207,7 @@ The application must support:
 
 ## Backend
 
-Supabase
-
-Supabase will be used for:
+Supabase is used for:
 
 * Authentication
 * PostgreSQL database
@@ -203,8 +237,6 @@ presentation/
 H.O.R.U.S System is not a single-company custom application.
 
 It must be built as a SaaS product from day one.
-
-## Core SaaS Rules
 
 Every operational table must include:
 
@@ -263,8 +295,6 @@ Driver mobile app features are not part of MVP unless explicitly required later.
 
 # 5. User Roles
 
-Initial roles:
-
 ## Platform Level
 
 * Platform Owner
@@ -283,9 +313,9 @@ Initial roles:
 
 # 6. Main Modules
 
-## Phase 0 — Foundation
+## Phase 0 - Foundation
 
-Purpose: Prepare the project foundation before building business features.
+Status: Completed.
 
 Deliverables:
 
@@ -296,9 +326,9 @@ Deliverables:
 * Architecture rules
 * Initial GitHub issues
 
----
+## Phase 1 - SaaS Foundation
 
-## Phase 1 — SaaS Foundation
+Status: Core foundation completed.
 
 Modules:
 
@@ -312,56 +342,46 @@ Modules:
 * Trial status placeholder
 * RLS policies
 
-Goal:
+## Phase 2 - Master Data
 
-Before building trips, customers, or invoices, the system must know:
+Status: Core master-data foundation completed.
 
-* Who is logged in
-* Which company they belong to
-* What role they have
-* What data they can access
-
----
-
-## Phase 2 — Master Data
-
-Modules:
+Completed:
 
 * Customers
 * Drivers
 * Tractor Heads
 * Trailers
 * Routes
+
+Later supporting modules:
+
 * Expense Types
 * Payment Methods
 
-Goal:
+## Phase 3 - Trip Operations
 
-Allow each company to prepare its core operational data before creating trips.
-
----
-
-## Phase 3 — Trip Operations
+Status: Next implementation phase.
 
 Modules:
 
 * Trip creation
 * Trip list
 * Trip details
+* Assign customer
+* Assign route
 * Assign driver
 * Assign tractor head
 * Assign trailer
 * Trip status update
+* Trip status history
 * Trip timings
 * Loading order number
 * Waybill number
 * Quantity in tons
 * Freight price
 * Prevent duplicate open trip for the same vehicle
-
-Goal:
-
-Manage the full trip cycle from loading order to delivery.
+* Audit/accountability for trip actions
 
 Initial trip statuses:
 
@@ -376,9 +396,7 @@ Initial trip statuses:
 * Paid
 * Cancelled
 
----
-
-## Phase 4 — Expenses and Driver Settlement
+## Phase 4 - Expenses and Driver Settlement
 
 Modules:
 
@@ -394,10 +412,6 @@ Modules:
 * Driver deductions
 * Driver monthly settlement
 
-Goal:
-
-Track trip cost and calculate operational profitability.
-
 Initial formula:
 
 ```text
@@ -406,9 +420,7 @@ Trip Net Profit = Freight Price - Total Trip Expenses
 
 The formula must be isolated inside a Domain Use Case so it can be changed later without changing UI or Data layers.
 
----
-
-## Phase 5 — Invoices and Payments
+## Phase 5 - Invoices and Payments
 
 Modules:
 
@@ -430,9 +442,7 @@ Invoice statuses:
 * Overdue
 * Cancelled
 
----
-
-## Phase 6 — Dashboard and Reports
+## Phase 6 - Dashboard and Reports
 
 Dashboard should show:
 
@@ -460,9 +470,7 @@ Initial reports:
 * Customer statement
 * Unpaid invoices report
 
----
-
-## Phase 7 — Subscription and Commercial Layer
+## Phase 7 - Subscription and Commercial Layer
 
 Modules:
 
@@ -500,9 +508,7 @@ Initial subscription plans:
 * Maintenance
 * Future integrations
 
----
-
-## Phase 8 — Advanced Features
+## Phase 8 - Advanced Features
 
 These features are not part of MVP.
 
@@ -512,16 +518,14 @@ These features are not part of MVP.
 * Customer portal
 * Document upload from mobile
 * QR code per trip
-* Advanced maintenance module
+* Advanced maintenance
 * Accounting system integration
 * Payment gateway integration
 * Offline mode
 
 ---
 
-# 7. Initial Database Tables
-
-The first schema version should include:
+# 7. Current Database Tables
 
 ## SaaS Core
 
@@ -543,8 +547,12 @@ The first schema version should include:
 * tractor_heads
 * trailers
 * routes
-* expense_types
-* payment_methods
+* expense_types later
+* payment_methods later
+
+## Audit and Accountability
+
+* audit_logs
 
 ## Operations
 
@@ -580,8 +588,11 @@ lib/
   core/
     config/
     constants/
+    data/
     errors/
     extensions/
+    localization/
+    responsive/
     routing/
     theme/
     utils/
@@ -595,6 +606,11 @@ lib/
     cubits/
 
   features/
+    audit/
+      data/
+      domain/
+      presentation/
+
     auth/
       data/
       domain/
@@ -663,8 +679,10 @@ feature_name/
     entities/
     repositories/
     usecases/
+    policies/
 
   data/
+    constants/
     models/
     mappers/
     datasources/
@@ -673,31 +691,39 @@ feature_name/
   presentation/
     cubit/
     pages/
+    dialogs/
     widgets/
+    localization/
+    helpers/
 ```
 
-Example:
+Example for Trips:
 
 ```text
 features/trips/
   domain/
     entities/
       trip_entity.dart
+      trip_status.dart
+      trip_status_history.dart
+      trip_write_data.dart
     repositories/
       trips_repository.dart
     usecases/
       create_trip_usecase.dart
       get_trips_usecase.dart
+      get_trip_details_usecase.dart
       update_trip_status_usecase.dart
       calculate_trip_net_profit_usecase.dart
 
   data/
     models/
       trip_model.dart
+      trip_status_history_model.dart
     mappers/
       trip_mapper.dart
     datasources/
-      trips_remote_datasource.dart
+      trips_remote_data_source.dart
     repositories/
       trips_repository_impl.dart
 
@@ -707,12 +733,12 @@ features/trips/
       trips_state.dart
     pages/
       trips_page.dart
-      trip_details_page.dart
-      add_edit_trip_page.dart
     widgets/
-      trip_form.dart
-      trips_table.dart
-      trips_mobile_list.dart
+      trip_form_dialog.dart
+      trips_filters.dart
+      trips_list.dart
+      trip_details_dialog.dart
+      trip_activity_timeline_item.dart
 ```
 
 ---
@@ -732,6 +758,9 @@ Forbidden:
 
 * Domain importing Flutter
 * Domain importing Supabase
+* Domain importing Cubit or Bloc
+* Domain importing UI
+* Domain importing JSON/database implementation details
 * Cubit calling Supabase directly
 * UI calculating business rules
 * Widgets containing database queries
@@ -740,122 +769,123 @@ Forbidden:
 
 ---
 
-# 11. First GitHub Issues
+# 11. Audit and Accountability Rules
 
-## Issue #1
+Audit/accountability is app-wide, structured, reusable, and company-scoped.
 
-Setup H.O.R.U.S System Flutter project with Clean Architecture structure
+Rules:
 
-## Issue #2
+* Important business actions must leave audit records.
+* Audit rows must include `company_id`.
+* Audit writes must not happen from UI widgets.
+* Audit writes must not happen from Cubits.
+* Audit writes should happen through repository/data layer or approved use case pattern.
+* Cubits and UI must not call Supabase directly.
+* Every module with create/update/deactivate/reactivate/status-change actions must expose accountability in the UI, not only in the database.
 
-Setup Supabase project and database schema v1
+Details dialog pattern:
 
-## Issue #3
-
-Implement authentication foundation
-
-## Issue #4
-
-Implement company onboarding and current company context
-
-## Issue #5
-
-Implement users and roles foundation
-
-## Issue #6
-
-Implement responsive/adaptive app shell
-
-## Issue #7
-
-Implement customers module
-
-## Issue #8
-
-Implement drivers module
-
-## Issue #9
-
-Implement fleet module: tractor heads and trailers
-
-## Issue #10
-
-Implement routes module
-
-## Issue #11
-
-Implement trips module
-
-## Issue #12
-
-Implement trip expenses module
-
-## Issue #13
-
-Implement invoices and payments module
-
-## Issue #14
-
-Implement dashboard and basic reports
-
-## Issue #15
-
-Implement subscription plan placeholders
+* Basic information section.
+* Accountability section.
+* Activity timeline section.
+* Table/list action uses View Details with `AppIcons.view`.
+* `AppIcons.auditHistory` appears inside timeline items only.
+* Dialogs that need Cubit state must use `BlocProvider.value` or the established safe pattern.
 
 ---
 
-# 12. MVP Definition
+# 12. Active GitHub Issues
+
+## Trips
+
+* Issue #18 - Implement trips domain foundation.
+* Issue #19 - Implement trips data layer.
+* Issue #20 - Implement trips presentation layer.
+* Issue #21 - Implement trip status history.
+* Issue #22 - Implement trip expenses module.
+* Issue #23 - Implement trip net profit calculation.
+
+## Finance and Reports
+
+* Issue #24 - Implement driver advances and deductions foundation.
+* Issue #25 - Implement invoices domain foundation.
+* Issue #26 - Implement invoices data and presentation.
+* Issue #27 - Implement payments module.
+* Issue #29 - Implement dashboard foundation.
+* Issue #30 - Implement basic reports.
+
+## Platform / Commercial / Polish
+
+* Issue #32 - Implement plan limit checks foundation.
+* Issue #37 - Add company timezone support.
+* Issue #39 - Responsive UI polish for Customers module.
+
+---
+
+# 13. MVP Definition
 
 The MVP is successful when one company can:
 
-* Create an account
-* Create or access a company workspace
-* Add customers
-* Add drivers
-* Add tractor heads
-* Add trailers
-* Add routes
-* Create trips
-* Assign driver, tractor head, and trailer
-* Update trip status
-* Register trip expenses
-* Calculate trip net profit
-* Create invoices
-* Register payments
-* View dashboard
-* View basic reports
+* Create an account.
+* Create or access a company workspace.
+* Add customers.
+* Add drivers.
+* Add tractor heads.
+* Add trailers.
+* Add routes.
+* Create trips.
+* Assign customer, route, driver, tractor head, and trailer.
+* Update trip status.
+* View trip status history.
+* Register trip expenses.
+* Calculate trip net profit.
+* Create invoices.
+* Register payments.
+* View dashboard.
+* View basic reports.
 
 ---
 
-# 13. Non-MVP Features
+# 14. Non-MVP Features
 
 The following must not delay the first MVP:
 
-* Driver mobile app
-* GPS tracking
-* WhatsApp automation
-* QR code
-* Customer portal
-* Advanced maintenance
-* Full accounting integration
-* Online subscription payment integration
+* Driver mobile app.
+* GPS tracking.
+* WhatsApp automation.
+* QR code.
+* Customer portal.
+* Advanced maintenance.
+* Full accounting integration.
+* Online subscription payment integration.
 
 ---
 
-# 14. Next Deliverables
+# 15. Validation Before Closing Any Business Issue
 
-After this roadmap, the next files should be prepared in this order:
+Before closing or merging any business module:
 
-1. `DATABASE_SCHEMA_V1.sql`
-2. `ARCHITECTURE_GUIDELINES.md`
-3. `GITHUB_ISSUES.md`
-4. Flutter project initialization
-5. Supabase project setup
-6. Authentication and company context implementation
+```bash
+flutter analyze
+flutter test
+```
+
+Manual verification is also required:
+
+* Manual smoke test for the full feature flow.
+* Supabase schema verification.
+* RLS verification.
+* Policy verification.
+* GRANT verification.
+* Audit write verification.
+* Accountability UI verification.
+* Acceptance criteria review against the GitHub issue and this roadmap.
+
+Analyze/test passing alone is not enough to close a module.
 
 ---
 
-# 15. Critical Project Rule
+# 16. Critical Project Rule
 
 H.O.R.U.S System must always be treated as:
 
@@ -863,4 +893,4 @@ H.O.R.U.S System must always be treated as:
 SaaS + Multi-Tenant + Responsive/Adaptive + Clean Architecture by the book + SOLID Principles
 ```
 
-This rule must be repeated and respected in every architecture, roadmap, code structure, database, and implementation discussion.
+This rule must be respected in every architecture, roadmap, code structure, database, and implementation discussion.
