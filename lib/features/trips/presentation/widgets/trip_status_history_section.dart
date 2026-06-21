@@ -43,6 +43,12 @@ class TripStatusHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final title = item.oldStatus == null
+        ? l10n.tripStatusLabel(item.newStatus)
+        : l10n.tripStatusHistoryLine(
+            l10n.tripStatusLabel(item.oldStatus!),
+            l10n.tripStatusLabel(item.newStatus),
+          );
 
     return Card(
       child: Padding(
@@ -50,15 +56,7 @@ class TripStatusHistoryItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              l10n.tripStatusHistoryLine(
-                item.oldStatus == null
-                    ? l10n.tripEmptyValue
-                    : l10n.tripStatusLabel(item.oldStatus!),
-                l10n.tripStatusLabel(item.newStatus),
-              ),
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: AppSpacing.xs),
             Text(
               l10n.tripChangedByLine(

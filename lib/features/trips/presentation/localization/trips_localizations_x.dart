@@ -4,7 +4,8 @@ import '../../domain/entities/trip_status_filter.dart';
 
 extension TripsLocalizationsX on AppLocalizations {
   bool get _isArabic => localeName.startsWith('ar');
-
+  String get tripDetailsHeaderTitle =>
+      _isArabic ? 'تفاصيل الرحلة' : 'Trip details';
   String get tripsTitle => _isArabic ? 'الرحلات' : 'Trips';
 
   String get addTripButton => _isArabic ? 'إضافة رحلة' : 'Add trip';
@@ -192,12 +193,18 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripsStatusCancelledFilter => _isArabic ? 'ملغاة' : 'Cancelled';
 
+  String _bidiIsolate(String value) => '\u2068$value\u2069';
+
   String tripDetailsTitle(String name) {
-    return _isArabic ? 'تفاصيل الرحلة: $name' : 'Trip details: $name';
+    final safeName = _bidiIsolate(name);
+    return _isArabic ? 'تفاصيل الرحلة: $safeName' : 'Trip details: $safeName';
   }
 
   String tripUpdateStatusTitle(String name) {
-    return _isArabic ? 'تحديث حالة الرحلة: $name' : 'Update trip status: $name';
+    final safeName = _bidiIsolate(name);
+    return _isArabic
+        ? 'تحديث حالة الرحلة: $safeName'
+        : 'Update trip status: $safeName';
   }
 
   String tripCurrentStatusLine(String status) {

@@ -25,7 +25,7 @@ class TripDetailsCard extends StatelessWidget {
 }
 
 class TripDetailRow extends StatelessWidget {
-  static const double _compactBreakpoint = 440;
+  static const double _stackedBreakpoint = 300;
 
   final String label;
   final String value;
@@ -36,40 +36,68 @@ class TripDetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < _compactBreakpoint;
-
-        if (isCompact) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: AppSpacing.xs),
-                Text(value),
-              ],
-            ),
-          );
+        if (constraints.maxWidth < _stackedBreakpoint) {
+          return _StackedDetailRow(label: label, value: value);
         }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: constraints.maxWidth * 0.34,
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(child: Text(value)),
-            ],
-          ),
-        );
+        return _InlineDetailRow(label: label, value: value);
       },
+    );
+  }
+}
+
+class _InlineDetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InlineDetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 42,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(end: AppSpacing.md),
+              child: Text(
+                label,
+                textAlign: TextAlign.start,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 58,
+            child: Text(value, textAlign: TextAlign.start, softWrap: true),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StackedDetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StackedDetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(value),
+        ],
+      ),
     );
   }
 }

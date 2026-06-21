@@ -82,14 +82,12 @@ class TripActivityTimelineItem extends StatelessWidget {
   }
 
   List<Widget> _changeLines(BuildContext context, AuditLog log) {
+    if (!shouldShowTripAuditChanges(log)) return const [];
+
     final l10n = context.l10n;
     final oldValues = log.oldValues ?? const <String, Object?>{};
     final newValues = log.newValues ?? const <String, Object?>{};
-
-    final visibleKeys = <String>{
-      ...oldValues.keys,
-      ...newValues.keys,
-    }.where((key) => key != 'id' && key != 'company_id').toList();
+    final visibleKeys = visibleTripAuditChangeKeys(log);
 
     if (visibleKeys.isEmpty) return const [];
 
@@ -101,8 +99,8 @@ class TripActivityTimelineItem extends StatelessWidget {
         return Text(
           l10n.tripAuditChangeLine(
             l10n.tripAuditFieldLabel(key),
-            l10n.tripAuditValueLabel(key, oldValues[key]),
-            l10n.tripAuditValueLabel(key, newValues[key]),
+            l10n.tripAuditValueLabel(key, safeTripAuditValue(oldValues[key])),
+            l10n.tripAuditValueLabel(key, safeTripAuditValue(newValues[key])),
           ),
         );
       }),

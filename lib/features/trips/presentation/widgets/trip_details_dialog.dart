@@ -25,15 +25,13 @@ class TripDetailsDialog extends StatelessWidget {
         ? state!.selectedTrip!
         : trip;
 
-    final dialogWidth = (mediaSize.width - AppSpacing.xxl).clamp(
-      320.0,
-      820.0,
-    ).toDouble();
+    final dialogWidth = (mediaSize.width - AppSpacing.xxl)
+        .clamp(320.0, 820.0)
+        .toDouble();
 
-    final dialogHeight = (mediaSize.height - AppSpacing.xxl).clamp(
-      420.0,
-      760.0,
-    ).toDouble();
+    final dialogHeight = (mediaSize.height - AppSpacing.xxl)
+        .clamp(420.0, 760.0)
+        .toDouble();
 
     return Dialog(
       insetPadding: const EdgeInsets.all(AppSpacing.lg),
@@ -45,7 +43,7 @@ class TripDetailsDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _TripDetailsHeader(title: l10n.tripDetailsTitle(detailsTrip.displayName)),
+            _TripDetailsHeader(tripName: detailsTrip.displayName),
             const Divider(height: 1),
             Flexible(
               child: SingleChildScrollView(
@@ -91,9 +89,9 @@ class TripDetailsDialog extends StatelessWidget {
 }
 
 class _TripDetailsHeader extends StatelessWidget {
-  final String title;
+  final String tripName;
 
-  const _TripDetailsHeader({required this.title});
+  const _TripDetailsHeader({required this.tripName});
 
   @override
   Widget build(BuildContext context) {
@@ -107,13 +105,32 @@ class _TripDetailsHeader extends StatelessWidget {
         AppSpacing.md,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(
-              title,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.tripDetailsHeaderTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      tripName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           IconButton(
