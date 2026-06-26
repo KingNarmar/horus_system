@@ -164,6 +164,10 @@ class _TripExpenseTile extends StatelessWidget {
       l10n.tripEmptyValue,
     );
     final notes = expense.notes?.trim();
+    final expenseName = l10n.tripExpenseTypeName(expense.expenseName);
+    final localizedTypeName = typeName == l10n.tripEmptyValue
+        ? typeName
+        : l10n.tripExpenseTypeName(typeName);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -174,11 +178,11 @@ class _TripExpenseTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(expense.expenseName),
+                Text(expenseName),
                 Text(formatTripDateTime(expense.expenseDate, l10n.tripEmptyValue)),
                 Text(l10n.tripExpensePaidByValueLabel(expense.paidBy)),
-                if (typeName != l10n.tripEmptyValue)
-                  Text('${l10n.tripExpenseTypeLabel}: $typeName'),
+                if (localizedTypeName != l10n.tripEmptyValue)
+                  Text('${l10n.tripExpenseTypeLabel}: $localizedTypeName'),
                 if (notes != null && notes.isNotEmpty)
                   Text('${l10n.tripNotesLabel}: $notes'),
               ],
