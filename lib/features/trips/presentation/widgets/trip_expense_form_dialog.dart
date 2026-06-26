@@ -100,7 +100,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 DropdownButtonFormField<String?>(
-                  value: _selectedExpenseTypeValue,
+                  value: _dropdownValue(expenseTypeItems),
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
@@ -225,9 +225,19 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
 
   List<_ExpenseTypeChoice> _expenseTypeItems() {
     if (widget.expenseTypes.isNotEmpty) {
-      return widget.expenseTypes.map((type) {
+      final items = widget.expenseTypes.map((type) {
         return _ExpenseTypeChoice(value: type.id, name: type.name);
       }).toList();
+
+      final manualValue = _selectedExpenseTypeValue;
+      final manualName = widget.expense?.expenseTypeName;
+      if (manualValue != null &&
+          manualName != null &&
+          !items.any((item) => item.value == manualValue)) {
+        items.add(_ExpenseTypeChoice(value: manualValue, name: manualName));
+      }
+
+      return items;
     }
 
     return _fallbackExpenseTypeNames.map((name) {
@@ -240,6 +250,13 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     for (final item in _expenseTypeItems()) {
       if (item.value == value) return item;
     }
+    return null;
+  }
+
+  String? _dropdownValue(List<_ExpenseTypeChoice> items) {
+    final value = _selectedExpenseTypeValue;
+    if (value == null) return null;
+    if (items.any((item) => item.value == value)) return value;
     return null;
   }
 
