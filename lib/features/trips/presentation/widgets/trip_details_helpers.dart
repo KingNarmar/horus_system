@@ -102,7 +102,7 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
 
   final amount = _firstText([log.newValues?['amount'], log.metadata?['amount']]);
   if (amount != null && _isExpenseAudit(log)) {
-    return '$actionLabel: $entityName - $amount';
+    return '$entityName - $amount';
   }
 
   return '$actionLabel: $entityName';
@@ -112,6 +112,10 @@ bool shouldShowTripAuditChanges(AuditLog log) {
   if (log.action == AuditAction.statusChanged) return false;
   if (log.action == AuditAction.created) return _isExpenseAudit(log);
   return true;
+}
+
+bool shouldShowTripAuditDetails(AuditLog log) {
+  return log.action == AuditAction.created && _isExpenseAudit(log);
 }
 
 List<String> visibleTripAuditChangeKeys(AuditLog log) {
