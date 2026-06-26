@@ -24,6 +24,10 @@ class FailureCodes {
   static const String permissionTripsView = 'permission_trips_view';
   static const String permissionTripStatusUpdate =
       'permission_trip_status_update';
+  static const String permissionTripExpensesManagement =
+      'permission_trip_expenses_management';
+  static const String permissionTripExpensesView =
+      'permission_trip_expenses_view';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -69,6 +73,12 @@ class FailureCodes {
       'validation_trip_delivery_before_loading';
   static const String validationTripStatusTransitionInvalid =
       'validation_trip_status_transition_invalid';
+  static const String validationTripExpenseIdRequired =
+      'validation_trip_expense_id_required';
+  static const String validationTripExpenseNameRequired =
+      'validation_trip_expense_name_required';
+  static const String validationTripExpenseAmountPositive =
+      'validation_trip_expense_amount_positive';
 
   // Conflicts
   static const String conflictTripVehicleAlreadyOpen =
