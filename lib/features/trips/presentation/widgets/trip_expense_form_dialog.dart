@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../l10n/app_localizations.dart';
 import '../../../expenses/domain/entities/expense_type_option.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
@@ -86,7 +85,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 DropdownButtonFormField<String>(
-                  value: _dropdownValue(),
+                  initialValue: _dropdownValue(),
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
@@ -96,9 +95,8 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                       child: Text(l10n.tripExpenseTypeName(type.name)),
                     );
                   }).toList(),
-                  validator: (value) => value == null
-                      ? l10n.tripExpenseTypeRequired
-                      : null,
+                  validator: (value) =>
+                      value == null ? l10n.tripExpenseTypeRequired : null,
                   onChanged: widget.expenseTypes.isEmpty
                       ? null
                       : (value) => _onExpenseTypeChanged(value),
@@ -140,7 +138,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<TripExpensePaidBy>(
-                  value: _paidBy,
+                  initialValue: _paidBy,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpensePaidByLabel,
                   ),
