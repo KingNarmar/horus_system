@@ -1,4 +1,5 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 
@@ -88,6 +89,53 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripStatusHistoryTitle =>
       _isArabic ? 'سجل حالات الرحلة' : 'Status history';
+
+  String get tripExpensesTitle =>
+      _isArabic ? 'مصروفات الرحلة' : 'Trip expenses';
+
+  String get tripLoadingExpenses =>
+      _isArabic ? 'جاري تحميل المصروفات...' : 'Loading expenses...';
+
+  String get tripNoExpensesFound =>
+      _isArabic ? 'لا توجد مصروفات بعد.' : 'No expenses yet.';
+
+  String get tripAddExpenseButton =>
+      _isArabic ? 'إضافة مصروف' : 'Add expense';
+
+  String get tripEditExpenseTitle =>
+      _isArabic ? 'تعديل مصروف' : 'Edit expense';
+
+  String get tripAddExpenseTitle =>
+      _isArabic ? 'إضافة مصروف' : 'Add expense';
+
+  String get tripExpenseNameLabel =>
+      _isArabic ? 'اسم المصروف' : 'Expense name';
+
+  String get tripExpenseTypeLabel =>
+      _isArabic ? 'نوع المصروف' : 'Expense type';
+
+  String get tripExpenseAmountLabel => _isArabic ? 'المبلغ' : 'Amount';
+
+  String get tripExpensePaidByLabel => _isArabic ? 'الدافع' : 'Paid by';
+
+  String get tripExpenseDateLabel => _isArabic ? 'تاريخ المصروف' : 'Expense date';
+
+  String get tripExpenseDateHelperText =>
+      _isArabic ? 'مثال: 2026-06-26' : 'Example: 2026-06-26';
+
+  String get tripExpenseDateInvalid =>
+      _isArabic ? 'أدخل تاريخ صحيح.' : 'Enter a valid date.';
+
+  String get tripExpenseNameRequired =>
+      _isArabic ? 'اسم المصروف مطلوب.' : 'Expense name is required.';
+
+  String get tripExpenseAmountPositive => _isArabic
+      ? 'المبلغ لازم يكون أكبر من صفر.'
+      : 'Amount must be greater than zero.';
+
+  String get tripExpenseTypesUnavailable => _isArabic
+      ? 'أنواع المصروفات غير متاحة حاليًا، يمكنك كتابة الاسم يدويًا.'
+      : 'Expense types are unavailable. You can enter the name manually.';
 
   String get tripLoadingActivity =>
       _isArabic ? 'جاري تحميل النشاط...' : 'Loading activity...';
@@ -223,6 +271,18 @@ extension TripsLocalizationsX on AppLocalizations {
         : '$actor ($role) - $dateTime';
   }
 
+  String tripExpensePaidByValueLabel(TripExpensePaidBy paidBy) {
+    return switch (paidBy) {
+      TripExpensePaidBy.company => _isArabic ? 'الشركة' : 'Company',
+      TripExpensePaidBy.driverAdvance =>
+        _isArabic ? 'عهدة السائق' : 'Driver advance',
+      TripExpensePaidBy.driverCash =>
+        _isArabic ? 'دفع السائق' : 'Driver cash',
+      TripExpensePaidBy.customer => _isArabic ? 'العميل' : 'Customer',
+      TripExpensePaidBy.other => _isArabic ? 'أخرى' : 'Other',
+    };
+  }
+
   String tripStatusFilterLabel(TripStatusFilter filter) {
     return switch (filter) {
       TripStatusFilter.all => tripsStatusAllFilter,
@@ -304,6 +364,14 @@ extension TripsLocalizationsX on AppLocalizations {
       'quantity_tons' => tripQuantityHeader,
       'freight_price' => tripFreightPriceHeader,
       'total_expenses' => tripTotalExpensesLabel,
+      'trip_total_expenses' => tripTotalExpensesLabel,
+      'expense_id' => _isArabic ? 'معرّف المصروف' : 'Expense id',
+      'expense_type_id' => tripExpenseTypeLabel,
+      'expense_name' => tripExpenseNameLabel,
+      'expense_type_name' => tripExpenseTypeLabel,
+      'amount' => tripExpenseAmountLabel,
+      'paid_by' => tripExpensePaidByLabel,
+      'expense_date' => tripExpenseDateLabel,
       'scheduled_loading_at' => tripScheduledLoadingAtLabel,
       'scheduled_delivery_at' => tripScheduledDeliveryAtLabel,
       'actual_loading_at' => tripActualLoadingAtLabel,
@@ -324,6 +392,10 @@ extension TripsLocalizationsX on AppLocalizations {
 
     if (key == 'status' && value is String) {
       return tripStatusLabel(TripStatusX.fromValue(value));
+    }
+
+    if (key == 'paid_by' && value is String) {
+      return tripExpensePaidByValueLabel(TripExpensePaidByX.fromValue(value));
     }
 
     return value.toString();
