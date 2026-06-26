@@ -75,6 +75,8 @@ class FailureCodes {
       'validation_trip_status_transition_invalid';
   static const String validationTripExpenseIdRequired =
       'validation_trip_expense_id_required';
+  static const String validationTripExpenseTypeRequired =
+      'validation_trip_expense_type_required';
   static const String validationTripExpenseNameRequired =
       'validation_trip_expense_name_required';
   static const String validationTripExpenseAmountPositive =
