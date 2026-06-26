@@ -84,22 +84,39 @@ class TripActivityTimelineItem extends StatelessWidget {
     if (!shouldShowTripAuditChanges(log)) return const [];
 
     final l10n = context.l10n;
-    final oldValues = log.oldValues ?? const <String, Object?>{};
-    final newValues = log.newValues ?? const <String, Object?>{};
+    final previous = log.oldValues ?? const <String, Object?>{};
+    final next = log.newValues ?? const <String, Object?>{};
     final visibleKeys = visibleTripAuditChangeKeys(log);
 
     if (visibleKeys.isEmpty) return const [];
 
+    final showDetails = shouldShowTripAuditDetails(log);
+
     return [
       const SizedBox(height: AppSpacing.sm),
-      Text(l10n.tripChanges, style: Theme.of(context).textTheme.labelLarge),
+      Text(
+        showDetails ? l10n.tripAuditDetails : l10n.tripChanges,
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
       const SizedBox(height: AppSpacing.xs),
       ...visibleKeys.map((key) {
+        final previousValue = safeTripAuditValue(previous[key]);
+        final nextValue = safeTripAuditValue(next[key]);
+
+        if (showDetails) {
+          return Text(
+            l10n.tripAuditDetailLine(
+              l10n.tripAuditFieldLabel(key),
+              l10n.tripAuditValueLabel(key, nextValue),
+            ),
+          );
+        }
+
         return Text(
           l10n.tripAuditChangeLine(
             l10n.tripAuditFieldLabel(key),
-            l10n.tripAuditValueLabel(key, safeTripAuditValue(oldValues[key])),
-            l10n.tripAuditValueLabel(key, safeTripAuditValue(newValues[key])),
+            l10n.tripAuditValueLabel(key, previousValue),
+            l10n.tripAuditValueLabel(key, nextValue),
           ),
         );
       }),
