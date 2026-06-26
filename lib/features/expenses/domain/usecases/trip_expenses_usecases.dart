@@ -150,6 +150,7 @@ class AddTripExpenseUseCase
     final failure = _validateWritableExpense(
       context: params.currentCompanyContext,
       tripId: params.tripId,
+      expenseTypeId: params.expenseTypeId,
       expenseName: params.expenseName,
       amount: params.amount,
     );
@@ -193,6 +194,7 @@ class UpdateTripExpenseUseCase
     final failure = _validateWritableExpense(
       context: params.currentCompanyContext,
       tripId: params.tripId,
+      expenseTypeId: params.expenseTypeId,
       expenseName: params.expenseName,
       amount: params.amount,
     );
@@ -222,6 +224,7 @@ class UpdateTripExpenseUseCase
 Failure? _validateWritableExpense({
   required CurrentCompanyContext context,
   required String tripId,
+  required String? expenseTypeId,
   required String expenseName,
   required double amount,
 }) {
@@ -236,6 +239,13 @@ Failure? _validateWritableExpense({
     return const ValidationFailure(
       code: FailureCodes.validationTripIdRequired,
       message: 'Trip id is required.',
+    );
+  }
+
+  if (_optional(expenseTypeId) == null) {
+    return const ValidationFailure(
+      code: FailureCodes.validationTripExpenseTypeRequired,
+      message: 'Expense type is required.',
     );
   }
 
