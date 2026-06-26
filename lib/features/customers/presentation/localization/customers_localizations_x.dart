@@ -23,6 +23,7 @@ extension CustomersLocalizationsX on AppLocalizations {
   String get customerConfirmReactivateTitle => _isArabic ? 'تأكيد إعادة التفعيل' : 'Confirm reactivation';
   String get customerConfirmDeactivateMessage => _isArabic ? 'هل تريد إلغاء تفعيل هذا العميل؟' : 'Do you want to deactivate this customer?';
   String get customerConfirmReactivateMessage => _isArabic ? 'هل تريد إعادة تفعيل هذا العميل؟' : 'Do you want to reactivate this customer?';
+  String get customerSearchHintShort => _isArabic ? 'ابحث في العملاء' : 'Search customers';
 
   String customerDetailsTitle(String name) => _isArabic ? 'تفاصيل $name' : 'Customer details: $name';
 
