@@ -149,6 +149,7 @@ class TripsCubit extends Cubit<TripsState> {
     emit(
       current.copyWith(
         selectedTrip: trip,
+        selectedTripNetProfit: null,
         selectedTripActivity: const [],
         selectedTripStatusHistory: const [],
         selectedTripExpenses: const [],
@@ -176,6 +177,7 @@ class TripsCubit extends Cubit<TripsState> {
       emit(
         current.copyWith(
           selectedTrip: null,
+          selectedTripNetProfit: null,
           selectedTripActivity: const [],
           selectedTripStatusHistory: const [],
           selectedTripExpenses: const [],
@@ -381,26 +383,32 @@ class TripsCubit extends Cubit<TripsState> {
     final latestState = state;
     if (latestState is! TripsLoaded) return;
 
-    result.when(
-      success: (details) {
-        emit(
-          latestState.copyWith(
-            selectedTrip: details,
-            isDetailsLoading: false,
-            detailsFailure: null,
-            allTrips: _upsertTripInList(latestState.allTrips, details),
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isDetailsLoading: false,
-            detailsFailure: failure,
-          ),
-        );
-      },
-    );
+    if (result is Success<TripEntity>) {
+      final details = result.data;
+      final netProfit = await _calculateSelectedTripNetProfit(details);
+      final currentAfterCalculation = state;
+      if (currentAfterCalculation is! TripsLoaded) return;
+
+      emit(
+        currentAfterCalculation.copyWith(
+          selectedTrip: details,
+          selectedTripNetProfit: netProfit,
+          isDetailsLoading: false,
+          detailsFailure: null,
+          allTrips: _upsertTripInList(currentAfterCalculation.allTrips, details),
+        ),
+      );
+      return;
+    }
+
+    if (result is FailureResult<TripEntity>) {
+      emit(
+        latestState.copyWith(
+          isDetailsLoading: false,
+          detailsFailure: result.failure,
+        ),
+      );
+    }
   }
 
   Future<void> _loadSelectedTripExpenses(TripEntity trip) async {
@@ -558,6 +566,17 @@ class TripsCubit extends Cubit<TripsState> {
         );
       },
     );
+  }
+
+  Future<double?> _calculateSelectedTripNetProfit(TripEntity trip) async {
+    final result = await calculateTripNetProfitUseCase(
+      CalculateTripNetProfitParams(
+        freightPrice: trip.freightPrice,
+        totalExpenses: trip.totalExpenses,
+      ),
+    );
+
+    return result.dataOrNull;
   }
 
   void _upsertTrip(TripEntity trip) {
