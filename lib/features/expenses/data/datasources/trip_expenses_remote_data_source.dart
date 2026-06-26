@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/expense_type_option.dart';
 import '../../domain/entities/trip_expense_write_data.dart';
 import '../mappers/trip_expense_mapper.dart';
@@ -87,7 +88,9 @@ class SupabaseTripExpensesRemoteDataSource
       final map = Map<String, dynamic>.from(row);
       final name = map['name']?.toString().trim() ?? '';
       if (name.isEmpty) continue;
-      options.add(ExpenseTypeOption(id: map[DbCommonFields.id] as String, name: name));
+      options.add(
+        ExpenseTypeOption(id: map[DbCommonFields.id] as String, name: name),
+      );
     }
 
     return options;
@@ -145,7 +148,10 @@ class SupabaseTripExpensesRemoteDataSource
 
     await client
         .from(_tripsTable)
-        .update({'total_expenses': total})
+        .update({
+          'total_expenses': total,
+          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
+        })
         .eq(DbCommonFields.companyId, companyId)
         .eq(DbCommonFields.id, tripId);
 
