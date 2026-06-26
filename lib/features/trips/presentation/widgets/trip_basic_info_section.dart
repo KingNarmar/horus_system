@@ -13,8 +13,13 @@ class TripBasicInfoSection extends StatelessWidget {
   static const double _twoColumnsBreakpoint = 300;
 
   final TripEntity trip;
+  final double? netProfit;
 
-  const TripBasicInfoSection({required this.trip, super.key});
+  const TripBasicInfoSection({
+    required this.trip,
+    required this.netProfit,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +114,7 @@ class TripBasicInfoSection extends StatelessWidget {
 
     addRequired(
       l10n.tripNetProfitHeader,
-      TripFormatters.money(trip.netProfit, l10n.tripEmptyValue),
+      TripFormatters.money(netProfit, l10n.tripEmptyValue),
     );
 
     addRequired(l10n.tripStatusHeader, l10n.tripStatusLabel(trip.status));
