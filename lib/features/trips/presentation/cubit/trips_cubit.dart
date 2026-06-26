@@ -5,6 +5,10 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../expenses/domain/entities/trip_expense.dart';
+import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
+import '../../../expenses/domain/policies/trip_expenses_permission_policy.dart';
+import '../../../expenses/domain/usecases/trip_expenses_usecases.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
@@ -22,6 +26,10 @@ class TripsCubit extends Cubit<TripsState> {
   final GetTripStatusHistoryUseCase getTripStatusHistoryUseCase;
   final CalculateTripNetProfitUseCase calculateTripNetProfitUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
+  final GetTripExpensesUseCase getTripExpensesUseCase;
+  final GetExpenseTypesUseCase getExpenseTypesUseCase;
+  final AddTripExpenseUseCase addTripExpenseUseCase;
+  final UpdateTripExpenseUseCase updateTripExpenseUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -35,6 +43,10 @@ class TripsCubit extends Cubit<TripsState> {
     required this.getTripStatusHistoryUseCase,
     required this.calculateTripNetProfitUseCase,
     required this.getTripAuditLogsUseCase,
+    required this.getTripExpensesUseCase,
+    required this.getExpenseTypesUseCase,
+    required this.addTripExpenseUseCase,
+    required this.updateTripExpenseUseCase,
   }) : super(const TripsInitial());
 
   Future<void> loadTrips(CurrentCompanyContext currentCompanyContext) async {
@@ -67,6 +79,10 @@ class TripsCubit extends Cubit<TripsState> {
             canViewTripFinancials: TripsPermissionPolicy.canViewTripFinancials(
               currentCompanyContext.role,
             ),
+            canManageTripExpenses:
+                TripExpensesPermissionPolicy.canManageTripExpenses(
+                  currentCompanyContext.role,
+                ),
             searchQuery: searchQuery,
             statusFilter: statusFilter,
           ),
@@ -135,16 +151,21 @@ class TripsCubit extends Cubit<TripsState> {
         selectedTrip: trip,
         selectedTripActivity: const [],
         selectedTripStatusHistory: const [],
+        selectedTripExpenses: const [],
         isDetailsLoading: true,
         isActivityLoading: true,
         isStatusHistoryLoading: true,
+        isExpensesLoading: true,
         detailsFailure: null,
         activityFailure: null,
         statusHistoryFailure: null,
+        expensesFailure: null,
       ),
     );
 
     await _loadSelectedTripDetails(trip);
+    await _loadSelectedTripExpenses(trip);
+    await _loadExpenseTypesIfNeeded();
     await _loadSelectedTripStatusHistory(trip);
     await _loadSelectedTripActivity(trip);
   }
@@ -157,12 +178,15 @@ class TripsCubit extends Cubit<TripsState> {
           selectedTrip: null,
           selectedTripActivity: const [],
           selectedTripStatusHistory: const [],
+          selectedTripExpenses: const [],
           isDetailsLoading: false,
           isActivityLoading: false,
           isStatusHistoryLoading: false,
+          isExpensesLoading: false,
           detailsFailure: null,
           activityFailure: null,
           statusHistoryFailure: null,
+          expensesFailure: null,
         ),
       );
     }
@@ -271,6 +295,66 @@ class TripsCubit extends Cubit<TripsState> {
     );
   }
 
+  Future<void> saveTripExpense({
+    TripExpense? expense,
+    required String tripId,
+    required String? expenseTypeId,
+    required String expenseName,
+    required double amount,
+    required TripExpensePaidBy paidBy,
+    required DateTime expenseDate,
+    String? notes,
+  }) async {
+    final context = _currentCompanyContext;
+    final current = state;
+    if (context == null || current is! TripsLoaded || current.isTripExpenseSaving) {
+      return;
+    }
+
+    emit(current.copyWith(isTripExpenseSaving: true));
+
+    final result = expense == null
+        ? await addTripExpenseUseCase(
+            AddTripExpenseParams(
+              currentCompanyContext: context,
+              tripId: tripId,
+              expenseTypeId: expenseTypeId,
+              expenseName: expenseName,
+              amount: amount,
+              paidBy: paidBy,
+              expenseDate: expenseDate,
+              notes: notes,
+            ),
+          )
+        : await updateTripExpenseUseCase(
+            UpdateTripExpenseParams(
+              currentCompanyContext: context,
+              id: expense.id,
+              tripId: tripId,
+              expenseTypeId: expenseTypeId,
+              expenseName: expenseName,
+              amount: amount,
+              paidBy: paidBy,
+              expenseDate: expenseDate,
+              notes: notes,
+            ),
+          );
+
+    _mapLoaded((state) => state.copyWith(isTripExpenseSaving: false));
+
+    result.when(
+      success: (_) async {
+        final latest = state;
+        if (latest is! TripsLoaded || latest.selectedTrip?.id != tripId) return;
+        final selectedTrip = latest.selectedTrip!;
+        await _loadSelectedTripExpenses(selectedTrip);
+        await _loadSelectedTripDetails(selectedTrip);
+        await _loadSelectedTripActivity(selectedTrip);
+      },
+      failure: (failure) => emit(TripsFailure(failure)),
+    );
+  }
+
   Future<Result<double>> calculateNetProfit({
     required double? freightPrice,
     required double? totalExpenses,
@@ -313,6 +397,82 @@ class TripsCubit extends Cubit<TripsState> {
           latestState.copyWith(
             isDetailsLoading: false,
             detailsFailure: failure,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _loadSelectedTripExpenses(TripEntity trip) async {
+    final current = state;
+    if (current is! TripsLoaded) return;
+
+    emit(current.copyWith(isExpensesLoading: true, expensesFailure: null));
+
+    final result = await getTripExpensesUseCase(
+      GetTripExpensesParams(
+        currentCompanyContext: current.currentCompanyContext,
+        tripId: trip.id,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! TripsLoaded) return;
+
+    result.when(
+      success: (expenses) {
+        emit(
+          latestState.copyWith(
+            selectedTripExpenses: expenses,
+            isExpensesLoading: false,
+            expensesFailure: null,
+          ),
+        );
+      },
+      failure: (failure) {
+        emit(
+          latestState.copyWith(
+            isExpensesLoading: false,
+            expensesFailure: failure,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _loadExpenseTypesIfNeeded() async {
+    final current = state;
+    if (current is! TripsLoaded || current.isExpenseTypesLoading) return;
+    if (current.expenseTypes.isNotEmpty && current.expenseTypesFailure == null) {
+      return;
+    }
+
+    emit(
+      current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
+    );
+
+    final result = await getExpenseTypesUseCase(
+      GetExpenseTypesParams(currentCompanyContext: current.currentCompanyContext),
+    );
+
+    final latestState = state;
+    if (latestState is! TripsLoaded) return;
+
+    result.when(
+      success: (types) {
+        emit(
+          latestState.copyWith(
+            expenseTypes: types,
+            isExpenseTypesLoading: false,
+            expenseTypesFailure: null,
+          ),
+        );
+      },
+      failure: (failure) {
+        emit(
+          latestState.copyWith(
+            isExpenseTypesLoading: false,
+            expenseTypesFailure: failure,
           ),
         );
       },
