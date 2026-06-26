@@ -34,7 +34,7 @@ The platform must be designed as a commercial product that can be sold to multip
 
 ## Current Roadmap Status
 
-Last updated: 2026-06-20
+Last updated: 2026-06-26
 
 The project has completed the core SaaS foundation and the required master-data foundation needed before Trips.
 
@@ -58,86 +58,41 @@ Recently completed:
 * PR #43 - Tightened Fleet authenticated grants was merged.
 * Issue #16 - Routes Module was completed and closed.
 * PR #44 - Routes module was merged.
+* Issue #20 - Trips Presentation Layer was completed and closed.
+* Issue #22 - Trip Expenses Module was completed and closed.
 
 Current phase:
 
 * Phase 2 - Master Data is complete for Customers, Drivers, Fleet, and Routes.
-* The project is ready to move into Phase 3 - Trip Operations.
-* The next primary business module is Trips.
-* Trips can now start because Routes are available for loading/unloading route references and default freight prices.
+* Phase 3 - Trip Operations is in progress.
+* Trips UI, Trip Details, status actions, status history UI, accountability UI, and activity timeline are available.
+* Phase 4 - Expenses and Driver Settlement has started with Trip Expenses.
+* Trip Expenses are now implemented using DB-backed `expense_types`, company-scoped `trip_expenses`, audit logs, and automatic `trips.total_expenses` recalculation.
+* Trip Net Profit is displayed using the existing Domain calculation pattern and must remain isolated from UI.
 
-Next planned issues:
+Next implementation focus:
 
-* Issue #18 - Implement trips domain foundation.
-* Issue #19 - Implement trips data layer.
-* Issue #20 - Implement trips presentation layer.
-* Issue #21 - Implement trip status history.
+1. Review/close remaining Trips foundation issues that are already represented in the implemented code where applicable:
+   * Issue #18 - Implement trips domain foundation.
+   * Issue #19 - Implement trips data layer.
+   * Issue #21 - Implement trip status history.
+2. Issue #23 - Implement/review trip net profit calculation as an isolated Domain use case and confirm final acceptance.
+3. Issue #24 - Driver advances and deductions foundation.
+4. Issue #25 - Invoices domain foundation.
 
-Planned Trips scope:
+Deferred Settings work:
 
-* `trips` table with `company_id`.
-* `trip_status_history` table with `company_id`.
-* RLS and authenticated grants for Trips tables.
-* Pure Domain layer:
-  * `TripEntity`.
-  * `TripStatus`.
-  * `TripStatusHistory`.
-  * `TripWriteData` / create params.
-  * `UpdateTripStatusParams`.
-  * `TripsRepository` abstraction.
-  * Use cases for create, list, details, status update, and net profit calculation.
-* Data layer:
-  * Supabase remote data source.
-  * Trip model.
-  * Trip status history model.
-  * Mappers.
-  * Repository implementation.
-* Presentation layer:
-  * Trips Cubit and State.
-  * Trips list page.
-  * Add/edit trip form.
-  * Trip details dialog/page.
-  * Desktop table.
-  * Mobile/tablet cards.
-  * Search and status filters.
-  * Status update action.
-* Audit logs for important trip actions:
-  * created
-  * updated
-  * assigned
-  * status_changed
-  * cancelled
-  * completed
-* Accountability UI inside Trip Details.
-* Activity timeline inside Trip Details.
-* Trip status history visible in Trip Details.
-* Localization keys in English and Arabic.
-
-Implementation order from here:
-
-1. Trips Domain Foundation - Issue #18
-2. Trips Data Layer - Issue #19
-3. Trips Presentation Layer - Issue #20
-4. Trip Status History - Issue #21
-5. Trip Expenses Module - Issue #22
-6. Trip Net Profit Calculation - Issue #23
-7. Driver Advances and Deductions Foundation - Issue #24
-8. Invoices Foundation - Issue #25
-9. Invoices Data and Presentation - Issue #26
-10. Payments Module - Issue #27
-11. Dashboard Foundation - Issue #29
-12. Basic Reports - Issue #30
-13. Customer Statement
-14. Subscription placeholders and plan limits
-15. Documentation polish: README, contribution rules, testing strategy
-16. Responsive UI polish issues
+* Issue #45 - Settings: Manage expense types master data.
+* This issue must not start until the Settings module implementation begins.
+* The current Trip Expenses flow is not blocked by Issue #45 because default expense types are seeded for existing companies and auto-seeded for new companies.
 
 Supabase workflow rule:
 
 * Any Supabase-related change must be handled manually and carefully.
 * Send one SQL verification query at a time.
 * Wait for the result before sending the next query.
-* Verify schema, RLS, policies, grants, enum values, and audit behavior before closing an issue.
+* Verify schema, RLS, policies, grants, enum values, triggers, seed data, and audit behavior before closing an issue.
+* Any DB change must be saved as a migration in the repository and must not remain live-only in Supabase.
 
 Stop point:
 
@@ -354,16 +309,17 @@ Completed:
 * Trailers
 * Routes
 
-Later supporting modules:
+Supporting master data:
 
-* Expense Types
-* Payment Methods
+* Expense Types are seeded for Trip Expenses and are DB-backed.
+* Expense Types Settings management is deferred to Issue #45.
+* Payment Methods later.
 
 ## Phase 3 - Trip Operations
 
-Status: Next implementation phase.
+Status: In progress.
 
-Modules:
+Implemented or available in the current Trips flow:
 
 * Trip creation
 * Trip list
@@ -382,6 +338,8 @@ Modules:
 * Freight price
 * Prevent duplicate open trip for the same vehicle
 * Audit/accountability for trip actions
+* Activity timeline inside Trip Details
+* Localized EN/AR presentation strings
 
 Initial trip statuses:
 
@@ -396,18 +354,40 @@ Initial trip statuses:
 * Paid
 * Cancelled
 
+Remaining Trip Operations review:
+
+* Issue #18 - Trips Domain Foundation remains open in GitHub and should be reviewed/closed if fully satisfied.
+* Issue #19 - Trips Data Layer remains open in GitHub and should be reviewed/closed if fully satisfied.
+* Issue #21 - Trip Status History remains open in GitHub and should be reviewed/closed if fully satisfied.
+* Issue #23 - Trip Net Profit Calculation remains open and is the next finance-related acceptance review.
+
 ## Phase 4 - Expenses and Driver Settlement
 
-Modules:
+Status: Started.
 
-* Trip expenses
-* Fuel expenses
-* Road fees
-* Weighbridge fees
-* Loading fees
-* Unloading fees
-* Fines
-* Emergency maintenance
+Completed:
+
+* Issue #22 - Trip Expenses Module.
+
+Trip Expenses delivered scope:
+
+* `trip_expenses` table integrated with company-scoped access.
+* `expense_types` used as DB-backed master data.
+* Default expense types seeded for existing companies.
+* Default expense types auto-seeded for new companies through a company insert trigger.
+* Add trip expense from Trip Details.
+* Update trip expense from Trip Details.
+* Expense type is required and saved as `expense_type_id`.
+* `Other` expense type supports custom `expense_name`.
+* Amount must be positive.
+* Paid-by is tracked.
+* `trips.total_expenses` is recalculated after add/update.
+* Activity Timeline shows context-aware Trip vs Expense actions.
+* EN/AR localization covers labels, saved expense names, audit labels, and validation/failure messages.
+* No Supabase calls exist in Cubit or UI.
+
+Remaining modules:
+
 * Driver advances
 * Driver deductions
 * Driver monthly settlement
@@ -547,7 +527,7 @@ These features are not part of MVP.
 * tractor_heads
 * trailers
 * routes
-* expense_types later
+* expense_types
 * payment_methods later
 
 ## Audit and Accountability
@@ -741,6 +721,34 @@ features/trips/
       trip_activity_timeline_item.dart
 ```
 
+Example for Expenses:
+
+```text
+features/expenses/
+  domain/
+    entities/
+      trip_expense.dart
+      trip_expense_paid_by.dart
+      trip_expense_write_data.dart
+      expense_type_option.dart
+    repositories/
+      trip_expenses_repository.dart
+    usecases/
+      trip_expenses_usecases.dart
+    policies/
+      trip_expenses_permission_policy.dart
+
+  data/
+    models/
+      trip_expense_model.dart
+    mappers/
+      trip_expense_mapper.dart
+    datasources/
+      trip_expenses_remote_data_source.dart
+    repositories/
+      trip_expense_repo_impl.dart
+```
+
 ---
 
 # 10. Dependency Rule
@@ -769,7 +777,21 @@ Forbidden:
 
 ---
 
-# 11. Audit and Accountability Rules
+# 11. Localization Rules
+
+Localization-first is mandatory.
+
+Rules:
+
+* No user-facing hardcoded strings in UI.
+* Every new label, button, empty state, validation error, failure message, filter label, and audit/action label must support EN/AR.
+* DB canonical values may stay stable in English when needed, but UI must localize their display names.
+* Custom user-entered values must not be force-translated.
+* Any manually added fallback UI string is not allowed unless it is localized and temporary by design.
+
+---
+
+# 12. Audit and Accountability Rules
 
 Audit/accountability is app-wide, structured, reusable, and company-scoped.
 
@@ -794,25 +816,37 @@ Details dialog pattern:
 
 ---
 
-# 12. Active GitHub Issues
+# 13. GitHub Issue Status
 
-## Trips
+## Completed / Closed
+
+* Issue #15 - Fleet Module.
+* Issue #16 - Routes Module.
+* Issue #20 - Implement trips presentation layer.
+* Issue #22 - Implement trip expenses module.
+
+## Trips / Expenses - Open Review or Next Work
 
 * Issue #18 - Implement trips domain foundation.
 * Issue #19 - Implement trips data layer.
-* Issue #20 - Implement trips presentation layer.
 * Issue #21 - Implement trip status history.
-* Issue #22 - Implement trip expenses module.
 * Issue #23 - Implement trip net profit calculation.
+* Issue #24 - Implement driver advances and deductions foundation.
 
 ## Finance and Reports
 
-* Issue #24 - Implement driver advances and deductions foundation.
 * Issue #25 - Implement invoices domain foundation.
 * Issue #26 - Implement invoices data and presentation.
 * Issue #27 - Implement payments module.
 * Issue #29 - Implement dashboard foundation.
 * Issue #30 - Implement basic reports.
+
+## Settings / Master Data
+
+* Issue #45 - Settings: Manage expense types master data.
+  * Deferred until the Settings module implementation begins.
+  * Must manage `expense_types` with list/add/edit/deactivate/reactivate.
+  * Must keep old trip expense history intact.
 
 ## Platform / Commercial / Polish
 
@@ -822,7 +856,7 @@ Details dialog pattern:
 
 ---
 
-# 13. MVP Definition
+# 14. MVP Definition
 
 The MVP is successful when one company can:
 
@@ -846,7 +880,7 @@ The MVP is successful when one company can:
 
 ---
 
-# 14. Non-MVP Features
+# 15. Non-MVP Features
 
 The following must not delay the first MVP:
 
@@ -861,7 +895,7 @@ The following must not delay the first MVP:
 
 ---
 
-# 15. Validation Before Closing Any Business Issue
+# 16. Validation Before Closing Any Business Issue
 
 Before closing or merging any business module:
 
@@ -877,15 +911,19 @@ Manual verification is also required:
 * RLS verification.
 * Policy verification.
 * GRANT verification.
+* Enum verification where applicable.
+* Trigger verification where applicable.
+* Seed data verification where applicable.
 * Audit write verification.
 * Accountability UI verification.
+* Localization EN/AR verification.
 * Acceptance criteria review against the GitHub issue and this roadmap.
 
 Analyze/test passing alone is not enough to close a module.
 
 ---
 
-# 16. Critical Project Rule
+# 17. Critical Project Rule
 
 H.O.R.U.S System must always be treated as:
 
