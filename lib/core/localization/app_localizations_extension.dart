@@ -121,6 +121,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'معرّف مصروف الرحلة مطلوب.'
             : 'Trip expense id is required.',
+      FailureCodes.validationTripExpenseTypeRequired =>
+        _isArabicError ? 'نوع المصروف مطلوب.' : 'Expense type is required.',
       FailureCodes.validationTripExpenseNameRequired =>
         _isArabicError ? 'اسم المصروف مطلوب.' : 'Expense name is required.',
       FailureCodes.validationTripExpenseAmountPositive =>
