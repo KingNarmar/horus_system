@@ -178,6 +178,8 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripChanges => _isArabic ? 'التغييرات' : 'Changes';
 
+  String get tripAuditDetails => _isArabic ? 'التفاصيل' : 'Details';
+
   String get tripCloseButton => _isArabic ? 'إغلاق' : 'Close';
 
   String get tripSaveButton => _isArabic ? 'حفظ' : 'Save';
@@ -370,6 +372,10 @@ extension TripsLocalizationsX on AppLocalizations {
     return _isArabic
         ? '$label: من $oldValue إلى $newValue'
         : '$label: from $oldValue to $newValue';
+  }
+
+  String tripAuditDetailLine(String label, String value) {
+    return '$label: $value';
   }
 
   String tripAuditFieldLabel(String key) {
