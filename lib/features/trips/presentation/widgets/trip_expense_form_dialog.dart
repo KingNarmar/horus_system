@@ -9,19 +9,6 @@ import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
 
-const _manualExpenseTypePrefix = 'manual:';
-const _fallbackExpenseTypeKeys = <String>[
-  'fuel',
-  'road_fees',
-  'weighbridge',
-  'loading',
-  'unloading',
-  'fines',
-  'emergency_maintenance',
-  'driver_advance',
-  'other',
-];
-
 class TripExpenseFormDialog extends StatefulWidget {
   final String title;
   final TripExpense? expense;
@@ -49,17 +36,14 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   late final TextEditingController _dateController;
   late final TextEditingController _notesController;
   late TripExpensePaidBy _paidBy;
-  String? _selectedExpenseTypeValue;
+  String? _expenseTypeId;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     final expense = widget.expense;
-    _selectedExpenseTypeValue = expense?.expenseTypeId;
-    if (_selectedExpenseTypeValue == null && expense?.expenseTypeName != null) {
-      _selectedExpenseTypeValue = _manualValue(expense!.expenseTypeName!);
-    }
+    _expenseTypeId = expense?.expenseTypeId;
     _paidBy = expense?.paidBy ?? TripExpensePaidBy.company;
     _nameController = TextEditingController(text: expense?.expenseName ?? '');
     _amountController = TextEditingController(
@@ -83,7 +67,8 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final expenseTypeItems = _expenseTypeItems(l10n);
+    final selectedType = _selectedType();
+    final isOther = _isOtherExpenseType(selectedType?.name);
 
     return AlertDialog(
       title: Text(widget.title),
@@ -100,40 +85,43 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
-                DropdownButtonFormField<String?>(
-                  value: _dropdownValue(expenseTypeItems),
+                DropdownButtonFormField<String>(
+                  value: _dropdownValue(),
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(l10n.tripOptionalNone),
-                    ),
-                    for (final item in expenseTypeItems)
-                      DropdownMenuItem<String?>(
-                        value: item.value,
-                        child: Text(item.name),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    setState(() => _selectedExpenseTypeValue = value);
-                    final selected = _findTypeChoice(value, l10n);
-                    if (selected != null && _nameController.text.trim().isEmpty) {
-                      _nameController.text = selected.name;
-                    }
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: l10n.tripExpenseNameLabel,
-                  ),
-                  validator: (value) => (value ?? '').trim().isEmpty
-                      ? l10n.tripExpenseNameRequired
+                  items: widget.expenseTypes.map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type.id,
+                      child: Text(l10n.tripExpenseTypeName(type.name)),
+                    );
+                  }).toList(),
+                  validator: (value) => value == null
+                      ? l10n.tripExpenseTypeRequired
                       : null,
+                  onChanged: widget.expenseTypes.isEmpty
+                      ? null
+                      : (value) => _onExpenseTypeChanged(value),
                 ),
+                if (widget.expenseTypes.isEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(l10n.tripExpenseTypesUnavailable),
+                  ),
+                ],
+                if (isOther) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: l10n.tripExpenseNameLabel,
+                    ),
+                    validator: (value) => (value ?? '').trim().isEmpty
+                        ? l10n.tripExpenseNameRequired
+                        : null,
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _amountController,
@@ -202,16 +190,35 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     );
   }
 
+  void _onExpenseTypeChanged(String? value) {
+    final selected = _findType(value);
+    setState(() {
+      _expenseTypeId = value;
+      if (!_isOtherExpenseType(selected?.name)) {
+        _nameController.text = selected?.name ?? '';
+      } else {
+        _nameController.clear();
+      }
+    });
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final selectedType = _selectedType();
+    if (selectedType == null) return;
+
     final amount = double.parse(_amountController.text.trim());
     final expenseDate = _parseDate(_dateController.text)!;
+    final expenseName = _isOtherExpenseType(selectedType.name)
+        ? _nameController.text.trim()
+        : selectedType.name;
 
     setState(() => _isSaving = true);
     await widget.onSubmit(
       TripExpenseFormData(
-        expenseTypeId: _selectedExpenseTypeId(),
-        expenseName: _nameController.text.trim(),
+        expenseTypeId: selectedType.id,
+        expenseName: expenseName,
         amount: amount,
         paidBy: _paidBy,
         expenseDate: expenseDate,
@@ -224,52 +231,21 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     Navigator.of(context).pop();
   }
 
-  List<_ExpenseTypeChoice> _expenseTypeItems(AppLocalizations l10n) {
-    if (widget.expenseTypes.isNotEmpty) {
-      final items = widget.expenseTypes.map((type) {
-        return _ExpenseTypeChoice(value: type.id, name: type.name);
-      }).toList();
-
-      final manualValue = _selectedExpenseTypeValue;
-      final manualName = widget.expense?.expenseTypeName;
-      if (manualValue != null &&
-          manualName != null &&
-          !items.any((item) => item.value == manualValue)) {
-        items.add(_ExpenseTypeChoice(value: manualValue, name: manualName));
-      }
-
-      return items;
-    }
-
-    return _fallbackExpenseTypeKeys.map((key) {
-      return _ExpenseTypeChoice(
-        value: _manualValue(key),
-        name: _localizedFallbackExpenseTypeName(l10n, key),
-      );
-    }).toList();
-  }
-
-  _ExpenseTypeChoice? _findTypeChoice(String? value, AppLocalizations l10n) {
+  String? _dropdownValue() {
+    final value = _expenseTypeId;
     if (value == null) return null;
-    for (final item in _expenseTypeItems(l10n)) {
-      if (item.value == value) return item;
-    }
+    if (widget.expenseTypes.any((type) => type.id == value)) return value;
     return null;
   }
 
-  String? _dropdownValue(List<_ExpenseTypeChoice> items) {
-    final value = _selectedExpenseTypeValue;
-    if (value == null) return null;
-    if (items.any((item) => item.value == value)) return value;
-    return null;
-  }
+  ExpenseTypeOption? _selectedType() => _findType(_expenseTypeId);
 
-  String? _selectedExpenseTypeId() {
-    final value = _selectedExpenseTypeValue;
-    if (value == null || value.startsWith(_manualExpenseTypePrefix)) {
-      return null;
+  ExpenseTypeOption? _findType(String? id) {
+    if (id == null) return null;
+    for (final type in widget.expenseTypes) {
+      if (type.id == id) return type;
     }
-    return value;
+    return null;
   }
 
   DateTime? _parseDate(String? value) {
@@ -285,31 +261,9 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   }
 }
 
-String _manualValue(String key) => '$_manualExpenseTypePrefix$key';
-
-String _localizedFallbackExpenseTypeName(AppLocalizations l10n, String key) {
-  final isArabic = l10n.localeName.startsWith('ar');
-
-  return switch (key) {
-    'fuel' => isArabic ? 'وقود' : 'Fuel',
-    'road_fees' => isArabic ? 'رسوم طرق' : 'Road fees',
-    'weighbridge' => isArabic ? 'ميزان' : 'Weighbridge',
-    'loading' => isArabic ? 'تحميل' : 'Loading',
-    'unloading' => isArabic ? 'تفريغ' : 'Unloading',
-    'fines' => isArabic ? 'غرامات' : 'Fines',
-    'emergency_maintenance' =>
-      isArabic ? 'صيانة طارئة' : 'Emergency maintenance',
-    'driver_advance' => isArabic ? 'عهدة سائق' : 'Driver advance',
-    'other' => isArabic ? 'أخرى' : 'Other',
-    _ => key,
-  };
-}
-
-class _ExpenseTypeChoice {
-  final String value;
-  final String name;
-
-  const _ExpenseTypeChoice({required this.value, required this.name});
+bool _isOtherExpenseType(String? name) {
+  final normalized = name?.trim().toLowerCase().replaceAll(' ', '_');
+  return normalized == 'other' || normalized == 'أخرى' || normalized == 'اخرى';
 }
 
 class TripExpenseFormData {
