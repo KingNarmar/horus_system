@@ -56,7 +56,9 @@ class CustomersFilters extends StatelessWidget {
             ),
           ],
           selected: {statusFilter},
-          onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
+          onSelectionChanged: (selected) {
+            onStatusFilterChanged(selected.first);
+          },
         ),
       ],
     );
