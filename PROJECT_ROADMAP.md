@@ -36,7 +36,7 @@ The platform must be designed as a commercial product that can be sold to multip
 
 Last updated: 2026-06-26
 
-The project has completed the core SaaS foundation and the required master-data foundation needed before Trips.
+The project has completed the core SaaS foundation, the main master-data foundation, and the current Trips/Trip Expenses foundation that has been reviewed and accepted so far.
 
 Completed foundations include:
 
@@ -45,46 +45,72 @@ Completed foundations include:
 * Supabase RLS foundation
 * Authentication and current company context foundation
 * Customers module
+* Customers responsive polish
 * Drivers module
 * Audit & Accountability foundation
 * Fleet module for tractor heads and trailers
 * Routes module
+* Trips Domain foundation
+* Trips Data layer foundation
+* Trips Presentation layer
+* Trip Status History
+* Trip Expenses module
+* Trip Net Profit calculation through an isolated Domain use case
+* README project overview
+* CONTRIBUTING rules document
+* TESTING strategy document
 
-Recently completed:
+Recently completed / closed:
 
+* Issue #14 - Drivers module was completed and closed.
 * Issue #15 - Fleet Module was completed and closed.
 * PR #41 - Fleet module foundation was merged.
 * PR #42 - Fleet schema/RLS guard migration was merged.
 * PR #43 - Tightened Fleet authenticated grants was merged.
 * Issue #16 - Routes Module was completed and closed.
 * PR #44 - Routes module was merged.
+* Issue #18 - Trips Domain Foundation was completed and closed.
+* Issue #19 - Trips Data Layer was completed and closed.
 * Issue #20 - Trips Presentation Layer was completed and closed.
+* Issue #21 - Trip Status History was completed and closed.
 * Issue #22 - Trip Expenses Module was completed and closed.
+* Issue #23 - Trip Net Profit Calculation was completed and closed.
+* Issue #33 - README Project Overview was completed and closed.
+* Issue #34 - Contribution and Code Rules document was completed and closed.
+* Issue #35 - Testing Strategy document was completed and closed.
+* Issue #39 - Customers Responsive UI polish was completed and closed.
+* Issue #17 - Old mixed expense types/payment methods settings issue was closed as superseded/not planned.
 
 Current phase:
 
 * Phase 2 - Master Data is complete for Customers, Drivers, Fleet, and Routes.
-* Phase 3 - Trip Operations is in progress.
-* Trips UI, Trip Details, status actions, status history UI, accountability UI, and activity timeline are available.
+* Phase 3 - Trip Operations foundation is complete for the currently reviewed scope.
 * Phase 4 - Expenses and Driver Settlement has started with Trip Expenses.
-* Trip Expenses are now implemented using DB-backed `expense_types`, company-scoped `trip_expenses`, audit logs, and automatic `trips.total_expenses` recalculation.
-* Trip Net Profit is displayed using the existing Domain calculation pattern and must remain isolated from UI.
+* Trip Expenses are implemented using DB-backed `expense_types`, company-scoped `trip_expenses`, audit logs, and automatic `trips.total_expenses` recalculation.
+* Trip Net Profit is displayed using an isolated Domain use case and must remain isolated from UI.
 
 Next implementation focus:
 
-1. Review/close remaining Trips foundation issues that are already represented in the implemented code where applicable:
-   * Issue #18 - Implement trips domain foundation.
-   * Issue #19 - Implement trips data layer.
-   * Issue #21 - Implement trip status history.
-2. Issue #23 - Implement/review trip net profit calculation as an isolated Domain use case and confirm final acceptance.
-3. Issue #24 - Driver advances and deductions foundation.
-4. Issue #25 - Invoices domain foundation.
+1. Issue #24 - Driver advances and deductions foundation.
+2. Issue #25 - Invoices Domain foundation.
+3. Issue #26 - Invoices Data and Presentation.
+4. Issue #27 - Payments module.
+5. Issue #28 - Customer statement foundation.
+6. Issue #29 - Dashboard foundation.
+7. Issue #30 - Basic reports.
+8. Issue #31 - Subscription plans placeholder.
+9. Issue #32 - Plan limit checks foundation.
 
-Deferred Settings work:
+Deferred Settings / Platform work:
 
+* Issue #37 - Company timezone support.
+  * Backlog unless reporting/date behavior needs it earlier.
 * Issue #45 - Settings: Manage expense types master data.
-* This issue must not start until the Settings module implementation begins.
-* The current Trip Expenses flow is not blocked by Issue #45 because default expense types are seeded for existing companies and auto-seeded for new companies.
+  * Deferred until the Settings module implementation begins.
+  * The current Trip Expenses flow is not blocked because default expense types are seeded for existing companies and auto-seeded for new companies.
+* Issue #46 - Settings: Manage payment methods master data.
+  * Created to replace the payment-methods part of old Issue #17.
+  * Deferred until the Settings module or Payments module needs payment-method master data.
 
 Supabase workflow rule:
 
@@ -293,7 +319,7 @@ Modules:
 * Company users
 * User roles
 * Current company context
-* Subscription plan placeholder
+* Subscription plan placeholder - still needs Issue #31 implementation
 * Trial status placeholder
 * RLS policies
 
@@ -304,6 +330,7 @@ Status: Core master-data foundation completed.
 Completed:
 
 * Customers
+* Customers responsive polish
 * Drivers
 * Tractor Heads
 * Trailers
@@ -313,11 +340,11 @@ Supporting master data:
 
 * Expense Types are seeded for Trip Expenses and are DB-backed.
 * Expense Types Settings management is deferred to Issue #45.
-* Payment Methods later.
+* Payment Methods Settings management is tracked separately in Issue #46.
 
 ## Phase 3 - Trip Operations
 
-Status: In progress.
+Status: Current reviewed Trips foundation completed.
 
 Implemented or available in the current Trips flow:
 
@@ -340,6 +367,7 @@ Implemented or available in the current Trips flow:
 * Audit/accountability for trip actions
 * Activity timeline inside Trip Details
 * Localized EN/AR presentation strings
+* Trip Net Profit calculation through isolated Domain use case
 
 Initial trip statuses:
 
@@ -354,12 +382,13 @@ Initial trip statuses:
 * Paid
 * Cancelled
 
-Remaining Trip Operations review:
+Closed Trips review issues:
 
-* Issue #18 - Trips Domain Foundation remains open in GitHub and should be reviewed/closed if fully satisfied.
-* Issue #19 - Trips Data Layer remains open in GitHub and should be reviewed/closed if fully satisfied.
-* Issue #21 - Trip Status History remains open in GitHub and should be reviewed/closed if fully satisfied.
-* Issue #23 - Trip Net Profit Calculation remains open and is the next finance-related acceptance review.
+* Issue #18 - Trips Domain Foundation.
+* Issue #19 - Trips Data Layer.
+* Issue #20 - Trips Presentation Layer.
+* Issue #21 - Trip Status History.
+* Issue #23 - Trip Net Profit Calculation.
 
 ## Phase 4 - Expenses and Driver Settlement
 
@@ -382,15 +411,15 @@ Trip Expenses delivered scope:
 * Amount must be positive.
 * Paid-by is tracked.
 * `trips.total_expenses` is recalculated after add/update.
+* Trip Net Profit is calculated as Freight Price minus Total Trip Expenses.
 * Activity Timeline shows context-aware Trip vs Expense actions.
 * EN/AR localization covers labels, saved expense names, audit labels, and validation/failure messages.
 * No Supabase calls exist in Cubit or UI.
 
 Remaining modules:
 
-* Driver advances
-* Driver deductions
-* Driver monthly settlement
+* Issue #24 - Driver advances and deductions foundation.
+* Driver monthly settlement later.
 
 Initial formula:
 
@@ -398,20 +427,26 @@ Initial formula:
 Trip Net Profit = Freight Price - Total Trip Expenses
 ```
 
-The formula must be isolated inside a Domain Use Case so it can be changed later without changing UI or Data layers.
+The formula must stay isolated inside a Domain Use Case so it can be changed later without changing UI or Data layers.
 
 ## Phase 5 - Invoices and Payments
 
+Status: Not implemented yet. Issues #25, #26, #27, and #28 were reviewed and left open.
+
 Modules:
 
-* Create invoice from trip
-* Create grouped invoice for customer
-* Invoice status
-* Payments
-* Partial payments
-* Customer account statement
-* Unpaid invoices report
-* Overdue invoices report
+* Issue #25 - Invoices Domain foundation.
+* Issue #26 - Invoices Data and Presentation.
+* Issue #27 - Payments module.
+* Issue #28 - Customer account statement foundation.
+* Create invoice from trip.
+* Create grouped invoice for customer.
+* Invoice status.
+* Payments.
+* Partial payments.
+* Customer account statement.
+* Unpaid invoices report.
+* Overdue invoices report.
 
 Invoice statuses:
 
@@ -423,6 +458,8 @@ Invoice statuses:
 * Cancelled
 
 ## Phase 6 - Dashboard and Reports
+
+Status: Not implemented yet. Issues #29 and #30 were reviewed and left open.
 
 Dashboard should show:
 
@@ -452,8 +489,12 @@ Initial reports:
 
 ## Phase 7 - Subscription and Commercial Layer
 
+Status: Not implemented yet. Issues #31 and #32 were reviewed and left open.
+
 Modules:
 
+* Issue #31 - Subscription plans placeholder.
+* Issue #32 - Plan limit checks foundation.
 * Subscription plans
 * Company subscription
 * Trial mode
@@ -488,7 +529,23 @@ Initial subscription plans:
 * Maintenance
 * Future integrations
 
-## Phase 8 - Advanced Features
+## Phase 8 - Settings and Master Data Administration
+
+Status: Deferred.
+
+Tracked issues:
+
+* Issue #45 - Settings: Manage expense types master data.
+* Issue #46 - Settings: Manage payment methods master data.
+
+Rules:
+
+* No Settings master-data implementation should start before the Settings module begins or before a dependent workflow requires it.
+* Expense type management must use the existing `expense_types` table.
+* Payment method management may introduce a `payment_methods` table when implemented.
+* Both features must be company-scoped, localized EN/AR, permission-checked in Domain use cases, and audited.
+
+## Phase 9 - Advanced Features
 
 These features are not part of MVP.
 
@@ -642,6 +699,11 @@ lib/
       presentation/
 
     reports/
+      data/
+      domain/
+      presentation/
+
+    settings/
       data/
       domain/
       presentation/
@@ -818,41 +880,44 @@ Details dialog pattern:
 
 # 13. GitHub Issue Status
 
-## Completed / Closed
+## Completed / Closed as Completed
 
+* Issue #14 - Drivers module.
 * Issue #15 - Fleet Module.
 * Issue #16 - Routes Module.
-* Issue #20 - Implement trips presentation layer.
-* Issue #22 - Implement trip expenses module.
-
-## Trips / Expenses - Open Review or Next Work
-
 * Issue #18 - Implement trips domain foundation.
 * Issue #19 - Implement trips data layer.
+* Issue #20 - Implement trips presentation layer.
 * Issue #21 - Implement trip status history.
+* Issue #22 - Implement trip expenses module.
 * Issue #23 - Implement trip net profit calculation.
+* Issue #33 - README project overview.
+* Issue #34 - Contribution and code rules document.
+* Issue #35 - Testing strategy document.
+* Issue #39 - Responsive UI polish for Customers module.
+
+## Closed as Superseded / Not Planned
+
+* Issue #17 - Implement expense types and payment methods settings.
+  * Superseded by Issue #45 for expense types and Issue #46 for payment methods.
+
+## Open - Next Business Implementation
+
 * Issue #24 - Implement driver advances and deductions foundation.
-
-## Finance and Reports
-
 * Issue #25 - Implement invoices domain foundation.
 * Issue #26 - Implement invoices data and presentation.
 * Issue #27 - Implement payments module.
+* Issue #28 - Implement customer statement foundation.
 * Issue #29 - Implement dashboard foundation.
 * Issue #30 - Implement basic reports.
-
-## Settings / Master Data
-
-* Issue #45 - Settings: Manage expense types master data.
-  * Deferred until the Settings module implementation begins.
-  * Must manage `expense_types` with list/add/edit/deactivate/reactivate.
-  * Must keep old trip expense history intact.
-
-## Platform / Commercial / Polish
-
+* Issue #31 - Implement subscription plans placeholder.
 * Issue #32 - Implement plan limit checks foundation.
+
+## Open - Deferred / Backlog
+
 * Issue #37 - Add company timezone support.
-* Issue #39 - Responsive UI polish for Customers module.
+* Issue #45 - Settings: Manage expense types master data.
+* Issue #46 - Settings: Manage payment methods master data.
 
 ---
 
