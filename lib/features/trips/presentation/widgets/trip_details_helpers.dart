@@ -17,6 +17,12 @@ const List<String> _tripAuditChangeFieldOrder = [
   'quantity_tons',
   'freight_price',
   'total_expenses',
+  'expense_name',
+  'expense_type_name',
+  'amount',
+  'paid_by',
+  'expense_date',
+  'trip_total_expenses',
   'scheduled_loading_at',
   'scheduled_delivery_at',
   'actual_loading_at',
@@ -27,11 +33,14 @@ const List<String> _tripAuditChangeFieldOrder = [
 const Set<String> _technicalAuditKeys = {
   'id',
   'company_id',
+  'trip_id',
+  'expense_id',
   'customer_id',
   'route_id',
   'driver_id',
   'tractor_head_id',
   'trailer_id',
+  'expense_type_id',
   'created_at',
   'updated_at',
 };
@@ -66,7 +75,9 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
   final actionLabel = l10n.tripAuditActionLabel(log.action.value);
   final entityName =
       _firstText([
-        log.entityDisplayName,
+        log.newValues?['expense_name'],
+        log.oldValues?['expense_name'],
+        log.metadata?['expense_name'],
         log.newValues?['loading_order_number'],
         log.oldValues?['loading_order_number'],
         log.newValues?['waybill_number'],
@@ -75,6 +86,7 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
         log.oldValues?['customer_name'],
         log.newValues?['route_name'],
         log.oldValues?['route_name'],
+        log.entityDisplayName,
       ]) ??
       l10n.tripEmptyValue;
 
@@ -95,12 +107,18 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
     );
   }
 
+  final amount = _firstText([log.newValues?['amount'], log.metadata?['amount']]);
+  if (amount != null && _isExpenseAudit(log)) {
+    return '$actionLabel: $entityName - $amount';
+  }
+
   return '$actionLabel: $entityName';
 }
 
 bool shouldShowTripAuditChanges(AuditLog log) {
-  return log.action != AuditAction.created &&
-      log.action != AuditAction.statusChanged;
+  if (log.action == AuditAction.statusChanged) return false;
+  if (log.action == AuditAction.created) return _isExpenseAudit(log);
+  return true;
 }
 
 List<String> visibleTripAuditChangeKeys(AuditLog log) {
@@ -141,6 +159,13 @@ List<String> visibleTripAuditChangeKeys(AuditLog log) {
 Object? safeTripAuditValue(Object? value) {
   if (_looksTechnical(value)) return null;
   return value;
+}
+
+bool _isExpenseAudit(AuditLog log) {
+  return log.entityDisplayName == 'Trip expense' ||
+      log.newValues?.containsKey('expense_name') == true ||
+      log.oldValues?.containsKey('expense_name') == true ||
+      log.metadata?.containsKey('expense_id') == true;
 }
 
 Object? _safeAuditValue(Object? value) {
