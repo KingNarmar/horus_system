@@ -107,6 +107,26 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.'
             : 'Default freight price cannot be negative.',
+      FailureCodes.permissionTripExpensesView =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لعرض مصروفات الرحلة.'
+            : 'Trip expenses access is not allowed.',
+      FailureCodes.permissionTripExpensesManagement =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لإدارة مصروفات الرحلة.'
+            : 'Trip expenses management is not allowed.',
+      FailureCodes.validationTripIdRequired =>
+        _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
+      FailureCodes.validationTripExpenseIdRequired =>
+        _isArabicError
+            ? 'معرّف مصروف الرحلة مطلوب.'
+            : 'Trip expense id is required.',
+      FailureCodes.validationTripExpenseNameRequired =>
+        _isArabicError ? 'اسم المصروف مطلوب.' : 'Expense name is required.',
+      FailureCodes.validationTripExpenseAmountPositive =>
+        _isArabicError
+            ? 'مبلغ المصروف لازم يكون أكبر من صفر.'
+            : 'Expense amount must be greater than zero.',
       FailureCodes.validationCompanyNameRequired =>
         _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
       FailureCodes.serverError =>
