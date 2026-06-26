@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../localization/trips_localizations_x.dart';
@@ -72,23 +73,11 @@ String formatTripDateTime(DateTime? value, String emptyValue) {
 
 String localizedTripAuditDescription(BuildContext context, AuditLog log) {
   final l10n = context.l10n;
-  final actionLabel = l10n.tripAuditActionLabel(log.action.value);
-  final entityName =
-      _firstText([
-        log.newValues?['expense_name'],
-        log.oldValues?['expense_name'],
-        log.metadata?['expense_name'],
-        log.newValues?['loading_order_number'],
-        log.oldValues?['loading_order_number'],
-        log.newValues?['waybill_number'],
-        log.oldValues?['waybill_number'],
-        log.newValues?['customer_name'],
-        log.oldValues?['customer_name'],
-        log.newValues?['route_name'],
-        log.oldValues?['route_name'],
-        log.entityDisplayName,
-      ]) ??
-      l10n.tripEmptyValue;
+  final actionLabel = _localizedAuditActionLabel(l10n, log);
+  final rawEntityName = _auditEntityName(l10n, log);
+  final entityName = _isExpenseAudit(log)
+      ? l10n.tripExpenseTypeName(rawEntityName)
+      : rawEntityName;
 
   if (log.action == AuditAction.statusChanged) {
     final oldStatus = l10n.tripAuditValueLabel(
@@ -159,6 +148,50 @@ List<String> visibleTripAuditChangeKeys(AuditLog log) {
 Object? safeTripAuditValue(Object? value) {
   if (_looksTechnical(value)) return null;
   return value;
+}
+
+String _auditEntityName(AppLocalizations l10n, AuditLog log) {
+  return _firstText([
+        log.newValues?['expense_name'],
+        log.oldValues?['expense_name'],
+        log.metadata?['expense_name'],
+        log.newValues?['loading_order_number'],
+        log.oldValues?['loading_order_number'],
+        log.newValues?['waybill_number'],
+        log.oldValues?['waybill_number'],
+        log.newValues?['customer_name'],
+        log.oldValues?['customer_name'],
+        log.newValues?['route_name'],
+        log.oldValues?['route_name'],
+        log.entityDisplayName,
+      ]) ??
+      l10n.tripEmptyValue;
+}
+
+String _localizedAuditActionLabel(AppLocalizations l10n, AuditLog log) {
+  final isArabic = l10n.localeName.startsWith('ar');
+
+  if (_isExpenseAudit(log)) {
+    return switch (log.action) {
+      AuditAction.created => isArabic ? 'تم إضافة مصروف' : 'Expense added',
+      AuditAction.updated => isArabic ? 'تم تعديل مصروف' : 'Expense updated',
+      AuditAction.deactivated =>
+        isArabic ? 'تم إلغاء تفعيل مصروف' : 'Expense deactivated',
+      AuditAction.reactivated =>
+        isArabic ? 'تمت إعادة تفعيل مصروف' : 'Expense reactivated',
+      AuditAction.statusChanged => l10n.tripAuditActionLabel(log.action.value),
+    };
+  }
+
+  return switch (log.action) {
+    AuditAction.created => isArabic ? 'تم إنشاء الرحلة' : 'Trip created',
+    AuditAction.updated => isArabic ? 'تم تعديل الرحلة' : 'Trip updated',
+    AuditAction.deactivated =>
+      isArabic ? 'تم إلغاء تفعيل الرحلة' : 'Trip deactivated',
+    AuditAction.reactivated =>
+      isArabic ? 'تمت إعادة تفعيل الرحلة' : 'Trip reactivated',
+    AuditAction.statusChanged => l10n.tripAuditActionLabel(log.action.value),
+  };
 }
 
 bool _isExpenseAudit(AuditLog log) {
