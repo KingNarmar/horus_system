@@ -25,11 +25,13 @@ class TripDetailsDialog extends StatelessWidget {
     final detailsTrip = state?.selectedTrip?.id == trip.id
         ? state!.selectedTrip!
         : trip;
+    final calculatedAmount = state?.selectedTrip?.id == detailsTrip.id
+        ? state?.selectedTripNetProfit
+        : null;
 
     final dialogWidth = (mediaSize.width - AppSpacing.xxl)
         .clamp(320.0, 820.0)
         .toDouble();
-
     final dialogHeight = (mediaSize.height - AppSpacing.xxl)
         .clamp(420.0, 760.0)
         .toDouble();
@@ -37,14 +39,24 @@ class TripDetailsDialog extends StatelessWidget {
     return Dialog(
       insetPadding: const EdgeInsets.all(AppSpacing.lg),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: dialogWidth,
-          maxHeight: dialogHeight,
-        ),
+        constraints: BoxConstraints(maxWidth: dialogWidth, maxHeight: dialogHeight),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _TripDetailsHeader(tripName: detailsTrip.displayName),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.tripDetailsHeaderTitle, style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(detailsTrip.displayName),
+                  ],
+                ),
+              ),
+            ),
             const Divider(height: 1),
             Flexible(
               child: SingleChildScrollView(
@@ -54,7 +66,10 @@ class TripDetailsDialog extends StatelessWidget {
                   children: [
                     TripDetailsSectionTitle(text: l10n.tripBasicInfo),
                     const SizedBox(height: AppSpacing.sm),
-                    TripBasicInfoSection(trip: detailsTrip),
+                    TripBasicInfoSection(
+                      trip: detailsTrip,
+                      calculatedAmount: calculatedAmount,
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                     TripDetailsSectionTitle(text: l10n.tripExpensesTitle),
                     const SizedBox(height: AppSpacing.sm),
@@ -88,62 +103,6 @@ class TripDetailsDialog extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _TripDetailsHeader extends StatelessWidget {
-  final String tripName;
-
-  const _TripDetailsHeader({required this.tripName});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.md,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.tripDetailsHeaderTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      tripName,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: l10n.tripCloseButton,
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.close),
-          ),
-        ],
       ),
     );
   }
