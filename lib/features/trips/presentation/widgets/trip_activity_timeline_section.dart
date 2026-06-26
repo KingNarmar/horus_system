@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -64,7 +63,7 @@ class TripActivityTimelineItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    l10n.tripAuditActionLabel(log.action.value),
+                    localizedTripAuditActionTitle(context, log),
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: AppSpacing.xs),
