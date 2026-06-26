@@ -114,6 +114,9 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripExpenseTypeLabel =>
       _isArabic ? 'نوع المصروف' : 'Expense type';
 
+  String get tripExpenseTypeRequired =>
+      _isArabic ? 'نوع المصروف مطلوب.' : 'Expense type is required.';
+
   String get tripExpenseAmountLabel => _isArabic ? 'المبلغ' : 'Amount';
 
   String get tripExpensePaidByLabel => _isArabic ? 'الدافع' : 'Paid by';
@@ -134,8 +137,8 @@ extension TripsLocalizationsX on AppLocalizations {
       : 'Amount must be greater than zero.';
 
   String get tripExpenseTypesUnavailable => _isArabic
-      ? 'أنواع المصروفات غير متاحة حاليًا، يمكنك كتابة الاسم يدويًا.'
-      : 'Expense types are unavailable. You can enter the name manually.';
+      ? 'أنواع المصروفات غير متاحة حاليًا.'
+      : 'Expense types are unavailable.';
 
   String get tripLoadingActivity =>
       _isArabic ? 'جاري تحميل النشاط...' : 'Loading activity...';
@@ -283,6 +286,24 @@ extension TripsLocalizationsX on AppLocalizations {
     };
   }
 
+  String tripExpenseTypeName(String name) {
+    final normalized = name.trim().toLowerCase().replaceAll(' ', '_');
+
+    return switch (normalized) {
+      'fuel' => _isArabic ? 'وقود' : 'Fuel',
+      'road_fees' => _isArabic ? 'رسوم طرق' : 'Road fees',
+      'weighbridge' => _isArabic ? 'ميزان' : 'Weighbridge',
+      'loading' => _isArabic ? 'تحميل' : 'Loading',
+      'unloading' => _isArabic ? 'تفريغ' : 'Unloading',
+      'fines' => _isArabic ? 'غرامات' : 'Fines',
+      'emergency_maintenance' =>
+        _isArabic ? 'صيانة طارئة' : 'Emergency maintenance',
+      'driver_advance' => _isArabic ? 'عهدة سائق' : 'Driver advance',
+      'other' => _isArabic ? 'أخرى' : 'Other',
+      _ => name,
+    };
+  }
+
   String tripStatusFilterLabel(TripStatusFilter filter) {
     return switch (filter) {
       TripStatusFilter.all => tripsStatusAllFilter,
@@ -396,6 +417,11 @@ extension TripsLocalizationsX on AppLocalizations {
 
     if (key == 'paid_by' && value is String) {
       return tripExpensePaidByValueLabel(TripExpensePaidByX.fromValue(value));
+    }
+
+    if ((key == 'expense_name' || key == 'expense_type_name') &&
+        value is String) {
+      return tripExpenseTypeName(value);
     }
 
     return value.toString();
