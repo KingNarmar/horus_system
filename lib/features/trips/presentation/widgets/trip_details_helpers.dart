@@ -71,6 +71,10 @@ String formatTripDateTime(DateTime? value, String emptyValue) {
   return '$year-$month-$day $hour:$minute';
 }
 
+String localizedTripAuditActionTitle(BuildContext context, AuditLog log) {
+  return _localizedAuditActionLabel(context.l10n, log);
+}
+
 String localizedTripAuditDescription(BuildContext context, AuditLog log) {
   final l10n = context.l10n;
   final actionLabel = _localizedAuditActionLabel(l10n, log);
