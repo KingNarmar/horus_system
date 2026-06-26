@@ -35,6 +35,7 @@ class TripsLoaded extends TripsState {
   final TripStatusFilter statusFilter;
   final Set<String> statusChangingTripIds;
   final TripEntity? selectedTrip;
+  final double? selectedTripNetProfit;
   final List<AuditLog> selectedTripActivity;
   final List<TripStatusHistory> selectedTripStatusHistory;
   final List<TripExpense> selectedTripExpenses;
@@ -65,6 +66,7 @@ class TripsLoaded extends TripsState {
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
     this.selectedTrip,
+    this.selectedTripNetProfit,
     this.selectedTripActivity = const <AuditLog>[],
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
     this.selectedTripExpenses = const <TripExpense>[],
@@ -126,6 +128,7 @@ class TripsLoaded extends TripsState {
     TripStatusFilter? statusFilter,
     Set<String>? statusChangingTripIds,
     Object? selectedTrip = _notSet,
+    Object? selectedTripNetProfit = _notSet,
     List<AuditLog>? selectedTripActivity,
     List<TripStatusHistory>? selectedTripStatusHistory,
     List<TripExpense>? selectedTripExpenses,
@@ -161,6 +164,9 @@ class TripsLoaded extends TripsState {
       selectedTrip: selectedTrip == _notSet
           ? this.selectedTrip
           : selectedTrip as TripEntity?,
+      selectedTripNetProfit: selectedTripNetProfit == _notSet
+          ? this.selectedTripNetProfit
+          : selectedTripNetProfit as double?,
       selectedTripActivity: selectedTripActivity ?? this.selectedTripActivity,
       selectedTripStatusHistory:
           selectedTripStatusHistory ?? this.selectedTripStatusHistory,
