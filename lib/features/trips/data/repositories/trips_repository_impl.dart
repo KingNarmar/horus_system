@@ -79,7 +79,6 @@ class TripsRepositoryImpl implements TripsRepository {
         oldStatus: null,
         newStatus: status,
         actorRole: actorRole,
-        notes: 'Trip created.',
       );
 
       final auditFailure = await _writeAudit(
