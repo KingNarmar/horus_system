@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../expenses/domain/entities/expense_type_option.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
@@ -9,16 +10,16 @@ import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
 
 const _manualExpenseTypePrefix = 'manual:';
-const _fallbackExpenseTypeNames = <String>[
-  'Fuel',
-  'Road fees',
-  'Weighbridge',
-  'Loading',
-  'Unloading',
-  'Fines',
-  'Emergency maintenance',
-  'Driver advance',
-  'Other',
+const _fallbackExpenseTypeKeys = <String>[
+  'fuel',
+  'road_fees',
+  'weighbridge',
+  'loading',
+  'unloading',
+  'fines',
+  'emergency_maintenance',
+  'driver_advance',
+  'other',
 ];
 
 class TripExpenseFormDialog extends StatefulWidget {
@@ -82,7 +83,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final expenseTypeItems = _expenseTypeItems();
+    final expenseTypeItems = _expenseTypeItems(l10n);
 
     return AlertDialog(
       title: Text(widget.title),
@@ -117,7 +118,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                   ],
                   onChanged: (value) {
                     setState(() => _selectedExpenseTypeValue = value);
-                    final selected = _findTypeChoice(value);
+                    final selected = _findTypeChoice(value, l10n);
                     if (selected != null && _nameController.text.trim().isEmpty) {
                       _nameController.text = selected.name;
                     }
@@ -223,7 +224,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     Navigator.of(context).pop();
   }
 
-  List<_ExpenseTypeChoice> _expenseTypeItems() {
+  List<_ExpenseTypeChoice> _expenseTypeItems(AppLocalizations l10n) {
     if (widget.expenseTypes.isNotEmpty) {
       final items = widget.expenseTypes.map((type) {
         return _ExpenseTypeChoice(value: type.id, name: type.name);
@@ -240,14 +241,17 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
       return items;
     }
 
-    return _fallbackExpenseTypeNames.map((name) {
-      return _ExpenseTypeChoice(value: _manualValue(name), name: name);
+    return _fallbackExpenseTypeKeys.map((key) {
+      return _ExpenseTypeChoice(
+        value: _manualValue(key),
+        name: _localizedFallbackExpenseTypeName(l10n, key),
+      );
     }).toList();
   }
 
-  _ExpenseTypeChoice? _findTypeChoice(String? value) {
+  _ExpenseTypeChoice? _findTypeChoice(String? value, AppLocalizations l10n) {
     if (value == null) return null;
-    for (final item in _expenseTypeItems()) {
+    for (final item in _expenseTypeItems(l10n)) {
       if (item.value == value) return item;
     }
     return null;
@@ -281,7 +285,25 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   }
 }
 
-String _manualValue(String name) => '$_manualExpenseTypePrefix$name';
+String _manualValue(String key) => '$_manualExpenseTypePrefix$key';
+
+String _localizedFallbackExpenseTypeName(AppLocalizations l10n, String key) {
+  final isArabic = l10n.localeName.startsWith('ar');
+
+  return switch (key) {
+    'fuel' => isArabic ? 'وقود' : 'Fuel',
+    'road_fees' => isArabic ? 'رسوم طرق' : 'Road fees',
+    'weighbridge' => isArabic ? 'ميزان' : 'Weighbridge',
+    'loading' => isArabic ? 'تحميل' : 'Loading',
+    'unloading' => isArabic ? 'تفريغ' : 'Unloading',
+    'fines' => isArabic ? 'غرامات' : 'Fines',
+    'emergency_maintenance' =>
+      isArabic ? 'صيانة طارئة' : 'Emergency maintenance',
+    'driver_advance' => isArabic ? 'عهدة سائق' : 'Driver advance',
+    'other' => isArabic ? 'أخرى' : 'Other',
+    _ => key,
+  };
+}
 
 class _ExpenseTypeChoice {
   final String value;
