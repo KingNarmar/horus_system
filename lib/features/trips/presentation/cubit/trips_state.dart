@@ -3,6 +3,8 @@ import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../expenses/domain/entities/expense_type_option.dart';
+import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status_filter.dart';
@@ -28,18 +30,26 @@ class TripsLoaded extends TripsState {
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
+  final bool canManageTripExpenses;
   final String searchQuery;
   final TripStatusFilter statusFilter;
   final Set<String> statusChangingTripIds;
   final TripEntity? selectedTrip;
   final List<AuditLog> selectedTripActivity;
   final List<TripStatusHistory> selectedTripStatusHistory;
+  final List<TripExpense> selectedTripExpenses;
+  final List<ExpenseTypeOption> expenseTypes;
   final bool isDetailsLoading;
   final bool isActivityLoading;
   final bool isStatusHistoryLoading;
+  final bool isExpensesLoading;
+  final bool isExpenseTypesLoading;
+  final bool isTripExpenseSaving;
   final Failure? detailsFailure;
   final Failure? activityFailure;
   final Failure? statusHistoryFailure;
+  final Failure? expensesFailure;
+  final Failure? expenseTypesFailure;
   final TripFormLookups? formLookups;
   final bool isFormLookupsLoading;
   final Failure? formLookupsFailure;
@@ -50,18 +60,26 @@ class TripsLoaded extends TripsState {
     required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
+    required this.canManageTripExpenses,
     this.searchQuery = '',
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
     this.selectedTrip,
     this.selectedTripActivity = const <AuditLog>[],
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
+    this.selectedTripExpenses = const <TripExpense>[],
+    this.expenseTypes = const <ExpenseTypeOption>[],
     this.isDetailsLoading = false,
     this.isActivityLoading = false,
     this.isStatusHistoryLoading = false,
+    this.isExpensesLoading = false,
+    this.isExpenseTypesLoading = false,
+    this.isTripExpenseSaving = false,
     this.detailsFailure,
     this.activityFailure,
     this.statusHistoryFailure,
+    this.expensesFailure,
+    this.expenseTypesFailure,
     this.formLookups,
     this.isFormLookupsLoading = false,
     this.formLookupsFailure,
@@ -103,18 +121,26 @@ class TripsLoaded extends TripsState {
     bool? canManageTrips,
     bool? canUpdateTripStatus,
     bool? canViewTripFinancials,
+    bool? canManageTripExpenses,
     String? searchQuery,
     TripStatusFilter? statusFilter,
     Set<String>? statusChangingTripIds,
     Object? selectedTrip = _notSet,
     List<AuditLog>? selectedTripActivity,
     List<TripStatusHistory>? selectedTripStatusHistory,
+    List<TripExpense>? selectedTripExpenses,
+    List<ExpenseTypeOption>? expenseTypes,
     bool? isDetailsLoading,
     bool? isActivityLoading,
     bool? isStatusHistoryLoading,
+    bool? isExpensesLoading,
+    bool? isExpenseTypesLoading,
+    bool? isTripExpenseSaving,
     Object? detailsFailure = _notSet,
     Object? activityFailure = _notSet,
     Object? statusHistoryFailure = _notSet,
+    Object? expensesFailure = _notSet,
+    Object? expenseTypesFailure = _notSet,
     Object? formLookups = _notSet,
     bool? isFormLookupsLoading,
     Object? formLookupsFailure = _notSet,
@@ -126,6 +152,8 @@ class TripsLoaded extends TripsState {
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
       canViewTripFinancials:
           canViewTripFinancials ?? this.canViewTripFinancials,
+      canManageTripExpenses:
+          canManageTripExpenses ?? this.canManageTripExpenses,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
       statusChangingTripIds:
@@ -136,10 +164,16 @@ class TripsLoaded extends TripsState {
       selectedTripActivity: selectedTripActivity ?? this.selectedTripActivity,
       selectedTripStatusHistory:
           selectedTripStatusHistory ?? this.selectedTripStatusHistory,
+      selectedTripExpenses: selectedTripExpenses ?? this.selectedTripExpenses,
+      expenseTypes: expenseTypes ?? this.expenseTypes,
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       isStatusHistoryLoading:
           isStatusHistoryLoading ?? this.isStatusHistoryLoading,
+      isExpensesLoading: isExpensesLoading ?? this.isExpensesLoading,
+      isExpenseTypesLoading:
+          isExpenseTypesLoading ?? this.isExpenseTypesLoading,
+      isTripExpenseSaving: isTripExpenseSaving ?? this.isTripExpenseSaving,
       detailsFailure: detailsFailure == _notSet
           ? this.detailsFailure
           : detailsFailure as Failure?,
@@ -149,6 +183,12 @@ class TripsLoaded extends TripsState {
       statusHistoryFailure: statusHistoryFailure == _notSet
           ? this.statusHistoryFailure
           : statusHistoryFailure as Failure?,
+      expensesFailure: expensesFailure == _notSet
+          ? this.expensesFailure
+          : expensesFailure as Failure?,
+      expenseTypesFailure: expenseTypesFailure == _notSet
+          ? this.expenseTypesFailure
+          : expenseTypesFailure as Failure?,
       formLookups: formLookups == _notSet
           ? this.formLookups
           : formLookups as TripFormLookups?,
