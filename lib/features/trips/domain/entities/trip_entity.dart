@@ -57,10 +57,6 @@ class TripEntity {
 
   bool get isVehicleAssignmentBlocking => status.blocksVehicleAssignment;
 
-  double get netProfit {
-    return (freightPrice ?? 0) - (totalExpenses ?? 0);
-  }
-
   String get displayName {
     final orderNumber = _textOrNull(loadingOrderNumber);
     if (orderNumber != null) return orderNumber;
@@ -78,7 +74,7 @@ class TripEntity {
     if (customer != null) return customer;
     if (route != null) return route;
 
-    return 'Trip';
+    return id;
   }
 }
 
