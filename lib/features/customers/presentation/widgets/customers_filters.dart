@@ -28,7 +28,9 @@ class CustomersFilters extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppSizes.searchFieldMaxWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppSizes.searchFieldMaxWidth,
+          ),
           child: TextField(
             onChanged: onSearchChanged,
             decoration: InputDecoration(
@@ -40,9 +42,18 @@ class CustomersFilters extends StatelessWidget {
         ),
         SegmentedButton<CustomerStatusFilter>(
           segments: [
-            ButtonSegment(value: CustomerStatusFilter.all, label: Text(l10n.customersStatusAllFilter)),
-            ButtonSegment(value: CustomerStatusFilter.active, label: Text(l10n.customersStatusActiveFilter)),
-            ButtonSegment(value: CustomerStatusFilter.inactive, label: Text(l10n.customersStatusInactiveFilter)),
+            ButtonSegment(
+              value: CustomerStatusFilter.all,
+              label: Text(l10n.customersStatusAllFilter),
+            ),
+            ButtonSegment(
+              value: CustomerStatusFilter.active,
+              label: Text(l10n.customersStatusActiveFilter),
+            ),
+            ButtonSegment(
+              value: CustomerStatusFilter.inactive,
+              label: Text(l10n.customersStatusInactiveFilter),
+            ),
           ],
           selected: {statusFilter},
           onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
