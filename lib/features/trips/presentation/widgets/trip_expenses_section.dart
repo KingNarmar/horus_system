@@ -34,7 +34,11 @@ class TripExpensesSection extends StatelessWidget {
 
     return TripDetailsCard(
       children: [
-        _TripExpensesHeader(trip: trip, state: loaded),
+        _TripExpensesHeader(
+          trip: trip,
+          state: loaded,
+          onAdd: () => _showExpenseForm(context, trip: trip, state: loaded),
+        ),
         const SizedBox(height: AppSpacing.md),
         if (loaded.selectedTripExpenses.isEmpty)
           Text(l10n.tripNoExpensesFound)
@@ -97,8 +101,13 @@ class TripExpensesSection extends StatelessWidget {
 class _TripExpensesHeader extends StatelessWidget {
   final TripEntity trip;
   final TripsLoaded state;
+  final VoidCallback onAdd;
 
-  const _TripExpensesHeader({required this.trip, required this.state});
+  const _TripExpensesHeader({
+    required this.trip,
+    required this.state,
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +136,7 @@ class _TripExpensesHeader extends StatelessWidget {
         ),
         if (state.canManageTripExpenses)
           FilledButton.icon(
-            onPressed: state.isTripExpenseSaving
-                ? null
-                : () => context.findAncestorWidgetOfExactType<TripExpensesSection>(),
+            onPressed: state.isTripExpenseSaving ? null : onAdd,
             icon: const Icon(AppIcons.add),
             label: Text(l10n.tripAddExpenseButton),
           ),
