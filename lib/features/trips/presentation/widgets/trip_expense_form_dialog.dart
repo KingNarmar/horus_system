@@ -8,6 +8,19 @@ import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
 
+const _manualExpenseTypePrefix = 'manual:';
+const _fallbackExpenseTypeNames = <String>[
+  'Fuel',
+  'Road fees',
+  'Weighbridge',
+  'Loading',
+  'Unloading',
+  'Fines',
+  'Emergency maintenance',
+  'Driver advance',
+  'Other',
+];
+
 class TripExpenseFormDialog extends StatefulWidget {
   final String title;
   final TripExpense? expense;
@@ -35,14 +48,17 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   late final TextEditingController _dateController;
   late final TextEditingController _notesController;
   late TripExpensePaidBy _paidBy;
-  String? _expenseTypeId;
+  String? _selectedExpenseTypeValue;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     final expense = widget.expense;
-    _expenseTypeId = expense?.expenseTypeId;
+    _selectedExpenseTypeValue = expense?.expenseTypeId;
+    if (_selectedExpenseTypeValue == null && expense?.expenseTypeName != null) {
+      _selectedExpenseTypeValue = _manualValue(expense!.expenseTypeName!);
+    }
     _paidBy = expense?.paidBy ?? TripExpensePaidBy.company;
     _nameController = TextEditingController(text: expense?.expenseName ?? '');
     _amountController = TextEditingController(
@@ -66,6 +82,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final expenseTypeItems = _expenseTypeItems();
 
     return AlertDialog(
       title: Text(widget.title),
@@ -83,7 +100,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 DropdownButtonFormField<String?>(
-                  initialValue: _expenseTypeId,
+                  value: _selectedExpenseTypeValue,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
@@ -92,17 +109,16 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                       value: null,
                       child: Text(l10n.tripOptionalNone),
                     ),
-                    for (final type in widget.expenseTypes)
+                    for (final item in expenseTypeItems)
                       DropdownMenuItem<String?>(
-                        value: type.id,
-                        child: Text(type.name),
+                        value: item.value,
+                        child: Text(item.name),
                       ),
                   ],
                   onChanged: (value) {
-                    setState(() => _expenseTypeId = value);
-                    final selected = _findType(value);
-                    if (selected != null &&
-                        _nameController.text.trim().isEmpty) {
+                    setState(() => _selectedExpenseTypeValue = value);
+                    final selected = _findTypeChoice(value);
+                    if (selected != null && _nameController.text.trim().isEmpty) {
                       _nameController.text = selected.name;
                     }
                   },
@@ -135,7 +151,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<TripExpensePaidBy>(
-                  initialValue: _paidBy,
+                  value: _paidBy,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpensePaidByLabel,
                   ),
@@ -193,7 +209,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     setState(() => _isSaving = true);
     await widget.onSubmit(
       TripExpenseFormData(
-        expenseTypeId: _expenseTypeId,
+        expenseTypeId: _selectedExpenseTypeId(),
         expenseName: _nameController.text.trim(),
         amount: amount,
         paidBy: _paidBy,
@@ -207,12 +223,32 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     Navigator.of(context).pop();
   }
 
-  ExpenseTypeOption? _findType(String? id) {
-    if (id == null) return null;
-    for (final type in widget.expenseTypes) {
-      if (type.id == id) return type;
+  List<_ExpenseTypeChoice> _expenseTypeItems() {
+    if (widget.expenseTypes.isNotEmpty) {
+      return widget.expenseTypes.map((type) {
+        return _ExpenseTypeChoice(value: type.id, name: type.name);
+      }).toList();
+    }
+
+    return _fallbackExpenseTypeNames.map((name) {
+      return _ExpenseTypeChoice(value: _manualValue(name), name: name);
+    }).toList();
+  }
+
+  _ExpenseTypeChoice? _findTypeChoice(String? value) {
+    if (value == null) return null;
+    for (final item in _expenseTypeItems()) {
+      if (item.value == value) return item;
     }
     return null;
+  }
+
+  String? _selectedExpenseTypeId() {
+    final value = _selectedExpenseTypeValue;
+    if (value == null || value.startsWith(_manualExpenseTypePrefix)) {
+      return null;
+    }
+    return value;
   }
 
   DateTime? _parseDate(String? value) {
@@ -226,6 +262,15 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     final day = value.day.toString().padLeft(2, '0');
     return '${value.year}-$month-$day';
   }
+}
+
+String _manualValue(String name) => '$_manualExpenseTypePrefix$name';
+
+class _ExpenseTypeChoice {
+  final String value;
+  final String name;
+
+  const _ExpenseTypeChoice({required this.value, required this.name});
 }
 
 class TripExpenseFormData {
