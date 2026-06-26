@@ -32,6 +32,7 @@ abstract final class TripsDependencies {
     );
     final expensesRepository = TripExpensesRepositoryImpl(
       remoteDataSource: expensesRemoteDataSource,
+      createAuditLogUseCase: createAuditLogUseCase,
     );
 
     return TripsCubit(
