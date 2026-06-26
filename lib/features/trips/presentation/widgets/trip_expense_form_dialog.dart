@@ -83,7 +83,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 DropdownButtonFormField<String?>(
-                  value: _expenseTypeId,
+                  initialValue: _expenseTypeId,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
@@ -101,7 +101,8 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                   onChanged: (value) {
                     setState(() => _expenseTypeId = value);
                     final selected = _findType(value);
-                    if (selected != null && _nameController.text.trim().isEmpty) {
+                    if (selected != null &&
+                        _nameController.text.trim().isEmpty) {
                       _nameController.text = selected.name;
                     }
                   },
@@ -134,7 +135,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<TripExpensePaidBy>(
-                  value: _paidBy,
+                  initialValue: _paidBy,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpensePaidByLabel,
                   ),
