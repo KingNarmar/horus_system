@@ -69,8 +69,7 @@ extension TripExpenseWriteDataMapper on TripExpenseWriteData {
 }
 
 String _dateOnly(DateTime value) {
-  final utc = value.toUtc();
-  final month = utc.month.toString().padLeft(2, '0');
-  final day = utc.day.toString().padLeft(2, '0');
-  return '${utc.year}-$month-$day';
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  return '${value.year}-$month-$day';
 }
