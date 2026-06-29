@@ -54,6 +54,7 @@ extension DriversLocalizationsX on AppLocalizations {
       'updated' => _isArabic ? 'تم التحديث' : 'Updated',
       'deactivated' => _isArabic ? 'تم الإيقاف' : 'Deactivated',
       'reactivated' => _isArabic ? 'تمت إعادة التفعيل' : 'Reactivated',
+      'driver_finance_added' => _isArabic ? 'تم تسجيل حركة مالية' : 'Driver finance movement recorded',
       _ => action,
     };
   }
