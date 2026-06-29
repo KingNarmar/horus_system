@@ -1,5 +1,3 @@
-import 'package:horus_system/features/company/domain/entities/company_role.dart';
-
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -90,7 +88,10 @@ class GetDriverMovementsUseCase
   Future<Result<List<DriverFinancialMovement>>> call(
     GetDriverMovementsParams params,
   ) {
-    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    final driverId = _validViewDriverId(
+      params.currentCompanyContext,
+      params.driverId,
+    );
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -112,7 +113,10 @@ class GetDriverTripOptionsUseCase
   Future<Result<List<DriverFinanceTripOption>>> call(
     GetDriverTripOptionsParams params,
   ) {
-    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    final driverId = _validViewDriverId(
+      params.currentCompanyContext,
+      params.driverId,
+    );
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -228,7 +232,10 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   );
 }
 
-Result<String> _validViewDriverId(CurrentCompanyContext context, String driverId) {
+Result<String> _validViewDriverId(
+  CurrentCompanyContext context,
+  String driverId,
+) {
   if (!DriverFinancePermissionPolicy.canViewDriverFinance(context.role)) {
     return const FailureResult<String>(
       PermissionFailure(
