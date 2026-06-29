@@ -78,20 +78,14 @@ class CalculateDriverBalanceParams {
   });
 }
 
-class GetDriverMovementsUseCase
-    implements UseCase<List<DriverFinancialMovement>, GetDriverMovementsParams> {
+class GetDriverMovementsUseCase implements UseCase<List<DriverFinancialMovement>, GetDriverMovementsParams> {
   final DriverFinanceRepository _repository;
 
   const GetDriverMovementsUseCase(this._repository);
 
   @override
-  Future<Result<List<DriverFinancialMovement>>> call(
-    GetDriverMovementsParams params,
-  ) {
-    final driverId = _validViewDriverId(
-      params.currentCompanyContext,
-      params.driverId,
-    );
+  Future<Result<List<DriverFinancialMovement>>> call(GetDriverMovementsParams params) {
+    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -103,20 +97,14 @@ class GetDriverMovementsUseCase
   }
 }
 
-class GetDriverTripOptionsUseCase
-    implements UseCase<List<DriverFinanceTripOption>, GetDriverTripOptionsParams> {
+class GetDriverTripOptionsUseCase implements UseCase<List<DriverFinanceTripOption>, GetDriverTripOptionsParams> {
   final DriverFinanceRepository _repository;
 
   const GetDriverTripOptionsUseCase(this._repository);
 
   @override
-  Future<Result<List<DriverFinanceTripOption>>> call(
-    GetDriverTripOptionsParams params,
-  ) {
-    final driverId = _validViewDriverId(
-      params.currentCompanyContext,
-      params.driverId,
-    );
+  Future<Result<List<DriverFinanceTripOption>>> call(GetDriverTripOptionsParams params) {
+    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -128,8 +116,7 @@ class GetDriverTripOptionsUseCase
   }
 }
 
-class AddDriverAdvanceUseCase
-    implements UseCase<DriverFinancialMovement, AddDriverAdvanceParams> {
+class AddDriverAdvanceUseCase implements UseCase<DriverFinancialMovement, AddDriverAdvanceParams> {
   final DriverFinanceRepository _repository;
 
   const AddDriverAdvanceUseCase(this._repository);
@@ -149,8 +136,7 @@ class AddDriverAdvanceUseCase
   }
 }
 
-class AddDriverDeductionUseCase
-    implements UseCase<DriverFinancialMovement, AddDriverDeductionParams> {
+class AddDriverDeductionUseCase implements UseCase<DriverFinancialMovement, AddDriverDeductionParams> {
   final DriverFinanceRepository _repository;
 
   const AddDriverDeductionUseCase(this._repository);
@@ -170,8 +156,7 @@ class AddDriverDeductionUseCase
   }
 }
 
-class CalculateDriverBalanceUseCase
-    implements UseCase<DriverBalance, CalculateDriverBalanceParams> {
+class CalculateDriverBalanceUseCase implements UseCase<DriverBalance, CalculateDriverBalanceParams> {
   const CalculateDriverBalanceUseCase();
 
   @override
@@ -219,7 +204,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   if (failure != null) return Future.value(FailureResult(failure));
 
   return repository.addDriverMovement(
-    actorRole: context.role.value,
+    actorRole: context.role.name,
     data: DriverFinancialMovementWriteData(
       companyId: context.companyId,
       driverId: driverId.trim(),
@@ -232,10 +217,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   );
 }
 
-Result<String> _validViewDriverId(
-  CurrentCompanyContext context,
-  String driverId,
-) {
+Result<String> _validViewDriverId(CurrentCompanyContext context, String driverId) {
   if (!DriverFinancePermissionPolicy.canViewDriverFinance(context.role)) {
     return const FailureResult<String>(
       PermissionFailure(
