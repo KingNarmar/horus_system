@@ -4,7 +4,6 @@ enum AuditAction {
   deactivated,
   reactivated,
   statusChanged,
-  driverFinanceAdded,
 }
 
 extension AuditActionX on AuditAction {
@@ -15,7 +14,6 @@ extension AuditActionX on AuditAction {
       AuditAction.deactivated => 'deactivated',
       AuditAction.reactivated => 'reactivated',
       AuditAction.statusChanged => 'status_changed',
-      AuditAction.driverFinanceAdded => 'driver_finance_added',
     };
   }
 }
