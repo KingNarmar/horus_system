@@ -11,6 +11,7 @@ import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement.dart';
+import '../../domain/entities/driver_financial_movement_type.dart';
 import '../../domain/entities/driver_financial_movement_write_data.dart';
 import '../../domain/repositories/driver_finance_repository.dart';
 import '../datasources/driver_finance_remote_data_source.dart';
