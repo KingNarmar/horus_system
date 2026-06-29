@@ -76,7 +76,7 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
           entityType: AuditEntityType.driver,
           entityId: driverId,
           entityDisplayName: 'Driver financial movement',
-          action: AuditAction.driverFinanceAdded,
+          action: AuditAction.created,
           description: _auditDescription(movement),
           newValues: movement.toAuditValues(),
           metadata: {
