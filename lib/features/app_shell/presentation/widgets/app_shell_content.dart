@@ -13,6 +13,9 @@ import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
+import '../../../company_expenses/di/company_expenses_dependencies.dart';
+import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
+import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
@@ -73,6 +76,10 @@ class AppShellContent extends StatelessWidget {
       AppShellModule.trips => BlocProvider<TripsCubit>(
         create: (_) => TripsDependencies.createTripsCubit(),
         child: TripsPage(currentCompanyContext: contextData),
+      ),
+      AppShellModule.expenses => BlocProvider<CompanyExpensesCubit>(
+        create: (_) => CompanyExpensesDependencies.createCubit(),
+        child: CompanyExpensesPage(currentCompanyContext: contextData),
       ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
