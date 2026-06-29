@@ -21,7 +21,7 @@ create table if not exists public.driver_financial_movements (
   constraint driver_financial_movements_trip_company_fk
     foreign key (company_id, trip_id)
     references public.trips(company_id, id)
-    on delete set null,
+    on delete set null (trip_id),
   constraint driver_financial_movements_trip_link_check
     check (trip_id is null or movement_type = 'deduction')
 );
