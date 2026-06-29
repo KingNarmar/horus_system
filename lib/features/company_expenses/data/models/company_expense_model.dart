@@ -36,4 +36,15 @@ class CompanyExpenseModel {
     this.createdAt,
     this.updatedAt,
   });
+
+  factory CompanyExpenseModel.fromMap(Map<String, dynamic> map) {
+    return CompanyExpenseModel(
+      id: map['id'] as String,
+      companyId: map['company_id'] as String,
+      categoryId: map['category_id'] as String,
+      amount: map['amount'] is num ? (map['amount'] as num).toDouble() : 0,
+      expenseDate: DateTime.tryParse(map['expense_date'].toString()) ?? DateTime.now(),
+      isVoided: map['is_voided'] as bool? ?? false,
+    );
+  }
 }
