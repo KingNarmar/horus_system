@@ -125,6 +125,14 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'لا يوجد صلاحية لإدارة الحركات المالية للسائق.'
             : 'Driver finance management is not allowed.',
+      FailureCodes.permissionCompanyExpensesView =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لعرض مصروفات الشركة.'
+            : 'Company expenses access is not allowed.',
+      FailureCodes.permissionCompanyExpensesManagement =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لإدارة مصروفات الشركة.'
+            : 'Company expenses management is not allowed.',
       FailureCodes.validationTripIdRequired =>
         _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
       FailureCodes.validationTripExpenseIdRequired =>
@@ -143,6 +151,18 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'مبلغ حركة السائق لازم يكون أكبر من صفر.'
             : 'Driver financial movement amount must be greater than zero.',
+      FailureCodes.validationCompanyExpenseIdRequired =>
+        _isArabicError
+            ? 'معرّف مصروف الشركة مطلوب.'
+            : 'Company expense id is required.',
+      FailureCodes.validationCompanyExpenseCategoryRequired =>
+        _isArabicError
+            ? 'تصنيف مصروف الشركة مطلوب.'
+            : 'Company expense category is required.',
+      FailureCodes.validationCompanyExpenseAmountPositive =>
+        _isArabicError
+            ? 'مبلغ مصروف الشركة لازم يكون أكبر من صفر.'
+            : 'Company expense amount must be greater than zero.',
       FailureCodes.validationCompanyNameRequired =>
         _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
       FailureCodes.serverError =>
@@ -172,4 +192,90 @@ extension CustomerFilterLocalizationsX on AppLocalizations {
   String get noCustomersMatchFilters => _isArabic
       ? 'لا يوجد عملاء مطابقون للبحث أو فلتر الحالة الحالي.'
       : 'No customers match the current search or status filter.';
+}
+
+extension CompanyExpensesLocalizationsX on AppLocalizations {
+  bool get _isArabicCompanyExpenses => localeName.startsWith('ar');
+
+  String get companyExpensesTitle =>
+      _isArabicCompanyExpenses ? 'مصروفات الشركة' : 'Company expenses';
+
+  String get addCompanyExpenseButton =>
+      _isArabicCompanyExpenses ? 'إضافة مصروف' : 'Add expense';
+
+  String get addCompanyExpenseTitle =>
+      _isArabicCompanyExpenses ? 'إضافة مصروف شركة' : 'Add company expense';
+
+  String get editCompanyExpenseTitle =>
+      _isArabicCompanyExpenses ? 'تعديل مصروف شركة' : 'Edit company expense';
+
+  String get companyExpenseCategoryLabel =>
+      _isArabicCompanyExpenses ? 'التصنيف' : 'Category';
+
+  String get companyExpenseCategoryRequired =>
+      _isArabicCompanyExpenses ? 'التصنيف مطلوب.' : 'Category is required.';
+
+  String get companyExpenseAmountLabel =>
+      _isArabicCompanyExpenses ? 'المبلغ' : 'Amount';
+
+  String get companyExpenseDateLabel =>
+      _isArabicCompanyExpenses ? 'التاريخ' : 'Date';
+
+  String get companyExpenseReferenceLabel =>
+      _isArabicCompanyExpenses ? 'رقم المرجع' : 'Reference number';
+
+  String get companyExpenseNotesLabel =>
+      _isArabicCompanyExpenses ? 'ملاحظات' : 'Notes';
+
+  String get companyExpenseAmountInvalid => _isArabicCompanyExpenses
+      ? 'أدخل مبلغ صحيح أكبر من صفر.'
+      : 'Enter a valid amount greater than zero.';
+
+  String get searchCompanyExpensesHint => _isArabicCompanyExpenses
+      ? 'ابحث في التصنيف أو المبلغ أو المرجع أو الملاحظات'
+      : 'Search category, amount, reference, or notes';
+
+  String get includeVoidedCompanyExpenses =>
+      _isArabicCompanyExpenses ? 'إظهار الملغاة' : 'Show voided';
+
+  String get noCompanyExpensesFound =>
+      _isArabicCompanyExpenses ? 'لا توجد مصروفات شركة.' : 'No company expenses found.';
+
+  String get noCompanyExpensesMatchFilters => _isArabicCompanyExpenses
+      ? 'لا توجد مصروفات مطابقة للبحث الحالي.'
+      : 'No company expenses match the current search.';
+
+  String get companyExpenseVoidedStatus =>
+      _isArabicCompanyExpenses ? 'ملغى' : 'Voided';
+
+  String get companyExpenseActiveStatus =>
+      _isArabicCompanyExpenses ? 'نشط' : 'Active';
+
+  String get voidCompanyExpenseButton =>
+      _isArabicCompanyExpenses ? 'إلغاء' : 'Void';
+
+  String get voidCompanyExpenseTitle =>
+      _isArabicCompanyExpenses ? 'إلغاء مصروف الشركة' : 'Void company expense';
+
+  String get voidCompanyExpenseMessage => _isArabicCompanyExpenses
+      ? 'هل تريد إلغاء هذا المصروف؟ سيتم الاحتفاظ به في السجل كملغى.'
+      : 'Do you want to void this expense? It will remain in the history as voided.';
+
+  String get voidReasonLabel =>
+      _isArabicCompanyExpenses ? 'سبب الإلغاء' : 'Void reason';
+
+  String get confirmButton => _isArabicCompanyExpenses ? 'تأكيد' : 'Confirm';
+
+  String companyExpenseCategoryLine(String categoryName) =>
+      _isArabicCompanyExpenses ? 'التصنيف: $categoryName' : 'Category: $categoryName';
+
+  String companyExpenseAmountLine(String amount) =>
+      _isArabicCompanyExpenses ? 'المبلغ: $amount' : 'Amount: $amount';
+
+  String companyExpenseDateLine(String date) =>
+      _isArabicCompanyExpenses ? 'التاريخ: $date' : 'Date: $date';
+
+  String companyExpenseReferenceLine(String reference) => _isArabicCompanyExpenses
+      ? 'المرجع: $reference'
+      : 'Reference: $reference';
 }
