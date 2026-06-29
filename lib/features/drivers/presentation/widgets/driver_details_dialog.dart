@@ -8,6 +8,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
+import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
+import '../../../driver_finance/presentation/widgets/driver_finance_details_section.dart';
 import '../../domain/entities/driver.dart';
 import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
@@ -15,17 +17,29 @@ import '../localization/drivers_localizations_x.dart';
 class DriverDetailsDialog extends StatelessWidget {
   final Driver driver;
   final DriversLoaded? state;
+  final VoidCallback? onAddAdvance;
+  final VoidCallback? onAddDeduction;
 
-  const DriverDetailsDialog({required this.driver, required this.state, super.key});
+  const DriverDetailsDialog({
+    required this.driver,
+    required this.state,
+    this.onAddAdvance,
+    this.onAddDeduction,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final activity = state?.selectedDriver?.id == driver.id
+    final isSelectedDriver = state?.selectedDriver?.id == driver.id;
+    final activity = isSelectedDriver
         ? state!.selectedDriverActivity
         : const <AuditLog>[];
-    final isLoading = state?.selectedDriver?.id == driver.id && (state?.isActivityLoading ?? false);
-    final failure = state?.selectedDriver?.id == driver.id ? state?.activityFailure : null;
+    final isLoading = isSelectedDriver && (state?.isActivityLoading ?? false);
+    final failure = isSelectedDriver ? state?.activityFailure : null;
+    final movements = isSelectedDriver
+        ? state!.selectedDriverFinancialMovements
+        : const <DriverFinancialMovement>[];
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
@@ -61,6 +75,17 @@ class DriverDetailsDialog extends StatelessWidget {
                   _DetailRow(label: l10n.notesLabel, value: _optional(driver.notes, l10n)),
                   _DetailRow(label: l10n.statusHeader, value: l10n.driverStatusLabel(driver.status)),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DriverFinanceDetailsSection(
+                movements: movements,
+                balance: isSelectedDriver ? state?.selectedDriverBalance : null,
+                canManage: state?.canManageDriverFinance ?? false,
+                isLoading: isSelectedDriver && (state?.isFinancialMovementsLoading ?? false),
+                isSaving: isSelectedDriver && (state?.isSavingFinancialMovement ?? false),
+                failure: isSelectedDriver ? state?.financialMovementsFailure : null,
+                onAddAdvance: onAddAdvance,
+                onAddDeduction: onAddDeduction,
               ),
               const SizedBox(height: AppSpacing.md),
               _DetailsSection(
