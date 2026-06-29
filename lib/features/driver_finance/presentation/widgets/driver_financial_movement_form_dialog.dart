@@ -6,7 +6,6 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
-import '../localization/driver_finance_localizations_x.dart';
 
 typedef DriverFinancialMovementSubmit = Future<void> Function({
   required double amount,
