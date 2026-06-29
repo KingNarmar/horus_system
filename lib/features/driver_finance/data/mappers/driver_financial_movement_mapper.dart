@@ -1,3 +1,5 @@
+import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_type.dart';
+
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/driver_financial_movement.dart';
