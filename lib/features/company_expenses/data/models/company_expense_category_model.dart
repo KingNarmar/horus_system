@@ -14,4 +14,13 @@ class CompanyExpenseCategoryModel {
     this.createdAt,
     this.updatedAt,
   });
+
+  factory CompanyExpenseCategoryModel.fromMap(Map<String, dynamic> map) {
+    return CompanyExpenseCategoryModel(
+      id: map['id'] as String,
+      companyId: map['company_id'] as String,
+      name: map['name'] as String,
+      isActive: map['is_active'] as bool? ?? true,
+    );
+  }
 }
