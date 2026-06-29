@@ -1,0 +1,4 @@
+enum DriverFinancialMovementType {
+  advance,
+  deduction,
+}
