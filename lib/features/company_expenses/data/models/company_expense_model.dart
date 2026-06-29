@@ -51,6 +51,9 @@ class CompanyExpenseModel {
       referenceNumber: map['reference_number'] as String?,
       notes: map['notes'] as String?,
       isVoided: map['is_voided'] as bool? ?? false,
+      voidedAt: map['voided_at'] == null ? null : DateTime.tryParse(map['voided_at'].toString()),
+      voidedBy: map['voided_by'] as String?,
+      voidReason: map['void_reason'] as String?,
     );
   }
 }
