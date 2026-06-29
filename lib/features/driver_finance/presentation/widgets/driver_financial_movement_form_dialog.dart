@@ -32,7 +32,6 @@ class DriverFinancialMovementFormDialog extends StatefulWidget {
 class _DriverFinancialMovementFormDialogState
     extends State<DriverFinancialMovementFormDialog> {
   final _amountController = TextEditingController();
-  final _tripIdController = TextEditingController();
   final _notesController = TextEditingController();
   DateTime _movementDate = DateTime.now();
   bool _isSubmitting = false;
@@ -40,7 +39,6 @@ class _DriverFinancialMovementFormDialogState
   @override
   void dispose() {
     _amountController.dispose();
-    _tripIdController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -91,17 +89,11 @@ class _DriverFinancialMovementFormDialogState
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
               if (widget.movementType.isDeduction) ...[
-                TextField(
-                  controller: _tripIdController,
-                  decoration: InputDecoration(
-                    labelText: l10n.driverMovementTripIdLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
                 const SizedBox(height: AppSpacing.md),
+                Text(l10n.driverMovementTripPickerComingSoon),
               ],
+              const SizedBox(height: AppSpacing.md),
               OutlinedButton.icon(
                 onPressed: _isSubmitting ? null : _pickDate,
                 icon: const Icon(AppIcons.calendar),
@@ -173,7 +165,7 @@ class _DriverFinancialMovementFormDialogState
     await widget.onSubmit(
       amount: amount,
       movementDate: _movementDate,
-      tripId: _optional(_tripIdController.text),
+      tripId: null,
       notes: _optional(_notesController.text),
     );
     if (mounted) Navigator.of(context).pop();
