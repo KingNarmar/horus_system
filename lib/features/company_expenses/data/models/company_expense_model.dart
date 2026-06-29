@@ -46,7 +46,7 @@ class CompanyExpenseModel {
       tractorHeadId: map['tractor_head_id'] as String?,
       trailerId: map['trailer_id'] as String?,
       tripId: map['trip_id'] as String?,
-      amount: map['amount'] is num ? (map['amount'] as num).toDouble() : 0,
+      amount: _amountFrom(map['amount']),
       expenseDate: DateTime.tryParse(map['expense_date'].toString()) ?? DateTime.now(),
       referenceNumber: map['reference_number'] as String?,
       notes: map['notes'] as String?,
@@ -57,5 +57,10 @@ class CompanyExpenseModel {
       createdAt: map['created_at'] == null ? null : DateTime.tryParse(map['created_at'].toString()),
       updatedAt: map['updated_at'] == null ? null : DateTime.tryParse(map['updated_at'].toString()),
     );
+  }
+
+  static double _amountFrom(Object? value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0;
   }
 }
