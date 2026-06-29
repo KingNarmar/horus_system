@@ -36,6 +36,10 @@ extension DriverFinanceLocalizationsX on AppLocalizations {
       ? 'معرّف الرحلة (اختياري)'
       : 'Trip id (optional)';
 
+  String get driverMovementTripPickerComingSoon => _isArabicDriverFinance
+      ? 'اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.'
+      : 'Trip selection will be added later. This deduction will be saved as a general deduction for now.';
+
   String get driverMovementNotesLabel =>
       _isArabicDriverFinance ? 'ملاحظات' : 'Notes';
 
