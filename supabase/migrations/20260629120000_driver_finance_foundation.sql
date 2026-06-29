@@ -4,8 +4,8 @@
 create table if not exists public.driver_financial_movements (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id) on delete cascade,
-  driver_id uuid not null references public.drivers(id) on delete restrict,
-  trip_id uuid null references public.trips(id) on delete set null,
+  driver_id uuid not null,
+  trip_id uuid null,
   movement_type text not null check (movement_type in ('advance', 'deduction')),
   amount numeric(12, 2) not null check (amount > 0),
   movement_date date not null default current_date,
@@ -14,6 +14,14 @@ create table if not exists public.driver_financial_movements (
   updated_by uuid null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  constraint driver_financial_movements_driver_company_fk
+    foreign key (company_id, driver_id)
+    references public.drivers(company_id, id)
+    on delete restrict,
+  constraint driver_financial_movements_trip_company_fk
+    foreign key (company_id, trip_id)
+    references public.trips(company_id, id)
+    on delete set null,
   constraint driver_financial_movements_trip_link_check
     check (trip_id is null or movement_type = 'deduction')
 );
