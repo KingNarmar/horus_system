@@ -39,16 +39,19 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   List<CompanyExpense> get expenses {
     final normalizedSearch = searchQuery.trim().toLowerCase();
     final categoryNameById = {
-      for (final category in categories) category.id: category.name.toLowerCase(),
+      for (final category in categories)
+        category.id: category.name.toLowerCase(),
     };
 
     return allExpenses.where((expense) {
       if (!includeVoided && expense.isVoided) return false;
       if (normalizedSearch.isEmpty) return true;
 
-      return categoryNameById[expense.categoryId]?.contains(normalizedSearch) == true ||
+      return categoryNameById[expense.categoryId]?.contains(normalizedSearch) ==
+              true ||
           expense.amount.toString().contains(normalizedSearch) ||
-          (expense.referenceNumber?.toLowerCase().contains(normalizedSearch) ?? false) ||
+          (expense.referenceNumber?.toLowerCase().contains(normalizedSearch) ??
+              false) ||
           (expense.notes?.toLowerCase().contains(normalizedSearch) ?? false);
     }).toList();
   }

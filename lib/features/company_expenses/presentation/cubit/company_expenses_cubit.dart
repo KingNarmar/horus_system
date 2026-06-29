@@ -63,8 +63,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
               includeVoided: previousIncludeVoided,
               canManageCompanyExpenses:
                   CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
-                currentCompanyContext.role,
-              ),
+                    currentCompanyContext.role,
+                  ),
             ),
           ),
           failure: (failure) => emit(CompanyExpensesFailure(failure)),
@@ -118,7 +118,10 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       ),
     );
 
-    result.when(success: _upsertExpense, failure: (failure) => emit(CompanyExpensesFailure(failure)));
+    result.when(
+      success: _upsertExpense,
+      failure: (failure) => emit(CompanyExpensesFailure(failure)),
+    );
   }
 
   Future<void> updateExpense({
@@ -152,7 +155,10 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       ),
     );
 
-    result.when(success: _upsertExpense, failure: (failure) => emit(CompanyExpensesFailure(failure)));
+    result.when(
+      success: _upsertExpense,
+      failure: (failure) => emit(CompanyExpensesFailure(failure)),
+    );
   }
 
   Future<void> voidExpense(CompanyExpense expense, {String? reason}) async {
@@ -196,9 +202,13 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       return;
     }
 
-    final exists = currentState.allExpenses.any((item) => item.id == expense.id);
+    final exists = currentState.allExpenses.any(
+      (item) => item.id == expense.id,
+    );
     final updatedExpenses = exists
-        ? currentState.allExpenses.map((item) => item.id == expense.id ? expense : item).toList()
+        ? currentState.allExpenses
+              .map((item) => item.id == expense.id ? expense : item)
+              .toList()
         : [expense, ...currentState.allExpenses];
 
     emit(
