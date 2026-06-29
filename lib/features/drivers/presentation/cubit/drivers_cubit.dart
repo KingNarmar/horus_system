@@ -31,116 +31,44 @@ class DriversCubit extends Cubit<DriversState> {
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
   final AddDriverDeductionUseCase addDriverDeductionUseCase;
   final CalculateDriverBalanceUseCase calculateDriverBalanceUseCase;
-
   CurrentCompanyContext? _currentCompanyContext;
 
-  DriversCubit({
-    required this.getDriversUseCase,
-    required this.addDriverUseCase,
-    required this.updateDriverUseCase,
-    required this.deactivateDriverUseCase,
-    required this.reactivateDriverUseCase,
-    required this.getEntityAuditLogsUseCase,
-    required this.getDriverMovementsUseCase,
-    required this.getDriverTripOptionsUseCase,
-    required this.addDriverAdvanceUseCase,
-    required this.addDriverDeductionUseCase,
-    required this.calculateDriverBalanceUseCase,
-  }) : super(const DriversInitial());
+  DriversCubit({required this.getDriversUseCase, required this.addDriverUseCase, required this.updateDriverUseCase, required this.deactivateDriverUseCase, required this.reactivateDriverUseCase, required this.getEntityAuditLogsUseCase, required this.getDriverMovementsUseCase, required this.getDriverTripOptionsUseCase, required this.addDriverAdvanceUseCase, required this.addDriverDeductionUseCase, required this.calculateDriverBalanceUseCase}) : super(const DriversInitial());
 
   Future<void> loadDrivers(CurrentCompanyContext currentCompanyContext) async {
     _currentCompanyContext = currentCompanyContext;
     final previousState = state;
-    final previousSearchQuery = previousState is DriversLoaded
-        ? previousState.searchQuery
-        : '';
-    final previousStatusFilter = previousState is DriversLoaded
-        ? previousState.statusFilter
-        : DriverStatusFilter.active;
-
+    final previousSearchQuery = previousState is DriversLoaded ? previousState.searchQuery : '';
+    final previousStatusFilter = previousState is DriversLoaded ? previousState.statusFilter : DriverStatusFilter.active;
     emit(const DriversLoading());
-
-    final result = await getDriversUseCase(
-      GetDriversParams(currentCompanyContext: currentCompanyContext),
-    );
-
+    final result = await getDriversUseCase(GetDriversParams(currentCompanyContext: currentCompanyContext));
     result.when(
-      success: (drivers) => emit(
-        DriversLoaded(
-          currentCompanyContext: currentCompanyContext,
-          allDrivers: drivers,
-          searchQuery: previousSearchQuery,
-          statusFilter: previousStatusFilter,
-          canManageDrivers: DriversPermissionPolicy.canManageDrivers(
-            currentCompanyContext.role,
-          ),
-          canManageDriverFinance:
-              DriverFinancePermissionPolicy.canManageDriverFinance(
-            currentCompanyContext.role,
-          ),
-        ),
-      ),
+      success: (drivers) => emit(DriversLoaded(currentCompanyContext: currentCompanyContext, allDrivers: drivers, searchQuery: previousSearchQuery, statusFilter: previousStatusFilter, canManageDrivers: DriversPermissionPolicy.canManageDrivers(currentCompanyContext.role), canManageDriverFinance: DriverFinancePermissionPolicy.canManageDriverFinance(currentCompanyContext.role))),
       failure: (failure) => emit(DriversFailure(failure)),
     );
   }
 
   void setSearchQuery(String query) {
     final currentState = state;
-    if (currentState is DriversLoaded) {
-      emit(currentState.copyWith(searchQuery: query));
-    }
+    if (currentState is DriversLoaded) emit(currentState.copyWith(searchQuery: query));
   }
 
   void setStatusFilter(DriverStatusFilter statusFilter) {
     final currentState = state;
-    if (currentState is DriversLoaded) {
-      emit(currentState.copyWith(statusFilter: statusFilter));
-    }
+    if (currentState is DriversLoaded) emit(currentState.copyWith(statusFilter: statusFilter));
   }
 
   Future<void> loadDriverActivity(Driver driver) async {
-    final currentCompanyContext = _currentCompanyContext;
+    final context = _currentCompanyContext;
     final currentState = state;
-    if (currentCompanyContext == null || currentState is! DriversLoaded) return;
-
-    emit(
-      currentState.copyWith(
-        selectedDriver: driver,
-        selectedDriverActivity: const [],
-        isActivityLoading: true,
-        activityFailure: null,
-      ),
-    );
-
-    final result = await getEntityAuditLogsUseCase(
-      GetEntityAuditLogsParams(
-        companyId: currentCompanyContext.companyId,
-        module: AuditModule.drivers,
-        entityType: AuditEntityType.driver,
-        entityId: driver.id,
-      ),
-    );
-
+    if (context == null || currentState is! DriversLoaded) return;
+    emit(currentState.copyWith(selectedDriver: driver, selectedDriverActivity: const [], isActivityLoading: true, activityFailure: null));
+    final result = await getEntityAuditLogsUseCase(GetEntityAuditLogsParams(companyId: context.companyId, module: AuditModule.drivers, entityType: AuditEntityType.driver, entityId: driver.id));
     final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
-      return;
-    }
-
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
     result.when(
-      success: (activity) => emit(
-        latestState.copyWith(
-          selectedDriverActivity: activity,
-          isActivityLoading: false,
-          activityFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
-          isActivityLoading: false,
-          activityFailure: failure,
-        ),
-      ),
+      success: (activity) => emit(latestState.copyWith(selectedDriverActivity: activity, isActivityLoading: false, activityFailure: null)),
+      failure: (failure) => emit(latestState.copyWith(isActivityLoading: false, activityFailure: failure)),
     );
   }
 
@@ -148,336 +76,107 @@ class DriversCubit extends Cubit<DriversState> {
     final context = _currentCompanyContext;
     final currentState = state;
     if (context == null || currentState is! DriversLoaded) return;
-
-    emit(
-      currentState.copyWith(
-        selectedDriver: driver,
-        selectedDriverFinancialMovements: const [],
-        selectedDriverBalance: null,
-        isFinancialMovementsLoading: true,
-        financialMovementsFailure: null,
-      ),
-    );
-
-    final result = await getDriverMovementsUseCase(
-      GetDriverMovementsParams(
-        currentCompanyContext: context,
-        driverId: driver.id,
-      ),
-    );
-
+    emit(currentState.copyWith(selectedDriver: driver, selectedDriverFinancialMovements: const [], selectedDriverBalance: null, isFinancialMovementsLoading: true, financialMovementsFailure: null));
+    final result = await getDriverMovementsUseCase(GetDriverMovementsParams(currentCompanyContext: context, driverId: driver.id));
     final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
+    if (result is Success<List<DriverFinancialMovement>>) {
+      await _emitDriverFinanceState(state: latestState, driver: driver, movements: result.data, isLoading: false);
       return;
     }
-
-    result.when(
-      success: (movements) => _emitDriverFinanceState(
-        state: latestState,
-        driver: driver,
-        movements: movements,
-        isLoading: false,
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
-          isFinancialMovementsLoading: false,
-          financialMovementsFailure: failure,
-        ),
-      ),
-    );
+    if (result is FailureResult<List<DriverFinancialMovement>>) {
+      emit(latestState.copyWith(isFinancialMovementsLoading: false, financialMovementsFailure: result.failure));
+    }
   }
 
   Future<void> loadDriverTripOptions(Driver driver) async {
     final context = _currentCompanyContext;
     final currentState = state;
     if (context == null || currentState is! DriversLoaded) return;
-
-    emit(
-      currentState.copyWith(
-        selectedDriver: driver,
-        selectedDriverTripOptions: const [],
-        isTripOptionsLoading: true,
-        tripOptionsFailure: null,
-      ),
-    );
-
-    final result = await getDriverTripOptionsUseCase(
-      GetDriverTripOptionsParams(
-        currentCompanyContext: context,
-        driverId: driver.id,
-      ),
-    );
-
+    emit(currentState.copyWith(selectedDriver: driver, selectedDriverTripOptions: const [], isTripOptionsLoading: true, tripOptionsFailure: null));
+    final result = await getDriverTripOptionsUseCase(GetDriverTripOptionsParams(currentCompanyContext: context, driverId: driver.id));
     final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
-      return;
-    }
-
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
     result.when(
-      success: (tripOptions) => emit(
-        latestState.copyWith(
-          selectedDriverTripOptions: tripOptions,
-          isTripOptionsLoading: false,
-          tripOptionsFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
-          selectedDriverTripOptions: const [],
-          isTripOptionsLoading: false,
-          tripOptionsFailure: failure,
-        ),
-      ),
+      success: (tripOptions) => emit(latestState.copyWith(selectedDriverTripOptions: tripOptions, isTripOptionsLoading: false, tripOptionsFailure: null)),
+      failure: (failure) => emit(latestState.copyWith(selectedDriverTripOptions: const [], isTripOptionsLoading: false, tripOptionsFailure: failure)),
     );
   }
 
   void clearDriverActivity() {
     final currentState = state;
     if (currentState is DriversLoaded) {
-      emit(
-        currentState.copyWith(
-          selectedDriver: null,
-          selectedDriverActivity: const [],
-          isActivityLoading: false,
-          activityFailure: null,
-          selectedDriverFinancialMovements: const [],
-          selectedDriverBalance: null,
-          selectedDriverTripOptions: const [],
-          isTripOptionsLoading: false,
-          tripOptionsFailure: null,
-          isFinancialMovementsLoading: false,
-          isSavingFinancialMovement: false,
-          financialMovementsFailure: null,
-        ),
-      );
+      emit(currentState.copyWith(selectedDriver: null, selectedDriverActivity: const [], isActivityLoading: false, activityFailure: null, selectedDriverFinancialMovements: const [], selectedDriverBalance: null, selectedDriverTripOptions: const [], isTripOptionsLoading: false, tripOptionsFailure: null, isFinancialMovementsLoading: false, isSavingFinancialMovement: false, financialMovementsFailure: null));
     }
   }
 
-  Future<void> addDriver({
-    required String fullName,
-    String? phone,
-    String? nationalId,
-    String? licenseNumber,
-    DateTime? licenseExpiryDate,
-    String? notes,
-  }) async {
-    final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
-
-    final result = await addDriverUseCase(
-      AddDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        fullName: fullName,
-        phone: phone,
-        nationalId: nationalId,
-        licenseNumber: licenseNumber,
-        licenseExpiryDate: licenseExpiryDate,
-        notes: notes,
-      ),
-    );
-
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+  Future<void> addDriver({required String fullName, String? phone, String? nationalId, String? licenseNumber, DateTime? licenseExpiryDate, String? notes}) async {
+    final context = _currentCompanyContext;
+    if (context == null) return;
+    final result = await addDriverUseCase(AddDriverParams(currentCompanyContext: context, fullName: fullName, phone: phone, nationalId: nationalId, licenseNumber: licenseNumber, licenseExpiryDate: licenseExpiryDate, notes: notes));
+    result.when(success: _upsertDriver, failure: (failure) => emit(DriversFailure(failure)));
   }
 
-  Future<void> updateDriver({
-    required Driver driver,
-    required String fullName,
-    String? phone,
-    String? nationalId,
-    String? licenseNumber,
-    DateTime? licenseExpiryDate,
-    String? notes,
-  }) async {
-    final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
-
-    final result = await updateDriverUseCase(
-      UpdateDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        driverId: driver.id,
-        fullName: fullName,
-        phone: phone,
-        nationalId: nationalId,
-        licenseNumber: licenseNumber,
-        licenseExpiryDate: licenseExpiryDate,
-        notes: notes,
-      ),
-    );
-
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+  Future<void> updateDriver({required Driver driver, required String fullName, String? phone, String? nationalId, String? licenseNumber, DateTime? licenseExpiryDate, String? notes}) async {
+    final context = _currentCompanyContext;
+    if (context == null) return;
+    final result = await updateDriverUseCase(UpdateDriverParams(currentCompanyContext: context, driverId: driver.id, fullName: fullName, phone: phone, nationalId: nationalId, licenseNumber: licenseNumber, licenseExpiryDate: licenseExpiryDate, notes: notes));
+    result.when(success: _upsertDriver, failure: (failure) => emit(DriversFailure(failure)));
   }
 
-  Future<void> addDriverAdvance({
-    required Driver driver,
-    required double amount,
-    required DateTime movementDate,
-    String? notes,
-  }) {
-    return _addDriverFinancialMovement(
-      driver: driver,
-      action: () {
-        final context = _currentCompanyContext!;
-        return addDriverAdvanceUseCase(
-          AddDriverAdvanceParams(
-            currentCompanyContext: context,
-            driverId: driver.id,
-            amount: amount,
-            movementDate: movementDate,
-            notes: notes,
-          ),
-        );
-      },
-    );
+  Future<void> addDriverAdvance({required Driver driver, required double amount, required DateTime movementDate, String? notes}) {
+    return _addDriverFinancialMovement(driver: driver, action: () {
+      final context = _currentCompanyContext!;
+      return addDriverAdvanceUseCase(AddDriverAdvanceParams(currentCompanyContext: context, driverId: driver.id, amount: amount, movementDate: movementDate, notes: notes));
+    });
   }
 
-  Future<void> addDriverDeduction({
-    required Driver driver,
-    required double amount,
-    required DateTime movementDate,
-    String? tripId,
-    String? notes,
-  }) {
-    return _addDriverFinancialMovement(
-      driver: driver,
-      action: () {
-        final context = _currentCompanyContext!;
-        return addDriverDeductionUseCase(
-          AddDriverDeductionParams(
-            currentCompanyContext: context,
-            driverId: driver.id,
-            tripId: tripId,
-            amount: amount,
-            movementDate: movementDate,
-            notes: notes,
-          ),
-        );
-      },
-    );
+  Future<void> addDriverDeduction({required Driver driver, required double amount, required DateTime movementDate, String? tripId, String? notes}) {
+    return _addDriverFinancialMovement(driver: driver, action: () {
+      final context = _currentCompanyContext!;
+      return addDriverDeductionUseCase(AddDriverDeductionParams(currentCompanyContext: context, driverId: driver.id, tripId: tripId, amount: amount, movementDate: movementDate, notes: notes));
+    });
   }
 
   Future<void> deactivateDriver(Driver driver) async {
-    final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null || !_startPendingAction(driver.id)) return;
-
-    final result = await deactivateDriverUseCase(
-      DeactivateDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        driverId: driver.id,
-      ),
-    );
-
+    final context = _currentCompanyContext;
+    if (context == null || !_startPendingAction(driver.id)) return;
+    final result = await deactivateDriverUseCase(DeactivateDriverParams(currentCompanyContext: context, driverId: driver.id));
     result.when(success: _upsertDriver, failure: _emitMutationFailure);
   }
 
   Future<void> reactivateDriver(Driver driver) async {
-    final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null || !_startPendingAction(driver.id)) return;
-
-    final result = await reactivateDriverUseCase(
-      ReactivateDriverParams(
-        currentCompanyContext: currentCompanyContext,
-        driverId: driver.id,
-      ),
-    );
-
+    final context = _currentCompanyContext;
+    if (context == null || !_startPendingAction(driver.id)) return;
+    final result = await reactivateDriverUseCase(ReactivateDriverParams(currentCompanyContext: context, driverId: driver.id));
     result.when(success: _upsertDriver, failure: _emitMutationFailure);
   }
 
-  Future<void> _addDriverFinancialMovement({
-    required Driver driver,
-    required Future<Result<DriverFinancialMovement>> Function() action,
-  }) async {
+  Future<void> _addDriverFinancialMovement({required Driver driver, required Future<Result<DriverFinancialMovement>> Function() action}) async {
     final context = _currentCompanyContext;
     final currentState = state;
     if (context == null || currentState is! DriversLoaded) return;
     if (currentState.isSavingFinancialMovement) return;
-
-    emit(
-      currentState.copyWith(
-        selectedDriver: driver,
-        isSavingFinancialMovement: true,
-        financialMovementsFailure: null,
-      ),
-    );
-
+    emit(currentState.copyWith(selectedDriver: driver, isSavingFinancialMovement: true, financialMovementsFailure: null));
     final result = await action();
     final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
+    if (result is Success<DriverFinancialMovement>) {
+      await _emitDriverFinanceState(state: latestState, driver: driver, movements: [result.data, ...latestState.selectedDriverFinancialMovements], isLoading: false, isSaving: false);
       return;
     }
-
-    result.when(
-      success: (movement) {
-        final movements = [
-          movement,
-          ...latestState.selectedDriverFinancialMovements,
-        ];
-        _emitDriverFinanceState(
-          state: latestState,
-          driver: driver,
-          movements: movements,
-          isLoading: false,
-          isSaving: false,
-        );
-      },
-      failure: (failure) => emit(
-        latestState.copyWith(
-          isSavingFinancialMovement: false,
-          financialMovementsFailure: failure,
-        ),
-      ),
-    );
+    if (result is FailureResult<DriverFinancialMovement>) {
+      emit(latestState.copyWith(isSavingFinancialMovement: false, financialMovementsFailure: result.failure));
+    }
   }
 
-  void _emitDriverFinanceState({
-    required DriversLoaded state,
-    required Driver driver,
-    required List<DriverFinancialMovement> movements,
-    required bool isLoading,
-    bool isSaving = false,
-  }) async {
-    final balanceResult = await calculateDriverBalanceUseCase(
-      CalculateDriverBalanceParams(
-        companyId: state.currentCompanyContext.companyId,
-        driverId: driver.id,
-        movements: movements,
-      ),
-    );
-
+  Future<void> _emitDriverFinanceState({required DriversLoaded state, required Driver driver, required List<DriverFinancialMovement> movements, required bool isLoading, bool isSaving = false}) async {
+    final balanceResult = await calculateDriverBalanceUseCase(CalculateDriverBalanceParams(companyId: state.currentCompanyContext.companyId, driverId: driver.id, movements: movements));
     final latestState = this.state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
-      return;
-    }
-
+    if (latestState is! DriversLoaded || latestState.selectedDriver?.id != driver.id) return;
     balanceResult.when(
-      success: (balance) => emit(
-        latestState.copyWith(
-          selectedDriverFinancialMovements: movements,
-          selectedDriverBalance: balance,
-          isFinancialMovementsLoading: isLoading,
-          isSavingFinancialMovement: isSaving,
-          financialMovementsFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
-          selectedDriverFinancialMovements: movements,
-          selectedDriverBalance: null,
-          isFinancialMovementsLoading: isLoading,
-          isSavingFinancialMovement: isSaving,
-          financialMovementsFailure: failure,
-        ),
-      ),
+      success: (balance) => emit(latestState.copyWith(selectedDriverFinancialMovements: movements, selectedDriverBalance: balance, isFinancialMovementsLoading: isLoading, isSavingFinancialMovement: isSaving, financialMovementsFailure: null)),
+      failure: (failure) => emit(latestState.copyWith(selectedDriverFinancialMovements: movements, selectedDriverBalance: null, isFinancialMovementsLoading: isLoading, isSavingFinancialMovement: isSaving, financialMovementsFailure: failure)),
     );
   }
 
@@ -485,51 +184,29 @@ class DriversCubit extends Cubit<DriversState> {
     final currentState = state;
     if (currentState is! DriversLoaded) return true;
     if (currentState.pendingActionDriverId != null) return false;
-
     emit(currentState.copyWith(pendingActionDriverId: driverId));
     return true;
   }
 
   void _emitMutationFailure(Failure failure) {
     final currentState = state;
-    if (currentState is DriversLoaded) {
-      emit(currentState.copyWith(pendingActionDriverId: null));
-    }
+    if (currentState is DriversLoaded) emit(currentState.copyWith(pendingActionDriverId: null));
     emit(DriversFailure(failure));
   }
 
   void _upsertDriver(Driver driver) {
     final currentState = state;
-    final currentCompanyContext = _currentCompanyContext;
-
+    final context = _currentCompanyContext;
     if (currentState is! DriversLoaded) {
-      if (currentCompanyContext != null) loadDrivers(currentCompanyContext);
+      if (context != null) loadDrivers(context);
       return;
     }
-
     final exists = currentState.allDrivers.any((item) => item.id == driver.id);
-    final updatedDrivers = exists
-        ? currentState.allDrivers
-            .map((item) => item.id == driver.id ? driver : item)
-            .toList()
-        : [driver, ...currentState.allDrivers];
-
+    final updatedDrivers = exists ? currentState.allDrivers.map((item) => item.id == driver.id ? driver : item).toList() : [driver, ...currentState.allDrivers];
     if (currentState.selectedDriver?.id == driver.id) {
-      emit(
-        currentState.copyWith(
-          allDrivers: updatedDrivers,
-          pendingActionDriverId: null,
-          selectedDriver: driver,
-        ),
-      );
+      emit(currentState.copyWith(allDrivers: updatedDrivers, pendingActionDriverId: null, selectedDriver: driver));
       return;
     }
-
-    emit(
-      currentState.copyWith(
-        allDrivers: updatedDrivers,
-        pendingActionDriverId: null,
-      ),
-    );
+    emit(currentState.copyWith(allDrivers: updatedDrivers, pendingActionDriverId: null));
   }
 }
