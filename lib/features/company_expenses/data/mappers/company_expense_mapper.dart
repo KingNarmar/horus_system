@@ -76,7 +76,7 @@ extension CompanyExpenseWriteDataMapper on CompanyExpenseWriteData {
 }
 
 extension CompanyExpenseVoidDataMapper on CompanyExpenseVoidData {
-  Map<String, dynamic> toVoidMap({required String actorUserId}) => {
+  Map<String, dynamic> toVoidMap({required String? actorUserId}) => {
         'is_voided': true,
         'voided_at': DbTimestamp.nowUtcIsoString(),
         'voided_by': actorUserId,
