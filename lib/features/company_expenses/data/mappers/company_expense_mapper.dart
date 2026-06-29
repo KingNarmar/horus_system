@@ -7,83 +7,83 @@ import '../models/company_expense_model.dart';
 
 extension CompanyExpenseModelMapper on CompanyExpenseModel {
   CompanyExpense toEntity() => CompanyExpense(
-        id: id,
-        companyId: companyId,
-        categoryId: categoryId,
-        amount: amount,
-        expenseDate: expenseDate,
-        isVoided: isVoided,
-        driverId: driverId,
-        tractorHeadId: tractorHeadId,
-        trailerId: trailerId,
-        tripId: tripId,
-        referenceNumber: referenceNumber,
-        notes: notes,
-        voidedAt: voidedAt,
-        voidedBy: voidedBy,
-        voidReason: voidReason,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-      );
+    id: id,
+    companyId: companyId,
+    categoryId: categoryId,
+    amount: amount,
+    expenseDate: expenseDate,
+    isVoided: isVoided,
+    driverId: driverId,
+    tractorHeadId: tractorHeadId,
+    trailerId: trailerId,
+    tripId: tripId,
+    referenceNumber: referenceNumber,
+    notes: notes,
+    voidedAt: voidedAt,
+    voidedBy: voidedBy,
+    voidReason: voidReason,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
 
   Map<String, Object?> toAuditValues() => {
-        DbCommonFields.id: id,
-        DbCommonFields.companyId: companyId,
-        'category_id': categoryId,
-        'driver_id': driverId,
-        'tractor_head_id': tractorHeadId,
-        'trailer_id': trailerId,
-        'trip_id': tripId,
-        'amount': amount,
-        'expense_date': _dateOnly(expenseDate),
-        'reference_number': referenceNumber,
-        'notes': notes,
-        'is_voided': isVoided,
-        'voided_at': voidedAt?.toUtc().toIso8601String(),
-        'voided_by': voidedBy,
-        'void_reason': voidReason,
-        DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
-        DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
-      };
+    DbCommonFields.id: id,
+    DbCommonFields.companyId: companyId,
+    'category_id': categoryId,
+    'driver_id': driverId,
+    'tractor_head_id': tractorHeadId,
+    'trailer_id': trailerId,
+    'trip_id': tripId,
+    'amount': amount,
+    'expense_date': _dateOnly(expenseDate),
+    'reference_number': referenceNumber,
+    'notes': notes,
+    'is_voided': isVoided,
+    'voided_at': voidedAt?.toUtc().toIso8601String(),
+    'voided_by': voidedBy,
+    'void_reason': voidReason,
+    DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
+    DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
+  };
 }
 
 extension CompanyExpenseWriteDataMapper on CompanyExpenseWriteData {
   Map<String, dynamic> toInsertMap() => {
-        DbCommonFields.companyId: companyId,
-        'category_id': categoryId,
-        'driver_id': driverId,
-        'tractor_head_id': tractorHeadId,
-        'trailer_id': trailerId,
-        'trip_id': tripId,
-        'amount': amount,
-        'expense_date': _dateOnly(expenseDate),
-        'reference_number': referenceNumber,
-        'notes': notes,
-      };
+    DbCommonFields.companyId: companyId,
+    'category_id': categoryId,
+    'driver_id': driverId,
+    'tractor_head_id': tractorHeadId,
+    'trailer_id': trailerId,
+    'trip_id': tripId,
+    'amount': amount,
+    'expense_date': _dateOnly(expenseDate),
+    'reference_number': referenceNumber,
+    'notes': notes,
+  };
 
   Map<String, dynamic> toUpdateMap() => {
-        'category_id': categoryId,
-        'driver_id': driverId,
-        'tractor_head_id': tractorHeadId,
-        'trailer_id': trailerId,
-        'trip_id': tripId,
-        'amount': amount,
-        'expense_date': _dateOnly(expenseDate),
-        'reference_number': referenceNumber,
-        'notes': notes,
-        DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-      };
+    'category_id': categoryId,
+    'driver_id': driverId,
+    'tractor_head_id': tractorHeadId,
+    'trailer_id': trailerId,
+    'trip_id': tripId,
+    'amount': amount,
+    'expense_date': _dateOnly(expenseDate),
+    'reference_number': referenceNumber,
+    'notes': notes,
+    DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
+  };
 }
 
 extension CompanyExpenseVoidDataMapper on CompanyExpenseVoidData {
   Map<String, dynamic> toVoidMap({required String? actorUserId}) => {
-        'is_voided': true,
-        'voided_at': DbTimestamp.nowUtcIsoString(),
-        'voided_by': actorUserId,
-        'void_reason': reason,
-        DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-        'updated_by': actorUserId,
-      };
+    'is_voided': true,
+    'voided_at': DbTimestamp.nowUtcIsoString(),
+    'voided_by': actorUserId,
+    'void_reason': reason,
+    DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
+    'updated_by': actorUserId,
+  };
 }
 
 String _dateOnly(DateTime value) {
