@@ -42,8 +42,14 @@ class CompanyExpenseModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       categoryId: map['category_id'] as String,
+      driverId: map['driver_id'] as String?,
+      tractorHeadId: map['tractor_head_id'] as String?,
+      trailerId: map['trailer_id'] as String?,
+      tripId: map['trip_id'] as String?,
       amount: map['amount'] is num ? (map['amount'] as num).toDouble() : 0,
       expenseDate: DateTime.tryParse(map['expense_date'].toString()) ?? DateTime.now(),
+      referenceNumber: map['reference_number'] as String?,
+      notes: map['notes'] as String?,
       isVoided: map['is_voided'] as bool? ?? false,
     );
   }
