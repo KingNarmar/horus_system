@@ -86,7 +86,7 @@ class SupabaseDriverFinanceRemoteDataSource
         .select(_driverTripOptionColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq('driver_id', driverId)
-        .order('scheduled_loading_at', ascending: false, nullsFirst: false)
+        .order('scheduled_loading_at', ascending: false)
         .order(DbCommonFields.createdAt, ascending: false);
 
     return rows.map((row) {
@@ -121,7 +121,8 @@ class SupabaseDriverFinanceRemoteDataSource
     final unloading = _nestedValue(map, 'routes', 'unloading_location');
     final route = _joinNonEmpty([loading, unloading], ' -> ');
     final date = _dateOnly(
-      _optional(map['actual_loading_at']) ?? _optional(map['scheduled_loading_at']),
+      _optional(map['actual_loading_at']) ??
+          _optional(map['scheduled_loading_at']),
     );
 
     final label = _joinNonEmpty([
@@ -135,7 +136,10 @@ class SupabaseDriverFinanceRemoteDataSource
   }
 
   String _joinNonEmpty(List<String?> values, String separator) {
-    return values.whereType<String>().where((value) => value.isNotEmpty).join(separator);
+    return values
+        .whereType<String>()
+        .where((value) => value.isNotEmpty)
+        .join(separator);
   }
 
   String? _nestedValue(
