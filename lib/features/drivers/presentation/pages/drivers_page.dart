@@ -109,23 +109,25 @@ class _DriversPageState extends State<DriversPage> {
               required DateTime movementDate,
               String? tripId,
               String? notes,
-            }) {
+            }) async {
               final cubit = context.read<DriversCubit>();
               if (movementType.isAdvance) {
-                return cubit.addDriverAdvance(
+                await cubit.addDriverAdvance(
                   driver: driver,
                   amount: amount,
                   movementDate: movementDate,
                   notes: notes,
                 );
+              } else {
+                await cubit.addDriverDeduction(
+                  driver: driver,
+                  amount: amount,
+                  movementDate: movementDate,
+                  tripId: tripId,
+                  notes: notes,
+                );
               }
-              return cubit.addDriverDeduction(
-                driver: driver,
-                amount: amount,
-                movementDate: movementDate,
-                tripId: tripId,
-                notes: notes,
-              );
+              await cubit.loadDriverActivity(driver);
             },
           );
         },
