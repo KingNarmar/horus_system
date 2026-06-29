@@ -195,7 +195,18 @@ create policy company_expense_categories_select_company_members
 on public.company_expense_categories
 for select
 to authenticated
-using (private.is_company_member(company_id));
+using (
+  private.has_company_role(
+    company_id,
+    array[
+      'owner'::company_role,
+      'admin'::company_role,
+      'operations'::company_role,
+      'accountant'::company_role,
+      'viewer'::company_role
+    ]
+  )
+);
 
 drop policy if exists company_expense_categories_insert_finance_roles
 on public.company_expense_categories;
@@ -238,7 +249,18 @@ create policy company_expenses_select_company_members
 on public.company_expenses
 for select
 to authenticated
-using (private.is_company_member(company_id));
+using (
+  private.has_company_role(
+    company_id,
+    array[
+      'owner'::company_role,
+      'admin'::company_role,
+      'operations'::company_role,
+      'accountant'::company_role,
+      'viewer'::company_role
+    ]
+  )
+);
 
 drop policy if exists company_expenses_insert_finance_roles
 on public.company_expenses;
