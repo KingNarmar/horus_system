@@ -69,6 +69,7 @@ class _DriversPageState extends State<DriversPage> {
     final cubit = context.read<DriversCubit>();
     cubit.loadDriverActivity(driver);
     cubit.loadDriverFinancialMovements(driver);
+    cubit.loadDriverTripOptions(driver);
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<DriversCubit, DriversState>(
@@ -95,29 +96,37 @@ class _DriversPageState extends State<DriversPage> {
   }) async {
     await showDialog<void>(
       context: context,
-      builder: (_) => DriverFinancialMovementFormDialog(
-        movementType: movementType,
-        onSubmit: ({
-          required double amount,
-          required DateTime movementDate,
-          String? tripId,
-          String? notes,
-        }) {
-          final cubit = context.read<DriversCubit>();
-          if (movementType.isAdvance) {
-            return cubit.addDriverAdvance(
-              driver: driver,
-              amount: amount,
-              movementDate: movementDate,
-              notes: notes,
-            );
-          }
-          return cubit.addDriverDeduction(
-            driver: driver,
-            amount: amount,
-            movementDate: movementDate,
-            tripId: tripId,
-            notes: notes,
+      builder: (_) => BlocBuilder<DriversCubit, DriversState>(
+        builder: (context, state) {
+          final loaded = state is DriversLoaded ? state : null;
+          return DriverFinancialMovementFormDialog(
+            movementType: movementType,
+            tripOptions: loaded?.selectedDriverTripOptions ?? const [],
+            isTripOptionsLoading: loaded?.isTripOptionsLoading ?? false,
+            tripOptionsFailure: loaded?.tripOptionsFailure,
+            onSubmit: ({
+              required double amount,
+              required DateTime movementDate,
+              String? tripId,
+              String? notes,
+            }) {
+              final cubit = context.read<DriversCubit>();
+              if (movementType.isAdvance) {
+                return cubit.addDriverAdvance(
+                  driver: driver,
+                  amount: amount,
+                  movementDate: movementDate,
+                  notes: notes,
+                );
+              }
+              return cubit.addDriverDeduction(
+                driver: driver,
+                amount: amount,
+                movementDate: movementDate,
+                tripId: tripId,
+                notes: notes,
+              );
+            },
           );
         },
       ),
