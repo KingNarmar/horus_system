@@ -788,6 +788,150 @@ abstract class AppLocalizations {
   /// **'{field}: {oldValue} → {newValue}'**
   String auditChangeLine(String field, String oldValue, String newValue);
 
+  /// No description provided for @driverFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance'**
+  String get driverFinanceTitle;
+
+  /// No description provided for @driverBalancePlaceholderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial balance calculated from recorded advances and deductions. Monthly settlement will be implemented later.'**
+  String get driverBalancePlaceholderDescription;
+
+  /// No description provided for @addDriverAdvanceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add advance'**
+  String get addDriverAdvanceButton;
+
+  /// No description provided for @addDriverDeductionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add deduction'**
+  String get addDriverDeductionButton;
+
+  /// No description provided for @addDriverAdvanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add driver advance'**
+  String get addDriverAdvanceTitle;
+
+  /// No description provided for @addDriverDeductionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add driver deduction'**
+  String get addDriverDeductionTitle;
+
+  /// No description provided for @driverMovementAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get driverMovementAmountLabel;
+
+  /// No description provided for @driverMovementDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get driverMovementDateLabel;
+
+  /// No description provided for @driverMovementTripPickerComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip selection will be added later. This deduction will be saved as a general deduction for now.'**
+  String get driverMovementTripPickerComingSoon;
+
+  /// No description provided for @driverMovementRelatedTripLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Related trip'**
+  String get driverMovementRelatedTripLabel;
+
+  /// No description provided for @driverMovementGeneralDeductionOption.
+  ///
+  /// In en, this message translates to:
+  /// **'General deduction without trip link'**
+  String get driverMovementGeneralDeductionOption;
+
+  /// No description provided for @loadingDriverTripOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading driver trips...'**
+  String get loadingDriverTripOptions;
+
+  /// No description provided for @noDriverTripsForDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips assigned to this driver yet. You can save it as a general deduction.'**
+  String get noDriverTripsForDeduction;
+
+  /// No description provided for @driverMovementNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get driverMovementNotesLabel;
+
+  /// No description provided for @totalAdvancesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total advances'**
+  String get totalAdvancesLabel;
+
+  /// No description provided for @totalDeductionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total deductions'**
+  String get totalDeductionsLabel;
+
+  /// No description provided for @netDriverBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get netDriverBalanceLabel;
+
+  /// No description provided for @noDriverFinancialMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'No financial movements yet.'**
+  String get noDriverFinancialMovements;
+
+  /// No description provided for @loadingDriverFinancialMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading driver financial movements...'**
+  String get loadingDriverFinancialMovements;
+
+  /// No description provided for @savingDriverFinancialMovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get savingDriverFinancialMovement;
+
+  /// No description provided for @invalidDriverMovementAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount greater than zero.'**
+  String get invalidDriverMovementAmount;
+
+  /// No description provided for @driverMovementTripLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get driverMovementTripLine;
+
+  /// No description provided for @driverMovementTypeAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance'**
+  String get driverMovementTypeAdvance;
+
+  /// No description provided for @driverMovementTypeDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction'**
+  String get driverMovementTypeDeduction;
+
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:

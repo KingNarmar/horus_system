@@ -8,6 +8,11 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
+import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
+import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
+import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
+import '../../../driver_finance/presentation/localization/driver_finance_localizations_x.dart';
+import '../../../driver_finance/presentation/widgets/driver_finance_details_section.dart';
 import '../../domain/entities/driver.dart';
 import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
@@ -15,17 +20,32 @@ import '../localization/drivers_localizations_x.dart';
 class DriverDetailsDialog extends StatelessWidget {
   final Driver driver;
   final DriversLoaded? state;
+  final VoidCallback? onAddAdvance;
+  final VoidCallback? onAddDeduction;
 
-  const DriverDetailsDialog({required this.driver, required this.state, super.key});
+  const DriverDetailsDialog({
+    required this.driver,
+    required this.state,
+    this.onAddAdvance,
+    this.onAddDeduction,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final activity = state?.selectedDriver?.id == driver.id
+    final isSelectedDriver = state?.selectedDriver?.id == driver.id;
+    final activity = isSelectedDriver
         ? state!.selectedDriverActivity
         : const <AuditLog>[];
-    final isLoading = state?.selectedDriver?.id == driver.id && (state?.isActivityLoading ?? false);
-    final failure = state?.selectedDriver?.id == driver.id ? state?.activityFailure : null;
+    final isLoading = isSelectedDriver && (state?.isActivityLoading ?? false);
+    final failure = isSelectedDriver ? state?.activityFailure : null;
+    final movements = isSelectedDriver
+        ? state!.selectedDriverFinancialMovements
+        : const <DriverFinancialMovement>[];
+    final tripOptions = isSelectedDriver
+        ? state!.selectedDriverTripOptions
+        : const <DriverFinanceTripOption>[];
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
@@ -63,6 +83,18 @@ class DriverDetailsDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
+              DriverFinanceDetailsSection(
+                movements: movements,
+                balance: isSelectedDriver ? state?.selectedDriverBalance : null,
+                tripOptions: tripOptions,
+                canManage: state?.canManageDriverFinance ?? false,
+                isLoading: isSelectedDriver && (state?.isFinancialMovementsLoading ?? false),
+                isSaving: isSelectedDriver && (state?.isSavingFinancialMovement ?? false),
+                failure: isSelectedDriver ? state?.financialMovementsFailure : null,
+                onAddAdvance: onAddAdvance,
+                onAddDeduction: onAddDeduction,
+              ),
+              const SizedBox(height: AppSpacing.md),
               _DetailsSection(
                 title: l10n.accountability,
                 children: [
@@ -85,7 +117,12 @@ class DriverDetailsDialog extends StatelessWidget {
                   else if (activity.isEmpty)
                     Text(l10n.noActivityFound)
                   else
-                    ...activity.map((log) => _ActivityTimelineItem(log: log)),
+                    ...activity.map(
+                      (log) => _ActivityTimelineItem(
+                        log: log,
+                        tripOptions: tripOptions,
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -118,27 +155,97 @@ class DriverDetailsDialog extends StatelessWidget {
 
 class _ActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final List<DriverFinanceTripOption> tripOptions;
 
-  const _ActivityTimelineItem({required this.log});
+  const _ActivityTimelineItem({
+    required this.log,
+    required this.tripOptions,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final changes = _changedFields(log, l10n);
+    final financeSummary = _financeSummary(l10n);
+    final changes = financeSummary == null ? _changedFields(log, l10n) : const <Widget>[];
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.auditActionLabel(log.action.value), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            financeSummary?.title ?? l10n.auditActionLabel(log.action.value),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
           Text(l10n.auditTimelineHeader(_actorName(log, l10n), log.actorRole ?? l10n.notAvailable, _formatDateTime(context, log.createdAt))),
-          if (changes.isNotEmpty) ...[
+          if (financeSummary != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            ...financeSummary.details.map((detail) => Text(detail)),
+          ] else if (changes.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             ...changes,
           ],
         ],
       ),
     );
+  }
+
+  _DriverFinanceLogSummary? _financeSummary(AppLocalizations l10n) {
+    if (!_isDriverFinanceLog(log)) return null;
+
+    final typeValue = _firstText([
+      log.metadata?['movement_type'],
+      log.newValues?['movement_type'],
+    ]);
+    if (typeValue == null) return null;
+
+    late final DriverFinancialMovementType type;
+    try {
+      type = driverFinancialMovementTypeFromValue(typeValue);
+    } catch (_) {
+      return null;
+    }
+
+    final amount = _firstText([log.metadata?['amount'], log.newValues?['amount']]);
+    final date = _firstText([log.newValues?['movement_date']]);
+    final tripId = _firstText([log.metadata?['trip_id'], log.newValues?['trip_id']]);
+    final notes = _firstText([log.newValues?['notes']]);
+    final titleParts = <String>[
+      l10n.driverMovementTypeLabel(type),
+      ?amount,
+    ];
+    final details = <String>[
+      if (date != null) _detailLine(l10n.driverMovementDateLabel, date),
+      if (tripId != null) _detailLine(l10n.driverMovementTripLine, _tripLabel(tripId)),
+      if (notes != null) _detailLine(l10n.driverMovementNotesLabel, notes),
+    ];
+
+    return _DriverFinanceLogSummary(
+      title: titleParts.join(' - '),
+      details: details,
+    );
+  }
+
+  bool _isDriverFinanceLog(AuditLog log) {
+    return log.entityDisplayName == 'Driver financial movement' ||
+        log.metadata?.containsKey('movement_id') == true ||
+        log.newValues?.containsKey('movement_type') == true;
+  }
+
+  String _tripLabel(String tripId) {
+    for (final option in tripOptions) {
+      if (option.id == tripId) return option.label;
+    }
+    return tripId;
+  }
+
+  String _detailLine(String label, String value) => '$label: $value';
+
+  String? _firstText(List<Object?> values) {
+    for (final value in values) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   List<Widget> _changedFields(AuditLog log, AppLocalizations l10n) {
@@ -161,6 +268,16 @@ class _ActivityTimelineItem extends StatelessWidget {
     if (email != null && email.isNotEmpty) return email;
     return l10n.unknownUser;
   }
+}
+
+class _DriverFinanceLogSummary {
+  final String title;
+  final List<String> details;
+
+  const _DriverFinanceLogSummary({
+    required this.title,
+    required this.details,
+  });
 }
 
 class _DetailsSection extends StatelessWidget {

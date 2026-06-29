@@ -28,10 +28,16 @@ class FailureCodes {
       'permission_trip_expenses_management';
   static const String permissionTripExpensesView =
       'permission_trip_expenses_view';
+  static const String permissionDriverFinanceManagement =
+      'permission_driver_finance_management';
+  static const String permissionDriverFinanceView =
+      'permission_driver_finance_view';
 
   // Validation
   static const String validationCompanyIdRequired =
       'validation_company_id_required';
+  static const String validationDriverIdRequired =
+      'validation_driver_id_required';
   static const String validationDriverNameRequired =
       'validation_driver_name_required';
   static const String validationCustomerNameRequired =
@@ -81,6 +87,8 @@ class FailureCodes {
       'validation_trip_expense_name_required';
   static const String validationTripExpenseAmountPositive =
       'validation_trip_expense_amount_positive';
+  static const String validationDriverFinanceAmountPositive =
+      'validation_driver_finance_amount_positive';
 
   // Conflicts
   static const String conflictTripVehicleAlreadyOpen =

@@ -399,6 +399,84 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get driverFinanceTitle => 'Driver finance';
+
+  @override
+  String get driverBalancePlaceholderDescription =>
+      'Initial balance calculated from recorded advances and deductions. Monthly settlement will be implemented later.';
+
+  @override
+  String get addDriverAdvanceButton => 'Add advance';
+
+  @override
+  String get addDriverDeductionButton => 'Add deduction';
+
+  @override
+  String get addDriverAdvanceTitle => 'Add driver advance';
+
+  @override
+  String get addDriverDeductionTitle => 'Add driver deduction';
+
+  @override
+  String get driverMovementAmountLabel => 'Amount';
+
+  @override
+  String get driverMovementDateLabel => 'Date';
+
+  @override
+  String get driverMovementTripPickerComingSoon =>
+      'Trip selection will be added later. This deduction will be saved as a general deduction for now.';
+
+  @override
+  String get driverMovementRelatedTripLabel => 'Related trip';
+
+  @override
+  String get driverMovementGeneralDeductionOption =>
+      'General deduction without trip link';
+
+  @override
+  String get loadingDriverTripOptions => 'Loading driver trips...';
+
+  @override
+  String get noDriverTripsForDeduction =>
+      'No trips assigned to this driver yet. You can save it as a general deduction.';
+
+  @override
+  String get driverMovementNotesLabel => 'Notes';
+
+  @override
+  String get totalAdvancesLabel => 'Total advances';
+
+  @override
+  String get totalDeductionsLabel => 'Total deductions';
+
+  @override
+  String get netDriverBalanceLabel => 'Current balance';
+
+  @override
+  String get noDriverFinancialMovements => 'No financial movements yet.';
+
+  @override
+  String get loadingDriverFinancialMovements =>
+      'Loading driver financial movements...';
+
+  @override
+  String get savingDriverFinancialMovement => 'Saving...';
+
+  @override
+  String get invalidDriverMovementAmount =>
+      'Enter a valid amount greater than zero.';
+
+  @override
+  String get driverMovementTripLine => 'Trip';
+
+  @override
+  String get driverMovementTypeAdvance => 'Advance';
+
+  @override
+  String get driverMovementTypeDeduction => 'Deduction';
+
+  @override
   String get unknownUser => 'Unknown User';
 
   @override

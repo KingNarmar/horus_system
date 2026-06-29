@@ -6,6 +6,8 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
+import '../../../driver_finance/presentation/widgets/driver_financial_movement_form_dialog.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status_filter.dart';
 import '../cubit/drivers_cubit.dart';
@@ -66,16 +68,71 @@ class _DriversPageState extends State<DriversPage> {
   Future<void> _openDetails(Driver driver) async {
     final cubit = context.read<DriversCubit>();
     cubit.loadDriverActivity(driver);
+    cubit.loadDriverFinancialMovements(driver);
+    cubit.loadDriverTripOptions(driver);
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<DriversCubit, DriversState>(
         builder: (context, state) => DriverDetailsDialog(
           driver: driver,
           state: state is DriversLoaded ? state : null,
+          onAddAdvance: () => _openFinancialMovementForm(
+            driver: driver,
+            movementType: DriverFinancialMovementType.advance,
+          ),
+          onAddDeduction: () => _openFinancialMovementForm(
+            driver: driver,
+            movementType: DriverFinancialMovementType.deduction,
+          ),
         ),
       ),
     );
     cubit.clearDriverActivity();
+  }
+
+  Future<void> _openFinancialMovementForm({
+    required Driver driver,
+    required DriverFinancialMovementType movementType,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => BlocBuilder<DriversCubit, DriversState>(
+        builder: (context, state) {
+          final loaded = state is DriversLoaded ? state : null;
+          return DriverFinancialMovementFormDialog(
+            movementType: movementType,
+            tripOptions: loaded?.selectedDriverTripOptions ?? const [],
+            isTripOptionsLoading: loaded?.isTripOptionsLoading ?? false,
+            tripOptionsFailure: loaded?.tripOptionsFailure,
+            onSubmit: ({
+              required double amount,
+              required DateTime movementDate,
+              String? tripId,
+              String? notes,
+            }) async {
+              final cubit = context.read<DriversCubit>();
+              if (movementType.isAdvance) {
+                await cubit.addDriverAdvance(
+                  driver: driver,
+                  amount: amount,
+                  movementDate: movementDate,
+                  notes: notes,
+                );
+              } else {
+                await cubit.addDriverDeduction(
+                  driver: driver,
+                  amount: amount,
+                  movementDate: movementDate,
+                  tripId: tripId,
+                  notes: notes,
+                );
+              }
+              await cubit.loadDriverActivity(driver);
+            },
+          );
+        },
+      ),
+    );
   }
 
   @override

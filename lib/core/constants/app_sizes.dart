@@ -13,6 +13,7 @@ abstract final class AppSizes {
   static const double searchFieldMaxWidth = 420;
   static const double dataTableBreakpoint = 760;
   static const double detailsDialogMaxWidth = 760;
+  static const double formDialogMaxWidth = 520;
   static const double detailsLabelWidth = 190;
 
   static const double iconSm = 18;
