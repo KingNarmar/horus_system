@@ -179,6 +179,9 @@ abstract final class AppDependencies {
       getDriverMovementsUseCase: GetDriverMovementsUseCase(
         driverFinanceRepository,
       ),
+      getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(
+        driverFinanceRepository,
+      ),
       addDriverAdvanceUseCase: AddDriverAdvanceUseCase(
         driverFinanceRepository,
       ),
