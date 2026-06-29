@@ -142,6 +142,26 @@
       "newValue": {"type": "String"}
     }
   },
+  "driverFinanceTitle": "حركات السائق المالية",
+  "driverBalancePlaceholderDescription": "رصيد مبدئي محسوب من السلف والخصومات المسجلة حاليًا. التسوية الشهرية ستنفذ لاحقًا.",
+  "addDriverAdvanceButton": "إضافة سلفة",
+  "addDriverDeductionButton": "إضافة خصم",
+  "addDriverAdvanceTitle": "إضافة سلفة للسائق",
+  "addDriverDeductionTitle": "إضافة خصم للسائق",
+  "driverMovementAmountLabel": "المبلغ",
+  "driverMovementDateLabel": "التاريخ",
+  "driverMovementTripPickerComingSoon": "اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.",
+  "driverMovementNotesLabel": "ملاحظات",
+  "totalAdvancesLabel": "إجمالي السلف",
+  "totalDeductionsLabel": "إجمالي الخصومات",
+  "netDriverBalanceLabel": "الرصيد الحالي",
+  "noDriverFinancialMovements": "لا توجد حركات مالية بعد.",
+  "loadingDriverFinancialMovements": "جاري تحميل الحركات المالية...",
+  "savingDriverFinancialMovement": "جاري الحفظ...",
+  "invalidDriverMovementAmount": "أدخل مبلغ صحيح أكبر من صفر.",
+  "driverMovementTripLine": "الرحلة",
+  "driverMovementTypeAdvance": "سلفة",
+  "driverMovementTypeDeduction": "خصم",
   "unknownUser": "مستخدم غير معروف",
   "profileDetailsNotSetYet": "لم يتم تعيين تفاصيل الملف الشخصي بعد"
 }
