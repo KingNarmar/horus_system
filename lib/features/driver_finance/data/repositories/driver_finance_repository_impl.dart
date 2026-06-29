@@ -9,11 +9,13 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
+import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
 import '../../domain/entities/driver_financial_movement_write_data.dart';
 import '../../domain/repositories/driver_finance_repository.dart';
 import '../datasources/driver_finance_remote_data_source.dart';
+import '../mappers/driver_finance_trip_option_mapper.dart';
 import '../mappers/driver_financial_movement_mapper.dart';
 import '../models/driver_financial_movement_model.dart';
 
@@ -33,6 +35,20 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
   }) {
     return _guard(() async {
       final models = await remoteDataSource.getDriverMovements(
+        companyId: companyId,
+        driverId: driverId,
+      );
+      return Success(models.map((model) => model.toEntity()).toList());
+    });
+  }
+
+  @override
+  Future<Result<List<DriverFinanceTripOption>>> getDriverTripOptions({
+    required String companyId,
+    required String driverId,
+  }) {
+    return _guard(() async {
+      final models = await remoteDataSource.getDriverTripOptions(
         companyId: companyId,
         driverId: driverId,
       );
