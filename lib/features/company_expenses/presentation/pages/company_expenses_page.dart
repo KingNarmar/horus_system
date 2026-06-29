@@ -101,10 +101,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
 
       if (confirmed != true) return;
       final reason = reasonController.text.trim();
-      await cubit.voidExpense(
-        expense,
-        reason: reason.isEmpty ? null : reason,
-      );
+      await cubit.voidExpense(expense, reason: reason.isEmpty ? null : reason);
     } finally {
       reasonController.dispose();
     }
@@ -125,8 +122,8 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
                   child: Text(
                     l10n.companyExpensesTitle,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (state is CompanyExpensesLoaded &&
@@ -141,7 +138,8 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
             const SizedBox(height: AppSpacing.lg),
             CompanyExpensesStateView(
               state: state,
-              onRetry: () => cubit.loadCompanyExpenses(widget.currentCompanyContext),
+              onRetry: () =>
+                  cubit.loadCompanyExpenses(widget.currentCompanyContext),
               onSearchChanged: cubit.setSearchQuery,
               onIncludeVoidedChanged: cubit.setIncludeVoided,
               onEdit: (expense) => _openExpenseForm(expense: expense),

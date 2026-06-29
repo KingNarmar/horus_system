@@ -34,7 +34,8 @@ class CompanyExpenseFormDialog extends StatefulWidget {
   });
 
   @override
-  State<CompanyExpenseFormDialog> createState() => _CompanyExpenseFormDialogState();
+  State<CompanyExpenseFormDialog> createState() =>
+      _CompanyExpenseFormDialogState();
 }
 
 class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
@@ -50,7 +51,8 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
   void initState() {
     super.initState();
     final expense = widget.expense;
-    _selectedCategoryId = expense?.categoryId ??
+    _selectedCategoryId =
+        expense?.categoryId ??
         (widget.categories.isEmpty ? null : widget.categories.first.id);
     _expenseDate = expense?.expenseDate ?? DateTime.now();
     _amountController.text = expense?.amount.toStringAsFixed(2) ?? '';

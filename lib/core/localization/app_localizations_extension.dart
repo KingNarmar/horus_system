@@ -238,8 +238,9 @@ extension CompanyExpensesLocalizationsX on AppLocalizations {
   String get includeVoidedCompanyExpenses =>
       _isArabicCompanyExpenses ? 'إظهار الملغاة' : 'Show voided';
 
-  String get noCompanyExpensesFound =>
-      _isArabicCompanyExpenses ? 'لا توجد مصروفات شركة.' : 'No company expenses found.';
+  String get noCompanyExpensesFound => _isArabicCompanyExpenses
+      ? 'لا توجد مصروفات شركة.'
+      : 'No company expenses found.';
 
   String get noCompanyExpensesMatchFilters => _isArabicCompanyExpenses
       ? 'لا توجد مصروفات مطابقة للبحث الحالي.'
@@ -267,7 +268,9 @@ extension CompanyExpensesLocalizationsX on AppLocalizations {
   String get confirmButton => _isArabicCompanyExpenses ? 'تأكيد' : 'Confirm';
 
   String companyExpenseCategoryLine(String categoryName) =>
-      _isArabicCompanyExpenses ? 'التصنيف: $categoryName' : 'Category: $categoryName';
+      _isArabicCompanyExpenses
+      ? 'التصنيف: $categoryName'
+      : 'Category: $categoryName';
 
   String companyExpenseAmountLine(String amount) =>
       _isArabicCompanyExpenses ? 'المبلغ: $amount' : 'Amount: $amount';
@@ -275,7 +278,6 @@ extension CompanyExpensesLocalizationsX on AppLocalizations {
   String companyExpenseDateLine(String date) =>
       _isArabicCompanyExpenses ? 'التاريخ: $date' : 'Date: $date';
 
-  String companyExpenseReferenceLine(String reference) => _isArabicCompanyExpenses
-      ? 'المرجع: $reference'
-      : 'Reference: $reference';
+  String companyExpenseReferenceLine(String reference) =>
+      _isArabicCompanyExpenses ? 'المرجع: $reference' : 'Reference: $reference';
 }

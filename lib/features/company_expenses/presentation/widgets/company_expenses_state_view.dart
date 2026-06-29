@@ -55,7 +55,8 @@ class CompanyExpensesStateView extends StatelessWidget {
     if (currentState is! CompanyExpensesLoaded) return const SizedBox.shrink();
 
     final categoriesById = {
-      for (final category in currentState.categories) category.id: category.name,
+      for (final category in currentState.categories)
+        category.id: category.name,
     };
 
     return Column(
@@ -92,7 +93,8 @@ class CompanyExpensesStateView extends StatelessWidget {
           ...currentState.expenses.map(
             (expense) => _ExpenseCard(
               expense: expense,
-              categoryName: categoriesById[expense.categoryId] ?? expense.categoryId,
+              categoryName:
+                  categoriesById[expense.categoryId] ?? expense.categoryId,
               canManage: currentState.canManageCompanyExpenses,
               isPending: currentState.pendingActionExpenseId == expense.id,
               onEdit: onEdit,
@@ -156,15 +158,17 @@ class _ExpenseCard extends StatelessWidget {
                   child: Text(
                     categoryName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Chip(label: Text(status)),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Text(l10n.companyExpenseAmountLine(expense.amount.toStringAsFixed(2))),
+            Text(
+              l10n.companyExpenseAmountLine(expense.amount.toStringAsFixed(2)),
+            ),
             Text(l10n.companyExpenseDateLine(_dateOnly(expense.expenseDate))),
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
