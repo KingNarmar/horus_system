@@ -1,5 +1,3 @@
-import 'package:horus_system/features/company/domain/entities/company_role.dart';
-
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -81,7 +79,8 @@ class CalculateDriverBalanceParams {
 }
 
 class GetDriverMovementsUseCase
-    implements UseCase<List<DriverFinancialMovement>, GetDriverMovementsParams> {
+    implements
+        UseCase<List<DriverFinancialMovement>, GetDriverMovementsParams> {
   final DriverFinanceRepository _repository;
 
   const GetDriverMovementsUseCase(this._repository);
@@ -90,7 +89,10 @@ class GetDriverMovementsUseCase
   Future<Result<List<DriverFinancialMovement>>> call(
     GetDriverMovementsParams params,
   ) {
-    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    final driverId = _validViewDriverId(
+      params.currentCompanyContext,
+      params.driverId,
+    );
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -103,7 +105,8 @@ class GetDriverMovementsUseCase
 }
 
 class GetDriverTripOptionsUseCase
-    implements UseCase<List<DriverFinanceTripOption>, GetDriverTripOptionsParams> {
+    implements
+        UseCase<List<DriverFinanceTripOption>, GetDriverTripOptionsParams> {
   final DriverFinanceRepository _repository;
 
   const GetDriverTripOptionsUseCase(this._repository);
@@ -112,7 +115,10 @@ class GetDriverTripOptionsUseCase
   Future<Result<List<DriverFinanceTripOption>>> call(
     GetDriverTripOptionsParams params,
   ) {
-    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    final driverId = _validViewDriverId(
+      params.currentCompanyContext,
+      params.driverId,
+    );
     if (driverId is FailureResult<String>) {
       return Future.value(FailureResult(driverId.failure));
     }
@@ -152,7 +158,9 @@ class AddDriverDeductionUseCase
   const AddDriverDeductionUseCase(this._repository);
 
   @override
-  Future<Result<DriverFinancialMovement>> call(AddDriverDeductionParams params) {
+  Future<Result<DriverFinancialMovement>> call(
+    AddDriverDeductionParams params,
+  ) {
     return _addMovement(
       repository: _repository,
       context: params.currentCompanyContext,
@@ -215,7 +223,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   if (failure != null) return Future.value(FailureResult(failure));
 
   return repository.addDriverMovement(
-    actorRole: context.role.value,
+    actorRole: context.role.name,
     data: DriverFinancialMovementWriteData(
       companyId: context.companyId,
       driverId: driverId.trim(),
@@ -228,7 +236,10 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   );
 }
 
-Result<String> _validViewDriverId(CurrentCompanyContext context, String driverId) {
+Result<String> _validViewDriverId(
+  CurrentCompanyContext context,
+  String driverId,
+) {
   if (!DriverFinancePermissionPolicy.canViewDriverFinance(context.role)) {
     return const FailureResult<String>(
       PermissionFailure(

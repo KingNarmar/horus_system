@@ -19,6 +19,9 @@ import '../mappers/driver_finance_trip_option_mapper.dart';
 import '../mappers/driver_financial_movement_mapper.dart';
 import '../models/driver_financial_movement_model.dart';
 
+const _driverFinancialMovementEntityKey = 'driver_financial_movement';
+const _driverFinanceMovementAddedEvent = 'driver_finance_movement_added';
+
 class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
   final DriverFinanceRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
@@ -91,11 +94,12 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
           module: AuditModule.drivers,
           entityType: AuditEntityType.driver,
           entityId: driverId,
-          entityDisplayName: 'Driver financial movement',
+          entityDisplayName: _driverFinancialMovementEntityKey,
           action: AuditAction.created,
-          description: _auditDescription(movement),
+          description: _driverFinanceMovementAddedEvent,
           newValues: movement.toAuditValues(),
           metadata: {
+            'audit_event': _driverFinanceMovementAddedEvent,
             'movement_id': movement.id,
             'movement_type': movement.type.value,
             'amount': movement.amount,
@@ -106,13 +110,6 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
     );
 
     return result.failureOrNull;
-  }
-
-  String _auditDescription(DriverFinancialMovementModel movement) {
-    final label = movement.type == DriverFinancialMovementType.advance
-        ? 'Driver advance added'
-        : 'Driver deduction added';
-    return '$label: ${movement.amount}';
   }
 
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {

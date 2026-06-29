@@ -17,6 +17,11 @@ import '../../domain/entities/driver.dart';
 import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
 
+const _driverFinancialMovementEntityKey = 'driver_financial_movement';
+const _legacyDriverFinancialMovementEntityDisplayName =
+    'Driver financial movement';
+const _driverFinanceMovementAddedEvent = 'driver_finance_movement_added';
+
 class DriverDetailsDialog extends StatelessWidget {
   final Driver driver;
   final DriversLoaded? state;
@@ -51,7 +56,9 @@ class DriverDetailsDialog extends StatelessWidget {
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.detailsDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.detailsDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -63,23 +70,51 @@ class DriverDetailsDialog extends StatelessWidget {
                   Expanded(
                     child: Text(
                       l10n.driverDetailsTitle(driver.fullName),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(AppIcons.clear)),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(AppIcons.clear),
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
               _DetailsSection(
                 title: l10n.basicInfo,
                 children: [
-                  _DetailRow(label: l10n.driverNameLabel, value: driver.fullName),
-                  _DetailRow(label: l10n.phoneLabel, value: _optional(driver.phone, l10n)),
-                  _DetailRow(label: l10n.nationalIdLabel, value: _optional(driver.nationalId, l10n)),
-                  _DetailRow(label: l10n.licenseNumberLabel, value: _optional(driver.licenseNumber, l10n)),
-                  _DetailRow(label: l10n.licenseExpiryDateLabel, value: driver.licenseExpiryDate == null ? l10n.emptyValue : _dateOnly(driver.licenseExpiryDate!)),
-                  _DetailRow(label: l10n.notesLabel, value: _optional(driver.notes, l10n)),
-                  _DetailRow(label: l10n.statusHeader, value: l10n.driverStatusLabel(driver.status)),
+                  _DetailRow(
+                    label: l10n.driverNameLabel,
+                    value: driver.fullName,
+                  ),
+                  _DetailRow(
+                    label: l10n.phoneLabel,
+                    value: _optional(driver.phone, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.nationalIdLabel,
+                    value: _optional(driver.nationalId, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.licenseNumberLabel,
+                    value: _optional(driver.licenseNumber, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.licenseExpiryDateLabel,
+                    value: driver.licenseExpiryDate == null
+                        ? l10n.emptyValue
+                        : _dateOnly(driver.licenseExpiryDate!),
+                  ),
+                  _DetailRow(
+                    label: l10n.notesLabel,
+                    value: _optional(driver.notes, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.statusHeader,
+                    value: l10n.driverStatusLabel(driver.status),
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -88,9 +123,15 @@ class DriverDetailsDialog extends StatelessWidget {
                 balance: isSelectedDriver ? state?.selectedDriverBalance : null,
                 tripOptions: tripOptions,
                 canManage: state?.canManageDriverFinance ?? false,
-                isLoading: isSelectedDriver && (state?.isFinancialMovementsLoading ?? false),
-                isSaving: isSelectedDriver && (state?.isSavingFinancialMovement ?? false),
-                failure: isSelectedDriver ? state?.financialMovementsFailure : null,
+                isLoading:
+                    isSelectedDriver &&
+                    (state?.isFinancialMovementsLoading ?? false),
+                isSaving:
+                    isSelectedDriver &&
+                    (state?.isSavingFinancialMovement ?? false),
+                failure: isSelectedDriver
+                    ? state?.financialMovementsFailure
+                    : null,
                 onAddAdvance: onAddAdvance,
                 onAddDeduction: onAddDeduction,
               ),
@@ -98,12 +139,34 @@ class DriverDetailsDialog extends StatelessWidget {
               _DetailsSection(
                 title: l10n.accountability,
                 children: [
-                  _DetailRow(label: l10n.createdBy, value: _actorName(createdLog, l10n)),
-                  _DetailRow(label: l10n.createdRole, value: createdLog?.actorRole ?? l10n.notAvailable),
-                  _DetailRow(label: l10n.createdAt, value: createdLog == null ? l10n.notAvailable : _formatDateTime(context, createdLog.createdAt)),
-                  _DetailRow(label: l10n.lastActivityBy, value: _actorName(latestLog, l10n)),
-                  _DetailRow(label: l10n.lastActivityRole, value: latestLog?.actorRole ?? l10n.notAvailable),
-                  _DetailRow(label: l10n.lastActivityAt, value: latestLog == null ? l10n.notAvailable : _formatDateTime(context, latestLog.createdAt)),
+                  _DetailRow(
+                    label: l10n.createdBy,
+                    value: _actorName(createdLog, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.createdRole,
+                    value: createdLog?.actorRole ?? l10n.notAvailable,
+                  ),
+                  _DetailRow(
+                    label: l10n.createdAt,
+                    value: createdLog == null
+                        ? l10n.notAvailable
+                        : _formatDateTime(context, createdLog.createdAt),
+                  ),
+                  _DetailRow(
+                    label: l10n.lastActivityBy,
+                    value: _actorName(latestLog, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.lastActivityRole,
+                    value: latestLog?.actorRole ?? l10n.notAvailable,
+                  ),
+                  _DetailRow(
+                    label: l10n.lastActivityAt,
+                    value: latestLog == null
+                        ? l10n.notAvailable
+                        : _formatDateTime(context, latestLog.createdAt),
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -149,7 +212,9 @@ class DriverDetailsDialog extends StatelessWidget {
 
   String _optional(String? value, AppLocalizations l10n) {
     final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? l10n.emptyValue : normalized;
+    return normalized == null || normalized.isEmpty
+        ? l10n.emptyValue
+        : normalized;
   }
 }
 
@@ -157,16 +222,15 @@ class _ActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
   final List<DriverFinanceTripOption> tripOptions;
 
-  const _ActivityTimelineItem({
-    required this.log,
-    required this.tripOptions,
-  });
+  const _ActivityTimelineItem({required this.log, required this.tripOptions});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final financeSummary = _financeSummary(l10n);
-    final changes = financeSummary == null ? _changedFields(log, l10n) : const <Widget>[];
+    final changes = financeSummary == null
+        ? _changedFields(log, l10n)
+        : const <Widget>[];
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
@@ -174,9 +238,17 @@ class _ActivityTimelineItem extends StatelessWidget {
         children: [
           Text(
             financeSummary?.title ?? l10n.auditActionLabel(log.action.value),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-          Text(l10n.auditTimelineHeader(_actorName(log, l10n), log.actorRole ?? l10n.notAvailable, _formatDateTime(context, log.createdAt))),
+          Text(
+            l10n.auditTimelineHeader(
+              _actorName(log, l10n),
+              log.actorRole ?? l10n.notAvailable,
+              _formatDateTime(context, log.createdAt),
+            ),
+          ),
           if (financeSummary != null) ...[
             const SizedBox(height: AppSpacing.xs),
             ...financeSummary.details.map((detail) => Text(detail)),
@@ -205,17 +277,21 @@ class _ActivityTimelineItem extends StatelessWidget {
       return null;
     }
 
-    final amount = _firstText([log.metadata?['amount'], log.newValues?['amount']]);
+    final amount = _firstText([
+      log.metadata?['amount'],
+      log.newValues?['amount'],
+    ]);
     final date = _firstText([log.newValues?['movement_date']]);
-    final tripId = _firstText([log.metadata?['trip_id'], log.newValues?['trip_id']]);
+    final tripId = _firstText([
+      log.metadata?['trip_id'],
+      log.newValues?['trip_id'],
+    ]);
     final notes = _firstText([log.newValues?['notes']]);
-    final titleParts = <String>[
-      l10n.driverMovementTypeLabel(type),
-      ?amount,
-    ];
+    final titleParts = <String>[l10n.driverMovementTypeLabel(type), ?amount];
     final details = <String>[
       if (date != null) _detailLine(l10n.driverMovementDateLabel, date),
-      if (tripId != null) _detailLine(l10n.driverMovementTripLine, _tripLabel(tripId)),
+      if (tripId != null)
+        _detailLine(l10n.driverMovementTripLine, _tripLabel(tripId)),
       if (notes != null) _detailLine(l10n.driverMovementNotesLabel, notes),
     ];
 
@@ -226,7 +302,10 @@ class _ActivityTimelineItem extends StatelessWidget {
   }
 
   bool _isDriverFinanceLog(AuditLog log) {
-    return log.entityDisplayName == 'Driver financial movement' ||
+    return log.entityDisplayName == _driverFinancialMovementEntityKey ||
+        log.entityDisplayName ==
+            _legacyDriverFinancialMovementEntityDisplayName ||
+        log.metadata?['audit_event'] == _driverFinanceMovementAddedEvent ||
         log.metadata?.containsKey('movement_id') == true ||
         log.newValues?.containsKey('movement_type') == true;
   }
@@ -249,7 +328,15 @@ class _ActivityTimelineItem extends StatelessWidget {
   }
 
   List<Widget> _changedFields(AuditLog log, AppLocalizations l10n) {
-    const fields = ['full_name', 'phone', 'national_id', 'license_number', 'license_expiry_date', 'notes', 'is_active'];
+    const fields = [
+      'full_name',
+      'phone',
+      'national_id',
+      'license_number',
+      'license_expiry_date',
+      'notes',
+      'is_active',
+    ];
     final changes = AuditChangeBuilder.buildChanges(
       log: log,
       visibleKeys: fields,
@@ -257,7 +344,9 @@ class _ActivityTimelineItem extends StatelessWidget {
       valueLabelBuilder: l10n.driverValueLabel,
     );
     return changes.map((change) {
-      return Text(l10n.auditChangeLine(change.label, change.oldValue, change.newValue));
+      return Text(
+        l10n.auditChangeLine(change.label, change.oldValue, change.newValue),
+      );
     }).toList();
   }
 
@@ -274,10 +363,7 @@ class _DriverFinanceLogSummary {
   final String title;
   final List<String> details;
 
-  const _DriverFinanceLogSummary({
-    required this.title,
-    required this.details,
-  });
+  const _DriverFinanceLogSummary({required this.title, required this.details});
 }
 
 class _DetailsSection extends StatelessWidget {
@@ -294,7 +380,12 @@ class _DetailsSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: AppSpacing.md),
             ...children,
           ],
@@ -317,7 +408,13 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: AppSizes.detailsLabelWidth, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          SizedBox(
+            width: AppSizes.detailsLabelWidth,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
           Expanded(child: Text(value)),
         ],
       ),
