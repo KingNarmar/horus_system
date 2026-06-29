@@ -63,6 +63,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
   }
 
   Future<void> _confirmVoidExpense(CompanyExpense expense) async {
+    final cubit = context.read<CompanyExpensesCubit>();
     final reasonController = TextEditingController();
     try {
       final confirmed = await showDialog<bool>(
@@ -100,10 +101,10 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
 
       if (confirmed != true) return;
       final reason = reasonController.text.trim();
-      await context.read<CompanyExpensesCubit>().voidExpense(
-            expense,
-            reason: reason.isEmpty ? null : reason,
-          );
+      await cubit.voidExpense(
+        expense,
+        reason: reason.isEmpty ? null : reason,
+      );
     } finally {
       reasonController.dispose();
     }
