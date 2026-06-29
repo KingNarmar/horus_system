@@ -98,10 +98,10 @@ class _DriversPageState extends State<DriversPage> {
       builder: (_) => DriverFinancialMovementFormDialog(
         movementType: movementType,
         onSubmit: ({
-          required amount,
-          required movementDate,
-          tripId,
-          notes,
+          required double amount,
+          required DateTime movementDate,
+          String? tripId,
+          String? notes,
         }) {
           final cubit = context.read<DriversCubit>();
           if (movementType.isAdvance) {
