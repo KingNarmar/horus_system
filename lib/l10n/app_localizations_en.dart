@@ -428,6 +428,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trip selection will be added later. This deduction will be saved as a general deduction for now.';
 
   @override
+  String get driverMovementRelatedTripLabel => 'Related trip';
+
+  @override
+  String get driverMovementGeneralDeductionOption =>
+      'General deduction without trip link';
+
+  @override
+  String get loadingDriverTripOptions => 'Loading driver trips...';
+
+  @override
+  String get noDriverTripsForDeduction =>
+      'No trips assigned to this driver yet. You can save it as a general deduction.';
+
+  @override
   String get driverMovementNotesLabel => 'Notes';
 
   @override

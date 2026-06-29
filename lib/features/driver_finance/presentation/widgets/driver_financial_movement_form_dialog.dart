@@ -7,12 +7,13 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
 
-typedef DriverFinancialMovementSubmit = Future<void> Function({
-  required double amount,
-  required DateTime movementDate,
-  String? tripId,
-  String? notes,
-});
+typedef DriverFinancialMovementSubmit =
+    Future<void> Function({
+      required double amount,
+      required DateTime movementDate,
+      String? tripId,
+      String? notes,
+    });
 
 class DriverFinancialMovementFormDialog extends StatefulWidget {
   final DriverFinancialMovementType movementType;
@@ -59,7 +60,9 @@ class _DriverFinancialMovementFormDialogState
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -71,10 +74,9 @@ class _DriverFinancialMovementFormDialogState
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -88,7 +90,9 @@ class _DriverFinancialMovementFormDialogState
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   labelText: l10n.driverMovementAmountLabel,
                   border: const OutlineInputBorder(),
@@ -97,7 +101,7 @@ class _DriverFinancialMovementFormDialogState
               if (widget.movementType.isDeduction) ...[
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String>(
-                  value: _selectedTripId,
+                  initialValue: _selectedTripId,
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: l10n.driverMovementRelatedTripLabel,
@@ -111,13 +115,17 @@ class _DriverFinancialMovementFormDialogState
                     ...widget.tripOptions.map(
                       (option) => DropdownMenuItem(
                         value: option.id,
-                        child: Text(option.label, overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          option.label,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ],
                   onChanged: _isSubmitting
                       ? null
-                      : (value) => setState(() => _selectedTripId = value ?? ''),
+                      : (value) =>
+                            setState(() => _selectedTripId = value ?? ''),
                 ),
                 if (widget.isTripOptionsLoading) ...[
                   const SizedBox(height: AppSpacing.sm),
@@ -159,7 +167,9 @@ class _DriverFinancialMovementFormDialogState
                   FilledButton(
                     onPressed: _isSubmitting ? null : _submit,
                     child: Text(
-                      _isSubmitting ? l10n.savingDriverFinancialMovement : l10n.saveButton,
+                      _isSubmitting
+                          ? l10n.savingDriverFinancialMovement
+                          : l10n.saveButton,
                     ),
                   ),
                 ],
@@ -189,9 +199,9 @@ class _DriverFinancialMovementFormDialogState
     final amount = double.tryParse(_amountController.text.trim());
 
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.invalidDriverMovementAmount)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.invalidDriverMovementAmount)));
       return;
     }
 
@@ -199,7 +209,9 @@ class _DriverFinancialMovementFormDialogState
     await widget.onSubmit(
       amount: amount,
       movementDate: _movementDate,
-      tripId: widget.movementType.isDeduction ? _optional(_selectedTripId) : null,
+      tripId: widget.movementType.isDeduction
+          ? _optional(_selectedTripId)
+          : null,
       notes: _optional(_notesController.text),
     );
     if (mounted) Navigator.of(context).pop();

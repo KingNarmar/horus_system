@@ -423,6 +423,19 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.';
 
   @override
+  String get driverMovementRelatedTripLabel => 'الرحلة المرتبطة';
+
+  @override
+  String get driverMovementGeneralDeductionOption => 'خصم عام بدون ربط برحلة';
+
+  @override
+  String get loadingDriverTripOptions => 'جاري تحميل رحلات السائق...';
+
+  @override
+  String get noDriverTripsForDeduction =>
+      'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك حفظه كخصم عام.';
+
+  @override
   String get driverMovementNotesLabel => 'ملاحظات';
 
   @override

@@ -842,6 +842,30 @@ abstract class AppLocalizations {
   /// **'Trip selection will be added later. This deduction will be saved as a general deduction for now.'**
   String get driverMovementTripPickerComingSoon;
 
+  /// No description provided for @driverMovementRelatedTripLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Related trip'**
+  String get driverMovementRelatedTripLabel;
+
+  /// No description provided for @driverMovementGeneralDeductionOption.
+  ///
+  /// In en, this message translates to:
+  /// **'General deduction without trip link'**
+  String get driverMovementGeneralDeductionOption;
+
+  /// No description provided for @loadingDriverTripOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading driver trips...'**
+  String get loadingDriverTripOptions;
+
+  /// No description provided for @noDriverTripsForDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips assigned to this driver yet. You can save it as a general deduction.'**
+  String get noDriverTripsForDeduction;
+
   /// No description provided for @driverMovementNotesLabel.
   ///
   /// In en, this message translates to:

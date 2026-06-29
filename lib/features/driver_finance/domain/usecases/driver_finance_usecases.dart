@@ -1,3 +1,5 @@
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
+
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
