@@ -63,6 +63,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError ? 'الاسم بالكامل مطلوب.' : 'Full name is required.',
       FailureCodes.authPhoneRequired =>
         _isArabicError ? 'رقم الهاتف مطلوب.' : 'Phone number is required.',
+      FailureCodes.validationDriverIdRequired =>
+        _isArabicError ? 'معرّف السائق مطلوب.' : 'Driver id is required.',
       FailureCodes.validationDriverNameRequired =>
         _isArabicError ? 'اسم السائق مطلوب.' : 'Driver name is required.',
       FailureCodes.permissionDriversManagement =>
@@ -115,6 +117,14 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'لا يوجد صلاحية لإدارة مصروفات الرحلة.'
             : 'Trip expenses management is not allowed.',
+      FailureCodes.permissionDriverFinanceView =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لعرض الحركات المالية للسائق.'
+            : 'Driver finance access is not allowed.',
+      FailureCodes.permissionDriverFinanceManagement =>
+        _isArabicError
+            ? 'لا يوجد صلاحية لإدارة الحركات المالية للسائق.'
+            : 'Driver finance management is not allowed.',
       FailureCodes.validationTripIdRequired =>
         _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
       FailureCodes.validationTripExpenseIdRequired =>
@@ -129,6 +139,10 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'مبلغ المصروف لازم يكون أكبر من صفر.'
             : 'Expense amount must be greater than zero.',
+      FailureCodes.validationDriverFinanceAmountPositive =>
+        _isArabicError
+            ? 'مبلغ حركة السائق لازم يكون أكبر من صفر.'
+            : 'Driver financial movement amount must be greater than zero.',
       FailureCodes.validationCompanyNameRequired =>
         _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
       FailureCodes.serverError =>
