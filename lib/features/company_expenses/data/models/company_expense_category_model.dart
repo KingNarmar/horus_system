@@ -21,6 +21,12 @@ class CompanyExpenseCategoryModel {
       companyId: map['company_id'] as String,
       name: map['name'] as String,
       isActive: map['is_active'] as bool? ?? true,
+      createdAt: map['created_at'] == null
+          ? null
+          : DateTime.tryParse(map['created_at'].toString()),
+      updatedAt: map['updated_at'] == null
+          ? null
+          : DateTime.tryParse(map['updated_at'].toString()),
     );
   }
 }
