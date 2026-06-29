@@ -6,6 +6,7 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/driver_balance.dart';
+import '../entities/driver_finance_trip_option.dart';
 import '../entities/driver_financial_movement.dart';
 import '../entities/driver_financial_movement_type.dart';
 import '../entities/driver_financial_movement_write_data.dart';
@@ -17,6 +18,16 @@ class GetDriverMovementsParams {
   final String driverId;
 
   const GetDriverMovementsParams({
+    required this.currentCompanyContext,
+    required this.driverId,
+  });
+}
+
+class GetDriverTripOptionsParams {
+  final CurrentCompanyContext currentCompanyContext;
+  final String driverId;
+
+  const GetDriverTripOptionsParams({
     required this.currentCompanyContext,
     required this.driverId,
   });
@@ -78,34 +89,36 @@ class GetDriverMovementsUseCase
   Future<Result<List<DriverFinancialMovement>>> call(
     GetDriverMovementsParams params,
   ) {
-    final context = params.currentCompanyContext;
-
-    if (!DriverFinancePermissionPolicy.canViewDriverFinance(context.role)) {
-      return Future.value(
-        const FailureResult<List<DriverFinancialMovement>>(
-          PermissionFailure(
-            code: FailureCodes.permissionDriverFinanceView,
-            message: 'Driver finance access is not allowed.',
-          ),
-        ),
-      );
-    }
-
-    final driverId = _optional(params.driverId);
-    if (driverId == null) {
-      return Future.value(
-        const FailureResult<List<DriverFinancialMovement>>(
-          ValidationFailure(
-            code: FailureCodes.validationDriverIdRequired,
-            message: 'Driver id is required.',
-          ),
-        ),
-      );
+    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    if (driverId is FailureResult<String>) {
+      return Future.value(FailureResult(driverId.failure));
     }
 
     return _repository.getDriverMovements(
-      companyId: context.companyId,
-      driverId: driverId,
+      companyId: params.currentCompanyContext.companyId,
+      driverId: (driverId as Success<String>).data,
+    );
+  }
+}
+
+class GetDriverTripOptionsUseCase
+    implements UseCase<List<DriverFinanceTripOption>, GetDriverTripOptionsParams> {
+  final DriverFinanceRepository _repository;
+
+  const GetDriverTripOptionsUseCase(this._repository);
+
+  @override
+  Future<Result<List<DriverFinanceTripOption>>> call(
+    GetDriverTripOptionsParams params,
+  ) {
+    final driverId = _validViewDriverId(params.currentCompanyContext, params.driverId);
+    if (driverId is FailureResult<String>) {
+      return Future.value(FailureResult(driverId.failure));
+    }
+
+    return _repository.getDriverTripOptions(
+      companyId: params.currentCompanyContext.companyId,
+      driverId: (driverId as Success<String>).data,
     );
   }
 }
@@ -212,6 +225,29 @@ Future<Result<DriverFinancialMovement>> _addMovement({
       notes: _optional(notes),
     ),
   );
+}
+
+Result<String> _validViewDriverId(CurrentCompanyContext context, String driverId) {
+  if (!DriverFinancePermissionPolicy.canViewDriverFinance(context.role)) {
+    return const FailureResult<String>(
+      PermissionFailure(
+        code: FailureCodes.permissionDriverFinanceView,
+        message: 'Driver finance access is not allowed.',
+      ),
+    );
+  }
+
+  final value = _optional(driverId);
+  if (value == null) {
+    return const FailureResult<String>(
+      ValidationFailure(
+        code: FailureCodes.validationDriverIdRequired,
+        message: 'Driver id is required.',
+      ),
+    );
+  }
+
+  return Success(value);
 }
 
 Failure? _validateWritableMovement({
