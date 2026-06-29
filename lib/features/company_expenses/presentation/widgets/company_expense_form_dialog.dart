@@ -129,7 +129,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  value: _selectedCategoryId,
+                  initialValue: _selectedCategoryId,
                   decoration: InputDecoration(
                     labelText: l10n.companyExpenseCategoryLabel,
                   ),
