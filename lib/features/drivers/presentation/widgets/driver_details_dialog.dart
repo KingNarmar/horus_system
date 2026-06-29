@@ -85,7 +85,10 @@ class DriverDetailsDialog extends StatelessWidget {
               _DetailsSection(
                 title: l10n.basicInfo,
                 children: [
-                  _DetailRow(label: l10n.driverNameLabel, value: driver.fullName),
+                  _DetailRow(
+                    label: l10n.driverNameLabel,
+                    value: driver.fullName,
+                  ),
                   _DetailRow(
                     label: l10n.phoneLabel,
                     value: _optional(driver.phone, l10n),
@@ -126,7 +129,9 @@ class DriverDetailsDialog extends StatelessWidget {
                 isSaving:
                     isSelectedDriver &&
                     (state?.isSavingFinancialMovement ?? false),
-                failure: isSelectedDriver ? state?.financialMovementsFailure : null,
+                failure: isSelectedDriver
+                    ? state?.financialMovementsFailure
+                    : null,
                 onAddAdvance: onAddAdvance,
                 onAddDeduction: onAddDeduction,
               ),
@@ -217,10 +222,7 @@ class _ActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
   final List<DriverFinanceTripOption> tripOptions;
 
-  const _ActivityTimelineItem({
-    required this.log,
-    required this.tripOptions,
-  });
+  const _ActivityTimelineItem({required this.log, required this.tripOptions});
 
   @override
   Widget build(BuildContext context) {
@@ -285,10 +287,7 @@ class _ActivityTimelineItem extends StatelessWidget {
       log.newValues?['trip_id'],
     ]);
     final notes = _firstText([log.newValues?['notes']]);
-    final titleParts = <String>[
-      l10n.driverMovementTypeLabel(type),
-      ?amount,
-    ];
+    final titleParts = <String>[l10n.driverMovementTypeLabel(type), ?amount];
     final details = <String>[
       if (date != null) _detailLine(l10n.driverMovementDateLabel, date),
       if (tripId != null)
@@ -304,7 +303,8 @@ class _ActivityTimelineItem extends StatelessWidget {
 
   bool _isDriverFinanceLog(AuditLog log) {
     return log.entityDisplayName == _driverFinancialMovementEntityKey ||
-        log.entityDisplayName == _legacyDriverFinancialMovementEntityDisplayName ||
+        log.entityDisplayName ==
+            _legacyDriverFinancialMovementEntityDisplayName ||
         log.metadata?['audit_event'] == _driverFinanceMovementAddedEvent ||
         log.metadata?.containsKey('movement_id') == true ||
         log.newValues?.containsKey('movement_type') == true;
@@ -363,10 +363,7 @@ class _DriverFinanceLogSummary {
   final String title;
   final List<String> details;
 
-  const _DriverFinanceLogSummary({
-    required this.title,
-    required this.details,
-  });
+  const _DriverFinanceLogSummary({required this.title, required this.details});
 }
 
 class _DetailsSection extends StatelessWidget {

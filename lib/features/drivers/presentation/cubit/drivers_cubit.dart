@@ -76,8 +76,8 @@ class DriversCubit extends Cubit<DriversState> {
           ),
           canManageDriverFinance:
               DriverFinancePermissionPolicy.canManageDriverFinance(
-            currentCompanyContext.role,
-          ),
+                currentCompanyContext.role,
+              ),
         ),
       ),
       failure: (failure) => emit(DriversFailure(failure)),
@@ -537,8 +537,8 @@ class DriversCubit extends Cubit<DriversState> {
     final exists = currentState.allDrivers.any((item) => item.id == driver.id);
     final updatedDrivers = exists
         ? currentState.allDrivers
-            .map((item) => item.id == driver.id ? driver : item)
-            .toList()
+              .map((item) => item.id == driver.id ? driver : item)
+              .toList()
         : [driver, ...currentState.allDrivers];
 
     if (currentState.selectedDriver?.id == driver.id) {
