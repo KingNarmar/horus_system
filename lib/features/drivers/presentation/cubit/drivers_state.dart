@@ -2,6 +2,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../driver_finance/domain/entities/driver_balance.dart';
+import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status_filter.dart';
@@ -34,6 +35,9 @@ class DriversLoaded extends DriversState {
   final Failure? activityFailure;
   final List<DriverFinancialMovement> selectedDriverFinancialMovements;
   final DriverBalance? selectedDriverBalance;
+  final List<DriverFinanceTripOption> selectedDriverTripOptions;
+  final bool isTripOptionsLoading;
+  final Failure? tripOptionsFailure;
   final bool isFinancialMovementsLoading;
   final bool isSavingFinancialMovement;
   final Failure? financialMovementsFailure;
@@ -52,6 +56,9 @@ class DriversLoaded extends DriversState {
     this.activityFailure,
     this.selectedDriverFinancialMovements = const [],
     this.selectedDriverBalance,
+    this.selectedDriverTripOptions = const [],
+    this.isTripOptionsLoading = false,
+    this.tripOptionsFailure,
     this.isFinancialMovementsLoading = false,
     this.isSavingFinancialMovement = false,
     this.financialMovementsFailure,
@@ -89,6 +96,9 @@ class DriversLoaded extends DriversState {
     Object? activityFailure = _notSet,
     List<DriverFinancialMovement>? selectedDriverFinancialMovements,
     Object? selectedDriverBalance = _notSet,
+    List<DriverFinanceTripOption>? selectedDriverTripOptions,
+    bool? isTripOptionsLoading,
+    Object? tripOptionsFailure = _notSet,
     bool? isFinancialMovementsLoading,
     bool? isSavingFinancialMovement,
     Object? financialMovementsFailure = _notSet,
@@ -118,6 +128,12 @@ class DriversLoaded extends DriversState {
       selectedDriverBalance: selectedDriverBalance == _notSet
           ? this.selectedDriverBalance
           : selectedDriverBalance as DriverBalance?,
+      selectedDriverTripOptions:
+          selectedDriverTripOptions ?? this.selectedDriverTripOptions,
+      isTripOptionsLoading: isTripOptionsLoading ?? this.isTripOptionsLoading,
+      tripOptionsFailure: tripOptionsFailure == _notSet
+          ? this.tripOptionsFailure
+          : tripOptionsFailure as Failure?,
       isFinancialMovementsLoading:
           isFinancialMovementsLoading ?? this.isFinancialMovementsLoading,
       isSavingFinancialMovement:
