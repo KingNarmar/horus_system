@@ -27,6 +27,7 @@ class DriversCubit extends Cubit<DriversState> {
   final ReactivateDriverUseCase reactivateDriverUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
   final GetDriverMovementsUseCase getDriverMovementsUseCase;
+  final GetDriverTripOptionsUseCase getDriverTripOptionsUseCase;
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
   final AddDriverDeductionUseCase addDriverDeductionUseCase;
   final CalculateDriverBalanceUseCase calculateDriverBalanceUseCase;
@@ -41,6 +42,7 @@ class DriversCubit extends Cubit<DriversState> {
     required this.reactivateDriverUseCase,
     required this.getEntityAuditLogsUseCase,
     required this.getDriverMovementsUseCase,
+    required this.getDriverTripOptionsUseCase,
     required this.addDriverAdvanceUseCase,
     required this.addDriverDeductionUseCase,
     required this.calculateDriverBalanceUseCase,
@@ -186,6 +188,51 @@ class DriversCubit extends Cubit<DriversState> {
     );
   }
 
+  Future<void> loadDriverTripOptions(Driver driver) async {
+    final context = _currentCompanyContext;
+    final currentState = state;
+    if (context == null || currentState is! DriversLoaded) return;
+
+    emit(
+      currentState.copyWith(
+        selectedDriver: driver,
+        selectedDriverTripOptions: const [],
+        isTripOptionsLoading: true,
+        tripOptionsFailure: null,
+      ),
+    );
+
+    final result = await getDriverTripOptionsUseCase(
+      GetDriverTripOptionsParams(
+        currentCompanyContext: context,
+        driverId: driver.id,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! DriversLoaded ||
+        latestState.selectedDriver?.id != driver.id) {
+      return;
+    }
+
+    result.when(
+      success: (tripOptions) => emit(
+        latestState.copyWith(
+          selectedDriverTripOptions: tripOptions,
+          isTripOptionsLoading: false,
+          tripOptionsFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          selectedDriverTripOptions: const [],
+          isTripOptionsLoading: false,
+          tripOptionsFailure: failure,
+        ),
+      ),
+    );
+  }
+
   void clearDriverActivity() {
     final currentState = state;
     if (currentState is DriversLoaded) {
@@ -197,6 +244,9 @@ class DriversCubit extends Cubit<DriversState> {
           activityFailure: null,
           selectedDriverFinancialMovements: const [],
           selectedDriverBalance: null,
+          selectedDriverTripOptions: const [],
+          isTripOptionsLoading: false,
+          tripOptionsFailure: null,
           isFinancialMovementsLoading: false,
           isSavingFinancialMovement: false,
           financialMovementsFailure: null,
