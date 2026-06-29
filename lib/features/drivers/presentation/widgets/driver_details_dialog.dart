@@ -211,7 +211,7 @@ class _ActivityTimelineItem extends StatelessWidget {
     final notes = _firstText([log.newValues?['notes']]);
     final titleParts = <String>[
       l10n.driverMovementTypeLabel(type),
-      if (amount != null) amount,
+      ?amount,
     ];
     final details = <String>[
       if (date != null) _detailLine(l10n.driverMovementDateLabel, date),
