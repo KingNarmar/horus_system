@@ -394,6 +394,68 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get driverFinanceTitle => 'حركات السائق المالية';
+
+  @override
+  String get driverBalancePlaceholderDescription =>
+      'رصيد مبدئي محسوب من السلف والخصومات المسجلة حاليًا. التسوية الشهرية ستنفذ لاحقًا.';
+
+  @override
+  String get addDriverAdvanceButton => 'إضافة سلفة';
+
+  @override
+  String get addDriverDeductionButton => 'إضافة خصم';
+
+  @override
+  String get addDriverAdvanceTitle => 'إضافة سلفة للسائق';
+
+  @override
+  String get addDriverDeductionTitle => 'إضافة خصم للسائق';
+
+  @override
+  String get driverMovementAmountLabel => 'المبلغ';
+
+  @override
+  String get driverMovementDateLabel => 'التاريخ';
+
+  @override
+  String get driverMovementTripPickerComingSoon =>
+      'اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.';
+
+  @override
+  String get driverMovementNotesLabel => 'ملاحظات';
+
+  @override
+  String get totalAdvancesLabel => 'إجمالي السلف';
+
+  @override
+  String get totalDeductionsLabel => 'إجمالي الخصومات';
+
+  @override
+  String get netDriverBalanceLabel => 'الرصيد الحالي';
+
+  @override
+  String get noDriverFinancialMovements => 'لا توجد حركات مالية بعد.';
+
+  @override
+  String get loadingDriverFinancialMovements => 'جاري تحميل الحركات المالية...';
+
+  @override
+  String get savingDriverFinancialMovement => 'جاري الحفظ...';
+
+  @override
+  String get invalidDriverMovementAmount => 'أدخل مبلغ صحيح أكبر من صفر.';
+
+  @override
+  String get driverMovementTripLine => 'الرحلة';
+
+  @override
+  String get driverMovementTypeAdvance => 'سلفة';
+
+  @override
+  String get driverMovementTypeDeduction => 'خصم';
+
+  @override
   String get unknownUser => 'مستخدم غير معروف';
 
   @override

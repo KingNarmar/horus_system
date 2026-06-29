@@ -5,14 +5,14 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
-import '../localization/driver_finance_localizations_x.dart';
 
-typedef DriverFinancialMovementSubmit = Future<void> Function({
-  required double amount,
-  required DateTime movementDate,
-  String? tripId,
-  String? notes,
-});
+typedef DriverFinancialMovementSubmit =
+    Future<void> Function({
+      required double amount,
+      required DateTime movementDate,
+      String? tripId,
+      String? notes,
+    });
 
 class DriverFinancialMovementFormDialog extends StatefulWidget {
   final DriverFinancialMovementType movementType;
@@ -52,7 +52,9 @@ class _DriverFinancialMovementFormDialogState
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -64,10 +66,9 @@ class _DriverFinancialMovementFormDialogState
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -125,7 +126,9 @@ class _DriverFinancialMovementFormDialogState
                   FilledButton(
                     onPressed: _isSubmitting ? null : _submit,
                     child: Text(
-                      _isSubmitting ? l10n.savingDriverFinancialMovement : l10n.saveButton,
+                      _isSubmitting
+                          ? l10n.savingDriverFinancialMovement
+                          : l10n.saveButton,
                     ),
                   ),
                 ],
@@ -155,9 +158,9 @@ class _DriverFinancialMovementFormDialogState
     final amount = double.tryParse(_amountController.text.trim());
 
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.invalidDriverMovementAmount)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.invalidDriverMovementAmount)));
       return;
     }
 
