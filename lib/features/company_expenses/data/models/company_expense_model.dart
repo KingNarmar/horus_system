@@ -54,6 +54,8 @@ class CompanyExpenseModel {
       voidedAt: map['voided_at'] == null ? null : DateTime.tryParse(map['voided_at'].toString()),
       voidedBy: map['voided_by'] as String?,
       voidReason: map['void_reason'] as String?,
+      createdAt: map['created_at'] == null ? null : DateTime.tryParse(map['created_at'].toString()),
+      updatedAt: map['updated_at'] == null ? null : DateTime.tryParse(map['updated_at'].toString()),
     );
   }
 }
