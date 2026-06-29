@@ -245,7 +245,9 @@ class VoidCompanyExpenseUseCase
   @override
   Future<Result<CompanyExpense>> call(VoidCompanyExpenseParams params) {
     final context = params.currentCompanyContext;
-    if (!CompanyExpensesPermissionPolicy.canManageCompanyExpenses(context.role)) {
+    if (!CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
+      context.role,
+    )) {
       return Future.value(
         const FailureResult<CompanyExpense>(
           PermissionFailure(

@@ -15,7 +15,9 @@ abstract final class CompanyExpensesPermissionPolicy {
   static bool canManageCompanyExpenses(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations || CompanyRole.viewer || CompanyRole.driver => false,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
     };
   }
 }
