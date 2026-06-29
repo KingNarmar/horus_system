@@ -214,9 +214,9 @@ class _ActivityTimelineItem extends StatelessWidget {
       if (amount != null) amount,
     ];
     final details = <String>[
-      if (date != null) l10n.auditChangeLine(l10n.driverMovementDateLabel, '', date),
-      if (tripId != null) l10n.auditChangeLine(l10n.driverMovementTripLine, '', _tripLabel(tripId)),
-      if (notes != null) l10n.auditChangeLine(l10n.driverMovementNotesLabel, '', notes),
+      if (date != null) _detailLine(l10n.driverMovementDateLabel, date),
+      if (tripId != null) _detailLine(l10n.driverMovementTripLine, _tripLabel(tripId)),
+      if (notes != null) _detailLine(l10n.driverMovementNotesLabel, notes),
     ];
 
     return _DriverFinanceLogSummary(
@@ -237,6 +237,8 @@ class _ActivityTimelineItem extends StatelessWidget {
     }
     return tripId;
   }
+
+  String _detailLine(String label, String value) => '$label: $value';
 
   String? _firstText(List<Object?> values) {
     for (final value in values) {
