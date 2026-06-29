@@ -105,31 +105,19 @@ class _MovementItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final tripId = movement.tripId?.trim();
-    final notes = movement.notes?.trim();
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.driverMovementTypeLabel(movement.type),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          _DetailRow(
-            label: l10n.driverMovementAmountLabel,
-            value: _signedMoney(movement),
-          ),
-          _DetailRow(
-            label: l10n.driverMovementDateLabel,
-            value: _dateOnly(movement.movementDate),
+            '${l10n.driverMovementTypeLabel(movement.type)} - ${_money(movement.amount)} - ${_dateOnly(movement.movementDate)}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           if (tripId != null && tripId.isNotEmpty)
-            _DetailRow(label: l10n.driverMovementTripLine, value: tripId),
-          if (notes != null && notes.isNotEmpty)
-            _DetailRow(label: l10n.driverMovementNotesLabel, value: notes),
+            Text('${l10n.driverMovementTripLine}: $tripId'),
+          if (movement.notes != null && movement.notes!.trim().isNotEmpty)
+            Text(movement.notes!.trim()),
         ],
       ),
     );
@@ -169,8 +157,3 @@ String _dateOnly(DateTime value) {
 }
 
 String _money(double value) => value.toStringAsFixed(2);
-
-String _signedMoney(DriverFinancialMovement movement) {
-  final sign = movement.type.isAdvance ? '+' : '-';
-  return '$sign${_money(movement.amount)}';
-}
