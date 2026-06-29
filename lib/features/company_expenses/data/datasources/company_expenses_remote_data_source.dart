@@ -181,7 +181,7 @@ class SupabaseCompanyExpensesRemoteDataSource
     final actorUserId = client.auth.currentUser?.id;
     final row = await client
         .from(_companyExpensesTable)
-        .update(data.toVoidMap(actorUserId: actorUserId ?? ''))
+        .update(data.toVoidMap(actorUserId: actorUserId))
         .eq(DbCommonFields.companyId, data.companyId)
         .eq(DbCommonFields.id, data.expenseId)
         .select(_companyExpenseColumns)
