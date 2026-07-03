@@ -208,6 +208,7 @@
   "failureValidationCompanyIdRequired": "Company id is required.",
   "failureValidationCompanyContextRequired": "Company context is required.",
   "failureCompanyNotAvailable": "Selected company is not available for the current user.",
+  "failurePermissionCompanyUsersView": "This role cannot view company users.",
   "failureValidationAuditEntityIdRequired": "Audit entity id is required.",
   "failureValidationAuditDescriptionRequired": "Audit description is required.",
   "unknownUser": "Unknown User",
