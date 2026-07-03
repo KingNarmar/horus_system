@@ -69,15 +69,41 @@ void main() {
       },
     );
 
-    test('domain tests do not import flutter_test', () {
-      final domainTestFiles = Directory('test/features')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where(
-            (file) =>
-                file.path.endsWith('_test.dart') &&
-                file.path.split(Platform.pathSeparator).contains('domain'),
+    test('domain layer does not depend on outer layers or SDKs', () {
+      final domainFiles = _dartFilesUnder('lib/features')
+          .where((file) => _normalizedPath(file).contains('/domain/'));
+
+      for (final file in domainFiles) {
+        for (final importUri in _importUris(file)) {
+          expect(
+            _isForbiddenDomainImport(importUri),
+            isFalse,
+            reason:
+                '${file.path} must keep Domain pure. Forbidden import: $importUri',
           );
+        }
+      }
+    });
+
+    test('presentation layer does not import Supabase or data internals', () {
+      final presentationFiles = _dartFilesUnder('lib/features')
+          .where((file) => _normalizedPath(file).contains('/presentation/'));
+
+      for (final file in presentationFiles) {
+        for (final importUri in _importUris(file)) {
+          expect(
+            _isForbiddenPresentationImport(importUri),
+            isFalse,
+            reason:
+                '${file.path} must use use cases/domain APIs, not data internals or Supabase. Forbidden import: $importUri',
+          );
+        }
+      }
+    });
+
+    test('domain tests do not import flutter_test', () {
+      final domainTestFiles = _dartFilesUnder('test/features')
+          .where((file) => _normalizedPath(file).contains('/domain/'));
 
       for (final file in domainTestFiles) {
         final content = file.readAsStringSync();
@@ -92,3 +118,49 @@ void main() {
 }
 
 String _read(String path) => File(path).readAsStringSync();
+
+Iterable<File> _dartFilesUnder(String path) {
+  final directory = Directory(path);
+  if (!directory.existsSync()) return const [];
+
+  return directory
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.dart'));
+}
+
+String _normalizedPath(File file) => file.path.replaceAll('\\', '/');
+
+Iterable<String> _importUris(File file) sync* {
+  final importPattern = RegExp(r'''^\s*(import|export)\s+['"]([^'"]+)['"]''');
+  for (final line in file.readAsLinesSync()) {
+    final match = importPattern.firstMatch(line);
+    if (match == null) continue;
+    yield match.group(2)!;
+  }
+}
+
+bool _isForbiddenDomainImport(String importUri) {
+  return importUri == 'dart:ui' ||
+      importUri.startsWith('package:flutter') ||
+      importUri.contains('supabase') ||
+      importUri.contains('flutter_bloc') ||
+      importUri.contains('/data/') ||
+      importUri.contains('../data/') ||
+      importUri.contains('/presentation/') ||
+      importUri.contains('../presentation/') ||
+      importUri.contains('/cubit/') ||
+      importUri.contains('../cubit/');
+}
+
+bool _isForbiddenPresentationImport(String importUri) {
+  return importUri.contains('supabase') ||
+      importUri.contains('/data/datasources/') ||
+      importUri.contains('../data/datasources/') ||
+      importUri.contains('/data/models/') ||
+      importUri.contains('../data/models/') ||
+      importUri.contains('/data/repositories/') ||
+      importUri.contains('../data/repositories/') ||
+      importUri.contains('/data/constants/') ||
+      importUri.contains('../data/constants/');
+}
