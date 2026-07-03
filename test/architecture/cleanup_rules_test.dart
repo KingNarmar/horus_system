@@ -103,6 +103,36 @@ void main() {
       }
     });
 
+    test('audit data wiring is centralized in audit dependencies', () {
+      final files = _dartFilesUnder('lib').where(
+        (file) => !_isAuditDependencyImplementationFile(file),
+      );
+
+      for (final file in files) {
+        final content = file.readAsStringSync();
+        for (final importUri in _importUris(file)) {
+          expect(
+            _isForbiddenAuditDataImport(importUri),
+            isFalse,
+            reason:
+                '${file.path} must use AuditDependencies instead of importing audit data internals. Forbidden import: $importUri',
+          );
+        }
+        expect(
+          content,
+          isNot(contains('SupabaseAuditLogsRemoteDataSource(')),
+          reason:
+              '${file.path} must use AuditDependencies instead of creating audit remote data sources.',
+        );
+        expect(
+          content,
+          isNot(contains('AuditLogRepositoryImpl(')),
+          reason:
+              '${file.path} must use AuditDependencies instead of creating audit repositories.',
+        );
+      }
+    });
+
     test('domain tests do not import flutter_test', () {
       final domainTestFiles = _dartFilesUnder(
         'test/features',
@@ -166,4 +196,19 @@ bool _isForbiddenPresentationImport(String importUri) {
       importUri.contains('../data/repositories/') ||
       importUri.contains('/data/constants/') ||
       importUri.contains('../data/constants/');
+}
+
+bool _isAuditDependencyImplementationFile(File file) {
+  final path = _normalizedPath(file);
+  return path.endsWith('/features/audit/di/audit_dependencies.dart') ||
+      path.endsWith('/features/audit/data/datasources/audit_logs_remote_data_source.dart') ||
+      path.endsWith('/features/audit/data/repositories/audit_log_repository_impl.dart');
+}
+
+bool _isForbiddenAuditDataImport(String importUri) {
+  return importUri.contains('features/audit/data/') ||
+      importUri.contains('../audit/data/') ||
+      importUri.contains('../../audit/data/') ||
+      importUri.contains('../../../audit/data/') ||
+      importUri.contains('../../../../audit/data/');
 }
