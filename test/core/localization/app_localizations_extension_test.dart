@@ -110,6 +110,92 @@ void main() {
         'معرّف الشركة مطلوب.',
       );
     });
+
+    testWidgets('localizes customer failure codes in English', (tester) async {
+      final l10n = await _pumpLocalizations(tester, const Locale('en'));
+
+      expect(
+        l10n.localizedErrorMessage(
+          const PermissionFailure(code: FailureCodes.permissionCustomersView),
+        ),
+        'Customers access is not allowed.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const PermissionFailure(
+            code: FailureCodes.permissionCustomersManagement,
+          ),
+        ),
+        'Customers management is not allowed.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCustomerIdRequired,
+          ),
+        ),
+        'Customer id is required.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCustomerNameRequired,
+          ),
+        ),
+        'Customer name is required.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCreditLimitNegative,
+          ),
+        ),
+        'Credit limit cannot be negative.',
+      );
+    });
+
+    testWidgets('localizes customer failure codes in Arabic', (tester) async {
+      final l10n = await _pumpLocalizations(tester, const Locale('ar'));
+
+      expect(
+        l10n.localizedErrorMessage(
+          const PermissionFailure(code: FailureCodes.permissionCustomersView),
+        ),
+        'لا يوجد صلاحية للوصول إلى العملاء.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const PermissionFailure(
+            code: FailureCodes.permissionCustomersManagement,
+          ),
+        ),
+        'لا يوجد صلاحية لإدارة العملاء.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCustomerIdRequired,
+          ),
+        ),
+        'معرّف العميل مطلوب.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCustomerNameRequired,
+          ),
+        ),
+        'اسم العميل مطلوب.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCreditLimitNegative,
+          ),
+        ),
+        'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.',
+      );
+    });
   });
 }
 
