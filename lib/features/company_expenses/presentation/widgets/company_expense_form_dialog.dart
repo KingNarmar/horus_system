@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
+import '../constants/company_expense_presentation_constants.dart';
+import '../helpers/company_expense_date_formatter.dart';
 import '../localization/company_expense_category_localizations_x.dart';
 
 class CompanyExpenseFormData {
@@ -73,8 +76,12 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _expenseDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(
+        CompanyExpensePresentationConstants.expenseDatePickerFirstYear,
+      ),
+      lastDate: DateTime(
+        CompanyExpensePresentationConstants.expenseDatePickerLastYear,
+      ),
     );
     if (picked == null) return;
     setState(() => _expenseDate = picked);
@@ -108,12 +115,6 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
     return normalized.isEmpty ? null : normalized;
   }
 
-  String _dateOnly(DateTime value) {
-    return '${value.year.toString().padLeft(4, '0')}-'
-        '${value.month.toString().padLeft(2, '0')}-'
-        '${value.day.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -124,7 +125,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
         isEditing ? l10n.editCompanyExpenseTitle : l10n.addCompanyExpenseTitle,
       ),
       content: SizedBox(
-        width: 560,
+        width: AppSizes.formDialogMaxWidth,
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -180,7 +181,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                     decoration: InputDecoration(
                       labelText: l10n.companyExpenseDateLabel,
                     ),
-                    child: Text(_dateOnly(_expenseDate)),
+                    child: Text(formatCompanyExpenseDate(_expenseDate)),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -196,7 +197,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                   decoration: InputDecoration(
                     labelText: l10n.companyExpenseNotesLabel,
                   ),
-                  maxLines: 3,
+                  maxLines: CompanyExpensePresentationConstants.notesMaxLines,
                 ),
               ],
             ),
