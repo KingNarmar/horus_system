@@ -19,6 +19,10 @@ import '../datasources/trips_remote_data_source.dart';
 import '../mappers/trip_mapper.dart';
 import '../models/trip_model.dart';
 
+const _tripCreatedEvent = 'trip_created';
+const _tripUpdatedEvent = 'trip_updated';
+const _tripStatusChangedEvent = 'trip_status_changed';
+
 class TripsRepositoryImpl implements TripsRepository {
   final TripsRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
@@ -87,7 +91,7 @@ class TripsRepositoryImpl implements TripsRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: AuditAction.created,
-        description: 'Trip created: ${model.displayName}',
+        description: _tripCreatedEvent,
         newValues: model.toAuditValues(),
       );
 
@@ -119,7 +123,7 @@ class TripsRepositoryImpl implements TripsRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: AuditAction.updated,
-        description: 'Trip updated: ${model.displayName}',
+        description: _tripUpdatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -169,8 +173,7 @@ class TripsRepositoryImpl implements TripsRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: AuditAction.statusChanged,
-        description:
-            'Trip status changed: ${model.displayName} (${oldStatus.value} -> ${newStatus.value})',
+        description: _tripStatusChangedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
         metadata: {
