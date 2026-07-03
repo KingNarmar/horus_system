@@ -167,7 +167,13 @@ void main() {
       for (final label in forbiddenLabels) {
         expect(
           content,
-          isNot(contains(label)),
+          isNot(contains("'$label'")),
+          reason:
+              'Company expense category labels must live in ARB/generated localization, not Dart.',
+        );
+        expect(
+          content,
+          isNot(contains('"$label"')),
           reason:
               'Company expense category labels must live in ARB/generated localization, not Dart.',
         );
