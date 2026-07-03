@@ -183,24 +183,3 @@ extension CommonErrorLocalizationsX on AppLocalizations {
     };
   }
 }
-
-extension CustomerFilterLocalizationsX on AppLocalizations {
-  bool get _isArabic => localeName.startsWith('ar');
-
-  String get reactivateCustomerButton =>
-      _isArabic ? 'إعادة تفعيل' : 'Reactivate';
-
-  String get searchCustomersHint =>
-      _isArabic ? 'ابحث في العملاء' : 'Search customers';
-
-  String get customersStatusAllFilter => _isArabic ? 'الكل' : 'All';
-
-  String get customersStatusActiveFilter => _isArabic ? 'النشط' : 'Active';
-
-  String get customersStatusInactiveFilter =>
-      _isArabic ? 'غير النشط' : 'Inactive';
-
-  String get noCustomersMatchFilters => _isArabic
-      ? 'لا يوجد عملاء مطابقون للبحث أو فلتر الحالة الحالي.'
-      : 'No customers match the current search or status filter.';
-}
