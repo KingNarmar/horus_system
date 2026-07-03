@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../errors/common_failures.dart';
 import '../errors/failure.dart';
 import '../errors/failure_codes.dart';
 
@@ -11,10 +12,22 @@ extension AppLocalizationsX on BuildContext {
 extension CommonErrorLocalizationsX on AppLocalizations {
   bool get _isArabicError => localeName.startsWith('ar');
 
+  String get _genericUnexpectedErrorMessage =>
+      _isArabicError ? 'حدث خطأ غير متوقع.' : 'Unexpected error occurred.';
+
+  String get _genericServerErrorMessage =>
+      _isArabicError ? 'حدث خطأ في الخادم.' : 'Server error occurred.';
+
+  String _safeFallbackErrorMessage(Failure failure) {
+    if (failure is ServerFailure) return _genericServerErrorMessage;
+    if (failure is UnexpectedFailure) return _genericUnexpectedErrorMessage;
+
+    return failure.message ?? failure.code;
+  }
+
   String localizedErrorMessage(Failure failure) {
     return switch (failure.code) {
-      FailureCodes.unexpectedError =>
-        _isArabicError ? 'حدث خطأ غير متوقع.' : 'Unexpected error occurred.',
+      FailureCodes.unexpectedError => _genericUnexpectedErrorMessage,
       FailureCodes.validationCompanyIdRequired =>
         _isArabicError ? 'معرّف الشركة مطلوب.' : 'Company id is required.',
       FailureCodes.validationCompanyContextRequired =>
@@ -165,10 +178,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
             : 'Company expense amount must be greater than zero.',
       FailureCodes.validationCompanyNameRequired =>
         _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
-      FailureCodes.serverError =>
-        failure.message ??
-            (_isArabicError ? 'حدث خطأ في الخادم.' : 'Server error occurred.'),
-      _ => failure.message ?? failure.code,
+      FailureCodes.serverError => _genericServerErrorMessage,
+      _ => _safeFallbackErrorMessage(failure),
     };
   }
 }
