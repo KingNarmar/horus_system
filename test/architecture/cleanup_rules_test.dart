@@ -133,6 +133,30 @@ void main() {
       }
     });
 
+    test('audit domain use cases rely on failure codes, not message strings', () {
+      const paths = [
+        'lib/features/audit/domain/usecases/create_audit_log_usecase.dart',
+        'lib/features/audit/domain/usecases/get_entity_audit_logs_usecase.dart',
+      ];
+      const forbiddenSnippets = [
+        'Company id is required.',
+        'Audit entity id is required.',
+        'Audit description is required.',
+      ];
+
+      for (final path in paths) {
+        final content = _read(path);
+        for (final snippet in forbiddenSnippets) {
+          expect(
+            content,
+            isNot(contains(snippet)),
+            reason:
+                '$path must return typed failure codes and keep user-facing messages in localization.',
+          );
+        }
+      }
+    });
+
     test('company expense category labels are not hardcoded in Dart', () {
       final content = _read(
         'lib/features/company_expenses/presentation/localization/'
