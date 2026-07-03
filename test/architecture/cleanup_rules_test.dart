@@ -68,6 +68,26 @@ void main() {
         }
       },
     );
+
+    test('domain tests do not import flutter_test', () {
+      final domainTestFiles = Directory('test/features')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where(
+            (file) =>
+                file.path.endsWith('_test.dart') &&
+                file.path.split(Platform.pathSeparator).contains('domain'),
+          );
+
+      for (final file in domainTestFiles) {
+        final content = file.readAsStringSync();
+        expect(
+          content,
+          isNot(contains('package:flutter_test/flutter_test.dart')),
+          reason: '${file.path} must use package:test for pure domain tests.',
+        );
+      }
+    });
   });
 }
 
