@@ -166,6 +166,17 @@
   "driverMovementTripLine": "الرحلة",
   "driverMovementTypeAdvance": "سلفة",
   "driverMovementTypeDeduction": "خصم",
+  "companyExpenseCategoryVehicleMaintenance": "صيانة المركبات",
+  "companyExpenseCategorySpareParts": "قطع الغيار",
+  "companyExpenseCategoryTires": "الإطارات",
+  "companyExpenseCategoryOilsAndFluids": "الزيوت والسوائل",
+  "companyExpenseCategoryLicensesAndRenewals": "التراخيص والتجديدات",
+  "companyExpenseCategoryOfficeExpenses": "مصروفات المكتب",
+  "companyExpenseCategoryRent": "الإيجار",
+  "companyExpenseCategorySalaries": "الرواتب",
+  "companyExpenseCategoryAdminCosts": "المصروفات الإدارية",
+  "companyExpenseCategoryFines": "الغرامات",
+  "companyExpenseCategoryOther": "أخرى",
   "unknownUser": "مستخدم غير معروف",
   "profileDetailsNotSetYet": "لم يتم تعيين تفاصيل الملف الشخصي بعد"
 }
