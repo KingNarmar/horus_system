@@ -4,6 +4,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
+import '../localization/company_expense_category_localizations_x.dart';
 
 class CompanyExpenseFormData {
   final String categoryId;
@@ -139,7 +140,12 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                       .map(
                         (category) => DropdownMenuItem(
                           value: category.id,
-                          child: Text(category.name),
+                          child: Text(
+                            l10n.companyExpenseCategoryName(
+                              code: category.code,
+                              fallbackName: category.name,
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
