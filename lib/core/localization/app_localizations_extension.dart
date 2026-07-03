@@ -55,18 +55,11 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationAuditEntityIdRequired,
       FailureCodes.validationAuditDescriptionRequired =>
         failureValidationAuditDescriptionRequired,
-      FailureCodes.authPasswordRequired =>
-        _isArabicError ? 'كلمة المرور مطلوبة.' : 'Password is required.',
-      FailureCodes.authPasswordTooShort =>
-        _isArabicError
-            ? 'كلمة المرور يجب ألا تقل عن 6 أحرف.'
-            : 'Password must be at least 6 characters.',
-      FailureCodes.authEmailRequired =>
-        _isArabicError ? 'البريد الإلكتروني مطلوب.' : 'Email is required.',
-      FailureCodes.authFullNameRequired =>
-        _isArabicError ? 'الاسم بالكامل مطلوب.' : 'Full name is required.',
-      FailureCodes.authPhoneRequired =>
-        _isArabicError ? 'رقم الهاتف مطلوب.' : 'Phone number is required.',
+      FailureCodes.authPasswordRequired => passwordRequired,
+      FailureCodes.authPasswordTooShort => passwordMinLength,
+      FailureCodes.authEmailRequired => emailRequired,
+      FailureCodes.authFullNameRequired => fullNameRequired,
+      FailureCodes.authPhoneRequired => phoneNumberRequired,
       FailureCodes.validationDriverIdRequired =>
         _isArabicError ? 'معرّف السائق مطلوب.' : 'Driver id is required.',
       FailureCodes.validationDriverNameRequired =>
