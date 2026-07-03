@@ -162,6 +162,17 @@
   "driverMovementTripLine": "Trip",
   "driverMovementTypeAdvance": "Advance",
   "driverMovementTypeDeduction": "Deduction",
+  "companyExpenseCategoryVehicleMaintenance": "Vehicle maintenance",
+  "companyExpenseCategorySpareParts": "Spare parts",
+  "companyExpenseCategoryTires": "Tires",
+  "companyExpenseCategoryOilsAndFluids": "Oils and fluids",
+  "companyExpenseCategoryLicensesAndRenewals": "Licenses and renewals",
+  "companyExpenseCategoryOfficeExpenses": "Office expenses",
+  "companyExpenseCategoryRent": "Rent",
+  "companyExpenseCategorySalaries": "Salaries",
+  "companyExpenseCategoryAdminCosts": "Admin costs",
+  "companyExpenseCategoryFines": "Fines",
+  "companyExpenseCategoryOther": "Other",
   "unknownUser": "Unknown User",
   "profileDetailsNotSetYet": "Profile details not set yet"
 }
