@@ -37,23 +37,51 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   });
 
   List<CompanyExpense> get expenses {
-    final normalizedSearch = searchQuery.trim().toLowerCase();
-    final categoryNameById = {
-      for (final category in categories)
-        category.id: category.name.toLowerCase(),
-    };
+    return filteredExpenses(
+      categorySearchTermsById: {
+        for (final category in categories)
+          category.id: [category.name, if (category.code != null) category.code!],
+      },
+    );
+  }
+
+  List<CompanyExpense> filteredExpenses({
+    required Map<String, Iterable<String>> categorySearchTermsById,
+  }) {
+    final normalizedSearch = _normalizeSearchTerm(searchQuery);
 
     return allExpenses.where((expense) {
       if (!includeVoided && expense.isVoided) return false;
       if (normalizedSearch.isEmpty) return true;
 
-      return categoryNameById[expense.categoryId]?.contains(normalizedSearch) ==
-              true ||
+      return _categoryMatchesSearch(
+            categorySearchTermsById[expense.categoryId],
+            normalizedSearch,
+          ) ||
           expense.amount.toString().contains(normalizedSearch) ||
-          (expense.referenceNumber?.toLowerCase().contains(normalizedSearch) ??
-              false) ||
-          (expense.notes?.toLowerCase().contains(normalizedSearch) ?? false);
+          _nullableTextMatchesSearch(expense.referenceNumber, normalizedSearch) ||
+          _nullableTextMatchesSearch(expense.notes, normalizedSearch);
     }).toList();
+  }
+
+  bool _categoryMatchesSearch(
+    Iterable<String>? terms,
+    String normalizedSearch,
+  ) {
+    if (terms == null) return false;
+
+    return terms.any(
+      (term) => _normalizeSearchTerm(term).contains(normalizedSearch),
+    );
+  }
+
+  bool _nullableTextMatchesSearch(String? value, String normalizedSearch) {
+    if (value == null) return false;
+    return _normalizeSearchTerm(value).contains(normalizedSearch);
+  }
+
+  String _normalizeSearchTerm(String value) {
+    return value.trim().toLowerCase();
   }
 
   CompanyExpensesLoaded copyWith({
