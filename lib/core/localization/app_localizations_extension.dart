@@ -32,9 +32,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationCompanyContextRequired,
       'company_not_available' => failureCompanyNotAvailable,
       FailureCodes.permissionCompanyUsersView =>
-        _isArabicError
-            ? 'هذا الدور لا يمكنه عرض مستخدمي الشركة.'
-            : 'This role cannot view company users.',
+        failurePermissionCompanyUsersView,
       FailureCodes.permissionCustomersView =>
         _isArabicError
             ? 'لا يوجد صلاحية للوصول إلى العملاء.'
