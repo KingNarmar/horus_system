@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_expense.dart';
 import '../cubit/company_expenses_state.dart';
+import '../helpers/company_expense_date_formatter.dart';
 import '../localization/company_expense_category_localizations_x.dart';
 
 class CompanyExpensesStateView extends StatelessWidget {
@@ -72,7 +74,7 @@ class CompanyExpensesStateView extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(
-              width: 420,
+              width: AppSizes.searchFieldMaxWidth,
               child: TextField(
                 onChanged: onSearchChanged,
                 decoration: InputDecoration(
@@ -173,7 +175,11 @@ class _ExpenseCard extends StatelessWidget {
             Text(
               l10n.companyExpenseAmountLine(expense.amount.toStringAsFixed(2)),
             ),
-            Text(l10n.companyExpenseDateLine(_dateOnly(expense.expenseDate))),
+            Text(
+              l10n.companyExpenseDateLine(
+                formatCompanyExpenseDate(expense.expenseDate),
+              ),
+            ),
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
             if (expense.notes != null) Text(expense.notes!),
@@ -190,10 +196,11 @@ class _ExpenseCard extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: isPending ? null : () => onVoid(expense),
                     icon: isPending
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                        ? const SizedBox.square(
+                            dimension: AppSizes.loadingIndicatorSm,
+                            child: CircularProgressIndicator(
+                              strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                            ),
                           )
                         : const Icon(AppIcons.deactivate),
                     label: Text(l10n.voidCompanyExpenseButton),
@@ -205,11 +212,5 @@ class _ExpenseCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _dateOnly(DateTime value) {
-    return '${value.year.toString().padLeft(4, '0')}-'
-        '${value.month.toString().padLeft(2, '0')}-'
-        '${value.day.toString().padLeft(2, '0')}';
   }
 }
