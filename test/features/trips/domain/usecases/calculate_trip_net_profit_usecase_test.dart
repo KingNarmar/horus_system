@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
