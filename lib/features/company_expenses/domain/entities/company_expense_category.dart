@@ -2,6 +2,7 @@ class CompanyExpenseCategory {
   final String id;
   final String companyId;
   final String name;
+  final String? code;
   final bool isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -11,6 +12,7 @@ class CompanyExpenseCategory {
     required this.companyId,
     required this.name,
     required this.isActive,
+    this.code,
     this.createdAt,
     this.updatedAt,
   });
