@@ -193,7 +193,7 @@ class _TripExpenseTile extends StatelessWidget {
             IconButton(
               tooltip: l10n.tripEditButton,
               onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(AppIcons.edit),
             ),
         ],
       ),
