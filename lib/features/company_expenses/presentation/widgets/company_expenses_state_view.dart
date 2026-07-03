@@ -64,6 +64,17 @@ class CompanyExpensesStateView extends StatelessWidget {
           fallbackName: category.name,
         ),
     };
+    final categorySearchTermsById = {
+      for (final category in currentState.categories)
+        category.id: [
+          category.name,
+          if (category.code != null) category.code!,
+          categoriesById[category.id] ?? category.name,
+        ],
+    };
+    final visibleExpenses = currentState.filteredExpenses(
+      categorySearchTermsById: categorySearchTermsById,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,10 +104,10 @@ class CompanyExpensesStateView extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (currentState.allExpenses.isEmpty)
           _EmptyMessage(message: l10n.noCompanyExpensesFound)
-        else if (currentState.expenses.isEmpty)
+        else if (visibleExpenses.isEmpty)
           _EmptyMessage(message: l10n.noCompanyExpensesMatchFilters)
         else
-          ...currentState.expenses.map(
+          ...visibleExpenses.map(
             (expense) => _ExpenseCard(
               expense: expense,
               categoryName:
