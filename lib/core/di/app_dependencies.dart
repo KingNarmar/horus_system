@@ -1,8 +1,4 @@
-import '../../features/audit/data/datasources/audit_logs_remote_data_source.dart';
-import '../../features/audit/data/repositories/audit_log_repository_impl.dart';
-import '../../features/audit/domain/repositories/audit_log_repository.dart';
-import '../../features/audit/domain/usecases/create_audit_log_usecase.dart';
-import '../../features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
+import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -112,37 +108,13 @@ abstract final class AppDependencies {
     );
   }
 
-  static AuditLogsRemoteDataSource? _auditLogsRemoteDataSourceInstance;
-  static AuditLogsRemoteDataSource get _auditLogsRemoteDataSource =>
-      _auditLogsRemoteDataSourceInstance ??= SupabaseAuditLogsRemoteDataSource(
-        SupabaseClientProvider.client,
-      );
-
-  static AuditLogRepository? _auditLogRepositoryInstance;
-  static AuditLogRepository get _auditLogRepository =>
-      _auditLogRepositoryInstance ??= AuditLogRepositoryImpl(
-        remoteDataSource: _auditLogsRemoteDataSource,
-      );
-
-  static CreateAuditLogUseCase? _createAuditLogUseCaseInstance;
-  static CreateAuditLogUseCase get _createAuditLogUseCase =>
-      _createAuditLogUseCaseInstance ??= CreateAuditLogUseCase(
-        _auditLogRepository,
-      );
-
-  static GetEntityAuditLogsUseCase? _getEntityAuditLogsUseCaseInstance;
-  static GetEntityAuditLogsUseCase get _getEntityAuditLogsUseCase =>
-      _getEntityAuditLogsUseCaseInstance ??= GetEntityAuditLogsUseCase(
-        _auditLogRepository,
-      );
-
   static CustomersCubit createCustomersCubit() {
     final customersRemoteDataSource = SupabaseCustomersRemoteDataSource(
       SupabaseClientProvider.client,
     );
     final customersRepository = CustomersRepositoryImpl(
       remoteDataSource: customersRemoteDataSource,
-      createAuditLogUseCase: _createAuditLogUseCase,
+      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
     return CustomersCubit(
       getCustomersUseCase: GetCustomersUseCase(customersRepository),
@@ -150,7 +122,7 @@ abstract final class AppDependencies {
       updateCustomerUseCase: UpdateCustomerUseCase(customersRepository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(customersRepository),
       reactivateCustomerUseCase: ReactivateCustomerUseCase(customersRepository),
-      getEntityAuditLogsUseCase: _getEntityAuditLogsUseCase,
+      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
     );
   }
 
@@ -160,14 +132,14 @@ abstract final class AppDependencies {
     );
     final driversRepository = DriversRepositoryImpl(
       remoteDataSource: driversRemoteDataSource,
-      createAuditLogUseCase: _createAuditLogUseCase,
+      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
     final driverFinanceRemoteDataSource = SupabaseDriverFinanceRemoteDataSource(
       SupabaseClientProvider.client,
     );
     final driverFinanceRepository = DriverFinanceRepositoryImpl(
       remoteDataSource: driverFinanceRemoteDataSource,
-      createAuditLogUseCase: _createAuditLogUseCase,
+      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(driversRepository),
@@ -175,7 +147,7 @@ abstract final class AppDependencies {
       updateDriverUseCase: UpdateDriverUseCase(driversRepository),
       deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
       reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
-      getEntityAuditLogsUseCase: _getEntityAuditLogsUseCase,
+      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getDriverMovementsUseCase: GetDriverMovementsUseCase(
         driverFinanceRepository,
       ),
