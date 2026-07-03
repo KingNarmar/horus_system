@@ -5,6 +5,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_expense.dart';
 import '../cubit/company_expenses_state.dart';
+import '../localization/company_expense_category_localizations_x.dart';
 
 class CompanyExpensesStateView extends StatelessWidget {
   final CompanyExpensesState state;
@@ -56,7 +57,10 @@ class CompanyExpensesStateView extends StatelessWidget {
 
     final categoriesById = {
       for (final category in currentState.categories)
-        category.id: category.name,
+        category.id: l10n.companyExpenseCategoryName(
+          code: category.code,
+          fallbackName: category.name,
+        ),
     };
 
     return Column(
