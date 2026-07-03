@@ -1,4 +1,5 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
+
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -32,7 +33,7 @@ class GetEntityAuditLogsUseCase
     if (params.companyId.trim().isEmpty) {
       return Future.value(
         const FailureResult<List<AuditLog>>(
-          ValidationFailure(code: FailureCodes.validationCompanyIdRequired, message: 'Company id is required.'),
+          ValidationFailure(code: FailureCodes.validationCompanyIdRequired),
         ),
       );
     }
@@ -40,7 +41,9 @@ class GetEntityAuditLogsUseCase
     if (params.entityId.trim().isEmpty) {
       return Future.value(
         const FailureResult<List<AuditLog>>(
-          ValidationFailure(code: FailureCodes.validationAuditEntityIdRequired, message: 'Audit entity id is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationAuditEntityIdRequired,
+          ),
         ),
       );
     }
