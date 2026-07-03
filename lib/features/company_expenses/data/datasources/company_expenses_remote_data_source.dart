@@ -14,6 +14,7 @@ const _companyExpenseCategoryColumns = '''
 id,
 company_id,
 name,
+code,
 is_active,
 created_at,
 updated_at
