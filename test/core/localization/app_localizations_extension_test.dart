@@ -10,23 +10,9 @@ void main() {
     testWidgets('does not expose raw server failure messages in English', (
       tester,
     ) async {
-      late BuildContext capturedContext;
+      final l10n = await _pumpLocalizations(tester, const Locale('en'));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Builder(
-            builder: (context) {
-              capturedContext = context;
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-
-      final message = capturedContext.l10n.localizedErrorMessage(
+      final message = l10n.localizedErrorMessage(
         const ServerFailure(
           code: '23505',
           message: 'duplicate key value violates unique constraint',
@@ -39,23 +25,9 @@ void main() {
     testWidgets('does not expose raw server failure messages in Arabic', (
       tester,
     ) async {
-      late BuildContext capturedContext;
+      final l10n = await _pumpLocalizations(tester, const Locale('ar'));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: const Locale('ar'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Builder(
-            builder: (context) {
-              capturedContext = context;
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-
-      final message = capturedContext.l10n.localizedErrorMessage(
+      final message = l10n.localizedErrorMessage(
         const ServerFailure(
           code: FailureCodes.serverError,
           message: 'relation public.secret_table does not exist',
@@ -68,27 +40,98 @@ void main() {
     testWidgets('does not expose raw unexpected failure messages', (
       tester,
     ) async {
-      late BuildContext capturedContext;
+      final l10n = await _pumpLocalizations(tester, const Locale('en'));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Builder(
-            builder: (context) {
-              capturedContext = context;
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-
-      final message = capturedContext.l10n.localizedErrorMessage(
+      final message = l10n.localizedErrorMessage(
         const UnexpectedFailure(message: 'Null check operator used on null'),
       );
 
       expect(message, 'Unexpected error occurred.');
     });
+
+    testWidgets('localizes audit validation failure codes in English', (
+      tester,
+    ) async {
+      final l10n = await _pumpLocalizations(tester, const Locale('en'));
+
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationAuditEntityIdRequired,
+          ),
+        ),
+        'Audit entity id is required.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationAuditDescriptionRequired,
+          ),
+        ),
+        'Audit description is required.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+          ),
+        ),
+        'Company id is required.',
+      );
+    });
+
+    testWidgets('localizes audit validation failure codes in Arabic', (
+      tester,
+    ) async {
+      final l10n = await _pumpLocalizations(tester, const Locale('ar'));
+
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationAuditEntityIdRequired,
+          ),
+        ),
+        'معرّف سجل المراجعة مطلوب.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationAuditDescriptionRequired,
+          ),
+        ),
+        'وصف سجل المراجعة مطلوب.',
+      );
+      expect(
+        l10n.localizedErrorMessage(
+          const ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+          ),
+        ),
+        'معرّف الشركة مطلوب.',
+      );
+    });
   });
+}
+
+Future<AppLocalizations> _pumpLocalizations(
+  WidgetTester tester,
+  Locale locale,
+) async {
+  late BuildContext capturedContext;
+
+  await tester.pumpWidget(
+    MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Builder(
+        builder: (context) {
+          capturedContext = context;
+          return const SizedBox.shrink();
+        },
+      ),
+    ),
+  );
+
+  return capturedContext.l10n;
 }
