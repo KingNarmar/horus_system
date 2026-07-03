@@ -207,6 +207,13 @@
   "companyExpenseCategoryAdminCosts": "المصروفات الإدارية",
   "companyExpenseCategoryFines": "الغرامات",
   "companyExpenseCategoryOther": "أخرى",
+  "failureUnexpectedError": "حدث خطأ غير متوقع.",
+  "failureServerError": "حدث خطأ في الخادم.",
+  "failureValidationCompanyIdRequired": "معرّف الشركة مطلوب.",
+  "failureValidationCompanyContextRequired": "سياق الشركة مطلوب.",
+  "failureCompanyNotAvailable": "الشركة المحددة غير متاحة للمستخدم الحالي.",
+  "failureValidationAuditEntityIdRequired": "معرّف سجل المراجعة مطلوب.",
+  "failureValidationAuditDescriptionRequired": "وصف سجل المراجعة مطلوب.",
   "unknownUser": "مستخدم غير معروف",
   "profileDetailsNotSetYet": "لم يتم تعيين تفاصيل الملف الشخصي بعد"
 }
