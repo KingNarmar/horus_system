@@ -212,6 +212,7 @@
   "failureValidationCompanyIdRequired": "معرّف الشركة مطلوب.",
   "failureValidationCompanyContextRequired": "سياق الشركة مطلوب.",
   "failureCompanyNotAvailable": "الشركة المحددة غير متاحة للمستخدم الحالي.",
+  "failurePermissionCompanyUsersView": "هذا الدور لا يمكنه عرض مستخدمي الشركة.",
   "failureValidationAuditEntityIdRequired": "معرّف سجل المراجعة مطلوب.",
   "failureValidationAuditDescriptionRequired": "وصف سجل المراجعة مطلوب.",
   "unknownUser": "مستخدم غير معروف",
