@@ -203,6 +203,13 @@
   "companyExpenseCategoryAdminCosts": "Admin costs",
   "companyExpenseCategoryFines": "Fines",
   "companyExpenseCategoryOther": "Other",
+  "failureUnexpectedError": "Unexpected error occurred.",
+  "failureServerError": "Server error occurred.",
+  "failureValidationCompanyIdRequired": "Company id is required.",
+  "failureValidationCompanyContextRequired": "Company context is required.",
+  "failureCompanyNotAvailable": "Selected company is not available for the current user.",
+  "failureValidationAuditEntityIdRequired": "Audit entity id is required.",
+  "failureValidationAuditDescriptionRequired": "Audit description is required.",
   "unknownUser": "Unknown User",
   "profileDetailsNotSetYet": "Profile details not set yet"
 }
