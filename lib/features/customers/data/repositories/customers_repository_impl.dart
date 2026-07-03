@@ -132,17 +132,15 @@ class CustomersRepositoryImpl implements CustomersRepository {
     required Future<CustomerModel> Function({
       required String companyId,
       required String customerId,
-    }) mutate,
+    })
+    mutate,
   }) {
     return _guard(() async {
       final oldModel = await remoteDataSource.getCustomerById(
         companyId: companyId,
         customerId: customerId,
       );
-      final model = await mutate(
-        companyId: companyId,
-        customerId: customerId,
-      );
+      final model = await mutate(companyId: companyId, customerId: customerId);
       return _withAudit(
         model: model,
         actorRole: actorRole,

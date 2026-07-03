@@ -48,7 +48,9 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
     required String companyId,
   }) {
     return _guard(() async {
-      final types = await remoteDataSource.getExpenseTypes(companyId: companyId);
+      final types = await remoteDataSource.getExpenseTypes(
+        companyId: companyId,
+      );
       return Success(types);
     });
   }
