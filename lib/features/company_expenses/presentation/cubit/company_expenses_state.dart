@@ -1,4 +1,5 @@
 import '../../../../core/errors/failure.dart';
+import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
@@ -48,7 +49,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   List<CompanyExpense> filteredExpenses({
     required Map<String, Iterable<String>> categorySearchTermsById,
   }) {
-    final normalizedSearch = _normalizeSearchTerm(searchQuery);
+    final normalizedSearch = normalizeSearchText(searchQuery);
 
     return allExpenses.where((expense) {
       if (!includeVoided && expense.isVoided) return false;
@@ -71,17 +72,13 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     if (terms == null) return false;
 
     return terms.any(
-      (term) => _normalizeSearchTerm(term).contains(normalizedSearch),
+      (term) => normalizeSearchText(term).contains(normalizedSearch),
     );
   }
 
   bool _nullableTextMatchesSearch(String? value, String normalizedSearch) {
     if (value == null) return false;
-    return _normalizeSearchTerm(value).contains(normalizedSearch);
-  }
-
-  String _normalizeSearchTerm(String value) {
-    return value.trim().toLowerCase();
+    return normalizeSearchText(value).contains(normalizedSearch);
   }
 
   CompanyExpensesLoaded copyWith({
