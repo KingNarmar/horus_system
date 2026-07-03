@@ -12,11 +12,9 @@ extension AppLocalizationsX on BuildContext {
 extension CommonErrorLocalizationsX on AppLocalizations {
   bool get _isArabicError => localeName.startsWith('ar');
 
-  String get _genericUnexpectedErrorMessage =>
-      _isArabicError ? 'حدث خطأ غير متوقع.' : 'Unexpected error occurred.';
+  String get _genericUnexpectedErrorMessage => failureUnexpectedError;
 
-  String get _genericServerErrorMessage =>
-      _isArabicError ? 'حدث خطأ في الخادم.' : 'Server error occurred.';
+  String get _genericServerErrorMessage => failureServerError;
 
   String _safeFallbackErrorMessage(Failure failure) {
     if (failure is ServerFailure) return _genericServerErrorMessage;
@@ -29,13 +27,10 @@ extension CommonErrorLocalizationsX on AppLocalizations {
     return switch (failure.code) {
       FailureCodes.unexpectedError => _genericUnexpectedErrorMessage,
       FailureCodes.validationCompanyIdRequired =>
-        _isArabicError ? 'معرّف الشركة مطلوب.' : 'Company id is required.',
+        failureValidationCompanyIdRequired,
       FailureCodes.validationCompanyContextRequired =>
-        _isArabicError ? 'سياق الشركة مطلوب.' : 'Company context is required.',
-      'company_not_available' =>
-        _isArabicError
-            ? 'الشركة المحددة غير متاحة للمستخدم الحالي.'
-            : 'Selected company is not available for the current user.',
+        failureValidationCompanyContextRequired,
+      'company_not_available' => failureCompanyNotAvailable,
       FailureCodes.permissionCompanyUsersView =>
         _isArabicError
             ? 'هذا الدور لا يمكنه عرض مستخدمي الشركة.'
@@ -57,13 +52,9 @@ extension CommonErrorLocalizationsX on AppLocalizations {
             ? 'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.'
             : 'Credit limit cannot be negative.',
       FailureCodes.validationAuditEntityIdRequired =>
-        _isArabicError
-            ? 'معرّف سجل المراجعة مطلوب.'
-            : 'Audit entity id is required.',
+        failureValidationAuditEntityIdRequired,
       FailureCodes.validationAuditDescriptionRequired =>
-        _isArabicError
-            ? 'وصف سجل المراجعة مطلوب.'
-            : 'Audit description is required.',
+        failureValidationAuditDescriptionRequired,
       FailureCodes.authPasswordRequired =>
         _isArabicError ? 'كلمة المرور مطلوبة.' : 'Password is required.',
       FailureCodes.authPasswordTooShort =>
