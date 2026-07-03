@@ -70,8 +70,9 @@ void main() {
     );
 
     test('domain layer does not depend on outer layers or SDKs', () {
-      final domainFiles = _dartFilesUnder('lib/features')
-          .where((file) => _normalizedPath(file).contains('/domain/'));
+      final domainFiles = _dartFilesUnder(
+        'lib/features',
+      ).where((file) => _normalizedPath(file).contains('/domain/'));
 
       for (final file in domainFiles) {
         for (final importUri in _importUris(file)) {
@@ -86,8 +87,9 @@ void main() {
     });
 
     test('presentation layer does not import Supabase or data internals', () {
-      final presentationFiles = _dartFilesUnder('lib/features')
-          .where((file) => _normalizedPath(file).contains('/presentation/'));
+      final presentationFiles = _dartFilesUnder(
+        'lib/features',
+      ).where((file) => _normalizedPath(file).contains('/presentation/'));
 
       for (final file in presentationFiles) {
         for (final importUri in _importUris(file)) {
@@ -102,8 +104,9 @@ void main() {
     });
 
     test('domain tests do not import flutter_test', () {
-      final domainTestFiles = _dartFilesUnder('test/features')
-          .where((file) => _normalizedPath(file).contains('/domain/'));
+      final domainTestFiles = _dartFilesUnder(
+        'test/features',
+      ).where((file) => _normalizedPath(file).contains('/domain/'));
 
       for (final file in domainTestFiles) {
         final content = file.readAsStringSync();
