@@ -18,7 +18,11 @@ class TripExpensesSection extends StatelessWidget {
   final TripEntity trip;
   final TripsLoaded? state;
 
-  const TripExpensesSection({required this.trip, required this.state, super.key});
+  const TripExpensesSection({
+    required this.trip,
+    required this.state,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +183,9 @@ class _TripExpenseTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(expenseName),
-                Text(formatTripDateTime(expense.expenseDate, l10n.tripEmptyValue)),
+                Text(
+                  formatTripDateTime(expense.expenseDate, l10n.tripEmptyValue),
+                ),
                 Text(l10n.tripExpensePaidByValueLabel(expense.paidBy)),
                 if (localizedTypeName != l10n.tripEmptyValue)
                   Text('${l10n.tripExpenseTypeLabel}: $localizedTypeName'),
