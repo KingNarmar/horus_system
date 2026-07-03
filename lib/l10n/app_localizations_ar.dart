@@ -591,6 +591,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get companyExpenseCategoryOther => 'أخرى';
 
   @override
+  String get failureUnexpectedError => 'حدث خطأ غير متوقع.';
+
+  @override
+  String get failureServerError => 'حدث خطأ في الخادم.';
+
+  @override
+  String get failureValidationCompanyIdRequired => 'معرّف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyContextRequired => 'سياق الشركة مطلوب.';
+
+  @override
+  String get failureCompanyNotAvailable =>
+      'الشركة المحددة غير متاحة للمستخدم الحالي.';
+
+  @override
+  String get failureValidationAuditEntityIdRequired =>
+      'معرّف سجل المراجعة مطلوب.';
+
+  @override
+  String get failureValidationAuditDescriptionRequired =>
+      'وصف سجل المراجعة مطلوب.';
+
+  @override
   String get unknownUser => 'مستخدم غير معروف';
 
   @override

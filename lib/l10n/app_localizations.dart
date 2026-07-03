@@ -1154,6 +1154,48 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get companyExpenseCategoryOther;
 
+  /// No description provided for @failureUnexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error occurred.'**
+  String get failureUnexpectedError;
+
+  /// No description provided for @failureServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error occurred.'**
+  String get failureServerError;
+
+  /// No description provided for @failureValidationCompanyIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company id is required.'**
+  String get failureValidationCompanyIdRequired;
+
+  /// No description provided for @failureValidationCompanyContextRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company context is required.'**
+  String get failureValidationCompanyContextRequired;
+
+  /// No description provided for @failureCompanyNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected company is not available for the current user.'**
+  String get failureCompanyNotAvailable;
+
+  /// No description provided for @failureValidationAuditEntityIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit entity id is required.'**
+  String get failureValidationAuditEntityIdRequired;
+
+  /// No description provided for @failureValidationAuditDescriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit description is required.'**
+  String get failureValidationAuditDescriptionRequired;
+
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:

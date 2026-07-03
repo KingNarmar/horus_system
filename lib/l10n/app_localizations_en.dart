@@ -601,6 +601,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyExpenseCategoryOther => 'Other';
 
   @override
+  String get failureUnexpectedError => 'Unexpected error occurred.';
+
+  @override
+  String get failureServerError => 'Server error occurred.';
+
+  @override
+  String get failureValidationCompanyIdRequired => 'Company id is required.';
+
+  @override
+  String get failureValidationCompanyContextRequired =>
+      'Company context is required.';
+
+  @override
+  String get failureCompanyNotAvailable =>
+      'Selected company is not available for the current user.';
+
+  @override
+  String get failureValidationAuditEntityIdRequired =>
+      'Audit entity id is required.';
+
+  @override
+  String get failureValidationAuditDescriptionRequired =>
+      'Audit description is required.';
+
+  @override
   String get unknownUser => 'Unknown User';
 
   @override
