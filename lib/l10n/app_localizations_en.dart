@@ -618,6 +618,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Selected company is not available for the current user.';
 
   @override
+  String get failurePermissionCompanyUsersView =>
+      'This role cannot view company users.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 

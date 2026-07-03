@@ -607,6 +607,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'الشركة المحددة غير متاحة للمستخدم الحالي.';
 
   @override
+  String get failurePermissionCompanyUsersView =>
+      'هذا الدور لا يمكنه عرض مستخدمي الشركة.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

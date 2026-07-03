@@ -1184,6 +1184,12 @@ abstract class AppLocalizations {
   /// **'Selected company is not available for the current user.'**
   String get failureCompanyNotAvailable;
 
+  /// No description provided for @failurePermissionCompanyUsersView.
+  ///
+  /// In en, this message translates to:
+  /// **'This role cannot view company users.'**
+  String get failurePermissionCompanyUsersView;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:
