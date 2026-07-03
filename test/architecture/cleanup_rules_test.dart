@@ -157,6 +157,43 @@ void main() {
       }
     });
 
+    test('customer filter labels are not hardcoded in Dart extensions', () {
+      final content = _read(
+        'lib/core/localization/app_localizations_extension.dart',
+      );
+
+      expect(content, isNot(contains('CustomerFilterLocalizationsX')));
+      const forbiddenLabels = [
+        'Reactivate',
+        'Search customers',
+        'All',
+        'Active',
+        'Inactive',
+        'No customers match the current search or status filter.',
+        'إعادة تفعيل',
+        'ابحث في العملاء',
+        'الكل',
+        'النشط',
+        'غير النشط',
+        'لا يوجد عملاء مطابقون للبحث أو فلتر الحالة الحالي.',
+      ];
+
+      for (final label in forbiddenLabels) {
+        expect(
+          content,
+          isNot(contains("'$label'")),
+          reason:
+              'Customer filter labels must live in ARB/generated localization, not Dart extensions.',
+        );
+        expect(
+          content,
+          isNot(contains('"$label"')),
+          reason:
+              'Customer filter labels must live in ARB/generated localization, not Dart extensions.',
+        );
+      }
+    });
+
     test('company expense category labels are not hardcoded in Dart', () {
       final content = _read(
         'lib/features/company_expenses/presentation/localization/'
