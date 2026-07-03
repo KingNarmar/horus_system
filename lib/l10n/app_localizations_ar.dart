@@ -469,6 +469,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeDeduction => 'خصم';
 
   @override
+  String get companyExpenseCategoryVehicleMaintenance => 'صيانة المركبات';
+
+  @override
+  String get companyExpenseCategorySpareParts => 'قطع الغيار';
+
+  @override
+  String get companyExpenseCategoryTires => 'الإطارات';
+
+  @override
+  String get companyExpenseCategoryOilsAndFluids => 'الزيوت والسوائل';
+
+  @override
+  String get companyExpenseCategoryLicensesAndRenewals => 'التراخيص والتجديدات';
+
+  @override
+  String get companyExpenseCategoryOfficeExpenses => 'مصروفات المكتب';
+
+  @override
+  String get companyExpenseCategoryRent => 'الإيجار';
+
+  @override
+  String get companyExpenseCategorySalaries => 'الرواتب';
+
+  @override
+  String get companyExpenseCategoryAdminCosts => 'المصروفات الإدارية';
+
+  @override
+  String get companyExpenseCategoryFines => 'الغرامات';
+
+  @override
+  String get companyExpenseCategoryOther => 'أخرى';
+
+  @override
   String get unknownUser => 'مستخدم غير معروف';
 
   @override

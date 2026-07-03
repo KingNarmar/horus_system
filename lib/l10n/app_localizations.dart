@@ -932,6 +932,72 @@ abstract class AppLocalizations {
   /// **'Deduction'**
   String get driverMovementTypeDeduction;
 
+  /// No description provided for @companyExpenseCategoryVehicleMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle maintenance'**
+  String get companyExpenseCategoryVehicleMaintenance;
+
+  /// No description provided for @companyExpenseCategorySpareParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Spare parts'**
+  String get companyExpenseCategorySpareParts;
+
+  /// No description provided for @companyExpenseCategoryTires.
+  ///
+  /// In en, this message translates to:
+  /// **'Tires'**
+  String get companyExpenseCategoryTires;
+
+  /// No description provided for @companyExpenseCategoryOilsAndFluids.
+  ///
+  /// In en, this message translates to:
+  /// **'Oils and fluids'**
+  String get companyExpenseCategoryOilsAndFluids;
+
+  /// No description provided for @companyExpenseCategoryLicensesAndRenewals.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses and renewals'**
+  String get companyExpenseCategoryLicensesAndRenewals;
+
+  /// No description provided for @companyExpenseCategoryOfficeExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Office expenses'**
+  String get companyExpenseCategoryOfficeExpenses;
+
+  /// No description provided for @companyExpenseCategoryRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get companyExpenseCategoryRent;
+
+  /// No description provided for @companyExpenseCategorySalaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Salaries'**
+  String get companyExpenseCategorySalaries;
+
+  /// No description provided for @companyExpenseCategoryAdminCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin costs'**
+  String get companyExpenseCategoryAdminCosts;
+
+  /// No description provided for @companyExpenseCategoryFines.
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get companyExpenseCategoryFines;
+
+  /// No description provided for @companyExpenseCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get companyExpenseCategoryOther;
+
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:

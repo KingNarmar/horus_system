@@ -477,6 +477,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementTypeDeduction => 'Deduction';
 
   @override
+  String get companyExpenseCategoryVehicleMaintenance => 'Vehicle maintenance';
+
+  @override
+  String get companyExpenseCategorySpareParts => 'Spare parts';
+
+  @override
+  String get companyExpenseCategoryTires => 'Tires';
+
+  @override
+  String get companyExpenseCategoryOilsAndFluids => 'Oils and fluids';
+
+  @override
+  String get companyExpenseCategoryLicensesAndRenewals =>
+      'Licenses and renewals';
+
+  @override
+  String get companyExpenseCategoryOfficeExpenses => 'Office expenses';
+
+  @override
+  String get companyExpenseCategoryRent => 'Rent';
+
+  @override
+  String get companyExpenseCategorySalaries => 'Salaries';
+
+  @override
+  String get companyExpenseCategoryAdminCosts => 'Admin costs';
+
+  @override
+  String get companyExpenseCategoryFines => 'Fines';
+
+  @override
+  String get companyExpenseCategoryOther => 'Other';
+
+  @override
   String get unknownUser => 'Unknown User';
 
   @override
