@@ -16,6 +16,11 @@ import '../datasources/customers_remote_data_source.dart';
 import '../mappers/customer_mapper.dart';
 import '../models/customer_model.dart';
 
+const _customerCreatedEvent = 'customer_created';
+const _customerUpdatedEvent = 'customer_updated';
+const _customerDeactivatedEvent = 'customer_deactivated';
+const _customerReactivatedEvent = 'customer_reactivated';
+
 class CustomersRepositoryImpl implements CustomersRepository {
   final CustomersRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
@@ -31,7 +36,10 @@ class CustomersRepositoryImpl implements CustomersRepository {
       final normalizedCompanyId = companyId.trim();
       if (normalizedCompanyId.isEmpty) {
         return const FailureResult<List<Customer>>(
-          ValidationFailure(code: FailureCodes.validationCompanyIdRequired, message: 'Company id is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
         );
       }
 
@@ -53,7 +61,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
         model: model,
         actorRole: actorRole,
         action: AuditAction.created,
-        description: 'Customer created: ${model.name}',
+        description: _customerCreatedEvent,
       );
     });
   }
@@ -77,7 +85,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
         model: model,
         actorRole: actorRole,
         action: AuditAction.updated,
-        description: 'Customer updated: ${model.name}',
+        description: _customerUpdatedEvent,
         oldValues: oldModel.toAuditValues(),
       );
     });
@@ -94,6 +102,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
       customerId: customerId,
       actorRole: actorRole,
       action: AuditAction.deactivated,
+      description: _customerDeactivatedEvent,
       mutate: remoteDataSource.deactivateCustomer,
     );
   }
@@ -109,6 +118,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
       customerId: customerId,
       actorRole: actorRole,
       action: AuditAction.reactivated,
+      description: _customerReactivatedEvent,
       mutate: remoteDataSource.reactivateCustomer,
     );
   }
@@ -118,6 +128,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
     required String customerId,
     required String actorRole,
     required AuditAction action,
+    required String description,
     required Future<CustomerModel> Function({
       required String companyId,
       required String customerId,
@@ -129,12 +140,11 @@ class CustomersRepositoryImpl implements CustomersRepository {
         customerId: customerId,
       );
       final model = await mutate(companyId: companyId, customerId: customerId);
-      final actionText = action.value.replaceAll('_', ' ');
       return _withAudit(
         model: model,
         actorRole: actorRole,
         action: action,
-        description: 'Customer $actionText: ${model.name}',
+        description: description,
         oldValues: oldModel.toAuditValues(),
       );
     });
@@ -199,7 +209,10 @@ class CustomersRepositoryImpl implements CustomersRepository {
       return await action();
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
