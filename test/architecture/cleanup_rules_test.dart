@@ -133,6 +133,47 @@ void main() {
       }
     });
 
+    test('company expense category labels are not hardcoded in Dart', () {
+      final content = _read(
+        'lib/features/company_expenses/presentation/localization/'
+        'company_expense_category_localizations_x.dart',
+      );
+
+      const forbiddenLabels = [
+        'Vehicle maintenance',
+        'Spare parts',
+        'Tires',
+        'Oils and fluids',
+        'Licenses and renewals',
+        'Office expenses',
+        'Rent',
+        'Salaries',
+        'Admin costs',
+        'Fines',
+        'Other',
+        'صيانة المركبات',
+        'قطع الغيار',
+        'الإطارات',
+        'الزيوت والسوائل',
+        'التراخيص والتجديدات',
+        'مصروفات المكتب',
+        'الإيجار',
+        'الرواتب',
+        'المصروفات الإدارية',
+        'الغرامات',
+        'أخرى',
+      ];
+
+      for (final label in forbiddenLabels) {
+        expect(
+          content,
+          isNot(contains(label)),
+          reason:
+              'Company expense category labels must live in ARB/generated localization, not Dart.',
+        );
+      }
+    });
+
     test('domain tests do not import flutter_test', () {
       final domainTestFiles = _dartFilesUnder(
         'test/features',
