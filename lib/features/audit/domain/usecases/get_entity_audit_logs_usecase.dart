@@ -41,9 +41,7 @@ class GetEntityAuditLogsUseCase
     if (params.entityId.trim().isEmpty) {
       return Future.value(
         const FailureResult<List<AuditLog>>(
-          ValidationFailure(
-            code: FailureCodes.validationAuditEntityIdRequired,
-          ),
+          ValidationFailure(code: FailureCodes.validationAuditEntityIdRequired),
         ),
       );
     }

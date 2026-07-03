@@ -32,9 +32,7 @@ class CreateAuditLogUseCase implements UseCase<void, CreateAuditLogParams> {
     if (data.entityId.trim().isEmpty) {
       return Future.value(
         const FailureResult<void>(
-          ValidationFailure(
-            code: FailureCodes.validationAuditEntityIdRequired,
-          ),
+          ValidationFailure(code: FailureCodes.validationAuditEntityIdRequired),
         ),
       );
     }
