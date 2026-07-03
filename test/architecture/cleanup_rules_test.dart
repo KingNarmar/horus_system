@@ -104,9 +104,9 @@ void main() {
     });
 
     test('audit data wiring is centralized in audit dependencies', () {
-      final files = _dartFilesUnder('lib').where(
-        (file) => !_isAuditDependencyImplementationFile(file),
-      );
+      final files = _dartFilesUnder(
+        'lib',
+      ).where((file) => !_isAuditDependencyImplementationFile(file));
 
       for (final file in files) {
         final content = file.readAsStringSync();
@@ -201,8 +201,12 @@ bool _isForbiddenPresentationImport(String importUri) {
 bool _isAuditDependencyImplementationFile(File file) {
   final path = _normalizedPath(file);
   return path.endsWith('/features/audit/di/audit_dependencies.dart') ||
-      path.endsWith('/features/audit/data/datasources/audit_logs_remote_data_source.dart') ||
-      path.endsWith('/features/audit/data/repositories/audit_log_repository_impl.dart');
+      path.endsWith(
+        '/features/audit/data/datasources/audit_logs_remote_data_source.dart',
+      ) ||
+      path.endsWith(
+        '/features/audit/data/repositories/audit_log_repository_impl.dart',
+      );
 }
 
 bool _isForbiddenAuditDataImport(String importUri) {

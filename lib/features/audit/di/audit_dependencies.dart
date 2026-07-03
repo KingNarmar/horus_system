@@ -13,10 +13,8 @@ abstract final class AuditDependencies {
       );
 
   static AuditLogRepository? _repositoryInstance;
-  static AuditLogRepository get repository =>
-      _repositoryInstance ??= AuditLogRepositoryImpl(
-        remoteDataSource: remoteDataSource,
-      );
+  static AuditLogRepository get repository => _repositoryInstance ??=
+      AuditLogRepositoryImpl(remoteDataSource: remoteDataSource);
 
   static CreateAuditLogUseCase? _createAuditLogUseCaseInstance;
   static CreateAuditLogUseCase get createAuditLogUseCase =>

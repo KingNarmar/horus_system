@@ -76,9 +76,8 @@ abstract final class AppDependencies {
   }
 
   static CurrentCompanyCubit createCurrentCompanyCubit() {
-    final companyContextRemoteDataSource = SupabaseCompanyContextRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
+    final companyContextRemoteDataSource =
+        SupabaseCompanyContextRemoteDataSource(SupabaseClientProvider.client);
     final companyContextRepository = CompanyContextRepositoryImpl(
       remoteDataSource: companyContextRemoteDataSource,
       currentCompanyProvider: _currentCompanyProvider,
@@ -154,9 +153,7 @@ abstract final class AppDependencies {
       getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(
         driverFinanceRepository,
       ),
-      addDriverAdvanceUseCase: AddDriverAdvanceUseCase(
-        driverFinanceRepository,
-      ),
+      addDriverAdvanceUseCase: AddDriverAdvanceUseCase(driverFinanceRepository),
       addDriverDeductionUseCase: AddDriverDeductionUseCase(
         driverFinanceRepository,
       ),
