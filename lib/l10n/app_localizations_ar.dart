@@ -469,6 +469,95 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeDeduction => 'خصم';
 
   @override
+  String get companyExpensesTitle => 'مصروفات الشركة';
+
+  @override
+  String get addCompanyExpenseButton => 'إضافة مصروف';
+
+  @override
+  String get addCompanyExpenseTitle => 'إضافة مصروف شركة';
+
+  @override
+  String get editCompanyExpenseTitle => 'تعديل مصروف شركة';
+
+  @override
+  String get companyExpenseCategoryLabel => 'التصنيف';
+
+  @override
+  String get companyExpenseCategoryRequired => 'التصنيف مطلوب.';
+
+  @override
+  String get companyExpenseAmountLabel => 'المبلغ';
+
+  @override
+  String get companyExpenseDateLabel => 'التاريخ';
+
+  @override
+  String get companyExpenseReferenceLabel => 'رقم المرجع';
+
+  @override
+  String get companyExpenseNotesLabel => 'ملاحظات';
+
+  @override
+  String get companyExpenseAmountInvalid => 'أدخل مبلغ صحيح أكبر من صفر.';
+
+  @override
+  String get searchCompanyExpensesHint =>
+      'ابحث في التصنيف أو المبلغ أو المرجع أو الملاحظات';
+
+  @override
+  String get includeVoidedCompanyExpenses => 'إظهار الملغاة';
+
+  @override
+  String get noCompanyExpensesFound => 'لا توجد مصروفات شركة.';
+
+  @override
+  String get noCompanyExpensesMatchFilters =>
+      'لا توجد مصروفات مطابقة للبحث الحالي.';
+
+  @override
+  String get companyExpenseVoidedStatus => 'ملغى';
+
+  @override
+  String get companyExpenseActiveStatus => 'نشط';
+
+  @override
+  String get voidCompanyExpenseButton => 'إلغاء';
+
+  @override
+  String get voidCompanyExpenseTitle => 'إلغاء مصروف الشركة';
+
+  @override
+  String get voidCompanyExpenseMessage =>
+      'هل تريد إلغاء هذا المصروف؟ سيتم الاحتفاظ به في السجل كملغى.';
+
+  @override
+  String get voidReasonLabel => 'سبب الإلغاء';
+
+  @override
+  String get confirmButton => 'تأكيد';
+
+  @override
+  String companyExpenseCategoryLine(String categoryName) {
+    return 'التصنيف: $categoryName';
+  }
+
+  @override
+  String companyExpenseAmountLine(String amount) {
+    return 'المبلغ: $amount';
+  }
+
+  @override
+  String companyExpenseDateLine(String date) {
+    return 'التاريخ: $date';
+  }
+
+  @override
+  String companyExpenseReferenceLine(String reference) {
+    return 'المرجع: $reference';
+  }
+
+  @override
   String get companyExpenseCategoryVehicleMaintenance => 'صيانة المركبات';
 
   @override

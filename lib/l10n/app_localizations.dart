@@ -932,6 +932,162 @@ abstract class AppLocalizations {
   /// **'Deduction'**
   String get driverMovementTypeDeduction;
 
+  /// No description provided for @companyExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses'**
+  String get companyExpensesTitle;
+
+  /// No description provided for @addCompanyExpenseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get addCompanyExpenseButton;
+
+  /// No description provided for @addCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add company expense'**
+  String get addCompanyExpenseTitle;
+
+  /// No description provided for @editCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit company expense'**
+  String get editCompanyExpenseTitle;
+
+  /// No description provided for @companyExpenseCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get companyExpenseCategoryLabel;
+
+  /// No description provided for @companyExpenseCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Category is required.'**
+  String get companyExpenseCategoryRequired;
+
+  /// No description provided for @companyExpenseAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get companyExpenseAmountLabel;
+
+  /// No description provided for @companyExpenseDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get companyExpenseDateLabel;
+
+  /// No description provided for @companyExpenseReferenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference number'**
+  String get companyExpenseReferenceLabel;
+
+  /// No description provided for @companyExpenseNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get companyExpenseNotesLabel;
+
+  /// No description provided for @companyExpenseAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount greater than zero.'**
+  String get companyExpenseAmountInvalid;
+
+  /// No description provided for @searchCompanyExpensesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search category, amount, reference, or notes'**
+  String get searchCompanyExpensesHint;
+
+  /// No description provided for @includeVoidedCompanyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Show voided'**
+  String get includeVoidedCompanyExpenses;
+
+  /// No description provided for @noCompanyExpensesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No company expenses found.'**
+  String get noCompanyExpensesFound;
+
+  /// No description provided for @noCompanyExpensesMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No company expenses match the current search.'**
+  String get noCompanyExpensesMatchFilters;
+
+  /// No description provided for @companyExpenseVoidedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get companyExpenseVoidedStatus;
+
+  /// No description provided for @companyExpenseActiveStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get companyExpenseActiveStatus;
+
+  /// No description provided for @voidCompanyExpenseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Void'**
+  String get voidCompanyExpenseButton;
+
+  /// No description provided for @voidCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Void company expense'**
+  String get voidCompanyExpenseTitle;
+
+  /// No description provided for @voidCompanyExpenseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to void this expense? It will remain in the history as voided.'**
+  String get voidCompanyExpenseMessage;
+
+  /// No description provided for @voidReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Void reason'**
+  String get voidReasonLabel;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmButton;
+
+  /// No description provided for @companyExpenseCategoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {categoryName}'**
+  String companyExpenseCategoryLine(String categoryName);
+
+  /// No description provided for @companyExpenseAmountLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount: {amount}'**
+  String companyExpenseAmountLine(String amount);
+
+  /// No description provided for @companyExpenseDateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String companyExpenseDateLine(String date);
+
+  /// No description provided for @companyExpenseReferenceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference: {reference}'**
+  String companyExpenseReferenceLine(String reference);
+
   /// No description provided for @companyExpenseCategoryVehicleMaintenance.
   ///
   /// In en, this message translates to:

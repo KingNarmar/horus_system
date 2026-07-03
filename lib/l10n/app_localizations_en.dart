@@ -477,6 +477,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementTypeDeduction => 'Deduction';
 
   @override
+  String get companyExpensesTitle => 'Company expenses';
+
+  @override
+  String get addCompanyExpenseButton => 'Add expense';
+
+  @override
+  String get addCompanyExpenseTitle => 'Add company expense';
+
+  @override
+  String get editCompanyExpenseTitle => 'Edit company expense';
+
+  @override
+  String get companyExpenseCategoryLabel => 'Category';
+
+  @override
+  String get companyExpenseCategoryRequired => 'Category is required.';
+
+  @override
+  String get companyExpenseAmountLabel => 'Amount';
+
+  @override
+  String get companyExpenseDateLabel => 'Date';
+
+  @override
+  String get companyExpenseReferenceLabel => 'Reference number';
+
+  @override
+  String get companyExpenseNotesLabel => 'Notes';
+
+  @override
+  String get companyExpenseAmountInvalid =>
+      'Enter a valid amount greater than zero.';
+
+  @override
+  String get searchCompanyExpensesHint =>
+      'Search category, amount, reference, or notes';
+
+  @override
+  String get includeVoidedCompanyExpenses => 'Show voided';
+
+  @override
+  String get noCompanyExpensesFound => 'No company expenses found.';
+
+  @override
+  String get noCompanyExpensesMatchFilters =>
+      'No company expenses match the current search.';
+
+  @override
+  String get companyExpenseVoidedStatus => 'Voided';
+
+  @override
+  String get companyExpenseActiveStatus => 'Active';
+
+  @override
+  String get voidCompanyExpenseButton => 'Void';
+
+  @override
+  String get voidCompanyExpenseTitle => 'Void company expense';
+
+  @override
+  String get voidCompanyExpenseMessage =>
+      'Do you want to void this expense? It will remain in the history as voided.';
+
+  @override
+  String get voidReasonLabel => 'Void reason';
+
+  @override
+  String get confirmButton => 'Confirm';
+
+  @override
+  String companyExpenseCategoryLine(String categoryName) {
+    return 'Category: $categoryName';
+  }
+
+  @override
+  String companyExpenseAmountLine(String amount) {
+    return 'Amount: $amount';
+  }
+
+  @override
+  String companyExpenseDateLine(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String companyExpenseReferenceLine(String reference) {
+    return 'Reference: $reference';
+  }
+
+  @override
   String get companyExpenseCategoryVehicleMaintenance => 'Vehicle maintenance';
 
   @override
