@@ -181,7 +181,7 @@ class _ExpenseCard extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: isPending ? null : () => onEdit(expense),
                     icon: const Icon(AppIcons.edit),
-                    label: Text(l10n.editCustomerButton),
+                    label: Text(l10n.editCompanyExpenseTitle),
                   ),
                   OutlinedButton.icon(
                     onPressed: isPending ? null : () => onVoid(expense),
