@@ -9,7 +9,6 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_cubit.dart';
 import '../cubit/routes_state.dart';
-import '../localization/routes_localizations_x.dart';
 import '../widgets/route_activity_dialog.dart';
 import '../widgets/route_form_dialog.dart';
 import '../widgets/routes_filters.dart';
