@@ -725,6 +725,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Driver financial movement amount must be greater than zero.';
 
   @override
+  String get failurePermissionCompanyExpensesView =>
+      'Company expenses access is not allowed.';
+
+  @override
+  String get failurePermissionCompanyExpensesManagement =>
+      'Company expenses management is not allowed.';
+
+  @override
+  String get failureValidationCompanyExpenseIdRequired =>
+      'Company expense id is required.';
+
+  @override
+  String get failureValidationCompanyExpenseCategoryRequired =>
+      'Company expense category is required.';
+
+  @override
+  String get failureValidationCompanyExpenseAmountPositive =>
+      'Company expense amount must be greater than zero.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 

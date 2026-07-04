@@ -1352,6 +1352,36 @@ abstract class AppLocalizations {
   /// **'Driver financial movement amount must be greater than zero.'**
   String get failureValidationDriverFinanceAmountPositive;
 
+  /// No description provided for @failurePermissionCompanyExpensesView.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses access is not allowed.'**
+  String get failurePermissionCompanyExpensesView;
+
+  /// No description provided for @failurePermissionCompanyExpensesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses management is not allowed.'**
+  String get failurePermissionCompanyExpensesManagement;
+
+  /// No description provided for @failureValidationCompanyExpenseIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense id is required.'**
+  String get failureValidationCompanyExpenseIdRequired;
+
+  /// No description provided for @failureValidationCompanyExpenseCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense category is required.'**
+  String get failureValidationCompanyExpenseCategoryRequired;
+
+  /// No description provided for @failureValidationCompanyExpenseAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense amount must be greater than zero.'**
+  String get failureValidationCompanyExpenseAmountPositive;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

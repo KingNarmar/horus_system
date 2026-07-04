@@ -711,6 +711,26 @@ class AppLocalizationsAr extends AppLocalizations {
       'مبلغ حركة السائق لازم يكون أكبر من صفر.';
 
   @override
+  String get failurePermissionCompanyExpensesView =>
+      'لا يوجد صلاحية لعرض مصروفات الشركة.';
+
+  @override
+  String get failurePermissionCompanyExpensesManagement =>
+      'لا يوجد صلاحية لإدارة مصروفات الشركة.';
+
+  @override
+  String get failureValidationCompanyExpenseIdRequired =>
+      'معرّف مصروف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyExpenseCategoryRequired =>
+      'تصنيف مصروف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyExpenseAmountPositive =>
+      'مبلغ مصروف الشركة لازم يكون أكبر من صفر.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 
