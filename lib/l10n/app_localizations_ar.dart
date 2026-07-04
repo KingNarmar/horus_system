@@ -657,6 +657,26 @@ class AppLocalizationsAr extends AppLocalizations {
       'استهلاك الوقود المتوقع لا يمكن أن يكون رقمًا سالبًا.';
 
   @override
+  String get failurePermissionRoutesManagement =>
+      'لا يوجد صلاحية لإدارة المسارات.';
+
+  @override
+  String get failurePermissionRoutesView =>
+      'لا يوجد صلاحية للوصول إلى المسارات.';
+
+  @override
+  String get failureValidationRouteLoadingLocationRequired =>
+      'مكان التحميل مطلوب.';
+
+  @override
+  String get failureValidationRouteUnloadingLocationRequired =>
+      'مكان التفريغ مطلوب.';
+
+  @override
+  String get failureValidationRouteFreightPriceNegative =>
+      'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

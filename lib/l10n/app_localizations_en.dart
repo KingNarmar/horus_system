@@ -669,6 +669,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Expected fuel consumption cannot be negative.';
 
   @override
+  String get failurePermissionRoutesManagement =>
+      'Routes management is not allowed.';
+
+  @override
+  String get failurePermissionRoutesView =>
+      'You are not allowed to view routes.';
+
+  @override
+  String get failureValidationRouteLoadingLocationRequired =>
+      'Loading location is required.';
+
+  @override
+  String get failureValidationRouteUnloadingLocationRequired =>
+      'Unloading location is required.';
+
+  @override
+  String get failureValidationRouteFreightPriceNegative =>
+      'Default freight price cannot be negative.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 

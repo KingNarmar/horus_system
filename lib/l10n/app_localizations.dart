@@ -1268,6 +1268,36 @@ abstract class AppLocalizations {
   /// **'Expected fuel consumption cannot be negative.'**
   String get failureValidationFleetFuelConsumptionNegative;
 
+  /// No description provided for @failurePermissionRoutesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes management is not allowed.'**
+  String get failurePermissionRoutesManagement;
+
+  /// No description provided for @failurePermissionRoutesView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view routes.'**
+  String get failurePermissionRoutesView;
+
+  /// No description provided for @failureValidationRouteLoadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location is required.'**
+  String get failureValidationRouteLoadingLocationRequired;
+
+  /// No description provided for @failureValidationRouteUnloadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location is required.'**
+  String get failureValidationRouteUnloadingLocationRequired;
+
+  /// No description provided for @failureValidationRouteFreightPriceNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Default freight price cannot be negative.'**
+  String get failureValidationRouteFreightPriceNegative;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:
