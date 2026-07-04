@@ -1190,6 +1190,36 @@ abstract class AppLocalizations {
   /// **'This role cannot view company users.'**
   String get failurePermissionCompanyUsersView;
 
+  /// No description provided for @failurePermissionCustomersView.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers access is not allowed.'**
+  String get failurePermissionCustomersView;
+
+  /// No description provided for @failurePermissionCustomersManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers management is not allowed.'**
+  String get failurePermissionCustomersManagement;
+
+  /// No description provided for @failureValidationCustomerIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer id is required.'**
+  String get failureValidationCustomerIdRequired;
+
+  /// No description provided for @failureValidationCustomerNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name is required.'**
+  String get failureValidationCustomerNameRequired;
+
+  /// No description provided for @failureValidationCreditLimitNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit cannot be negative.'**
+  String get failureValidationCreditLimitNegative;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

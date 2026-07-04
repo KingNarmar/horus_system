@@ -611,6 +611,24 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الدور لا يمكنه عرض مستخدمي الشركة.';
 
   @override
+  String get failurePermissionCustomersView =>
+      'لا يوجد صلاحية للوصول إلى العملاء.';
+
+  @override
+  String get failurePermissionCustomersManagement =>
+      'لا يوجد صلاحية لإدارة العملاء.';
+
+  @override
+  String get failureValidationCustomerIdRequired => 'معرّف العميل مطلوب.';
+
+  @override
+  String get failureValidationCustomerNameRequired => 'اسم العميل مطلوب.';
+
+  @override
+  String get failureValidationCreditLimitNegative =>
+      'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

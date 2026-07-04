@@ -622,6 +622,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'This role cannot view company users.';
 
   @override
+  String get failurePermissionCustomersView =>
+      'Customers access is not allowed.';
+
+  @override
+  String get failurePermissionCustomersManagement =>
+      'Customers management is not allowed.';
+
+  @override
+  String get failureValidationCustomerIdRequired => 'Customer id is required.';
+
+  @override
+  String get failureValidationCustomerNameRequired =>
+      'Customer name is required.';
+
+  @override
+  String get failureValidationCreditLimitNegative =>
+      'Credit limit cannot be negative.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 
