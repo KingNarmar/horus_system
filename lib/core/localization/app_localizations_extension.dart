@@ -52,17 +52,12 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.authFullNameRequired => fullNameRequired,
       FailureCodes.authPhoneRequired => phoneNumberRequired,
       FailureCodes.validationDriverIdRequired =>
-        _isArabicError ? 'معرّف السائق مطلوب.' : 'Driver id is required.',
+        failureValidationDriverIdRequired,
       FailureCodes.validationDriverNameRequired =>
-        _isArabicError ? 'اسم السائق مطلوب.' : 'Driver name is required.',
+        failureValidationDriverNameRequired,
       FailureCodes.permissionDriversManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة السائقين.'
-            : 'Drivers management is not allowed.',
-      FailureCodes.permissionDriversView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية للوصول إلى السائقين.'
-            : 'You are not allowed to view drivers.',
+        failurePermissionDriversManagement,
+      FailureCodes.permissionDriversView => failurePermissionDriversView,
       FailureCodes.permissionFleetManagement =>
         _isArabicError
             ? 'لا يوجد صلاحية لإدارة الأسطول.'
