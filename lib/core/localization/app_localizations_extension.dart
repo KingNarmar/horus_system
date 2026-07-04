@@ -75,13 +75,9 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationRouteFreightPriceNegative =>
         failureValidationRouteFreightPriceNegative,
       FailureCodes.permissionTripExpensesView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لعرض مصروفات الرحلة.'
-            : 'Trip expenses access is not allowed.',
+        failurePermissionTripExpensesView,
       FailureCodes.permissionTripExpensesManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة مصروفات الرحلة.'
-            : 'Trip expenses management is not allowed.',
+        failurePermissionTripExpensesManagement,
       FailureCodes.permissionDriverFinanceView =>
         _isArabicError
             ? 'لا يوجد صلاحية لعرض الحركات المالية للسائق.'
@@ -101,17 +97,13 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationTripIdRequired =>
         _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
       FailureCodes.validationTripExpenseIdRequired =>
-        _isArabicError
-            ? 'معرّف مصروف الرحلة مطلوب.'
-            : 'Trip expense id is required.',
+        failureValidationTripExpenseIdRequired,
       FailureCodes.validationTripExpenseTypeRequired =>
-        _isArabicError ? 'نوع المصروف مطلوب.' : 'Expense type is required.',
+        failureValidationTripExpenseTypeRequired,
       FailureCodes.validationTripExpenseNameRequired =>
-        _isArabicError ? 'اسم المصروف مطلوب.' : 'Expense name is required.',
+        failureValidationTripExpenseNameRequired,
       FailureCodes.validationTripExpenseAmountPositive =>
-        _isArabicError
-            ? 'مبلغ المصروف لازم يكون أكبر من صفر.'
-            : 'Expense amount must be greater than zero.',
+        failureValidationTripExpenseAmountPositive,
       FailureCodes.validationDriverFinanceAmountPositive =>
         _isArabicError
             ? 'مبلغ حركة السائق لازم يكون أكبر من صفر.'
