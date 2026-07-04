@@ -504,6 +504,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeViewDetails => 'View details';
 
   @override
+  String routeDetailsTitle(String name) {
+    return 'Route details: $name';
+  }
+
+  @override
+  String get routeBasicInfo => 'Basic information';
+
+  @override
+  String get routeAccountability => 'Accountability';
+
+  @override
+  String get routeCreatedBy => 'Created by';
+
+  @override
+  String get routeCreatedRole => 'Created role';
+
+  @override
+  String get routeCreatedAt => 'Created at';
+
+  @override
+  String get routeLastActivityBy => 'Last activity by';
+
+  @override
+  String get routeLastActivityRole => 'Last activity role';
+
+  @override
+  String get routeLastActivityAt => 'Last activity at';
+
+  @override
+  String get routeActivityTimeline => 'Activity timeline';
+
+  @override
+  String get routeLoadingActivity => 'Loading activity...';
+
+  @override
+  String get routeNoActivityFound => 'No activity yet.';
+
+  @override
+  String get routeChanges => 'Changes';
+
+  @override
+  String get routeUnknownUser => 'Unknown user';
+
+  @override
+  String get routeNotAvailable => 'N/A';
+
+  @override
+  String get routeAuditActionCreated => 'Created';
+
+  @override
+  String get routeAuditActionUpdated => 'Updated';
+
+  @override
+  String get routeAuditActionDeactivated => 'Deactivated';
+
+  @override
+  String get routeAuditActionReactivated => 'Reactivated';
+
+  @override
+  String get routeAuditActionStatusChanged => 'Status changed';
+
+  @override
+  String routeAuditTimelineHeader(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String routeAuditChangeLine(String label, String oldValue, String newValue) {
+    return '$label: from $oldValue to $newValue';
+  }
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override

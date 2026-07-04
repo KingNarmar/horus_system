@@ -992,6 +992,138 @@ abstract class AppLocalizations {
   /// **'View details'**
   String get routeViewDetails;
 
+  /// No description provided for @routeDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route details: {name}'**
+  String routeDetailsTitle(String name);
+
+  /// No description provided for @routeBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get routeBasicInfo;
+
+  /// No description provided for @routeAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get routeAccountability;
+
+  /// No description provided for @routeCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get routeCreatedBy;
+
+  /// No description provided for @routeCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get routeCreatedRole;
+
+  /// No description provided for @routeCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get routeCreatedAt;
+
+  /// No description provided for @routeLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get routeLastActivityBy;
+
+  /// No description provided for @routeLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get routeLastActivityRole;
+
+  /// No description provided for @routeLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get routeLastActivityAt;
+
+  /// No description provided for @routeActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get routeActivityTimeline;
+
+  /// No description provided for @routeLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get routeLoadingActivity;
+
+  /// No description provided for @routeNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get routeNoActivityFound;
+
+  /// No description provided for @routeChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get routeChanges;
+
+  /// No description provided for @routeUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get routeUnknownUser;
+
+  /// No description provided for @routeNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get routeNotAvailable;
+
+  /// No description provided for @routeAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get routeAuditActionCreated;
+
+  /// No description provided for @routeAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get routeAuditActionUpdated;
+
+  /// No description provided for @routeAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get routeAuditActionDeactivated;
+
+  /// No description provided for @routeAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get routeAuditActionReactivated;
+
+  /// No description provided for @routeAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get routeAuditActionStatusChanged;
+
+  /// No description provided for @routeAuditTimelineHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} ({role}) - {dateTime}'**
+  String routeAuditTimelineHeader(String actor, String role, String dateTime);
+
+  /// No description provided for @routeAuditChangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: from {oldValue} to {newValue}'**
+  String routeAuditChangeLine(String label, String oldValue, String newValue);
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:

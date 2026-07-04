@@ -497,6 +497,78 @@ class AppLocalizationsAr extends AppLocalizations {
   String get routeViewDetails => 'عرض التفاصيل';
 
   @override
+  String routeDetailsTitle(String name) {
+    return 'تفاصيل المسار: $name';
+  }
+
+  @override
+  String get routeBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get routeAccountability => 'المساءلة';
+
+  @override
+  String get routeCreatedBy => 'تم الإنشاء بواسطة';
+
+  @override
+  String get routeCreatedRole => 'دور منشئ السجل';
+
+  @override
+  String get routeCreatedAt => 'وقت الإنشاء';
+
+  @override
+  String get routeLastActivityBy => 'آخر نشاط بواسطة';
+
+  @override
+  String get routeLastActivityRole => 'دور آخر نشاط';
+
+  @override
+  String get routeLastActivityAt => 'وقت آخر نشاط';
+
+  @override
+  String get routeActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get routeLoadingActivity => 'جاري تحميل النشاط...';
+
+  @override
+  String get routeNoActivityFound => 'لا يوجد نشاط بعد.';
+
+  @override
+  String get routeChanges => 'التغييرات';
+
+  @override
+  String get routeUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get routeNotAvailable => 'غير متاح';
+
+  @override
+  String get routeAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get routeAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get routeAuditActionDeactivated => 'تم إلغاء التفعيل';
+
+  @override
+  String get routeAuditActionReactivated => 'تمت إعادة التفعيل';
+
+  @override
+  String get routeAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
+  String routeAuditTimelineHeader(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String routeAuditChangeLine(String label, String oldValue, String newValue) {
+    return '$label: من $oldValue إلى $newValue';
+  }
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override
