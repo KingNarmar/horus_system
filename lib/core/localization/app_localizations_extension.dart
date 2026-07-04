@@ -66,25 +66,14 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationFleetFuelConsumptionNegative =>
         failureValidationFleetFuelConsumptionNegative,
       FailureCodes.permissionRoutesManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة المسارات.'
-            : 'Routes management is not allowed.',
-      FailureCodes.permissionRoutesView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية للوصول إلى المسارات.'
-            : 'You are not allowed to view routes.',
+        failurePermissionRoutesManagement,
+      FailureCodes.permissionRoutesView => failurePermissionRoutesView,
       FailureCodes.validationRouteLoadingLocationRequired =>
-        _isArabicError
-            ? 'مكان التحميل مطلوب.'
-            : 'Loading location is required.',
+        failureValidationRouteLoadingLocationRequired,
       FailureCodes.validationRouteUnloadingLocationRequired =>
-        _isArabicError
-            ? 'مكان التفريغ مطلوب.'
-            : 'Unloading location is required.',
+        failureValidationRouteUnloadingLocationRequired,
       FailureCodes.validationRouteFreightPriceNegative =>
-        _isArabicError
-            ? 'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.'
-            : 'Default freight price cannot be negative.',
+        failureValidationRouteFreightPriceNegative,
       FailureCodes.permissionTripExpensesView =>
         _isArabicError
             ? 'لا يوجد صلاحية لعرض مصروفات الرحلة.'
