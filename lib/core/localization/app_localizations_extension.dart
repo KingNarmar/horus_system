@@ -79,13 +79,9 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.permissionTripExpensesManagement =>
         failurePermissionTripExpensesManagement,
       FailureCodes.permissionDriverFinanceView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لعرض الحركات المالية للسائق.'
-            : 'Driver finance access is not allowed.',
+        failurePermissionDriverFinanceView,
       FailureCodes.permissionDriverFinanceManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة الحركات المالية للسائق.'
-            : 'Driver finance management is not allowed.',
+        failurePermissionDriverFinanceManagement,
       FailureCodes.permissionCompanyExpensesView =>
         _isArabicError
             ? 'لا يوجد صلاحية لعرض مصروفات الشركة.'
@@ -105,9 +101,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationTripExpenseAmountPositive =>
         failureValidationTripExpenseAmountPositive,
       FailureCodes.validationDriverFinanceAmountPositive =>
-        _isArabicError
-            ? 'مبلغ حركة السائق لازم يكون أكبر من صفر.'
-            : 'Driver financial movement amount must be greater than zero.',
+        failureValidationDriverFinanceAmountPositive,
       FailureCodes.validationCompanyExpenseIdRequired =>
         _isArabicError
             ? 'معرّف مصروف الشركة مطلوب.'
