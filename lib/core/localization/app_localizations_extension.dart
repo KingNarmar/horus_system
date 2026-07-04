@@ -158,8 +158,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         _isArabicError
             ? 'مبلغ مصروف الشركة لازم يكون أكبر من صفر.'
             : 'Company expense amount must be greater than zero.',
-      FailureCodes.validationCompanyNameRequired =>
-        _isArabicError ? 'اسم الشركة مطلوب.' : 'Company name is required.',
+      FailureCodes.validationCompanyNameRequired => companyNameRequired,
       FailureCodes.serverError => _genericServerErrorMessage,
       _ => _safeFallbackErrorMessage(failure),
     };
