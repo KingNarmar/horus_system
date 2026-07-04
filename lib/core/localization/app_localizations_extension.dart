@@ -59,19 +59,12 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failurePermissionDriversManagement,
       FailureCodes.permissionDriversView => failurePermissionDriversView,
       FailureCodes.permissionFleetManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة الأسطول.'
-            : 'Fleet management is not allowed.',
-      FailureCodes.permissionFleetView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية للوصول إلى الأسطول.'
-            : 'You are not allowed to view fleet.',
+        failurePermissionFleetManagement,
+      FailureCodes.permissionFleetView => failurePermissionFleetView,
       FailureCodes.validationFleetPlateRequired =>
-        _isArabicError ? 'رقم اللوحة مطلوب.' : 'Plate number is required.',
+        failureValidationFleetPlateRequired,
       FailureCodes.validationFleetFuelConsumptionNegative =>
-        _isArabicError
-            ? 'استهلاك الوقود المتوقع لا يمكن أن يكون رقمًا سالبًا.'
-            : 'Expected fuel consumption cannot be negative.',
+        failureValidationFleetFuelConsumptionNegative,
       FailureCodes.permissionRoutesManagement =>
         _isArabicError
             ? 'لا يوجد صلاحية لإدارة المسارات.'
