@@ -1220,6 +1220,30 @@ abstract class AppLocalizations {
   /// **'Credit limit cannot be negative.'**
   String get failureValidationCreditLimitNegative;
 
+  /// No description provided for @failurePermissionDriversView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view drivers.'**
+  String get failurePermissionDriversView;
+
+  /// No description provided for @failurePermissionDriversManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers management is not allowed.'**
+  String get failurePermissionDriversManagement;
+
+  /// No description provided for @failureValidationDriverIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver id is required.'**
+  String get failureValidationDriverIdRequired;
+
+  /// No description provided for @failureValidationDriverNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name is required.'**
+  String get failureValidationDriverNameRequired;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

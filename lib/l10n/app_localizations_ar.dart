@@ -629,6 +629,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.';
 
   @override
+  String get failurePermissionDriversView =>
+      'لا يوجد صلاحية للوصول إلى السائقين.';
+
+  @override
+  String get failurePermissionDriversManagement =>
+      'لا يوجد صلاحية لإدارة السائقين.';
+
+  @override
+  String get failureValidationDriverIdRequired => 'معرّف السائق مطلوب.';
+
+  @override
+  String get failureValidationDriverNameRequired => 'اسم السائق مطلوب.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

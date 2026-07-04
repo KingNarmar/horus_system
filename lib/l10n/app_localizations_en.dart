@@ -641,6 +641,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Credit limit cannot be negative.';
 
   @override
+  String get failurePermissionDriversView =>
+      'You are not allowed to view drivers.';
+
+  @override
+  String get failurePermissionDriversManagement =>
+      'Drivers management is not allowed.';
+
+  @override
+  String get failureValidationDriverIdRequired => 'Driver id is required.';
+
+  @override
+  String get failureValidationDriverNameRequired => 'Driver name is required.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 
