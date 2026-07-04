@@ -83,13 +83,9 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.permissionDriverFinanceManagement =>
         failurePermissionDriverFinanceManagement,
       FailureCodes.permissionCompanyExpensesView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لعرض مصروفات الشركة.'
-            : 'Company expenses access is not allowed.',
+        failurePermissionCompanyExpensesView,
       FailureCodes.permissionCompanyExpensesManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة مصروفات الشركة.'
-            : 'Company expenses management is not allowed.',
+        failurePermissionCompanyExpensesManagement,
       FailureCodes.validationTripIdRequired =>
         _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
       FailureCodes.validationTripExpenseIdRequired =>
@@ -103,17 +99,11 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationDriverFinanceAmountPositive =>
         failureValidationDriverFinanceAmountPositive,
       FailureCodes.validationCompanyExpenseIdRequired =>
-        _isArabicError
-            ? 'معرّف مصروف الشركة مطلوب.'
-            : 'Company expense id is required.',
+        failureValidationCompanyExpenseIdRequired,
       FailureCodes.validationCompanyExpenseCategoryRequired =>
-        _isArabicError
-            ? 'تصنيف مصروف الشركة مطلوب.'
-            : 'Company expense category is required.',
+        failureValidationCompanyExpenseCategoryRequired,
       FailureCodes.validationCompanyExpenseAmountPositive =>
-        _isArabicError
-            ? 'مبلغ مصروف الشركة لازم يكون أكبر من صفر.'
-            : 'Company expense amount must be greater than zero.',
+        failureValidationCompanyExpenseAmountPositive,
       FailureCodes.validationCompanyNameRequired => companyNameRequired,
       FailureCodes.serverError => _genericServerErrorMessage,
       _ => _safeFallbackErrorMessage(failure),
