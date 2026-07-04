@@ -231,6 +231,7 @@
   "failureValidationRouteLoadingLocationRequired": "مكان التحميل مطلوب.",
   "failureValidationRouteUnloadingLocationRequired": "مكان التفريغ مطلوب.",
   "failureValidationRouteFreightPriceNegative": "سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.",
+  "failureValidationTripIdRequired": "معرّف الرحلة مطلوب.",
   "failurePermissionTripExpensesView": "لا يوجد صلاحية لعرض مصروفات الرحلة.",
   "failurePermissionTripExpensesManagement": "لا يوجد صلاحية لإدارة مصروفات الرحلة.",
   "failureValidationTripExpenseIdRequired": "معرّف مصروف الرحلة مطلوب.",
