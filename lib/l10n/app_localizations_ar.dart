@@ -643,6 +643,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failureValidationDriverNameRequired => 'اسم السائق مطلوب.';
 
   @override
+  String get failurePermissionFleetManagement =>
+      'لا يوجد صلاحية لإدارة الأسطول.';
+
+  @override
+  String get failurePermissionFleetView => 'لا يوجد صلاحية للوصول إلى الأسطول.';
+
+  @override
+  String get failureValidationFleetPlateRequired => 'رقم اللوحة مطلوب.';
+
+  @override
+  String get failureValidationFleetFuelConsumptionNegative =>
+      'استهلاك الوقود المتوقع لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

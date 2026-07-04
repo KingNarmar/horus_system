@@ -1244,6 +1244,30 @@ abstract class AppLocalizations {
   /// **'Driver name is required.'**
   String get failureValidationDriverNameRequired;
 
+  /// No description provided for @failurePermissionFleetManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet management is not allowed.'**
+  String get failurePermissionFleetManagement;
+
+  /// No description provided for @failurePermissionFleetView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view fleet.'**
+  String get failurePermissionFleetView;
+
+  /// No description provided for @failureValidationFleetPlateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number is required.'**
+  String get failureValidationFleetPlateRequired;
+
+  /// No description provided for @failureValidationFleetFuelConsumptionNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected fuel consumption cannot be negative.'**
+  String get failureValidationFleetFuelConsumptionNegative;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

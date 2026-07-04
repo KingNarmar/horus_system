@@ -655,6 +655,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failureValidationDriverNameRequired => 'Driver name is required.';
 
   @override
+  String get failurePermissionFleetManagement =>
+      'Fleet management is not allowed.';
+
+  @override
+  String get failurePermissionFleetView => 'You are not allowed to view fleet.';
+
+  @override
+  String get failureValidationFleetPlateRequired => 'Plate number is required.';
+
+  @override
+  String get failureValidationFleetFuelConsumptionNegative =>
+      'Expected fuel consumption cannot be negative.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 
