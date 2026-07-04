@@ -33,22 +33,15 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       'company_not_available' => failureCompanyNotAvailable,
       FailureCodes.permissionCompanyUsersView =>
         failurePermissionCompanyUsersView,
-      FailureCodes.permissionCustomersView =>
-        _isArabicError
-            ? 'لا يوجد صلاحية للوصول إلى العملاء.'
-            : 'Customers access is not allowed.',
+      FailureCodes.permissionCustomersView => failurePermissionCustomersView,
       FailureCodes.permissionCustomersManagement =>
-        _isArabicError
-            ? 'لا يوجد صلاحية لإدارة العملاء.'
-            : 'Customers management is not allowed.',
+        failurePermissionCustomersManagement,
       FailureCodes.validationCustomerIdRequired =>
-        _isArabicError ? 'معرّف العميل مطلوب.' : 'Customer id is required.',
+        failureValidationCustomerIdRequired,
       FailureCodes.validationCustomerNameRequired =>
-        _isArabicError ? 'اسم العميل مطلوب.' : 'Customer name is required.',
+        failureValidationCustomerNameRequired,
       FailureCodes.validationCreditLimitNegative =>
-        _isArabicError
-            ? 'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.'
-            : 'Credit limit cannot be negative.',
+        failureValidationCreditLimitNegative,
       FailureCodes.validationAuditEntityIdRequired =>
         failureValidationAuditEntityIdRequired,
       FailureCodes.validationAuditDescriptionRequired =>
