@@ -10,8 +10,6 @@ extension AppLocalizationsX on BuildContext {
 }
 
 extension CommonErrorLocalizationsX on AppLocalizations {
-  bool get _isArabicError => localeName.startsWith('ar');
-
   String get _genericUnexpectedErrorMessage => failureUnexpectedError;
 
   String get _genericServerErrorMessage => failureServerError;
@@ -86,8 +84,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failurePermissionCompanyExpensesView,
       FailureCodes.permissionCompanyExpensesManagement =>
         failurePermissionCompanyExpensesManagement,
-      FailureCodes.validationTripIdRequired =>
-        _isArabicError ? 'معرّف الرحلة مطلوب.' : 'Trip id is required.',
+      FailureCodes.validationTripIdRequired => failureValidationTripIdRequired,
       FailureCodes.validationTripExpenseIdRequired =>
         failureValidationTripExpenseIdRequired,
       FailureCodes.validationTripExpenseTypeRequired =>
