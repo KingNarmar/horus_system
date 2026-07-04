@@ -689,6 +689,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Default freight price cannot be negative.';
 
   @override
+  String get failurePermissionTripExpensesView =>
+      'Trip expenses access is not allowed.';
+
+  @override
+  String get failurePermissionTripExpensesManagement =>
+      'Trip expenses management is not allowed.';
+
+  @override
+  String get failureValidationTripExpenseIdRequired =>
+      'Trip expense id is required.';
+
+  @override
+  String get failureValidationTripExpenseTypeRequired =>
+      'Expense type is required.';
+
+  @override
+  String get failureValidationTripExpenseNameRequired =>
+      'Expense name is required.';
+
+  @override
+  String get failureValidationTripExpenseAmountPositive =>
+      'Expense amount must be greater than zero.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 

@@ -1298,6 +1298,42 @@ abstract class AppLocalizations {
   /// **'Default freight price cannot be negative.'**
   String get failureValidationRouteFreightPriceNegative;
 
+  /// No description provided for @failurePermissionTripExpensesView.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses access is not allowed.'**
+  String get failurePermissionTripExpensesView;
+
+  /// No description provided for @failurePermissionTripExpensesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses management is not allowed.'**
+  String get failurePermissionTripExpensesManagement;
+
+  /// No description provided for @failureValidationTripExpenseIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expense id is required.'**
+  String get failureValidationTripExpenseIdRequired;
+
+  /// No description provided for @failureValidationTripExpenseTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense type is required.'**
+  String get failureValidationTripExpenseTypeRequired;
+
+  /// No description provided for @failureValidationTripExpenseNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense name is required.'**
+  String get failureValidationTripExpenseNameRequired;
+
+  /// No description provided for @failureValidationTripExpenseAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense amount must be greater than zero.'**
+  String get failureValidationTripExpenseAmountPositive;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

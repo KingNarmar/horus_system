@@ -677,6 +677,28 @@ class AppLocalizationsAr extends AppLocalizations {
       'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.';
 
   @override
+  String get failurePermissionTripExpensesView =>
+      'لا يوجد صلاحية لعرض مصروفات الرحلة.';
+
+  @override
+  String get failurePermissionTripExpensesManagement =>
+      'لا يوجد صلاحية لإدارة مصروفات الرحلة.';
+
+  @override
+  String get failureValidationTripExpenseIdRequired =>
+      'معرّف مصروف الرحلة مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseTypeRequired => 'نوع المصروف مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseNameRequired => 'اسم المصروف مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseAmountPositive =>
+      'مبلغ المصروف لازم يكون أكبر من صفر.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 
