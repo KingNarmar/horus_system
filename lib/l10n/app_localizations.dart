@@ -1334,6 +1334,24 @@ abstract class AppLocalizations {
   /// **'Expense amount must be greater than zero.'**
   String get failureValidationTripExpenseAmountPositive;
 
+  /// No description provided for @failurePermissionDriverFinanceView.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance access is not allowed.'**
+  String get failurePermissionDriverFinanceView;
+
+  /// No description provided for @failurePermissionDriverFinanceManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance management is not allowed.'**
+  String get failurePermissionDriverFinanceManagement;
+
+  /// No description provided for @failureValidationDriverFinanceAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver financial movement amount must be greater than zero.'**
+  String get failureValidationDriverFinanceAmountPositive;
+
   /// No description provided for @failureValidationAuditEntityIdRequired.
   ///
   /// In en, this message translates to:

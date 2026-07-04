@@ -699,6 +699,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'مبلغ المصروف لازم يكون أكبر من صفر.';
 
   @override
+  String get failurePermissionDriverFinanceView =>
+      'لا يوجد صلاحية لعرض الحركات المالية للسائق.';
+
+  @override
+  String get failurePermissionDriverFinanceManagement =>
+      'لا يوجد صلاحية لإدارة الحركات المالية للسائق.';
+
+  @override
+  String get failureValidationDriverFinanceAmountPositive =>
+      'مبلغ حركة السائق لازم يكون أكبر من صفر.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'معرّف سجل المراجعة مطلوب.';
 

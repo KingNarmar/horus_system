@@ -713,6 +713,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Expense amount must be greater than zero.';
 
   @override
+  String get failurePermissionDriverFinanceView =>
+      'Driver finance access is not allowed.';
+
+  @override
+  String get failurePermissionDriverFinanceManagement =>
+      'Driver finance management is not allowed.';
+
+  @override
+  String get failureValidationDriverFinanceAmountPositive =>
+      'Driver financial movement amount must be greater than zero.';
+
+  @override
   String get failureValidationAuditEntityIdRequired =>
       'Audit entity id is required.';
 
