@@ -1298,6 +1298,12 @@ abstract class AppLocalizations {
   /// **'Default freight price cannot be negative.'**
   String get failureValidationRouteFreightPriceNegative;
 
+  /// No description provided for @failureValidationTripIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip id is required.'**
+  String get failureValidationTripIdRequired;
+
   /// No description provided for @failurePermissionTripExpensesView.
   ///
   /// In en, this message translates to:

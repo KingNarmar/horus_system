@@ -677,6 +677,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.';
 
   @override
+  String get failureValidationTripIdRequired => 'معرّف الرحلة مطلوب.';
+
+  @override
   String get failurePermissionTripExpensesView =>
       'لا يوجد صلاحية لعرض مصروفات الرحلة.';
 
