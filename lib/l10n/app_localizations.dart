@@ -788,6 +788,210 @@ abstract class AppLocalizations {
   /// **'{field}: {oldValue} → {newValue}'**
   String auditChangeLine(String field, String oldValue, String newValue);
 
+  /// No description provided for @routesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes'**
+  String get routesTitle;
+
+  /// No description provided for @addRouteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add route'**
+  String get addRouteButton;
+
+  /// No description provided for @addRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add route'**
+  String get addRouteTitle;
+
+  /// No description provided for @editRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit route'**
+  String get editRouteTitle;
+
+  /// No description provided for @loadingLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location'**
+  String get loadingLocationLabel;
+
+  /// No description provided for @unloadingLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location'**
+  String get unloadingLocationLabel;
+
+  /// No description provided for @governorateFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading governorate'**
+  String get governorateFromLabel;
+
+  /// No description provided for @governorateToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading governorate'**
+  String get governorateToLabel;
+
+  /// No description provided for @defaultFreightPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default freight price'**
+  String get defaultFreightPriceLabel;
+
+  /// No description provided for @routeNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get routeNotesLabel;
+
+  /// No description provided for @loadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location is required.'**
+  String get loadingLocationRequired;
+
+  /// No description provided for @unloadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location is required.'**
+  String get unloadingLocationRequired;
+
+  /// No description provided for @defaultFreightPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number.'**
+  String get defaultFreightPriceInvalid;
+
+  /// No description provided for @searchRoutesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search routes'**
+  String get searchRoutesHint;
+
+  /// No description provided for @routesStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get routesStatusAllFilter;
+
+  /// No description provided for @routesStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get routesStatusActiveFilter;
+
+  /// No description provided for @routesStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get routesStatusInactiveFilter;
+
+  /// No description provided for @noRoutesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes found.'**
+  String get noRoutesFound;
+
+  /// No description provided for @noRoutesMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes match the current search or filter.'**
+  String get noRoutesMatchFilters;
+
+  /// No description provided for @routeDeactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get routeDeactivateButton;
+
+  /// No description provided for @routeReactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get routeReactivateButton;
+
+  /// No description provided for @confirmRouteDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm route deactivation'**
+  String get confirmRouteDeactivateTitle;
+
+  /// No description provided for @confirmRouteReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm route reactivation'**
+  String get confirmRouteReactivateTitle;
+
+  /// No description provided for @confirmRouteDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this route?'**
+  String get confirmRouteDeactivateMessage;
+
+  /// No description provided for @confirmRouteReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this route?'**
+  String get confirmRouteReactivateMessage;
+
+  /// No description provided for @routeLoadingHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get routeLoadingHeader;
+
+  /// No description provided for @routeUnloadingHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading'**
+  String get routeUnloadingHeader;
+
+  /// No description provided for @routeGovernoratesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorates'**
+  String get routeGovernoratesHeader;
+
+  /// No description provided for @routeDefaultPriceHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Default price'**
+  String get routeDefaultPriceHeader;
+
+  /// No description provided for @routeStatusHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get routeStatusHeader;
+
+  /// No description provided for @routeActiveStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get routeActiveStatusLabel;
+
+  /// No description provided for @routeInactiveStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get routeInactiveStatusLabel;
+
+  /// No description provided for @routeEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get routeEditButton;
+
+  /// No description provided for @routeViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get routeViewDetails;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:

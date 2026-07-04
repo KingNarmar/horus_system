@@ -399,6 +399,111 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get routesTitle => 'Routes';
+
+  @override
+  String get addRouteButton => 'Add route';
+
+  @override
+  String get addRouteTitle => 'Add route';
+
+  @override
+  String get editRouteTitle => 'Edit route';
+
+  @override
+  String get loadingLocationLabel => 'Loading location';
+
+  @override
+  String get unloadingLocationLabel => 'Unloading location';
+
+  @override
+  String get governorateFromLabel => 'Loading governorate';
+
+  @override
+  String get governorateToLabel => 'Unloading governorate';
+
+  @override
+  String get defaultFreightPriceLabel => 'Default freight price';
+
+  @override
+  String get routeNotesLabel => 'Notes';
+
+  @override
+  String get loadingLocationRequired => 'Loading location is required.';
+
+  @override
+  String get unloadingLocationRequired => 'Unloading location is required.';
+
+  @override
+  String get defaultFreightPriceInvalid => 'Enter a valid non-negative number.';
+
+  @override
+  String get searchRoutesHint => 'Search routes';
+
+  @override
+  String get routesStatusAllFilter => 'All';
+
+  @override
+  String get routesStatusActiveFilter => 'Active';
+
+  @override
+  String get routesStatusInactiveFilter => 'Inactive';
+
+  @override
+  String get noRoutesFound => 'No routes found.';
+
+  @override
+  String get noRoutesMatchFilters =>
+      'No routes match the current search or filter.';
+
+  @override
+  String get routeDeactivateButton => 'Deactivate';
+
+  @override
+  String get routeReactivateButton => 'Reactivate';
+
+  @override
+  String get confirmRouteDeactivateTitle => 'Confirm route deactivation';
+
+  @override
+  String get confirmRouteReactivateTitle => 'Confirm route reactivation';
+
+  @override
+  String get confirmRouteDeactivateMessage =>
+      'Do you want to deactivate this route?';
+
+  @override
+  String get confirmRouteReactivateMessage =>
+      'Do you want to reactivate this route?';
+
+  @override
+  String get routeLoadingHeader => 'Loading';
+
+  @override
+  String get routeUnloadingHeader => 'Unloading';
+
+  @override
+  String get routeGovernoratesHeader => 'Governorates';
+
+  @override
+  String get routeDefaultPriceHeader => 'Default price';
+
+  @override
+  String get routeStatusHeader => 'Status';
+
+  @override
+  String get routeActiveStatusLabel => 'Active';
+
+  @override
+  String get routeInactiveStatusLabel => 'Inactive';
+
+  @override
+  String get routeEditButton => 'Edit';
+
+  @override
+  String get routeViewDetails => 'View details';
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override

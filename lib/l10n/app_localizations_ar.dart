@@ -394,6 +394,109 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get routesTitle => 'المسارات';
+
+  @override
+  String get addRouteButton => 'إضافة مسار';
+
+  @override
+  String get addRouteTitle => 'إضافة مسار';
+
+  @override
+  String get editRouteTitle => 'تعديل مسار';
+
+  @override
+  String get loadingLocationLabel => 'مكان التحميل';
+
+  @override
+  String get unloadingLocationLabel => 'مكان التفريغ';
+
+  @override
+  String get governorateFromLabel => 'محافظة التحميل';
+
+  @override
+  String get governorateToLabel => 'محافظة التفريغ';
+
+  @override
+  String get defaultFreightPriceLabel => 'سعر النقل الافتراضي';
+
+  @override
+  String get routeNotesLabel => 'ملاحظات';
+
+  @override
+  String get loadingLocationRequired => 'مكان التحميل مطلوب.';
+
+  @override
+  String get unloadingLocationRequired => 'مكان التفريغ مطلوب.';
+
+  @override
+  String get defaultFreightPriceInvalid => 'أدخل رقم صحيح غير سالب.';
+
+  @override
+  String get searchRoutesHint => 'ابحث في المسارات';
+
+  @override
+  String get routesStatusAllFilter => 'الكل';
+
+  @override
+  String get routesStatusActiveFilter => 'النشط';
+
+  @override
+  String get routesStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noRoutesFound => 'لا توجد مسارات.';
+
+  @override
+  String get noRoutesMatchFilters =>
+      'لا توجد مسارات مطابقة للبحث أو الفلتر الحالي.';
+
+  @override
+  String get routeDeactivateButton => 'إلغاء التفعيل';
+
+  @override
+  String get routeReactivateButton => 'إعادة التفعيل';
+
+  @override
+  String get confirmRouteDeactivateTitle => 'تأكيد إلغاء تفعيل المسار';
+
+  @override
+  String get confirmRouteReactivateTitle => 'تأكيد إعادة تفعيل المسار';
+
+  @override
+  String get confirmRouteDeactivateMessage => 'هل تريد إلغاء تفعيل هذا المسار؟';
+
+  @override
+  String get confirmRouteReactivateMessage => 'هل تريد إعادة تفعيل هذا المسار؟';
+
+  @override
+  String get routeLoadingHeader => 'التحميل';
+
+  @override
+  String get routeUnloadingHeader => 'التفريغ';
+
+  @override
+  String get routeGovernoratesHeader => 'المحافظات';
+
+  @override
+  String get routeDefaultPriceHeader => 'السعر الافتراضي';
+
+  @override
+  String get routeStatusHeader => 'الحالة';
+
+  @override
+  String get routeActiveStatusLabel => 'نشط';
+
+  @override
+  String get routeInactiveStatusLabel => 'غير نشط';
+
+  @override
+  String get routeEditButton => 'تعديل';
+
+  @override
+  String get routeViewDetails => 'عرض التفاصيل';
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override
