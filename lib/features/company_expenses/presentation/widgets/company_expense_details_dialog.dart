@@ -178,7 +178,9 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
                   else if (activity.isEmpty)
                     Text(l10n.fleetNoActivityFound)
                   else
-                    ...activity.map((log) => _ActivityTimelineItem(log: log)),
+                    ...activity.map(
+                      (log) => _ActivityTimelineItem(log: log, state: state),
+                    ),
                 ],
               ),
             ],
@@ -234,8 +236,9 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
 
 class _ActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final CompanyExpensesLoaded? state;
 
-  const _ActivityTimelineItem({required this.log});
+  const _ActivityTimelineItem({required this.log, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -336,7 +339,30 @@ class _ActivityTimelineItem extends StatelessWidget {
     }
 
     final text = value?.toString().trim();
-    return text == null || text.isEmpty ? l10n.fleetNotAvailable : text;
+    if (text == null || text.isEmpty) return l10n.fleetNotAvailable;
+
+    return switch (field) {
+      'category_id' => _categoryLabel(text, l10n),
+      'driver_id' => state?.driverLabel(text) ?? l10n.fleetNotAvailable,
+      'tractor_head_id' =>
+        state?.tractorHeadLabel(text) ?? l10n.fleetNotAvailable,
+      'trailer_id' => state?.trailerLabel(text) ?? l10n.fleetNotAvailable,
+      'trip_id' => state?.tripLabel(text) ?? l10n.fleetNotAvailable,
+      _ => text,
+    };
+  }
+
+  String _categoryLabel(String categoryId, AppLocalizations l10n) {
+    final categories = state?.categories ?? const [];
+    for (final category in categories) {
+      if (category.id == categoryId) {
+        return l10n.companyExpenseCategoryName(
+          code: category.code,
+          fallbackName: category.name,
+        );
+      }
+    }
+    return l10n.fleetNotAvailable;
   }
 
   String _actorName(AuditLog log, AppLocalizations l10n) {
