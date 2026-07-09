@@ -1,8 +1,6 @@
 import '../../../../l10n/app_localizations.dart';
 
 extension CustomersLocalizationsX on AppLocalizations {
-  String customerDetailsTitle(String name) => customerDetailsTitle(name);
-
   String customerAuditActionLabel(String action) {
     return switch (action) {
       'created' => customerAuditActionCreated,
