@@ -183,8 +183,8 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _OptionalLinkDropdown(
-                  label: l10n.companyExpenseDriverLabel,
-                  noneLabel: l10n.companyExpenseNoDriverOption,
+                  label: l10n.driverNameLabel,
+                  noneLabel: l10n.fleetNotAvailable,
                   options: widget.formLookups.drivers,
                   selectedId: _selectedDriverId,
                   isSaving: _isSaving,
@@ -193,8 +193,8 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _OptionalLinkDropdown(
-                  label: l10n.companyExpenseTractorHeadLabel,
-                  noneLabel: l10n.companyExpenseNoTractorHeadOption,
+                  label: l10n.tractorHeadsTab,
+                  noneLabel: l10n.fleetNotAvailable,
                   options: widget.formLookups.tractorHeads,
                   selectedId: _selectedTractorHeadId,
                   isSaving: _isSaving,
@@ -203,8 +203,8 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _OptionalLinkDropdown(
-                  label: l10n.companyExpenseTrailerLabel,
-                  noneLabel: l10n.companyExpenseNoTrailerOption,
+                  label: l10n.trailersTab,
+                  noneLabel: l10n.fleetNotAvailable,
                   options: widget.formLookups.trailers,
                   selectedId: _selectedTrailerId,
                   isSaving: _isSaving,
@@ -213,8 +213,8 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _OptionalLinkDropdown(
-                  label: l10n.companyExpenseTripLabel,
-                  noneLabel: l10n.companyExpenseNoTripOption,
+                  label: l10n.driverMovementTripLine,
+                  noneLabel: l10n.fleetNotAvailable,
                   options: widget.formLookups.trips,
                   selectedId: _selectedTripId,
                   isSaving: _isSaving,
