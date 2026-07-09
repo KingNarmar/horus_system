@@ -1,8 +1,13 @@
--- Harden public table grants for SaaS tenant isolation.
+-- Harden existing public table grants for SaaS tenant isolation.
 --
 -- The application grants table access explicitly per migration and relies on RLS
--- for tenant isolation. Public roles must not inherit broad or destructive table
--- privileges from default ACLs.
+-- for tenant isolation. Public client roles must not keep broad or destructive
+-- table privileges on existing business tables.
+--
+-- Note: default privileges are intentionally not changed here because Supabase
+-- SQL execution may not be allowed to alter default privileges for roles such as
+-- supabase_admin from the migration/runtime role. Default ACL hardening must be
+-- handled through an owner-supported/admin-supported workflow if required.
 
 begin;
 
@@ -15,23 +20,5 @@ revoke all privileges on all tables in schema public from anon;
 revoke delete, truncate, references, trigger, maintain
 on all tables in schema public
 from authenticated;
-
--- Future tables created by the standard migration owner must not automatically
--- grant table privileges to public client roles. Every table migration should grant
--- only the exact privileges required by the feature after RLS is enabled.
-alter default privileges for role postgres in schema public
-revoke all privileges on tables from anon;
-
-alter default privileges for role postgres in schema public
-revoke all privileges on tables from authenticated;
-
--- Future tables created by Supabase-owned/admin flows must follow the same rule:
--- no implicit table grants to client roles. Feature migrations remain responsible
--- for explicit grants and RLS policies.
-alter default privileges for role supabase_admin in schema public
-revoke all privileges on tables from anon;
-
-alter default privileges for role supabase_admin in schema public
-revoke all privileges on tables from authenticated;
 
 commit;
