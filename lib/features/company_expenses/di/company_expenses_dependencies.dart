@@ -30,9 +30,11 @@ abstract final class CompanyExpensesDependencies {
     return CompanyExpensesCubit(
       getCategoriesUseCase: createGetCategoriesUseCase(repository),
       getExpensesUseCase: createGetExpensesUseCase(repository),
+      getFormLookupsUseCase: createGetFormLookupsUseCase(repository),
       addExpenseUseCase: createAddExpenseUseCase(repository),
       updateExpenseUseCase: createUpdateExpenseUseCase(repository),
       voidExpenseUseCase: createVoidExpenseUseCase(repository),
+      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
     );
   }
 
@@ -46,6 +48,12 @@ abstract final class CompanyExpensesDependencies {
     CompanyExpensesRepository repository,
   ) {
     return GetCompanyExpensesUseCase(repository);
+  }
+
+  static GetCompanyExpenseFormLookupsUseCase createGetFormLookupsUseCase(
+    CompanyExpensesRepository repository,
+  ) {
+    return GetCompanyExpenseFormLookupsUseCase(repository);
   }
 
   static AddCompanyExpenseUseCase createAddExpenseUseCase(

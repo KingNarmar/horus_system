@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_module.dart';
+import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/policies/company_expenses_permission_policy.dart';
@@ -10,18 +13,22 @@ import 'company_expenses_state.dart';
 class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   final GetCompanyExpenseCategoriesUseCase getCategoriesUseCase;
   final GetCompanyExpensesUseCase getExpensesUseCase;
+  final GetCompanyExpenseFormLookupsUseCase getFormLookupsUseCase;
   final AddCompanyExpenseUseCase addExpenseUseCase;
   final UpdateCompanyExpenseUseCase updateExpenseUseCase;
   final VoidCompanyExpenseUseCase voidExpenseUseCase;
+  final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
   CompanyExpensesCubit({
     required this.getCategoriesUseCase,
     required this.getExpensesUseCase,
+    required this.getFormLookupsUseCase,
     required this.addExpenseUseCase,
     required this.updateExpenseUseCase,
     required this.voidExpenseUseCase,
+    required this.getEntityAuditLogsUseCase,
   }) : super(const CompanyExpensesInitial());
 
   Future<void> loadCompanyExpenses(
@@ -46,28 +53,40 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
     await categoriesResult.when(
       success: (categories) async {
-        final expensesResult = await getExpensesUseCase(
-          GetCompanyExpensesParams(
+        final lookupsResult = await getFormLookupsUseCase(
+          GetCompanyExpenseFormLookupsParams(
             currentCompanyContext: currentCompanyContext,
-            includeVoided: previousIncludeVoided,
           ),
         );
 
-        expensesResult.when(
-          success: (expenses) => emit(
-            CompanyExpensesLoaded(
-              currentCompanyContext: currentCompanyContext,
-              categories: categories,
-              allExpenses: expenses,
-              searchQuery: previousSearchQuery,
-              includeVoided: previousIncludeVoided,
-              canManageCompanyExpenses:
-                  CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
-                    currentCompanyContext.role,
-                  ),
-            ),
-          ),
-          failure: (failure) => emit(CompanyExpensesFailure(failure)),
+        await lookupsResult.when(
+          success: (formLookups) async {
+            final expensesResult = await getExpensesUseCase(
+              GetCompanyExpensesParams(
+                currentCompanyContext: currentCompanyContext,
+                includeVoided: previousIncludeVoided,
+              ),
+            );
+
+            expensesResult.when(
+              success: (expenses) => emit(
+                CompanyExpensesLoaded(
+                  currentCompanyContext: currentCompanyContext,
+                  categories: categories,
+                  allExpenses: expenses,
+                  formLookups: formLookups,
+                  searchQuery: previousSearchQuery,
+                  includeVoided: previousIncludeVoided,
+                  canManageCompanyExpenses:
+                      CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
+                        currentCompanyContext.role,
+                      ),
+                ),
+              ),
+              failure: (failure) => emit(CompanyExpensesFailure(failure)),
+            );
+          },
+          failure: (failure) async => emit(CompanyExpensesFailure(failure)),
         );
       },
       failure: (failure) async => emit(CompanyExpensesFailure(failure)),
@@ -87,6 +106,65 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
     emit(currentState.copyWith(includeVoided: includeVoided));
     await loadCompanyExpenses(currentState.currentCompanyContext);
+  }
+
+  Future<void> loadExpenseActivity(CompanyExpense expense) async {
+    final currentState = state;
+    if (currentState is! CompanyExpensesLoaded) return;
+
+    emit(
+      currentState.copyWith(
+        selectedExpense: expense,
+        selectedExpenseActivity: const [],
+        isActivityLoading: true,
+        activityFailure: null,
+      ),
+    );
+
+    final result = await getEntityAuditLogsUseCase(
+      GetEntityAuditLogsParams(
+        companyId: currentState.currentCompanyContext.companyId,
+        module: AuditModule.expenses,
+        entityType: AuditEntityType.expense,
+        entityId: expense.id,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! CompanyExpensesLoaded ||
+        latestState.selectedExpense?.id != expense.id) {
+      return;
+    }
+
+    result.when(
+      success: (logs) => emit(
+        latestState.copyWith(
+          selectedExpenseActivity: logs,
+          isActivityLoading: false,
+          activityFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isActivityLoading: false,
+          activityFailure: failure,
+        ),
+      ),
+    );
+  }
+
+  void clearExpenseActivity() {
+    final currentState = state;
+    if (currentState is! CompanyExpensesLoaded) return;
+
+    emit(
+      currentState.copyWith(
+        selectedExpense: null,
+        selectedExpenseActivity: const [],
+        isActivityLoading: false,
+        activityFailure: null,
+      ),
+    );
   }
 
   Future<void> addExpense({
@@ -214,6 +292,9 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     emit(
       currentState.copyWith(
         allExpenses: updatedExpenses,
+        selectedExpense: currentState.selectedExpense?.id == expense.id
+            ? expense
+            : currentState.selectedExpense,
         pendingActionExpenseId: null,
       ),
     );

@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../cubit/company_expenses_cubit.dart';
 import '../cubit/company_expenses_state.dart';
+import '../widgets/company_expense_details_dialog.dart';
 import '../widgets/company_expense_form_dialog.dart';
 import '../widgets/company_expenses_state_view.dart';
 
@@ -37,6 +38,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
       context: context,
       builder: (_) => CompanyExpenseFormDialog(
         categories: state.categories,
+        formLookups: state.formLookups,
         expense: expense,
         onSubmit: (data) {
           final cubit = context.read<CompanyExpensesCubit>();
@@ -45,6 +47,10 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
               categoryId: data.categoryId,
               amount: data.amount,
               expenseDate: data.expenseDate,
+              driverId: data.driverId,
+              tractorHeadId: data.tractorHeadId,
+              trailerId: data.trailerId,
+              tripId: data.tripId,
               referenceNumber: data.referenceNumber,
               notes: data.notes,
             );
@@ -54,12 +60,31 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
             categoryId: data.categoryId,
             amount: data.amount,
             expenseDate: data.expenseDate,
+            driverId: data.driverId,
+            tractorHeadId: data.tractorHeadId,
+            trailerId: data.trailerId,
+            tripId: data.tripId,
             referenceNumber: data.referenceNumber,
             notes: data.notes,
           );
         },
       ),
     );
+  }
+
+  Future<void> _openExpenseDetails(CompanyExpense expense) async {
+    final cubit = context.read<CompanyExpensesCubit>();
+    cubit.loadExpenseActivity(expense);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => BlocBuilder<CompanyExpensesCubit, CompanyExpensesState>(
+        builder: (context, state) => CompanyExpenseDetailsDialog(
+          expense: expense,
+          state: state is CompanyExpensesLoaded ? state : null,
+        ),
+      ),
+    );
+    cubit.clearExpenseActivity();
   }
 
   Future<void> _confirmVoidExpense(CompanyExpense expense) async {
@@ -142,6 +167,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
                   cubit.loadCompanyExpenses(widget.currentCompanyContext),
               onSearchChanged: cubit.setSearchQuery,
               onIncludeVoidedChanged: cubit.setIncludeVoided,
+              onViewDetails: _openExpenseDetails,
               onEdit: (expense) => _openExpenseForm(expense: expense),
               onVoid: _confirmVoidExpense,
             ),

@@ -6,6 +6,7 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/company_expense.dart';
 import '../entities/company_expense_category.dart';
+import '../entities/company_expense_form_lookups.dart';
 import '../entities/company_expense_void_data.dart';
 import '../entities/company_expense_write_data.dart';
 import '../policies/company_expenses_permission_policy.dart';
@@ -28,6 +29,14 @@ class GetCompanyExpensesParams {
   const GetCompanyExpensesParams({
     required this.currentCompanyContext,
     this.includeVoided = false,
+  });
+}
+
+class GetCompanyExpenseFormLookupsParams {
+  final CurrentCompanyContext currentCompanyContext;
+
+  const GetCompanyExpenseFormLookupsParams({
+    required this.currentCompanyContext,
   });
 }
 
@@ -154,6 +163,33 @@ class GetCompanyExpensesUseCase
       companyId: context.companyId,
       includeVoided: params.includeVoided,
     );
+  }
+}
+
+class GetCompanyExpenseFormLookupsUseCase
+    implements
+        UseCase<CompanyExpenseFormLookups, GetCompanyExpenseFormLookupsParams> {
+  final CompanyExpensesRepository _repository;
+
+  const GetCompanyExpenseFormLookupsUseCase(this._repository);
+
+  @override
+  Future<Result<CompanyExpenseFormLookups>> call(
+    GetCompanyExpenseFormLookupsParams params,
+  ) {
+    final context = params.currentCompanyContext;
+    if (!CompanyExpensesPermissionPolicy.canViewCompanyExpenses(context.role)) {
+      return Future.value(
+        const FailureResult<CompanyExpenseFormLookups>(
+          PermissionFailure(
+            code: FailureCodes.permissionCompanyExpensesView,
+            message: 'Company expenses access is not allowed.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getFormLookups(companyId: context.companyId);
   }
 }
 

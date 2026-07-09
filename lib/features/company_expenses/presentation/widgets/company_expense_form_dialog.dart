@@ -5,6 +5,8 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
+import '../../domain/entities/company_expense_form_lookups.dart';
+import '../../domain/entities/company_expense_link_option.dart';
 import '../constants/company_expense_presentation_constants.dart';
 import '../helpers/company_expense_date_formatter.dart';
 import '../localization/company_expense_category_localizations_x.dart';
@@ -13,6 +15,10 @@ class CompanyExpenseFormData {
   final String categoryId;
   final double amount;
   final DateTime expenseDate;
+  final String? driverId;
+  final String? tractorHeadId;
+  final String? trailerId;
+  final String? tripId;
   final String? referenceNumber;
   final String? notes;
 
@@ -20,6 +26,10 @@ class CompanyExpenseFormData {
     required this.categoryId,
     required this.amount,
     required this.expenseDate,
+    this.driverId,
+    this.tractorHeadId,
+    this.trailerId,
+    this.tripId,
     this.referenceNumber,
     this.notes,
   });
@@ -27,11 +37,13 @@ class CompanyExpenseFormData {
 
 class CompanyExpenseFormDialog extends StatefulWidget {
   final List<CompanyExpenseCategory> categories;
+  final CompanyExpenseFormLookups formLookups;
   final CompanyExpense? expense;
   final Future<void> Function(CompanyExpenseFormData data) onSubmit;
 
   const CompanyExpenseFormDialog({
     required this.categories,
+    required this.formLookups,
     required this.onSubmit,
     this.expense,
     super.key,
@@ -48,6 +60,10 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
   final _referenceController = TextEditingController();
   final _notesController = TextEditingController();
   String? _selectedCategoryId;
+  String? _selectedDriverId;
+  String? _selectedTractorHeadId;
+  String? _selectedTrailerId;
+  String? _selectedTripId;
   late DateTime _expenseDate;
   bool _isSaving = false;
 
@@ -58,6 +74,10 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
     _selectedCategoryId =
         expense?.categoryId ??
         (widget.categories.isEmpty ? null : widget.categories.first.id);
+    _selectedDriverId = expense?.driverId;
+    _selectedTractorHeadId = expense?.tractorHeadId;
+    _selectedTrailerId = expense?.trailerId;
+    _selectedTripId = expense?.tripId;
     _expenseDate = expense?.expenseDate ?? DateTime.now();
     _amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     _referenceController.text = expense?.referenceNumber ?? '';
@@ -100,6 +120,10 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
         categoryId: categoryId,
         amount: amount,
         expenseDate: _expenseDate,
+        driverId: _selectedDriverId,
+        tractorHeadId: _selectedTractorHeadId,
+        trailerId: _selectedTrailerId,
+        tripId: _selectedTripId,
         referenceNumber: _optional(_referenceController.text),
         notes: _optional(_notesController.text),
       ),
@@ -156,6 +180,45 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
                   validator: (value) => value == null
                       ? l10n.companyExpenseCategoryRequired
                       : null,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _OptionalLinkDropdown(
+                  label: l10n.driverNameLabel,
+                  noneLabel: l10n.fleetNotAvailable,
+                  options: widget.formLookups.drivers,
+                  selectedId: _selectedDriverId,
+                  isSaving: _isSaving,
+                  onChanged: (value) =>
+                      setState(() => _selectedDriverId = value),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _OptionalLinkDropdown(
+                  label: l10n.tractorHeadsTab,
+                  noneLabel: l10n.fleetNotAvailable,
+                  options: widget.formLookups.tractorHeads,
+                  selectedId: _selectedTractorHeadId,
+                  isSaving: _isSaving,
+                  onChanged: (value) =>
+                      setState(() => _selectedTractorHeadId = value),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _OptionalLinkDropdown(
+                  label: l10n.trailersTab,
+                  noneLabel: l10n.fleetNotAvailable,
+                  options: widget.formLookups.trailers,
+                  selectedId: _selectedTrailerId,
+                  isSaving: _isSaving,
+                  onChanged: (value) =>
+                      setState(() => _selectedTrailerId = value),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _OptionalLinkDropdown(
+                  label: l10n.driverMovementTripLine,
+                  noneLabel: l10n.fleetNotAvailable,
+                  options: widget.formLookups.trips,
+                  selectedId: _selectedTripId,
+                  isSaving: _isSaving,
+                  onChanged: (value) => setState(() => _selectedTripId = value),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
@@ -215,5 +278,46 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
         ),
       ],
     );
+  }
+}
+
+class _OptionalLinkDropdown extends StatelessWidget {
+  final String label;
+  final String noneLabel;
+  final List<CompanyExpenseLinkOption> options;
+  final String? selectedId;
+  final bool isSaving;
+  final ValueChanged<String?> onChanged;
+
+  const _OptionalLinkDropdown({
+    required this.label,
+    required this.noneLabel,
+    required this.options,
+    required this.selectedId,
+    required this.isSaving,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String?>(
+      initialValue: _hasSelectedOption ? selectedId : null,
+      decoration: InputDecoration(labelText: label),
+      items: [
+        DropdownMenuItem<String?>(value: null, child: Text(noneLabel)),
+        ...options.map(
+          (option) => DropdownMenuItem<String?>(
+            value: option.id,
+            child: Text(option.label),
+          ),
+        ),
+      ],
+      onChanged: isSaving ? null : onChanged,
+    );
+  }
+
+  bool get _hasSelectedOption {
+    if (selectedId == null) return false;
+    return options.any((option) => option.id == selectedId);
   }
 }

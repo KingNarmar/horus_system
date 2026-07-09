@@ -4,6 +4,8 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company_expenses/domain/entities/company_expense.dart';
 import 'package:horus_system/features/company_expenses/domain/entities/company_expense_category.dart';
+import 'package:horus_system/features/company_expenses/domain/entities/company_expense_form_lookups.dart';
+import 'package:horus_system/features/company_expenses/domain/entities/company_expense_link_option.dart';
 import 'package:horus_system/features/company_expenses/presentation/cubit/company_expenses_state.dart';
 
 void main() {
@@ -21,6 +23,28 @@ void main() {
 
     test('finds English category terms', () {
       final state = _loadedState(searchQuery: 'tires');
+
+      final expenses = state.filteredExpenses(
+        categorySearchTermsById: _localizedCategorySearchTerms,
+      );
+
+      expect(expenses, hasLength(1));
+      expect(expenses.single.id, 'tires-expense');
+    });
+
+    test('finds linked driver labels', () {
+      final state = _loadedState(searchQuery: 'Mina Driver');
+
+      final expenses = state.filteredExpenses(
+        categorySearchTermsById: _localizedCategorySearchTerms,
+      );
+
+      expect(expenses, hasLength(1));
+      expect(expenses.single.id, 'tires-expense');
+    });
+
+    test('finds linked tractor head labels', () {
+      final state = _loadedState(searchQuery: 'TH-100');
 
       final expenses = state.filteredExpenses(
         categorySearchTermsById: _localizedCategorySearchTerms,
@@ -91,6 +115,8 @@ CompanyExpensesLoaded _loadedState({
         categoryId: 'category-tires',
         amount: 250,
         referenceNumber: 'TYR-001',
+        driverId: 'driver-1',
+        tractorHeadId: 'tractor-1',
       ),
       _expense(
         id: 'fines-expense',
@@ -100,6 +126,12 @@ CompanyExpensesLoaded _loadedState({
         isVoided: true,
       ),
     ],
+    formLookups: const CompanyExpenseFormLookups(
+      drivers: [CompanyExpenseLinkOption(id: 'driver-1', label: 'Mina Driver')],
+      tractorHeads: [
+        CompanyExpenseLinkOption(id: 'tractor-1', label: 'TH-100'),
+      ],
+    ),
     canManageCompanyExpenses: true,
     searchQuery: searchQuery,
     includeVoided: includeVoided,
@@ -111,12 +143,16 @@ CompanyExpense _expense({
   required String categoryId,
   required double amount,
   required String referenceNumber,
+  String? driverId,
+  String? tractorHeadId,
   bool isVoided = false,
 }) {
   return CompanyExpense(
     id: id,
     companyId: _companyId,
     categoryId: categoryId,
+    driverId: driverId,
+    tractorHeadId: tractorHeadId,
     amount: amount,
     expenseDate: DateTime(2026, 7, 3),
     referenceNumber: referenceNumber,

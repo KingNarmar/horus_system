@@ -14,6 +14,7 @@ class CompanyExpensesStateView extends StatelessWidget {
   final VoidCallback onRetry;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<bool> onIncludeVoidedChanged;
+  final ValueChanged<CompanyExpense> onViewDetails;
   final ValueChanged<CompanyExpense> onEdit;
   final ValueChanged<CompanyExpense> onVoid;
 
@@ -22,6 +23,7 @@ class CompanyExpensesStateView extends StatelessWidget {
     required this.onRetry,
     required this.onSearchChanged,
     required this.onIncludeVoidedChanged,
+    required this.onViewDetails,
     required this.onEdit,
     required this.onVoid,
     super.key,
@@ -112,14 +114,44 @@ class CompanyExpensesStateView extends StatelessWidget {
               expense: expense,
               categoryName:
                   categoriesById[expense.categoryId] ?? expense.categoryId,
+              driverLabel: _displayLinkedLabel(
+                id: expense.driverId,
+                label: currentState.driverLabel(expense.driverId),
+                unavailableLabel: l10n.fleetNotAvailable,
+              ),
+              tractorHeadLabel: _displayLinkedLabel(
+                id: expense.tractorHeadId,
+                label: currentState.tractorHeadLabel(expense.tractorHeadId),
+                unavailableLabel: l10n.fleetNotAvailable,
+              ),
+              trailerLabel: _displayLinkedLabel(
+                id: expense.trailerId,
+                label: currentState.trailerLabel(expense.trailerId),
+                unavailableLabel: l10n.fleetNotAvailable,
+              ),
+              tripLabel: _displayLinkedLabel(
+                id: expense.tripId,
+                label: currentState.tripLabel(expense.tripId),
+                unavailableLabel: l10n.fleetNotAvailable,
+              ),
               canManage: currentState.canManageCompanyExpenses,
               isPending: currentState.pendingActionExpenseId == expense.id,
+              onViewDetails: onViewDetails,
               onEdit: onEdit,
               onVoid: onVoid,
             ),
           ),
       ],
     );
+  }
+
+  String? _displayLinkedLabel({
+    required String? id,
+    required String? label,
+    required String unavailableLabel,
+  }) {
+    if (id == null) return null;
+    return label ?? unavailableLabel;
   }
 }
 
@@ -142,16 +174,26 @@ class _EmptyMessage extends StatelessWidget {
 class _ExpenseCard extends StatelessWidget {
   final CompanyExpense expense;
   final String categoryName;
+  final String? driverLabel;
+  final String? tractorHeadLabel;
+  final String? trailerLabel;
+  final String? tripLabel;
   final bool canManage;
   final bool isPending;
+  final ValueChanged<CompanyExpense> onViewDetails;
   final ValueChanged<CompanyExpense> onEdit;
   final ValueChanged<CompanyExpense> onVoid;
 
   const _ExpenseCard({
     required this.expense,
     required this.categoryName,
+    required this.driverLabel,
+    required this.tractorHeadLabel,
+    required this.trailerLabel,
+    required this.tripLabel,
     required this.canManage,
     required this.isPending,
+    required this.onViewDetails,
     required this.onEdit,
     required this.onVoid,
   });
@@ -191,14 +233,28 @@ class _ExpenseCard extends StatelessWidget {
                 formatCompanyExpenseDate(expense.expenseDate),
               ),
             ),
+            if (driverLabel != null)
+              Text(_linkedLine(l10n.driverNameLabel, driverLabel!)),
+            if (tractorHeadLabel != null)
+              Text(_linkedLine(l10n.tractorHeadsTab, tractorHeadLabel!)),
+            if (trailerLabel != null)
+              Text(_linkedLine(l10n.trailersTab, trailerLabel!)),
+            if (tripLabel != null)
+              Text(_linkedLine(l10n.driverMovementTripLine, tripLabel!)),
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
             if (expense.notes != null) Text(expense.notes!),
-            if (canManage && !expense.isVoided) ...[
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                children: [
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => onViewDetails(expense),
+                  icon: const Icon(AppIcons.view),
+                  label: Text(l10n.fleetDetailsButton),
+                ),
+                if (canManage && !expense.isVoided) ...[
                   OutlinedButton.icon(
                     onPressed: isPending ? null : () => onEdit(expense),
                     icon: const Icon(AppIcons.edit),
@@ -217,11 +273,13 @@ class _ExpenseCard extends StatelessWidget {
                     label: Text(l10n.voidCompanyExpenseButton),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+
+  String _linkedLine(String label, String value) => '$label: $value';
 }
