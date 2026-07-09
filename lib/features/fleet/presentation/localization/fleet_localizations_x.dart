@@ -2,55 +2,9 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/vehicle_status.dart';
 
 extension FleetLocalizationsX on AppLocalizations {
-  bool get _isArabic => localeName.startsWith('ar');
-
   String get editButton => fleetEditButton;
 
-  String get fleetBasicInfo =>
-      _isArabic ? 'البيانات الأساسية' : 'Basic information';
-
-  String get fleetAccountability =>
-      _isArabic ? 'المسؤولية والمتابعة' : 'Accountability';
-
-  String get fleetActivityTimeline =>
-      _isArabic ? 'سجل النشاط' : 'Activity timeline';
-
-  String get fleetCreatedBy => _isArabic ? 'أنشأه' : 'Created by';
-
-  String get fleetCreatedRole => _isArabic ? 'دور المنشئ' : 'Created role';
-
-  String get fleetCreatedAt => _isArabic ? 'تاريخ الإنشاء' : 'Created at';
-
-  String get fleetLastActivityBy =>
-      _isArabic ? 'آخر إجراء بواسطة' : 'Last activity by';
-
-  String get fleetLastActivityRole =>
-      _isArabic ? 'دور آخر مستخدم' : 'Last activity role';
-
-  String get fleetLastActivityAt =>
-      _isArabic ? 'وقت آخر إجراء' : 'Last activity at';
-
-  String get fleetLoadingActivity =>
-      _isArabic ? 'جاري تحميل سجل النشاط...' : 'Loading activity...';
-
-  String get fleetNoActivityFound => _isArabic
-      ? 'لا يوجد نشاط مسجل لهذا الأصل.'
-      : 'No activity found for this asset.';
-
-  String get fleetUnknownUser =>
-      _isArabic ? 'مستخدم غير معروف' : 'Unknown user';
-
-  String get fleetNotAvailable => _isArabic ? 'غير متاح' : 'Not available';
-
-  String get fleetChanges => _isArabic ? 'التغييرات' : 'Changes';
-
   String get emptyValue => '-';
-
-  String fleetDetailsTitle(String plateNumber) {
-    return _isArabic
-        ? 'تفاصيل الأصل: $plateNumber'
-        : 'Fleet asset details: $plateNumber';
-  }
 
   String vehicleStatusText(VehicleStatus status) {
     return switch (status) {
@@ -66,11 +20,11 @@ extension FleetLocalizationsX on AppLocalizations {
 
   String fleetAuditActionLabel(String action) {
     return switch (action) {
-      'created' => _isArabic ? 'تم الإنشاء' : 'Created',
-      'updated' => _isArabic ? 'تم التعديل' : 'Updated',
-      'deactivated' => _isArabic ? 'تم التعطيل' : 'Deactivated',
-      'reactivated' => _isArabic ? 'تم التفعيل' : 'Reactivated',
-      'status_changed' => _isArabic ? 'تم تغيير الحالة' : 'Status changed',
+      'created' => fleetAuditActionCreated,
+      'updated' => fleetAuditActionUpdated,
+      'deactivated' => fleetAuditActionDeactivated,
+      'reactivated' => fleetAuditActionReactivated,
+      'status_changed' => fleetAuditActionStatusChanged,
       _ => action,
     };
   }
