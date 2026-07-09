@@ -112,6 +112,26 @@ class CompanyExpensesStateView extends StatelessWidget {
               expense: expense,
               categoryName:
                   categoriesById[expense.categoryId] ?? expense.categoryId,
+              driverLabel: _displayLinkedLabel(
+                id: expense.driverId,
+                label: currentState.driverLabel(expense.driverId),
+                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+              ),
+              tractorHeadLabel: _displayLinkedLabel(
+                id: expense.tractorHeadId,
+                label: currentState.tractorHeadLabel(expense.tractorHeadId),
+                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+              ),
+              trailerLabel: _displayLinkedLabel(
+                id: expense.trailerId,
+                label: currentState.trailerLabel(expense.trailerId),
+                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+              ),
+              tripLabel: _displayLinkedLabel(
+                id: expense.tripId,
+                label: currentState.tripLabel(expense.tripId),
+                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+              ),
               canManage: currentState.canManageCompanyExpenses,
               isPending: currentState.pendingActionExpenseId == expense.id,
               onEdit: onEdit,
@@ -120,6 +140,15 @@ class CompanyExpensesStateView extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  String? _displayLinkedLabel({
+    required String? id,
+    required String? label,
+    required String unavailableLabel,
+  }) {
+    if (id == null) return null;
+    return label ?? unavailableLabel;
   }
 }
 
@@ -142,6 +171,10 @@ class _EmptyMessage extends StatelessWidget {
 class _ExpenseCard extends StatelessWidget {
   final CompanyExpense expense;
   final String categoryName;
+  final String? driverLabel;
+  final String? tractorHeadLabel;
+  final String? trailerLabel;
+  final String? tripLabel;
   final bool canManage;
   final bool isPending;
   final ValueChanged<CompanyExpense> onEdit;
@@ -150,6 +183,10 @@ class _ExpenseCard extends StatelessWidget {
   const _ExpenseCard({
     required this.expense,
     required this.categoryName,
+    required this.driverLabel,
+    required this.tractorHeadLabel,
+    required this.trailerLabel,
+    required this.tripLabel,
     required this.canManage,
     required this.isPending,
     required this.onEdit,
@@ -191,6 +228,14 @@ class _ExpenseCard extends StatelessWidget {
                 formatCompanyExpenseDate(expense.expenseDate),
               ),
             ),
+            if (driverLabel != null)
+              Text(l10n.companyExpenseDriverLine(driverLabel!)),
+            if (tractorHeadLabel != null)
+              Text(l10n.companyExpenseTractorHeadLine(tractorHeadLabel!)),
+            if (trailerLabel != null)
+              Text(l10n.companyExpenseTrailerLine(trailerLabel!)),
+            if (tripLabel != null)
+              Text(l10n.companyExpenseTripLine(tripLabel!)),
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
             if (expense.notes != null) Text(expense.notes!),
