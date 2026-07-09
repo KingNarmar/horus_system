@@ -14,6 +14,7 @@ class CompanyExpensesStateView extends StatelessWidget {
   final VoidCallback onRetry;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<bool> onIncludeVoidedChanged;
+  final ValueChanged<CompanyExpense> onViewDetails;
   final ValueChanged<CompanyExpense> onEdit;
   final ValueChanged<CompanyExpense> onVoid;
 
@@ -22,6 +23,7 @@ class CompanyExpensesStateView extends StatelessWidget {
     required this.onRetry,
     required this.onSearchChanged,
     required this.onIncludeVoidedChanged,
+    required this.onViewDetails,
     required this.onEdit,
     required this.onVoid,
     super.key,
@@ -134,6 +136,7 @@ class CompanyExpensesStateView extends StatelessWidget {
               ),
               canManage: currentState.canManageCompanyExpenses,
               isPending: currentState.pendingActionExpenseId == expense.id,
+              onViewDetails: onViewDetails,
               onEdit: onEdit,
               onVoid: onVoid,
             ),
@@ -177,6 +180,7 @@ class _ExpenseCard extends StatelessWidget {
   final String? tripLabel;
   final bool canManage;
   final bool isPending;
+  final ValueChanged<CompanyExpense> onViewDetails;
   final ValueChanged<CompanyExpense> onEdit;
   final ValueChanged<CompanyExpense> onVoid;
 
@@ -189,6 +193,7 @@ class _ExpenseCard extends StatelessWidget {
     required this.tripLabel,
     required this.canManage,
     required this.isPending,
+    required this.onViewDetails,
     required this.onEdit,
     required this.onVoid,
   });
@@ -239,11 +244,17 @@ class _ExpenseCard extends StatelessWidget {
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
             if (expense.notes != null) Text(expense.notes!),
-            if (canManage && !expense.isVoided) ...[
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                children: [
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => onViewDetails(expense),
+                  icon: const Icon(AppIcons.info),
+                  label: Text(l10n.fleetDetailsButton),
+                ),
+                if (canManage && !expense.isVoided) ...[
                   OutlinedButton.icon(
                     onPressed: isPending ? null : () => onEdit(expense),
                     icon: const Icon(AppIcons.edit),
@@ -262,8 +273,8 @@ class _ExpenseCard extends StatelessWidget {
                     label: Text(l10n.voidCompanyExpenseButton),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ],
         ),
       ),
