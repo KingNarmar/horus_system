@@ -251,7 +251,7 @@ class _ExpenseCard extends StatelessWidget {
               children: [
                 OutlinedButton.icon(
                   onPressed: () => onViewDetails(expense),
-                  icon: const Icon(AppIcons.info),
+                  icon: const Icon(AppIcons.view),
                   label: Text(l10n.fleetDetailsButton),
                 ),
                 if (canManage && !expense.isVoided) ...[
