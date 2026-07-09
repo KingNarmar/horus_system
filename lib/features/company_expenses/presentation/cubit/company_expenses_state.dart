@@ -1,5 +1,6 @@
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
+import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
@@ -29,6 +30,10 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   final String searchQuery;
   final bool includeVoided;
   final String? pendingActionExpenseId;
+  final CompanyExpense? selectedExpense;
+  final List<AuditLog> selectedExpenseActivity;
+  final bool isActivityLoading;
+  final Failure? activityFailure;
 
   const CompanyExpensesLoaded({
     required this.currentCompanyContext,
@@ -39,6 +44,10 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     this.searchQuery = '',
     this.includeVoided = false,
     this.pendingActionExpenseId,
+    this.selectedExpense,
+    this.selectedExpenseActivity = const [],
+    this.isActivityLoading = false,
+    this.activityFailure,
   });
 
   List<CompanyExpense> get expenses {
@@ -48,6 +57,14 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
           category.id: [category.name, if (category.code != null) category.code!],
       },
     );
+  }
+
+  String? categoryLabel(String? id) {
+    if (id == null) return null;
+    for (final category in categories) {
+      if (category.id == id) return category.name;
+    }
+    return null;
   }
 
   String? driverLabel(String? id) => _labelFor(formLookups.drivers, id);
@@ -128,6 +145,10 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     String? searchQuery,
     bool? includeVoided,
     Object? pendingActionExpenseId = _notSet,
+    Object? selectedExpense = _notSet,
+    List<AuditLog>? selectedExpenseActivity,
+    bool? isActivityLoading,
+    Object? activityFailure = _notSet,
   }) {
     return CompanyExpensesLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -141,6 +162,15 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
       pendingActionExpenseId: pendingActionExpenseId == _notSet
           ? this.pendingActionExpenseId
           : pendingActionExpenseId as String?,
+      selectedExpense: selectedExpense == _notSet
+          ? this.selectedExpense
+          : selectedExpense as CompanyExpense?,
+      selectedExpenseActivity:
+          selectedExpenseActivity ?? this.selectedExpenseActivity,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      activityFailure: activityFailure == _notSet
+          ? this.activityFailure
+          : activityFailure as Failure?,
     );
   }
 }
