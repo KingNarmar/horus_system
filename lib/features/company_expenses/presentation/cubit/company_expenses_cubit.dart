@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_module.dart';
+import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/policies/company_expenses_permission_policy.dart';
@@ -14,6 +17,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   final AddCompanyExpenseUseCase addExpenseUseCase;
   final UpdateCompanyExpenseUseCase updateExpenseUseCase;
   final VoidCompanyExpenseUseCase voidExpenseUseCase;
+  final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -24,6 +28,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     required this.addExpenseUseCase,
     required this.updateExpenseUseCase,
     required this.voidExpenseUseCase,
+    required this.getEntityAuditLogsUseCase,
   }) : super(const CompanyExpensesInitial());
 
   Future<void> loadCompanyExpenses(
@@ -101,6 +106,65 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
     emit(currentState.copyWith(includeVoided: includeVoided));
     await loadCompanyExpenses(currentState.currentCompanyContext);
+  }
+
+  Future<void> loadExpenseActivity(CompanyExpense expense) async {
+    final currentState = state;
+    if (currentState is! CompanyExpensesLoaded) return;
+
+    emit(
+      currentState.copyWith(
+        selectedExpense: expense,
+        selectedExpenseActivity: const [],
+        isActivityLoading: true,
+        activityFailure: null,
+      ),
+    );
+
+    final result = await getEntityAuditLogsUseCase(
+      GetEntityAuditLogsParams(
+        companyId: currentState.currentCompanyContext.companyId,
+        module: AuditModule.expenses,
+        entityType: AuditEntityType.expense,
+        entityId: expense.id,
+      ),
+    );
+
+    final latestState = state;
+    if (latestState is! CompanyExpensesLoaded ||
+        latestState.selectedExpense?.id != expense.id) {
+      return;
+    }
+
+    result.when(
+      success: (logs) => emit(
+        latestState.copyWith(
+          selectedExpenseActivity: logs,
+          isActivityLoading: false,
+          activityFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isActivityLoading: false,
+          activityFailure: failure,
+        ),
+      ),
+    );
+  }
+
+  void clearExpenseActivity() {
+    final currentState = state;
+    if (currentState is! CompanyExpensesLoaded) return;
+
+    emit(
+      currentState.copyWith(
+        selectedExpense: null,
+        selectedExpenseActivity: const [],
+        isActivityLoading: false,
+        activityFailure: null,
+      ),
+    );
   }
 
   Future<void> addExpense({
@@ -228,6 +292,9 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     emit(
       currentState.copyWith(
         allExpenses: updatedExpenses,
+        selectedExpense: currentState.selectedExpense?.id == expense.id
+            ? expense
+            : currentState.selectedExpense,
         pendingActionExpenseId: null,
       ),
     );
