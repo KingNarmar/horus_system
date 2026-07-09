@@ -5,7 +5,6 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
-import '../localization/drivers_localizations_x.dart';
 
 class DriverFormData {
   final String fullName;
@@ -53,10 +52,16 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     _selectedLicenseExpiryDate = driver?.licenseExpiryDate;
     _nameController = TextEditingController(text: driver?.fullName ?? '');
     _phoneController = TextEditingController(text: driver?.phone ?? '');
-    _nationalIdController = TextEditingController(text: driver?.nationalId ?? '');
-    _licenseNumberController = TextEditingController(text: driver?.licenseNumber ?? '');
+    _nationalIdController = TextEditingController(
+      text: driver?.nationalId ?? '',
+    );
+    _licenseNumberController = TextEditingController(
+      text: driver?.licenseNumber ?? '',
+    );
     _licenseExpiryController = TextEditingController(
-      text: _selectedLicenseExpiryDate == null ? '' : _dateOnly(_selectedLicenseExpiryDate!),
+      text: _selectedLicenseExpiryDate == null
+          ? ''
+          : _dateOnly(_selectedLicenseExpiryDate!),
     );
     _notesController = TextEditingController(text: driver?.notes ?? '');
   }
@@ -76,7 +81,9 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return AlertDialog(
-      title: Text(widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton),
+      title: Text(
+        widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
+      ),
       content: SizedBox(
         width: 520,
         child: SingleChildScrollView(
@@ -88,14 +95,27 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(labelText: l10n.driverNameLabel),
-                  validator: (value) => value == null || value.trim().isEmpty ? l10n.driverNameRequired : null,
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? l10n.driverNameRequired
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _phoneController, decoration: InputDecoration(labelText: l10n.phoneLabel)),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: InputDecoration(labelText: l10n.phoneLabel),
+                ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _nationalIdController, decoration: InputDecoration(labelText: l10n.nationalIdLabel)),
+                TextFormField(
+                  controller: _nationalIdController,
+                  decoration: InputDecoration(labelText: l10n.nationalIdLabel),
+                ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _licenseNumberController, decoration: InputDecoration(labelText: l10n.licenseNumberLabel)),
+                TextFormField(
+                  controller: _licenseNumberController,
+                  decoration: InputDecoration(
+                    labelText: l10n.licenseNumberLabel,
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _licenseExpiryController,
@@ -107,39 +127,62 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                       children: [
                         if (_licenseExpiryController.text.isNotEmpty)
                           IconButton(
-                            tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                            tooltip: MaterialLocalizations.of(
+                              context,
+                            ).deleteButtonTooltip,
                             icon: const Icon(AppIcons.clear),
-                            onPressed: _isSubmitting ? null : _clearLicenseExpiryDate,
+                            onPressed: _isSubmitting
+                                ? null
+                                : _clearLicenseExpiryDate,
                           ),
                         IconButton(
                           tooltip: l10n.licenseExpiryDateLabel,
                           icon: const Icon(AppIcons.calendar),
-                          onPressed: _isSubmitting ? null : _pickLicenseExpiryDate,
+                          onPressed: _isSubmitting
+                              ? null
+                              : _pickLicenseExpiryDate,
                         ),
                       ],
                     ),
                   ),
                   onTap: _isSubmitting ? null : _pickLicenseExpiryDate,
-                  validator: (_) => _isLicenseExpiryDateValid ? null : l10n.licenseExpiryDateMustBeFuture,
+                  validator: (_) => _isLicenseExpiryDateValid
+                      ? null
+                      : l10n.licenseExpiryDateMustBeFuture,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _notesController, decoration: InputDecoration(labelText: l10n.notesLabel), maxLines: 3),
+                TextFormField(
+                  controller: _notesController,
+                  decoration: InputDecoration(labelText: l10n.notesLabel),
+                  maxLines: 3,
+                ),
               ],
             ),
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(), child: Text(l10n.cancelButton)),
-        FilledButton(onPressed: _isSubmitting ? null : _submit, child: Text(l10n.saveButton)),
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: Text(l10n.cancelButton),
+        ),
+        FilledButton(
+          onPressed: _isSubmitting ? null : _submit,
+          child: Text(l10n.saveButton),
+        ),
       ],
     );
   }
 
   Future<void> _pickLicenseExpiryDate() async {
     final today = _dateOnlyValue(DateTime.now());
-    final currentSelection = _selectedLicenseExpiryDate == null ? null : _dateOnlyValue(_selectedLicenseExpiryDate!);
-    final initialDate = currentSelection == null || currentSelection.isBefore(today) ? today : currentSelection;
+    final currentSelection = _selectedLicenseExpiryDate == null
+        ? null
+        : _dateOnlyValue(_selectedLicenseExpiryDate!);
+    final initialDate =
+        currentSelection == null || currentSelection.isBefore(today)
+        ? today
+        : currentSelection;
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -171,7 +214,9 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         phone: _optional(_phoneController.text),
         nationalId: _optional(_nationalIdController.text),
         licenseNumber: _optional(_licenseNumberController.text),
-        licenseExpiryDate: _selectedLicenseExpiryDate == null ? null : _dateOnlyValue(_selectedLicenseExpiryDate!),
+        licenseExpiryDate: _selectedLicenseExpiryDate == null
+            ? null
+            : _dateOnlyValue(_selectedLicenseExpiryDate!),
         notes: _optional(_notesController.text),
       ),
     );
@@ -181,7 +226,9 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   bool get _isLicenseExpiryDateValid {
     final selectedDate = _selectedLicenseExpiryDate;
     if (selectedDate == null) return true;
-    return !_dateOnlyValue(selectedDate).isBefore(_dateOnlyValue(DateTime.now()));
+    return !_dateOnlyValue(
+      selectedDate,
+    ).isBefore(_dateOnlyValue(DateTime.now()));
   }
 
   String? _optional(String value) {

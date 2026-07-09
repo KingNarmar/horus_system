@@ -776,6 +776,288 @@ abstract class AppLocalizations {
   /// **'City: {city}'**
   String cityLine(String city);
 
+  /// No description provided for @driversTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers'**
+  String get driversTitle;
+
+  /// No description provided for @addDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add driver'**
+  String get addDriverButton;
+
+  /// No description provided for @editDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editDriverButton;
+
+  /// No description provided for @deactivateDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivateDriverButton;
+
+  /// No description provided for @reactivateDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivateDriverButton;
+
+  /// No description provided for @viewDriverDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get viewDriverDetails;
+
+  /// No description provided for @driverDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver details'**
+  String get driverDetails;
+
+  /// No description provided for @searchDriversHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, phone, national ID, or license'**
+  String get searchDriversHint;
+
+  /// No description provided for @driversStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get driversStatusAllFilter;
+
+  /// No description provided for @driversStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get driversStatusActiveFilter;
+
+  /// No description provided for @driversStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get driversStatusInactiveFilter;
+
+  /// No description provided for @noDriversFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers found.'**
+  String get noDriversFound;
+
+  /// No description provided for @noDriversMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers match the current search or status filter.'**
+  String get noDriversMatchFilters;
+
+  /// No description provided for @driverNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name'**
+  String get driverNameLabel;
+
+  /// No description provided for @driverNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name is required.'**
+  String get driverNameRequired;
+
+  /// No description provided for @nationalIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get nationalIdLabel;
+
+  /// No description provided for @licenseNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License number'**
+  String get licenseNumberLabel;
+
+  /// No description provided for @licenseExpiryDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date'**
+  String get licenseExpiryDateLabel;
+
+  /// No description provided for @licenseExpiryDateMustBeFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date must be today or a future date.'**
+  String get licenseExpiryDateMustBeFuture;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesLabel;
+
+  /// No description provided for @driverBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get driverBasicInfo;
+
+  /// No description provided for @driverAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get driverAccountability;
+
+  /// No description provided for @driverActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get driverActivityTimeline;
+
+  /// No description provided for @driverCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get driverCreatedBy;
+
+  /// No description provided for @driverCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get driverCreatedRole;
+
+  /// No description provided for @driverCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get driverCreatedAt;
+
+  /// No description provided for @driverLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get driverLastActivityBy;
+
+  /// No description provided for @driverLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get driverLastActivityRole;
+
+  /// No description provided for @driverLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get driverLastActivityAt;
+
+  /// No description provided for @driverLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get driverLoadingActivity;
+
+  /// No description provided for @driverNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get driverNoActivityFound;
+
+  /// No description provided for @driverUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get driverUnknownUser;
+
+  /// No description provided for @driverNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get driverNotAvailable;
+
+  /// No description provided for @driverConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm driver deactivation'**
+  String get driverConfirmDeactivateTitle;
+
+  /// No description provided for @driverConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm driver reactivation'**
+  String get driverConfirmReactivateTitle;
+
+  /// No description provided for @driverConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this driver?'**
+  String get driverConfirmDeactivateMessage;
+
+  /// No description provided for @driverConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this driver?'**
+  String get driverConfirmReactivateMessage;
+
+  /// No description provided for @driverDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver details: {name}'**
+  String driverDetailsTitle(String name);
+
+  /// No description provided for @driverStatusActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get driverStatusActiveLabel;
+
+  /// No description provided for @driverStatusInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get driverStatusInactiveLabel;
+
+  /// No description provided for @driverAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get driverAuditActionCreated;
+
+  /// No description provided for @driverAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get driverAuditActionUpdated;
+
+  /// No description provided for @driverAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get driverAuditActionDeactivated;
+
+  /// No description provided for @driverAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get driverAuditActionReactivated;
+
+  /// No description provided for @driverAuditActionFinanceAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance movement recorded'**
+  String get driverAuditActionFinanceAdded;
+
+  /// No description provided for @driverPhoneFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get driverPhoneFieldLabel;
+
+  /// No description provided for @driverStatusFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get driverStatusFieldLabel;
+
   /// No description provided for @auditTimelineHeader.
   ///
   /// In en, this message translates to:

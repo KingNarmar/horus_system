@@ -389,6 +389,155 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get driversTitle => 'Drivers';
+
+  @override
+  String get addDriverButton => 'Add driver';
+
+  @override
+  String get editDriverButton => 'Edit';
+
+  @override
+  String get deactivateDriverButton => 'Deactivate';
+
+  @override
+  String get reactivateDriverButton => 'Reactivate';
+
+  @override
+  String get viewDriverDetails => 'View details';
+
+  @override
+  String get driverDetails => 'Driver details';
+
+  @override
+  String get searchDriversHint =>
+      'Search by name, phone, national ID, or license';
+
+  @override
+  String get driversStatusAllFilter => 'All';
+
+  @override
+  String get driversStatusActiveFilter => 'Active';
+
+  @override
+  String get driversStatusInactiveFilter => 'Inactive';
+
+  @override
+  String get noDriversFound => 'No drivers found.';
+
+  @override
+  String get noDriversMatchFilters =>
+      'No drivers match the current search or status filter.';
+
+  @override
+  String get driverNameLabel => 'Driver name';
+
+  @override
+  String get driverNameRequired => 'Driver name is required.';
+
+  @override
+  String get nationalIdLabel => 'National ID';
+
+  @override
+  String get licenseNumberLabel => 'License number';
+
+  @override
+  String get licenseExpiryDateLabel => 'License expiry date';
+
+  @override
+  String get licenseExpiryDateMustBeFuture =>
+      'License expiry date must be today or a future date.';
+
+  @override
+  String get notesLabel => 'Notes';
+
+  @override
+  String get driverBasicInfo => 'Basic information';
+
+  @override
+  String get driverAccountability => 'Accountability';
+
+  @override
+  String get driverActivityTimeline => 'Activity timeline';
+
+  @override
+  String get driverCreatedBy => 'Created by';
+
+  @override
+  String get driverCreatedRole => 'Created role';
+
+  @override
+  String get driverCreatedAt => 'Created at';
+
+  @override
+  String get driverLastActivityBy => 'Last activity by';
+
+  @override
+  String get driverLastActivityRole => 'Last activity role';
+
+  @override
+  String get driverLastActivityAt => 'Last activity at';
+
+  @override
+  String get driverLoadingActivity => 'Loading activity...';
+
+  @override
+  String get driverNoActivityFound => 'No activity yet.';
+
+  @override
+  String get driverUnknownUser => 'Unknown user';
+
+  @override
+  String get driverNotAvailable => 'Not available';
+
+  @override
+  String get driverConfirmDeactivateTitle => 'Confirm driver deactivation';
+
+  @override
+  String get driverConfirmReactivateTitle => 'Confirm driver reactivation';
+
+  @override
+  String get driverConfirmDeactivateMessage =>
+      'Do you want to deactivate this driver?';
+
+  @override
+  String get driverConfirmReactivateMessage =>
+      'Do you want to reactivate this driver?';
+
+  @override
+  String driverDetailsTitle(String name) {
+    return 'Driver details: $name';
+  }
+
+  @override
+  String get driverStatusActiveLabel => 'Active';
+
+  @override
+  String get driverStatusInactiveLabel => 'Inactive';
+
+  @override
+  String get driverAuditActionCreated => 'Created';
+
+  @override
+  String get driverAuditActionUpdated => 'Updated';
+
+  @override
+  String get driverAuditActionDeactivated => 'Deactivated';
+
+  @override
+  String get driverAuditActionReactivated => 'Reactivated';
+
+  @override
+  String get driverAuditActionFinanceAdded =>
+      'Driver finance movement recorded';
+
+  @override
+  String get driverPhoneFieldLabel => 'Phone';
+
+  @override
+  String get driverStatusFieldLabel => 'Status';
+
+  @override
   String auditTimelineHeader(String actorName, String role, String dateTime) {
     return '$actorName • $role • $dateTime';
   }

@@ -384,6 +384,153 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get driversTitle => 'السائقون';
+
+  @override
+  String get addDriverButton => 'إضافة سائق';
+
+  @override
+  String get editDriverButton => 'تعديل';
+
+  @override
+  String get deactivateDriverButton => 'إيقاف';
+
+  @override
+  String get reactivateDriverButton => 'إعادة تفعيل';
+
+  @override
+  String get viewDriverDetails => 'عرض التفاصيل';
+
+  @override
+  String get driverDetails => 'تفاصيل السائق';
+
+  @override
+  String get searchDriversHint =>
+      'ابحث بالاسم أو الهاتف أو الرقم القومي أو الرخصة';
+
+  @override
+  String get driversStatusAllFilter => 'الكل';
+
+  @override
+  String get driversStatusActiveFilter => 'النشط';
+
+  @override
+  String get driversStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noDriversFound => 'لا يوجد سائقون.';
+
+  @override
+  String get noDriversMatchFilters =>
+      'لا يوجد سائقون مطابقون للبحث أو فلتر الحالة الحالي.';
+
+  @override
+  String get driverNameLabel => 'اسم السائق';
+
+  @override
+  String get driverNameRequired => 'اسم السائق مطلوب.';
+
+  @override
+  String get nationalIdLabel => 'الرقم القومي';
+
+  @override
+  String get licenseNumberLabel => 'رقم الرخصة';
+
+  @override
+  String get licenseExpiryDateLabel => 'تاريخ انتهاء الرخصة';
+
+  @override
+  String get licenseExpiryDateMustBeFuture =>
+      'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.';
+
+  @override
+  String get notesLabel => 'ملاحظات';
+
+  @override
+  String get driverBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get driverAccountability => 'المسؤولية';
+
+  @override
+  String get driverActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get driverCreatedBy => 'تم الإنشاء بواسطة';
+
+  @override
+  String get driverCreatedRole => 'الدور وقت الإنشاء';
+
+  @override
+  String get driverCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get driverLastActivityBy => 'آخر نشاط بواسطة';
+
+  @override
+  String get driverLastActivityRole => 'دور آخر نشاط';
+
+  @override
+  String get driverLastActivityAt => 'وقت آخر نشاط';
+
+  @override
+  String get driverLoadingActivity => 'جاري تحميل النشاط...';
+
+  @override
+  String get driverNoActivityFound => 'لا يوجد نشاط بعد.';
+
+  @override
+  String get driverUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get driverNotAvailable => 'غير متاح';
+
+  @override
+  String get driverConfirmDeactivateTitle => 'تأكيد إيقاف السائق';
+
+  @override
+  String get driverConfirmReactivateTitle => 'تأكيد إعادة تفعيل السائق';
+
+  @override
+  String get driverConfirmDeactivateMessage => 'هل تريد إيقاف هذا السائق؟';
+
+  @override
+  String get driverConfirmReactivateMessage =>
+      'هل تريد إعادة تفعيل هذا السائق؟';
+
+  @override
+  String driverDetailsTitle(String name) {
+    return 'تفاصيل السائق: $name';
+  }
+
+  @override
+  String get driverStatusActiveLabel => 'نشط';
+
+  @override
+  String get driverStatusInactiveLabel => 'غير نشط';
+
+  @override
+  String get driverAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get driverAuditActionUpdated => 'تم التحديث';
+
+  @override
+  String get driverAuditActionDeactivated => 'تم الإيقاف';
+
+  @override
+  String get driverAuditActionReactivated => 'تمت إعادة التفعيل';
+
+  @override
+  String get driverAuditActionFinanceAdded => 'تم تسجيل حركة مالية';
+
+  @override
+  String get driverPhoneFieldLabel => 'الهاتف';
+
+  @override
+  String get driverStatusFieldLabel => 'الحالة';
+
+  @override
   String auditTimelineHeader(String actorName, String role, String dateTime) {
     return '$actorName • $role • $dateTime';
   }
