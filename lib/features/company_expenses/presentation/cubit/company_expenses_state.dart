@@ -54,7 +54,10 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     return filteredExpenses(
       categorySearchTermsById: {
         for (final category in categories)
-          category.id: [category.name, if (category.code != null) category.code!],
+          category.id: [
+            category.name,
+            if (category.code != null) category.code!,
+          ],
       },
     );
   }
@@ -90,7 +93,10 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
             normalizedSearch,
           ) ||
           expense.amount.toString().contains(normalizedSearch) ||
-          _nullableTextMatchesSearch(expense.referenceNumber, normalizedSearch) ||
+          _nullableTextMatchesSearch(
+            expense.referenceNumber,
+            normalizedSearch,
+          ) ||
           _nullableTextMatchesSearch(expense.notes, normalizedSearch) ||
           _linkedLabelsMatchSearch(expense, normalizedSearch);
     }).toList();

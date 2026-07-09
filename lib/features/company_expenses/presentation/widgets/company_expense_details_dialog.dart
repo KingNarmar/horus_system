@@ -35,8 +35,8 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
     final activity = isSelectedExpense
         ? currentState!.selectedExpenseActivity
         : const <AuditLog>[];
-    final isLoading = isSelectedExpense &&
-        (currentState?.isActivityLoading ?? false);
+    final isLoading =
+        isSelectedExpense && (currentState?.isActivityLoading ?? false);
     final failure = isSelectedExpense ? currentState?.activityFailure : null;
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
@@ -85,7 +85,9 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
                   ),
                   _DetailRow(
                     label: l10n.companyExpenseDateLabel,
-                    value: formatCompanyExpenseDate(displayedExpense.expenseDate),
+                    value: formatCompanyExpenseDate(
+                      displayedExpense.expenseDate,
+                    ),
                   ),
                   _DetailRow(
                     label: l10n.driverNameLabel,
@@ -306,11 +308,11 @@ class _ActivityTimelineItem extends StatelessWidget {
       _companyExpenseUpdatedEvent => l10n.driverAuditActionUpdated,
       _companyExpenseVoidedEvent => l10n.companyExpenseVoidedStatus,
       _ => switch (log.action.value) {
-          'created' => l10n.driverAuditActionCreated,
-          'updated' => l10n.driverAuditActionUpdated,
-          'status_changed' => l10n.companyExpenseVoidedStatus,
-          _ => log.action.value,
-        },
+        'created' => l10n.driverAuditActionCreated,
+        'updated' => l10n.driverAuditActionUpdated,
+        'status_changed' => l10n.companyExpenseVoidedStatus,
+        _ => log.action.value,
+      },
     };
   }
 
