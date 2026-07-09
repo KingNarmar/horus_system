@@ -77,10 +77,13 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
     cubit.loadExpenseActivity(expense);
     await showDialog<void>(
       context: context,
-      builder: (_) => BlocBuilder<CompanyExpensesCubit, CompanyExpensesState>(
-        builder: (context, state) => CompanyExpenseDetailsDialog(
-          expense: expense,
-          state: state is CompanyExpensesLoaded ? state : null,
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: BlocBuilder<CompanyExpensesCubit, CompanyExpensesState>(
+          builder: (context, state) => CompanyExpenseDetailsDialog(
+            expense: expense,
+            state: state is CompanyExpensesLoaded ? state : null,
+          ),
         ),
       ),
     );
