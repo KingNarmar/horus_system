@@ -32,11 +32,7 @@ class CustomerFormDialog extends StatefulWidget {
   final Customer? customer;
   final Future<void> Function(CustomerFormData data) onSubmit;
 
-  const CustomerFormDialog({
-    required this.onSubmit,
-    this.customer,
-    super.key,
-  });
+  const CustomerFormDialog({required this.onSubmit, this.customer, super.key});
 
   @override
   State<CustomerFormDialog> createState() => _CustomerFormDialogState();
@@ -63,11 +59,13 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
     _contactPersonController.text = customer?.contactPerson ?? '';
     _phoneController.text = customer?.phone ?? '';
     _emailController.text = customer?.email ?? '';
-    _taxRegistrationNumberController.text = customer?.taxRegistrationNumber ?? '';
+    _taxRegistrationNumberController.text =
+        customer?.taxRegistrationNumber ?? '';
     _addressController.text = customer?.address ?? '';
     _cityController.text = customer?.city ?? '';
     _countryController.text = customer?.country ?? '';
-    _creditLimitController.text = customer?.creditLimit?.toStringAsFixed(2) ?? '';
+    _creditLimitController.text =
+        customer?.creditLimit?.toStringAsFixed(2) ?? '';
   }
 
   @override
@@ -140,15 +138,27 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                   controller: _contactPersonController,
                   label: l10n.contactPersonLabel,
                 ),
-                _TextField(controller: _phoneController, label: l10n.phoneLabel),
-                _TextField(controller: _emailController, label: l10n.emailLabel),
+                _TextField(
+                  controller: _phoneController,
+                  label: l10n.phoneLabel,
+                ),
+                _TextField(
+                  controller: _emailController,
+                  label: l10n.emailLabel,
+                ),
                 _TextField(
                   controller: _taxRegistrationNumberController,
                   label: l10n.taxRegistrationNumberLabel,
                 ),
-                _TextField(controller: _addressController, label: l10n.addressLabel),
+                _TextField(
+                  controller: _addressController,
+                  label: l10n.addressLabel,
+                ),
                 _TextField(controller: _cityController, label: l10n.cityLabel),
-                _TextField(controller: _countryController, label: l10n.countryLabel),
+                _TextField(
+                  controller: _countryController,
+                  label: l10n.countryLabel,
+                ),
                 _TextField(
                   controller: _creditLimitController,
                   label: l10n.creditLimitLabel,
@@ -156,7 +166,9 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                     final normalized = (value ?? '').trim();
                     if (normalized.isEmpty) return null;
                     final parsed = double.tryParse(normalized);
-                    if (parsed == null || parsed < 0) return l10n.creditLimitInvalid;
+                    if (parsed == null || parsed < 0) {
+                      return l10n.creditLimitInvalid;
+                    }
                     return null;
                   },
                 ),
@@ -199,7 +211,8 @@ class _TextField extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(labelText: label),
-        validator: validator ??
+        validator:
+            validator ??
             (value) {
               if (requiredMessage == null) return null;
               if ((value ?? '').trim().isEmpty) return requiredMessage;
