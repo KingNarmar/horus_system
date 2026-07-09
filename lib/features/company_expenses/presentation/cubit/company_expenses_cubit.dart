@@ -10,6 +10,7 @@ import 'company_expenses_state.dart';
 class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   final GetCompanyExpenseCategoriesUseCase getCategoriesUseCase;
   final GetCompanyExpensesUseCase getExpensesUseCase;
+  final GetCompanyExpenseFormLookupsUseCase getFormLookupsUseCase;
   final AddCompanyExpenseUseCase addExpenseUseCase;
   final UpdateCompanyExpenseUseCase updateExpenseUseCase;
   final VoidCompanyExpenseUseCase voidExpenseUseCase;
@@ -19,6 +20,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   CompanyExpensesCubit({
     required this.getCategoriesUseCase,
     required this.getExpensesUseCase,
+    required this.getFormLookupsUseCase,
     required this.addExpenseUseCase,
     required this.updateExpenseUseCase,
     required this.voidExpenseUseCase,
@@ -46,28 +48,40 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
     await categoriesResult.when(
       success: (categories) async {
-        final expensesResult = await getExpensesUseCase(
-          GetCompanyExpensesParams(
+        final lookupsResult = await getFormLookupsUseCase(
+          GetCompanyExpenseFormLookupsParams(
             currentCompanyContext: currentCompanyContext,
-            includeVoided: previousIncludeVoided,
           ),
         );
 
-        expensesResult.when(
-          success: (expenses) => emit(
-            CompanyExpensesLoaded(
-              currentCompanyContext: currentCompanyContext,
-              categories: categories,
-              allExpenses: expenses,
-              searchQuery: previousSearchQuery,
-              includeVoided: previousIncludeVoided,
-              canManageCompanyExpenses:
-                  CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
-                    currentCompanyContext.role,
-                  ),
-            ),
-          ),
-          failure: (failure) => emit(CompanyExpensesFailure(failure)),
+        await lookupsResult.when(
+          success: (formLookups) async {
+            final expensesResult = await getExpensesUseCase(
+              GetCompanyExpensesParams(
+                currentCompanyContext: currentCompanyContext,
+                includeVoided: previousIncludeVoided,
+              ),
+            );
+
+            expensesResult.when(
+              success: (expenses) => emit(
+                CompanyExpensesLoaded(
+                  currentCompanyContext: currentCompanyContext,
+                  categories: categories,
+                  allExpenses: expenses,
+                  formLookups: formLookups,
+                  searchQuery: previousSearchQuery,
+                  includeVoided: previousIncludeVoided,
+                  canManageCompanyExpenses:
+                      CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
+                        currentCompanyContext.role,
+                      ),
+                ),
+              ),
+              failure: (failure) => emit(CompanyExpensesFailure(failure)),
+            );
+          },
+          failure: (failure) async => emit(CompanyExpensesFailure(failure)),
         );
       },
       failure: (failure) async => emit(CompanyExpensesFailure(failure)),
