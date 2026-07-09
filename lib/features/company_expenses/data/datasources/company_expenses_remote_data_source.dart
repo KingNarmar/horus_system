@@ -5,10 +5,16 @@ import '../../domain/entities/company_expense_void_data.dart';
 import '../../domain/entities/company_expense_write_data.dart';
 import '../mappers/company_expense_mapper.dart';
 import '../models/company_expense_category_model.dart';
+import '../models/company_expense_form_lookups_model.dart';
+import '../models/company_expense_link_option_model.dart';
 import '../models/company_expense_model.dart';
 
 const _companyExpenseCategoriesTable = 'company_expense_categories';
 const _companyExpensesTable = 'company_expenses';
+const _driversTable = 'drivers';
+const _tractorHeadsTable = 'tractor_heads';
+const _trailersTable = 'trailers';
+const _tripsTable = 'trips';
 
 const _companyExpenseCategoryColumns = '''
 id,
@@ -49,6 +55,10 @@ abstract class CompanyExpensesRemoteDataSource {
   Future<List<CompanyExpenseModel>> getCompanyExpenses({
     required String companyId,
     required bool includeVoided,
+  });
+
+  Future<CompanyExpenseFormLookupsModel> getFormLookups({
+    required String companyId,
   });
 
   Future<CompanyExpenseModel> getCompanyExpenseById({
@@ -126,6 +136,40 @@ class SupabaseCompanyExpensesRemoteDataSource
   }
 
   @override
+  Future<CompanyExpenseFormLookupsModel> getFormLookups({
+    required String companyId,
+  }) async {
+    final results = await Future.wait([
+      _getActiveLookupOptions(
+        tableName: _driversTable,
+        companyId: companyId,
+        labelFields: const ['full_name'],
+        orderColumn: 'full_name',
+      ),
+      _getActiveLookupOptions(
+        tableName: _tractorHeadsTable,
+        companyId: companyId,
+        labelFields: const ['plate_number'],
+        orderColumn: 'plate_number',
+      ),
+      _getActiveLookupOptions(
+        tableName: _trailersTable,
+        companyId: companyId,
+        labelFields: const ['plate_number'],
+        orderColumn: 'plate_number',
+      ),
+      _getTripLookupOptions(companyId: companyId),
+    ]);
+
+    return CompanyExpenseFormLookupsModel(
+      drivers: results[0],
+      tractorHeads: results[1],
+      trailers: results[2],
+      trips: results[3],
+    );
+  }
+
+  @override
   Future<CompanyExpenseModel> getCompanyExpenseById({
     required String companyId,
     required String id,
@@ -189,5 +233,67 @@ class SupabaseCompanyExpensesRemoteDataSource
         .single();
 
     return CompanyExpenseModel.fromMap(Map<String, dynamic>.from(row));
+  }
+
+  Future<List<CompanyExpenseLinkOptionModel>> _getActiveLookupOptions({
+    required String tableName,
+    required String companyId,
+    required List<String> labelFields,
+    required String orderColumn,
+  }) async {
+    final columns = ['id', ...labelFields].join(', ');
+    final rows = await client
+        .from(tableName)
+        .select(columns)
+        .eq(DbCommonFields.companyId, companyId)
+        .eq(DbCommonFields.isActive, true)
+        .order(orderColumn);
+
+    return rows
+        .map(
+          (row) => _lookupOptionFromRow(
+            Map<String, dynamic>.from(row),
+            labelFields: labelFields,
+          ),
+        )
+        .toList();
+  }
+
+  Future<List<CompanyExpenseLinkOptionModel>> _getTripLookupOptions({
+    required String companyId,
+  }) async {
+    final rows = await client
+        .from(_tripsTable)
+        .select('id, loading_order_number, waybill_number, created_at')
+        .eq(DbCommonFields.companyId, companyId)
+        .order(DbCommonFields.createdAt, ascending: false);
+
+    return rows
+        .map(
+          (row) => _lookupOptionFromRow(
+            Map<String, dynamic>.from(row),
+            labelFields: const ['loading_order_number', 'waybill_number'],
+          ),
+        )
+        .toList();
+  }
+
+  CompanyExpenseLinkOptionModel _lookupOptionFromRow(
+    Map<String, dynamic> row, {
+    required List<String> labelFields,
+  }) {
+    final id = row[DbCommonFields.id] as String;
+    return CompanyExpenseLinkOptionModel(
+      id: id,
+      label: _firstText(row, labelFields) ?? id,
+    );
+  }
+
+  String? _firstText(Map<String, dynamic> row, List<String> fields) {
+    for (final field in fields) {
+      final text = row[field]?.toString().trim();
+      if (text != null && text.isNotEmpty) return text;
+    }
+    return null;
   }
 }
