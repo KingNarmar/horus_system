@@ -681,6 +681,68 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehicleStatusInactive => 'غير نشط';
 
   @override
+  String get fleetBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get fleetAccountability => 'المسؤولية والمتابعة';
+
+  @override
+  String get fleetActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get fleetCreatedBy => 'أنشأه';
+
+  @override
+  String get fleetCreatedRole => 'دور المنشئ';
+
+  @override
+  String get fleetCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get fleetLastActivityBy => 'آخر إجراء بواسطة';
+
+  @override
+  String get fleetLastActivityRole => 'دور آخر مستخدم';
+
+  @override
+  String get fleetLastActivityAt => 'وقت آخر إجراء';
+
+  @override
+  String get fleetLoadingActivity => 'جاري تحميل سجل النشاط...';
+
+  @override
+  String get fleetNoActivityFound => 'لا يوجد نشاط مسجل لهذا الأصل.';
+
+  @override
+  String get fleetUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get fleetNotAvailable => 'غير متاح';
+
+  @override
+  String get fleetChanges => 'التغييرات';
+
+  @override
+  String fleetDetailsTitle(String plateNumber) {
+    return 'تفاصيل الأصل: $plateNumber';
+  }
+
+  @override
+  String get fleetAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get fleetAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get fleetAuditActionDeactivated => 'تم التعطيل';
+
+  @override
+  String get fleetAuditActionReactivated => 'تم التفعيل';
+
+  @override
+  String get fleetAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override

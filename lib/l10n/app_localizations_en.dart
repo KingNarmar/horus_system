@@ -691,6 +691,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vehicleStatusInactive => 'Inactive';
 
   @override
+  String get fleetBasicInfo => 'Basic information';
+
+  @override
+  String get fleetAccountability => 'Accountability';
+
+  @override
+  String get fleetActivityTimeline => 'Activity timeline';
+
+  @override
+  String get fleetCreatedBy => 'Created by';
+
+  @override
+  String get fleetCreatedRole => 'Created role';
+
+  @override
+  String get fleetCreatedAt => 'Created at';
+
+  @override
+  String get fleetLastActivityBy => 'Last activity by';
+
+  @override
+  String get fleetLastActivityRole => 'Last activity role';
+
+  @override
+  String get fleetLastActivityAt => 'Last activity at';
+
+  @override
+  String get fleetLoadingActivity => 'Loading activity...';
+
+  @override
+  String get fleetNoActivityFound => 'No activity found for this asset.';
+
+  @override
+  String get fleetUnknownUser => 'Unknown user';
+
+  @override
+  String get fleetNotAvailable => 'Not available';
+
+  @override
+  String get fleetChanges => 'Changes';
+
+  @override
+  String fleetDetailsTitle(String plateNumber) {
+    return 'Fleet asset details: $plateNumber';
+  }
+
+  @override
+  String get fleetAuditActionCreated => 'Created';
+
+  @override
+  String get fleetAuditActionUpdated => 'Updated';
+
+  @override
+  String get fleetAuditActionDeactivated => 'Deactivated';
+
+  @override
+  String get fleetAuditActionReactivated => 'Reactivated';
+
+  @override
+  String get fleetAuditActionStatusChanged => 'Status changed';
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override

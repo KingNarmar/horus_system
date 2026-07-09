@@ -1346,6 +1346,126 @@ abstract class AppLocalizations {
   /// **'Inactive'**
   String get vehicleStatusInactive;
 
+  /// No description provided for @fleetBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get fleetBasicInfo;
+
+  /// No description provided for @fleetAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get fleetAccountability;
+
+  /// No description provided for @fleetActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get fleetActivityTimeline;
+
+  /// No description provided for @fleetCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get fleetCreatedBy;
+
+  /// No description provided for @fleetCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get fleetCreatedRole;
+
+  /// No description provided for @fleetCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get fleetCreatedAt;
+
+  /// No description provided for @fleetLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get fleetLastActivityBy;
+
+  /// No description provided for @fleetLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get fleetLastActivityRole;
+
+  /// No description provided for @fleetLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get fleetLastActivityAt;
+
+  /// No description provided for @fleetLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get fleetLoadingActivity;
+
+  /// No description provided for @fleetNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity found for this asset.'**
+  String get fleetNoActivityFound;
+
+  /// No description provided for @fleetUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get fleetUnknownUser;
+
+  /// No description provided for @fleetNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get fleetNotAvailable;
+
+  /// No description provided for @fleetChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get fleetChanges;
+
+  /// No description provided for @fleetDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet asset details: {plateNumber}'**
+  String fleetDetailsTitle(String plateNumber);
+
+  /// No description provided for @fleetAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get fleetAuditActionCreated;
+
+  /// No description provided for @fleetAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get fleetAuditActionUpdated;
+
+  /// No description provided for @fleetAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get fleetAuditActionDeactivated;
+
+  /// No description provided for @fleetAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get fleetAuditActionReactivated;
+
+  /// No description provided for @fleetAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get fleetAuditActionStatusChanged;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:
