@@ -115,22 +115,22 @@ class CompanyExpensesStateView extends StatelessWidget {
               driverLabel: _displayLinkedLabel(
                 id: expense.driverId,
                 label: currentState.driverLabel(expense.driverId),
-                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+                unavailableLabel: l10n.fleetNotAvailable,
               ),
               tractorHeadLabel: _displayLinkedLabel(
                 id: expense.tractorHeadId,
                 label: currentState.tractorHeadLabel(expense.tractorHeadId),
-                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+                unavailableLabel: l10n.fleetNotAvailable,
               ),
               trailerLabel: _displayLinkedLabel(
                 id: expense.trailerId,
                 label: currentState.trailerLabel(expense.trailerId),
-                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+                unavailableLabel: l10n.fleetNotAvailable,
               ),
               tripLabel: _displayLinkedLabel(
                 id: expense.tripId,
                 label: currentState.tripLabel(expense.tripId),
-                unavailableLabel: l10n.companyExpenseLinkedValueUnavailable,
+                unavailableLabel: l10n.fleetNotAvailable,
               ),
               canManage: currentState.canManageCompanyExpenses,
               isPending: currentState.pendingActionExpenseId == expense.id,
@@ -229,13 +229,13 @@ class _ExpenseCard extends StatelessWidget {
               ),
             ),
             if (driverLabel != null)
-              Text(l10n.companyExpenseDriverLine(driverLabel!)),
+              Text(_linkedLine(l10n.driverNameLabel, driverLabel!)),
             if (tractorHeadLabel != null)
-              Text(l10n.companyExpenseTractorHeadLine(tractorHeadLabel!)),
+              Text(_linkedLine(l10n.tractorHeadsTab, tractorHeadLabel!)),
             if (trailerLabel != null)
-              Text(l10n.companyExpenseTrailerLine(trailerLabel!)),
+              Text(_linkedLine(l10n.trailersTab, trailerLabel!)),
             if (tripLabel != null)
-              Text(l10n.companyExpenseTripLine(tripLabel!)),
+              Text(_linkedLine(l10n.driverMovementTripLine, tripLabel!)),
             if (expense.referenceNumber != null)
               Text(l10n.companyExpenseReferenceLine(expense.referenceNumber!)),
             if (expense.notes != null) Text(expense.notes!),
@@ -269,4 +269,6 @@ class _ExpenseCard extends StatelessWidget {
       ),
     );
   }
+
+  String _linkedLine(String label, String value) => '$label: $value';
 }
