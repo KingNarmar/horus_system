@@ -3,6 +3,8 @@ import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
+import '../../domain/entities/company_expense_form_lookups.dart';
+import '../../domain/entities/company_expense_link_option.dart';
 
 const Object _notSet = Object();
 
@@ -22,6 +24,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   final CurrentCompanyContext currentCompanyContext;
   final List<CompanyExpenseCategory> categories;
   final List<CompanyExpense> allExpenses;
+  final CompanyExpenseFormLookups formLookups;
   final bool canManageCompanyExpenses;
   final String searchQuery;
   final bool includeVoided;
@@ -32,6 +35,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     required this.categories,
     required this.allExpenses,
     required this.canManageCompanyExpenses,
+    this.formLookups = const CompanyExpenseFormLookups(),
     this.searchQuery = '',
     this.includeVoided = false,
     this.pendingActionExpenseId,
@@ -45,6 +49,15 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
       },
     );
   }
+
+  String? driverLabel(String? id) => _labelFor(formLookups.drivers, id);
+
+  String? tractorHeadLabel(String? id) =>
+      _labelFor(formLookups.tractorHeads, id);
+
+  String? trailerLabel(String? id) => _labelFor(formLookups.trailers, id);
+
+  String? tripLabel(String? id) => _labelFor(formLookups.trips, id);
 
   List<CompanyExpense> filteredExpenses({
     required Map<String, Iterable<String>> categorySearchTermsById,
@@ -61,7 +74,8 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
           ) ||
           expense.amount.toString().contains(normalizedSearch) ||
           _nullableTextMatchesSearch(expense.referenceNumber, normalizedSearch) ||
-          _nullableTextMatchesSearch(expense.notes, normalizedSearch);
+          _nullableTextMatchesSearch(expense.notes, normalizedSearch) ||
+          _linkedLabelsMatchSearch(expense, normalizedSearch);
     }).toList();
   }
 
@@ -81,9 +95,35 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     return normalizeSearchText(value).contains(normalizedSearch);
   }
 
+  bool _linkedLabelsMatchSearch(
+    CompanyExpense expense,
+    String normalizedSearch,
+  ) {
+    final labels = [
+      driverLabel(expense.driverId),
+      tractorHeadLabel(expense.tractorHeadId),
+      trailerLabel(expense.trailerId),
+      tripLabel(expense.tripId),
+    ];
+
+    return labels.any((label) {
+      if (label == null) return false;
+      return normalizeSearchText(label).contains(normalizedSearch);
+    });
+  }
+
+  String? _labelFor(List<CompanyExpenseLinkOption> options, String? id) {
+    if (id == null) return null;
+    for (final option in options) {
+      if (option.id == id) return option.label;
+    }
+    return null;
+  }
+
   CompanyExpensesLoaded copyWith({
     List<CompanyExpenseCategory>? categories,
     List<CompanyExpense>? allExpenses,
+    CompanyExpenseFormLookups? formLookups,
     bool? canManageCompanyExpenses,
     String? searchQuery,
     bool? includeVoided,
@@ -93,6 +133,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
       currentCompanyContext: currentCompanyContext,
       categories: categories ?? this.categories,
       allExpenses: allExpenses ?? this.allExpenses,
+      formLookups: formLookups ?? this.formLookups,
       canManageCompanyExpenses:
           canManageCompanyExpenses ?? this.canManageCompanyExpenses,
       searchQuery: searchQuery ?? this.searchQuery,
