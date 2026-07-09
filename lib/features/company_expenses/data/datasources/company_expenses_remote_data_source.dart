@@ -139,7 +139,7 @@ class SupabaseCompanyExpensesRemoteDataSource
   Future<CompanyExpenseFormLookupsModel> getFormLookups({
     required String companyId,
   }) async {
-    final results = await Future.wait([
+    final results = await Future.wait<List<CompanyExpenseLinkOptionModel>>([
       _getActiveLookupOptions(
         tableName: _driversTable,
         companyId: companyId,
