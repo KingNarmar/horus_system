@@ -16,6 +16,11 @@ import '../datasources/routes_remote_data_source.dart';
 import '../mappers/route_mapper.dart';
 import '../models/route_model.dart';
 
+const _routeCreatedEvent = 'route_created';
+const _routeUpdatedEvent = 'route_updated';
+const _routeDeactivatedEvent = 'route_deactivated';
+const _routeReactivatedEvent = 'route_reactivated';
+
 class RoutesRepositoryImpl implements RoutesRepository {
   final RoutesRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
@@ -47,7 +52,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: AuditAction.created,
-        description: 'Route created: ${model.displayName}',
+        description: _routeCreatedEvent,
         newValues: model.toAuditValues(),
       );
 
@@ -76,7 +81,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: AuditAction.updated,
-        description: 'Route updated: ${model.displayName}',
+        description: _routeUpdatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -97,7 +102,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
       id: id,
       actorRole: actorRole,
       action: AuditAction.deactivated,
-      descriptionVerb: 'deactivated',
+      description: _routeDeactivatedEvent,
       change: remoteDataSource.deactivateRoute,
     );
   }
@@ -113,7 +118,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
       id: id,
       actorRole: actorRole,
       action: AuditAction.reactivated,
-      descriptionVerb: 'reactivated',
+      description: _routeReactivatedEvent,
       change: remoteDataSource.reactivateRoute,
     );
   }
@@ -123,7 +128,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String id,
     required String actorRole,
     required AuditAction action,
-    required String descriptionVerb,
+    required String description,
     required Future<RouteModel> Function({
       required String companyId,
       required String id,
@@ -144,7 +149,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
         entityId: model.id,
         entityDisplayName: model.displayName,
         action: action,
-        description: 'Route $descriptionVerb: ${model.displayName}',
+        description: description,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );

@@ -12,7 +12,6 @@ import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status_filter.dart';
 import '../cubit/drivers_cubit.dart';
 import '../cubit/drivers_state.dart';
-import '../localization/drivers_localizations_x.dart';
 import '../widgets/driver_details_dialog.dart';
 import '../widgets/driver_form_dialog.dart';
 import '../widgets/drivers_cards.dart';
@@ -104,31 +103,32 @@ class _DriversPageState extends State<DriversPage> {
             tripOptions: loaded?.selectedDriverTripOptions ?? const [],
             isTripOptionsLoading: loaded?.isTripOptionsLoading ?? false,
             tripOptionsFailure: loaded?.tripOptionsFailure,
-            onSubmit: ({
-              required double amount,
-              required DateTime movementDate,
-              String? tripId,
-              String? notes,
-            }) async {
-              final cubit = context.read<DriversCubit>();
-              if (movementType.isAdvance) {
-                await cubit.addDriverAdvance(
-                  driver: driver,
-                  amount: amount,
-                  movementDate: movementDate,
-                  notes: notes,
-                );
-              } else {
-                await cubit.addDriverDeduction(
-                  driver: driver,
-                  amount: amount,
-                  movementDate: movementDate,
-                  tripId: tripId,
-                  notes: notes,
-                );
-              }
-              await cubit.loadDriverActivity(driver);
-            },
+            onSubmit:
+                ({
+                  required double amount,
+                  required DateTime movementDate,
+                  String? tripId,
+                  String? notes,
+                }) async {
+                  final cubit = context.read<DriversCubit>();
+                  if (movementType.isAdvance) {
+                    await cubit.addDriverAdvance(
+                      driver: driver,
+                      amount: amount,
+                      movementDate: movementDate,
+                      notes: notes,
+                    );
+                  } else {
+                    await cubit.addDriverDeduction(
+                      driver: driver,
+                      amount: amount,
+                      movementDate: movementDate,
+                      tripId: tripId,
+                      notes: notes,
+                    );
+                  }
+                  await cubit.loadDriverActivity(driver);
+                },
           );
         },
       ),
@@ -146,16 +146,34 @@ class _DriversPageState extends State<DriversPage> {
           children: [
             Row(
               children: [
-                Expanded(child: Text(l10n.driversTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    l10n.driversTitle,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 if (state is DriversLoaded && state.canManageDrivers)
-                  FilledButton.icon(onPressed: () => _openForm(), icon: const Icon(AppIcons.add), label: Text(l10n.addDriverButton)),
+                  FilledButton.icon(
+                    onPressed: () => _openForm(),
+                    icon: const Icon(AppIcons.add),
+                    label: Text(l10n.addDriverButton),
+                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
             if (state is DriversInitial || state is DriversLoading)
               const Center(child: CircularProgressIndicator())
             else if (state is DriversFailure)
-              _MessageCard(message: l10n.localizedErrorMessage(state.failure), action: OutlinedButton(onPressed: () => cubit.loadDrivers(widget.currentCompanyContext), child: Text(l10n.retryButton)))
+              _MessageCard(
+                message: l10n.localizedErrorMessage(state.failure),
+                action: OutlinedButton(
+                  onPressed: () =>
+                      cubit.loadDrivers(widget.currentCompanyContext),
+                  child: Text(l10n.retryButton),
+                ),
+              )
             else if (state is DriversLoaded) ...[
               _Filters(
                 statusFilter: state.statusFilter,
@@ -203,7 +221,11 @@ class _Filters extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<DriverStatusFilter> onStatusFilterChanged;
 
-  const _Filters({required this.statusFilter, required this.onSearchChanged, required this.onStatusFilterChanged});
+  const _Filters({
+    required this.statusFilter,
+    required this.onSearchChanged,
+    required this.onStatusFilterChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,20 +236,36 @@ class _Filters extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppSizes.searchFieldMaxWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppSizes.searchFieldMaxWidth,
+          ),
           child: TextField(
             onChanged: onSearchChanged,
-            decoration: InputDecoration(prefixIcon: const Icon(AppIcons.search), hintText: l10n.searchDriversHint, border: const OutlineInputBorder()),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(AppIcons.search),
+              hintText: l10n.searchDriversHint,
+              border: const OutlineInputBorder(),
+            ),
           ),
         ),
         SegmentedButton<DriverStatusFilter>(
           segments: [
-            ButtonSegment(value: DriverStatusFilter.all, label: Text(l10n.driversStatusAllFilter)),
-            ButtonSegment(value: DriverStatusFilter.active, label: Text(l10n.driversStatusActiveFilter)),
-            ButtonSegment(value: DriverStatusFilter.inactive, label: Text(l10n.driversStatusInactiveFilter)),
+            ButtonSegment(
+              value: DriverStatusFilter.all,
+              label: Text(l10n.driversStatusAllFilter),
+            ),
+            ButtonSegment(
+              value: DriverStatusFilter.active,
+              label: Text(l10n.driversStatusActiveFilter),
+            ),
+            ButtonSegment(
+              value: DriverStatusFilter.inactive,
+              label: Text(l10n.driversStatusInactiveFilter),
+            ),
           ],
           selected: {statusFilter},
-          onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
+          onSelectionChanged: (selected) =>
+              onStatusFilterChanged(selected.first),
         ),
       ],
     );
@@ -248,7 +286,10 @@ class _MessageCard extends StatelessWidget {
         child: Column(
           children: [
             Text(message, textAlign: TextAlign.center),
-            if (action != null) ...[const SizedBox(height: AppSpacing.md), action!],
+            if (action != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              action!,
+            ],
           ],
         ),
       ),

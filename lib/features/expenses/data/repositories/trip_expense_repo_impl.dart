@@ -17,6 +17,9 @@ import '../datasources/trip_expenses_remote_data_source.dart';
 import '../mappers/trip_expense_mapper.dart';
 import '../models/trip_expense_model.dart';
 
+const _tripExpenseCreatedEvent = 'trip_expense_created';
+const _tripExpenseUpdatedEvent = 'trip_expense_updated';
+
 class TripExpensesRepositoryImpl implements TripExpensesRepository {
   final TripExpensesRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
@@ -45,7 +48,9 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
     required String companyId,
   }) {
     return _guard(() async {
-      final types = await remoteDataSource.getExpenseTypes(companyId: companyId);
+      final types = await remoteDataSource.getExpenseTypes(
+        companyId: companyId,
+      );
       return Success(types);
     });
   }
@@ -66,7 +71,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripId: data.tripId,
         actorRole: actorRole,
         action: AuditAction.created,
-        description: 'Trip expense added: ${model.expenseName}',
+        description: _tripExpenseCreatedEvent,
         newValues: model.toAuditValues(),
         metadata: _metadata(model, total),
       );
@@ -87,7 +92,10 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripId: data.tripId,
         id: id,
       );
-      final model = await remoteDataSource.updateTripExpense(id: id, data: data);
+      final model = await remoteDataSource.updateTripExpense(
+        id: id,
+        data: data,
+      );
       final total = await remoteDataSource.recalculateTripTotalExpenses(
         companyId: data.companyId,
         tripId: data.tripId,
@@ -97,7 +105,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripId: data.tripId,
         actorRole: actorRole,
         action: AuditAction.updated,
-        description: 'Trip expense updated: ${model.expenseName}',
+        description: _tripExpenseUpdatedEvent,
         oldValues: oldModel?.toAuditValues(),
         newValues: model.toAuditValues(),
         metadata: _metadata(model, total),

@@ -4,7 +4,6 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_entity.dart';
-import '../localization/routes_localizations_x.dart';
 
 class RouteFormData {
   final String loadingLocation;
@@ -58,10 +57,18 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
 
     final route = widget.route;
 
-    _loadingController = TextEditingController(text: route?.loadingLocation ?? '');
-    _unloadingController = TextEditingController(text: route?.unloadingLocation ?? '');
-    _governorateFromController = TextEditingController(text: route?.governorateFrom ?? '');
-    _governorateToController = TextEditingController(text: route?.governorateTo ?? '');
+    _loadingController = TextEditingController(
+      text: route?.loadingLocation ?? '',
+    );
+    _unloadingController = TextEditingController(
+      text: route?.unloadingLocation ?? '',
+    );
+    _governorateFromController = TextEditingController(
+      text: route?.governorateFrom ?? '',
+    );
+    _governorateToController = TextEditingController(
+      text: route?.governorateTo ?? '',
+    );
     _defaultFreightPriceController = TextEditingController(
       text: _formatDouble(route?.defaultFreightPrice),
     );
@@ -96,39 +103,57 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                 TextFormField(
                   controller: _loadingController,
                   textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(labelText: l10n.loadingLocationLabel),
+                  decoration: InputDecoration(
+                    labelText: l10n.loadingLocationLabel,
+                  ),
                   validator: (value) {
-                    return value == null || value.trim().isEmpty ? l10n.loadingLocationRequired : null;
+                    return value == null || value.trim().isEmpty
+                        ? l10n.loadingLocationRequired
+                        : null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _unloadingController,
                   textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(labelText: l10n.unloadingLocationLabel),
+                  decoration: InputDecoration(
+                    labelText: l10n.unloadingLocationLabel,
+                  ),
                   validator: (value) {
-                    return value == null || value.trim().isEmpty ? l10n.unloadingLocationRequired : null;
+                    return value == null || value.trim().isEmpty
+                        ? l10n.unloadingLocationRequired
+                        : null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _governorateFromController,
                   textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(labelText: l10n.governorateFromLabel),
+                  decoration: InputDecoration(
+                    labelText: l10n.governorateFromLabel,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _governorateToController,
                   textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(labelText: l10n.governorateToLabel),
+                  decoration: InputDecoration(
+                    labelText: l10n.governorateToLabel,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _defaultFreightPriceController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(labelText: l10n.defaultFreightPriceLabel),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l10n.defaultFreightPriceLabel,
+                  ),
                   validator: (_) {
-                    return _defaultFreightPriceValid ? null : l10n.defaultFreightPriceInvalid;
+                    return _defaultFreightPriceValid
+                        ? null
+                        : l10n.defaultFreightPriceInvalid;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),

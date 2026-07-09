@@ -19,16 +19,32 @@ import '../mappers/fleet_audit_mapper.dart';
 import '../mappers/tractor_mapper.dart';
 import '../mappers/trailers_mapper.dart';
 
+const _tractorHeadCreatedEvent = 'tractor_head_created';
+const _tractorHeadUpdatedEvent = 'tractor_head_updated';
+const _tractorHeadDeactivatedEvent = 'tractor_head_deactivated';
+const _tractorHeadReactivatedEvent = 'tractor_head_reactivated';
+const _trailerCreatedEvent = 'trailer_created';
+const _trailerUpdatedEvent = 'trailer_updated';
+const _trailerDeactivatedEvent = 'trailer_deactivated';
+const _trailerReactivatedEvent = 'trailer_reactivated';
+
 class FleetRepositoryImpl implements FleetRepository {
   final FleetRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
 
-  const FleetRepositoryImpl({required this.remoteDataSource, required this.createAuditLogUseCase});
+  const FleetRepositoryImpl({
+    required this.remoteDataSource,
+    required this.createAuditLogUseCase,
+  });
 
   @override
-  Future<Result<List<TractorHead>>> getTractorHeads({required String companyId}) {
+  Future<Result<List<TractorHead>>> getTractorHeads({
+    required String companyId,
+  }) {
     return _guard(() async {
-      final models = await remoteDataSource.getTractorHeads(companyId: companyId.trim());
+      final models = await remoteDataSource.getTractorHeads(
+        companyId: companyId.trim(),
+      );
       return Success(models.map((model) => model.toEntity()).toList());
     });
   }
@@ -36,13 +52,18 @@ class FleetRepositoryImpl implements FleetRepository {
   @override
   Future<Result<List<TrailerEntity>>> getTrailers({required String companyId}) {
     return _guard(() async {
-      final models = await remoteDataSource.getTrailers(companyId: companyId.trim());
+      final models = await remoteDataSource.getTrailers(
+        companyId: companyId.trim(),
+      );
       return Success(models.map((model) => model.toEntity()).toList());
     });
   }
 
   @override
-  Future<Result<TractorHead>> addTractorHead({required TractorHeadWriteData data, required String actorRole}) {
+  Future<Result<TractorHead>> addTractorHead({
+    required TractorHeadWriteData data,
+    required String actorRole,
+  }) {
     return _guard(() async {
       final model = await remoteDataSource.addTractorHead(data: data);
       final auditFailure = await _writeAudit(
@@ -52,7 +73,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.created,
-        description: 'Tractor head created: ${model.plateNumber}',
+        description: _tractorHeadCreatedEvent,
         newValues: model.toAuditValues(),
       );
       if (auditFailure != null) return FailureResult(auditFailure);
@@ -61,9 +82,16 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TractorHead>> saveTractorHead({required String id, required TractorHeadWriteData data, required String actorRole}) {
+  Future<Result<TractorHead>> saveTractorHead({
+    required String id,
+    required TractorHeadWriteData data,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTractorHeadById(companyId: data.companyId, id: id);
+      final oldModel = await remoteDataSource.getTractorHeadById(
+        companyId: data.companyId,
+        id: id,
+      );
       final model = await remoteDataSource.saveTractorHead(id: id, data: data);
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
@@ -72,7 +100,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.updated,
-        description: 'Tractor head updated: ${model.plateNumber}',
+        description: _tractorHeadUpdatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -82,10 +110,20 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TractorHead>> deactivateTractorHead({required String companyId, required String id, required String actorRole}) {
+  Future<Result<TractorHead>> deactivateTractorHead({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTractorHeadById(companyId: companyId, id: id);
-      final model = await remoteDataSource.deactivateTractorHead(companyId: companyId, id: id);
+      final oldModel = await remoteDataSource.getTractorHeadById(
+        companyId: companyId,
+        id: id,
+      );
+      final model = await remoteDataSource.deactivateTractorHead(
+        companyId: companyId,
+        id: id,
+      );
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
         actorRole: actorRole,
@@ -93,7 +131,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.deactivated,
-        description: 'Tractor head deactivated: ${model.plateNumber}',
+        description: _tractorHeadDeactivatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -103,10 +141,20 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TractorHead>> reactivateTractorHead({required String companyId, required String id, required String actorRole}) {
+  Future<Result<TractorHead>> reactivateTractorHead({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTractorHeadById(companyId: companyId, id: id);
-      final model = await remoteDataSource.reactivateTractorHead(companyId: companyId, id: id);
+      final oldModel = await remoteDataSource.getTractorHeadById(
+        companyId: companyId,
+        id: id,
+      );
+      final model = await remoteDataSource.reactivateTractorHead(
+        companyId: companyId,
+        id: id,
+      );
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
         actorRole: actorRole,
@@ -114,7 +162,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.reactivated,
-        description: 'Tractor head reactivated: ${model.plateNumber}',
+        description: _tractorHeadReactivatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -124,7 +172,10 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TrailerEntity>> addTrailer({required TrailerWriteData data, required String actorRole}) {
+  Future<Result<TrailerEntity>> addTrailer({
+    required TrailerWriteData data,
+    required String actorRole,
+  }) {
     return _guard(() async {
       final model = await remoteDataSource.addTrailer(data: data);
       final auditFailure = await _writeAudit(
@@ -134,7 +185,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.created,
-        description: 'Trailer created: ${model.plateNumber}',
+        description: _trailerCreatedEvent,
         newValues: model.toAuditValues(),
       );
       if (auditFailure != null) return FailureResult(auditFailure);
@@ -143,9 +194,16 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TrailerEntity>> editTrailer({required String id, required TrailerWriteData data, required String actorRole}) {
+  Future<Result<TrailerEntity>> editTrailer({
+    required String id,
+    required TrailerWriteData data,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTrailerById(companyId: data.companyId, id: id);
+      final oldModel = await remoteDataSource.getTrailerById(
+        companyId: data.companyId,
+        id: id,
+      );
       final model = await remoteDataSource.editTrailer(id: id, data: data);
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
@@ -154,7 +212,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.updated,
-        description: 'Trailer updated: ${model.plateNumber}',
+        description: _trailerUpdatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -164,10 +222,20 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TrailerEntity>> deactivateTrailer({required String companyId, required String id, required String actorRole}) {
+  Future<Result<TrailerEntity>> deactivateTrailer({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTrailerById(companyId: companyId, id: id);
-      final model = await remoteDataSource.deactivateTrailer(companyId: companyId, id: id);
+      final oldModel = await remoteDataSource.getTrailerById(
+        companyId: companyId,
+        id: id,
+      );
+      final model = await remoteDataSource.deactivateTrailer(
+        companyId: companyId,
+        id: id,
+      );
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
         actorRole: actorRole,
@@ -175,7 +243,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.deactivated,
-        description: 'Trailer deactivated: ${model.plateNumber}',
+        description: _trailerDeactivatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -185,10 +253,20 @@ class FleetRepositoryImpl implements FleetRepository {
   }
 
   @override
-  Future<Result<TrailerEntity>> reactivateTrailer({required String companyId, required String id, required String actorRole}) {
+  Future<Result<TrailerEntity>> reactivateTrailer({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTrailerById(companyId: companyId, id: id);
-      final model = await remoteDataSource.reactivateTrailer(companyId: companyId, id: id);
+      final oldModel = await remoteDataSource.getTrailerById(
+        companyId: companyId,
+        id: id,
+      );
+      final model = await remoteDataSource.reactivateTrailer(
+        companyId: companyId,
+        id: id,
+      );
       final auditFailure = await _writeAudit(
         companyId: model.companyId,
         actorRole: actorRole,
@@ -196,7 +274,7 @@ class FleetRepositoryImpl implements FleetRepository {
         entityId: model.id,
         entityDisplayName: model.plateNumber,
         action: AuditAction.reactivated,
-        description: 'Trailer reactivated: ${model.plateNumber}',
+        description: _trailerReactivatedEvent,
         oldValues: oldModel.toAuditValues(),
         newValues: model.toAuditValues(),
       );
@@ -239,7 +317,12 @@ class FleetRepositoryImpl implements FleetRepository {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message));
+      return FailureResult(
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
+      );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
     }

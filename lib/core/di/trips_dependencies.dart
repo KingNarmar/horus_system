@@ -1,7 +1,4 @@
-import '../../features/audit/data/datasources/audit_logs_remote_data_source.dart';
-import '../../features/audit/data/repositories/audit_log_repository_impl.dart';
-import '../../features/audit/domain/usecases/create_audit_log_usecase.dart';
-import '../../features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
+import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/expenses/data/datasources/trip_expenses_remote_data_source.dart';
 import '../../features/expenses/data/repositories/trip_expense_repo_impl.dart';
 import '../../features/expenses/domain/usecases/trip_expenses_usecases.dart';
@@ -14,12 +11,7 @@ import '../data/supabase/supabase_client_provider.dart';
 abstract final class TripsDependencies {
   static TripsCubit createTripsCubit() {
     final client = SupabaseClientProvider.client;
-
-    final auditRemoteDataSource = SupabaseAuditLogsRemoteDataSource(client);
-    final auditRepository = AuditLogRepositoryImpl(
-      remoteDataSource: auditRemoteDataSource,
-    );
-    final createAuditLogUseCase = CreateAuditLogUseCase(auditRepository);
+    final createAuditLogUseCase = AuditDependencies.createAuditLogUseCase;
 
     final tripsRemoteDataSource = SupabaseTripsRemoteDataSource(client);
     final tripsRepository = TripsRepositoryImpl(
@@ -44,7 +36,7 @@ abstract final class TripsDependencies {
       updateTripStatusUseCase: UpdateTripStatusUseCase(tripsRepository),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
       calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
-      getTripAuditLogsUseCase: GetEntityAuditLogsUseCase(auditRepository),
+      getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getTripExpensesUseCase: GetTripExpensesUseCase(expensesRepository),
       getExpenseTypesUseCase: GetExpenseTypesUseCase(expensesRepository),
       addTripExpenseUseCase: AddTripExpenseUseCase(expensesRepository),

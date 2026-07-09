@@ -776,6 +776,450 @@ abstract class AppLocalizations {
   /// **'City: {city}'**
   String cityLine(String city);
 
+  /// No description provided for @customerViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get customerViewDetails;
+
+  /// No description provided for @customerBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get customerBasicInfo;
+
+  /// No description provided for @customerAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get customerAccountability;
+
+  /// No description provided for @customerActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get customerActivityTimeline;
+
+  /// No description provided for @customerCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get customerCreatedBy;
+
+  /// No description provided for @customerCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get customerCreatedRole;
+
+  /// No description provided for @customerCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get customerCreatedAt;
+
+  /// No description provided for @customerLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get customerLastActivityBy;
+
+  /// No description provided for @customerLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get customerLastActivityRole;
+
+  /// No description provided for @customerLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get customerLastActivityAt;
+
+  /// No description provided for @customerLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get customerLoadingActivity;
+
+  /// No description provided for @customerNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity found for this customer.'**
+  String get customerNoActivityFound;
+
+  /// No description provided for @customerChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get customerChanges;
+
+  /// No description provided for @customerEmptyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get customerEmptyValue;
+
+  /// No description provided for @customerUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get customerUnknownUser;
+
+  /// No description provided for @customerNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get customerNotAvailable;
+
+  /// No description provided for @customerConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deactivation'**
+  String get customerConfirmDeactivateTitle;
+
+  /// No description provided for @customerConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm reactivation'**
+  String get customerConfirmReactivateTitle;
+
+  /// No description provided for @customerConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this customer?'**
+  String get customerConfirmDeactivateMessage;
+
+  /// No description provided for @customerConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this customer?'**
+  String get customerConfirmReactivateMessage;
+
+  /// No description provided for @customerSearchHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customers'**
+  String get customerSearchHintShort;
+
+  /// No description provided for @customerDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details: {name}'**
+  String customerDetailsTitle(String name);
+
+  /// No description provided for @customerAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get customerAuditActionCreated;
+
+  /// No description provided for @customerAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get customerAuditActionUpdated;
+
+  /// No description provided for @customerAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get customerAuditActionDeactivated;
+
+  /// No description provided for @customerAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get customerAuditActionReactivated;
+
+  /// No description provided for @customerAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get customerAuditActionStatusChanged;
+
+  /// No description provided for @driversTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers'**
+  String get driversTitle;
+
+  /// No description provided for @addDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add driver'**
+  String get addDriverButton;
+
+  /// No description provided for @editDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editDriverButton;
+
+  /// No description provided for @deactivateDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivateDriverButton;
+
+  /// No description provided for @reactivateDriverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivateDriverButton;
+
+  /// No description provided for @viewDriverDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get viewDriverDetails;
+
+  /// No description provided for @driverDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver details'**
+  String get driverDetails;
+
+  /// No description provided for @searchDriversHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, phone, national ID, or license'**
+  String get searchDriversHint;
+
+  /// No description provided for @driversStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get driversStatusAllFilter;
+
+  /// No description provided for @driversStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get driversStatusActiveFilter;
+
+  /// No description provided for @driversStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get driversStatusInactiveFilter;
+
+  /// No description provided for @noDriversFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers found.'**
+  String get noDriversFound;
+
+  /// No description provided for @noDriversMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers match the current search or status filter.'**
+  String get noDriversMatchFilters;
+
+  /// No description provided for @driverNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name'**
+  String get driverNameLabel;
+
+  /// No description provided for @driverNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name is required.'**
+  String get driverNameRequired;
+
+  /// No description provided for @nationalIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get nationalIdLabel;
+
+  /// No description provided for @licenseNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License number'**
+  String get licenseNumberLabel;
+
+  /// No description provided for @licenseExpiryDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date'**
+  String get licenseExpiryDateLabel;
+
+  /// No description provided for @licenseExpiryDateMustBeFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date must be today or a future date.'**
+  String get licenseExpiryDateMustBeFuture;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesLabel;
+
+  /// No description provided for @driverBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get driverBasicInfo;
+
+  /// No description provided for @driverAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get driverAccountability;
+
+  /// No description provided for @driverActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get driverActivityTimeline;
+
+  /// No description provided for @driverCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get driverCreatedBy;
+
+  /// No description provided for @driverCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get driverCreatedRole;
+
+  /// No description provided for @driverCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get driverCreatedAt;
+
+  /// No description provided for @driverLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get driverLastActivityBy;
+
+  /// No description provided for @driverLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get driverLastActivityRole;
+
+  /// No description provided for @driverLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get driverLastActivityAt;
+
+  /// No description provided for @driverLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get driverLoadingActivity;
+
+  /// No description provided for @driverNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get driverNoActivityFound;
+
+  /// No description provided for @driverUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get driverUnknownUser;
+
+  /// No description provided for @driverNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get driverNotAvailable;
+
+  /// No description provided for @driverConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm driver deactivation'**
+  String get driverConfirmDeactivateTitle;
+
+  /// No description provided for @driverConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm driver reactivation'**
+  String get driverConfirmReactivateTitle;
+
+  /// No description provided for @driverConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this driver?'**
+  String get driverConfirmDeactivateMessage;
+
+  /// No description provided for @driverConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this driver?'**
+  String get driverConfirmReactivateMessage;
+
+  /// No description provided for @driverDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver details: {name}'**
+  String driverDetailsTitle(String name);
+
+  /// No description provided for @driverStatusActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get driverStatusActiveLabel;
+
+  /// No description provided for @driverStatusInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get driverStatusInactiveLabel;
+
+  /// No description provided for @driverAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get driverAuditActionCreated;
+
+  /// No description provided for @driverAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get driverAuditActionUpdated;
+
+  /// No description provided for @driverAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get driverAuditActionDeactivated;
+
+  /// No description provided for @driverAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get driverAuditActionReactivated;
+
+  /// No description provided for @driverAuditActionFinanceAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance movement recorded'**
+  String get driverAuditActionFinanceAdded;
+
+  /// No description provided for @driverPhoneFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get driverPhoneFieldLabel;
+
+  /// No description provided for @driverStatusFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get driverStatusFieldLabel;
+
   /// No description provided for @auditTimelineHeader.
   ///
   /// In en, this message translates to:
@@ -787,6 +1231,684 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{field}: {oldValue} → {newValue}'**
   String auditChangeLine(String field, String oldValue, String newValue);
+
+  /// No description provided for @routesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes'**
+  String get routesTitle;
+
+  /// No description provided for @addRouteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add route'**
+  String get addRouteButton;
+
+  /// No description provided for @addRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add route'**
+  String get addRouteTitle;
+
+  /// No description provided for @editRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit route'**
+  String get editRouteTitle;
+
+  /// No description provided for @loadingLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location'**
+  String get loadingLocationLabel;
+
+  /// No description provided for @unloadingLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location'**
+  String get unloadingLocationLabel;
+
+  /// No description provided for @governorateFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading governorate'**
+  String get governorateFromLabel;
+
+  /// No description provided for @governorateToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading governorate'**
+  String get governorateToLabel;
+
+  /// No description provided for @defaultFreightPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default freight price'**
+  String get defaultFreightPriceLabel;
+
+  /// No description provided for @routeNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get routeNotesLabel;
+
+  /// No description provided for @loadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location is required.'**
+  String get loadingLocationRequired;
+
+  /// No description provided for @unloadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location is required.'**
+  String get unloadingLocationRequired;
+
+  /// No description provided for @defaultFreightPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number.'**
+  String get defaultFreightPriceInvalid;
+
+  /// No description provided for @searchRoutesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search routes'**
+  String get searchRoutesHint;
+
+  /// No description provided for @routesStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get routesStatusAllFilter;
+
+  /// No description provided for @routesStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get routesStatusActiveFilter;
+
+  /// No description provided for @routesStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get routesStatusInactiveFilter;
+
+  /// No description provided for @noRoutesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes found.'**
+  String get noRoutesFound;
+
+  /// No description provided for @noRoutesMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No routes match the current search or filter.'**
+  String get noRoutesMatchFilters;
+
+  /// No description provided for @routeDeactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get routeDeactivateButton;
+
+  /// No description provided for @routeReactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get routeReactivateButton;
+
+  /// No description provided for @confirmRouteDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm route deactivation'**
+  String get confirmRouteDeactivateTitle;
+
+  /// No description provided for @confirmRouteReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm route reactivation'**
+  String get confirmRouteReactivateTitle;
+
+  /// No description provided for @confirmRouteDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this route?'**
+  String get confirmRouteDeactivateMessage;
+
+  /// No description provided for @confirmRouteReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this route?'**
+  String get confirmRouteReactivateMessage;
+
+  /// No description provided for @routeLoadingHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get routeLoadingHeader;
+
+  /// No description provided for @routeUnloadingHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading'**
+  String get routeUnloadingHeader;
+
+  /// No description provided for @routeGovernoratesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorates'**
+  String get routeGovernoratesHeader;
+
+  /// No description provided for @routeDefaultPriceHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Default price'**
+  String get routeDefaultPriceHeader;
+
+  /// No description provided for @routeStatusHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get routeStatusHeader;
+
+  /// No description provided for @routeActiveStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get routeActiveStatusLabel;
+
+  /// No description provided for @routeInactiveStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get routeInactiveStatusLabel;
+
+  /// No description provided for @routeEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get routeEditButton;
+
+  /// No description provided for @routeViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get routeViewDetails;
+
+  /// No description provided for @routeDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route details: {name}'**
+  String routeDetailsTitle(String name);
+
+  /// No description provided for @routeBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get routeBasicInfo;
+
+  /// No description provided for @routeAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get routeAccountability;
+
+  /// No description provided for @routeCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get routeCreatedBy;
+
+  /// No description provided for @routeCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get routeCreatedRole;
+
+  /// No description provided for @routeCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get routeCreatedAt;
+
+  /// No description provided for @routeLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get routeLastActivityBy;
+
+  /// No description provided for @routeLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get routeLastActivityRole;
+
+  /// No description provided for @routeLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get routeLastActivityAt;
+
+  /// No description provided for @routeActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get routeActivityTimeline;
+
+  /// No description provided for @routeLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get routeLoadingActivity;
+
+  /// No description provided for @routeNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get routeNoActivityFound;
+
+  /// No description provided for @routeChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get routeChanges;
+
+  /// No description provided for @routeUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get routeUnknownUser;
+
+  /// No description provided for @routeNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get routeNotAvailable;
+
+  /// No description provided for @routeAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get routeAuditActionCreated;
+
+  /// No description provided for @routeAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get routeAuditActionUpdated;
+
+  /// No description provided for @routeAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get routeAuditActionDeactivated;
+
+  /// No description provided for @routeAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get routeAuditActionReactivated;
+
+  /// No description provided for @routeAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get routeAuditActionStatusChanged;
+
+  /// No description provided for @routeAuditTimelineHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} ({role}) - {dateTime}'**
+  String routeAuditTimelineHeader(String actor, String role, String dateTime);
+
+  /// No description provided for @routeAuditChangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: from {oldValue} to {newValue}'**
+  String routeAuditChangeLine(String label, String oldValue, String newValue);
+
+  /// No description provided for @fleetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get fleetTitle;
+
+  /// No description provided for @tractorHeadsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractor heads'**
+  String get tractorHeadsTab;
+
+  /// No description provided for @trailersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailers'**
+  String get trailersTab;
+
+  /// No description provided for @addTractorHeadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tractor head'**
+  String get addTractorHeadButton;
+
+  /// No description provided for @addTrailerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trailer'**
+  String get addTrailerButton;
+
+  /// No description provided for @editTractorHeadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit tractor head'**
+  String get editTractorHeadTitle;
+
+  /// No description provided for @editTrailerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trailer'**
+  String get editTrailerTitle;
+
+  /// No description provided for @plateNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number'**
+  String get plateNumberLabel;
+
+  /// No description provided for @plateNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number is required.'**
+  String get plateNumberRequired;
+
+  /// No description provided for @vehicleStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle status'**
+  String get vehicleStatusLabel;
+
+  /// No description provided for @vehicleLicenseExpiryDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date'**
+  String get vehicleLicenseExpiryDateLabel;
+
+  /// No description provided for @expectedFuelConsumptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected fuel consumption'**
+  String get expectedFuelConsumptionLabel;
+
+  /// No description provided for @expectedFuelConsumptionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number.'**
+  String get expectedFuelConsumptionInvalid;
+
+  /// No description provided for @vehicleNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get vehicleNotesLabel;
+
+  /// No description provided for @technicalNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical notes'**
+  String get technicalNotesLabel;
+
+  /// No description provided for @searchFleetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by plate, status, or notes'**
+  String get searchFleetHint;
+
+  /// No description provided for @fleetStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get fleetStatusAllFilter;
+
+  /// No description provided for @fleetStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get fleetStatusActiveFilter;
+
+  /// No description provided for @fleetStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get fleetStatusInactiveFilter;
+
+  /// No description provided for @noTractorHeadsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tractor heads found.'**
+  String get noTractorHeadsFound;
+
+  /// No description provided for @noTrailersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No trailers found.'**
+  String get noTrailersFound;
+
+  /// No description provided for @noFleetMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No fleet assets match the current search or filter.'**
+  String get noFleetMatchFilters;
+
+  /// No description provided for @fleetEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get fleetEditButton;
+
+  /// No description provided for @fleetDeactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get fleetDeactivateButton;
+
+  /// No description provided for @fleetReactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get fleetReactivateButton;
+
+  /// No description provided for @fleetDetailsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get fleetDetailsButton;
+
+  /// No description provided for @fleetConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deactivation'**
+  String get fleetConfirmDeactivateTitle;
+
+  /// No description provided for @fleetConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm reactivation'**
+  String get fleetConfirmReactivateTitle;
+
+  /// No description provided for @fleetConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this asset?'**
+  String get fleetConfirmDeactivateMessage;
+
+  /// No description provided for @fleetConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this asset?'**
+  String get fleetConfirmReactivateMessage;
+
+  /// No description provided for @vehicleStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get vehicleStatusAvailable;
+
+  /// No description provided for @vehicleStatusOnTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'On trip'**
+  String get vehicleStatusOnTrip;
+
+  /// No description provided for @vehicleStatusLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get vehicleStatusLoading;
+
+  /// No description provided for @vehicleStatusUnloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading'**
+  String get vehicleStatusUnloading;
+
+  /// No description provided for @vehicleStatusMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get vehicleStatusMaintenance;
+
+  /// No description provided for @vehicleStatusStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get vehicleStatusStopped;
+
+  /// No description provided for @vehicleStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get vehicleStatusInactive;
+
+  /// No description provided for @fleetBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get fleetBasicInfo;
+
+  /// No description provided for @fleetAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get fleetAccountability;
+
+  /// No description provided for @fleetActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get fleetActivityTimeline;
+
+  /// No description provided for @fleetCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get fleetCreatedBy;
+
+  /// No description provided for @fleetCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get fleetCreatedRole;
+
+  /// No description provided for @fleetCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get fleetCreatedAt;
+
+  /// No description provided for @fleetLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get fleetLastActivityBy;
+
+  /// No description provided for @fleetLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get fleetLastActivityRole;
+
+  /// No description provided for @fleetLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get fleetLastActivityAt;
+
+  /// No description provided for @fleetLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get fleetLoadingActivity;
+
+  /// No description provided for @fleetNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity found for this asset.'**
+  String get fleetNoActivityFound;
+
+  /// No description provided for @fleetUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get fleetUnknownUser;
+
+  /// No description provided for @fleetNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get fleetNotAvailable;
+
+  /// No description provided for @fleetChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get fleetChanges;
+
+  /// No description provided for @fleetDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet asset details: {plateNumber}'**
+  String fleetDetailsTitle(String plateNumber);
+
+  /// No description provided for @fleetAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get fleetAuditActionCreated;
+
+  /// No description provided for @fleetAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get fleetAuditActionUpdated;
+
+  /// No description provided for @fleetAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get fleetAuditActionDeactivated;
+
+  /// No description provided for @fleetAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get fleetAuditActionReactivated;
+
+  /// No description provided for @fleetAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get fleetAuditActionStatusChanged;
 
   /// No description provided for @driverFinanceTitle.
   ///
@@ -931,6 +2053,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deduction'**
   String get driverMovementTypeDeduction;
+
+  /// No description provided for @companyExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses'**
+  String get companyExpensesTitle;
+
+  /// No description provided for @addCompanyExpenseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get addCompanyExpenseButton;
+
+  /// No description provided for @addCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add company expense'**
+  String get addCompanyExpenseTitle;
+
+  /// No description provided for @editCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit company expense'**
+  String get editCompanyExpenseTitle;
+
+  /// No description provided for @companyExpenseCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get companyExpenseCategoryLabel;
+
+  /// No description provided for @companyExpenseCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Category is required.'**
+  String get companyExpenseCategoryRequired;
+
+  /// No description provided for @companyExpenseAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get companyExpenseAmountLabel;
+
+  /// No description provided for @companyExpenseDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get companyExpenseDateLabel;
+
+  /// No description provided for @companyExpenseReferenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference number'**
+  String get companyExpenseReferenceLabel;
+
+  /// No description provided for @companyExpenseNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get companyExpenseNotesLabel;
+
+  /// No description provided for @companyExpenseAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount greater than zero.'**
+  String get companyExpenseAmountInvalid;
+
+  /// No description provided for @searchCompanyExpensesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search category, amount, reference, or notes'**
+  String get searchCompanyExpensesHint;
+
+  /// No description provided for @includeVoidedCompanyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Show voided'**
+  String get includeVoidedCompanyExpenses;
+
+  /// No description provided for @noCompanyExpensesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No company expenses found.'**
+  String get noCompanyExpensesFound;
+
+  /// No description provided for @noCompanyExpensesMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No company expenses match the current search.'**
+  String get noCompanyExpensesMatchFilters;
+
+  /// No description provided for @companyExpenseVoidedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get companyExpenseVoidedStatus;
+
+  /// No description provided for @companyExpenseActiveStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get companyExpenseActiveStatus;
+
+  /// No description provided for @voidCompanyExpenseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Void'**
+  String get voidCompanyExpenseButton;
+
+  /// No description provided for @voidCompanyExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Void company expense'**
+  String get voidCompanyExpenseTitle;
+
+  /// No description provided for @voidCompanyExpenseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to void this expense? It will remain in the history as voided.'**
+  String get voidCompanyExpenseMessage;
+
+  /// No description provided for @voidReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Void reason'**
+  String get voidReasonLabel;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmButton;
+
+  /// No description provided for @companyExpenseCategoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {categoryName}'**
+  String companyExpenseCategoryLine(String categoryName);
+
+  /// No description provided for @companyExpenseAmountLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount: {amount}'**
+  String companyExpenseAmountLine(String amount);
+
+  /// No description provided for @companyExpenseDateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String companyExpenseDateLine(String date);
+
+  /// No description provided for @companyExpenseReferenceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference: {reference}'**
+  String companyExpenseReferenceLine(String reference);
+
+  /// No description provided for @companyExpenseCategoryVehicleMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle maintenance'**
+  String get companyExpenseCategoryVehicleMaintenance;
+
+  /// No description provided for @companyExpenseCategorySpareParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Spare parts'**
+  String get companyExpenseCategorySpareParts;
+
+  /// No description provided for @companyExpenseCategoryTires.
+  ///
+  /// In en, this message translates to:
+  /// **'Tires'**
+  String get companyExpenseCategoryTires;
+
+  /// No description provided for @companyExpenseCategoryOilsAndFluids.
+  ///
+  /// In en, this message translates to:
+  /// **'Oils and fluids'**
+  String get companyExpenseCategoryOilsAndFluids;
+
+  /// No description provided for @companyExpenseCategoryLicensesAndRenewals.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses and renewals'**
+  String get companyExpenseCategoryLicensesAndRenewals;
+
+  /// No description provided for @companyExpenseCategoryOfficeExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Office expenses'**
+  String get companyExpenseCategoryOfficeExpenses;
+
+  /// No description provided for @companyExpenseCategoryRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get companyExpenseCategoryRent;
+
+  /// No description provided for @companyExpenseCategorySalaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Salaries'**
+  String get companyExpenseCategorySalaries;
+
+  /// No description provided for @companyExpenseCategoryAdminCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin costs'**
+  String get companyExpenseCategoryAdminCosts;
+
+  /// No description provided for @companyExpenseCategoryFines.
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get companyExpenseCategoryFines;
+
+  /// No description provided for @companyExpenseCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get companyExpenseCategoryOther;
+
+  /// No description provided for @failureUnexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error occurred.'**
+  String get failureUnexpectedError;
+
+  /// No description provided for @failureServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error occurred.'**
+  String get failureServerError;
+
+  /// No description provided for @failureValidationCompanyIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company id is required.'**
+  String get failureValidationCompanyIdRequired;
+
+  /// No description provided for @failureValidationCompanyContextRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company context is required.'**
+  String get failureValidationCompanyContextRequired;
+
+  /// No description provided for @failureCompanyNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected company is not available for the current user.'**
+  String get failureCompanyNotAvailable;
+
+  /// No description provided for @failurePermissionCompanyUsersView.
+  ///
+  /// In en, this message translates to:
+  /// **'This role cannot view company users.'**
+  String get failurePermissionCompanyUsersView;
+
+  /// No description provided for @failurePermissionCustomersView.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers access is not allowed.'**
+  String get failurePermissionCustomersView;
+
+  /// No description provided for @failurePermissionCustomersManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers management is not allowed.'**
+  String get failurePermissionCustomersManagement;
+
+  /// No description provided for @failureValidationCustomerIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer id is required.'**
+  String get failureValidationCustomerIdRequired;
+
+  /// No description provided for @failureValidationCustomerNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name is required.'**
+  String get failureValidationCustomerNameRequired;
+
+  /// No description provided for @failureValidationCreditLimitNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit cannot be negative.'**
+  String get failureValidationCreditLimitNegative;
+
+  /// No description provided for @failurePermissionDriversView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view drivers.'**
+  String get failurePermissionDriversView;
+
+  /// No description provided for @failurePermissionDriversManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers management is not allowed.'**
+  String get failurePermissionDriversManagement;
+
+  /// No description provided for @failureValidationDriverIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver id is required.'**
+  String get failureValidationDriverIdRequired;
+
+  /// No description provided for @failureValidationDriverNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver name is required.'**
+  String get failureValidationDriverNameRequired;
+
+  /// No description provided for @failurePermissionFleetManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet management is not allowed.'**
+  String get failurePermissionFleetManagement;
+
+  /// No description provided for @failurePermissionFleetView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view fleet.'**
+  String get failurePermissionFleetView;
+
+  /// No description provided for @failureValidationFleetPlateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number is required.'**
+  String get failureValidationFleetPlateRequired;
+
+  /// No description provided for @failureValidationFleetFuelConsumptionNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected fuel consumption cannot be negative.'**
+  String get failureValidationFleetFuelConsumptionNegative;
+
+  /// No description provided for @failurePermissionRoutesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes management is not allowed.'**
+  String get failurePermissionRoutesManagement;
+
+  /// No description provided for @failurePermissionRoutesView.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to view routes.'**
+  String get failurePermissionRoutesView;
+
+  /// No description provided for @failureValidationRouteLoadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading location is required.'**
+  String get failureValidationRouteLoadingLocationRequired;
+
+  /// No description provided for @failureValidationRouteUnloadingLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading location is required.'**
+  String get failureValidationRouteUnloadingLocationRequired;
+
+  /// No description provided for @failureValidationRouteFreightPriceNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Default freight price cannot be negative.'**
+  String get failureValidationRouteFreightPriceNegative;
+
+  /// No description provided for @failureValidationTripIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip id is required.'**
+  String get failureValidationTripIdRequired;
+
+  /// No description provided for @failurePermissionTripExpensesView.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses access is not allowed.'**
+  String get failurePermissionTripExpensesView;
+
+  /// No description provided for @failurePermissionTripExpensesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses management is not allowed.'**
+  String get failurePermissionTripExpensesManagement;
+
+  /// No description provided for @failureValidationTripExpenseIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expense id is required.'**
+  String get failureValidationTripExpenseIdRequired;
+
+  /// No description provided for @failureValidationTripExpenseTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense type is required.'**
+  String get failureValidationTripExpenseTypeRequired;
+
+  /// No description provided for @failureValidationTripExpenseNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense name is required.'**
+  String get failureValidationTripExpenseNameRequired;
+
+  /// No description provided for @failureValidationTripExpenseAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense amount must be greater than zero.'**
+  String get failureValidationTripExpenseAmountPositive;
+
+  /// No description provided for @failurePermissionDriverFinanceView.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance access is not allowed.'**
+  String get failurePermissionDriverFinanceView;
+
+  /// No description provided for @failurePermissionDriverFinanceManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver finance management is not allowed.'**
+  String get failurePermissionDriverFinanceManagement;
+
+  /// No description provided for @failureValidationDriverFinanceAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver financial movement amount must be greater than zero.'**
+  String get failureValidationDriverFinanceAmountPositive;
+
+  /// No description provided for @failurePermissionCompanyExpensesView.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses access is not allowed.'**
+  String get failurePermissionCompanyExpensesView;
+
+  /// No description provided for @failurePermissionCompanyExpensesManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expenses management is not allowed.'**
+  String get failurePermissionCompanyExpensesManagement;
+
+  /// No description provided for @failureValidationCompanyExpenseIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense id is required.'**
+  String get failureValidationCompanyExpenseIdRequired;
+
+  /// No description provided for @failureValidationCompanyExpenseCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense category is required.'**
+  String get failureValidationCompanyExpenseCategoryRequired;
+
+  /// No description provided for @failureValidationCompanyExpenseAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Company expense amount must be greater than zero.'**
+  String get failureValidationCompanyExpenseAmountPositive;
+
+  /// No description provided for @failureValidationAuditEntityIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit entity id is required.'**
+  String get failureValidationAuditEntityIdRequired;
+
+  /// No description provided for @failureValidationAuditDescriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit description is required.'**
+  String get failureValidationAuditDescriptionRequired;
 
   /// No description provided for @unknownUser.
   ///

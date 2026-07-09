@@ -5,7 +5,6 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_status_filter.dart';
-import '../localization/routes_localizations_x.dart';
 
 class RoutesFilters extends StatelessWidget {
   final RouteStatusFilter statusFilter;

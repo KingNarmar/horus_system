@@ -384,6 +384,238 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get customerViewDetails => 'التفاصيل';
+
+  @override
+  String get customerBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get customerAccountability => 'المسؤولية والمتابعة';
+
+  @override
+  String get customerActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get customerCreatedBy => 'أنشأه';
+
+  @override
+  String get customerCreatedRole => 'دور المنشئ';
+
+  @override
+  String get customerCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get customerLastActivityBy => 'آخر إجراء بواسطة';
+
+  @override
+  String get customerLastActivityRole => 'دور آخر مستخدم';
+
+  @override
+  String get customerLastActivityAt => 'وقت آخر إجراء';
+
+  @override
+  String get customerLoadingActivity => 'جاري تحميل سجل النشاط...';
+
+  @override
+  String get customerNoActivityFound => 'لا يوجد نشاط مسجل لهذا العميل.';
+
+  @override
+  String get customerChanges => 'التغييرات';
+
+  @override
+  String get customerEmptyValue => 'فارغ';
+
+  @override
+  String get customerUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get customerNotAvailable => 'غير متاح';
+
+  @override
+  String get customerConfirmDeactivateTitle => 'تأكيد إلغاء التفعيل';
+
+  @override
+  String get customerConfirmReactivateTitle => 'تأكيد إعادة التفعيل';
+
+  @override
+  String get customerConfirmDeactivateMessage =>
+      'هل تريد إلغاء تفعيل هذا العميل؟';
+
+  @override
+  String get customerConfirmReactivateMessage =>
+      'هل تريد إعادة تفعيل هذا العميل؟';
+
+  @override
+  String get customerSearchHintShort => 'ابحث في العملاء';
+
+  @override
+  String customerDetailsTitle(String name) {
+    return 'تفاصيل $name';
+  }
+
+  @override
+  String get customerAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get customerAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get customerAuditActionDeactivated => 'تم التعطيل';
+
+  @override
+  String get customerAuditActionReactivated => 'تم التفعيل';
+
+  @override
+  String get customerAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
+  String get driversTitle => 'السائقون';
+
+  @override
+  String get addDriverButton => 'إضافة سائق';
+
+  @override
+  String get editDriverButton => 'تعديل';
+
+  @override
+  String get deactivateDriverButton => 'إيقاف';
+
+  @override
+  String get reactivateDriverButton => 'إعادة تفعيل';
+
+  @override
+  String get viewDriverDetails => 'عرض التفاصيل';
+
+  @override
+  String get driverDetails => 'تفاصيل السائق';
+
+  @override
+  String get searchDriversHint =>
+      'ابحث بالاسم أو الهاتف أو الرقم القومي أو الرخصة';
+
+  @override
+  String get driversStatusAllFilter => 'الكل';
+
+  @override
+  String get driversStatusActiveFilter => 'النشط';
+
+  @override
+  String get driversStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noDriversFound => 'لا يوجد سائقون.';
+
+  @override
+  String get noDriversMatchFilters =>
+      'لا يوجد سائقون مطابقون للبحث أو فلتر الحالة الحالي.';
+
+  @override
+  String get driverNameLabel => 'اسم السائق';
+
+  @override
+  String get driverNameRequired => 'اسم السائق مطلوب.';
+
+  @override
+  String get nationalIdLabel => 'الرقم القومي';
+
+  @override
+  String get licenseNumberLabel => 'رقم الرخصة';
+
+  @override
+  String get licenseExpiryDateLabel => 'تاريخ انتهاء الرخصة';
+
+  @override
+  String get licenseExpiryDateMustBeFuture =>
+      'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.';
+
+  @override
+  String get notesLabel => 'ملاحظات';
+
+  @override
+  String get driverBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get driverAccountability => 'المسؤولية';
+
+  @override
+  String get driverActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get driverCreatedBy => 'تم الإنشاء بواسطة';
+
+  @override
+  String get driverCreatedRole => 'الدور وقت الإنشاء';
+
+  @override
+  String get driverCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get driverLastActivityBy => 'آخر نشاط بواسطة';
+
+  @override
+  String get driverLastActivityRole => 'دور آخر نشاط';
+
+  @override
+  String get driverLastActivityAt => 'وقت آخر نشاط';
+
+  @override
+  String get driverLoadingActivity => 'جاري تحميل النشاط...';
+
+  @override
+  String get driverNoActivityFound => 'لا يوجد نشاط بعد.';
+
+  @override
+  String get driverUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get driverNotAvailable => 'غير متاح';
+
+  @override
+  String get driverConfirmDeactivateTitle => 'تأكيد إيقاف السائق';
+
+  @override
+  String get driverConfirmReactivateTitle => 'تأكيد إعادة تفعيل السائق';
+
+  @override
+  String get driverConfirmDeactivateMessage => 'هل تريد إيقاف هذا السائق؟';
+
+  @override
+  String get driverConfirmReactivateMessage =>
+      'هل تريد إعادة تفعيل هذا السائق؟';
+
+  @override
+  String driverDetailsTitle(String name) {
+    return 'تفاصيل السائق: $name';
+  }
+
+  @override
+  String get driverStatusActiveLabel => 'نشط';
+
+  @override
+  String get driverStatusInactiveLabel => 'غير نشط';
+
+  @override
+  String get driverAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get driverAuditActionUpdated => 'تم التحديث';
+
+  @override
+  String get driverAuditActionDeactivated => 'تم الإيقاف';
+
+  @override
+  String get driverAuditActionReactivated => 'تمت إعادة التفعيل';
+
+  @override
+  String get driverAuditActionFinanceAdded => 'تم تسجيل حركة مالية';
+
+  @override
+  String get driverPhoneFieldLabel => 'الهاتف';
+
+  @override
+  String get driverStatusFieldLabel => 'الحالة';
+
+  @override
   String auditTimelineHeader(String actorName, String role, String dateTime) {
     return '$actorName • $role • $dateTime';
   }
@@ -392,6 +624,355 @@ class AppLocalizationsAr extends AppLocalizations {
   String auditChangeLine(String field, String oldValue, String newValue) {
     return '$field: $oldValue → $newValue';
   }
+
+  @override
+  String get routesTitle => 'المسارات';
+
+  @override
+  String get addRouteButton => 'إضافة مسار';
+
+  @override
+  String get addRouteTitle => 'إضافة مسار';
+
+  @override
+  String get editRouteTitle => 'تعديل مسار';
+
+  @override
+  String get loadingLocationLabel => 'مكان التحميل';
+
+  @override
+  String get unloadingLocationLabel => 'مكان التفريغ';
+
+  @override
+  String get governorateFromLabel => 'محافظة التحميل';
+
+  @override
+  String get governorateToLabel => 'محافظة التفريغ';
+
+  @override
+  String get defaultFreightPriceLabel => 'سعر النقل الافتراضي';
+
+  @override
+  String get routeNotesLabel => 'ملاحظات';
+
+  @override
+  String get loadingLocationRequired => 'مكان التحميل مطلوب.';
+
+  @override
+  String get unloadingLocationRequired => 'مكان التفريغ مطلوب.';
+
+  @override
+  String get defaultFreightPriceInvalid => 'أدخل رقم صحيح غير سالب.';
+
+  @override
+  String get searchRoutesHint => 'ابحث في المسارات';
+
+  @override
+  String get routesStatusAllFilter => 'الكل';
+
+  @override
+  String get routesStatusActiveFilter => 'النشط';
+
+  @override
+  String get routesStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noRoutesFound => 'لا توجد مسارات.';
+
+  @override
+  String get noRoutesMatchFilters =>
+      'لا توجد مسارات مطابقة للبحث أو الفلتر الحالي.';
+
+  @override
+  String get routeDeactivateButton => 'إلغاء التفعيل';
+
+  @override
+  String get routeReactivateButton => 'إعادة التفعيل';
+
+  @override
+  String get confirmRouteDeactivateTitle => 'تأكيد إلغاء تفعيل المسار';
+
+  @override
+  String get confirmRouteReactivateTitle => 'تأكيد إعادة تفعيل المسار';
+
+  @override
+  String get confirmRouteDeactivateMessage => 'هل تريد إلغاء تفعيل هذا المسار؟';
+
+  @override
+  String get confirmRouteReactivateMessage => 'هل تريد إعادة تفعيل هذا المسار؟';
+
+  @override
+  String get routeLoadingHeader => 'التحميل';
+
+  @override
+  String get routeUnloadingHeader => 'التفريغ';
+
+  @override
+  String get routeGovernoratesHeader => 'المحافظات';
+
+  @override
+  String get routeDefaultPriceHeader => 'السعر الافتراضي';
+
+  @override
+  String get routeStatusHeader => 'الحالة';
+
+  @override
+  String get routeActiveStatusLabel => 'نشط';
+
+  @override
+  String get routeInactiveStatusLabel => 'غير نشط';
+
+  @override
+  String get routeEditButton => 'تعديل';
+
+  @override
+  String get routeViewDetails => 'عرض التفاصيل';
+
+  @override
+  String routeDetailsTitle(String name) {
+    return 'تفاصيل المسار: $name';
+  }
+
+  @override
+  String get routeBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get routeAccountability => 'المساءلة';
+
+  @override
+  String get routeCreatedBy => 'تم الإنشاء بواسطة';
+
+  @override
+  String get routeCreatedRole => 'دور منشئ السجل';
+
+  @override
+  String get routeCreatedAt => 'وقت الإنشاء';
+
+  @override
+  String get routeLastActivityBy => 'آخر نشاط بواسطة';
+
+  @override
+  String get routeLastActivityRole => 'دور آخر نشاط';
+
+  @override
+  String get routeLastActivityAt => 'وقت آخر نشاط';
+
+  @override
+  String get routeActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get routeLoadingActivity => 'جاري تحميل النشاط...';
+
+  @override
+  String get routeNoActivityFound => 'لا يوجد نشاط بعد.';
+
+  @override
+  String get routeChanges => 'التغييرات';
+
+  @override
+  String get routeUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get routeNotAvailable => 'غير متاح';
+
+  @override
+  String get routeAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get routeAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get routeAuditActionDeactivated => 'تم إلغاء التفعيل';
+
+  @override
+  String get routeAuditActionReactivated => 'تمت إعادة التفعيل';
+
+  @override
+  String get routeAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
+  String routeAuditTimelineHeader(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String routeAuditChangeLine(String label, String oldValue, String newValue) {
+    return '$label: من $oldValue إلى $newValue';
+  }
+
+  @override
+  String get fleetTitle => 'الأسطول';
+
+  @override
+  String get tractorHeadsTab => 'رؤوس الجر';
+
+  @override
+  String get trailersTab => 'المقطورات';
+
+  @override
+  String get addTractorHeadButton => 'إضافة رأس جر';
+
+  @override
+  String get addTrailerButton => 'إضافة مقطورة';
+
+  @override
+  String get editTractorHeadTitle => 'تعديل رأس جر';
+
+  @override
+  String get editTrailerTitle => 'تعديل مقطورة';
+
+  @override
+  String get plateNumberLabel => 'رقم اللوحة';
+
+  @override
+  String get plateNumberRequired => 'رقم اللوحة مطلوب.';
+
+  @override
+  String get vehicleStatusLabel => 'حالة المركبة';
+
+  @override
+  String get vehicleLicenseExpiryDateLabel => 'تاريخ انتهاء الترخيص';
+
+  @override
+  String get expectedFuelConsumptionLabel => 'استهلاك الوقود المتوقع';
+
+  @override
+  String get expectedFuelConsumptionInvalid => 'أدخل رقم صحيح غير سالب.';
+
+  @override
+  String get vehicleNotesLabel => 'ملاحظات';
+
+  @override
+  String get technicalNotesLabel => 'ملاحظات فنية';
+
+  @override
+  String get searchFleetHint => 'ابحث برقم اللوحة أو الحالة أو الملاحظات';
+
+  @override
+  String get fleetStatusAllFilter => 'الكل';
+
+  @override
+  String get fleetStatusActiveFilter => 'النشط';
+
+  @override
+  String get fleetStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noTractorHeadsFound => 'لا توجد رؤوس جر.';
+
+  @override
+  String get noTrailersFound => 'لا توجد مقطورات.';
+
+  @override
+  String get noFleetMatchFilters =>
+      'لا توجد أصول مطابقة للبحث أو الفلتر الحالي.';
+
+  @override
+  String get fleetEditButton => 'تعديل';
+
+  @override
+  String get fleetDeactivateButton => 'إلغاء التفعيل';
+
+  @override
+  String get fleetReactivateButton => 'إعادة التفعيل';
+
+  @override
+  String get fleetDetailsButton => 'التفاصيل';
+
+  @override
+  String get fleetConfirmDeactivateTitle => 'تأكيد إلغاء التفعيل';
+
+  @override
+  String get fleetConfirmReactivateTitle => 'تأكيد إعادة التفعيل';
+
+  @override
+  String get fleetConfirmDeactivateMessage => 'هل تريد إلغاء تفعيل هذا الأصل؟';
+
+  @override
+  String get fleetConfirmReactivateMessage => 'هل تريد إعادة تفعيل هذا الأصل؟';
+
+  @override
+  String get vehicleStatusAvailable => 'متاح';
+
+  @override
+  String get vehicleStatusOnTrip => 'في رحلة';
+
+  @override
+  String get vehicleStatusLoading => 'تحميل';
+
+  @override
+  String get vehicleStatusUnloading => 'تفريغ';
+
+  @override
+  String get vehicleStatusMaintenance => 'صيانة';
+
+  @override
+  String get vehicleStatusStopped => 'متوقف';
+
+  @override
+  String get vehicleStatusInactive => 'غير نشط';
+
+  @override
+  String get fleetBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get fleetAccountability => 'المسؤولية والمتابعة';
+
+  @override
+  String get fleetActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get fleetCreatedBy => 'أنشأه';
+
+  @override
+  String get fleetCreatedRole => 'دور المنشئ';
+
+  @override
+  String get fleetCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get fleetLastActivityBy => 'آخر إجراء بواسطة';
+
+  @override
+  String get fleetLastActivityRole => 'دور آخر مستخدم';
+
+  @override
+  String get fleetLastActivityAt => 'وقت آخر إجراء';
+
+  @override
+  String get fleetLoadingActivity => 'جاري تحميل سجل النشاط...';
+
+  @override
+  String get fleetNoActivityFound => 'لا يوجد نشاط مسجل لهذا الأصل.';
+
+  @override
+  String get fleetUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get fleetNotAvailable => 'غير متاح';
+
+  @override
+  String get fleetChanges => 'التغييرات';
+
+  @override
+  String fleetDetailsTitle(String plateNumber) {
+    return 'تفاصيل الأصل: $plateNumber';
+  }
+
+  @override
+  String get fleetAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get fleetAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get fleetAuditActionDeactivated => 'تم التعطيل';
+
+  @override
+  String get fleetAuditActionReactivated => 'تم التفعيل';
+
+  @override
+  String get fleetAuditActionStatusChanged => 'تم تغيير الحالة';
 
   @override
   String get driverFinanceTitle => 'حركات السائق المالية';
@@ -467,6 +1048,279 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverMovementTypeDeduction => 'خصم';
+
+  @override
+  String get companyExpensesTitle => 'مصروفات الشركة';
+
+  @override
+  String get addCompanyExpenseButton => 'إضافة مصروف';
+
+  @override
+  String get addCompanyExpenseTitle => 'إضافة مصروف شركة';
+
+  @override
+  String get editCompanyExpenseTitle => 'تعديل مصروف شركة';
+
+  @override
+  String get companyExpenseCategoryLabel => 'التصنيف';
+
+  @override
+  String get companyExpenseCategoryRequired => 'التصنيف مطلوب.';
+
+  @override
+  String get companyExpenseAmountLabel => 'المبلغ';
+
+  @override
+  String get companyExpenseDateLabel => 'التاريخ';
+
+  @override
+  String get companyExpenseReferenceLabel => 'رقم المرجع';
+
+  @override
+  String get companyExpenseNotesLabel => 'ملاحظات';
+
+  @override
+  String get companyExpenseAmountInvalid => 'أدخل مبلغ صحيح أكبر من صفر.';
+
+  @override
+  String get searchCompanyExpensesHint =>
+      'ابحث في التصنيف أو المبلغ أو المرجع أو الملاحظات';
+
+  @override
+  String get includeVoidedCompanyExpenses => 'إظهار الملغاة';
+
+  @override
+  String get noCompanyExpensesFound => 'لا توجد مصروفات شركة.';
+
+  @override
+  String get noCompanyExpensesMatchFilters =>
+      'لا توجد مصروفات مطابقة للبحث الحالي.';
+
+  @override
+  String get companyExpenseVoidedStatus => 'ملغى';
+
+  @override
+  String get companyExpenseActiveStatus => 'نشط';
+
+  @override
+  String get voidCompanyExpenseButton => 'إلغاء';
+
+  @override
+  String get voidCompanyExpenseTitle => 'إلغاء مصروف الشركة';
+
+  @override
+  String get voidCompanyExpenseMessage =>
+      'هل تريد إلغاء هذا المصروف؟ سيتم الاحتفاظ به في السجل كملغى.';
+
+  @override
+  String get voidReasonLabel => 'سبب الإلغاء';
+
+  @override
+  String get confirmButton => 'تأكيد';
+
+  @override
+  String companyExpenseCategoryLine(String categoryName) {
+    return 'التصنيف: $categoryName';
+  }
+
+  @override
+  String companyExpenseAmountLine(String amount) {
+    return 'المبلغ: $amount';
+  }
+
+  @override
+  String companyExpenseDateLine(String date) {
+    return 'التاريخ: $date';
+  }
+
+  @override
+  String companyExpenseReferenceLine(String reference) {
+    return 'المرجع: $reference';
+  }
+
+  @override
+  String get companyExpenseCategoryVehicleMaintenance => 'صيانة المركبات';
+
+  @override
+  String get companyExpenseCategorySpareParts => 'قطع الغيار';
+
+  @override
+  String get companyExpenseCategoryTires => 'الإطارات';
+
+  @override
+  String get companyExpenseCategoryOilsAndFluids => 'الزيوت والسوائل';
+
+  @override
+  String get companyExpenseCategoryLicensesAndRenewals => 'التراخيص والتجديدات';
+
+  @override
+  String get companyExpenseCategoryOfficeExpenses => 'مصروفات المكتب';
+
+  @override
+  String get companyExpenseCategoryRent => 'الإيجار';
+
+  @override
+  String get companyExpenseCategorySalaries => 'الرواتب';
+
+  @override
+  String get companyExpenseCategoryAdminCosts => 'المصروفات الإدارية';
+
+  @override
+  String get companyExpenseCategoryFines => 'الغرامات';
+
+  @override
+  String get companyExpenseCategoryOther => 'أخرى';
+
+  @override
+  String get failureUnexpectedError => 'حدث خطأ غير متوقع.';
+
+  @override
+  String get failureServerError => 'حدث خطأ في الخادم.';
+
+  @override
+  String get failureValidationCompanyIdRequired => 'معرّف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyContextRequired => 'سياق الشركة مطلوب.';
+
+  @override
+  String get failureCompanyNotAvailable =>
+      'الشركة المحددة غير متاحة للمستخدم الحالي.';
+
+  @override
+  String get failurePermissionCompanyUsersView =>
+      'هذا الدور لا يمكنه عرض مستخدمي الشركة.';
+
+  @override
+  String get failurePermissionCustomersView =>
+      'لا يوجد صلاحية للوصول إلى العملاء.';
+
+  @override
+  String get failurePermissionCustomersManagement =>
+      'لا يوجد صلاحية لإدارة العملاء.';
+
+  @override
+  String get failureValidationCustomerIdRequired => 'معرّف العميل مطلوب.';
+
+  @override
+  String get failureValidationCustomerNameRequired => 'اسم العميل مطلوب.';
+
+  @override
+  String get failureValidationCreditLimitNegative =>
+      'حد الائتمان لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
+  String get failurePermissionDriversView =>
+      'لا يوجد صلاحية للوصول إلى السائقين.';
+
+  @override
+  String get failurePermissionDriversManagement =>
+      'لا يوجد صلاحية لإدارة السائقين.';
+
+  @override
+  String get failureValidationDriverIdRequired => 'معرّف السائق مطلوب.';
+
+  @override
+  String get failureValidationDriverNameRequired => 'اسم السائق مطلوب.';
+
+  @override
+  String get failurePermissionFleetManagement =>
+      'لا يوجد صلاحية لإدارة الأسطول.';
+
+  @override
+  String get failurePermissionFleetView => 'لا يوجد صلاحية للوصول إلى الأسطول.';
+
+  @override
+  String get failureValidationFleetPlateRequired => 'رقم اللوحة مطلوب.';
+
+  @override
+  String get failureValidationFleetFuelConsumptionNegative =>
+      'استهلاك الوقود المتوقع لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
+  String get failurePermissionRoutesManagement =>
+      'لا يوجد صلاحية لإدارة المسارات.';
+
+  @override
+  String get failurePermissionRoutesView =>
+      'لا يوجد صلاحية للوصول إلى المسارات.';
+
+  @override
+  String get failureValidationRouteLoadingLocationRequired =>
+      'مكان التحميل مطلوب.';
+
+  @override
+  String get failureValidationRouteUnloadingLocationRequired =>
+      'مكان التفريغ مطلوب.';
+
+  @override
+  String get failureValidationRouteFreightPriceNegative =>
+      'سعر النقل الافتراضي لا يمكن أن يكون رقمًا سالبًا.';
+
+  @override
+  String get failureValidationTripIdRequired => 'معرّف الرحلة مطلوب.';
+
+  @override
+  String get failurePermissionTripExpensesView =>
+      'لا يوجد صلاحية لعرض مصروفات الرحلة.';
+
+  @override
+  String get failurePermissionTripExpensesManagement =>
+      'لا يوجد صلاحية لإدارة مصروفات الرحلة.';
+
+  @override
+  String get failureValidationTripExpenseIdRequired =>
+      'معرّف مصروف الرحلة مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseTypeRequired => 'نوع المصروف مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseNameRequired => 'اسم المصروف مطلوب.';
+
+  @override
+  String get failureValidationTripExpenseAmountPositive =>
+      'مبلغ المصروف لازم يكون أكبر من صفر.';
+
+  @override
+  String get failurePermissionDriverFinanceView =>
+      'لا يوجد صلاحية لعرض الحركات المالية للسائق.';
+
+  @override
+  String get failurePermissionDriverFinanceManagement =>
+      'لا يوجد صلاحية لإدارة الحركات المالية للسائق.';
+
+  @override
+  String get failureValidationDriverFinanceAmountPositive =>
+      'مبلغ حركة السائق لازم يكون أكبر من صفر.';
+
+  @override
+  String get failurePermissionCompanyExpensesView =>
+      'لا يوجد صلاحية لعرض مصروفات الشركة.';
+
+  @override
+  String get failurePermissionCompanyExpensesManagement =>
+      'لا يوجد صلاحية لإدارة مصروفات الشركة.';
+
+  @override
+  String get failureValidationCompanyExpenseIdRequired =>
+      'معرّف مصروف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyExpenseCategoryRequired =>
+      'تصنيف مصروف الشركة مطلوب.';
+
+  @override
+  String get failureValidationCompanyExpenseAmountPositive =>
+      'مبلغ مصروف الشركة لازم يكون أكبر من صفر.';
+
+  @override
+  String get failureValidationAuditEntityIdRequired =>
+      'معرّف سجل المراجعة مطلوب.';
+
+  @override
+  String get failureValidationAuditDescriptionRequired =>
+      'وصف سجل المراجعة مطلوب.';
 
   @override
   String get unknownUser => 'مستخدم غير معروف';

@@ -26,7 +26,15 @@ class SaveTractorHeadParams {
   final DateTime? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
-  const SaveTractorHeadParams({required this.currentCompanyContext, this.id, required this.plateNumber, required this.status, this.licenseExpiryDate, this.expectedFuelConsumption, this.notes});
+  const SaveTractorHeadParams({
+    required this.currentCompanyContext,
+    this.id,
+    required this.plateNumber,
+    required this.status,
+    this.licenseExpiryDate,
+    this.expectedFuelConsumption,
+    this.notes,
+  });
 }
 
 class SaveTrailerParams {
@@ -36,52 +44,126 @@ class SaveTrailerParams {
   final VehicleStatus status;
   final DateTime? licenseExpiryDate;
   final String? technicalNotes;
-  const SaveTrailerParams({required this.currentCompanyContext, this.id, required this.plateNumber, required this.status, this.licenseExpiryDate, this.technicalNotes});
+  const SaveTrailerParams({
+    required this.currentCompanyContext,
+    this.id,
+    required this.plateNumber,
+    required this.status,
+    this.licenseExpiryDate,
+    this.technicalNotes,
+  });
 }
 
 class FleetAssetStatusParams {
   final CurrentCompanyContext currentCompanyContext;
   final String id;
-  const FleetAssetStatusParams({required this.currentCompanyContext, required this.id});
+  const FleetAssetStatusParams({
+    required this.currentCompanyContext,
+    required this.id,
+  });
 }
 
-class GetTractorHeadsUseCase implements UseCase<List<TractorHead>, GetFleetParams> {
+class GetTractorHeadsUseCase
+    implements UseCase<List<TractorHead>, GetFleetParams> {
   final FleetRepository _repository;
   const GetTractorHeadsUseCase(this._repository);
   @override
   Future<Result<List<TractorHead>>> call(GetFleetParams params) {
     final context = params.currentCompanyContext;
-    if (!FleetPermissionPolicy.canViewFleet(context.role)) return Future.value(const FailureResult<List<TractorHead>>(PermissionFailure(code: FailureCodes.permissionFleetView, message: 'Fleet access is not allowed.')));
+    if (!FleetPermissionPolicy.canViewFleet(context.role)) {
+      return Future.value(
+        const FailureResult<List<TractorHead>>(
+          PermissionFailure(
+            code: FailureCodes.permissionFleetView,
+            message: 'Fleet access is not allowed.',
+          ),
+        ),
+      );
+    }
     return _repository.getTractorHeads(companyId: context.companyId);
   }
 }
 
-class GetTrailersUseCase implements UseCase<List<TrailerEntity>, GetFleetParams> {
+class GetTrailersUseCase
+    implements UseCase<List<TrailerEntity>, GetFleetParams> {
   final FleetRepository _repository;
   const GetTrailersUseCase(this._repository);
   @override
   Future<Result<List<TrailerEntity>>> call(GetFleetParams params) {
     final context = params.currentCompanyContext;
-    if (!FleetPermissionPolicy.canViewFleet(context.role)) return Future.value(const FailureResult<List<TrailerEntity>>(PermissionFailure(code: FailureCodes.permissionFleetView, message: 'Fleet access is not allowed.')));
+    if (!FleetPermissionPolicy.canViewFleet(context.role)) {
+      return Future.value(
+        const FailureResult<List<TrailerEntity>>(
+          PermissionFailure(
+            code: FailureCodes.permissionFleetView,
+            message: 'Fleet access is not allowed.',
+          ),
+        ),
+      );
+    }
     return _repository.getTrailers(companyId: context.companyId);
   }
 }
 
-class SaveTractorHeadUseCase implements UseCase<TractorHead, SaveTractorHeadParams> {
+class SaveTractorHeadUseCase
+    implements UseCase<TractorHead, SaveTractorHeadParams> {
   final FleetRepository _repository;
   const SaveTractorHeadUseCase(this._repository);
   @override
   Future<Result<TractorHead>> call(SaveTractorHeadParams params) {
     final context = params.currentCompanyContext;
-    if (!FleetPermissionPolicy.canManageFleet(context.role)) return Future.value(const FailureResult<TractorHead>(PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.')));
+    if (!FleetPermissionPolicy.canManageFleet(context.role)) {
+      return Future.value(
+        const FailureResult<TractorHead>(
+          PermissionFailure(
+            code: FailureCodes.permissionFleetManagement,
+            message: 'Fleet management is not allowed.',
+          ),
+        ),
+      );
+    }
     final plateNumber = params.plateNumber.trim();
-    if (plateNumber.isEmpty) return Future.value(const FailureResult<TractorHead>(ValidationFailure(code: FailureCodes.validationFleetPlateRequired, message: 'Plate number is required.')));
+    if (plateNumber.isEmpty) {
+      return Future.value(
+        const FailureResult<TractorHead>(
+          ValidationFailure(
+            code: FailureCodes.validationFleetPlateRequired,
+            message: 'Plate number is required.',
+          ),
+        ),
+      );
+    }
     final fuel = params.expectedFuelConsumption;
-    if (fuel != null && fuel < 0) return Future.value(const FailureResult<TractorHead>(ValidationFailure(code: FailureCodes.validationFleetFuelConsumptionNegative, message: 'Expected fuel consumption is invalid.')));
-    final data = TractorHeadWriteData(companyId: context.companyId, plateNumber: plateNumber, status: params.status, licenseExpiryDate: params.licenseExpiryDate, expectedFuelConsumption: fuel, notes: _normalizeOptional(params.notes));
+    if (fuel != null && fuel < 0) {
+      return Future.value(
+        const FailureResult<TractorHead>(
+          ValidationFailure(
+            code: FailureCodes.validationFleetFuelConsumptionNegative,
+            message: 'Expected fuel consumption is invalid.',
+          ),
+        ),
+      );
+    }
+    final data = TractorHeadWriteData(
+      companyId: context.companyId,
+      plateNumber: plateNumber,
+      status: params.status,
+      licenseExpiryDate: params.licenseExpiryDate,
+      expectedFuelConsumption: fuel,
+      notes: _normalizeOptional(params.notes),
+    );
     final id = _normalizeOptional(params.id);
-    if (id == null) return _repository.addTractorHead(data: data, actorRole: context.role.value);
-    return _repository.saveTractorHead(id: id, data: data, actorRole: context.role.value);
+    if (id == null) {
+      return _repository.addTractorHead(
+        data: data,
+        actorRole: context.role.value,
+      );
+    }
+    return _repository.saveTractorHead(
+      id: id,
+      data: data,
+      actorRole: context.role.value,
+    );
   }
 }
 
@@ -91,54 +173,134 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
   @override
   Future<Result<TrailerEntity>> call(SaveTrailerParams params) {
     final context = params.currentCompanyContext;
-    if (!FleetPermissionPolicy.canManageFleet(context.role)) return Future.value(const FailureResult<TrailerEntity>(PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.')));
+    if (!FleetPermissionPolicy.canManageFleet(context.role)) {
+      return Future.value(
+        const FailureResult<TrailerEntity>(
+          PermissionFailure(
+            code: FailureCodes.permissionFleetManagement,
+            message: 'Fleet management is not allowed.',
+          ),
+        ),
+      );
+    }
     final plateNumber = params.plateNumber.trim();
-    if (plateNumber.isEmpty) return Future.value(const FailureResult<TrailerEntity>(ValidationFailure(code: FailureCodes.validationFleetPlateRequired, message: 'Plate number is required.')));
-    final data = TrailerWriteData(companyId: context.companyId, plateNumber: plateNumber, status: params.status, licenseExpiryDate: params.licenseExpiryDate, technicalNotes: _normalizeOptional(params.technicalNotes));
+    if (plateNumber.isEmpty) {
+      return Future.value(
+        const FailureResult<TrailerEntity>(
+          ValidationFailure(
+            code: FailureCodes.validationFleetPlateRequired,
+            message: 'Plate number is required.',
+          ),
+        ),
+      );
+    }
+    final data = TrailerWriteData(
+      companyId: context.companyId,
+      plateNumber: plateNumber,
+      status: params.status,
+      licenseExpiryDate: params.licenseExpiryDate,
+      technicalNotes: _normalizeOptional(params.technicalNotes),
+    );
     final id = _normalizeOptional(params.id);
-    if (id == null) return _repository.addTrailer(data: data, actorRole: context.role.value);
-    return _repository.editTrailer(id: id, data: data, actorRole: context.role.value);
+    if (id == null) {
+      return _repository.addTrailer(data: data, actorRole: context.role.value);
+    }
+    return _repository.editTrailer(
+      id: id,
+      data: data,
+      actorRole: context.role.value,
+    );
   }
 }
 
-class DeactivateTractorHeadUseCase implements UseCase<TractorHead, FleetAssetStatusParams> {
+class DeactivateTractorHeadUseCase
+    implements UseCase<TractorHead, FleetAssetStatusParams> {
   final FleetRepository _repository;
   const DeactivateTractorHeadUseCase(this._repository);
   @override
-  Future<Result<TractorHead>> call(FleetAssetStatusParams params) => _changeTractorHeadStatus(params, _repository.deactivateTractorHead);
+  Future<Result<TractorHead>> call(FleetAssetStatusParams params) =>
+      _changeTractorHeadStatus(params, _repository.deactivateTractorHead);
 }
 
-class ReactivateTractorHeadUseCase implements UseCase<TractorHead, FleetAssetStatusParams> {
+class ReactivateTractorHeadUseCase
+    implements UseCase<TractorHead, FleetAssetStatusParams> {
   final FleetRepository _repository;
   const ReactivateTractorHeadUseCase(this._repository);
   @override
-  Future<Result<TractorHead>> call(FleetAssetStatusParams params) => _changeTractorHeadStatus(params, _repository.reactivateTractorHead);
+  Future<Result<TractorHead>> call(FleetAssetStatusParams params) =>
+      _changeTractorHeadStatus(params, _repository.reactivateTractorHead);
 }
 
-class DeactivateTrailerUseCase implements UseCase<TrailerEntity, FleetAssetStatusParams> {
+class DeactivateTrailerUseCase
+    implements UseCase<TrailerEntity, FleetAssetStatusParams> {
   final FleetRepository _repository;
   const DeactivateTrailerUseCase(this._repository);
   @override
-  Future<Result<TrailerEntity>> call(FleetAssetStatusParams params) => _changeTrailerStatus(params, _repository.deactivateTrailer);
+  Future<Result<TrailerEntity>> call(FleetAssetStatusParams params) =>
+      _changeTrailerStatus(params, _repository.deactivateTrailer);
 }
 
-class ReactivateTrailerUseCase implements UseCase<TrailerEntity, FleetAssetStatusParams> {
+class ReactivateTrailerUseCase
+    implements UseCase<TrailerEntity, FleetAssetStatusParams> {
   final FleetRepository _repository;
   const ReactivateTrailerUseCase(this._repository);
   @override
-  Future<Result<TrailerEntity>> call(FleetAssetStatusParams params) => _changeTrailerStatus(params, _repository.reactivateTrailer);
+  Future<Result<TrailerEntity>> call(FleetAssetStatusParams params) =>
+      _changeTrailerStatus(params, _repository.reactivateTrailer);
 }
 
-Future<Result<TractorHead>> _changeTractorHeadStatus(FleetAssetStatusParams params, Future<Result<TractorHead>> Function({required String companyId, required String id, required String actorRole}) action) {
+Future<Result<TractorHead>> _changeTractorHeadStatus(
+  FleetAssetStatusParams params,
+  Future<Result<TractorHead>> Function({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  })
+  action,
+) {
   final context = params.currentCompanyContext;
-  if (!FleetPermissionPolicy.canManageFleet(context.role)) return Future.value(const FailureResult<TractorHead>(PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.')));
-  return action(companyId: context.companyId, id: params.id, actorRole: context.role.value);
+  if (!FleetPermissionPolicy.canManageFleet(context.role)) {
+    return Future.value(
+      const FailureResult<TractorHead>(
+        PermissionFailure(
+          code: FailureCodes.permissionFleetManagement,
+          message: 'Fleet management is not allowed.',
+        ),
+      ),
+    );
+  }
+  return action(
+    companyId: context.companyId,
+    id: params.id,
+    actorRole: context.role.value,
+  );
 }
 
-Future<Result<TrailerEntity>> _changeTrailerStatus(FleetAssetStatusParams params, Future<Result<TrailerEntity>> Function({required String companyId, required String id, required String actorRole}) action) {
+Future<Result<TrailerEntity>> _changeTrailerStatus(
+  FleetAssetStatusParams params,
+  Future<Result<TrailerEntity>> Function({
+    required String companyId,
+    required String id,
+    required String actorRole,
+  })
+  action,
+) {
   final context = params.currentCompanyContext;
-  if (!FleetPermissionPolicy.canManageFleet(context.role)) return Future.value(const FailureResult<TrailerEntity>(PermissionFailure(code: FailureCodes.permissionFleetManagement, message: 'Fleet management is not allowed.')));
-  return action(companyId: context.companyId, id: params.id, actorRole: context.role.value);
+  if (!FleetPermissionPolicy.canManageFleet(context.role)) {
+    return Future.value(
+      const FailureResult<TrailerEntity>(
+        PermissionFailure(
+          code: FailureCodes.permissionFleetManagement,
+          message: 'Fleet management is not allowed.',
+        ),
+      ),
+    );
+  }
+  return action(
+    companyId: context.companyId,
+    id: params.id,
+    actorRole: context.role.value,
+  );
 }
 
 String? _normalizeOptional(String? value) {

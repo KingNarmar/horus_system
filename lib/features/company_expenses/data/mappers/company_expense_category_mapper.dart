@@ -7,6 +7,7 @@ extension CompanyExpenseCategoryModelMapper on CompanyExpenseCategoryModel {
       id: id,
       companyId: companyId,
       name: name,
+      code: code,
       isActive: isActive,
       createdAt: createdAt,
       updatedAt: updatedAt,
