@@ -23,8 +23,11 @@ class CreateDriverSettlementDraftUseCase
   Future<Result<DriverSettlement>> call(
     CreateDriverSettlementDraftParams params,
   ) async {
-    final validation = DriverSettlementUseCaseValidation
-        .validateCalculationParams(params, requireManage: true);
+    final validation =
+        DriverSettlementUseCaseValidation.validateCalculationParams(
+          params,
+          requireManage: true,
+        );
     if (validation != null) return FailureResult(validation);
 
     final context = params.currentCompanyContext;
@@ -44,8 +47,8 @@ class CreateDriverSettlementDraftUseCase
       return FailureResult(snapshotResult.failure);
     }
 
-    final snapshot = snapshotResult.dataOrNull ??
-        const DriverSettlementSourceSnapshot();
+    final snapshot =
+        snapshotResult.dataOrNull ?? const DriverSettlementSourceSnapshot();
     final calculation = _calculator.calculate(
       DriverSettlementUseCaseValidation.calculationInput(
         params: params,

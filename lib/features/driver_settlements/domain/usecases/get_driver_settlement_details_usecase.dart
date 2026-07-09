@@ -15,7 +15,9 @@ class GetDriverSettlementDetailsUseCase
   const GetDriverSettlementDetailsUseCase(this._repository);
 
   @override
-  Future<Result<DriverSettlement>> call(GetDriverSettlementDetailsParams params) {
+  Future<Result<DriverSettlement>> call(
+    GetDriverSettlementDetailsParams params,
+  ) {
     final context = params.currentCompanyContext;
     if (!DriverSettlementsPermissionPolicy.canViewDriverSettlements(
       context.role,

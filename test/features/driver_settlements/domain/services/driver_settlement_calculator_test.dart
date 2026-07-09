@@ -31,21 +31,24 @@ void main() {
       expect(result.netSalaryPayable, 900);
     });
 
-    test('calculates company owed balance when driver paid more than advances', () {
-      final result = calculator.calculate(
-        const DriverSettlementCalculationInput(
-          advancesTotal: 100,
-          driverPaidTripExpensesTotal: 350,
-        ),
-      );
+    test(
+      'calculates company owed balance when driver paid more than advances',
+      () {
+        final result = calculator.calculate(
+          const DriverSettlementCalculationInput(
+            advancesTotal: 100,
+            driverPaidTripExpensesTotal: 350,
+          ),
+        );
 
-      expect(result.closingDriverBalance, -250);
-      expect(
-        result.balanceDirection,
-        DriverSettlementBalanceDirection.companyOwesDriver,
-      );
-      expect(result.balanceAmount, 250);
-    });
+        expect(result.closingDriverBalance, -250);
+        expect(
+          result.balanceDirection,
+          DriverSettlementBalanceDirection.companyOwesDriver,
+        );
+        expect(result.balanceAmount, 250);
+      },
+    );
 
     test('rounds money values to two decimals', () {
       final result = calculator.calculate(

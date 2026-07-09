@@ -4,14 +4,18 @@ abstract final class DriverSettlementsPermissionPolicy {
   static bool canViewDriverSettlements(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations || CompanyRole.viewer || CompanyRole.driver => false,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
     };
   }
 
   static bool canManageDriverSettlements(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations || CompanyRole.viewer || CompanyRole.driver => false,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
     };
   }
 

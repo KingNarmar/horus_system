@@ -29,7 +29,8 @@ void main() {
           sourceItems: [
             DriverSettlementItem(
               companyId: _companyId,
-              sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
+              sourceType:
+                  DriverSettlementItemSourceType.driverFinancialMovement,
               sourceId: 'movement-1',
               direction: DriverSettlementItemDirection.driverToCompany,
               amount: 300,
@@ -60,27 +61,30 @@ void main() {
       expect(repository.snapshotCalls, 1);
     });
 
-    test('blocks draft creation for non-finance roles before repository calls', () async {
-      final repository = _FakeDriverSettlementsRepository();
-      final useCase = CreateDriverSettlementDraftUseCase(repository);
+    test(
+      'blocks draft creation for non-finance roles before repository calls',
+      () async {
+        final repository = _FakeDriverSettlementsRepository();
+        final useCase = CreateDriverSettlementDraftUseCase(repository);
 
-      final result = await useCase(
-        CreateDriverSettlementDraftParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
-          driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
-        ),
-      );
+        final result = await useCase(
+          CreateDriverSettlementDraftParams(
+            currentCompanyContext: _context(CompanyRole.viewer),
+            driverId: _driverId,
+            periodStart: DateTime(2026, 7),
+            periodEnd: DateTime(2026, 7, 31),
+          ),
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.permissionDriverSettlementsManagement,
-      );
-      expect(repository.snapshotCalls, 0);
-      expect(repository.createDraftCalls, 0);
-    });
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.permissionDriverSettlementsManagement,
+        );
+        expect(repository.snapshotCalls, 0);
+        expect(repository.createDraftCalls, 0);
+      },
+    );
 
     test('rejects invalid settlement periods', () async {
       final repository = _FakeDriverSettlementsRepository();
@@ -202,7 +206,8 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     DriverSettlementDraftWriteData? data,
     DriverSettlementStatus status = DriverSettlementStatus.draft,
   }) {
-    final calculation = data?.calculation ??
+    final calculation =
+        data?.calculation ??
         const DriverSettlementCalculationResult(
           openingDriverBalance: 0,
           advancesTotal: 0,
@@ -221,7 +226,8 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
       id: 'settlement-1',
       companyId: data?.companyId ?? _companyId,
       driverId: data?.driverId ?? _driverId,
-      period: data?.period ??
+      period:
+          data?.period ??
           DriverSettlementPeriod(
             start: DateTime(2026, 7),
             end: DateTime(2026, 7, 31),

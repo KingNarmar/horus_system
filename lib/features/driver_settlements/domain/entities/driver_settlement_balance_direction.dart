@@ -1,5 +1,5 @@
 enum DriverSettlementBalanceDirection {
   companyOwesDriver,
   driverOwesCompany,
-  settled;
+  settled,
 }

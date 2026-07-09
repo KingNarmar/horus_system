@@ -46,7 +46,8 @@ class DriverSettlementCalculationParams {
   });
 }
 
-class CreateDriverSettlementDraftParams extends DriverSettlementCalculationParams {
+class CreateDriverSettlementDraftParams
+    extends DriverSettlementCalculationParams {
   const CreateDriverSettlementDraftParams({
     required super.currentCompanyContext,
     required super.driverId,
