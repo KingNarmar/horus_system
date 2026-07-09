@@ -11,11 +11,13 @@ import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
+import '../../domain/entities/company_expense_form_lookups.dart';
 import '../../domain/entities/company_expense_void_data.dart';
 import '../../domain/entities/company_expense_write_data.dart';
 import '../../domain/repositories/company_expenses_repository.dart';
 import '../datasources/company_expenses_remote_data_source.dart';
 import '../mappers/company_expense_category_mapper.dart';
+import '../mappers/company_expense_form_lookups_mapper.dart';
 import '../mappers/company_expense_mapper.dart';
 import '../models/company_expense_model.dart';
 
@@ -58,6 +60,16 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
         includeVoided: includeVoided,
       );
       return Success(models.map((model) => model.toEntity()).toList());
+    });
+  }
+
+  @override
+  Future<Result<CompanyExpenseFormLookups>> getFormLookups({
+    required String companyId,
+  }) {
+    return _guard(() async {
+      final model = await remoteDataSource.getFormLookups(companyId: companyId);
+      return Success(model.toEntity());
     });
   }
 
