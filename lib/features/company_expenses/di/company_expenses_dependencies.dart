@@ -34,6 +34,7 @@ abstract final class CompanyExpensesDependencies {
       addExpenseUseCase: createAddExpenseUseCase(repository),
       updateExpenseUseCase: createUpdateExpenseUseCase(repository),
       voidExpenseUseCase: createVoidExpenseUseCase(repository),
+      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
     );
   }
 
