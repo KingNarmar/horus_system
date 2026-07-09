@@ -5,7 +5,6 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/customer_status_filter.dart';
-import '../localization/customers_localizations_x.dart';
 
 class CustomersFilters extends StatelessWidget {
   final CustomerStatusFilter statusFilter;

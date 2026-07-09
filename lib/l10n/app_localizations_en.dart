@@ -389,6 +389,91 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get customerViewDetails => 'Details';
+
+  @override
+  String get customerBasicInfo => 'Basic information';
+
+  @override
+  String get customerAccountability => 'Accountability';
+
+  @override
+  String get customerActivityTimeline => 'Activity timeline';
+
+  @override
+  String get customerCreatedBy => 'Created by';
+
+  @override
+  String get customerCreatedRole => 'Created role';
+
+  @override
+  String get customerCreatedAt => 'Created at';
+
+  @override
+  String get customerLastActivityBy => 'Last activity by';
+
+  @override
+  String get customerLastActivityRole => 'Last activity role';
+
+  @override
+  String get customerLastActivityAt => 'Last activity at';
+
+  @override
+  String get customerLoadingActivity => 'Loading activity...';
+
+  @override
+  String get customerNoActivityFound => 'No activity found for this customer.';
+
+  @override
+  String get customerChanges => 'Changes';
+
+  @override
+  String get customerEmptyValue => 'Empty';
+
+  @override
+  String get customerUnknownUser => 'Unknown user';
+
+  @override
+  String get customerNotAvailable => 'Not available';
+
+  @override
+  String get customerConfirmDeactivateTitle => 'Confirm deactivation';
+
+  @override
+  String get customerConfirmReactivateTitle => 'Confirm reactivation';
+
+  @override
+  String get customerConfirmDeactivateMessage =>
+      'Do you want to deactivate this customer?';
+
+  @override
+  String get customerConfirmReactivateMessage =>
+      'Do you want to reactivate this customer?';
+
+  @override
+  String get customerSearchHintShort => 'Search customers';
+
+  @override
+  String customerDetailsTitle(String name) {
+    return 'Customer details: $name';
+  }
+
+  @override
+  String get customerAuditActionCreated => 'Created';
+
+  @override
+  String get customerAuditActionUpdated => 'Updated';
+
+  @override
+  String get customerAuditActionDeactivated => 'Deactivated';
+
+  @override
+  String get customerAuditActionReactivated => 'Reactivated';
+
+  @override
+  String get customerAuditActionStatusChanged => 'Status changed';
+
+  @override
   String get driversTitle => 'Drivers';
 
   @override

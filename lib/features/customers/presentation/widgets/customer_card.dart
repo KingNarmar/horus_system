@@ -5,7 +5,6 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/customer.dart';
-import '../localization/customers_localizations_x.dart';
 
 class CustomerCard extends StatelessWidget {
   final Customer customer;
@@ -38,16 +37,21 @@ class CustomerCard extends StatelessWidget {
           children: [
             Text(
               customer.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.sm),
-            if (customer.contactPerson != null) Text(l10n.contactPersonLine(customer.contactPerson!)),
+            if (customer.contactPerson != null)
+              Text(l10n.contactPersonLine(customer.contactPerson!)),
             if (customer.phone != null) Text(l10n.phoneLine(customer.phone!)),
             if (customer.email != null) Text(l10n.emailLine(customer.email!)),
             if (customer.city != null) Text(l10n.cityLine(customer.city!)),
-            Text(l10n.statusLine(customer.isActive ? l10n.activeStatus : l10n.inactiveStatus)),
+            Text(
+              l10n.statusLine(
+                customer.isActive ? l10n.activeStatus : l10n.inactiveStatus,
+              ),
+            ),
             const SizedBox(height: AppSpacing.md),
             Wrap(
               spacing: AppSpacing.sm,
@@ -60,20 +64,32 @@ class CustomerCard extends StatelessWidget {
                 ),
                 if (canManageCustomers) ...[
                   OutlinedButton.icon(
-                    onPressed: isActionInProgress ? null : () => onEdit(customer),
+                    onPressed: isActionInProgress
+                        ? null
+                        : () => onEdit(customer),
                     icon: const Icon(AppIcons.edit),
                     label: Text(l10n.editCustomerButton),
                   ),
                   if (customer.isActive)
                     OutlinedButton.icon(
-                      onPressed: isActionInProgress ? null : () => onDeactivate(customer),
-                      icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.deactivate),
+                      onPressed: isActionInProgress
+                          ? null
+                          : () => onDeactivate(customer),
+                      icon: _ActionIcon(
+                        isLoading: isActionInProgress,
+                        icon: AppIcons.deactivate,
+                      ),
                       label: Text(l10n.deactivateCustomerButton),
                     )
                   else
                     OutlinedButton.icon(
-                      onPressed: isActionInProgress ? null : () => onReactivate(customer),
-                      icon: _ActionIcon(isLoading: isActionInProgress, icon: AppIcons.reactivate),
+                      onPressed: isActionInProgress
+                          ? null
+                          : () => onReactivate(customer),
+                      icon: _ActionIcon(
+                        isLoading: isActionInProgress,
+                        icon: AppIcons.reactivate,
+                      ),
                       label: Text(l10n.reactivateCustomerButton),
                     ),
                 ],

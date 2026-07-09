@@ -776,6 +776,168 @@ abstract class AppLocalizations {
   /// **'City: {city}'**
   String cityLine(String city);
 
+  /// No description provided for @customerViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get customerViewDetails;
+
+  /// No description provided for @customerBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get customerBasicInfo;
+
+  /// No description provided for @customerAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get customerAccountability;
+
+  /// No description provided for @customerActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get customerActivityTimeline;
+
+  /// No description provided for @customerCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get customerCreatedBy;
+
+  /// No description provided for @customerCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get customerCreatedRole;
+
+  /// No description provided for @customerCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get customerCreatedAt;
+
+  /// No description provided for @customerLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get customerLastActivityBy;
+
+  /// No description provided for @customerLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get customerLastActivityRole;
+
+  /// No description provided for @customerLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get customerLastActivityAt;
+
+  /// No description provided for @customerLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get customerLoadingActivity;
+
+  /// No description provided for @customerNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity found for this customer.'**
+  String get customerNoActivityFound;
+
+  /// No description provided for @customerChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get customerChanges;
+
+  /// No description provided for @customerEmptyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get customerEmptyValue;
+
+  /// No description provided for @customerUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get customerUnknownUser;
+
+  /// No description provided for @customerNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get customerNotAvailable;
+
+  /// No description provided for @customerConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deactivation'**
+  String get customerConfirmDeactivateTitle;
+
+  /// No description provided for @customerConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm reactivation'**
+  String get customerConfirmReactivateTitle;
+
+  /// No description provided for @customerConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this customer?'**
+  String get customerConfirmDeactivateMessage;
+
+  /// No description provided for @customerConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this customer?'**
+  String get customerConfirmReactivateMessage;
+
+  /// No description provided for @customerSearchHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customers'**
+  String get customerSearchHintShort;
+
+  /// No description provided for @customerDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details: {name}'**
+  String customerDetailsTitle(String name);
+
+  /// No description provided for @customerAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get customerAuditActionCreated;
+
+  /// No description provided for @customerAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get customerAuditActionUpdated;
+
+  /// No description provided for @customerAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get customerAuditActionDeactivated;
+
+  /// No description provided for @customerAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get customerAuditActionReactivated;
+
+  /// No description provided for @customerAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get customerAuditActionStatusChanged;
+
   /// No description provided for @driversTitle.
   ///
   /// In en, this message translates to:

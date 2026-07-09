@@ -384,6 +384,91 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get customerViewDetails => 'التفاصيل';
+
+  @override
+  String get customerBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get customerAccountability => 'المسؤولية والمتابعة';
+
+  @override
+  String get customerActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get customerCreatedBy => 'أنشأه';
+
+  @override
+  String get customerCreatedRole => 'دور المنشئ';
+
+  @override
+  String get customerCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get customerLastActivityBy => 'آخر إجراء بواسطة';
+
+  @override
+  String get customerLastActivityRole => 'دور آخر مستخدم';
+
+  @override
+  String get customerLastActivityAt => 'وقت آخر إجراء';
+
+  @override
+  String get customerLoadingActivity => 'جاري تحميل سجل النشاط...';
+
+  @override
+  String get customerNoActivityFound => 'لا يوجد نشاط مسجل لهذا العميل.';
+
+  @override
+  String get customerChanges => 'التغييرات';
+
+  @override
+  String get customerEmptyValue => 'فارغ';
+
+  @override
+  String get customerUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get customerNotAvailable => 'غير متاح';
+
+  @override
+  String get customerConfirmDeactivateTitle => 'تأكيد إلغاء التفعيل';
+
+  @override
+  String get customerConfirmReactivateTitle => 'تأكيد إعادة التفعيل';
+
+  @override
+  String get customerConfirmDeactivateMessage =>
+      'هل تريد إلغاء تفعيل هذا العميل؟';
+
+  @override
+  String get customerConfirmReactivateMessage =>
+      'هل تريد إعادة تفعيل هذا العميل؟';
+
+  @override
+  String get customerSearchHintShort => 'ابحث في العملاء';
+
+  @override
+  String customerDetailsTitle(String name) {
+    return 'تفاصيل $name';
+  }
+
+  @override
+  String get customerAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get customerAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get customerAuditActionDeactivated => 'تم التعطيل';
+
+  @override
+  String get customerAuditActionReactivated => 'تم التفعيل';
+
+  @override
+  String get customerAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
   String get driversTitle => 'السائقون';
 
   @override
