@@ -569,6 +569,118 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get fleetTitle => 'الأسطول';
+
+  @override
+  String get tractorHeadsTab => 'رؤوس الجر';
+
+  @override
+  String get trailersTab => 'المقطورات';
+
+  @override
+  String get addTractorHeadButton => 'إضافة رأس جر';
+
+  @override
+  String get addTrailerButton => 'إضافة مقطورة';
+
+  @override
+  String get editTractorHeadTitle => 'تعديل رأس جر';
+
+  @override
+  String get editTrailerTitle => 'تعديل مقطورة';
+
+  @override
+  String get plateNumberLabel => 'رقم اللوحة';
+
+  @override
+  String get plateNumberRequired => 'رقم اللوحة مطلوب.';
+
+  @override
+  String get vehicleStatusLabel => 'حالة المركبة';
+
+  @override
+  String get vehicleLicenseExpiryDateLabel => 'تاريخ انتهاء الترخيص';
+
+  @override
+  String get expectedFuelConsumptionLabel => 'استهلاك الوقود المتوقع';
+
+  @override
+  String get expectedFuelConsumptionInvalid => 'أدخل رقم صحيح غير سالب.';
+
+  @override
+  String get vehicleNotesLabel => 'ملاحظات';
+
+  @override
+  String get technicalNotesLabel => 'ملاحظات فنية';
+
+  @override
+  String get searchFleetHint => 'ابحث برقم اللوحة أو الحالة أو الملاحظات';
+
+  @override
+  String get fleetStatusAllFilter => 'الكل';
+
+  @override
+  String get fleetStatusActiveFilter => 'النشط';
+
+  @override
+  String get fleetStatusInactiveFilter => 'غير النشط';
+
+  @override
+  String get noTractorHeadsFound => 'لا توجد رؤوس جر.';
+
+  @override
+  String get noTrailersFound => 'لا توجد مقطورات.';
+
+  @override
+  String get noFleetMatchFilters =>
+      'لا توجد أصول مطابقة للبحث أو الفلتر الحالي.';
+
+  @override
+  String get fleetEditButton => 'تعديل';
+
+  @override
+  String get fleetDeactivateButton => 'إلغاء التفعيل';
+
+  @override
+  String get fleetReactivateButton => 'إعادة التفعيل';
+
+  @override
+  String get fleetDetailsButton => 'التفاصيل';
+
+  @override
+  String get fleetConfirmDeactivateTitle => 'تأكيد إلغاء التفعيل';
+
+  @override
+  String get fleetConfirmReactivateTitle => 'تأكيد إعادة التفعيل';
+
+  @override
+  String get fleetConfirmDeactivateMessage => 'هل تريد إلغاء تفعيل هذا الأصل؟';
+
+  @override
+  String get fleetConfirmReactivateMessage => 'هل تريد إعادة تفعيل هذا الأصل؟';
+
+  @override
+  String get vehicleStatusAvailable => 'متاح';
+
+  @override
+  String get vehicleStatusOnTrip => 'في رحلة';
+
+  @override
+  String get vehicleStatusLoading => 'تحميل';
+
+  @override
+  String get vehicleStatusUnloading => 'تفريغ';
+
+  @override
+  String get vehicleStatusMaintenance => 'صيانة';
+
+  @override
+  String get vehicleStatusStopped => 'متوقف';
+
+  @override
+  String get vehicleStatusInactive => 'غير نشط';
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override

@@ -576,6 +576,121 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get fleetTitle => 'Fleet';
+
+  @override
+  String get tractorHeadsTab => 'Tractor heads';
+
+  @override
+  String get trailersTab => 'Trailers';
+
+  @override
+  String get addTractorHeadButton => 'Add tractor head';
+
+  @override
+  String get addTrailerButton => 'Add trailer';
+
+  @override
+  String get editTractorHeadTitle => 'Edit tractor head';
+
+  @override
+  String get editTrailerTitle => 'Edit trailer';
+
+  @override
+  String get plateNumberLabel => 'Plate number';
+
+  @override
+  String get plateNumberRequired => 'Plate number is required.';
+
+  @override
+  String get vehicleStatusLabel => 'Vehicle status';
+
+  @override
+  String get vehicleLicenseExpiryDateLabel => 'License expiry date';
+
+  @override
+  String get expectedFuelConsumptionLabel => 'Expected fuel consumption';
+
+  @override
+  String get expectedFuelConsumptionInvalid =>
+      'Enter a valid non-negative number.';
+
+  @override
+  String get vehicleNotesLabel => 'Notes';
+
+  @override
+  String get technicalNotesLabel => 'Technical notes';
+
+  @override
+  String get searchFleetHint => 'Search by plate, status, or notes';
+
+  @override
+  String get fleetStatusAllFilter => 'All';
+
+  @override
+  String get fleetStatusActiveFilter => 'Active';
+
+  @override
+  String get fleetStatusInactiveFilter => 'Inactive';
+
+  @override
+  String get noTractorHeadsFound => 'No tractor heads found.';
+
+  @override
+  String get noTrailersFound => 'No trailers found.';
+
+  @override
+  String get noFleetMatchFilters =>
+      'No fleet assets match the current search or filter.';
+
+  @override
+  String get fleetEditButton => 'Edit';
+
+  @override
+  String get fleetDeactivateButton => 'Deactivate';
+
+  @override
+  String get fleetReactivateButton => 'Reactivate';
+
+  @override
+  String get fleetDetailsButton => 'Details';
+
+  @override
+  String get fleetConfirmDeactivateTitle => 'Confirm deactivation';
+
+  @override
+  String get fleetConfirmReactivateTitle => 'Confirm reactivation';
+
+  @override
+  String get fleetConfirmDeactivateMessage =>
+      'Do you want to deactivate this asset?';
+
+  @override
+  String get fleetConfirmReactivateMessage =>
+      'Do you want to reactivate this asset?';
+
+  @override
+  String get vehicleStatusAvailable => 'Available';
+
+  @override
+  String get vehicleStatusOnTrip => 'On trip';
+
+  @override
+  String get vehicleStatusLoading => 'Loading';
+
+  @override
+  String get vehicleStatusUnloading => 'Unloading';
+
+  @override
+  String get vehicleStatusMaintenance => 'Maintenance';
+
+  @override
+  String get vehicleStatusStopped => 'Stopped';
+
+  @override
+  String get vehicleStatusInactive => 'Inactive';
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override

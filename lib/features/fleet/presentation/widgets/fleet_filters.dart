@@ -6,7 +6,6 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/vehicle_status_filter.dart';
 import '../cubit/fleet_state.dart';
-import '../localization/fleet_localizations_x.dart';
 
 class FleetFilters extends StatelessWidget {
   final FleetAssetTab selectedTab;
@@ -32,8 +31,16 @@ class FleetFilters extends StatelessWidget {
       children: [
         SegmentedButton<FleetAssetTab>(
           segments: [
-            ButtonSegment(value: FleetAssetTab.tractorHeads, label: Text(l10n.tractorHeadsTab), icon: const Icon(AppIcons.fleet)),
-            ButtonSegment(value: FleetAssetTab.trailers, label: Text(l10n.trailersTab), icon: const Icon(AppIcons.fleetSelected)),
+            ButtonSegment(
+              value: FleetAssetTab.tractorHeads,
+              label: Text(l10n.tractorHeadsTab),
+              icon: const Icon(AppIcons.fleet),
+            ),
+            ButtonSegment(
+              value: FleetAssetTab.trailers,
+              label: Text(l10n.trailersTab),
+              icon: const Icon(AppIcons.fleetSelected),
+            ),
           ],
           selected: {selectedTab},
           onSelectionChanged: (selected) => onTabChanged(selected.first),
@@ -45,7 +52,9 @@ class FleetFilters extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppSizes.searchFieldMaxWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.searchFieldMaxWidth,
+              ),
               child: TextField(
                 onChanged: onSearchChanged,
                 decoration: InputDecoration(
@@ -57,12 +66,22 @@ class FleetFilters extends StatelessWidget {
             ),
             SegmentedButton<VehicleStatusFilter>(
               segments: [
-                ButtonSegment(value: VehicleStatusFilter.all, label: Text(l10n.fleetStatusAllFilter)),
-                ButtonSegment(value: VehicleStatusFilter.active, label: Text(l10n.fleetStatusActiveFilter)),
-                ButtonSegment(value: VehicleStatusFilter.inactive, label: Text(l10n.fleetStatusInactiveFilter)),
+                ButtonSegment(
+                  value: VehicleStatusFilter.all,
+                  label: Text(l10n.fleetStatusAllFilter),
+                ),
+                ButtonSegment(
+                  value: VehicleStatusFilter.active,
+                  label: Text(l10n.fleetStatusActiveFilter),
+                ),
+                ButtonSegment(
+                  value: VehicleStatusFilter.inactive,
+                  label: Text(l10n.fleetStatusInactiveFilter),
+                ),
               ],
               selected: {statusFilter},
-              onSelectionChanged: (selected) => onStatusFilterChanged(selected.first),
+              onSelectionChanged: (selected) =>
+                  onStatusFilterChanged(selected.first),
             ),
           ],
         ),

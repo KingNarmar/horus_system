@@ -1124,6 +1124,228 @@ abstract class AppLocalizations {
   /// **'{label}: from {oldValue} to {newValue}'**
   String routeAuditChangeLine(String label, String oldValue, String newValue);
 
+  /// No description provided for @fleetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get fleetTitle;
+
+  /// No description provided for @tractorHeadsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractor heads'**
+  String get tractorHeadsTab;
+
+  /// No description provided for @trailersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailers'**
+  String get trailersTab;
+
+  /// No description provided for @addTractorHeadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tractor head'**
+  String get addTractorHeadButton;
+
+  /// No description provided for @addTrailerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trailer'**
+  String get addTrailerButton;
+
+  /// No description provided for @editTractorHeadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit tractor head'**
+  String get editTractorHeadTitle;
+
+  /// No description provided for @editTrailerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trailer'**
+  String get editTrailerTitle;
+
+  /// No description provided for @plateNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number'**
+  String get plateNumberLabel;
+
+  /// No description provided for @plateNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number is required.'**
+  String get plateNumberRequired;
+
+  /// No description provided for @vehicleStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle status'**
+  String get vehicleStatusLabel;
+
+  /// No description provided for @vehicleLicenseExpiryDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date'**
+  String get vehicleLicenseExpiryDateLabel;
+
+  /// No description provided for @expectedFuelConsumptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected fuel consumption'**
+  String get expectedFuelConsumptionLabel;
+
+  /// No description provided for @expectedFuelConsumptionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number.'**
+  String get expectedFuelConsumptionInvalid;
+
+  /// No description provided for @vehicleNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get vehicleNotesLabel;
+
+  /// No description provided for @technicalNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical notes'**
+  String get technicalNotesLabel;
+
+  /// No description provided for @searchFleetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by plate, status, or notes'**
+  String get searchFleetHint;
+
+  /// No description provided for @fleetStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get fleetStatusAllFilter;
+
+  /// No description provided for @fleetStatusActiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get fleetStatusActiveFilter;
+
+  /// No description provided for @fleetStatusInactiveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get fleetStatusInactiveFilter;
+
+  /// No description provided for @noTractorHeadsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tractor heads found.'**
+  String get noTractorHeadsFound;
+
+  /// No description provided for @noTrailersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No trailers found.'**
+  String get noTrailersFound;
+
+  /// No description provided for @noFleetMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No fleet assets match the current search or filter.'**
+  String get noFleetMatchFilters;
+
+  /// No description provided for @fleetEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get fleetEditButton;
+
+  /// No description provided for @fleetDeactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get fleetDeactivateButton;
+
+  /// No description provided for @fleetReactivateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get fleetReactivateButton;
+
+  /// No description provided for @fleetDetailsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get fleetDetailsButton;
+
+  /// No description provided for @fleetConfirmDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deactivation'**
+  String get fleetConfirmDeactivateTitle;
+
+  /// No description provided for @fleetConfirmReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm reactivation'**
+  String get fleetConfirmReactivateTitle;
+
+  /// No description provided for @fleetConfirmDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to deactivate this asset?'**
+  String get fleetConfirmDeactivateMessage;
+
+  /// No description provided for @fleetConfirmReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to reactivate this asset?'**
+  String get fleetConfirmReactivateMessage;
+
+  /// No description provided for @vehicleStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get vehicleStatusAvailable;
+
+  /// No description provided for @vehicleStatusOnTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'On trip'**
+  String get vehicleStatusOnTrip;
+
+  /// No description provided for @vehicleStatusLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get vehicleStatusLoading;
+
+  /// No description provided for @vehicleStatusUnloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading'**
+  String get vehicleStatusUnloading;
+
+  /// No description provided for @vehicleStatusMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get vehicleStatusMaintenance;
+
+  /// No description provided for @vehicleStatusStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get vehicleStatusStopped;
+
+  /// No description provided for @vehicleStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get vehicleStatusInactive;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:
