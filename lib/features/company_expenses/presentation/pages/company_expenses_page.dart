@@ -37,6 +37,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
       context: context,
       builder: (_) => CompanyExpenseFormDialog(
         categories: state.categories,
+        formLookups: state.formLookups,
         expense: expense,
         onSubmit: (data) {
           final cubit = context.read<CompanyExpensesCubit>();
@@ -45,6 +46,10 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
               categoryId: data.categoryId,
               amount: data.amount,
               expenseDate: data.expenseDate,
+              driverId: data.driverId,
+              tractorHeadId: data.tractorHeadId,
+              trailerId: data.trailerId,
+              tripId: data.tripId,
               referenceNumber: data.referenceNumber,
               notes: data.notes,
             );
@@ -54,6 +59,10 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
             categoryId: data.categoryId,
             amount: data.amount,
             expenseDate: data.expenseDate,
+            driverId: data.driverId,
+            tractorHeadId: data.tractorHeadId,
+            trailerId: data.trailerId,
+            tripId: data.tripId,
             referenceNumber: data.referenceNumber,
             notes: data.notes,
           );
