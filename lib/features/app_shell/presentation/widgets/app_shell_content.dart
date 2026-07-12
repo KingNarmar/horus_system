@@ -17,6 +17,9 @@ import '../../../company_expenses/di/company_expenses_dependencies.dart';
 import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
 import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
+import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
+import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
+import '../../../driver_settlements/presentation/pages/driver_settlements_page.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
@@ -81,6 +84,11 @@ class AppShellContent extends StatelessWidget {
         create: (_) => CompanyExpensesDependencies.createCubit(),
         child: CompanyExpensesPage(currentCompanyContext: contextData),
       ),
+      AppShellModule.driverSettlements =>
+        BlocProvider<DriverSettlementsCubit>(
+          create: (_) => DriverSettlementsDependencies.createCubit(),
+          child: DriverSettlementsPage(currentCompanyContext: contextData),
+        ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };
