@@ -65,7 +65,9 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
       'driver_settlement_item_trip_expense' => strings.itemTripExpense,
       _ => switch (item.sourceType) {
         DriverSettlementItemSourceType.driverFinancialMovement =>
-          strings.itemDeduction,
+          item.direction == DriverSettlementItemDirection.driverToCompany
+              ? strings.itemAdvance
+              : strings.itemDeduction,
         DriverSettlementItemSourceType.tripExpense => strings.itemTripExpense,
         DriverSettlementItemSourceType.manualAdjustment =>
           strings.itemManualAdjustment,
@@ -92,7 +94,11 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
       'driver_settlement_created' => strings.auditCreated,
       'driver_settlement_finalized' => strings.auditFinalized,
       'driver_settlement_voided' => strings.auditVoided,
-      _ => log.description,
+      _ => switch (log.metadata?['status']?.toString()) {
+        'finalized' => strings.auditFinalized,
+        'voided' => strings.auditVoided,
+        _ => strings.auditCreated,
+      },
     };
   }
 
