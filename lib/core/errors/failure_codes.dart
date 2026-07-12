@@ -36,6 +36,10 @@ class FailureCodes {
       'permission_company_expenses_management';
   static const String permissionCompanyExpensesView =
       'permission_company_expenses_view';
+  static const String permissionDriverSettlementsManagement =
+      'permission_driver_settlements_management';
+  static const String permissionDriverSettlementsView =
+      'permission_driver_settlements_view';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -99,6 +103,16 @@ class FailureCodes {
       'validation_company_expense_category_required';
   static const String validationCompanyExpenseAmountPositive =
       'validation_company_expense_amount_positive';
+  static const String validationDriverSettlementIdRequired =
+      'validation_driver_settlement_id_required';
+  static const String validationDriverSettlementPeriodInvalid =
+      'validation_driver_settlement_period_invalid';
+  static const String validationDriverSettlementAmountNegative =
+      'validation_driver_settlement_amount_negative';
+  static const String validationDriverSettlementNetSalaryNegative =
+      'validation_driver_settlement_net_salary_negative';
+  static const String validationDriverSettlementVoidReasonRequired =
+      'validation_driver_settlement_void_reason_required';
 
   // Conflicts
   static const String conflictTripVehicleAlreadyOpen =
