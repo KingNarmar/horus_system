@@ -1,7 +1,6 @@
 part of 'driver_settlements_cubit.dart';
 
 mixin DriverSettlementsFilterActions on Cubit<DriverSettlementsState> {
-  GetDriverSettlementsUseCase get getDriverSettlementsUseCase;
   CurrentCompanyContext? get filterCompanyContext;
 
   void setSearchQuery(String query) {
@@ -28,6 +27,7 @@ mixin DriverSettlementsFilterActions on Cubit<DriverSettlementsState> {
   Future<void> setIncludeVoided(bool includeVoided) async {
     final currentState = state;
     if (currentState is! DriverSettlementsLoaded) return;
+
     emit(
       currentState.copyWith(
         includeVoided: includeVoided,
@@ -43,7 +43,8 @@ mixin DriverSettlementsFilterActions on Cubit<DriverSettlementsState> {
     final context = filterCompanyContext;
     if (currentState is! DriverSettlementsLoaded || context == null) return;
 
-    final result = await getDriverSettlementsUseCase(
+    final owner = this as DriverSettlementsCubit;
+    final result = await owner.getDriverSettlementsUseCase(
       GetDriverSettlementsParams(
         currentCompanyContext: context,
         includeVoided: currentState.includeVoided,
