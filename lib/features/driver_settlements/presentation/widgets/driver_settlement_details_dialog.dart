@@ -36,26 +36,12 @@ class DriverSettlementDetailsDialog extends StatelessWidget {
       title: Text(strings.details),
       content: SizedBox(
         width: AppSizes.detailsDialogMaxWidth,
-        child: settlement == null || state.isDetailsLoading
-            ? const Center(child: CircularProgressIndicator())
-            : state.detailsFailure != null
-            ? _DetailsFailure(
-                message: context.localizedDriverSettlementFailure(
-                  state.detailsFailure!,
-                ),
-                onRetry: onRetry,
-              )
-            : SingleChildScrollView(
-                child: _DetailsContent(state: state, settlement: settlement),
-              ),
+        child: _buildContent(context, settlement),
       ),
       actions: [
-        if (settlement != null &&
-            !state.isDetailsLoading &&
-            state.canManageDriverSettlements &&
-            settlement.status == DriverSettlementStatus.draft)
+        if (_canFinalize(settlement))
           FilledButton(
-            onPressed: state.isPending(settlement.id)
+            onPressed: state.isPending(settlement!.id)
                 ? null
                 : () => onFinalize(settlement),
             child: Text(
@@ -64,16 +50,15 @@ class DriverSettlementDetailsDialog extends StatelessWidget {
                   : strings.finalize,
             ),
           ),
-        if (settlement != null &&
-            !state.isDetailsLoading &&
-            state.canManageDriverSettlements &&
-            settlement.status != DriverSettlementStatus.voided)
+        if (_canVoid(settlement))
           OutlinedButton(
-            onPressed: state.isPending(settlement.id)
+            onPressed: state.isPending(settlement!.id)
                 ? null
                 : () => onVoid(settlement),
             child: Text(
-              state.isPending(settlement.id) ? strings.voiding : strings.void,
+              state.isPending(settlement.id)
+                  ? strings.voiding
+                  : strings.voidAction,
             ),
           ),
         TextButton(
@@ -85,13 +70,51 @@ class DriverSettlementDetailsDialog extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildContent(
+    BuildContext context,
+    DriverSettlement? settlement,
+  ) {
+    if (settlement == null || state.isDetailsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final failure = state.detailsFailure;
+    if (failure != null) {
+      return _DetailsFailure(
+        message: context.localizedDriverSettlementFailure(failure),
+        onRetry: onRetry,
+      );
+    }
+
+    return SingleChildScrollView(
+      child: _DetailsContent(state: state, settlement: settlement),
+    );
+  }
+
+  bool _canFinalize(DriverSettlement? settlement) {
+    return settlement != null &&
+        !state.isDetailsLoading &&
+        state.canManageDriverSettlements &&
+        settlement.status == DriverSettlementStatus.draft;
+  }
+
+  bool _canVoid(DriverSettlement? settlement) {
+    return settlement != null &&
+        !state.isDetailsLoading &&
+        state.canManageDriverSettlements &&
+        settlement.status != DriverSettlementStatus.voided;
+  }
 }
 
 class _DetailsContent extends StatelessWidget {
   final DriverSettlementsLoaded state;
   final DriverSettlement settlement;
 
-  const _DetailsContent({required this.state, required this.settlement});
+  const _DetailsContent({
+    required this.state,
+    required this.settlement,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +141,10 @@ class _DetailsContent extends StatelessWidget {
                 settlement.period.start,
                 localeName,
               ),
-              formatDriverSettlementDate(settlement.period.end, localeName),
+              formatDriverSettlementDate(
+                settlement.period.end,
+                localeName,
+              ),
             ),
           ),
         ),
@@ -129,40 +155,29 @@ class _DetailsContent extends StatelessWidget {
           ),
         ),
         if (settlement.createdAt != null)
-          Text(
-            strings.labelValue(
-              strings.createdAt,
-              formatDriverSettlementDateTime(
-                settlement.createdAt!,
-                localeName,
-              ),
-            ),
+          _DateTimeLine(
+            label: strings.createdAt,
+            value: settlement.createdAt!,
           ),
         if (settlement.finalizedAt != null)
-          Text(
-            strings.labelValue(
-              strings.finalizedAt,
-              formatDriverSettlementDateTime(
-                settlement.finalizedAt!,
-                localeName,
-              ),
-            ),
+          _DateTimeLine(
+            label: strings.finalizedAt,
+            value: settlement.finalizedAt!,
           ),
         if (settlement.voidedAt != null)
-          Text(
-            strings.labelValue(
-              strings.voidedAt,
-              formatDriverSettlementDateTime(
-                settlement.voidedAt!,
-                localeName,
-              ),
-            ),
+          _DateTimeLine(
+            label: strings.voidedAt,
+            value: settlement.voidedAt!,
           ),
         if (settlement.voidReason != null)
           Text(
-            strings.labelValue(strings.voidReason, settlement.voidReason!),
+            strings.labelValue(
+              strings.voidReason,
+              settlement.voidReason!,
+            ),
           ),
-        if (settlement.notes != null && settlement.notes!.trim().isNotEmpty) ...[
+        if (settlement.notes != null &&
+            settlement.notes!.trim().isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(strings.labelValue(strings.notes, settlement.notes!)),
         ],
@@ -177,11 +192,37 @@ class _DetailsContent extends StatelessWidget {
         if (state.mutationFailure != null) ...[
           const SizedBox(height: AppSpacing.md),
           Text(
-            context.localizedDriverSettlementFailure(state.mutationFailure!),
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            context.localizedDriverSettlementFailure(
+              state.mutationFailure!,
+            ),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ],
       ],
+    );
+  }
+}
+
+class _DateTimeLine extends StatelessWidget {
+  final String label;
+  final DateTime value;
+
+  const _DateTimeLine({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = context.driverSettlementsL10n;
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    return Text(
+      strings.labelValue(
+        label,
+        formatDriverSettlementDateTime(value, localeName),
+      ),
     );
   }
 }
@@ -194,6 +235,7 @@ class _SettlementActivity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = context.driverSettlementsL10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -208,8 +250,12 @@ class _SettlementActivity extends StatelessWidget {
           Text(strings.loadingActivity)
         else if (state.activityFailure != null)
           Text(
-            context.localizedDriverSettlementFailure(state.activityFailure!),
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            context.localizedDriverSettlementFailure(
+              state.activityFailure!,
+            ),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+            ),
           )
         else if (state.selectedSettlementActivity.isEmpty)
           Text(strings.noActivity)
@@ -254,7 +300,10 @@ class _DetailsFailure extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _DetailsFailure({required this.message, required this.onRetry});
+  const _DetailsFailure({
+    required this.message,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
