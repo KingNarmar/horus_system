@@ -65,7 +65,15 @@ class DriverSettlementsStateView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final settlements = currentState.settlements;
+    final settlements = currentState.filteredSettlements(
+      statusSearchTerms: {
+        for (final status in DriverSettlementStatus.values)
+          status: [
+            status.value,
+            context.driverSettlementStatusLabel(status),
+          ],
+      },
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
