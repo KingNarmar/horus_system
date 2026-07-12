@@ -6,6 +6,7 @@ import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_write_data.dart';
 import '../constants/driver_settlements_db_fields.dart';
 import '../mappers/driver_settlement_mapper.dart';
+import '../models/driver_settlement_driver_option_model.dart';
 import '../models/driver_settlement_item_model.dart';
 import '../models/driver_settlement_model.dart';
 import 'driver_settlement_source_snapshot_loader.dart';
@@ -55,11 +56,21 @@ metadata,
 created_at
 ''';
 
+const _driverOptionColumns = '''
+id,
+full_name,
+is_active
+''';
+
 abstract class DriverSettlementsRemoteDataSource {
   Future<List<DriverSettlementModel>> getDriverSettlements({
     required String companyId,
     String? driverId,
     bool includeVoided = false,
+  });
+
+  Future<List<DriverSettlementDriverOptionModel>> getDriverOptions({
+    required String companyId,
   });
 
   Future<DriverSettlementModel> getDriverSettlementById({
@@ -121,6 +132,26 @@ class SupabaseDriverSettlementsRemoteDataSource
         .map(
           (row) =>
               DriverSettlementModel.fromMap(Map<String, dynamic>.from(row)),
+        )
+        .toList();
+  }
+
+  @override
+  Future<List<DriverSettlementDriverOptionModel>> getDriverOptions({
+    required String companyId,
+  }) async {
+    final rows = await client
+        .from(DriverSettlementsDbTables.drivers)
+        .select(_driverOptionColumns)
+        .eq(DbCommonFields.companyId, companyId)
+        .order(DriverSettlementsDbFields.isActive, ascending: false)
+        .order(DriverSettlementsDbFields.fullName);
+
+    return rows
+        .map(
+          (row) => DriverSettlementDriverOptionModel.fromMap(
+            Map<String, dynamic>.from(row),
+          ),
         )
         .toList();
   }
