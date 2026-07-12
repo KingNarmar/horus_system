@@ -10,12 +10,14 @@ import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/driver_settlement.dart';
+import '../../domain/entities/driver_settlement_driver_option.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_write_data.dart';
 import '../../domain/repositories/driver_settlements_repository.dart';
 import '../constants/driver_settlements_db_fields.dart';
 import '../datasources/driver_settlements_remote_data_source.dart';
+import '../mappers/driver_settlement_driver_option_mapper.dart';
 import '../mappers/driver_settlement_mapper.dart';
 import '../models/driver_settlement_model.dart';
 
@@ -39,6 +41,18 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
         companyId: companyId,
         driverId: driverId,
         includeVoided: includeVoided,
+      );
+      return Success(models.map((model) => model.toEntity()).toList());
+    });
+  }
+
+  @override
+  Future<Result<List<DriverSettlementDriverOption>>> getDriverOptions({
+    required String companyId,
+  }) {
+    return _guard(() async {
+      final models = await remoteDataSource.getDriverOptions(
+        companyId: companyId,
       );
       return Success(models.map((model) => model.toEntity()).toList());
     });
