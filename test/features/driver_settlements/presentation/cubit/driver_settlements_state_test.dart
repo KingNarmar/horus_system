@@ -15,10 +15,9 @@ void main() {
       final state = _state();
 
       expect(state.driverLabel('driver-inactive'), 'Old Driver');
-      expect(
-        state.activeDriverOptions.map((option) => option.id),
-        ['driver-active'],
-      );
+      expect(state.activeDriverOptions.map((option) => option.id), [
+        'driver-active',
+      ]);
     });
 
     test('filters settlements by localized driver display name', () {

@@ -84,11 +84,10 @@ class AppShellContent extends StatelessWidget {
         create: (_) => CompanyExpensesDependencies.createCubit(),
         child: CompanyExpensesPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.driverSettlements =>
-        BlocProvider<DriverSettlementsCubit>(
-          create: (_) => DriverSettlementsDependencies.createCubit(),
-          child: DriverSettlementsPage(currentCompanyContext: contextData),
-        ),
+      AppShellModule.driverSettlements => BlocProvider<DriverSettlementsCubit>(
+        create: (_) => DriverSettlementsDependencies.createCubit(),
+        child: DriverSettlementsPage(currentCompanyContext: contextData),
+      ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };

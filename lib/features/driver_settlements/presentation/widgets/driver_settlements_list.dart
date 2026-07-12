@@ -213,10 +213,7 @@ class _DriverSettlementCard extends StatelessWidget {
                     settlement.period.start,
                     localeName,
                   ),
-                  formatDriverSettlementDate(
-                    settlement.period.end,
-                    localeName,
-                  ),
+                  formatDriverSettlementDate(settlement.period.end, localeName),
                 ),
               ),
             ),

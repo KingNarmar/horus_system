@@ -23,10 +23,7 @@ class DriverSettlementCalculationSection extends StatelessWidget {
     final rows = [
       (strings.openingBalance, calculation.openingDriverBalance),
       (strings.advancesTotal, calculation.advancesTotal),
-      (
-        strings.driverPaidTripExpenses,
-        calculation.driverPaidTripExpensesTotal,
-      ),
+      (strings.driverPaidTripExpenses, calculation.driverPaidTripExpensesTotal),
       (strings.returnedCash, calculation.returnedCashTotal),
       (strings.deductionsTotal, calculation.deductionsTotal),
       (
@@ -46,9 +43,9 @@ class DriverSettlementCalculationSection extends StatelessWidget {
         if (showTitle) ...[
           Text(
             strings.calculationBreakdown,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),
         ],
@@ -60,9 +57,9 @@ class DriverSettlementCalculationSection extends StatelessWidget {
                 Expanded(child: Text(row.$1)),
                 Text(
                   formatDriverSettlementAmount(row.$2, localeName),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -74,10 +71,7 @@ class DriverSettlementCalculationSection extends StatelessWidget {
             context.driverSettlementBalanceDirectionLabel(
               calculation.balanceDirection,
             ),
-            formatDriverSettlementAmount(
-              calculation.balanceAmount,
-              localeName,
-            ),
+            formatDriverSettlementAmount(calculation.balanceAmount, localeName),
           ),
           style: Theme.of(
             context,

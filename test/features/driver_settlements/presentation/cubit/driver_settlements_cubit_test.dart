@@ -35,8 +35,9 @@ void main() {
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,
       ),
-      getDriverSettlementDetailsUseCase:
-          GetDriverSettlementDetailsUseCase(repository),
+      getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
+        repository,
+      ),
       calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
         repository,
       ),
@@ -62,51 +63,63 @@ void main() {
     expect(state.canManageDriverSettlements, isTrue);
   });
 
-  test('invalidating inputs prevents a stale preview from being emitted', () async {
-    await cubit.loadDriverSettlements(_context);
-    repository.snapshotCompleter = Completer();
+  test(
+    'invalidating inputs prevents a stale preview from being emitted',
+    () async {
+      await cubit.loadDriverSettlements(_context);
+      repository.snapshotCompleter = Completer();
 
-    final previewFuture = cubit.calculatePreview(_formInput());
-    cubit.invalidatePreview();
-    repository.snapshotCompleter!.complete(
-      const DriverSettlementSourceSnapshot(advancesTotal: 100),
-    );
-    await previewFuture;
+      final previewFuture = cubit.calculatePreview(_formInput());
+      cubit.invalidatePreview();
+      repository.snapshotCompleter!.complete(
+        const DriverSettlementSourceSnapshot(advancesTotal: 100),
+      );
+      await previewFuture;
 
-    final state = cubit.state as DriverSettlementsLoaded;
-    expect(state.preview, isNull);
-    expect(state.isPreviewLoading, isFalse);
-  });
+      final state = cubit.state as DriverSettlementsLoaded;
+      expect(state.preview, isNull);
+      expect(state.isPreviewLoading, isFalse);
+    },
+  );
 
-  test('creating a draft upserts the list and exposes scoped feedback', () async {
-    await cubit.loadDriverSettlements(_context);
+  test(
+    'creating a draft upserts the list and exposes scoped feedback',
+    () async {
+      await cubit.loadDriverSettlements(_context);
 
-    final created = await cubit.createDraft(
-      _formInput(salaryDeductionsTotal: 50),
-    );
+      final created = await cubit.createDraft(
+        _formInput(salaryDeductionsTotal: 50),
+      );
 
-    final state = cubit.state as DriverSettlementsLoaded;
-    expect(created, isTrue);
-    expect(state.allSettlements, hasLength(1));
-    expect(state.feedback, DriverSettlementFeedback.draftCreated);
-    expect(state.isCreatingDraft, isFalse);
-  });
+      final state = cubit.state as DriverSettlementsLoaded;
+      expect(created, isTrue);
+      expect(state.allSettlements, hasLength(1));
+      expect(state.feedback, DriverSettlementFeedback.draftCreated);
+      expect(state.isCreatingDraft, isFalse);
+    },
+  );
 
-  test('finalizing updates the selected settlement without page loading', () async {
-    final draft = _settlement(id: 'draft-1');
-    repository.settlements = [draft];
-    repository.details = draft;
-    await cubit.loadDriverSettlements(_context);
-    await cubit.loadSettlementDetails(draft);
+  test(
+    'finalizing updates the selected settlement without page loading',
+    () async {
+      final draft = _settlement(id: 'draft-1');
+      repository.settlements = [draft];
+      repository.details = draft;
+      await cubit.loadDriverSettlements(_context);
+      await cubit.loadSettlementDetails(draft);
 
-    final finalized = await cubit.finalizeSettlement(draft);
+      final finalized = await cubit.finalizeSettlement(draft);
 
-    final state = cubit.state as DriverSettlementsLoaded;
-    expect(finalized, isTrue);
-    expect(state.selectedSettlement?.status, DriverSettlementStatus.finalized);
-    expect(state.pendingActionSettlementId, isNull);
-    expect(state.feedback, DriverSettlementFeedback.finalized);
-  });
+      final state = cubit.state as DriverSettlementsLoaded;
+      expect(finalized, isTrue);
+      expect(
+        state.selectedSettlement?.status,
+        DriverSettlementStatus.finalized,
+      );
+      expect(state.pendingActionSettlementId, isNull);
+      expect(state.feedback, DriverSettlementFeedback.finalized);
+    },
+  );
 }
 
 const _context = CurrentCompanyContext(
@@ -114,9 +127,7 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.accountant,
 );
 
-DriverSettlementFormInput _formInput({
-  double salaryDeductionsTotal = 0,
-}) {
+DriverSettlementFormInput _formInput({double salaryDeductionsTotal = 0}) {
   return DriverSettlementFormInput(
     driverId: 'driver-active',
     periodStart: DateTime(2026, 7, 1),
@@ -283,9 +294,7 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
 
 class _FakeAuditLogRepository implements AuditLogRepository {
   @override
-  Future<Result<void>> createAuditLog({
-    required AuditLogWriteData data,
-  }) async {
+  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
     return const Success<void>(null);
   }
 

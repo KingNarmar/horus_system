@@ -24,8 +24,9 @@ abstract final class DriverSettlementsDependencies {
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,
       ),
-      getDriverSettlementDetailsUseCase:
-          GetDriverSettlementDetailsUseCase(repository),
+      getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
+        repository,
+      ),
       calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
         repository,
       ),

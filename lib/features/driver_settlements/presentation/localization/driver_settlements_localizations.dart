@@ -90,7 +90,8 @@ class DriverSettlementsLocalizations {
   String get directionNeutral => _value('directionNeutral');
   String get permissionViewFailure => _value('permissionViewFailure');
   String get permissionManageFailure => _value('permissionManageFailure');
-  String get settlementIdRequiredFailure => _value('settlementIdRequiredFailure');
+  String get settlementIdRequiredFailure =>
+      _value('settlementIdRequiredFailure');
   String get periodInvalidFailure => _value('periodInvalidFailure');
   String get amountNegativeFailure => _value('amountNegativeFailure');
   String get netSalaryNegativeFailure => _value('netSalaryNegativeFailure');
@@ -102,13 +103,13 @@ class DriverSettlementsLocalizations {
   String get settlementFinalized => _value('settlementFinalized');
   String get settlementVoided => _value('settlementVoided');
 
-  String labelValue(String label, String value) => _value('labelValue')
-      .replaceFirst('{label}', label)
-      .replaceFirst('{value}', value);
+  String labelValue(String label, String value) => _value(
+    'labelValue',
+  ).replaceFirst('{label}', label).replaceFirst('{value}', value);
 
-  String periodValue(String start, String end) => _value('periodValue')
-      .replaceFirst('{start}', start)
-      .replaceFirst('{end}', end);
+  String periodValue(String start, String end) => _value(
+    'periodValue',
+  ).replaceFirst('{start}', start).replaceFirst('{end}', end);
 
   String auditHeader(String actor, String role, String dateTime) =>
       _value('auditHeader')
@@ -118,7 +119,8 @@ class DriverSettlementsLocalizations {
 
   static const Map<String, String> _en = {
     'appShellLabel': 'Driver settlements',
-    'appShellDescription': 'Close driver custody balances and prepare salary settlements.',
+    'appShellDescription':
+        'Close driver custody balances and prepare salary settlements.',
     'title': 'Driver settlements',
     'addDraft': 'New settlement',
     'searchHint': 'Search driver, period, status, amount, or notes',
@@ -172,11 +174,13 @@ class DriverSettlementsLocalizations {
     'finalize': 'Finalize',
     'finalizing': 'Finalizing...',
     'finalizeTitle': 'Finalize settlement',
-    'finalizeMessage': 'Finalize this draft? Finalized settlements cannot be edited.',
+    'finalizeMessage':
+        'Finalize this draft? Finalized settlements cannot be edited.',
     'void': 'Void',
     'voiding': 'Voiding...',
     'voidTitle': 'Void settlement',
-    'voidMessage': 'Void this settlement? It will remain in the financial history.',
+    'voidMessage':
+        'Void this settlement? It will remain in the financial history.',
     'voidReasonRequired': 'Void reason is required.',
     'activityTimeline': 'Activity timeline',
     'loadingActivity': 'Loading activity...',
@@ -265,7 +269,8 @@ class DriverSettlementsLocalizations {
     'finalize': 'اعتماد',
     'finalizing': 'جاري الاعتماد...',
     'finalizeTitle': 'اعتماد التسوية',
-    'finalizeMessage': 'هل تريد اعتماد هذه المسودة؟ لا يمكن تعديل التسويات المعتمدة.',
+    'finalizeMessage':
+        'هل تريد اعتماد هذه المسودة؟ لا يمكن تعديل التسويات المعتمدة.',
     'void': 'إلغاء',
     'voiding': 'جاري الإلغاء...',
     'voidTitle': 'إلغاء التسوية',

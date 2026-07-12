@@ -173,9 +173,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
       ),
     );
 
-    final result = await createDraftUseCase(
-      input.toCreateDraftParams(context),
-    );
+    final result = await createDraftUseCase(input.toCreateDraftParams(context));
 
     final latestState = state;
     if (latestState is! DriverSettlementsLoaded) return false;
@@ -194,10 +192,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     if (settlement == null) return false;
     _previewGeneration++;
     emit(
-      _upsertSettlement(
-        latestState,
-        settlement,
-      ).copyWith(
+      _upsertSettlement(latestState, settlement).copyWith(
         isCreatingDraft: false,
         preview: null,
         previewFailure: null,
@@ -346,12 +341,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
   void clearFeedback() {
     final currentState = state;
     if (currentState is DriverSettlementsLoaded) {
-      emit(
-        currentState.copyWith(
-          mutationFailure: null,
-          feedback: null,
-        ),
-      );
+      emit(currentState.copyWith(mutationFailure: null, feedback: null));
     }
   }
 
@@ -376,9 +366,12 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
 
     result.when(
       success: (logs) {
-        final settlementLogs = logs.where((log) {
-          return log.metadata?['settlement_id']?.toString() == settlement.id;
-        }).toList(growable: false);
+        final settlementLogs = logs
+            .where((log) {
+              return log.metadata?['settlement_id']?.toString() ==
+                  settlement.id;
+            })
+            .toList(growable: false);
         emit(
           latestState.copyWith(
             selectedSettlementActivity: settlementLogs,

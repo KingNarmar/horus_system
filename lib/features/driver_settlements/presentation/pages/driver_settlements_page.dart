@@ -18,10 +18,7 @@ import '../widgets/driver_settlements_state_view.dart';
 class DriverSettlementsPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
 
-  const DriverSettlementsPage({
-    required this.currentCompanyContext,
-    super.key,
-  });
+  const DriverSettlementsPage({required this.currentCompanyContext, super.key});
 
   @override
   State<DriverSettlementsPage> createState() => _DriverSettlementsPageState();
@@ -120,20 +117,16 @@ class _DriverSettlementsPageState extends State<DriverSettlementsPage> {
     );
   }
 
-  void _showFeedback(
-    BuildContext context,
-    DriverSettlementsLoaded state,
-  ) {
+  void _showFeedback(BuildContext context, DriverSettlementsLoaded state) {
     final strings = context.driverSettlementsL10n;
     final message = switch (state.feedback) {
       DriverSettlementFeedback.draftCreated => strings.draftCreated,
       DriverSettlementFeedback.finalized => strings.settlementFinalized,
       DriverSettlementFeedback.voided => strings.settlementVoided,
-      null => state.mutationFailure == null
-          ? null
-          : context.localizedDriverSettlementFailure(
-              state.mutationFailure!,
-            ),
+      null =>
+        state.mutationFailure == null
+            ? null
+            : context.localizedDriverSettlementFailure(state.mutationFailure!),
     };
     if (message == null) return;
     ScaffoldMessenger.of(context)
@@ -186,9 +179,8 @@ class _DriverSettlementsPageState extends State<DriverSettlementsPage> {
             const SizedBox(height: AppSpacing.lg),
             DriverSettlementsStateView(
               state: state,
-              onRetry: () => cubit.loadDriverSettlements(
-                widget.currentCompanyContext,
-              ),
+              onRetry: () =>
+                  cubit.loadDriverSettlements(widget.currentCompanyContext),
               onSearchChanged: cubit.setSearchQuery,
               onDriverFilterChanged: cubit.setDriverFilter,
               onStatusFilterChanged: cubit.setStatusFilter,

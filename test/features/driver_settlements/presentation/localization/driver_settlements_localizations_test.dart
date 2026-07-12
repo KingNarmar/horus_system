@@ -7,9 +7,7 @@ void main() {
     final english = DriverSettlementsLocalizations.forLocale(
       const Locale('en'),
     );
-    final arabic = DriverSettlementsLocalizations.forLocale(
-      const Locale('ar'),
-    );
+    final arabic = DriverSettlementsLocalizations.forLocale(const Locale('ar'));
 
     expect(english.title, 'Driver settlements');
     expect(arabic.title, 'تسويات السائقين');

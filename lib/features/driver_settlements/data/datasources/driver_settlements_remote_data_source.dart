@@ -56,7 +56,8 @@ metadata,
 created_at
 ''';
 
-const _driverOptionColumns = '''
+const _driverOptionColumns =
+    '''
 ${DbCommonFields.id},
 ${DriverSettlementsDbFields.fullName},
 ${DriverSettlementsDbFields.isActive}

@@ -71,10 +71,7 @@ class DriverSettlementDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(
-    BuildContext context,
-    DriverSettlement? settlement,
-  ) {
+  Widget _buildContent(BuildContext context, DriverSettlement? settlement) {
     if (settlement == null || state.isDetailsLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -111,10 +108,7 @@ class _DetailsContent extends StatelessWidget {
   final DriverSettlementsLoaded state;
   final DriverSettlement settlement;
 
-  const _DetailsContent({
-    required this.state,
-    required this.settlement,
-  });
+  const _DetailsContent({required this.state, required this.settlement});
 
   @override
   Widget build(BuildContext context) {
@@ -137,14 +131,8 @@ class _DetailsContent extends StatelessWidget {
           strings.labelValue(
             strings.period,
             strings.periodValue(
-              formatDriverSettlementDate(
-                settlement.period.start,
-                localeName,
-              ),
-              formatDriverSettlementDate(
-                settlement.period.end,
-                localeName,
-              ),
+              formatDriverSettlementDate(settlement.period.start, localeName),
+              formatDriverSettlementDate(settlement.period.end, localeName),
             ),
           ),
         ),
@@ -155,36 +143,23 @@ class _DetailsContent extends StatelessWidget {
           ),
         ),
         if (settlement.createdAt != null)
-          _DateTimeLine(
-            label: strings.createdAt,
-            value: settlement.createdAt!,
-          ),
+          _DateTimeLine(label: strings.createdAt, value: settlement.createdAt!),
         if (settlement.finalizedAt != null)
           _DateTimeLine(
             label: strings.finalizedAt,
             value: settlement.finalizedAt!,
           ),
         if (settlement.voidedAt != null)
-          _DateTimeLine(
-            label: strings.voidedAt,
-            value: settlement.voidedAt!,
-          ),
+          _DateTimeLine(label: strings.voidedAt, value: settlement.voidedAt!),
         if (settlement.voidReason != null)
-          Text(
-            strings.labelValue(
-              strings.voidReason,
-              settlement.voidReason!,
-            ),
-          ),
+          Text(strings.labelValue(strings.voidReason, settlement.voidReason!)),
         if (settlement.notes != null &&
             settlement.notes!.trim().isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(strings.labelValue(strings.notes, settlement.notes!)),
         ],
         const SizedBox(height: AppSpacing.lg),
-        DriverSettlementCalculationSection(
-          calculation: settlement.calculation,
-        ),
+        DriverSettlementCalculationSection(calculation: settlement.calculation),
         const SizedBox(height: AppSpacing.lg),
         DriverSettlementItemsSection(items: settlement.items),
         const SizedBox(height: AppSpacing.lg),
@@ -192,12 +167,8 @@ class _DetailsContent extends StatelessWidget {
         if (state.mutationFailure != null) ...[
           const SizedBox(height: AppSpacing.md),
           Text(
-            context.localizedDriverSettlementFailure(
-              state.mutationFailure!,
-            ),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.error,
-            ),
+            context.localizedDriverSettlementFailure(state.mutationFailure!),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ],
       ],
@@ -209,10 +180,7 @@ class _DateTimeLine extends StatelessWidget {
   final String label;
   final DateTime value;
 
-  const _DateTimeLine({
-    required this.label,
-    required this.value,
-  });
+  const _DateTimeLine({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -250,12 +218,8 @@ class _SettlementActivity extends StatelessWidget {
           Text(strings.loadingActivity)
         else if (state.activityFailure != null)
           Text(
-            context.localizedDriverSettlementFailure(
-              state.activityFailure!,
-            ),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.error,
-            ),
+            context.localizedDriverSettlementFailure(state.activityFailure!),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           )
         else if (state.selectedSettlementActivity.isEmpty)
           Text(strings.noActivity)
@@ -300,10 +264,7 @@ class _DetailsFailure extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _DetailsFailure({
-    required this.message,
-    required this.onRetry,
-  });
+  const _DetailsFailure({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

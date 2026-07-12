@@ -17,10 +17,7 @@ import 'driver_settlement_preview_section.dart';
 class DriverSettlementFormDialog extends StatefulWidget {
   final List<DriverSettlementDriverOption> driverOptions;
 
-  const DriverSettlementFormDialog({
-    required this.driverOptions,
-    super.key,
-  });
+  const DriverSettlementFormDialog({required this.driverOptions, super.key});
 
   @override
   State<DriverSettlementFormDialog> createState() =>
@@ -159,8 +156,7 @@ class _DriverSettlementFormDialogState
       builder: (context, state) {
         final loaded = state is DriverSettlementsLoaded ? state : null;
         final isBusy =
-            loaded?.isCreatingDraft == true ||
-            loaded?.isPreviewLoading == true;
+            loaded?.isCreatingDraft == true || loaded?.isPreviewLoading == true;
 
         return AlertDialog(
           title: Text(strings.newDraftTitle),
@@ -294,9 +290,7 @@ class _DriverSettlementFormDialogState
                     ],
                     if (loaded?.preview != null) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      DriverSettlementPreviewSection(
-                        preview: loaded!.preview!,
-                      ),
+                      DriverSettlementPreviewSection(preview: loaded!.preview!),
                     ],
                   ],
                 ),

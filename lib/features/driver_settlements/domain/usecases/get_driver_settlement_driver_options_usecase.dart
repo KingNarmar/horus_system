@@ -35,9 +35,7 @@ class GetDriverSettlementDriverOptionsUseCase
     )) {
       return Future.value(
         const FailureResult<List<DriverSettlementDriverOption>>(
-          PermissionFailure(
-            code: FailureCodes.permissionDriverSettlementsView,
-          ),
+          PermissionFailure(code: FailureCodes.permissionDriverSettlementsView),
         ),
       );
     }

@@ -68,10 +68,7 @@ class DriverSettlementsStateView extends StatelessWidget {
     final settlements = currentState.filteredSettlements(
       statusSearchTerms: {
         for (final status in DriverSettlementStatus.values)
-          status: [
-            status.value,
-            context.driverSettlementStatusLabel(status),
-          ],
+          status: [status.value, context.driverSettlementStatusLabel(status)],
       },
     );
     return Column(

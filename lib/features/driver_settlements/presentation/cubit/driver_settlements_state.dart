@@ -70,9 +70,8 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     this.feedback,
   });
 
-  List<DriverSettlementDriverOption> get activeDriverOptions => driverOptions
-      .where((option) => option.isActive)
-      .toList(growable: false);
+  List<DriverSettlementDriverOption> get activeDriverOptions =>
+      driverOptions.where((option) => option.isActive).toList(growable: false);
 
   String? driverLabel(String driverId) {
     for (final option in driverOptions) {
@@ -87,35 +86,40 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     Map<DriverSettlementStatus, Iterable<String>> statusSearchTerms = const {},
   }) {
     final normalizedSearch = normalizeSearchText(searchQuery);
-    return allSettlements.where((settlement) {
-      if (!includeVoided && settlement.status == DriverSettlementStatus.voided) {
-        return false;
-      }
-      if (driverIdFilter != null && settlement.driverId != driverIdFilter) {
-        return false;
-      }
-      if (statusFilter != null && settlement.status != statusFilter) {
-        return false;
-      }
-      if (normalizedSearch.isEmpty) return true;
+    return allSettlements
+        .where((settlement) {
+          if (!includeVoided &&
+              settlement.status == DriverSettlementStatus.voided) {
+            return false;
+          }
+          if (driverIdFilter != null && settlement.driverId != driverIdFilter) {
+            return false;
+          }
+          if (statusFilter != null && settlement.status != statusFilter) {
+            return false;
+          }
+          if (normalizedSearch.isEmpty) return true;
 
-      final calculation = settlement.calculation;
-      final searchTerms = <Object?>[
-        driverLabel(settlement.driverId),
-        settlement.period.start.toIso8601String(),
-        settlement.period.end.toIso8601String(),
-        settlement.status.value,
-        ...(statusSearchTerms[settlement.status] ?? const <String>[]),
-        settlement.notes,
-        calculation.netSalaryPayable,
-        calculation.closingDriverBalance,
-        calculation.grossSalary,
-      ];
-      return searchTerms.any((term) {
-        if (term == null) return false;
-        return normalizeSearchText(term.toString()).contains(normalizedSearch);
-      });
-    }).toList(growable: false);
+          final calculation = settlement.calculation;
+          final searchTerms = <Object?>[
+            driverLabel(settlement.driverId),
+            settlement.period.start.toIso8601String(),
+            settlement.period.end.toIso8601String(),
+            settlement.status.value,
+            ...(statusSearchTerms[settlement.status] ?? const <String>[]),
+            settlement.notes,
+            calculation.netSalaryPayable,
+            calculation.closingDriverBalance,
+            calculation.grossSalary,
+          ];
+          return searchTerms.any((term) {
+            if (term == null) return false;
+            return normalizeSearchText(
+              term.toString(),
+            ).contains(normalizedSearch);
+          });
+        })
+        .toList(growable: false);
   }
 
   bool isPending(String settlementId) {

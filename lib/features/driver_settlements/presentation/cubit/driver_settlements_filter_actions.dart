@@ -60,9 +60,8 @@ mixin DriverSettlementsFilterActions on Cubit<DriverSettlementsState> {
           mutationFailure: null,
         ),
       ),
-      failure: (failure) => emit(
-        latestState.copyWith(mutationFailure: failure),
-      ),
+      failure: (failure) =>
+          emit(latestState.copyWith(mutationFailure: failure)),
     );
   }
 }

@@ -59,10 +59,7 @@ class _DriverSettlementVoidDialogState
           onPressed: () => Navigator.of(context).pop(),
           child: Text(context.l10n.cancelButton),
         ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(strings.voidAction),
-        ),
+        FilledButton(onPressed: _submit, child: Text(strings.voidAction)),
       ],
     );
   }
