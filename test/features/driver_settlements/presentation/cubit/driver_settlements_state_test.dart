@@ -28,6 +28,19 @@ void main() {
       expect(state.settlements.single.driverId, 'driver-inactive');
     });
 
+    test('matches localized status search terms supplied by presentation', () {
+      final state = _state(searchQuery: 'ملغاة', includeVoided: true);
+
+      final settlements = state.filteredSettlements(
+        statusSearchTerms: {
+          DriverSettlementStatus.voided: const ['Voided', 'ملغاة'],
+        },
+      );
+
+      expect(settlements, hasLength(1));
+      expect(settlements.single.status, DriverSettlementStatus.voided);
+    });
+
     test('hides voided settlements unless includeVoided is enabled', () {
       expect(_state().settlements, hasLength(1));
       expect(_state(includeVoided: true).settlements, hasLength(2));
