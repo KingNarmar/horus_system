@@ -62,13 +62,15 @@ extension DriverSettlementModelMapper on DriverSettlementModel {
           settlementDeductionsTotal,
       DriverSettlementsDbFields.grossSalary: grossSalary,
       DriverSettlementsDbFields.salaryDeductionsTotal: salaryDeductionsTotal,
-      DriverSettlementsDbFields.balanceDeductionApplied: balanceDeductionApplied,
+      DriverSettlementsDbFields.balanceDeductionApplied:
+          balanceDeductionApplied,
       DriverSettlementsDbFields.netSalaryPayable: netSalaryPayable,
       DriverSettlementsDbFields.closingDriverBalance: closingDriverBalance,
       DriverSettlementsDbFields.status: status.value,
       DriverSettlementsDbFields.notes: notes,
-      DriverSettlementsDbFields.finalizedAt:
-          finalizedAt?.toUtc().toIso8601String(),
+      DriverSettlementsDbFields.finalizedAt: finalizedAt
+          ?.toUtc()
+          .toIso8601String(),
       DriverSettlementsDbFields.finalizedBy: finalizedBy,
       DriverSettlementsDbFields.voidedAt: voidedAt?.toUtc().toIso8601String(),
       DriverSettlementsDbFields.voidedBy: voidedBy,
@@ -100,7 +102,8 @@ extension DriverSettlementItemModelMapper on DriverSettlementItemModel {
   }
 }
 
-extension DriverSettlementDraftWriteDataMapper on DriverSettlementDraftWriteData {
+extension DriverSettlementDraftWriteDataMapper
+    on DriverSettlementDraftWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
       DbCommonFields.companyId: companyId,
@@ -122,8 +125,7 @@ extension DriverSettlementDraftWriteDataMapper on DriverSettlementDraftWriteData
           calculation.salaryDeductionsTotal,
       DriverSettlementsDbFields.balanceDeductionApplied:
           calculation.balanceDeductionApplied,
-      DriverSettlementsDbFields.netSalaryPayable:
-          calculation.netSalaryPayable,
+      DriverSettlementsDbFields.netSalaryPayable: calculation.netSalaryPayable,
       DriverSettlementsDbFields.closingDriverBalance:
           calculation.closingDriverBalance,
       DriverSettlementsDbFields.status: DriverSettlementStatus.draft.value,
@@ -133,16 +135,15 @@ extension DriverSettlementDraftWriteDataMapper on DriverSettlementDraftWriteData
 }
 
 extension DriverSettlementItemMapper on DriverSettlementItem {
-  Map<String, dynamic> toInsertMap({
-    required String settlementId,
-  }) {
+  Map<String, dynamic> toInsertMap({required String settlementId}) {
     return {
       DbCommonFields.companyId: companyId,
       DriverSettlementsDbFields.settlementId: settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
-      DriverSettlementsDbFields.sourceDate:
-          sourceDate == null ? null : _dateOnly(sourceDate!),
+      DriverSettlementsDbFields.sourceDate: sourceDate == null
+          ? null
+          : _dateOnly(sourceDate!),
       DriverSettlementsDbFields.direction: direction.value,
       DriverSettlementsDbFields.amount: amount,
       DriverSettlementsDbFields.labelKey: labelKey,

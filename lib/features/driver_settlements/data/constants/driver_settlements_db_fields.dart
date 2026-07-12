@@ -13,8 +13,7 @@ abstract final class DriverSettlementsDbFields {
   static const periodEnd = 'period_end';
   static const openingDriverBalance = 'opening_driver_balance';
   static const advancesTotal = 'advances_total';
-  static const driverPaidTripExpensesTotal =
-      'driver_paid_trip_expenses_total';
+  static const driverPaidTripExpensesTotal = 'driver_paid_trip_expenses_total';
   static const returnedCashTotal = 'returned_cash_total';
   static const deductionsTotal = 'deductions_total';
   static const settlementDeductionsTotal = 'settlement_deductions_total';

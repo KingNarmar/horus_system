@@ -119,9 +119,8 @@ class SupabaseDriverSettlementsRemoteDataSource
 
     return rows
         .map(
-          (row) => DriverSettlementModel.fromMap(
-            Map<String, dynamic>.from(row),
-          ),
+          (row) =>
+              DriverSettlementModel.fromMap(Map<String, dynamic>.from(row)),
         )
         .toList();
   }
@@ -248,9 +247,8 @@ class SupabaseDriverSettlementsRemoteDataSource
 
     return rows
         .map(
-          (row) => DriverSettlementItemModel.fromMap(
-            Map<String, dynamic>.from(row),
-          ),
+          (row) =>
+              DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row)),
         )
         .toList();
   }

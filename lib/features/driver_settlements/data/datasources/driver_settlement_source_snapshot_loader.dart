@@ -198,7 +198,9 @@ class DriverSettlementSourceSnapshotLoader {
           total + _amountFrom(row[DriverSettlementsDbFields.amount]),
     );
 
-    return _money(advancesTotal - deductionsTotal - driverPaidTripExpensesTotal);
+    return _money(
+      advancesTotal - deductionsTotal - driverPaidTripExpensesTotal,
+    );
   }
 
   Future<List<Map<String, dynamic>>> _getDriverFinancialMovementRows({
@@ -258,9 +260,9 @@ class DriverSettlementSourceSnapshotLoader {
         .eq(DbCommonFields.companyId, companyId)
         .inFilter(DriverSettlementsDbFields.tripId, tripIds)
         .inFilter(DriverSettlementsDbFields.paidBy, const [
-      _paidByDriverAdvance,
-      _paidByDriverCash,
-    ]);
+          _paidByDriverAdvance,
+          _paidByDriverCash,
+        ]);
 
     if (startInclusive != null) {
       query = query.gte(

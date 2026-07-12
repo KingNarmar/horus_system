@@ -126,7 +126,8 @@ double _amountFrom(Object? value) {
 }
 
 DateTime _requiredDate(Object? value) {
-  return DateTime.tryParse(value.toString()) ?? DateTime.fromMillisecondsSinceEpoch(0);
+  return DateTime.tryParse(value.toString()) ??
+      DateTime.fromMillisecondsSinceEpoch(0);
 }
 
 DateTime? _dateTimeFrom(Object? value) {
