@@ -5,6 +5,7 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_driver_option.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_direction.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_source_type.dart';
@@ -59,6 +60,21 @@ void main() {
       expect(preview.calculation.netSalaryPayable, 850);
       expect(preview.items, hasLength(1));
       expect(repository.snapshotCalls, 1);
+    });
+
+    test('loads company-scoped driver options for finance roles', () async {
+      final repository = _FakeDriverSettlementsRepository();
+      final useCase = GetDriverSettlementDriverOptionsUseCase(repository);
+
+      final result = await useCase(
+        GetDriverSettlementDriverOptionsParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+        ),
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull, hasLength(1));
+      expect(repository.driverOptionsCalls, 1);
     });
 
     test(
@@ -144,6 +160,7 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   int snapshotCalls = 0;
   int createDraftCalls = 0;
   int voidCalls = 0;
+  int driverOptionsCalls = 0;
 
   _FakeDriverSettlementsRepository({
     this.snapshot = const DriverSettlementSourceSnapshot(),
@@ -181,6 +198,20 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     bool includeVoided = false,
   }) async {
     return Success([_settlement()]);
+  }
+
+  @override
+  Future<Result<List<DriverSettlementDriverOption>>> getDriverOptions({
+    required String companyId,
+  }) async {
+    driverOptionsCalls++;
+    return const Success([
+      DriverSettlementDriverOption(
+        id: _driverId,
+        displayName: 'Driver',
+        isActive: true,
+      ),
+    ]);
   }
 
   @override
