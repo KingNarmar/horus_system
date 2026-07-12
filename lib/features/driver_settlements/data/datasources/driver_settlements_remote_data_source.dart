@@ -57,9 +57,9 @@ created_at
 ''';
 
 const _driverOptionColumns = '''
-id,
-full_name,
-is_active
+${DbCommonFields.id},
+${DriverSettlementsDbFields.fullName},
+${DriverSettlementsDbFields.isActive}
 ''';
 
 abstract class DriverSettlementsRemoteDataSource {
