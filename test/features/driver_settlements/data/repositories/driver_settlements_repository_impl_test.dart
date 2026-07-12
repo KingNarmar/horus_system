@@ -8,6 +8,7 @@ import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
+import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_driver_option_model.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
@@ -90,6 +91,20 @@ void main() {
       expect(result.dataOrNull?.advancesTotal, 250);
       expect(remoteDataSource.snapshotCalls, 1);
     });
+
+    test('maps driver options without exposing data models', () async {
+      final remoteDataSource = _FakeDriverSettlementsRemoteDataSource();
+      final repository = DriverSettlementsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
+      );
+
+      final result = await repository.getDriverOptions(companyId: _companyId);
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.single.displayName, 'Driver One');
+      expect(result.dataOrNull?.single.isActive, isTrue);
+    });
   });
 }
 
@@ -168,6 +183,19 @@ class _FakeDriverSettlementsRemoteDataSource
     required DriverSettlementFinalizeData data,
   }) async {
     return _settlementModel(status: DriverSettlementStatus.finalized);
+  }
+
+  @override
+  Future<List<DriverSettlementDriverOptionModel>> getDriverOptions({
+    required String companyId,
+  }) async {
+    return const [
+      DriverSettlementDriverOptionModel(
+        id: _driverId,
+        displayName: 'Driver One',
+        isActive: true,
+      ),
+    ];
   }
 
   @override
