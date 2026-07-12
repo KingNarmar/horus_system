@@ -88,6 +88,25 @@
   "settlementFinalized": "تم اعتماد التسوية.",
   "settlementVoided": "تم إلغاء التسوية.",
   "labelValue": "{label}: {value}",
+  "@labelValue": {
+    "placeholders": {
+      "label": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
   "periodValue": "{start} – {end}",
-  "auditHeader": "{actor} • {role} • {dateTime}"
+  "@periodValue": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "auditHeader": "{actor} • {role} • {dateTime}",
+  "@auditHeader": {
+    "placeholders": {
+      "actor": {"type": "String"},
+      "role": {"type": "String"},
+      "dateTime": {"type": "String"}
+    }
+  }
 }
