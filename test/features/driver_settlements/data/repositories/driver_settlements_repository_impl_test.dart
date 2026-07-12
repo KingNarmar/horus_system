@@ -8,13 +8,13 @@ import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
-import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
+import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
-import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -39,7 +39,10 @@ void main() {
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
       expect(auditRepository.logs.single.description, 'driver_settlement_created');
-      expect(auditRepository.logs.single.metadata?['settlement_id'], _settlementId);
+      expect(
+        auditRepository.logs.single.metadata?['settlement_id'],
+        _settlementId,
+      );
     });
 
     test('propagates audit failure after successful mutation', () async {
@@ -207,9 +210,9 @@ class _FakeAuditLogRepository implements AuditLogRepository {
 
   @override
   Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    if (failure != null) return FailureResult(failure!);
+    if (failure != null) return FailureResult<void>(failure!);
     logs.add(data);
-    return const Success(null);
+    return const Success<void>(null);
   }
 
   @override
