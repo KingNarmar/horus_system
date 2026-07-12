@@ -81,7 +81,11 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     return null;
   }
 
-  List<DriverSettlement> get settlements {
+  List<DriverSettlement> get settlements => filteredSettlements();
+
+  List<DriverSettlement> filteredSettlements({
+    Map<DriverSettlementStatus, Iterable<String>> statusSearchTerms = const {},
+  }) {
     final normalizedSearch = normalizeSearchText(searchQuery);
     return allSettlements.where((settlement) {
       if (!includeVoided && settlement.status == DriverSettlementStatus.voided) {
@@ -101,6 +105,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
         settlement.period.start.toIso8601String(),
         settlement.period.end.toIso8601String(),
         settlement.status.value,
+        ...(statusSearchTerms[settlement.status] ?? const <String>[]),
         settlement.notes,
         calculation.netSalaryPayable,
         calculation.closingDriverBalance,
