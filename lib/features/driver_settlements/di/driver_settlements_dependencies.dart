@@ -35,7 +35,8 @@ abstract final class DriverSettlementsDependencies {
     return CreateDriverSettlementDraftUseCase(createRepository());
   }
 
-  static FinalizeDriverSettlementUseCase createFinalizeDriverSettlementUseCase() {
+  static FinalizeDriverSettlementUseCase
+  createFinalizeDriverSettlementUseCase() {
     return FinalizeDriverSettlementUseCase(createRepository());
   }
 
