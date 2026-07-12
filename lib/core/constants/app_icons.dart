@@ -14,6 +14,8 @@ abstract final class AppIcons {
   static const IconData dashboard = Icons.dashboard_outlined;
   static const IconData dashboardSelected = Icons.dashboard;
   static const IconData deactivate = Icons.block_outlined;
+  static const IconData driverSettlements = Icons.account_balance_wallet_outlined;
+  static const IconData driverSettlementsSelected = Icons.account_balance_wallet;
   static const IconData drivers = Icons.badge_outlined;
   static const IconData driversSelected = Icons.badge;
   static const IconData edit = Icons.edit_outlined;
