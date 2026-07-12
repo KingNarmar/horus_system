@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/driver_settlements_db_fields.dart';
+
 class DriverSettlementDriverOptionModel {
   final String id;
   final String displayName;
@@ -11,9 +14,9 @@ class DriverSettlementDriverOptionModel {
 
   factory DriverSettlementDriverOptionModel.fromMap(Map<String, dynamic> map) {
     return DriverSettlementDriverOptionModel(
-      id: map['id'] as String,
-      displayName: map['full_name'] as String,
-      isActive: map['is_active'] as bool? ?? true,
+      id: map[DbCommonFields.id] as String,
+      displayName: map[DriverSettlementsDbFields.fullName] as String,
+      isActive: map[DriverSettlementsDbFields.isActive] as bool? ?? true,
     );
   }
 }
