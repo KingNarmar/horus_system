@@ -37,7 +37,6 @@ class GetDriverSettlementDriverOptionsUseCase
         const FailureResult<List<DriverSettlementDriverOption>>(
           PermissionFailure(
             code: FailureCodes.permissionDriverSettlementsView,
-            message: 'Driver settlements access is not allowed.',
           ),
         ),
       );
