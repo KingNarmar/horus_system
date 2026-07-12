@@ -38,7 +38,10 @@ void main() {
       expect(auditRepository.logs, hasLength(1));
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
-      expect(auditRepository.logs.single.description, 'driver_settlement_created');
+      expect(
+        auditRepository.logs.single.description,
+        'driver_settlement_created',
+      );
       expect(
         auditRepository.logs.single.metadata?['settlement_id'],
         _settlementId,

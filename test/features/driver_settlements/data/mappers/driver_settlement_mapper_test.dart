@@ -12,32 +12,35 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverSettlementModelMapper', () {
-    test('maps settlement model to domain entity with calculation and items', () {
-      final model = _settlementModel(
-        items: [
-          DriverSettlementItemModel(
-            id: 'item-1',
-            companyId: _companyId,
-            settlementId: _settlementId,
-            sourceType: DriverSettlementItemSourceType.tripExpense,
-            direction: DriverSettlementItemDirection.companyToDriver,
-            amount: 120,
-            labelKey: 'driver_settlement_item_trip_expense',
-          ),
-        ],
-      );
+    test(
+      'maps settlement model to domain entity with calculation and items',
+      () {
+        final model = _settlementModel(
+          items: [
+            DriverSettlementItemModel(
+              id: 'item-1',
+              companyId: _companyId,
+              settlementId: _settlementId,
+              sourceType: DriverSettlementItemSourceType.tripExpense,
+              direction: DriverSettlementItemDirection.companyToDriver,
+              amount: 120,
+              labelKey: 'driver_settlement_item_trip_expense',
+            ),
+          ],
+        );
 
-      final entity = model.toEntity();
+        final entity = model.toEntity();
 
-      expect(entity.id, _settlementId);
-      expect(entity.companyId, _companyId);
-      expect(entity.driverId, _driverId);
-      expect(entity.period.start, DateTime(2026, 7));
-      expect(entity.calculation.closingDriverBalance, 125);
-      expect(entity.status, DriverSettlementStatus.draft);
-      expect(entity.items, hasLength(1));
-      expect(entity.items.first.amount, 120);
-    });
+        expect(entity.id, _settlementId);
+        expect(entity.companyId, _companyId);
+        expect(entity.driverId, _driverId);
+        expect(entity.period.start, DateTime(2026, 7));
+        expect(entity.calculation.closingDriverBalance, 125);
+        expect(entity.status, DriverSettlementStatus.draft);
+        expect(entity.items, hasLength(1));
+        expect(entity.items.first.amount, 120);
+      },
+    );
 
     test('maps draft write data to insert map', () {
       final data = DriverSettlementDraftWriteData(
