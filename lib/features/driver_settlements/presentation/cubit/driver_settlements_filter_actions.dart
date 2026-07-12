@@ -1,6 +1,9 @@
 part of 'driver_settlements_cubit.dart';
 
-extension DriverSettlementsFilterActions on DriverSettlementsCubit {
+mixin DriverSettlementsFilterActions on Cubit<DriverSettlementsState> {
+  GetDriverSettlementsUseCase get getDriverSettlementsUseCase;
+  CurrentCompanyContext? get filterCompanyContext;
+
   void setSearchQuery(String query) {
     final currentState = state;
     if (currentState is DriverSettlementsLoaded) {
@@ -37,7 +40,7 @@ extension DriverSettlementsFilterActions on DriverSettlementsCubit {
 
   Future<void> _reloadSettlements() async {
     final currentState = state;
-    final context = _currentCompanyContext;
+    final context = filterCompanyContext;
     if (currentState is! DriverSettlementsLoaded || context == null) return;
 
     final result = await getDriverSettlementsUseCase(
