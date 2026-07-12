@@ -70,7 +70,7 @@ class DriverSettlementsLocalizations {
   String get finalizing => _value('finalizing');
   String get finalizeTitle => _value('finalizeTitle');
   String get finalizeMessage => _value('finalizeMessage');
-  String get void => _value('void');
+  String get voidAction => _value('void');
   String get voiding => _value('voiding');
   String get voidTitle => _value('voidTitle');
   String get voidMessage => _value('voidMessage');
