@@ -2,6 +2,7 @@ abstract final class DriverSettlementsDbTables {
   static const driverSettlements = 'driver_settlements';
   static const driverSettlementItems = 'driver_settlement_items';
   static const driverFinancialMovements = 'driver_financial_movements';
+  static const drivers = 'drivers';
   static const trips = 'trips';
   static const tripExpenses = 'trip_expenses';
 }
@@ -41,6 +42,8 @@ abstract final class DriverSettlementsDbFields {
   static const descriptionKey = 'description_key';
   static const metadata = 'metadata';
 
+  static const fullName = 'full_name';
+  static const isActive = 'is_active';
   static const tripId = 'trip_id';
   static const movementType = 'movement_type';
   static const movementDate = 'movement_date';
