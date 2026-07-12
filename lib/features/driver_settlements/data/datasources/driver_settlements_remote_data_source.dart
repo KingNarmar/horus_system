@@ -140,10 +140,7 @@ class SupabaseDriverSettlementsRemoteDataSource
     }
 
     if (!includeVoided) {
-      query = query.neq(
-        DriverSettlementsDbFields.status,
-        'voided',
-      );
+      query = query.neq(DriverSettlementsDbFields.status, 'voided');
     }
 
     final rows = await query
@@ -316,7 +313,6 @@ class SupabaseDriverSettlementsRemoteDataSource
         .select(_driverSettlementColumns)
         .single();
 
-    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
     final items = await _getSettlementItems(
       companyId: data.companyId,
       settlementId: data.settlementId,
