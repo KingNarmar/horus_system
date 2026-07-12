@@ -15,7 +15,8 @@ import 'driver_settlements_state.dart';
 
 part 'driver_settlements_filter_actions.dart';
 
-class DriverSettlementsCubit extends Cubit<DriverSettlementsState> {
+class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
+    with DriverSettlementsFilterActions {
   final GetDriverSettlementsUseCase getDriverSettlementsUseCase;
   final GetDriverSettlementDriverOptionsUseCase getDriverOptionsUseCase;
   final GetDriverSettlementDetailsUseCase getDriverSettlementDetailsUseCase;
@@ -27,6 +28,9 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState> {
 
   CurrentCompanyContext? _currentCompanyContext;
   int _previewGeneration = 0;
+
+  @override
+  CurrentCompanyContext? get filterCompanyContext => _currentCompanyContext;
 
   DriverSettlementsCubit({
     required this.getDriverSettlementsUseCase,
