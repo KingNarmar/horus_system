@@ -154,8 +154,7 @@ abstract final class AppDependencies {
         driverFinanceRepository,
       ),
       addDriverAdvanceUseCase: AddDriverAdvanceUseCase(driverFinanceRepository),
-      addDriverChargeUseCase: AddDriverChargeUseCase(driverFinanceRepository),
-      addDriverCashReturnUseCase: AddDriverCashReturnUseCase(
+      addDriverDeductionUseCase: AddDriverDeductionUseCase(
         driverFinanceRepository,
       ),
       calculateDriverBalanceUseCase: const CalculateDriverBalanceUseCase(),
