@@ -1,43 +1,57 @@
+import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../entities/driver_settlement_calculation_input.dart';
 import '../entities/driver_settlement_calculation_result.dart';
 
 class DriverSettlementCalculator {
-  const DriverSettlementCalculator();
+  final DriverBalanceCalculator _balanceCalculator;
+
+  const DriverSettlementCalculator({
+    DriverBalanceCalculator balanceCalculator = const DriverBalanceCalculator(),
+  }) : _balanceCalculator = balanceCalculator;
 
   DriverSettlementCalculationResult calculate(
     DriverSettlementCalculationInput input,
   ) {
-    final closingDriverBalance = _money(
-      input.openingDriverBalance +
-          input.advancesTotal -
-          input.driverPaidTripExpensesTotal -
-          input.returnedCashTotal -
-          input.deductionsTotal -
-          input.settlementDeductionsTotal,
+    final closingDriverBalance = _balanceCalculator.calculate(
+      openingBalance: input.openingDriverBalance,
+      advancesReceived: input.advancesTotal,
+      driverCharges:
+          input.deductionsTotal + input.settlementDeductionsTotal,
+      creditedTripExpenses: input.driverPaidTripExpensesTotal,
+      cashReturned: input.returnedCashTotal,
+      salaryRecovery: input.balanceDeductionApplied,
     );
 
-    final netSalaryPayable = _money(
+    final netSalaryPayable = _balanceCalculator.roundMoney(
       input.grossSalary -
           input.balanceDeductionApplied -
           input.salaryDeductionsTotal,
     );
 
     return DriverSettlementCalculationResult(
-      openingDriverBalance: _money(input.openingDriverBalance),
-      advancesTotal: _money(input.advancesTotal),
-      driverPaidTripExpensesTotal: _money(input.driverPaidTripExpensesTotal),
-      returnedCashTotal: _money(input.returnedCashTotal),
-      deductionsTotal: _money(input.deductionsTotal),
-      settlementDeductionsTotal: _money(input.settlementDeductionsTotal),
-      grossSalary: _money(input.grossSalary),
-      salaryDeductionsTotal: _money(input.salaryDeductionsTotal),
-      balanceDeductionApplied: _money(input.balanceDeductionApplied),
+      openingDriverBalance: _balanceCalculator.roundMoney(
+        input.openingDriverBalance,
+      ),
+      advancesTotal: _balanceCalculator.roundMoney(input.advancesTotal),
+      driverPaidTripExpensesTotal: _balanceCalculator.roundMoney(
+        input.driverPaidTripExpensesTotal,
+      ),
+      returnedCashTotal: _balanceCalculator.roundMoney(
+        input.returnedCashTotal,
+      ),
+      deductionsTotal: _balanceCalculator.roundMoney(input.deductionsTotal),
+      settlementDeductionsTotal: _balanceCalculator.roundMoney(
+        input.settlementDeductionsTotal,
+      ),
+      grossSalary: _balanceCalculator.roundMoney(input.grossSalary),
+      salaryDeductionsTotal: _balanceCalculator.roundMoney(
+        input.salaryDeductionsTotal,
+      ),
+      balanceDeductionApplied: _balanceCalculator.roundMoney(
+        input.balanceDeductionApplied,
+      ),
       netSalaryPayable: netSalaryPayable,
       closingDriverBalance: closingDriverBalance,
     );
-  }
-
-  double _money(double value) {
-    return (value * 100).roundToDouble() / 100;
   }
 }
