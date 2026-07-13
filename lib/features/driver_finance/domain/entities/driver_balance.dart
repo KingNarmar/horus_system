@@ -1,3 +1,5 @@
+import '../../../../core/domain/services/driver_balance_calculator.dart';
+
 class DriverBalance {
   final String companyId;
   final String driverId;
@@ -11,5 +13,10 @@ class DriverBalance {
     required this.totalDeductions,
   });
 
-  double get netBalance => totalAdvances - totalDeductions;
+  double get netBalance {
+    return const DriverBalanceCalculator().calculate(
+      advancesReceived: totalAdvances,
+      driverCharges: totalDeductions,
+    );
+  }
 }
