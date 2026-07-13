@@ -66,6 +66,9 @@ class AddDriverChargeParams {
   });
 }
 
+@Deprecated('Use AddDriverChargeParams instead.')
+typedef AddDriverDeductionParams = AddDriverChargeParams;
+
 class AddDriverCashReturnParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
@@ -187,6 +190,9 @@ class AddDriverChargeUseCase
     );
   }
 }
+
+@Deprecated('Use AddDriverChargeUseCase instead.')
+typedef AddDriverDeductionUseCase = AddDriverChargeUseCase;
 
 class AddDriverCashReturnUseCase
     implements UseCase<DriverFinancialMovement, AddDriverCashReturnParams> {
