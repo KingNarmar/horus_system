@@ -26,19 +26,20 @@ void main() {
 
       expect(result, isA<Success<DriverBalance>>());
       expect(result.dataOrNull?.totalAdvances, 7000);
-      expect(result.dataOrNull?.totalDeductions, 0);
+      expect(result.dataOrNull?.totalDriverCharges, 0);
+      expect(result.dataOrNull?.totalCashReturns, 0);
       expect(result.dataOrNull?.netBalance, -7000);
     });
 
-    test('driver deduction is a charge owed by the driver', () async {
+    test('driver charge is an amount owed by the driver', () async {
       final result = await useCase(
         CalculateDriverBalanceParams(
           companyId: _companyId,
           driverId: _driverId,
           movements: [
             _movement(
-              id: 'deduction-1',
-              type: DriverFinancialMovementType.deduction,
+              id: 'charge-1',
+              type: DriverFinancialMovementType.driverCharge,
               amount: 500,
             ),
           ],
@@ -47,7 +48,8 @@ void main() {
 
       expect(result, isA<Success<DriverBalance>>());
       expect(result.dataOrNull?.totalAdvances, 0);
-      expect(result.dataOrNull?.totalDeductions, 500);
+      expect(result.dataOrNull?.totalDriverCharges, 500);
+      expect(result.dataOrNull?.totalCashReturns, 0);
       expect(result.dataOrNull?.netBalance, -500);
     });
 
@@ -63,8 +65,8 @@ void main() {
               amount: 7000,
             ),
             _movement(
-              id: 'deduction-1',
-              type: DriverFinancialMovementType.deduction,
+              id: 'charge-1',
+              type: DriverFinancialMovementType.driverCharge,
               amount: 500,
             ),
           ],
@@ -73,6 +75,31 @@ void main() {
 
       expect(result, isA<Success<DriverBalance>>());
       expect(result.dataOrNull?.netBalance, -7500);
+    });
+
+    test('cash return reduces the amount owed by the driver', () async {
+      final result = await useCase(
+        CalculateDriverBalanceParams(
+          companyId: _companyId,
+          driverId: _driverId,
+          movements: [
+            _movement(
+              id: 'advance-1',
+              type: DriverFinancialMovementType.advance,
+              amount: 7000,
+            ),
+            _movement(
+              id: 'cash-return-1',
+              type: DriverFinancialMovementType.cashReturn,
+              amount: 2000,
+            ),
+          ],
+        ),
+      );
+
+      expect(result, isA<Success<DriverBalance>>());
+      expect(result.dataOrNull?.totalCashReturns, 2000);
+      expect(result.dataOrNull?.netBalance, -5000);
     });
 
     test('empty movements produce a settled balance', () async {
