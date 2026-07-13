@@ -4,19 +4,22 @@ class DriverBalance {
   final String companyId;
   final String driverId;
   final double totalAdvances;
-  final double totalDeductions;
+  final double totalDriverCharges;
+  final double totalCashReturns;
 
   const DriverBalance({
     required this.companyId,
     required this.driverId,
     required this.totalAdvances,
-    required this.totalDeductions,
+    required this.totalDriverCharges,
+    required this.totalCashReturns,
   });
 
   double get netBalance {
     return const DriverBalanceCalculator().calculate(
       advancesReceived: totalAdvances,
-      driverCharges: totalDeductions,
+      driverCharges: totalDriverCharges,
+      cashReturned: totalCashReturns,
     );
   }
 }
