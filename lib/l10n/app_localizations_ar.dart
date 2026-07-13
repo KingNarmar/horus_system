@@ -1050,6 +1050,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeDeduction => 'خصم';
 
   @override
+  String get driverMovementTypeCashReturn => 'إرجاع نقدية';
+
+  @override
   String get companyExpensesTitle => 'مصروفات الشركة';
 
   @override

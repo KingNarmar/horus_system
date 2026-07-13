@@ -1065,6 +1065,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementTypeDeduction => 'Deduction';
 
   @override
+  String get driverMovementTypeCashReturn => 'Cash return';
+
+  @override
   String get companyExpensesTitle => 'Company expenses';
 
   @override

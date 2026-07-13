@@ -359,6 +359,7 @@
   "driverMovementTripLine": "الرحلة",
   "driverMovementTypeAdvance": "سلفة",
   "driverMovementTypeDeduction": "خصم",
+  "driverMovementTypeCashReturn": "إرجاع نقدية",
   "companyExpensesTitle": "مصروفات الشركة",
   "addCompanyExpenseButton": "إضافة مصروف",
   "addCompanyExpenseTitle": "إضافة مصروف شركة",

@@ -2054,6 +2054,12 @@ abstract class AppLocalizations {
   /// **'Deduction'**
   String get driverMovementTypeDeduction;
 
+  /// No description provided for @driverMovementTypeCashReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash return'**
+  String get driverMovementTypeCashReturn;
+
   /// No description provided for @companyExpensesTitle.
   ///
   /// In en, this message translates to:

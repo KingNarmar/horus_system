@@ -355,6 +355,7 @@
   "driverMovementTripLine": "Trip",
   "driverMovementTypeAdvance": "Advance",
   "driverMovementTypeDeduction": "Deduction",
+  "driverMovementTypeCashReturn": "Cash return",
   "companyExpensesTitle": "Company expenses",
   "addCompanyExpenseButton": "Add expense",
   "addCompanyExpenseTitle": "Add company expense",
