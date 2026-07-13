@@ -113,10 +113,13 @@ class DriverSettlementSourceSnapshotMapper {
       switch (type) {
         case _movementTypeAdvance:
           advancesTotal += amount;
+          break;
         case _movementTypeDriverCharge:
           driverChargesTotal += amount;
+          break;
         case _movementTypeCashReturn:
           returnedCashTotal += amount;
+          break;
       }
 
       if (!includeItems) continue;
