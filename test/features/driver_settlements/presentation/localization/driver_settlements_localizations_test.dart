@@ -19,6 +19,14 @@ void main() {
       english.balanceRecoveryExceedsDebtFailure,
       "Salary recovery cannot exceed the driver's outstanding debt.",
     );
+    expect(
+      english.driverInactiveFailure,
+      'Inactive drivers cannot be used for new settlements.',
+    );
+    expect(
+      arabic.driverNotFoundFailure,
+      'تعذر العثور على السائق المحدد داخل هذه الشركة.',
+    );
     expect(english.periodValue('A', 'B'), 'A – B');
     expect(arabic.labelValue('الحالة', 'مسودة'), 'الحالة: مسودة');
   });
