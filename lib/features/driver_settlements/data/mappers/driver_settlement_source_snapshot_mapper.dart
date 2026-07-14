@@ -49,6 +49,7 @@ class DriverSettlementSourceSnapshotMapper {
   }
 
   double calculateHistoricalOpeningBalance({
+    double openingDriverBalance = 0,
     required List<Map<String, dynamic>> movementRows,
     required List<Map<String, dynamic>> tripExpenseRows,
   }) {
@@ -64,6 +65,7 @@ class DriverSettlementSourceSnapshotMapper {
     );
 
     return balanceCalculator.calculate(
+      openingBalance: openingDriverBalance,
       advancesReceived: movementSummary.advancesTotal,
       driverCharges: movementSummary.driverChargesTotal,
       creditedTripExpenses: expenseSummary.total,
