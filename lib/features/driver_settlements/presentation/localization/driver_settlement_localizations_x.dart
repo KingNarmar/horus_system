@@ -29,6 +29,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.amountNegativeFailure,
       FailureCodes.validationDriverSettlementNetSalaryNegative =>
         strings.netSalaryNegativeFailure,
+      FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt =>
+        strings.balanceRecoveryExceedsDebtFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),
@@ -61,13 +63,13 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
     final strings = driverSettlementsL10n;
     return switch (item.labelKey) {
       'driver_settlement_item_advance' => strings.itemAdvance,
-      'driver_settlement_item_deduction' => strings.itemDeduction,
+      'driver_settlement_item_driver_charge' => strings.itemDriverCharge,
+      'driver_settlement_item_cash_return' => strings.itemCashReturn,
+      'driver_settlement_item_deduction' => strings.itemDriverCharge,
       'driver_settlement_item_trip_expense' => strings.itemTripExpense,
       _ => switch (item.sourceType) {
         DriverSettlementItemSourceType.driverFinancialMovement =>
-          item.direction == DriverSettlementItemDirection.driverToCompany
-              ? strings.itemAdvance
-              : strings.itemDeduction,
+          _driverFinancialMovementLabel(item, strings),
         DriverSettlementItemSourceType.tripExpense => strings.itemTripExpense,
         DriverSettlementItemSourceType.manualAdjustment =>
           strings.itemManualAdjustment,
@@ -109,4 +111,16 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
     }
     return rawRole;
   }
+}
+
+String _driverFinancialMovementLabel(
+  DriverSettlementItem item,
+  DriverSettlementsLocalizations strings,
+) {
+  return switch (item.metadata?['movement_type']?.toString()) {
+    'advance' => strings.itemAdvance,
+    'driver_charge' || 'deduction' => strings.itemDriverCharge,
+    'cash_return' => strings.itemCashReturn,
+    _ => strings.itemFinancialMovement,
+  };
 }
