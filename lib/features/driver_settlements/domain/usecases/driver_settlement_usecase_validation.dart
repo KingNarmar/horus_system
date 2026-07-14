@@ -101,8 +101,7 @@ abstract final class DriverSettlementUseCaseValidation {
 
     if (requestedRecovery > outstandingDebt) {
       return const ValidationFailure(
-        code:
-            FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
+        code: FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
         message: 'Driver balance recovery cannot exceed outstanding debt.',
       );
     }

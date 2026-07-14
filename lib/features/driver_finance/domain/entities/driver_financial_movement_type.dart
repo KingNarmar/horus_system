@@ -1,8 +1,4 @@
-enum DriverFinancialMovementType {
-  advance,
-  driverCharge,
-  cashReturn;
-}
+enum DriverFinancialMovementType { advance, driverCharge, cashReturn }
 
 extension DriverFinancialMovementTypeX on DriverFinancialMovementType {
   String get value {
