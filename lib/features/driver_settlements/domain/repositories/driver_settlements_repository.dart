@@ -16,6 +16,11 @@ abstract class DriverSettlementsRepository {
     required String companyId,
   });
 
+  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  });
+
   Future<Result<DriverSettlement>> getDriverSettlementById({
     required String companyId,
     required String settlementId,
