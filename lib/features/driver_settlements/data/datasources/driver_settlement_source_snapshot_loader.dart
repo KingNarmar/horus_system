@@ -81,7 +81,10 @@ class DriverSettlementSourceSnapshotLoader {
   }) async {
     final previous = await client
         .from(DriverSettlementsDbTables.driverSettlements)
-        .select(DriverSettlementsDbFields.closingDriverBalance)
+        .select(
+          '${DriverSettlementsDbFields.closingDriverBalance}, '
+          '${DriverSettlementsDbFields.periodEnd}',
+        )
         .eq(DbCommonFields.companyId, companyId)
         .eq(DriverSettlementsDbFields.driverId, driverId)
         .eq(DriverSettlementsDbFields.status, 'finalized')
@@ -91,7 +94,20 @@ class DriverSettlementSourceSnapshotLoader {
 
     if (previous.isNotEmpty) {
       final row = Map<String, dynamic>.from(previous.first);
-      return _amountFrom(row[DriverSettlementsDbFields.closingDriverBalance]);
+      final previousClosingBalance = _amountFrom(
+        row[DriverSettlementsDbFields.closingDriverBalance],
+      );
+      final previousPeriodEnd = _requiredDate(
+        row[DriverSettlementsDbFields.periodEnd],
+      );
+
+      return _calculateHistoricalOpeningBalance(
+        companyId: companyId,
+        driverId: driverId,
+        openingDriverBalance: previousClosingBalance,
+        afterExclusive: previousPeriodEnd,
+        before: period.start,
+      );
     }
 
     return _calculateHistoricalOpeningBalance(
@@ -105,19 +121,24 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     required DateTime before,
+    double openingDriverBalance = 0,
+    DateTime? afterExclusive,
   }) async {
     final movementRows = await _getDriverFinancialMovementRows(
       companyId: companyId,
       driverId: driverId,
+      startExclusive: afterExclusive,
       endExclusive: before,
     );
     final tripExpenseRows = await _getDriverPaidTripExpenseRows(
       companyId: companyId,
       driverId: driverId,
+      startExclusive: afterExclusive,
       endExclusive: before,
     );
 
     return snapshotMapper.calculateHistoricalOpeningBalance(
+      openingDriverBalance: openingDriverBalance,
       movementRows: movementRows,
       tripExpenseRows: tripExpenseRows,
     );
@@ -127,6 +148,7 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     DateTime? startInclusive,
+    DateTime? startExclusive,
     DateTime? endInclusive,
     DateTime? endExclusive,
   }) async {
@@ -140,6 +162,12 @@ class DriverSettlementSourceSnapshotLoader {
       query = query.gte(
         DriverSettlementsDbFields.movementDate,
         _dateOnly(startInclusive),
+      );
+    }
+    if (startExclusive != null) {
+      query = query.gt(
+        DriverSettlementsDbFields.movementDate,
+        _dateOnly(startExclusive),
       );
     }
     if (endInclusive != null) {
@@ -165,6 +193,7 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     DateTime? startInclusive,
+    DateTime? startExclusive,
     DateTime? endInclusive,
     DateTime? endExclusive,
   }) async {
@@ -188,6 +217,12 @@ class DriverSettlementSourceSnapshotLoader {
       query = query.gte(
         DriverSettlementsDbFields.expenseDate,
         _dateOnly(startInclusive),
+      );
+    }
+    if (startExclusive != null) {
+      query = query.gt(
+        DriverSettlementsDbFields.expenseDate,
+        _dateOnly(startExclusive),
       );
     }
     if (endInclusive != null) {
@@ -228,6 +263,14 @@ class DriverSettlementSourceSnapshotLoader {
   double _amountFrom(Object? value) {
     if (value is num) return value.toDouble();
     return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  DateTime _requiredDate(Object? value) {
+    final date = DateTime.tryParse(value?.toString() ?? '');
+    if (date == null) {
+      throw FormatException('Invalid settlement period end: $value');
+    }
+    return date;
   }
 
   String _dateOnly(DateTime value) {
