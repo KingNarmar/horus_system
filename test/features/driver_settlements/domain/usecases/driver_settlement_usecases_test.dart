@@ -61,6 +61,62 @@ void main() {
       expect(repository.snapshotCalls, 1);
     });
 
+    test('rejects preview recovery above outstanding driver debt', () async {
+      final repository = _FakeDriverSettlementsRepository(
+        snapshot: const DriverSettlementSourceSnapshot(
+          openingDriverBalance: -100,
+        ),
+      );
+      final useCase = CalculateDriverSettlementPreviewUseCase(repository);
+
+      final result = await useCase(
+        DriverSettlementCalculationParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+          driverId: _driverId,
+          periodStart: DateTime(2026, 7),
+          periodEnd: DateTime(2026, 7, 31),
+          grossSalary: 500,
+          balanceDeductionApplied: 150,
+        ),
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
+      );
+      expect(repository.snapshotCalls, 1);
+      expect(repository.createDraftCalls, 0);
+    });
+
+    test('does not create draft when recovery exceeds driver debt', () async {
+      final repository = _FakeDriverSettlementsRepository(
+        snapshot: const DriverSettlementSourceSnapshot(
+          openingDriverBalance: -100,
+        ),
+      );
+      final useCase = CreateDriverSettlementDraftUseCase(repository);
+
+      final result = await useCase(
+        CreateDriverSettlementDraftParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+          driverId: _driverId,
+          periodStart: DateTime(2026, 7),
+          periodEnd: DateTime(2026, 7, 31),
+          grossSalary: 500,
+          balanceDeductionApplied: 150,
+        ),
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
+      );
+      expect(repository.snapshotCalls, 1);
+      expect(repository.createDraftCalls, 0);
+    });
+
     test(
       'blocks draft creation for non-finance roles before repository calls',
       () async {
