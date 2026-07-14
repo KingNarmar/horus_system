@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
 
+
 typedef DriverFinancialMovementSubmit =
     Future<void> Function({
       required double amount,
@@ -54,9 +55,11 @@ class _DriverFinancialMovementFormDialogState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final title = widget.movementType.isAdvance
-        ? l10n.addDriverAdvanceTitle
-        : l10n.addDriverDeductionTitle;
+    final title = switch (widget.movementType) {
+      DriverFinancialMovementType.advance => l10n.addDriverAdvanceTitle,
+      DriverFinancialMovementType.driverCharge => l10n.addDriverDeductionTitle,
+      DriverFinancialMovementType.cashReturn => l10n.driverMovementTypeCashReturn,
+    };
 
     return Dialog(
       child: ConstrainedBox(
@@ -98,7 +101,7 @@ class _DriverFinancialMovementFormDialogState
                   border: const OutlineInputBorder(),
                 ),
               ),
-              if (widget.movementType.isDeduction) ...[
+              if (widget.movementType.canLinkTrip) ...[
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedTripId,
@@ -209,7 +212,7 @@ class _DriverFinancialMovementFormDialogState
     await widget.onSubmit(
       amount: amount,
       movementDate: _movementDate,
-      tripId: widget.movementType.isDeduction
+      tripId: widget.movementType.canLinkTrip
           ? _optional(_selectedTripId)
           : null,
       notes: _optional(_notesController.text),
