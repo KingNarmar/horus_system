@@ -68,7 +68,7 @@ class DriverFinanceDetailsSection extends StatelessWidget {
             ),
             _DetailRow(
               label: l10n.netDriverBalanceLabel,
-              value: _money(balance?.netBalance ?? 0),
+              value: l10n.driverBalanceLabel(balance?.netBalance ?? 0),
             ),
             if (canManage) ...[
               const SizedBox(height: AppSpacing.sm),

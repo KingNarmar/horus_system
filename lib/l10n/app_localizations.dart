@@ -2012,6 +2012,24 @@ abstract class AppLocalizations {
   /// **'Current balance'**
   String get netDriverBalanceLabel;
 
+  /// No description provided for @driverBalanceDriverOwesCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver owes company: {amount}'**
+  String driverBalanceDriverOwesCompany(String amount);
+
+  /// No description provided for @driverBalanceCompanyOwesDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Company owes driver: {amount}'**
+  String driverBalanceCompanyOwesDriver(String amount);
+
+  /// No description provided for @driverBalanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance settled'**
+  String get driverBalanceSettled;
+
   /// No description provided for @noDriverFinancialMovements.
   ///
   /// In en, this message translates to:

@@ -1042,6 +1042,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netDriverBalanceLabel => 'Current balance';
 
   @override
+  String driverBalanceDriverOwesCompany(String amount) {
+    return 'Driver owes company: $amount';
+  }
+
+  @override
+  String driverBalanceCompanyOwesDriver(String amount) {
+    return 'Company owes driver: $amount';
+  }
+
+  @override
+  String get driverBalanceSettled => 'Balance settled';
+
+  @override
   String get noDriverFinancialMovements => 'No financial movements yet.';
 
   @override

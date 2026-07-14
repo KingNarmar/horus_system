@@ -1030,6 +1030,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get netDriverBalanceLabel => 'الرصيد الحالي';
 
   @override
+  String driverBalanceDriverOwesCompany(String amount) {
+    return 'السائق مدين للشركة: $amount';
+  }
+
+  @override
+  String driverBalanceCompanyOwesDriver(String amount) {
+    return 'الشركة مدينة للسائق: $amount';
+  }
+
+  @override
+  String get driverBalanceSettled => 'الرصيد مسوّى';
+
+  @override
   String get noDriverFinancialMovements => 'لا توجد حركات مالية بعد.';
 
   @override
