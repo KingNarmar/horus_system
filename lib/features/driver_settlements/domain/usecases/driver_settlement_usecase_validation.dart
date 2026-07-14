@@ -2,10 +2,13 @@ import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../../../core/utils/result.dart';
 import '../entities/driver_settlement_calculation_input.dart';
+import '../entities/driver_settlement_driver_option.dart';
 import '../entities/driver_settlement_period.dart';
 import '../entities/driver_settlement_source_snapshot.dart';
 import '../policies/driver_settlements_permission_policy.dart';
+import '../repositories/driver_settlements_repository.dart';
 import 'driver_settlement_params.dart';
 
 abstract final class DriverSettlementUseCaseValidation {
@@ -74,6 +77,38 @@ abstract final class DriverSettlementUseCaseValidation {
       return const ValidationFailure(
         code: FailureCodes.validationDriverSettlementNetSalaryNegative,
         message: 'Driver settlement net salary cannot be negative.',
+      );
+    }
+
+    return null;
+  }
+
+  static Future<Failure?> validateActiveDriver({
+    required DriverSettlementsRepository repository,
+    required String companyId,
+    required String driverId,
+  }) async {
+    final result = await repository.getDriverOptionById(
+      companyId: companyId,
+      driverId: driverId,
+    );
+
+    if (result is FailureResult<DriverSettlementDriverOption?>) {
+      return result.failure;
+    }
+
+    final driver = result.dataOrNull;
+    if (driver == null) {
+      return const ValidationFailure(
+        code: FailureCodes.validationDriverSettlementDriverNotFound,
+        message: 'Driver was not found in the current company.',
+      );
+    }
+
+    if (!driver.isActive) {
+      return const ValidationFailure(
+        code: FailureCodes.validationDriverSettlementDriverInactive,
+        message: 'Inactive drivers cannot be used for new settlements.',
       );
     }
 
