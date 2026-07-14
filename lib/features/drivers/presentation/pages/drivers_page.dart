@@ -123,6 +123,7 @@ class _DriversPageState extends State<DriversPage> {
                         movementDate: movementDate,
                         notes: notes,
                       );
+                      break;
                     case DriverFinancialMovementType.driverCharge:
                       await cubit.addDriverCharge(
                         driver: driver,
@@ -131,6 +132,7 @@ class _DriversPageState extends State<DriversPage> {
                         tripId: tripId,
                         notes: notes,
                       );
+                      break;
                     case DriverFinancialMovementType.cashReturn:
                       await cubit.addDriverCashReturn(
                         driver: driver,
@@ -138,6 +140,7 @@ class _DriversPageState extends State<DriversPage> {
                         movementDate: movementDate,
                         notes: notes,
                       );
+                      break;
                   }
                   await cubit.loadDriverActivity(driver);
                 },
