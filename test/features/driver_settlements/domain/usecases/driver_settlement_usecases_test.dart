@@ -63,33 +63,36 @@ void main() {
       expect(repository.snapshotCalls, 1);
     });
 
-    test('rejects preview for an inactive driver before snapshot load', () async {
-      final repository = _FakeDriverSettlementsRepository(
-        driverOption: const DriverSettlementDriverOption(
-          id: _driverId,
-          displayName: 'Inactive Driver',
-          isActive: false,
-        ),
-      );
-      final useCase = CalculateDriverSettlementPreviewUseCase(repository);
+    test(
+      'rejects preview for an inactive driver before snapshot load',
+      () async {
+        final repository = _FakeDriverSettlementsRepository(
+          driverOption: const DriverSettlementDriverOption(
+            id: _driverId,
+            displayName: 'Inactive Driver',
+            isActive: false,
+          ),
+        );
+        final useCase = CalculateDriverSettlementPreviewUseCase(repository);
 
-      final result = await useCase(
-        DriverSettlementCalculationParams(
-          currentCompanyContext: _context(CompanyRole.accountant),
-          driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
-        ),
-      );
+        final result = await useCase(
+          DriverSettlementCalculationParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+            periodStart: DateTime(2026, 7),
+            periodEnd: DateTime(2026, 7, 31),
+          ),
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationDriverSettlementDriverInactive,
-      );
-      expect(repository.driverOptionCalls, 1);
-      expect(repository.snapshotCalls, 0);
-    });
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationDriverSettlementDriverInactive,
+        );
+        expect(repository.driverOptionCalls, 1);
+        expect(repository.snapshotCalls, 0);
+      },
+    );
 
     test('rejects draft for a missing company driver', () async {
       final repository = _FakeDriverSettlementsRepository(driverOption: null);
