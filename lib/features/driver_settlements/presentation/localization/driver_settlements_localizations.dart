@@ -82,6 +82,9 @@ class DriverSettlementsLocalizations {
   String get auditFinalized => _value('auditFinalized');
   String get auditVoided => _value('auditVoided');
   String get itemAdvance => _value('itemAdvance');
+  String get itemDriverCharge => _value('itemDriverCharge');
+  String get itemCashReturn => _value('itemCashReturn');
+  String get itemFinancialMovement => _value('itemFinancialMovement');
   String get itemDeduction => _value('itemDeduction');
   String get itemTripExpense => _value('itemTripExpense');
   String get itemManualAdjustment => _value('itemManualAdjustment');
@@ -95,6 +98,8 @@ class DriverSettlementsLocalizations {
   String get periodInvalidFailure => _value('periodInvalidFailure');
   String get amountNegativeFailure => _value('amountNegativeFailure');
   String get netSalaryNegativeFailure => _value('netSalaryNegativeFailure');
+  String get balanceRecoveryExceedsDebtFailure =>
+      _value('balanceRecoveryExceedsDebtFailure');
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
@@ -138,8 +143,8 @@ class DriverSettlementsLocalizations {
     'periodInvalid': 'Period start must be on or before period end.',
     'grossSalary': 'Gross salary',
     'salaryDeductions': 'Salary deductions',
-    'balanceDeduction': 'Driver balance deduction',
-    'settlementDeductions': 'Settlement deductions',
+    'balanceDeduction': 'Salary recovery against driver debt',
+    'settlementDeductions': 'Additional driver charges',
     'notes': 'Notes',
     'nonNegativeAmount': 'Enter a valid non-negative amount.',
     'calculatePreview': 'Calculate preview',
@@ -154,11 +159,11 @@ class DriverSettlementsLocalizations {
     'statusFinalized': 'Finalized',
     'statusVoided': 'Voided',
     'openingBalance': 'Opening driver balance',
-    'advancesTotal': 'Advances',
+    'advancesTotal': 'Advances received',
     'driverPaidTripExpenses': 'Driver-paid trip expenses',
-    'returnedCash': 'Returned cash',
-    'deductionsTotal': 'Driver finance deductions',
-    'settlementDeductionsTotal': 'Settlement deductions',
+    'returnedCash': 'Cash returned',
+    'deductionsTotal': 'Driver charges',
+    'settlementDeductionsTotal': 'Additional driver charges',
     'netSalary': 'Net salary payable',
     'closingBalance': 'Closing driver balance',
     'driverOwesCompany': 'Driver owes company',
@@ -189,18 +194,23 @@ class DriverSettlementsLocalizations {
     'auditFinalized': 'Settlement finalized',
     'auditVoided': 'Settlement voided',
     'itemAdvance': 'Driver advance',
-    'itemDeduction': 'Driver deduction',
+    'itemDriverCharge': 'Driver charge',
+    'itemCashReturn': 'Cash returned by driver',
+    'itemFinancialMovement': 'Driver financial movement',
+    'itemDeduction': 'Driver charge',
     'itemTripExpense': 'Driver-paid trip expense',
     'itemManualAdjustment': 'Manual adjustment',
-    'directionCompanyToDriver': 'Company to driver',
-    'directionDriverToCompany': 'Driver to company',
-    'directionNeutral': 'Neutral',
+    'directionCompanyToDriver': 'Credits driver balance',
+    'directionDriverToCompany': 'Debits driver balance',
+    'directionNeutral': 'No balance effect',
     'permissionViewFailure': 'This role cannot view driver settlements.',
     'permissionManageFailure': 'This role cannot manage driver settlements.',
     'settlementIdRequiredFailure': 'Driver settlement is required.',
     'periodInvalidFailure': 'The settlement period is invalid.',
     'amountNegativeFailure': 'Settlement amounts cannot be negative.',
     'netSalaryNegativeFailure': 'Net salary payable cannot be negative.',
+    'balanceRecoveryExceedsDebtFailure':
+        'Salary recovery cannot exceed the driver\'s outstanding debt.',
     'voidReasonRequiredFailure': 'A void reason is required.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
@@ -233,8 +243,8 @@ class DriverSettlementsLocalizations {
     'periodInvalid': 'يجب أن تكون بداية الفترة قبل أو مساوية لنهايتها.',
     'grossSalary': 'إجمالي الراتب',
     'salaryDeductions': 'خصومات الراتب',
-    'balanceDeduction': 'خصم من رصيد السائق',
-    'settlementDeductions': 'خصومات التسوية',
+    'balanceDeduction': 'استرداد دين السائق من الراتب',
+    'settlementDeductions': 'مبالغ إضافية محمّلة على السائق',
     'notes': 'ملاحظات',
     'nonNegativeAmount': 'أدخل مبلغًا صحيحًا غير سالب.',
     'calculatePreview': 'حساب المعاينة',
@@ -249,11 +259,11 @@ class DriverSettlementsLocalizations {
     'statusFinalized': 'نهائية',
     'statusVoided': 'ملغاة',
     'openingBalance': 'رصيد السائق الافتتاحي',
-    'advancesTotal': 'السلف',
+    'advancesTotal': 'السلف المستلمة',
     'driverPaidTripExpenses': 'مصروفات الرحلات المدفوعة بواسطة السائق',
-    'returnedCash': 'النقدية المرتجعة',
-    'deductionsTotal': 'خصومات الحركات المالية',
-    'settlementDeductionsTotal': 'خصومات التسوية',
+    'returnedCash': 'النقدية المعادة',
+    'deductionsTotal': 'المبالغ المحمّلة على السائق',
+    'settlementDeductionsTotal': 'مبالغ إضافية محمّلة على السائق',
     'netSalary': 'صافي الراتب المستحق',
     'closingBalance': 'رصيد السائق الختامي',
     'driverOwesCompany': 'السائق مدين للشركة',
@@ -283,18 +293,23 @@ class DriverSettlementsLocalizations {
     'auditFinalized': 'تم اعتماد التسوية',
     'auditVoided': 'تم إلغاء التسوية',
     'itemAdvance': 'سلفة سائق',
-    'itemDeduction': 'خصم سائق',
+    'itemDriverCharge': 'مبلغ محمّل على السائق',
+    'itemCashReturn': 'نقدية أعادها السائق',
+    'itemFinancialMovement': 'حركة مالية للسائق',
+    'itemDeduction': 'مبلغ محمّل على السائق',
     'itemTripExpense': 'مصروف رحلة مدفوع بواسطة السائق',
     'itemManualAdjustment': 'تسوية يدوية',
-    'directionCompanyToDriver': 'من الشركة إلى السائق',
-    'directionDriverToCompany': 'من السائق إلى الشركة',
-    'directionNeutral': 'محايد',
+    'directionCompanyToDriver': 'يزيد رصيد السائق',
+    'directionDriverToCompany': 'يخفض رصيد السائق',
+    'directionNeutral': 'لا يؤثر على الرصيد',
     'permissionViewFailure': 'هذا الدور لا يمكنه عرض تسويات السائقين.',
     'permissionManageFailure': 'هذا الدور لا يمكنه إدارة تسويات السائقين.',
     'settlementIdRequiredFailure': 'تسوية السائق مطلوبة.',
     'periodInvalidFailure': 'فترة التسوية غير صحيحة.',
     'amountNegativeFailure': 'مبالغ التسوية لا يمكن أن تكون سالبة.',
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
+    'balanceRecoveryExceedsDebtFailure':
+        'لا يمكن أن يتجاوز الاسترداد من الراتب قيمة دين السائق القائم.',
     'voidReasonRequiredFailure': 'سبب الإلغاء مطلوب.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
