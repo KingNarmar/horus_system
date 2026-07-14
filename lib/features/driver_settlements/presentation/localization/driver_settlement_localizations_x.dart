@@ -31,6 +31,10 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.netSalaryNegativeFailure,
       FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt =>
         strings.balanceRecoveryExceedsDebtFailure,
+      FailureCodes.validationDriverSettlementDriverNotFound =>
+        strings.driverNotFoundFailure,
+      FailureCodes.validationDriverSettlementDriverInactive =>
+        strings.driverInactiveFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),
