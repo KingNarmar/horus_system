@@ -162,7 +162,7 @@ DriverSettlement _settlement({
       salaryDeductionsTotal: 50,
       balanceDeductionApplied: 0,
       netSalaryPayable: 950,
-      closingDriverBalance: 80,
+      closingDriverBalance: -80,
     ),
     status: status,
   );
