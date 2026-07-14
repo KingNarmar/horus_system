@@ -201,6 +201,22 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   }
 
   @override
+  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) async {
+    return Success(
+      driverId == 'driver-active'
+          ? const DriverSettlementDriverOption(
+              id: 'driver-active',
+              displayName: 'Active Driver',
+              isActive: true,
+            )
+          : null,
+    );
+  }
+
+  @override
   Future<Result<DriverSettlement>> getDriverSettlementById({
     required String companyId,
     required String settlementId,
