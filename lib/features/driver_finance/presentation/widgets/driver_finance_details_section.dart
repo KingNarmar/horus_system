@@ -19,7 +19,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
   final bool isSaving;
   final Failure? failure;
   final VoidCallback? onAddAdvance;
-  final VoidCallback? onAddDeduction;
+  final VoidCallback? onAddDriverCharge;
+  final VoidCallback? onAddCashReturn;
 
   const DriverFinanceDetailsSection({
     required this.movements,
@@ -30,7 +31,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
     required this.isSaving,
     required this.failure,
     this.onAddAdvance,
-    this.onAddDeduction,
+    this.onAddDriverCharge,
+    this.onAddCashReturn,
     super.key,
   });
 
@@ -46,8 +48,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
             Text(
               l10n.driverFinanceTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.driverBalancePlaceholderDescription),
@@ -58,7 +60,11 @@ class DriverFinanceDetailsSection extends StatelessWidget {
             ),
             _DetailRow(
               label: l10n.totalDeductionsLabel,
-              value: _money(balance?.totalDeductions ?? 0),
+              value: _money(balance?.totalDriverCharges ?? 0),
+            ),
+            _DetailRow(
+              label: l10n.driverMovementTypeCashReturn,
+              value: _money(balance?.totalCashReturns ?? 0),
             ),
             _DetailRow(
               label: l10n.netDriverBalanceLabel,
@@ -76,9 +82,14 @@ class DriverFinanceDetailsSection extends StatelessWidget {
                     label: Text(l10n.addDriverAdvanceButton),
                   ),
                   OutlinedButton.icon(
-                    onPressed: isSaving ? null : onAddDeduction,
+                    onPressed: isSaving ? null : onAddDriverCharge,
                     icon: const Icon(AppIcons.expenses),
                     label: Text(l10n.addDriverDeductionButton),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: isSaving ? null : onAddCashReturn,
+                    icon: const Icon(AppIcons.cashReturn),
+                    label: Text(l10n.driverMovementTypeCashReturn),
                   ),
                 ],
               ),
