@@ -117,7 +117,7 @@ String _driverFinancialMovementLabel(
   DriverSettlementItem item,
   DriverSettlementsLocalizations strings,
 ) {
-  return switch (item.metadata?['movement_type']?.toString()) {
+  return switch (item.metadata['movement_type']?.toString()) {
     'advance' => strings.itemAdvance,
     'driver_charge' || 'deduction' => strings.itemDriverCharge,
     'cash_return' => strings.itemCashReturn,
