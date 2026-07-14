@@ -11,13 +11,9 @@ class DriverBalance {
     required this.companyId,
     required this.driverId,
     required this.totalAdvances,
-    double? totalDriverCharges,
-    @Deprecated('Use totalDriverCharges instead.') double? totalDeductions,
+    required this.totalDriverCharges,
     this.totalCashReturns = 0,
-  }) : totalDriverCharges = totalDriverCharges ?? totalDeductions ?? 0;
-
-  @Deprecated('Use totalDriverCharges instead.')
-  double get totalDeductions => totalDriverCharges;
+  });
 
   double get netBalance {
     return const DriverBalanceCalculator().calculate(
