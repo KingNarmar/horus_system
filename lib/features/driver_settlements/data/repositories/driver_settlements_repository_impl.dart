@@ -59,6 +59,20 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
   }
 
   @override
+  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) {
+    return _guard(() async {
+      final model = await remoteDataSource.getDriverOptionById(
+        companyId: companyId,
+        driverId: driverId,
+      );
+      return Success(model?.toEntity());
+    });
+  }
+
+  @override
   Future<Result<DriverSettlement>> getDriverSettlementById({
     required String companyId,
     required String settlementId,
