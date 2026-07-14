@@ -35,7 +35,7 @@ void main() {
         expect(entity.companyId, _companyId);
         expect(entity.driverId, _driverId);
         expect(entity.period.start, DateTime(2026, 7));
-        expect(entity.calculation.closingDriverBalance, 125);
+        expect(entity.calculation.closingDriverBalance, -125);
         expect(entity.status, DriverSettlementStatus.draft);
         expect(entity.items, hasLength(1));
         expect(entity.items.first.amount, 120);
@@ -61,7 +61,7 @@ void main() {
           salaryDeductionsTotal: 100,
           balanceDeductionApplied: 50,
           netSalaryPayable: 850,
-          closingDriverBalance: 125,
+          closingDriverBalance: -125,
         ),
         notes: 'July settlement',
       );
@@ -73,7 +73,7 @@ void main() {
       expect(map['period_start'], '2026-07-01');
       expect(map['period_end'], '2026-07-31');
       expect(map['status'], 'draft');
-      expect(map['closing_driver_balance'], 125);
+      expect(map['closing_driver_balance'], -125);
       expect(map['net_salary_payable'], 850);
     });
 
@@ -125,7 +125,7 @@ DriverSettlementModel _settlementModel({
     salaryDeductionsTotal: 100,
     balanceDeductionApplied: 50,
     netSalaryPayable: 850,
-    closingDriverBalance: 125,
+    closingDriverBalance: -125,
     status: DriverSettlementStatus.draft,
     items: items,
   );
