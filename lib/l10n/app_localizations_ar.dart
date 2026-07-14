@@ -979,19 +979,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverBalancePlaceholderDescription =>
-      'رصيد مبدئي محسوب من السلف والخصومات المسجلة حاليًا. التسوية الشهرية ستنفذ لاحقًا.';
+      'الرصيد السالب يعني أن السائق مدين للشركة، والرصيد الموجب يعني أن الشركة مدينة للسائق.';
 
   @override
   String get addDriverAdvanceButton => 'إضافة سلفة';
 
   @override
-  String get addDriverDeductionButton => 'إضافة خصم';
+  String get addDriverDeductionButton => 'إضافة مديونية على السائق';
 
   @override
   String get addDriverAdvanceTitle => 'إضافة سلفة للسائق';
 
   @override
-  String get addDriverDeductionTitle => 'إضافة خصم للسائق';
+  String get addDriverDeductionTitle => 'إضافة مديونية على السائق';
 
   @override
   String get driverMovementAmountLabel => 'المبلغ';
@@ -1001,20 +1001,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverMovementTripPickerComingSoon =>
-      'اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.';
+      'ربط الرحلة اختياري. اتركها فارغة لتسجيل مديونية عامة على السائق.';
 
   @override
   String get driverMovementRelatedTripLabel => 'الرحلة المرتبطة';
 
   @override
-  String get driverMovementGeneralDeductionOption => 'خصم عام بدون ربط برحلة';
+  String get driverMovementGeneralDeductionOption =>
+      'مديونية عامة بدون ربط برحلة';
 
   @override
   String get loadingDriverTripOptions => 'جاري تحميل رحلات السائق...';
 
   @override
   String get noDriverTripsForDeduction =>
-      'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك حفظه كخصم عام.';
+      'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك تسجيل مديونية عامة.';
 
   @override
   String get driverMovementNotesLabel => 'ملاحظات';
@@ -1023,7 +1024,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get totalAdvancesLabel => 'إجمالي السلف';
 
   @override
-  String get totalDeductionsLabel => 'إجمالي الخصومات';
+  String get totalDeductionsLabel => 'إجمالي مديونيات السائق';
 
   @override
   String get netDriverBalanceLabel => 'الرصيد الحالي';
@@ -1047,7 +1048,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeAdvance => 'سلفة';
 
   @override
-  String get driverMovementTypeDeduction => 'خصم';
+  String get driverMovementTypeDeduction => 'مديونية على السائق';
 
   @override
   String get driverMovementTypeCashReturn => 'إرجاع نقدية';
