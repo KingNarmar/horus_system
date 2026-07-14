@@ -100,6 +100,8 @@ class DriverSettlementsLocalizations {
   String get netSalaryNegativeFailure => _value('netSalaryNegativeFailure');
   String get balanceRecoveryExceedsDebtFailure =>
       _value('balanceRecoveryExceedsDebtFailure');
+  String get driverNotFoundFailure => _value('driverNotFoundFailure');
+  String get driverInactiveFailure => _value('driverInactiveFailure');
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
@@ -211,6 +213,10 @@ class DriverSettlementsLocalizations {
     'netSalaryNegativeFailure': 'Net salary payable cannot be negative.',
     'balanceRecoveryExceedsDebtFailure':
         'Salary recovery cannot exceed the driver\'s outstanding debt.',
+    'driverNotFoundFailure':
+        'The selected driver was not found in this company.',
+    'driverInactiveFailure':
+        'Inactive drivers cannot be used for new settlements.',
     'voidReasonRequiredFailure': 'A void reason is required.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
@@ -310,6 +316,8 @@ class DriverSettlementsLocalizations {
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
     'balanceRecoveryExceedsDebtFailure':
         'لا يمكن أن يتجاوز الاسترداد من الراتب قيمة دين السائق القائم.',
+    'driverNotFoundFailure': 'تعذر العثور على السائق المحدد داخل هذه الشركة.',
+    'driverInactiveFailure': 'لا يمكن إنشاء تسوية جديدة لسائق غير نشط.',
     'voidReasonRequiredFailure': 'سبب الإلغاء مطلوب.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
