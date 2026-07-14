@@ -74,6 +74,11 @@ abstract class DriverSettlementsRemoteDataSource {
     required String companyId,
   });
 
+  Future<DriverSettlementDriverOptionModel?> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  });
+
   Future<DriverSettlementModel> getDriverSettlementById({
     required String companyId,
     required String settlementId,
@@ -155,6 +160,24 @@ class SupabaseDriverSettlementsRemoteDataSource
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<DriverSettlementDriverOptionModel?> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) async {
+    final rows = await client
+        .from(DriverSettlementsDbTables.drivers)
+        .select(_driverOptionColumns)
+        .eq(DbCommonFields.companyId, companyId)
+        .eq(DbCommonFields.id, driverId)
+        .limit(1);
+
+    if (rows.isEmpty) return null;
+    return DriverSettlementDriverOptionModel.fromMap(
+      Map<String, dynamic>.from(rows.first),
+    );
   }
 
   @override
