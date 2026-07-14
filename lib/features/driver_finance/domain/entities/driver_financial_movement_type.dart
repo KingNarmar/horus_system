@@ -2,9 +2,6 @@ enum DriverFinancialMovementType {
   advance,
   driverCharge,
   cashReturn;
-
-  @Deprecated('Use DriverFinancialMovementType.driverCharge instead.')
-  static const deduction = DriverFinancialMovementType.driverCharge;
 }
 
 extension DriverFinancialMovementTypeX on DriverFinancialMovementType {
@@ -23,9 +20,6 @@ extension DriverFinancialMovementTypeX on DriverFinancialMovementType {
   bool get isCashReturn => this == DriverFinancialMovementType.cashReturn;
 
   bool get canLinkTrip => isDriverCharge;
-
-  @Deprecated('Use isDriverCharge instead.')
-  bool get isDeduction => isDriverCharge;
 }
 
 DriverFinancialMovementType driverFinancialMovementTypeFromValue(String value) {
