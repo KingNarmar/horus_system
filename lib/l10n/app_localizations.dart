@@ -1919,7 +1919,7 @@ abstract class AppLocalizations {
   /// No description provided for @driverBalancePlaceholderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Initial balance calculated from recorded advances and deductions. Monthly settlement will be implemented later.'**
+  /// **'Negative balance means the driver owes the company. Positive balance means the company owes the driver.'**
   String get driverBalancePlaceholderDescription;
 
   /// No description provided for @addDriverAdvanceButton.
@@ -1928,11 +1928,11 @@ abstract class AppLocalizations {
   /// **'Add advance'**
   String get addDriverAdvanceButton;
 
-  /// No description provided for @addDriverDeductionButton.
+  /// No description provided for @addDriverChargeButton.
   ///
   /// In en, this message translates to:
-  /// **'Add deduction'**
-  String get addDriverDeductionButton;
+  /// **'Add driver charge'**
+  String get addDriverChargeButton;
 
   /// No description provided for @addDriverAdvanceTitle.
   ///
@@ -1940,11 +1940,11 @@ abstract class AppLocalizations {
   /// **'Add driver advance'**
   String get addDriverAdvanceTitle;
 
-  /// No description provided for @addDriverDeductionTitle.
+  /// No description provided for @addDriverChargeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add driver deduction'**
-  String get addDriverDeductionTitle;
+  /// **'Add driver charge'**
+  String get addDriverChargeTitle;
 
   /// No description provided for @driverMovementAmountLabel.
   ///
@@ -1961,7 +1961,7 @@ abstract class AppLocalizations {
   /// No description provided for @driverMovementTripPickerComingSoon.
   ///
   /// In en, this message translates to:
-  /// **'Trip selection will be added later. This deduction will be saved as a general deduction for now.'**
+  /// **'A related trip is optional. Leave it empty for a general driver charge.'**
   String get driverMovementTripPickerComingSoon;
 
   /// No description provided for @driverMovementRelatedTripLabel.
@@ -1970,11 +1970,11 @@ abstract class AppLocalizations {
   /// **'Related trip'**
   String get driverMovementRelatedTripLabel;
 
-  /// No description provided for @driverMovementGeneralDeductionOption.
+  /// No description provided for @driverMovementGeneralChargeOption.
   ///
   /// In en, this message translates to:
-  /// **'General deduction without trip link'**
-  String get driverMovementGeneralDeductionOption;
+  /// **'General driver charge without trip link'**
+  String get driverMovementGeneralChargeOption;
 
   /// No description provided for @loadingDriverTripOptions.
   ///
@@ -1982,11 +1982,11 @@ abstract class AppLocalizations {
   /// **'Loading driver trips...'**
   String get loadingDriverTripOptions;
 
-  /// No description provided for @noDriverTripsForDeduction.
+  /// No description provided for @noDriverTripsForCharge.
   ///
   /// In en, this message translates to:
-  /// **'No trips assigned to this driver yet. You can save it as a general deduction.'**
-  String get noDriverTripsForDeduction;
+  /// **'No trips assigned to this driver yet. You can save a general driver charge.'**
+  String get noDriverTripsForCharge;
 
   /// No description provided for @driverMovementNotesLabel.
   ///
@@ -2000,17 +2000,35 @@ abstract class AppLocalizations {
   /// **'Total advances'**
   String get totalAdvancesLabel;
 
-  /// No description provided for @totalDeductionsLabel.
+  /// No description provided for @totalDriverChargesLabel.
   ///
   /// In en, this message translates to:
-  /// **'Total deductions'**
-  String get totalDeductionsLabel;
+  /// **'Total driver charges'**
+  String get totalDriverChargesLabel;
 
   /// No description provided for @netDriverBalanceLabel.
   ///
   /// In en, this message translates to:
   /// **'Current balance'**
   String get netDriverBalanceLabel;
+
+  /// No description provided for @driverBalanceDriverOwesCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver owes company: {amount}'**
+  String driverBalanceDriverOwesCompany(String amount);
+
+  /// No description provided for @driverBalanceCompanyOwesDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Company owes driver: {amount}'**
+  String driverBalanceCompanyOwesDriver(String amount);
+
+  /// No description provided for @driverBalanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance settled'**
+  String get driverBalanceSettled;
 
   /// No description provided for @noDriverFinancialMovements.
   ///
@@ -2048,11 +2066,17 @@ abstract class AppLocalizations {
   /// **'Advance'**
   String get driverMovementTypeAdvance;
 
-  /// No description provided for @driverMovementTypeDeduction.
+  /// No description provided for @driverMovementTypeDriverCharge.
   ///
   /// In en, this message translates to:
-  /// **'Deduction'**
-  String get driverMovementTypeDeduction;
+  /// **'Driver charge'**
+  String get driverMovementTypeDriverCharge;
+
+  /// No description provided for @driverMovementTypeCashReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash return'**
+  String get driverMovementTypeCashReturn;
 
   /// No description provided for @companyExpensesTitle.
   ///

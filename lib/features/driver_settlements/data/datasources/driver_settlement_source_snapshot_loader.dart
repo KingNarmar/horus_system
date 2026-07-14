@@ -1,12 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
-import '../../domain/entities/driver_settlement_item.dart';
-import '../../domain/entities/driver_settlement_item_direction.dart';
-import '../../domain/entities/driver_settlement_item_source_type.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../constants/driver_settlements_db_fields.dart';
+import '../mappers/driver_settlement_source_snapshot_mapper.dart';
 
 const _driverFinancialMovementColumns = '''
 id,
@@ -16,7 +14,8 @@ trip_id,
 movement_type,
 amount,
 movement_date,
-notes
+notes,
+created_at
 ''';
 
 const _tripExpenseColumns = '''
@@ -27,21 +26,21 @@ expense_name,
 amount,
 paid_by,
 expense_date,
-notes
+notes,
+created_at
 ''';
 
-const _movementTypeAdvance = 'advance';
-const _movementTypeDeduction = 'deduction';
 const _paidByDriverAdvance = 'driver_advance';
 const _paidByDriverCash = 'driver_cash';
-const _labelAdvance = 'driver_settlement_item_advance';
-const _labelDeduction = 'driver_settlement_item_deduction';
-const _labelTripExpense = 'driver_settlement_item_trip_expense';
 
 class DriverSettlementSourceSnapshotLoader {
   final SupabaseClient client;
+  final DriverSettlementSourceSnapshotMapper snapshotMapper;
 
-  const DriverSettlementSourceSnapshotLoader(this.client);
+  const DriverSettlementSourceSnapshotLoader(
+    this.client, {
+    this.snapshotMapper = const DriverSettlementSourceSnapshotMapper(),
+  });
 
   Future<DriverSettlementSourceSnapshot> load({
     required String companyId,
@@ -67,73 +66,11 @@ class DriverSettlementSourceSnapshotLoader {
       endInclusive: period.end,
     );
 
-    var advancesTotal = 0.0;
-    var deductionsTotal = 0.0;
-    final sourceItems = <DriverSettlementItem>[];
-
-    for (final row in movementRows) {
-      final type = row[DriverSettlementsDbFields.movementType]?.toString();
-      final amount = _amountFrom(row[DriverSettlementsDbFields.amount]);
-      final isAdvance = type == _movementTypeAdvance;
-      if (isAdvance) {
-        advancesTotal += amount;
-      } else if (type == _movementTypeDeduction) {
-        deductionsTotal += amount;
-      }
-
-      sourceItems.add(
-        DriverSettlementItem(
-          companyId: companyId,
-          sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
-          sourceId: row[DbCommonFields.id] as String?,
-          sourceDate: _dateFrom(row[DriverSettlementsDbFields.movementDate]),
-          direction: isAdvance
-              ? DriverSettlementItemDirection.driverToCompany
-              : DriverSettlementItemDirection.companyToDriver,
-          amount: amount,
-          labelKey: isAdvance ? _labelAdvance : _labelDeduction,
-          descriptionKey: row[DriverSettlementsDbFields.notes] as String?,
-          metadata: {
-            DriverSettlementsDbFields.movementType: type,
-            DriverSettlementsDbFields.tripId:
-                row[DriverSettlementsDbFields.tripId],
-          },
-        ),
-      );
-    }
-
-    var driverPaidTripExpensesTotal = 0.0;
-    for (final row in tripExpenseRows) {
-      final amount = _amountFrom(row[DriverSettlementsDbFields.amount]);
-      driverPaidTripExpensesTotal += amount;
-      sourceItems.add(
-        DriverSettlementItem(
-          companyId: companyId,
-          sourceType: DriverSettlementItemSourceType.tripExpense,
-          sourceId: row[DbCommonFields.id] as String?,
-          sourceDate: _dateFrom(row[DriverSettlementsDbFields.expenseDate]),
-          direction: DriverSettlementItemDirection.companyToDriver,
-          amount: amount,
-          labelKey: _labelTripExpense,
-          descriptionKey: row[DriverSettlementsDbFields.expenseName] as String?,
-          metadata: {
-            DriverSettlementsDbFields.paidBy:
-                row[DriverSettlementsDbFields.paidBy],
-            DriverSettlementsDbFields.tripId:
-                row[DriverSettlementsDbFields.tripId],
-            DriverSettlementsDbFields.notes:
-                row[DriverSettlementsDbFields.notes],
-          },
-        ),
-      );
-    }
-
-    return DriverSettlementSourceSnapshot(
-      openingDriverBalance: _money(openingDriverBalance),
-      advancesTotal: _money(advancesTotal),
-      driverPaidTripExpensesTotal: _money(driverPaidTripExpensesTotal),
-      deductionsTotal: _money(deductionsTotal),
-      sourceItems: sourceItems,
+    return snapshotMapper.map(
+      companyId: companyId,
+      openingDriverBalance: openingDriverBalance,
+      movementRows: movementRows,
+      tripExpenseRows: tripExpenseRows,
     );
   }
 
@@ -144,7 +81,10 @@ class DriverSettlementSourceSnapshotLoader {
   }) async {
     final previous = await client
         .from(DriverSettlementsDbTables.driverSettlements)
-        .select(DriverSettlementsDbFields.closingDriverBalance)
+        .select(
+          '${DriverSettlementsDbFields.closingDriverBalance}, '
+          '${DriverSettlementsDbFields.periodEnd}',
+        )
         .eq(DbCommonFields.companyId, companyId)
         .eq(DriverSettlementsDbFields.driverId, driverId)
         .eq(DriverSettlementsDbFields.status, 'finalized')
@@ -154,7 +94,20 @@ class DriverSettlementSourceSnapshotLoader {
 
     if (previous.isNotEmpty) {
       final row = Map<String, dynamic>.from(previous.first);
-      return _amountFrom(row[DriverSettlementsDbFields.closingDriverBalance]);
+      final previousClosingBalance = _amountFrom(
+        row[DriverSettlementsDbFields.closingDriverBalance],
+      );
+      final previousPeriodEnd = _requiredDate(
+        row[DriverSettlementsDbFields.periodEnd],
+      );
+
+      return _calculateHistoricalOpeningBalance(
+        companyId: companyId,
+        driverId: driverId,
+        openingDriverBalance: previousClosingBalance,
+        afterExclusive: previousPeriodEnd,
+        before: period.start,
+      );
     }
 
     return _calculateHistoricalOpeningBalance(
@@ -168,38 +121,26 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     required DateTime before,
+    double openingDriverBalance = 0,
+    DateTime? afterExclusive,
   }) async {
     final movementRows = await _getDriverFinancialMovementRows(
       companyId: companyId,
       driverId: driverId,
+      startExclusive: afterExclusive,
       endExclusive: before,
     );
     final tripExpenseRows = await _getDriverPaidTripExpenseRows(
       companyId: companyId,
       driverId: driverId,
+      startExclusive: afterExclusive,
       endExclusive: before,
     );
 
-    var advancesTotal = 0.0;
-    var deductionsTotal = 0.0;
-    for (final row in movementRows) {
-      final type = row[DriverSettlementsDbFields.movementType]?.toString();
-      final amount = _amountFrom(row[DriverSettlementsDbFields.amount]);
-      if (type == _movementTypeAdvance) {
-        advancesTotal += amount;
-      } else if (type == _movementTypeDeduction) {
-        deductionsTotal += amount;
-      }
-    }
-
-    final driverPaidTripExpensesTotal = tripExpenseRows.fold<double>(
-      0,
-      (total, row) =>
-          total + _amountFrom(row[DriverSettlementsDbFields.amount]),
-    );
-
-    return _money(
-      advancesTotal - deductionsTotal - driverPaidTripExpensesTotal,
+    return snapshotMapper.calculateHistoricalOpeningBalance(
+      openingDriverBalance: openingDriverBalance,
+      movementRows: movementRows,
+      tripExpenseRows: tripExpenseRows,
     );
   }
 
@@ -207,6 +148,7 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     DateTime? startInclusive,
+    DateTime? startExclusive,
     DateTime? endInclusive,
     DateTime? endExclusive,
   }) async {
@@ -220,6 +162,12 @@ class DriverSettlementSourceSnapshotLoader {
       query = query.gte(
         DriverSettlementsDbFields.movementDate,
         _dateOnly(startInclusive),
+      );
+    }
+    if (startExclusive != null) {
+      query = query.gt(
+        DriverSettlementsDbFields.movementDate,
+        _dateOnly(startExclusive),
       );
     }
     if (endInclusive != null) {
@@ -245,6 +193,7 @@ class DriverSettlementSourceSnapshotLoader {
     required String companyId,
     required String driverId,
     DateTime? startInclusive,
+    DateTime? startExclusive,
     DateTime? endInclusive,
     DateTime? endExclusive,
   }) async {
@@ -268,6 +217,12 @@ class DriverSettlementSourceSnapshotLoader {
       query = query.gte(
         DriverSettlementsDbFields.expenseDate,
         _dateOnly(startInclusive),
+      );
+    }
+    if (startExclusive != null) {
+      query = query.gt(
+        DriverSettlementsDbFields.expenseDate,
+        _dateOnly(startExclusive),
       );
     }
     if (endInclusive != null) {
@@ -310,18 +265,17 @@ class DriverSettlementSourceSnapshotLoader {
     return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 
-  DateTime? _dateFrom(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
+  DateTime _requiredDate(Object? value) {
+    final date = DateTime.tryParse(value?.toString() ?? '');
+    if (date == null) {
+      throw FormatException('Invalid settlement period end: $value');
+    }
+    return date;
   }
 
   String _dateOnly(DateTime value) {
     return '${value.year.toString().padLeft(4, '0')}-'
         '${value.month.toString().padLeft(2, '0')}-'
         '${value.day.toString().padLeft(2, '0')}';
-  }
-
-  double _money(double value) {
-    return (value * 100).roundToDouble() / 100;
   }
 }

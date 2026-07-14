@@ -79,9 +79,13 @@ class _DriversPageState extends State<DriversPage> {
             driver: driver,
             movementType: DriverFinancialMovementType.advance,
           ),
-          onAddDeduction: () => _openFinancialMovementForm(
+          onAddDriverCharge: () => _openFinancialMovementForm(
             driver: driver,
-            movementType: DriverFinancialMovementType.deduction,
+            movementType: DriverFinancialMovementType.driverCharge,
+          ),
+          onAddCashReturn: () => _openFinancialMovementForm(
+            driver: driver,
+            movementType: DriverFinancialMovementType.cashReturn,
           ),
         ),
       ),
@@ -111,21 +115,32 @@ class _DriversPageState extends State<DriversPage> {
                   String? notes,
                 }) async {
                   final cubit = context.read<DriversCubit>();
-                  if (movementType.isAdvance) {
-                    await cubit.addDriverAdvance(
-                      driver: driver,
-                      amount: amount,
-                      movementDate: movementDate,
-                      notes: notes,
-                    );
-                  } else {
-                    await cubit.addDriverDeduction(
-                      driver: driver,
-                      amount: amount,
-                      movementDate: movementDate,
-                      tripId: tripId,
-                      notes: notes,
-                    );
+                  switch (movementType) {
+                    case DriverFinancialMovementType.advance:
+                      await cubit.addDriverAdvance(
+                        driver: driver,
+                        amount: amount,
+                        movementDate: movementDate,
+                        notes: notes,
+                      );
+                      break;
+                    case DriverFinancialMovementType.driverCharge:
+                      await cubit.addDriverCharge(
+                        driver: driver,
+                        amount: amount,
+                        movementDate: movementDate,
+                        tripId: tripId,
+                        notes: notes,
+                      );
+                      break;
+                    case DriverFinancialMovementType.cashReturn:
+                      await cubit.addDriverCashReturn(
+                        driver: driver,
+                        amount: amount,
+                        movementDate: movementDate,
+                        notes: notes,
+                      );
+                      break;
                   }
                   await cubit.loadDriverActivity(driver);
                 },

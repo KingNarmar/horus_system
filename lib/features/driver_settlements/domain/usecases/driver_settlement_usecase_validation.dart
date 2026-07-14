@@ -1,3 +1,4 @@
+import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -8,6 +9,8 @@ import '../policies/driver_settlements_permission_policy.dart';
 import 'driver_settlement_params.dart';
 
 abstract final class DriverSettlementUseCaseValidation {
+  static const _balanceCalculator = DriverBalanceCalculator();
+
   static Failure? validateCalculationParams(
     DriverSettlementCalculationParams params, {
     bool requireManage = false,
@@ -71,6 +74,35 @@ abstract final class DriverSettlementUseCaseValidation {
       return const ValidationFailure(
         code: FailureCodes.validationDriverSettlementNetSalaryNegative,
         message: 'Driver settlement net salary cannot be negative.',
+      );
+    }
+
+    return null;
+  }
+
+  static Failure? validateBalanceRecovery({
+    required DriverSettlementCalculationParams params,
+    required DriverSettlementSourceSnapshot snapshot,
+  }) {
+    final balanceBeforeRecovery = _balanceCalculator.calculate(
+      openingBalance: snapshot.openingDriverBalance,
+      advancesReceived: snapshot.advancesTotal,
+      driverCharges:
+          snapshot.deductionsTotal + params.settlementDeductionsTotal,
+      creditedTripExpenses: snapshot.driverPaidTripExpensesTotal,
+      cashReturned: snapshot.returnedCashTotal,
+    );
+    final outstandingDebt = balanceBeforeRecovery < 0
+        ? _balanceCalculator.roundMoney(-balanceBeforeRecovery)
+        : 0.0;
+    final requestedRecovery = _balanceCalculator.roundMoney(
+      params.balanceDeductionApplied,
+    );
+
+    if (requestedRecovery > outstandingDebt) {
+      return const ValidationFailure(
+        code: FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
+        message: 'Driver balance recovery cannot exceed outstanding debt.',
       );
     }
 

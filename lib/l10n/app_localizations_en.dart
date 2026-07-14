@@ -991,19 +991,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverBalancePlaceholderDescription =>
-      'Initial balance calculated from recorded advances and deductions. Monthly settlement will be implemented later.';
+      'Negative balance means the driver owes the company. Positive balance means the company owes the driver.';
 
   @override
   String get addDriverAdvanceButton => 'Add advance';
 
   @override
-  String get addDriverDeductionButton => 'Add deduction';
+  String get addDriverChargeButton => 'Add driver charge';
 
   @override
   String get addDriverAdvanceTitle => 'Add driver advance';
 
   @override
-  String get addDriverDeductionTitle => 'Add driver deduction';
+  String get addDriverChargeTitle => 'Add driver charge';
 
   @override
   String get driverMovementAmountLabel => 'Amount';
@@ -1013,21 +1013,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverMovementTripPickerComingSoon =>
-      'Trip selection will be added later. This deduction will be saved as a general deduction for now.';
+      'A related trip is optional. Leave it empty for a general driver charge.';
 
   @override
   String get driverMovementRelatedTripLabel => 'Related trip';
 
   @override
-  String get driverMovementGeneralDeductionOption =>
-      'General deduction without trip link';
+  String get driverMovementGeneralChargeOption =>
+      'General driver charge without trip link';
 
   @override
   String get loadingDriverTripOptions => 'Loading driver trips...';
 
   @override
-  String get noDriverTripsForDeduction =>
-      'No trips assigned to this driver yet. You can save it as a general deduction.';
+  String get noDriverTripsForCharge =>
+      'No trips assigned to this driver yet. You can save a general driver charge.';
 
   @override
   String get driverMovementNotesLabel => 'Notes';
@@ -1036,10 +1036,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalAdvancesLabel => 'Total advances';
 
   @override
-  String get totalDeductionsLabel => 'Total deductions';
+  String get totalDriverChargesLabel => 'Total driver charges';
 
   @override
   String get netDriverBalanceLabel => 'Current balance';
+
+  @override
+  String driverBalanceDriverOwesCompany(String amount) {
+    return 'Driver owes company: $amount';
+  }
+
+  @override
+  String driverBalanceCompanyOwesDriver(String amount) {
+    return 'Company owes driver: $amount';
+  }
+
+  @override
+  String get driverBalanceSettled => 'Balance settled';
 
   @override
   String get noDriverFinancialMovements => 'No financial movements yet.';
@@ -1062,7 +1075,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementTypeAdvance => 'Advance';
 
   @override
-  String get driverMovementTypeDeduction => 'Deduction';
+  String get driverMovementTypeDriverCharge => 'Driver charge';
+
+  @override
+  String get driverMovementTypeCashReturn => 'Cash return';
 
   @override
   String get companyExpensesTitle => 'Company expenses';

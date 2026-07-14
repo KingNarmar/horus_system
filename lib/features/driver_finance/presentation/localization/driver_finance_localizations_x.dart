@@ -5,7 +5,23 @@ extension DriverFinanceLocalizationsX on AppLocalizations {
   String driverMovementTypeLabel(DriverFinancialMovementType type) {
     return switch (type) {
       DriverFinancialMovementType.advance => driverMovementTypeAdvance,
-      DriverFinancialMovementType.deduction => driverMovementTypeDeduction,
+      DriverFinancialMovementType.driverCharge =>
+        driverMovementTypeDriverCharge,
+      DriverFinancialMovementType.cashReturn => driverMovementTypeCashReturn,
     };
+  }
+
+  String driverBalanceLabel(double balance) {
+    final amount = balance.abs().toStringAsFixed(2);
+
+    if (balance < 0) {
+      return driverBalanceDriverOwesCompany(amount);
+    }
+
+    if (balance > 0) {
+      return driverBalanceCompanyOwesDriver(amount);
+    }
+
+    return driverBalanceSettled;
   }
 }

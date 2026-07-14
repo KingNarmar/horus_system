@@ -54,9 +54,12 @@ class _DriverFinancialMovementFormDialogState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final title = widget.movementType.isAdvance
-        ? l10n.addDriverAdvanceTitle
-        : l10n.addDriverDeductionTitle;
+    final title = switch (widget.movementType) {
+      DriverFinancialMovementType.advance => l10n.addDriverAdvanceTitle,
+      DriverFinancialMovementType.driverCharge => l10n.addDriverChargeTitle,
+      DriverFinancialMovementType.cashReturn =>
+        l10n.driverMovementTypeCashReturn,
+    };
 
     return Dialog(
       child: ConstrainedBox(
@@ -98,7 +101,7 @@ class _DriverFinancialMovementFormDialogState
                   border: const OutlineInputBorder(),
                 ),
               ),
-              if (widget.movementType.isDeduction) ...[
+              if (widget.movementType.canLinkTrip) ...[
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedTripId,
@@ -110,7 +113,7 @@ class _DriverFinancialMovementFormDialogState
                   items: [
                     DropdownMenuItem(
                       value: '',
-                      child: Text(l10n.driverMovementGeneralDeductionOption),
+                      child: Text(l10n.driverMovementGeneralChargeOption),
                     ),
                     ...widget.tripOptions.map(
                       (option) => DropdownMenuItem(
@@ -132,7 +135,7 @@ class _DriverFinancialMovementFormDialogState
                   Text(l10n.loadingDriverTripOptions),
                 ] else if (widget.tripOptions.isEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
-                  Text(l10n.noDriverTripsForDeduction),
+                  Text(l10n.noDriverTripsForCharge),
                 ],
               ],
               const SizedBox(height: AppSpacing.md),
@@ -209,7 +212,7 @@ class _DriverFinancialMovementFormDialogState
     await widget.onSubmit(
       amount: amount,
       movementDate: _movementDate,
-      tripId: widget.movementType.isDeduction
+      tripId: widget.movementType.canLinkTrip
           ? _optional(_selectedTripId)
           : null,
       notes: _optional(_notesController.text),

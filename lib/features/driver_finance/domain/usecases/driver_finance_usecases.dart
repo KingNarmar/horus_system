@@ -48,7 +48,7 @@ class AddDriverAdvanceParams {
   });
 }
 
-class AddDriverDeductionParams {
+class AddDriverChargeParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
   final String? tripId;
@@ -56,12 +56,28 @@ class AddDriverDeductionParams {
   final DateTime movementDate;
   final String? notes;
 
-  const AddDriverDeductionParams({
+  const AddDriverChargeParams({
     required this.currentCompanyContext,
     required this.driverId,
     required this.amount,
     required this.movementDate,
     this.tripId,
+    this.notes,
+  });
+}
+
+class AddDriverCashReturnParams {
+  final CurrentCompanyContext currentCompanyContext;
+  final String driverId;
+  final double amount;
+  final DateTime movementDate;
+  final String? notes;
+
+  const AddDriverCashReturnParams({
+    required this.currentCompanyContext,
+    required this.driverId,
+    required this.amount,
+    required this.movementDate,
     this.notes,
   });
 }
@@ -151,22 +167,43 @@ class AddDriverAdvanceUseCase
   }
 }
 
-class AddDriverDeductionUseCase
-    implements UseCase<DriverFinancialMovement, AddDriverDeductionParams> {
+class AddDriverChargeUseCase
+    implements UseCase<DriverFinancialMovement, AddDriverChargeParams> {
   final DriverFinanceRepository _repository;
 
-  const AddDriverDeductionUseCase(this._repository);
+  const AddDriverChargeUseCase(this._repository);
 
   @override
-  Future<Result<DriverFinancialMovement>> call(
-    AddDriverDeductionParams params,
-  ) {
+  Future<Result<DriverFinancialMovement>> call(AddDriverChargeParams params) {
     return _addMovement(
       repository: _repository,
       context: params.currentCompanyContext,
       driverId: params.driverId,
       tripId: params.tripId,
-      type: DriverFinancialMovementType.deduction,
+      type: DriverFinancialMovementType.driverCharge,
+      amount: params.amount,
+      movementDate: params.movementDate,
+      notes: params.notes,
+    );
+  }
+}
+
+class AddDriverCashReturnUseCase
+    implements UseCase<DriverFinancialMovement, AddDriverCashReturnParams> {
+  final DriverFinanceRepository _repository;
+
+  const AddDriverCashReturnUseCase(this._repository);
+
+  @override
+  Future<Result<DriverFinancialMovement>> call(
+    AddDriverCashReturnParams params,
+  ) {
+    return _addMovement(
+      repository: _repository,
+      context: params.currentCompanyContext,
+      driverId: params.driverId,
+      tripId: null,
+      type: DriverFinancialMovementType.cashReturn,
       amount: params.amount,
       movementDate: params.movementDate,
       notes: params.notes,
@@ -181,13 +218,16 @@ class CalculateDriverBalanceUseCase
   @override
   Future<Result<DriverBalance>> call(CalculateDriverBalanceParams params) {
     var totalAdvances = 0.0;
-    var totalDeductions = 0.0;
+    var totalDriverCharges = 0.0;
+    var totalCashReturns = 0.0;
 
     for (final movement in params.movements) {
       if (movement.type.isAdvance) {
         totalAdvances += movement.amount;
-      } else if (movement.type.isDeduction) {
-        totalDeductions += movement.amount;
+      } else if (movement.type.isDriverCharge) {
+        totalDriverCharges += movement.amount;
+      } else if (movement.type.isCashReturn) {
+        totalCashReturns += movement.amount;
       }
     }
 
@@ -197,7 +237,8 @@ class CalculateDriverBalanceUseCase
           companyId: params.companyId,
           driverId: params.driverId,
           totalAdvances: totalAdvances,
-          totalDeductions: totalDeductions,
+          totalDriverCharges: totalDriverCharges,
+          totalCashReturns: totalCashReturns,
         ),
       ),
     );
@@ -227,7 +268,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
     data: DriverFinancialMovementWriteData(
       companyId: context.companyId,
       driverId: driverId.trim(),
-      tripId: type.isDeduction ? _optional(tripId) : null,
+      tripId: type.canLinkTrip ? _optional(tripId) : null,
       type: type,
       amount: amount,
       movementDate: movementDate,
