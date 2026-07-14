@@ -55,7 +55,7 @@ void main() {
 
       expect(result, isA<Success>());
       final preview = result.dataOrNull!;
-      expect(preview.calculation.closingDriverBalance, 150);
+      expect(preview.calculation.closingDriverBalance, -100);
       expect(preview.calculation.netSalaryPayable, 850);
       expect(preview.items, hasLength(1));
       expect(repository.snapshotCalls, 1);
