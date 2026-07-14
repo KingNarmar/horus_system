@@ -105,6 +105,24 @@ void main() {
       expect(result.dataOrNull?.single.displayName, 'Driver One');
       expect(result.dataOrNull?.single.isActive, isTrue);
     });
+
+    test('maps a company-scoped driver option lookup', () async {
+      final remoteDataSource = _FakeDriverSettlementsRemoteDataSource();
+      final repository = DriverSettlementsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
+      );
+
+      final result = await repository.getDriverOptionById(
+        companyId: _companyId,
+        driverId: _driverId,
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.id, _driverId);
+      expect(remoteDataSource.driverOptionCompanyId, _companyId);
+      expect(remoteDataSource.driverOptionDriverId, _driverId);
+    });
   });
 }
 
@@ -165,6 +183,8 @@ class _FakeDriverSettlementsRemoteDataSource
   final DriverSettlementSourceSnapshot snapshot;
   int createDraftCalls = 0;
   int snapshotCalls = 0;
+  String? driverOptionCompanyId;
+  String? driverOptionDriverId;
 
   _FakeDriverSettlementsRemoteDataSource({
     this.snapshot = const DriverSettlementSourceSnapshot(),
@@ -183,6 +203,20 @@ class _FakeDriverSettlementsRemoteDataSource
     required DriverSettlementFinalizeData data,
   }) async {
     return _settlementModel(status: DriverSettlementStatus.finalized);
+  }
+
+  @override
+  Future<DriverSettlementDriverOptionModel?> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) async {
+    driverOptionCompanyId = companyId;
+    driverOptionDriverId = driverId;
+    return const DriverSettlementDriverOptionModel(
+      id: _driverId,
+      displayName: 'Driver One',
+      isActive: true,
+    );
   }
 
   @override
