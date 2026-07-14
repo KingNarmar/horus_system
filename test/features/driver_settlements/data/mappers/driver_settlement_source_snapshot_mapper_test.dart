@@ -71,6 +71,31 @@ void main() {
       expect(openingBalance, -2150);
     });
 
+    test('applies gap activity after a finalized closing balance', () {
+      final openingBalance = mapper.calculateHistoricalOpeningBalance(
+        openingDriverBalance: -400,
+        movementRows: [
+          _movement(id: 'advance-1', type: 'advance', amount: 100),
+          _movement(id: 'return-1', type: 'cash_return', amount: 25),
+        ],
+        tripExpenseRows: [
+          _tripExpense(id: 'expense-1', paidBy: 'driver_cash', amount: 50),
+        ],
+      );
+
+      expect(openingBalance, -425);
+    });
+
+    test('keeps finalized closing unchanged when the gap is empty', () {
+      final openingBalance = mapper.calculateHistoricalOpeningBalance(
+        openingDriverBalance: -400,
+        movementRows: const [],
+        tripExpenseRows: const [],
+      );
+
+      expect(openingBalance, -400);
+    });
+
     test('rounds source totals to money precision', () {
       final snapshot = mapper.map(
         companyId: 'company-1',
