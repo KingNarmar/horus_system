@@ -47,9 +47,9 @@ class DriverFinanceDetailsSection extends StatelessWidget {
           children: [
             Text(
               l10n.driverFinanceTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.driverBalancePlaceholderDescription),
@@ -103,10 +103,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
               Text(l10n.noDriverFinancialMovements)
             else
               ...movements.map(
-                (movement) => _MovementItem(
-                  movement: movement,
-                  tripOptions: tripOptions,
-                ),
+                (movement) =>
+                    _MovementItem(movement: movement, tripOptions: tripOptions),
               ),
           ],
         ),
@@ -119,10 +117,7 @@ class _MovementItem extends StatelessWidget {
   final DriverFinancialMovement movement;
   final List<DriverFinanceTripOption> tripOptions;
 
-  const _MovementItem({
-    required this.movement,
-    required this.tripOptions,
-  });
+  const _MovementItem({required this.movement, required this.tripOptions});
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +169,7 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-String? _tripLabel(
-  String? tripId,
-  List<DriverFinanceTripOption> tripOptions,
-) {
+String? _tripLabel(String? tripId, List<DriverFinanceTripOption> tripOptions) {
   final normalizedTripId = tripId?.trim();
   if (normalizedTripId == null || normalizedTripId.isEmpty) return null;
 

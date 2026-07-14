@@ -11,21 +11,9 @@ void main() {
         companyId: 'company-1',
         openingDriverBalance: -100,
         movementRows: [
-          _movement(
-            id: 'advance-1',
-            type: 'advance',
-            amount: 7000,
-          ),
-          _movement(
-            id: 'charge-1',
-            type: 'driver_charge',
-            amount: 500,
-          ),
-          _movement(
-            id: 'return-1',
-            type: 'cash_return',
-            amount: 150,
-          ),
+          _movement(id: 'advance-1', type: 'advance', amount: 7000),
+          _movement(id: 'charge-1', type: 'driver_charge', amount: 500),
+          _movement(id: 'return-1', type: 'cash_return', amount: 150),
         ],
         tripExpenseRows: [
           _tripExpense(
@@ -33,11 +21,7 @@ void main() {
             paidBy: 'driver_advance',
             amount: 5000,
           ),
-          _tripExpense(
-            id: 'expense-cash',
-            paidBy: 'driver_cash',
-            amount: 200,
-          ),
+          _tripExpense(id: 'expense-cash', paidBy: 'driver_cash', amount: 200),
         ],
       );
 
@@ -55,15 +39,9 @@ void main() {
       final cashExpense = snapshot.sourceItems[4];
 
       expect(advance.labelKey, 'driver_settlement_item_advance');
-      expect(
-        advance.direction,
-        DriverSettlementItemDirection.driverToCompany,
-      );
+      expect(advance.direction, DriverSettlementItemDirection.driverToCompany);
       expect(charge.labelKey, 'driver_settlement_item_driver_charge');
-      expect(
-        charge.direction,
-        DriverSettlementItemDirection.driverToCompany,
-      );
+      expect(charge.direction, DriverSettlementItemDirection.driverToCompany);
       expect(cashReturn.labelKey, 'driver_settlement_item_cash_return');
       expect(
         cashReturn.direction,
@@ -86,11 +64,7 @@ void main() {
             paidBy: 'driver_advance',
             amount: 5000,
           ),
-          _tripExpense(
-            id: 'expense-cash',
-            paidBy: 'driver_cash',
-            amount: 200,
-          ),
+          _tripExpense(id: 'expense-cash', paidBy: 'driver_cash', amount: 200),
         ],
       );
 

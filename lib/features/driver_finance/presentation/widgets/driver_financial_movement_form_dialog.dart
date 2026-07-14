@@ -7,7 +7,6 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
 
-
 typedef DriverFinancialMovementSubmit =
     Future<void> Function({
       required double amount,
@@ -58,7 +57,8 @@ class _DriverFinancialMovementFormDialogState
     final title = switch (widget.movementType) {
       DriverFinancialMovementType.advance => l10n.addDriverAdvanceTitle,
       DriverFinancialMovementType.driverCharge => l10n.addDriverDeductionTitle,
-      DriverFinancialMovementType.cashReturn => l10n.driverMovementTypeCashReturn,
+      DriverFinancialMovementType.cashReturn =>
+        l10n.driverMovementTypeCashReturn,
     };
 
     return Dialog(

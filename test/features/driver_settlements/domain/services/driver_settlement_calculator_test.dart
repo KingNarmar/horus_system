@@ -127,9 +127,7 @@ void main() {
 
     test('settlement charge decreases the driver balance', () {
       final result = calculator.calculate(
-        const DriverSettlementCalculationInput(
-          settlementDeductionsTotal: 75,
-        ),
+        const DriverSettlementCalculationInput(settlementDeductionsTotal: 75),
       );
 
       expect(result.closingDriverBalance, -75);
@@ -141,9 +139,7 @@ void main() {
 
     test('positive balance means company owes driver', () {
       final result = calculator.calculate(
-        const DriverSettlementCalculationInput(
-          openingDriverBalance: 250,
-        ),
+        const DriverSettlementCalculationInput(openingDriverBalance: 250),
       );
 
       expect(
@@ -155,9 +151,7 @@ void main() {
 
     test('negative balance means driver owes company', () {
       final result = calculator.calculate(
-        const DriverSettlementCalculationInput(
-          openingDriverBalance: -250,
-        ),
+        const DriverSettlementCalculationInput(openingDriverBalance: -250),
       );
 
       expect(

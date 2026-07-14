@@ -39,17 +39,12 @@ class DriverSettlementSourceSnapshotMapper {
     );
 
     return DriverSettlementSourceSnapshot(
-      openingDriverBalance: balanceCalculator.roundMoney(
-        openingDriverBalance,
-      ),
+      openingDriverBalance: balanceCalculator.roundMoney(openingDriverBalance),
       advancesTotal: movementSummary.advancesTotal,
       driverPaidTripExpensesTotal: expenseSummary.total,
       returnedCashTotal: movementSummary.returnedCashTotal,
       deductionsTotal: movementSummary.driverChargesTotal,
-      sourceItems: [
-        ...movementSummary.items,
-        ...expenseSummary.items,
-      ],
+      sourceItems: [...movementSummary.items, ...expenseSummary.items],
     );
   }
 
@@ -220,10 +215,7 @@ class _MovementSemantics {
   final String labelKey;
   final DriverSettlementItemDirection direction;
 
-  const _MovementSemantics({
-    required this.labelKey,
-    required this.direction,
-  });
+  const _MovementSemantics({required this.labelKey, required this.direction});
 }
 
 class _MovementSummary {
@@ -244,8 +236,5 @@ class _ExpenseSummary {
   final double total;
   final List<DriverSettlementItem> items;
 
-  const _ExpenseSummary({
-    required this.total,
-    required this.items,
-  });
+  const _ExpenseSummary({required this.total, required this.items});
 }

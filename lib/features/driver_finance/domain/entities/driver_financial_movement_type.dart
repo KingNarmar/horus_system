@@ -31,8 +31,7 @@ extension DriverFinancialMovementTypeX on DriverFinancialMovementType {
 DriverFinancialMovementType driverFinancialMovementTypeFromValue(String value) {
   return switch (value) {
     'advance' => DriverFinancialMovementType.advance,
-    'driver_charge' || 'deduction' =>
-      DriverFinancialMovementType.driverCharge,
+    'driver_charge' || 'deduction' => DriverFinancialMovementType.driverCharge,
     'cash_return' => DriverFinancialMovementType.cashReturn,
     _ => throw ArgumentError.value(
       value,

@@ -15,8 +15,7 @@ class DriverSettlementCalculator {
     final closingDriverBalance = _balanceCalculator.calculate(
       openingBalance: input.openingDriverBalance,
       advancesReceived: input.advancesTotal,
-      driverCharges:
-          input.deductionsTotal + input.settlementDeductionsTotal,
+      driverCharges: input.deductionsTotal + input.settlementDeductionsTotal,
       creditedTripExpenses: input.driverPaidTripExpensesTotal,
       cashReturned: input.returnedCashTotal,
       salaryRecovery: input.balanceDeductionApplied,
@@ -36,9 +35,7 @@ class DriverSettlementCalculator {
       driverPaidTripExpensesTotal: _balanceCalculator.roundMoney(
         input.driverPaidTripExpensesTotal,
       ),
-      returnedCashTotal: _balanceCalculator.roundMoney(
-        input.returnedCashTotal,
-      ),
+      returnedCashTotal: _balanceCalculator.roundMoney(input.returnedCashTotal),
       deductionsTotal: _balanceCalculator.roundMoney(input.deductionsTotal),
       settlementDeductionsTotal: _balanceCalculator.roundMoney(
         input.settlementDeductionsTotal,
