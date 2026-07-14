@@ -56,7 +56,7 @@ class _DriverFinancialMovementFormDialogState
     final l10n = context.l10n;
     final title = switch (widget.movementType) {
       DriverFinancialMovementType.advance => l10n.addDriverAdvanceTitle,
-      DriverFinancialMovementType.driverCharge => l10n.addDriverDeductionTitle,
+      DriverFinancialMovementType.driverCharge => l10n.addDriverChargeTitle,
       DriverFinancialMovementType.cashReturn =>
         l10n.driverMovementTypeCashReturn,
     };
@@ -113,7 +113,7 @@ class _DriverFinancialMovementFormDialogState
                   items: [
                     DropdownMenuItem(
                       value: '',
-                      child: Text(l10n.driverMovementGeneralDeductionOption),
+                      child: Text(l10n.driverMovementGeneralChargeOption),
                     ),
                     ...widget.tripOptions.map(
                       (option) => DropdownMenuItem(
@@ -135,7 +135,7 @@ class _DriverFinancialMovementFormDialogState
                   Text(l10n.loadingDriverTripOptions),
                 ] else if (widget.tripOptions.isEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
-                  Text(l10n.noDriverTripsForDeduction),
+                  Text(l10n.noDriverTripsForCharge),
                 ],
               ],
               const SizedBox(height: AppSpacing.md),

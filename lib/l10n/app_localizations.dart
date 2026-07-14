@@ -1928,11 +1928,11 @@ abstract class AppLocalizations {
   /// **'Add advance'**
   String get addDriverAdvanceButton;
 
-  /// No description provided for @addDriverDeductionButton.
+  /// No description provided for @addDriverChargeButton.
   ///
   /// In en, this message translates to:
   /// **'Add driver charge'**
-  String get addDriverDeductionButton;
+  String get addDriverChargeButton;
 
   /// No description provided for @addDriverAdvanceTitle.
   ///
@@ -1940,11 +1940,11 @@ abstract class AppLocalizations {
   /// **'Add driver advance'**
   String get addDriverAdvanceTitle;
 
-  /// No description provided for @addDriverDeductionTitle.
+  /// No description provided for @addDriverChargeTitle.
   ///
   /// In en, this message translates to:
   /// **'Add driver charge'**
-  String get addDriverDeductionTitle;
+  String get addDriverChargeTitle;
 
   /// No description provided for @driverMovementAmountLabel.
   ///
@@ -1970,11 +1970,11 @@ abstract class AppLocalizations {
   /// **'Related trip'**
   String get driverMovementRelatedTripLabel;
 
-  /// No description provided for @driverMovementGeneralDeductionOption.
+  /// No description provided for @driverMovementGeneralChargeOption.
   ///
   /// In en, this message translates to:
   /// **'General driver charge without trip link'**
-  String get driverMovementGeneralDeductionOption;
+  String get driverMovementGeneralChargeOption;
 
   /// No description provided for @loadingDriverTripOptions.
   ///
@@ -1982,11 +1982,11 @@ abstract class AppLocalizations {
   /// **'Loading driver trips...'**
   String get loadingDriverTripOptions;
 
-  /// No description provided for @noDriverTripsForDeduction.
+  /// No description provided for @noDriverTripsForCharge.
   ///
   /// In en, this message translates to:
   /// **'No trips assigned to this driver yet. You can save a general driver charge.'**
-  String get noDriverTripsForDeduction;
+  String get noDriverTripsForCharge;
 
   /// No description provided for @driverMovementNotesLabel.
   ///
@@ -2000,11 +2000,11 @@ abstract class AppLocalizations {
   /// **'Total advances'**
   String get totalAdvancesLabel;
 
-  /// No description provided for @totalDeductionsLabel.
+  /// No description provided for @totalDriverChargesLabel.
   ///
   /// In en, this message translates to:
   /// **'Total driver charges'**
-  String get totalDeductionsLabel;
+  String get totalDriverChargesLabel;
 
   /// No description provided for @netDriverBalanceLabel.
   ///
@@ -2066,11 +2066,11 @@ abstract class AppLocalizations {
   /// **'Advance'**
   String get driverMovementTypeAdvance;
 
-  /// No description provided for @driverMovementTypeDeduction.
+  /// No description provided for @driverMovementTypeDriverCharge.
   ///
   /// In en, this message translates to:
   /// **'Driver charge'**
-  String get driverMovementTypeDeduction;
+  String get driverMovementTypeDriverCharge;
 
   /// No description provided for @driverMovementTypeCashReturn.
   ///

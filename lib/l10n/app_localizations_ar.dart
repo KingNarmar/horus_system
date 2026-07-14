@@ -985,13 +985,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addDriverAdvanceButton => 'إضافة سلفة';
 
   @override
-  String get addDriverDeductionButton => 'إضافة مديونية على السائق';
+  String get addDriverChargeButton => 'إضافة مديونية على السائق';
 
   @override
   String get addDriverAdvanceTitle => 'إضافة سلفة للسائق';
 
   @override
-  String get addDriverDeductionTitle => 'إضافة مديونية على السائق';
+  String get addDriverChargeTitle => 'إضافة مديونية على السائق';
 
   @override
   String get driverMovementAmountLabel => 'المبلغ';
@@ -1007,14 +1007,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementRelatedTripLabel => 'الرحلة المرتبطة';
 
   @override
-  String get driverMovementGeneralDeductionOption =>
-      'مديونية عامة بدون ربط برحلة';
+  String get driverMovementGeneralChargeOption => 'مديونية عامة بدون ربط برحلة';
 
   @override
   String get loadingDriverTripOptions => 'جاري تحميل رحلات السائق...';
 
   @override
-  String get noDriverTripsForDeduction =>
+  String get noDriverTripsForCharge =>
       'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك تسجيل مديونية عامة.';
 
   @override
@@ -1024,7 +1023,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get totalAdvancesLabel => 'إجمالي السلف';
 
   @override
-  String get totalDeductionsLabel => 'إجمالي مديونيات السائق';
+  String get totalDriverChargesLabel => 'إجمالي مديونيات السائق';
 
   @override
   String get netDriverBalanceLabel => 'الرصيد الحالي';
@@ -1061,7 +1060,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeAdvance => 'سلفة';
 
   @override
-  String get driverMovementTypeDeduction => 'مديونية على السائق';
+  String get driverMovementTypeDriverCharge => 'مديونية على السائق';
 
   @override
   String get driverMovementTypeCashReturn => 'إرجاع نقدية';

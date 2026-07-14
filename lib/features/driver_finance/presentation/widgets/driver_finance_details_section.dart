@@ -59,7 +59,7 @@ class DriverFinanceDetailsSection extends StatelessWidget {
               value: _money(balance?.totalAdvances ?? 0),
             ),
             _DetailRow(
-              label: l10n.totalDeductionsLabel,
+              label: l10n.totalDriverChargesLabel,
               value: _money(balance?.totalDriverCharges ?? 0),
             ),
             _DetailRow(
@@ -84,7 +84,7 @@ class DriverFinanceDetailsSection extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: isSaving ? null : onAddDriverCharge,
                     icon: const Icon(AppIcons.expenses),
-                    label: Text(l10n.addDriverDeductionButton),
+                    label: Text(l10n.addDriverChargeButton),
                   ),
                   OutlinedButton.icon(
                     onPressed: isSaving ? null : onAddCashReturn,

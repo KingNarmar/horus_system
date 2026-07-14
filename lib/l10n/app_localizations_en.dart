@@ -997,13 +997,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addDriverAdvanceButton => 'Add advance';
 
   @override
-  String get addDriverDeductionButton => 'Add driver charge';
+  String get addDriverChargeButton => 'Add driver charge';
 
   @override
   String get addDriverAdvanceTitle => 'Add driver advance';
 
   @override
-  String get addDriverDeductionTitle => 'Add driver charge';
+  String get addDriverChargeTitle => 'Add driver charge';
 
   @override
   String get driverMovementAmountLabel => 'Amount';
@@ -1019,14 +1019,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementRelatedTripLabel => 'Related trip';
 
   @override
-  String get driverMovementGeneralDeductionOption =>
+  String get driverMovementGeneralChargeOption =>
       'General driver charge without trip link';
 
   @override
   String get loadingDriverTripOptions => 'Loading driver trips...';
 
   @override
-  String get noDriverTripsForDeduction =>
+  String get noDriverTripsForCharge =>
       'No trips assigned to this driver yet. You can save a general driver charge.';
 
   @override
@@ -1036,7 +1036,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalAdvancesLabel => 'Total advances';
 
   @override
-  String get totalDeductionsLabel => 'Total driver charges';
+  String get totalDriverChargesLabel => 'Total driver charges';
 
   @override
   String get netDriverBalanceLabel => 'Current balance';
@@ -1075,7 +1075,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverMovementTypeAdvance => 'Advance';
 
   @override
-  String get driverMovementTypeDeduction => 'Driver charge';
+  String get driverMovementTypeDriverCharge => 'Driver charge';
 
   @override
   String get driverMovementTypeCashReturn => 'Cash return';
