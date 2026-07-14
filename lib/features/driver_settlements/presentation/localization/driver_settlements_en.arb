@@ -84,6 +84,8 @@
   "amountNegativeFailure": "Settlement amounts cannot be negative.",
   "netSalaryNegativeFailure": "Net salary payable cannot be negative.",
   "balanceRecoveryExceedsDebtFailure": "Salary recovery cannot exceed the driver's outstanding debt.",
+  "driverNotFoundFailure": "The selected driver was not found in this company.",
+  "driverInactiveFailure": "Inactive drivers cannot be used for new settlements.",
   "voidReasonRequiredFailure": "A void reason is required.",
   "loadFailed": "Driver settlements could not be loaded.",
   "previewFailed": "The settlement preview could not be calculated.",
