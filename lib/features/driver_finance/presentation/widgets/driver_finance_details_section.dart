@@ -19,7 +19,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
   final bool isSaving;
   final Failure? failure;
   final VoidCallback? onAddAdvance;
-  final VoidCallback? onAddDeduction;
+  final VoidCallback? onAddDriverCharge;
+  final VoidCallback? onAddCashReturn;
 
   const DriverFinanceDetailsSection({
     required this.movements,
@@ -30,7 +31,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
     required this.isSaving,
     required this.failure,
     this.onAddAdvance,
-    this.onAddDeduction,
+    this.onAddDriverCharge,
+    this.onAddCashReturn,
     super.key,
   });
 
@@ -45,9 +47,9 @@ class DriverFinanceDetailsSection extends StatelessWidget {
           children: [
             Text(
               l10n.driverFinanceTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.driverBalancePlaceholderDescription),
@@ -57,12 +59,16 @@ class DriverFinanceDetailsSection extends StatelessWidget {
               value: _money(balance?.totalAdvances ?? 0),
             ),
             _DetailRow(
-              label: l10n.totalDeductionsLabel,
-              value: _money(balance?.totalDeductions ?? 0),
+              label: l10n.totalDriverChargesLabel,
+              value: _money(balance?.totalDriverCharges ?? 0),
+            ),
+            _DetailRow(
+              label: l10n.driverMovementTypeCashReturn,
+              value: _money(balance?.totalCashReturns ?? 0),
             ),
             _DetailRow(
               label: l10n.netDriverBalanceLabel,
-              value: _money(balance?.netBalance ?? 0),
+              value: l10n.driverBalanceLabel(balance?.netBalance ?? 0),
             ),
             if (canManage) ...[
               const SizedBox(height: AppSpacing.sm),
@@ -76,9 +82,14 @@ class DriverFinanceDetailsSection extends StatelessWidget {
                     label: Text(l10n.addDriverAdvanceButton),
                   ),
                   OutlinedButton.icon(
-                    onPressed: isSaving ? null : onAddDeduction,
+                    onPressed: isSaving ? null : onAddDriverCharge,
                     icon: const Icon(AppIcons.expenses),
-                    label: Text(l10n.addDriverDeductionButton),
+                    label: Text(l10n.addDriverChargeButton),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: isSaving ? null : onAddCashReturn,
+                    icon: const Icon(AppIcons.cashReturn),
+                    label: Text(l10n.driverMovementTypeCashReturn),
                   ),
                 ],
               ),
@@ -92,10 +103,8 @@ class DriverFinanceDetailsSection extends StatelessWidget {
               Text(l10n.noDriverFinancialMovements)
             else
               ...movements.map(
-                (movement) => _MovementItem(
-                  movement: movement,
-                  tripOptions: tripOptions,
-                ),
+                (movement) =>
+                    _MovementItem(movement: movement, tripOptions: tripOptions),
               ),
           ],
         ),
@@ -108,10 +117,7 @@ class _MovementItem extends StatelessWidget {
   final DriverFinancialMovement movement;
   final List<DriverFinanceTripOption> tripOptions;
 
-  const _MovementItem({
-    required this.movement,
-    required this.tripOptions,
-  });
+  const _MovementItem({required this.movement, required this.tripOptions});
 
   @override
   Widget build(BuildContext context) {
@@ -163,10 +169,7 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-String? _tripLabel(
-  String? tripId,
-  List<DriverFinanceTripOption> tripOptions,
-) {
+String? _tripLabel(String? tripId, List<DriverFinanceTripOption> tripOptions) {
   final normalizedTripId = tripId?.trim();
   if (normalizedTripId == null || normalizedTripId.isEmpty) return null;
 

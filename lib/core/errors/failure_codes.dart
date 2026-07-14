@@ -111,6 +111,8 @@ class FailureCodes {
       'validation_driver_settlement_amount_negative';
   static const String validationDriverSettlementNetSalaryNegative =
       'validation_driver_settlement_net_salary_negative';
+  static const String validationDriverSettlementBalanceRecoveryExceedsDebt =
+      'validation_driver_settlement_balance_recovery_exceeds_debt';
   static const String validationDriverSettlementVoidReasonRequired =
       'validation_driver_settlement_void_reason_required';
 

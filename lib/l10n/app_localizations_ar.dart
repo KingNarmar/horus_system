@@ -979,19 +979,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverBalancePlaceholderDescription =>
-      'رصيد مبدئي محسوب من السلف والخصومات المسجلة حاليًا. التسوية الشهرية ستنفذ لاحقًا.';
+      'الرصيد السالب يعني أن السائق مدين للشركة، والرصيد الموجب يعني أن الشركة مدينة للسائق.';
 
   @override
   String get addDriverAdvanceButton => 'إضافة سلفة';
 
   @override
-  String get addDriverDeductionButton => 'إضافة خصم';
+  String get addDriverChargeButton => 'إضافة مديونية على السائق';
 
   @override
   String get addDriverAdvanceTitle => 'إضافة سلفة للسائق';
 
   @override
-  String get addDriverDeductionTitle => 'إضافة خصم للسائق';
+  String get addDriverChargeTitle => 'إضافة مديونية على السائق';
 
   @override
   String get driverMovementAmountLabel => 'المبلغ';
@@ -1001,20 +1001,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverMovementTripPickerComingSoon =>
-      'اختيار الرحلة سيتم لاحقًا من قائمة الرحلات. سيتم حفظ هذا الخصم كخصم عام الآن.';
+      'ربط الرحلة اختياري. اتركها فارغة لتسجيل مديونية عامة على السائق.';
 
   @override
   String get driverMovementRelatedTripLabel => 'الرحلة المرتبطة';
 
   @override
-  String get driverMovementGeneralDeductionOption => 'خصم عام بدون ربط برحلة';
+  String get driverMovementGeneralChargeOption => 'مديونية عامة بدون ربط برحلة';
 
   @override
   String get loadingDriverTripOptions => 'جاري تحميل رحلات السائق...';
 
   @override
-  String get noDriverTripsForDeduction =>
-      'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك حفظه كخصم عام.';
+  String get noDriverTripsForCharge =>
+      'لا توجد رحلات مرتبطة بهذا السائق بعد. يمكنك تسجيل مديونية عامة.';
 
   @override
   String get driverMovementNotesLabel => 'ملاحظات';
@@ -1023,10 +1023,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get totalAdvancesLabel => 'إجمالي السلف';
 
   @override
-  String get totalDeductionsLabel => 'إجمالي الخصومات';
+  String get totalDriverChargesLabel => 'إجمالي مديونيات السائق';
 
   @override
   String get netDriverBalanceLabel => 'الرصيد الحالي';
+
+  @override
+  String driverBalanceDriverOwesCompany(String amount) {
+    return 'السائق مدين للشركة: $amount';
+  }
+
+  @override
+  String driverBalanceCompanyOwesDriver(String amount) {
+    return 'الشركة مدينة للسائق: $amount';
+  }
+
+  @override
+  String get driverBalanceSettled => 'الرصيد مسوّى';
 
   @override
   String get noDriverFinancialMovements => 'لا توجد حركات مالية بعد.';
@@ -1047,7 +1060,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverMovementTypeAdvance => 'سلفة';
 
   @override
-  String get driverMovementTypeDeduction => 'خصم';
+  String get driverMovementTypeDriverCharge => 'مديونية على السائق';
+
+  @override
+  String get driverMovementTypeCashReturn => 'إرجاع نقدية';
 
   @override
   String get companyExpensesTitle => 'مصروفات الشركة';

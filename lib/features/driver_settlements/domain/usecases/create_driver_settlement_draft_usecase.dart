@@ -49,6 +49,15 @@ class CreateDriverSettlementDraftUseCase
 
     final snapshot =
         snapshotResult.dataOrNull ?? const DriverSettlementSourceSnapshot();
+    final recoveryValidation =
+        DriverSettlementUseCaseValidation.validateBalanceRecovery(
+          params: params,
+          snapshot: snapshot,
+        );
+    if (recoveryValidation != null) {
+      return FailureResult(recoveryValidation);
+    }
+
     final calculation = _calculator.calculate(
       DriverSettlementUseCaseValidation.calculationInput(
         params: params,

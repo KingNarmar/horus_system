@@ -29,7 +29,8 @@ class DriversCubit extends Cubit<DriversState> {
   final GetDriverMovementsUseCase getDriverMovementsUseCase;
   final GetDriverTripOptionsUseCase getDriverTripOptionsUseCase;
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
-  final AddDriverDeductionUseCase addDriverDeductionUseCase;
+  final AddDriverChargeUseCase addDriverChargeUseCase;
+  final AddDriverCashReturnUseCase addDriverCashReturnUseCase;
   final CalculateDriverBalanceUseCase calculateDriverBalanceUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
@@ -44,7 +45,8 @@ class DriversCubit extends Cubit<DriversState> {
     required this.getDriverMovementsUseCase,
     required this.getDriverTripOptionsUseCase,
     required this.addDriverAdvanceUseCase,
-    required this.addDriverDeductionUseCase,
+    required this.addDriverChargeUseCase,
+    required this.addDriverCashReturnUseCase,
     required this.calculateDriverBalanceUseCase,
   }) : super(const DriversInitial());
 
@@ -352,7 +354,7 @@ class DriversCubit extends Cubit<DriversState> {
     );
   }
 
-  Future<void> addDriverDeduction({
+  Future<void> addDriverCharge({
     required Driver driver,
     required double amount,
     required DateTime movementDate,
@@ -363,11 +365,34 @@ class DriversCubit extends Cubit<DriversState> {
       driver: driver,
       action: () {
         final context = _currentCompanyContext!;
-        return addDriverDeductionUseCase(
-          AddDriverDeductionParams(
+        return addDriverChargeUseCase(
+          AddDriverChargeParams(
             currentCompanyContext: context,
             driverId: driver.id,
             tripId: tripId,
+            amount: amount,
+            movementDate: movementDate,
+            notes: notes,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> addDriverCashReturn({
+    required Driver driver,
+    required double amount,
+    required DateTime movementDate,
+    String? notes,
+  }) {
+    return _addDriverFinancialMovement(
+      driver: driver,
+      action: () {
+        final context = _currentCompanyContext!;
+        return addDriverCashReturnUseCase(
+          AddDriverCashReturnParams(
+            currentCompanyContext: context,
+            driverId: driver.id,
             amount: amount,
             movementDate: movementDate,
             notes: notes,

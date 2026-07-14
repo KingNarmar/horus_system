@@ -26,13 +26,15 @@ class DriverDetailsDialog extends StatelessWidget {
   final Driver driver;
   final DriversLoaded? state;
   final VoidCallback? onAddAdvance;
-  final VoidCallback? onAddDeduction;
+  final VoidCallback? onAddDriverCharge;
+  final VoidCallback? onAddCashReturn;
 
   const DriverDetailsDialog({
     required this.driver,
     required this.state,
     this.onAddAdvance,
-    this.onAddDeduction,
+    this.onAddDriverCharge,
+    this.onAddCashReturn,
     super.key,
   });
 
@@ -133,7 +135,8 @@ class DriverDetailsDialog extends StatelessWidget {
                     ? state?.financialMovementsFailure
                     : null,
                 onAddAdvance: onAddAdvance,
-                onAddDeduction: onAddDeduction,
+                onAddDriverCharge: onAddDriverCharge,
+                onAddCashReturn: onAddCashReturn,
               ),
               const SizedBox(height: AppSpacing.md),
               _DetailsSection(

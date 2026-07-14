@@ -28,11 +28,11 @@ class DriverSettlementCalculationResult {
   });
 
   DriverSettlementBalanceDirection get balanceDirection {
-    if (closingDriverBalance > 0) {
+    if (closingDriverBalance < 0) {
       return DriverSettlementBalanceDirection.driverOwesCompany;
     }
 
-    if (closingDriverBalance < 0) {
+    if (closingDriverBalance > 0) {
       return DriverSettlementBalanceDirection.companyOwesDriver;
     }
 
