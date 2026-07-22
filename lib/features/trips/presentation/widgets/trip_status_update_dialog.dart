@@ -44,10 +44,7 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
 
     setState(() => _isSubmitting = true);
 
-    await widget.onSubmit(
-      status,
-      _optional(_notesController.text),
-    );
+    await widget.onSubmit(status, _optional(_notesController.text));
 
     if (mounted) {
       Navigator.of(context).pop();
@@ -76,7 +73,7 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DropdownButtonFormField<TripStatus>(
-                   initialValue: _selectedStatus,
+                    initialValue: _selectedStatus,
                     decoration: InputDecoration(
                       labelText: l10n.tripNextStatusLabel,
                       border: const OutlineInputBorder(),
@@ -112,8 +109,8 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
         FilledButton(
           onPressed:
               _isSubmitting || nextStatuses.isEmpty || _selectedStatus == null
-                  ? null
-                  : _submit,
+              ? null
+              : _submit,
           child: _isSubmitting
               ? const SizedBox.square(
                   dimension: 18,

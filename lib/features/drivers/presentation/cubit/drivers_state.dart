@@ -78,8 +78,8 @@ class DriversLoaded extends DriversState {
         driver.licenseNumber,
         driver.notes,
       ].whereType<String>().any(
-            (value) => value.toLowerCase().contains(normalizedQuery),
-          );
+        (value) => value.toLowerCase().contains(normalizedQuery),
+      );
     }).toList();
   }
 
@@ -123,7 +123,8 @@ class DriversLoaded extends DriversState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
-      selectedDriverFinancialMovements: selectedDriverFinancialMovements ??
+      selectedDriverFinancialMovements:
+          selectedDriverFinancialMovements ??
           this.selectedDriverFinancialMovements,
       selectedDriverBalance: selectedDriverBalance == _notSet
           ? this.selectedDriverBalance

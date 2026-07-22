@@ -28,7 +28,9 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
     return {
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
@@ -38,7 +40,9 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
   Map<String, dynamic> toUpdateMap() {
     return {
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,

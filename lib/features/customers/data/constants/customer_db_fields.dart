@@ -1,6 +1,6 @@
 abstract class CustomerDbFields {
   static const tableName = 'customers';
-  
+
   static const name = 'name';
   static const contactPerson = 'contact_person';
   static const phone = 'phone';

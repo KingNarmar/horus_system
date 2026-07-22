@@ -22,7 +22,10 @@ class AuditLogRepositoryImpl implements AuditLogRepository {
       return const Success(null);
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -47,7 +50,10 @@ class AuditLogRepositoryImpl implements AuditLogRepository {
       return Success(models.map((model) => model.toEntity()).toList());
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));

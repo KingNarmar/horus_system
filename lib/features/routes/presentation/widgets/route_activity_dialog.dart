@@ -34,8 +34,9 @@ class RouteDetailsDialog extends StatelessWidget {
         state?.selectedRoute?.id == route.id &&
         (state?.isActivityLoading ?? false);
 
-    final failure =
-        state?.selectedRoute?.id == route.id ? state?.activityFailure : null;
+    final failure = state?.selectedRoute?.id == route.id
+        ? state?.activityFailure
+        : null;
 
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
@@ -89,7 +90,8 @@ class RouteDetailsDialog extends StatelessWidget {
                   ),
                   _RouteDetailRow(
                     label: l10n.defaultFreightPriceLabel,
-                    value: route.defaultFreightPrice?.toStringAsFixed(2) ??
+                    value:
+                        route.defaultFreightPrice?.toStringAsFixed(2) ??
                         l10n.routeEmptyValue,
                   ),
                   _RouteDetailRow(
@@ -161,7 +163,9 @@ class RouteDetailsDialog extends StatelessWidget {
                   else if (activity.isEmpty)
                     Text(l10n.routeNoActivityFound)
                   else
-                    ...activity.map((log) => _RouteActivityTimelineItem(log: log)),
+                    ...activity.map(
+                      (log) => _RouteActivityTimelineItem(log: log),
+                    ),
                 ],
               ),
             ],
@@ -283,10 +287,7 @@ class _RouteDetailsSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const _RouteDetailsSection({
-    required this.title,
-    required this.children,
-  });
+  const _RouteDetailsSection({required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -298,9 +299,9 @@ class _RouteDetailsSection extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
             ...children,
@@ -315,10 +316,7 @@ class _RouteDetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _RouteDetailRow({
-    required this.label,
-    required this.value,
-  });
+  const _RouteDetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

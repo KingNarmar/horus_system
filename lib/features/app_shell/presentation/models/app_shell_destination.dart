@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../driver_settlements/presentation/localization/driver_settlements_localizations.dart';
 
 enum AppShellModule {
   dashboard,
@@ -11,6 +12,7 @@ enum AppShellModule {
   routes,
   trips,
   expenses,
+  driverSettlements,
   invoices,
   reports,
   settings,
@@ -36,6 +38,8 @@ class AppShellDestination {
       AppShellModule.routes => context.l10n.appShellRoutesLabel,
       AppShellModule.trips => context.l10n.appShellTripsLabel,
       AppShellModule.expenses => context.l10n.appShellExpensesLabel,
+      AppShellModule.driverSettlements =>
+        context.driverSettlementsL10n.appShellLabel,
       AppShellModule.invoices => context.l10n.appShellInvoicesLabel,
       AppShellModule.reports => context.l10n.appShellReportsLabel,
       AppShellModule.settings => context.l10n.appShellSettingsLabel,
@@ -51,6 +55,8 @@ class AppShellDestination {
       AppShellModule.routes => context.l10n.appShellRoutesDescription,
       AppShellModule.trips => context.l10n.appShellTripsDescription,
       AppShellModule.expenses => context.l10n.appShellExpensesDescription,
+      AppShellModule.driverSettlements =>
+        context.driverSettlementsL10n.appShellDescription,
       AppShellModule.invoices => context.l10n.appShellInvoicesDescription,
       AppShellModule.reports => context.l10n.appShellReportsDescription,
       AppShellModule.settings => context.l10n.appShellSettingsDescription,
@@ -93,6 +99,11 @@ const List<AppShellDestination> appShellDestinations = [
     module: AppShellModule.expenses,
     icon: AppIcons.expenses,
     selectedIcon: AppIcons.expensesSelected,
+  ),
+  AppShellDestination(
+    module: AppShellModule.driverSettlements,
+    icon: AppIcons.driverSettlements,
+    selectedIcon: AppIcons.driverSettlementsSelected,
   ),
   AppShellDestination(
     module: AppShellModule.invoices,

@@ -38,7 +38,9 @@ class CustomerActivityTimelineItem extends StatelessWidget {
     );
     final actorName = log.actorDisplayName?.trim().isNotEmpty == true
         ? log.actorDisplayName!.trim()
-        : (log.actorEmail?.trim().isNotEmpty == true ? log.actorEmail!.trim() : l10n.customerUnknownUser);
+        : (log.actorEmail?.trim().isNotEmpty == true
+              ? log.actorEmail!.trim()
+              : l10n.customerUnknownUser);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -58,12 +60,29 @@ class CustomerActivityTimelineItem extends StatelessWidget {
                   l10n.customerAuditActionLabel(log.action.value),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                Text(l10n.auditTimelineHeader(actorName, l10n.customerAuditRoleLabel(log.actorRole), CustomerDateTimeFormatter.format(context, log.createdAt))),
+                Text(
+                  l10n.auditTimelineHeader(
+                    actorName,
+                    l10n.customerAuditRoleLabel(log.actorRole),
+                    CustomerDateTimeFormatter.format(context, log.createdAt),
+                  ),
+                ),
                 if (changes.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(l10n.customerChanges, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    l10n.customerChanges,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: AppSpacing.xs),
-                  ...changes.map((change) => Text(l10n.auditChangeLine(change.label, change.oldValue, change.newValue))),
+                  ...changes.map(
+                    (change) => Text(
+                      l10n.auditChangeLine(
+                        change.label,
+                        change.oldValue,
+                        change.newValue,
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),

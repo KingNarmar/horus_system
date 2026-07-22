@@ -59,8 +59,8 @@ class CustomersLoaded extends CustomersState {
           (customer.country?.toLowerCase().contains(normalizedSearch) ??
               false) ||
           (customer.taxRegistrationNumber?.toLowerCase().contains(
-                    normalizedSearch,
-                  ) ??
+                normalizedSearch,
+              ) ??
               false);
     }).toList();
   }

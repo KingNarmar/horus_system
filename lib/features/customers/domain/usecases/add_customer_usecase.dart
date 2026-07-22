@@ -47,7 +47,10 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (!CustomersPermissionPolicy.canManageCustomers(context.role)) {
       return Future.value(
         const FailureResult<Customer>(
-          PermissionFailure(code: FailureCodes.permissionCustomersManagement, message: 'Customers management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionCustomersManagement,
+            message: 'Customers management is not allowed.',
+          ),
         ),
       );
     }
@@ -57,7 +60,10 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (normalizedName.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCustomerNameRequired, message: 'Customer name is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCustomerNameRequired,
+            message: 'Customer name is required.',
+          ),
         ),
       );
     }
@@ -65,7 +71,10 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     if (params.creditLimit != null && params.creditLimit! < 0) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCreditLimitNegative, message: 'Credit limit cannot be negative.'),
+          ValidationFailure(
+            code: FailureCodes.validationCreditLimitNegative,
+            message: 'Credit limit cannot be negative.',
+          ),
         ),
       );
     }

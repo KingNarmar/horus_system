@@ -35,7 +35,10 @@ class CreateCompanyUseCase implements UseCase<Company, CreateCompanyParams> {
     if (companyName.isEmpty) {
       return Future.value(
         const FailureResult<Company>(
-          ValidationFailure(code: FailureCodes.validationCompanyNameRequired, message: 'Company name is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCompanyNameRequired,
+            message: 'Company name is required.',
+          ),
         ),
       );
     }

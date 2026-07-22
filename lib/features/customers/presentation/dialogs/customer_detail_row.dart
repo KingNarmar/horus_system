@@ -7,7 +7,11 @@ class CustomerDetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const CustomerDetailRow({required this.label, required this.value, super.key});
+  const CustomerDetailRow({
+    required this.label,
+    required this.value,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +22,10 @@ class CustomerDetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: AppSizes.detailsLabelWidth,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           Expanded(child: Text(value)),
         ],

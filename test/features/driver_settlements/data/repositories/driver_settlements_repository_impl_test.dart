@@ -11,6 +11,7 @@ import 'package:horus_system/features/driver_finance/domain/entities/driver_bala
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
+import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_driver_option_model.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
@@ -106,6 +107,41 @@ void main() {
       expect(balanceRepository.lastBeforeExclusive, period.start);
       expect(balanceRepository.lastCheckpointBeforeExclusive, period.start);
     });
+
+    test('maps driver options without exposing data models', () async {
+      final remoteDataSource = _FakeDriverSettlementsRemoteDataSource();
+      final repository = DriverSettlementsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        driverBalanceRepository: _FakeDriverBalanceRepository(),
+        createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
+      );
+
+      final result = await repository.getDriverOptions(companyId: _companyId);
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.single.displayName, 'Driver One');
+      expect(result.dataOrNull?.single.isActive, isTrue);
+      expect(remoteDataSource.driverOptionsCompanyId, _companyId);
+    });
+
+    test('maps a company-scoped driver option lookup', () async {
+      final remoteDataSource = _FakeDriverSettlementsRemoteDataSource();
+      final repository = DriverSettlementsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        driverBalanceRepository: _FakeDriverBalanceRepository(),
+        createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
+      );
+
+      final result = await repository.getDriverOptionById(
+        companyId: _companyId,
+        driverId: _driverId,
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.id, _driverId);
+      expect(remoteDataSource.driverOptionCompanyId, _companyId);
+      expect(remoteDataSource.driverOptionDriverId, _driverId);
+    });
   });
 }
 
@@ -181,6 +217,9 @@ class _FakeDriverSettlementsRemoteDataSource
   final DriverSettlementSourceSnapshot snapshot;
   int createDraftCalls = 0;
   int snapshotCalls = 0;
+  String? driverOptionsCompanyId;
+  String? driverOptionCompanyId;
+  String? driverOptionDriverId;
 
   _FakeDriverSettlementsRemoteDataSource({
     this.snapshot = const DriverSettlementSourceSnapshot(),
@@ -199,6 +238,34 @@ class _FakeDriverSettlementsRemoteDataSource
     required DriverSettlementFinalizeData data,
   }) async {
     return _settlementModel(status: DriverSettlementStatus.finalized);
+  }
+
+  @override
+  Future<DriverSettlementDriverOptionModel?> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) async {
+    driverOptionCompanyId = companyId;
+    driverOptionDriverId = driverId;
+    return const DriverSettlementDriverOptionModel(
+      id: _driverId,
+      displayName: 'Driver One',
+      isActive: true,
+    );
+  }
+
+  @override
+  Future<List<DriverSettlementDriverOptionModel>> getDriverOptions({
+    required String companyId,
+  }) async {
+    driverOptionsCompanyId = companyId;
+    return const [
+      DriverSettlementDriverOptionModel(
+        id: _driverId,
+        displayName: 'Driver One',
+        isActive: true,
+      ),
+    ];
   }
 
   @override

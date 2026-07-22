@@ -37,8 +37,7 @@ class UpdateCustomerParams {
   });
 }
 
-class UpdateCustomerUseCase
-    implements UseCase<Customer, UpdateCustomerParams> {
+class UpdateCustomerUseCase implements UseCase<Customer, UpdateCustomerParams> {
   final CustomersRepository _repository;
 
   const UpdateCustomerUseCase(this._repository);
@@ -52,7 +51,10 @@ class UpdateCustomerUseCase
     if (!CustomersPermissionPolicy.canManageCustomers(context.role)) {
       return Future.value(
         const FailureResult<Customer>(
-          PermissionFailure(code: FailureCodes.permissionCustomersManagement, message: 'Customers management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionCustomersManagement,
+            message: 'Customers management is not allowed.',
+          ),
         ),
       );
     }
@@ -60,7 +62,10 @@ class UpdateCustomerUseCase
     if (normalizedCustomerId.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCustomerIdRequired, message: 'Customer id is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCustomerIdRequired,
+            message: 'Customer id is required.',
+          ),
         ),
       );
     }
@@ -68,7 +73,10 @@ class UpdateCustomerUseCase
     if (normalizedName.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCustomerNameRequired, message: 'Customer name is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCustomerNameRequired,
+            message: 'Customer name is required.',
+          ),
         ),
       );
     }
@@ -76,7 +84,10 @@ class UpdateCustomerUseCase
     if (params.creditLimit != null && params.creditLimit! < 0) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCreditLimitNegative, message: 'Credit limit cannot be negative.'),
+          ValidationFailure(
+            code: FailureCodes.validationCreditLimitNegative,
+            message: 'Credit limit cannot be negative.',
+          ),
         ),
       );
     }

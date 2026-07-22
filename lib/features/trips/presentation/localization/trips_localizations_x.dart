@@ -99,20 +99,15 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripNoExpensesFound =>
       _isArabic ? 'لا توجد مصروفات بعد.' : 'No expenses yet.';
 
-  String get tripAddExpenseButton =>
-      _isArabic ? 'إضافة مصروف' : 'Add expense';
+  String get tripAddExpenseButton => _isArabic ? 'إضافة مصروف' : 'Add expense';
 
-  String get tripEditExpenseTitle =>
-      _isArabic ? 'تعديل مصروف' : 'Edit expense';
+  String get tripEditExpenseTitle => _isArabic ? 'تعديل مصروف' : 'Edit expense';
 
-  String get tripAddExpenseTitle =>
-      _isArabic ? 'إضافة مصروف' : 'Add expense';
+  String get tripAddExpenseTitle => _isArabic ? 'إضافة مصروف' : 'Add expense';
 
-  String get tripExpenseNameLabel =>
-      _isArabic ? 'اسم المصروف' : 'Expense name';
+  String get tripExpenseNameLabel => _isArabic ? 'اسم المصروف' : 'Expense name';
 
-  String get tripExpenseTypeLabel =>
-      _isArabic ? 'نوع المصروف' : 'Expense type';
+  String get tripExpenseTypeLabel => _isArabic ? 'نوع المصروف' : 'Expense type';
 
   String get tripExpenseTypeRequired =>
       _isArabic ? 'نوع المصروف مطلوب.' : 'Expense type is required.';
@@ -121,7 +116,8 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String get tripExpensePaidByLabel => _isArabic ? 'الدافع' : 'Paid by';
 
-  String get tripExpenseDateLabel => _isArabic ? 'تاريخ المصروف' : 'Expense date';
+  String get tripExpenseDateLabel =>
+      _isArabic ? 'تاريخ المصروف' : 'Expense date';
 
   String get tripExpenseDateHelperText =>
       _isArabic ? 'مثال: 2026-06-26' : 'Example: 2026-06-26';
@@ -281,8 +277,7 @@ extension TripsLocalizationsX on AppLocalizations {
       TripExpensePaidBy.company => _isArabic ? 'الشركة' : 'Company',
       TripExpensePaidBy.driverAdvance =>
         _isArabic ? 'عهدة السائق' : 'Driver advance',
-      TripExpensePaidBy.driverCash =>
-        _isArabic ? 'دفع السائق' : 'Driver cash',
+      TripExpensePaidBy.driverCash => _isArabic ? 'دفع السائق' : 'Driver cash',
       TripExpensePaidBy.customer => _isArabic ? 'العميل' : 'Customer',
       TripExpensePaidBy.other => _isArabic ? 'أخرى' : 'Other',
     };

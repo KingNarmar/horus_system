@@ -1,5 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../entities/driver_settlement.dart';
+import '../entities/driver_settlement_driver_option.dart';
 import '../entities/driver_settlement_period.dart';
 import '../entities/driver_settlement_source_snapshot.dart';
 import '../entities/driver_settlement_write_data.dart';
@@ -9,6 +10,15 @@ abstract class DriverSettlementsRepository {
     required String companyId,
     String? driverId,
     bool includeVoided = false,
+  });
+
+  Future<Result<List<DriverSettlementDriverOption>>> getDriverOptions({
+    required String companyId,
+  });
+
+  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
+    required String companyId,
+    required String driverId,
   });
 
   Future<Result<DriverSettlement>> getDriverSettlementById({

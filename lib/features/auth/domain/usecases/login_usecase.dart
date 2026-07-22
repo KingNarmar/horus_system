@@ -25,7 +25,10 @@ class LoginUseCase implements UseCase<AuthUser, LoginParams> {
     if (email.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authEmailRequired, message: 'Email is required.'),
+          ValidationFailure(
+            code: FailureCodes.authEmailRequired,
+            message: 'Email is required.',
+          ),
         ),
       );
     }
@@ -33,7 +36,10 @@ class LoginUseCase implements UseCase<AuthUser, LoginParams> {
     if (password.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authPasswordRequired, message: 'Password is required.'),
+          ValidationFailure(
+            code: FailureCodes.authPasswordRequired,
+            message: 'Password is required.',
+          ),
         ),
       );
     }

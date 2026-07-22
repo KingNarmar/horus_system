@@ -37,6 +37,14 @@ class CreateDriverSettlementDraftUseCase
       end: params.periodEnd,
     );
 
+    final driverValidation =
+        await DriverSettlementUseCaseValidation.validateActiveDriver(
+          repository: _repository,
+          companyId: context.companyId,
+          driverId: driverId,
+        );
+    if (driverValidation != null) return FailureResult(driverValidation);
+
     final snapshotResult = await _repository.getSettlementSourceSnapshot(
       companyId: context.companyId,
       driverId: driverId,

@@ -16,7 +16,8 @@ extension AuditLogWriteDataMapper on AuditLogWriteData {
       DbCommonFields.companyId: companyId,
       AuditDbFields.actorUserId: resolvedActorUserId ?? actorUserId,
       AuditDbFields.actorRole: actorRole,
-      AuditDbFields.actorDisplayName: resolvedActorDisplayName ?? actorDisplayName,
+      AuditDbFields.actorDisplayName:
+          resolvedActorDisplayName ?? actorDisplayName,
       AuditDbFields.actorEmail: resolvedActorEmail ?? actorEmail,
       AuditDbFields.module: module.value,
       AuditDbFields.entityType: entityType.value,

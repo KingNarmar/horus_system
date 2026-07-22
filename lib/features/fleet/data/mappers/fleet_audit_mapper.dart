@@ -10,7 +10,9 @@ extension TractorHeadAuditMapper on TractorHeadModel {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status,
       TractorHeadDbFields.notes: notes,
@@ -27,7 +29,9 @@ extension TrailerAuditMapper on TrailerModel {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TrailerDbFields.status: status,
       TrailerDbFields.technicalNotes: technicalNotes,
       DbCommonFields.isActive: isActive,

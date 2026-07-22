@@ -162,7 +162,8 @@ class _CompanyUserTile extends StatelessWidget {
     final roleLabel = user.role.localizedLabel(context);
     final roleInitial = roleLabel.substring(0, 1);
 
-    final titleText = (user.displayName != null && user.displayName!.trim().isNotEmpty)
+    final titleText =
+        (user.displayName != null && user.displayName!.trim().isNotEmpty)
         ? user.displayName!.trim()
         : l10n.unknownUser;
 

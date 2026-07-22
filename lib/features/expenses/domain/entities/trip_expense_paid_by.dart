@@ -1,10 +1,4 @@
-enum TripExpensePaidBy {
-  company,
-  driverAdvance,
-  driverCash,
-  customer,
-  other,
-}
+enum TripExpensePaidBy { company, driverAdvance, driverCash, customer, other }
 
 extension TripExpensePaidByX on TripExpensePaidBy {
   String get value {

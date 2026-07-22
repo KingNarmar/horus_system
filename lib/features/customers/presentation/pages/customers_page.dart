@@ -97,8 +97,8 @@ class _CustomersPageState extends State<CustomersPage> {
                   child: Text(
                     l10n.customersTitle,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (state is CustomersLoaded && state.canManageCustomers)

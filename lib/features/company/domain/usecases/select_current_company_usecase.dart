@@ -26,7 +26,10 @@ class SelectCurrentCompanyUseCase
     if (companyId.isEmpty) {
       return Future.value(
         const FailureResult<CurrentCompanyContext>(
-          ValidationFailure(code: FailureCodes.validationCompanyContextRequired, message: 'Company context is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCompanyContextRequired,
+            message: 'Company context is required.',
+          ),
         ),
       );
     }

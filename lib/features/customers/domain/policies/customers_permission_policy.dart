@@ -15,7 +15,9 @@ abstract final class CustomersPermissionPolicy {
   static bool canManageCustomers(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.operations => true,
-      CompanyRole.accountant || CompanyRole.viewer || CompanyRole.driver => false,
+      CompanyRole.accountant ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
     };
   }
 }
