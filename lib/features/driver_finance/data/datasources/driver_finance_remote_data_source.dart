@@ -2,12 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../domain/entities/driver_financial_movement_write_data.dart';
+import '../constants/driver_finance_db_fields.dart';
 import '../mappers/driver_financial_movement_mapper.dart';
 import '../models/driver_finance_trip_option_model.dart';
 import '../models/driver_financial_movement_model.dart';
-
-const _driverFinancialMovementsTable = 'driver_financial_movements';
-const _tripsTable = 'trips';
 
 const _driverFinancialMovementColumns = '''
 id,
@@ -60,11 +58,11 @@ class SupabaseDriverFinanceRemoteDataSource
     required String driverId,
   }) async {
     final rows = await client
-        .from(_driverFinancialMovementsTable)
+        .from(DriverFinanceDbTables.driverFinancialMovements)
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .eq('driver_id', driverId)
-        .order('movement_date', ascending: false)
+        .eq(DriverFinanceDbFields.driverId, driverId)
+        .order(DriverFinanceDbFields.movementDate, ascending: false)
         .order(DbCommonFields.createdAt, ascending: false);
 
     return rows
@@ -82,10 +80,10 @@ class SupabaseDriverFinanceRemoteDataSource
     required String driverId,
   }) async {
     final rows = await client
-        .from(_tripsTable)
+        .from(DriverFinanceDbTables.trips)
         .select(_driverTripOptionColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .eq('driver_id', driverId)
+        .eq(DriverFinanceDbFields.driverId, driverId)
         .order('scheduled_loading_at', ascending: false)
         .order(DbCommonFields.createdAt, ascending: false);
 
@@ -103,7 +101,7 @@ class SupabaseDriverFinanceRemoteDataSource
     required DriverFinancialMovementWriteData data,
   }) async {
     final row = await client
-        .from(_driverFinancialMovementsTable)
+        .from(DriverFinanceDbTables.driverFinancialMovements)
         .insert(data.toInsertMap())
         .select(_driverFinancialMovementColumns)
         .single();
@@ -125,12 +123,7 @@ class SupabaseDriverFinanceRemoteDataSource
           _optional(map['scheduled_loading_at']),
     );
 
-    final label = _joinNonEmpty([
-      tripNumber,
-      customer,
-      route,
-      date,
-    ], ' - ');
+    final label = _joinNonEmpty([tripNumber, customer, route, date], ' - ');
 
     return label.isEmpty ? map[DbCommonFields.id] as String : label;
   }

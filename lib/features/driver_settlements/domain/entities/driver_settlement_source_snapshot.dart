@@ -16,4 +16,15 @@ class DriverSettlementSourceSnapshot {
     this.deductionsTotal = 0,
     this.sourceItems = const [],
   });
+
+  DriverSettlementSourceSnapshot withOpeningDriverBalance(double value) {
+    return DriverSettlementSourceSnapshot(
+      openingDriverBalance: value,
+      advancesTotal: advancesTotal,
+      driverPaidTripExpensesTotal: driverPaidTripExpensesTotal,
+      returnedCashTotal: returnedCashTotal,
+      deductionsTotal: deductionsTotal,
+      sourceItems: sourceItems,
+    );
+  }
 }

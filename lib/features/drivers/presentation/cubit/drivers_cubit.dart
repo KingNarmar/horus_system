@@ -9,6 +9,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
 import '../../../driver_finance/domain/policies/driver_finance_permission_policy.dart';
 import '../../../driver_finance/domain/usecases/driver_finance_usecases.dart';
+import '../../../driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status_filter.dart';
 import '../../domain/policies/drivers_permission_policy.dart';
@@ -31,7 +32,7 @@ class DriversCubit extends Cubit<DriversState> {
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
   final AddDriverChargeUseCase addDriverChargeUseCase;
   final AddDriverCashReturnUseCase addDriverCashReturnUseCase;
-  final CalculateDriverBalanceUseCase calculateDriverBalanceUseCase;
+  final GetCanonicalDriverBalanceUseCase getCanonicalDriverBalanceUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -47,7 +48,7 @@ class DriversCubit extends Cubit<DriversState> {
     required this.addDriverAdvanceUseCase,
     required this.addDriverChargeUseCase,
     required this.addDriverCashReturnUseCase,
-    required this.calculateDriverBalanceUseCase,
+    required this.getCanonicalDriverBalanceUseCase,
   }) : super(const DriversInitial());
 
   Future<void> loadDrivers(CurrentCompanyContext currentCompanyContext) async {
@@ -493,11 +494,11 @@ class DriversCubit extends Cubit<DriversState> {
     required bool isLoading,
     bool isSaving = false,
   }) async {
-    final balanceResult = await calculateDriverBalanceUseCase(
-      CalculateDriverBalanceParams(
-        companyId: state.currentCompanyContext.companyId,
+    final balanceResult = await getCanonicalDriverBalanceUseCase(
+      GetCanonicalDriverBalanceParams(
+        currentCompanyContext: state.currentCompanyContext,
         driverId: driver.id,
-        movements: movements,
+        beforeExclusive: _tomorrowDate(),
       ),
     );
 
@@ -527,6 +528,11 @@ class DriversCubit extends Cubit<DriversState> {
         ),
       ),
     );
+  }
+
+  DateTime _tomorrowDate() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day + 1);
   }
 
   bool _startPendingAction(String driverId) {

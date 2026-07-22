@@ -9,6 +9,8 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
+import '../../../driver_finance/domain/entities/driver_balance.dart';
+import '../../../driver_finance/domain/repositories/driver_balance_repository.dart';
 import '../../domain/entities/driver_settlement.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
@@ -21,10 +23,12 @@ import '../models/driver_settlement_model.dart';
 
 class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
   final DriverSettlementsRemoteDataSource remoteDataSource;
+  final DriverBalanceRepository driverBalanceRepository;
   final CreateAuditLogUseCase createAuditLogUseCase;
 
   const DriverSettlementsRepositoryImpl({
     required this.remoteDataSource,
+    required this.driverBalanceRepository,
     required this.createAuditLogUseCase,
   });
 
@@ -65,12 +69,26 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
     required DriverSettlementPeriod period,
   }) {
     return _guard(() async {
+      final openingResult = await driverBalanceRepository
+          .getCanonicalDriverBalance(
+            companyId: companyId,
+            driverId: driverId,
+            beforeExclusive: period.start,
+            checkpointBeforeExclusive: period.start,
+          );
+      if (openingResult is FailureResult<DriverBalance>) {
+        return FailureResult<DriverSettlementSourceSnapshot>(
+          openingResult.failure,
+        );
+      }
+
       final snapshot = await remoteDataSource.getSettlementSourceSnapshot(
         companyId: companyId,
         driverId: driverId,
         period: period,
       );
-      return Success(snapshot);
+      final openingBalance = openingResult.dataOrNull?.netBalance ?? 0;
+      return Success(snapshot.withOpeningDriverBalance(openingBalance));
     });
   }
 

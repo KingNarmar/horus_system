@@ -29,9 +29,9 @@ import '../../features/customers/domain/usecases/get_customers_usecase.dart';
 import '../../features/customers/domain/usecases/reactivate_customer_usecase.dart';
 import '../../features/customers/domain/usecases/update_customer_usecase.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
-import '../../features/driver_finance/data/datasources/driver_finance_remote_data_source.dart';
-import '../../features/driver_finance/data/repositories/driver_finance_repository_impl.dart';
+import '../../features/driver_finance/di/driver_finance_dependencies.dart';
 import '../../features/driver_finance/domain/usecases/driver_finance_usecases.dart';
+import '../../features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
 import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
 import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
@@ -133,13 +133,11 @@ abstract final class AppDependencies {
       remoteDataSource: driversRemoteDataSource,
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
-    final driverFinanceRemoteDataSource = SupabaseDriverFinanceRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
-    final driverFinanceRepository = DriverFinanceRepositoryImpl(
-      remoteDataSource: driverFinanceRemoteDataSource,
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
-    );
+    final driverFinanceRepository =
+        DriverFinanceDependencies.createRepository();
+    final driverBalanceRepository =
+        DriverFinanceDependencies.createBalanceRepository();
+
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(driversRepository),
       addDriverUseCase: AddDriverUseCase(driversRepository),
@@ -158,7 +156,9 @@ abstract final class AppDependencies {
       addDriverCashReturnUseCase: AddDriverCashReturnUseCase(
         driverFinanceRepository,
       ),
-      calculateDriverBalanceUseCase: const CalculateDriverBalanceUseCase(),
+      getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+        driverBalanceRepository,
+      ),
     );
   }
 }
