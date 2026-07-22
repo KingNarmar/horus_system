@@ -48,35 +48,9 @@ class DriverSettlementSourceSnapshotMapper {
     );
   }
 
-  double calculateHistoricalOpeningBalance({
-    double openingDriverBalance = 0,
-    required List<Map<String, dynamic>> movementRows,
-    required List<Map<String, dynamic>> tripExpenseRows,
-  }) {
-    final movementSummary = _mapMovements(
-      companyId: '',
-      rows: movementRows,
-      includeItems: false,
-    );
-    final expenseSummary = _mapTripExpenses(
-      companyId: '',
-      rows: tripExpenseRows,
-      includeItems: false,
-    );
-
-    return balanceCalculator.calculate(
-      openingBalance: openingDriverBalance,
-      advancesReceived: movementSummary.advancesTotal,
-      driverCharges: movementSummary.driverChargesTotal,
-      creditedTripExpenses: expenseSummary.total,
-      cashReturned: movementSummary.returnedCashTotal,
-    );
-  }
-
   _MovementSummary _mapMovements({
     required String companyId,
     required List<Map<String, dynamic>> rows,
-    bool includeItems = true,
   }) {
     var advancesTotal = 0.0;
     var driverChargesTotal = 0.0;
@@ -119,7 +93,6 @@ class DriverSettlementSourceSnapshotMapper {
           break;
       }
 
-      if (!includeItems) continue;
       items.add(
         DriverSettlementItem(
           companyId: companyId,
@@ -150,7 +123,6 @@ class DriverSettlementSourceSnapshotMapper {
   _ExpenseSummary _mapTripExpenses({
     required String companyId,
     required List<Map<String, dynamic>> rows,
-    bool includeItems = true,
   }) {
     var total = 0.0;
     final items = <DriverSettlementItem>[];
@@ -168,7 +140,6 @@ class DriverSettlementSourceSnapshotMapper {
       );
       total += amount;
 
-      if (!includeItems) continue;
       items.add(
         DriverSettlementItem(
           companyId: companyId,

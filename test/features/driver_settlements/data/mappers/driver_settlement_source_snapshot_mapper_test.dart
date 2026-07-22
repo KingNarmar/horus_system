@@ -51,51 +51,6 @@ void main() {
       expect(cashExpense.metadata['paid_by'], 'driver_cash');
     });
 
-    test('calculates historical opening from the driver perspective', () {
-      final openingBalance = mapper.calculateHistoricalOpeningBalance(
-        movementRows: [
-          _movement(id: 'advance-1', type: 'advance', amount: 7000),
-          _movement(id: 'charge-1', type: 'driver_charge', amount: 500),
-          _movement(id: 'return-1', type: 'cash_return', amount: 150),
-        ],
-        tripExpenseRows: [
-          _tripExpense(
-            id: 'expense-advance',
-            paidBy: 'driver_advance',
-            amount: 5000,
-          ),
-          _tripExpense(id: 'expense-cash', paidBy: 'driver_cash', amount: 200),
-        ],
-      );
-
-      expect(openingBalance, -2150);
-    });
-
-    test('applies gap activity after a finalized closing balance', () {
-      final openingBalance = mapper.calculateHistoricalOpeningBalance(
-        openingDriverBalance: -400,
-        movementRows: [
-          _movement(id: 'advance-1', type: 'advance', amount: 100),
-          _movement(id: 'return-1', type: 'cash_return', amount: 25),
-        ],
-        tripExpenseRows: [
-          _tripExpense(id: 'expense-1', paidBy: 'driver_cash', amount: 50),
-        ],
-      );
-
-      expect(openingBalance, -425);
-    });
-
-    test('keeps finalized closing unchanged when the gap is empty', () {
-      final openingBalance = mapper.calculateHistoricalOpeningBalance(
-        openingDriverBalance: -400,
-        movementRows: const [],
-        tripExpenseRows: const [],
-      );
-
-      expect(openingBalance, -400);
-    });
-
     test('rounds source totals to money precision', () {
       final snapshot = mapper.map(
         companyId: 'company-1',

@@ -7,6 +7,9 @@ import 'package:horus_system/features/audit/domain/entities/audit_log_write_data
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
+import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
@@ -24,6 +27,7 @@ void main() {
       final auditRepository = _FakeAuditLogRepository();
       final repository = DriverSettlementsRepositoryImpl(
         remoteDataSource: remoteDataSource,
+        driverBalanceRepository: _FakeDriverBalanceRepository(),
         createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
@@ -55,6 +59,7 @@ void main() {
       );
       final repository = DriverSettlementsRepositoryImpl(
         remoteDataSource: remoteDataSource,
+        driverBalanceRepository: _FakeDriverBalanceRepository(),
         createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
@@ -68,27 +73,38 @@ void main() {
       expect(remoteDataSource.createDraftCalls, 1);
     });
 
-    test('gets source snapshot through remote datasource', () async {
+    test('uses a period-bounded canonical balance as the opening', () async {
       final remoteDataSource = _FakeDriverSettlementsRemoteDataSource(
         snapshot: const DriverSettlementSourceSnapshot(advancesTotal: 250),
       );
+      final balanceRepository = _FakeDriverBalanceRepository(
+        balance: _canonicalBalance(-5600),
+      );
       final repository = DriverSettlementsRepositoryImpl(
         remoteDataSource: remoteDataSource,
+        driverBalanceRepository: balanceRepository,
         createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
+      );
+      final period = DriverSettlementPeriod(
+        start: DateTime(2026, 9),
+        end: DateTime(2026, 9, 30),
       );
 
       final result = await repository.getSettlementSourceSnapshot(
         companyId: _companyId,
         driverId: _driverId,
-        period: DriverSettlementPeriod(
-          start: DateTime(2026, 7),
-          end: DateTime(2026, 7, 31),
-        ),
+        period: period,
       );
 
       expect(result, isA<Success>());
+      expect(result.dataOrNull?.openingDriverBalance, -5600);
       expect(result.dataOrNull?.advancesTotal, 250);
       expect(remoteDataSource.snapshotCalls, 1);
+      expect(balanceRepository.balanceCalls, 1);
+      expect(balanceRepository.lastCompanyId, _companyId);
+      expect(balanceRepository.lastDriverId, _driverId);
+      expect(balanceRepository.lastBeforeExclusive, period.start);
+      expect(balanceRepository.lastCheckpointBeforeExclusive, period.start);
     });
   });
 }
@@ -96,6 +112,21 @@ void main() {
 const _companyId = 'company-1';
 const _driverId = 'driver-1';
 const _settlementId = 'settlement-1';
+
+DriverBalance _canonicalBalance(double closingBalance) {
+  return DriverBalance(
+    companyId: _companyId,
+    driverId: _driverId,
+    checkpoint: DriverBalanceCheckpoint(
+      settlementId: 'checkpoint-1',
+      periodEnd: DateTime(2026, 8, 31),
+      snapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
+      closingBalance: closingBalance,
+    ),
+    totalAdvances: 0,
+    totalDriverCharges: 0,
+  );
+}
 
 DriverSettlementDraftWriteData _draftWriteData() {
   return DriverSettlementDraftWriteData(
@@ -205,6 +236,40 @@ class _FakeDriverSettlementsRemoteDataSource
   }
 }
 
+class _FakeDriverBalanceRepository implements DriverBalanceRepository {
+  final DriverBalance balance;
+  int balanceCalls = 0;
+  String? lastCompanyId;
+  String? lastDriverId;
+  DateTime? lastBeforeExclusive;
+  DateTime? lastCheckpointBeforeExclusive;
+
+  _FakeDriverBalanceRepository({DriverBalance? balance})
+    : balance =
+          balance ??
+          const DriverBalance(
+            companyId: _companyId,
+            driverId: _driverId,
+            totalAdvances: 0,
+            totalDriverCharges: 0,
+          );
+
+  @override
+  Future<Result<DriverBalance>> getCanonicalDriverBalance({
+    required String companyId,
+    required String driverId,
+    required DateTime beforeExclusive,
+    DateTime? checkpointBeforeExclusive,
+  }) async {
+    balanceCalls++;
+    lastCompanyId = companyId;
+    lastDriverId = driverId;
+    lastBeforeExclusive = beforeExclusive;
+    lastCheckpointBeforeExclusive = checkpointBeforeExclusive;
+    return Success(balance);
+  }
+}
+
 class _FakeAuditLogRepository implements AuditLogRepository {
   final ValidationFailure? failure;
   final List<AuditLogWriteData> logs = [];
@@ -225,6 +290,6 @@ class _FakeAuditLogRepository implements AuditLogRepository {
     required AuditEntityType entityType,
     required String entityId,
   }) async {
-    return const Success([]);
+    return const Success<List<AuditLog>>([]);
   }
 }

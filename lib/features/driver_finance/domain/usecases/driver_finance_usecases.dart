@@ -4,7 +4,6 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../entities/driver_balance.dart';
 import '../entities/driver_finance_trip_option.dart';
 import '../entities/driver_financial_movement.dart';
 import '../entities/driver_financial_movement_type.dart';
@@ -79,18 +78,6 @@ class AddDriverCashReturnParams {
     required this.amount,
     required this.movementDate,
     this.notes,
-  });
-}
-
-class CalculateDriverBalanceParams {
-  final String companyId;
-  final String driverId;
-  final List<DriverFinancialMovement> movements;
-
-  const CalculateDriverBalanceParams({
-    required this.companyId,
-    required this.driverId,
-    required this.movements,
   });
 }
 
@@ -207,40 +194,6 @@ class AddDriverCashReturnUseCase
       amount: params.amount,
       movementDate: params.movementDate,
       notes: params.notes,
-    );
-  }
-}
-
-class CalculateDriverBalanceUseCase
-    implements UseCase<DriverBalance, CalculateDriverBalanceParams> {
-  const CalculateDriverBalanceUseCase();
-
-  @override
-  Future<Result<DriverBalance>> call(CalculateDriverBalanceParams params) {
-    var totalAdvances = 0.0;
-    var totalDriverCharges = 0.0;
-    var totalCashReturns = 0.0;
-
-    for (final movement in params.movements) {
-      if (movement.type.isAdvance) {
-        totalAdvances += movement.amount;
-      } else if (movement.type.isDriverCharge) {
-        totalDriverCharges += movement.amount;
-      } else if (movement.type.isCashReturn) {
-        totalCashReturns += movement.amount;
-      }
-    }
-
-    return Future.value(
-      Success(
-        DriverBalance(
-          companyId: params.companyId,
-          driverId: params.driverId,
-          totalAdvances: totalAdvances,
-          totalDriverCharges: totalDriverCharges,
-          totalCashReturns: totalCashReturns,
-        ),
-      ),
     );
   }
 }

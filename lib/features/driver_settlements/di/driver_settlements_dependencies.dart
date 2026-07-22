@@ -1,5 +1,6 @@
 import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../audit/di/audit_dependencies.dart';
+import '../../driver_finance/di/driver_finance_dependencies.dart';
 import '../data/datasources/driver_settlements_remote_data_source.dart';
 import '../data/repositories/driver_settlements_repository_impl.dart';
 import '../domain/repositories/driver_settlements_repository.dart';
@@ -12,6 +13,8 @@ abstract final class DriverSettlementsDependencies {
     );
     return DriverSettlementsRepositoryImpl(
       remoteDataSource: remoteDataSource,
+      driverBalanceRepository:
+          DriverFinanceDependencies.createBalanceRepository(),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }

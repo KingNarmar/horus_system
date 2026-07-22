@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
-import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement.dart';
@@ -53,23 +53,13 @@ class DriverFinanceDetailsSection extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.driverBalancePlaceholderDescription),
-            const SizedBox(height: AppSpacing.md),
-            _DetailRow(
-              label: l10n.totalAdvancesLabel,
-              value: _money(balance?.totalAdvances ?? 0),
-            ),
-            _DetailRow(
-              label: l10n.totalDriverChargesLabel,
-              value: _money(balance?.totalDriverCharges ?? 0),
-            ),
-            _DetailRow(
-              label: l10n.driverMovementTypeCashReturn,
-              value: _money(balance?.totalCashReturns ?? 0),
-            ),
-            _DetailRow(
-              label: l10n.netDriverBalanceLabel,
-              value: l10n.driverBalanceLabel(balance?.netBalance ?? 0),
-            ),
+            if (balance != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              AdaptiveDetailRow(
+                label: l10n.netDriverBalanceLabel,
+                value: l10n.driverBalanceLabel(balance!.netBalance),
+              ),
+            ],
             if (canManage) ...[
               const SizedBox(height: AppSpacing.sm),
               Wrap(
@@ -136,33 +126,6 @@ class _MovementItem extends StatelessWidget {
             Text('${l10n.driverMovementTripLine}: $tripLabel'),
           if (movement.notes != null && movement.notes!.trim().isNotEmpty)
             Text(movement.notes!.trim()),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: AppSizes.detailsLabelWidth,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          Expanded(child: Text(value)),
         ],
       ),
     );

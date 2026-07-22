@@ -4,6 +4,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -41,6 +42,8 @@ class DriverDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isCompact =
+        MediaQuery.sizeOf(context).width <= AppSizes.mobileMaxContentWidth;
     final isSelectedDriver = state?.selectedDriver?.id == driver.id;
     final activity = isSelectedDriver
         ? state!.selectedDriverActivity
@@ -57,17 +60,24 @@ class DriverDetailsDialog extends StatelessWidget {
     final latestLog = activity.isEmpty ? null : activity.first;
 
     return Dialog(
+      insetPadding: isCompact
+          ? const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.md,
+            )
+          : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: AppSizes.detailsDialogMaxWidth,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: EdgeInsets.all(isCompact ? AppSpacing.md : AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
@@ -87,33 +97,33 @@ class DriverDetailsDialog extends StatelessWidget {
               _DetailsSection(
                 title: l10n.basicInfo,
                 children: [
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.driverNameLabel,
                     value: driver.fullName,
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.phoneLabel,
                     value: _optional(driver.phone, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.nationalIdLabel,
                     value: _optional(driver.nationalId, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.licenseNumberLabel,
                     value: _optional(driver.licenseNumber, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.licenseExpiryDateLabel,
                     value: driver.licenseExpiryDate == null
                         ? l10n.emptyValue
                         : _dateOnly(driver.licenseExpiryDate!),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.notesLabel,
                     value: _optional(driver.notes, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.statusHeader,
                     value: l10n.driverStatusLabel(driver.status),
                   ),
@@ -142,29 +152,29 @@ class DriverDetailsDialog extends StatelessWidget {
               _DetailsSection(
                 title: l10n.accountability,
                 children: [
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.createdBy,
                     value: _actorName(createdLog, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.createdRole,
                     value: createdLog?.actorRole ?? l10n.notAvailable,
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.createdAt,
                     value: createdLog == null
                         ? l10n.notAvailable
                         : _formatDateTime(context, createdLog.createdAt),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.lastActivityBy,
                     value: _actorName(latestLog, l10n),
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.lastActivityRole,
                     value: latestLog?.actorRole ?? l10n.notAvailable,
                   ),
-                  _DetailRow(
+                  AdaptiveDetailRow(
                     label: l10n.lastActivityAt,
                     value: latestLog == null
                         ? l10n.notAvailable
@@ -393,33 +403,6 @@ class _DetailsSection extends StatelessWidget {
             ...children,
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: AppSizes.detailsLabelWidth,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          Expanded(child: Text(value)),
-        ],
       ),
     );
   }
