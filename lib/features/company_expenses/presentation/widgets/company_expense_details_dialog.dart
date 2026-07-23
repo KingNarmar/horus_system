@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/company_expense.dart';
 import '../cubit/company_expenses_state.dart';
 import '../helpers/company_expense_date_formatter.dart';
@@ -145,7 +146,7 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
                   ),
                   _DetailRow(
                     label: l10n.fleetCreatedRole,
-                    value: createdLog?.actorRole ?? l10n.fleetNotAvailable,
+                    value: l10n.auditRoleDisplayLabel(createdLog?.actorRole),
                   ),
                   _DetailRow(
                     label: l10n.fleetCreatedAt,
@@ -159,7 +160,7 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
                   ),
                   _DetailRow(
                     label: l10n.fleetLastActivityRole,
-                    value: latestLog?.actorRole ?? l10n.fleetNotAvailable,
+                    value: l10n.auditRoleDisplayLabel(latestLog?.actorRole),
                   ),
                   _DetailRow(
                     label: l10n.fleetLastActivityAt,
@@ -261,7 +262,7 @@ class _ActivityTimelineItem extends StatelessWidget {
           Text(
             l10n.auditTimelineHeader(
               _actorName(log, l10n),
-              log.actorRole ?? l10n.fleetNotAvailable,
+              l10n.auditRoleDisplayLabel(log.actorRole),
               _formatDateTime(context, log.createdAt),
             ),
           ),
@@ -307,12 +308,7 @@ class _ActivityTimelineItem extends StatelessWidget {
       _companyExpenseCreatedEvent => l10n.driverAuditActionCreated,
       _companyExpenseUpdatedEvent => l10n.driverAuditActionUpdated,
       _companyExpenseVoidedEvent => l10n.companyExpenseVoidedStatus,
-      _ => switch (log.action.value) {
-        'created' => l10n.driverAuditActionCreated,
-        'updated' => l10n.driverAuditActionUpdated,
-        'status_changed' => l10n.companyExpenseVoidedStatus,
-        _ => log.action.value,
-      },
+      _ => l10n.auditActionDisplayLabel(log.action),
     };
   }
 
