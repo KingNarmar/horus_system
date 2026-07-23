@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../cubit/trips_state.dart';
 import '../localization/trips_localizations_x.dart';
 import 'trip_details_helpers.dart';
@@ -34,7 +35,7 @@ class TripAccountabilitySection extends StatelessWidget {
         ),
         TripDetailRow(
           label: l10n.tripCreatedRole,
-          value: l10n.tripAuditRoleLabel(created?.actorRole),
+          value: l10n.auditRoleDisplayLabel(created?.actorRole),
         ),
         TripDetailRow(
           label: l10n.tripCreatedAt,
@@ -46,7 +47,7 @@ class TripAccountabilitySection extends StatelessWidget {
         ),
         TripDetailRow(
           label: l10n.tripLastActivityRole,
-          value: l10n.tripAuditRoleLabel(latest?.actorRole),
+          value: l10n.auditRoleDisplayLabel(latest?.actorRole),
         ),
         TripDetailRow(
           label: l10n.tripLastActivityAt,
