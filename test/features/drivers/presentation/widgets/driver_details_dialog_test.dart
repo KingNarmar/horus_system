@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -43,6 +47,32 @@ void main() {
       expect((labelTop - valueTop).abs(), lessThan(2));
     });
   });
+
+  group('DriverDetailsDialog audit localization', () {
+    testWidgets('does not expose raw audit role or action in Arabic', (
+      tester,
+    ) async {
+      await _pumpDialog(tester, locale: const Locale('ar'));
+
+      expect(find.text('المحاسب'), findsOneWidget);
+      expect(find.text('تم تغيير الحالة'), findsOneWidget);
+      expect(find.textContaining('المحاسب'), findsAtLeastNWidgets(2));
+      expect(find.textContaining('accountant'), findsNothing);
+      expect(find.textContaining('status_changed'), findsNothing);
+    });
+
+    testWidgets('does not expose raw audit role or action in English', (
+      tester,
+    ) async {
+      await _pumpDialog(tester, locale: const Locale('en'));
+
+      expect(find.text('Accountant'), findsOneWidget);
+      expect(find.text('Status changed'), findsOneWidget);
+      expect(find.textContaining('Accountant'), findsAtLeastNWidgets(2));
+      expect(find.textContaining('accountant'), findsNothing);
+      expect(find.textContaining('status_changed'), findsNothing);
+    });
+  });
 }
 
 const _companyId = 'company-1';
@@ -65,12 +95,29 @@ final _driver = Driver(
   status: DriverStatus.active,
 );
 
+final _auditLog = AuditLog(
+  id: 'audit-1',
+  companyId: _companyId,
+  actorRole: 'accountant',
+  actorDisplayName: 'Test Accountant',
+  module: AuditModule.drivers,
+  entityType: AuditEntityType.driver,
+  entityId: _driverId,
+  entityDisplayName: 'test driver2',
+  action: AuditAction.statusChanged,
+  description: 'driver_status_changed',
+  oldValues: const {'is_active': false},
+  newValues: const {'is_active': true},
+  createdAt: DateTime.utc(2026, 7, 22, 8, 30),
+);
+
 final _state = DriversLoaded(
   currentCompanyContext: _companyContext,
   allDrivers: [_driver],
   canManageDrivers: true,
   canManageDriverFinance: true,
   selectedDriver: _driver,
+  selectedDriverActivity: [_auditLog],
   selectedDriverBalance: DriverBalance(
     companyId: _companyId,
     driverId: _driverId,
