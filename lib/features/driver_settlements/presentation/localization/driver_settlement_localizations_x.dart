@@ -4,8 +4,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/domain/entities/audit_log.dart';
-import '../../../company/domain/entities/company_role.dart';
-import '../../../company/presentation/extensions/company_role_localization.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/driver_settlement_balance_direction.dart';
 import '../../domain/entities/driver_settlement_item.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
@@ -109,11 +108,7 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
   }
 
   String localizedAuditRole(String? rawRole) {
-    if (rawRole == null) return driverSettlementsL10n.unavailableValue;
-    for (final role in CompanyRole.values) {
-      if (role.name == rawRole) return role.localizedLabel(this);
-    }
-    return driverSettlementsL10n.unavailableValue;
+    return l10n.auditRoleDisplayLabel(rawRole);
   }
 }
 
