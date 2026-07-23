@@ -4,6 +4,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/domain/entities/audit_log.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../cubit/trips_state.dart';
 import '../localization/trips_localizations_x.dart';
 import 'trip_details_helpers.dart';
@@ -47,7 +48,7 @@ class TripActivityTimelineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final actor = log.actorDisplayName ?? l10n.tripUnknownUser;
-    final role = l10n.tripAuditRoleLabel(log.actorRole);
+    final role = l10n.auditRoleDisplayLabel(log.actorRole);
     final date = formatTripDateTime(log.createdAt, l10n.tripEmptyValue);
 
     return Card(
