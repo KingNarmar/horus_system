@@ -1,4 +1,5 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/driver_status.dart';
 
 extension DriversLocalizationsX on AppLocalizations {
@@ -39,12 +40,8 @@ extension DriversLocalizationsX on AppLocalizations {
 
   String auditActionLabel(String action) {
     return switch (action) {
-      'created' => driverAuditActionCreated,
-      'updated' => driverAuditActionUpdated,
-      'deactivated' => driverAuditActionDeactivated,
-      'reactivated' => driverAuditActionReactivated,
       'driver_finance_added' => driverAuditActionFinanceAdded,
-      _ => action,
+      _ => auditActionValueDisplayLabel(action),
     };
   }
 
