@@ -113,6 +113,10 @@ class FailureCodes {
       'validation_driver_settlement_net_salary_negative';
   static const String validationDriverSettlementBalanceRecoveryExceedsDebt =
       'validation_driver_settlement_balance_recovery_exceeds_debt';
+  static const String validationDriverSettlementDriverNotFound =
+      'validation_driver_settlement_driver_not_found';
+  static const String validationDriverSettlementDriverInactive =
+      'validation_driver_settlement_driver_inactive';
   static const String validationDriverSettlementVoidReasonRequired =
       'validation_driver_settlement_void_reason_required';
 

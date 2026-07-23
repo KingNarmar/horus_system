@@ -6,7 +6,11 @@ class CustomerDetailsSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const CustomerDetailsSection({required this.title, required this.children, super.key});
+  const CustomerDetailsSection({
+    required this.title,
+    required this.children,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +22,9 @@ class CustomerDetailsSection extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
             ...children,

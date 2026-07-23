@@ -26,7 +26,10 @@ class GetCustomersUseCase
     if (!CustomersPermissionPolicy.canViewCustomers(currentContext.role)) {
       return Future.value(
         const FailureResult<List<Customer>>(
-          PermissionFailure(code: FailureCodes.permissionCustomersView, message: 'Customers access is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionCustomersView,
+            message: 'Customers access is not allowed.',
+          ),
         ),
       );
     }

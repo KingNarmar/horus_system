@@ -267,8 +267,9 @@ class _HeaderCell extends StatelessWidget {
     return Expanded(
       flex: flex,
       child: Align(
-        alignment:
-            alignEnd ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        alignment: alignEnd
+            ? AlignmentDirectional.centerEnd
+            : AlignmentDirectional.centerStart,
         child: Text(
           label,
           maxLines: 1,

@@ -19,20 +19,32 @@ class CustomerDetailsDialog extends StatelessWidget {
   final Customer customer;
   final CustomersLoaded? state;
 
-  const CustomerDetailsDialog({required this.customer, required this.state, super.key});
+  const CustomerDetailsDialog({
+    required this.customer,
+    required this.state,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final activity = state?.selectedCustomer?.id == customer.id ? state!.selectedCustomerActivity : const <AuditLog>[];
-    final isLoading = state?.selectedCustomer?.id == customer.id && (state?.isActivityLoading ?? false);
-    final failure = state?.selectedCustomer?.id == customer.id ? state?.activityFailure : null;
+    final activity = state?.selectedCustomer?.id == customer.id
+        ? state!.selectedCustomerActivity
+        : const <AuditLog>[];
+    final isLoading =
+        state?.selectedCustomer?.id == customer.id &&
+        (state?.isActivityLoading ?? false);
+    final failure = state?.selectedCustomer?.id == customer.id
+        ? state?.activityFailure
+        : null;
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.detailsDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.detailsDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -45,8 +57,8 @@ class CustomerDetailsDialog extends StatelessWidget {
                     child: Text(
                       l10n.customerDetailsTitle(customer.name),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -59,28 +71,90 @@ class CustomerDetailsDialog extends StatelessWidget {
               CustomerDetailsSection(
                 title: l10n.customerBasicInfo,
                 children: [
-                  CustomerDetailRow(label: l10n.customerNameLabel, value: customer.name),
-                  CustomerDetailRow(label: l10n.contactPersonLabel, value: _optional(customer.contactPerson, l10n)),
-                  CustomerDetailRow(label: l10n.phoneLabel, value: _optional(customer.phone, l10n)),
-                  CustomerDetailRow(label: l10n.emailLabel, value: _optional(customer.email, l10n)),
-                  CustomerDetailRow(label: l10n.addressLabel, value: _optional(customer.address, l10n)),
-                  CustomerDetailRow(label: l10n.cityLabel, value: _optional(customer.city, l10n)),
-                  CustomerDetailRow(label: l10n.countryLabel, value: _optional(customer.country, l10n)),
-                  CustomerDetailRow(label: l10n.taxRegistrationNumberLabel, value: _optional(customer.taxRegistrationNumber, l10n)),
-                  CustomerDetailRow(label: l10n.creditLimitLabel, value: customer.creditLimit?.toStringAsFixed(2) ?? l10n.customerEmptyValue),
-                  CustomerDetailRow(label: l10n.statusHeader, value: customer.isActive ? l10n.activeStatus : l10n.inactiveStatus),
+                  CustomerDetailRow(
+                    label: l10n.customerNameLabel,
+                    value: customer.name,
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.contactPersonLabel,
+                    value: _optional(customer.contactPerson, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.phoneLabel,
+                    value: _optional(customer.phone, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.emailLabel,
+                    value: _optional(customer.email, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.addressLabel,
+                    value: _optional(customer.address, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.cityLabel,
+                    value: _optional(customer.city, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.countryLabel,
+                    value: _optional(customer.country, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.taxRegistrationNumberLabel,
+                    value: _optional(customer.taxRegistrationNumber, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.creditLimitLabel,
+                    value:
+                        customer.creditLimit?.toStringAsFixed(2) ??
+                        l10n.customerEmptyValue,
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.statusHeader,
+                    value: customer.isActive
+                        ? l10n.activeStatus
+                        : l10n.inactiveStatus,
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               CustomerDetailsSection(
                 title: l10n.customerAccountability,
                 children: [
-                  CustomerDetailRow(label: l10n.customerCreatedBy, value: _actorName(createdLog, l10n)),
-                  CustomerDetailRow(label: l10n.customerCreatedRole, value: l10n.customerAuditRoleLabel(createdLog?.actorRole)),
-                  CustomerDetailRow(label: l10n.customerCreatedAt, value: createdLog == null ? l10n.customerNotAvailable : CustomerDateTimeFormatter.format(context, createdLog.createdAt)),
-                  CustomerDetailRow(label: l10n.customerLastActivityBy, value: _actorName(latestLog, l10n)),
-                  CustomerDetailRow(label: l10n.customerLastActivityRole, value: l10n.customerAuditRoleLabel(latestLog?.actorRole)),
-                  CustomerDetailRow(label: l10n.customerLastActivityAt, value: latestLog == null ? l10n.customerNotAvailable : CustomerDateTimeFormatter.format(context, latestLog.createdAt)),
+                  CustomerDetailRow(
+                    label: l10n.customerCreatedBy,
+                    value: _actorName(createdLog, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.customerCreatedRole,
+                    value: l10n.customerAuditRoleLabel(createdLog?.actorRole),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.customerCreatedAt,
+                    value: createdLog == null
+                        ? l10n.customerNotAvailable
+                        : CustomerDateTimeFormatter.format(
+                            context,
+                            createdLog.createdAt,
+                          ),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.customerLastActivityBy,
+                    value: _actorName(latestLog, l10n),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.customerLastActivityRole,
+                    value: l10n.customerAuditRoleLabel(latestLog?.actorRole),
+                  ),
+                  CustomerDetailRow(
+                    label: l10n.customerLastActivityAt,
+                    value: latestLog == null
+                        ? l10n.customerNotAvailable
+                        : CustomerDateTimeFormatter.format(
+                            context,
+                            latestLog.createdAt,
+                          ),
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -93,7 +167,9 @@ class CustomerDetailsDialog extends StatelessWidget {
                         const SizedBox(
                           height: AppSizes.iconSm,
                           width: AppSizes.iconSm,
-                          child: CircularProgressIndicator(strokeWidth: AppSizes.loadingIndicatorStrokeWidth),
+                          child: CircularProgressIndicator(
+                            strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                          ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(l10n.customerLoadingActivity),
@@ -104,7 +180,9 @@ class CustomerDetailsDialog extends StatelessWidget {
                   else if (activity.isEmpty)
                     Text(l10n.customerNoActivityFound)
                   else
-                    ...activity.map((log) => CustomerActivityTimelineItem(log: log)),
+                    ...activity.map(
+                      (log) => CustomerActivityTimelineItem(log: log),
+                    ),
                 ],
               ),
             ],
@@ -131,6 +209,8 @@ class CustomerDetailsDialog extends StatelessWidget {
 
   String _optional(String? value, AppLocalizations l10n) {
     final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? l10n.customerEmptyValue : normalized;
+    return normalized == null || normalized.isEmpty
+        ? l10n.customerEmptyValue
+        : normalized;
   }
 }

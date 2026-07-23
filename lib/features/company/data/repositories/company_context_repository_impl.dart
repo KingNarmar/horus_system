@@ -34,11 +34,17 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
       return Success(_loadedContexts);
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
+        AuthFailure(
+          code: error.statusCode ?? 'auth_error',
+          message: error.message,
+        ),
       );
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -73,7 +79,9 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
         ),
       );
     } on MissingCompanyContextException catch (error) {
-      return FailureResult(ValidationFailure(code: 'validation_error', message: error.message));
+      return FailureResult(
+        ValidationFailure(code: 'validation_error', message: error.message),
+      );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
     }

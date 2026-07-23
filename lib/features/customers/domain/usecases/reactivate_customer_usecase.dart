@@ -32,7 +32,10 @@ class ReactivateCustomerUseCase
     if (!CustomersPermissionPolicy.canManageCustomers(context.role)) {
       return Future.value(
         const FailureResult<Customer>(
-          PermissionFailure(code: FailureCodes.permissionCustomersManagement, message: 'Customers management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionCustomersManagement,
+            message: 'Customers management is not allowed.',
+          ),
         ),
       );
     }
@@ -40,7 +43,10 @@ class ReactivateCustomerUseCase
     if (normalizedCustomerId.isEmpty) {
       return Future.value(
         const FailureResult<Customer>(
-          ValidationFailure(code: FailureCodes.validationCustomerIdRequired, message: 'Customer id is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCustomerIdRequired,
+            message: 'Customer id is required.',
+          ),
         ),
       );
     }

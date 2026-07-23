@@ -29,7 +29,10 @@ class GetCompanyUsersUseCase
     if (!canViewUsers) {
       return Future.value(
         const FailureResult<List<CompanyUser>>(
-          PermissionFailure(code: FailureCodes.permissionCompanyUsersView, message: 'This role cannot view company users.'),
+          PermissionFailure(
+            code: FailureCodes.permissionCompanyUsersView,
+            message: 'This role cannot view company users.',
+          ),
         ),
       );
     }

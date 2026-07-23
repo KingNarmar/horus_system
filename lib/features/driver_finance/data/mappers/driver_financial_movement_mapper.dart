@@ -38,7 +38,8 @@ extension DriverFinancialMovementModelMapper on DriverFinancialMovementModel {
   }
 }
 
-extension DriverFinancialMovementWriteDataMapper on DriverFinancialMovementWriteData {
+extension DriverFinancialMovementWriteDataMapper
+    on DriverFinancialMovementWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
       DbCommonFields.companyId: companyId,

@@ -13,7 +13,13 @@ class FleetFormData {
   final double? expectedFuelConsumption;
   final String? notes;
 
-  const FleetFormData({required this.plateNumber, required this.status, this.licenseExpiryDate, this.expectedFuelConsumption, this.notes});
+  const FleetFormData({
+    required this.plateNumber,
+    required this.status,
+    this.licenseExpiryDate,
+    this.expectedFuelConsumption,
+    this.notes,
+  });
 }
 
 class FleetFormDialog extends StatefulWidget {
@@ -27,14 +33,32 @@ class FleetFormDialog extends StatefulWidget {
   final bool showExpectedFuelConsumption;
   final Future<void> Function(FleetFormData data) onSubmit;
 
-  const FleetFormDialog({required this.title, required this.initialStatus, required this.notesLabel, required this.onSubmit, this.initialPlateNumber, this.initialLicenseExpiryDate, this.initialExpectedFuelConsumption, this.initialNotes, this.showExpectedFuelConsumption = false, super.key});
+  const FleetFormDialog({
+    required this.title,
+    required this.initialStatus,
+    required this.notesLabel,
+    required this.onSubmit,
+    this.initialPlateNumber,
+    this.initialLicenseExpiryDate,
+    this.initialExpectedFuelConsumption,
+    this.initialNotes,
+    this.showExpectedFuelConsumption = false,
+    super.key,
+  });
 
   @override
   State<FleetFormDialog> createState() => _FleetFormDialogState();
 }
 
 class _FleetFormDialogState extends State<FleetFormDialog> {
-  static const _statuses = [VehicleStatus.available, VehicleStatus.onTrip, VehicleStatus.loading, VehicleStatus.unloading, VehicleStatus.maintenance, VehicleStatus.stopped];
+  static const _statuses = [
+    VehicleStatus.available,
+    VehicleStatus.onTrip,
+    VehicleStatus.loading,
+    VehicleStatus.unloading,
+    VehicleStatus.maintenance,
+    VehicleStatus.stopped,
+  ];
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _plateController;
   late final TextEditingController _dateController;
@@ -47,11 +71,19 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   @override
   void initState() {
     super.initState();
-    _status = _statuses.contains(widget.initialStatus) ? widget.initialStatus : VehicleStatus.available;
+    _status = _statuses.contains(widget.initialStatus)
+        ? widget.initialStatus
+        : VehicleStatus.available;
     _selectedDate = widget.initialLicenseExpiryDate;
-    _plateController = TextEditingController(text: widget.initialPlateNumber ?? '');
-    _dateController = TextEditingController(text: _selectedDate == null ? '' : _dateOnly(_selectedDate!));
-    _rateController = TextEditingController(text: _formatDouble(widget.initialExpectedFuelConsumption));
+    _plateController = TextEditingController(
+      text: widget.initialPlateNumber ?? '',
+    );
+    _dateController = TextEditingController(
+      text: _selectedDate == null ? '' : _dateOnly(_selectedDate!),
+    );
+    _rateController = TextEditingController(
+      text: _formatDouble(widget.initialExpectedFuelConsumption),
+    );
     _notesController = TextEditingController(text: widget.initialNotes ?? '');
   }
 
@@ -74,29 +106,106 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              TextFormField(controller: _plateController, textCapitalization: TextCapitalization.characters, decoration: InputDecoration(labelText: l10n.plateNumberLabel), validator: (value) => value == null || value.trim().isEmpty ? l10n.plateNumberRequired : null),
-              const SizedBox(height: AppSpacing.md),
-              DropdownButtonFormField<VehicleStatus>(initialValue: _status, decoration: InputDecoration(labelText: l10n.vehicleStatusLabel), items: _statuses.map((status) => DropdownMenuItem(value: status, child: Text(l10n.vehicleStatusText(status)))).toList(), onChanged: _isSubmitting ? null : (value) => setState(() => _status = value ?? VehicleStatus.available)),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(controller: _dateController, readOnly: true, decoration: InputDecoration(labelText: l10n.vehicleLicenseExpiryDateLabel, suffixIcon: Row(mainAxisSize: MainAxisSize.min, children: [if (_dateController.text.isNotEmpty) IconButton(icon: const Icon(AppIcons.clear), onPressed: _isSubmitting ? null : _clearDate), IconButton(icon: const Icon(AppIcons.calendar), onPressed: _isSubmitting ? null : _pickDate)])), onTap: _isSubmitting ? null : _pickDate),
-              if (widget.showExpectedFuelConsumption) ...[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _plateController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(labelText: l10n.plateNumberLabel),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? l10n.plateNumberRequired
+                      : null,
+                ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(controller: _rateController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: l10n.expectedFuelConsumptionLabel), validator: (_) => _rateValid ? null : l10n.expectedFuelConsumptionInvalid),
+                DropdownButtonFormField<VehicleStatus>(
+                  initialValue: _status,
+                  decoration: InputDecoration(
+                    labelText: l10n.vehicleStatusLabel,
+                  ),
+                  items: _statuses
+                      .map(
+                        (status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(l10n.vehicleStatusText(status)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _isSubmitting
+                      ? null
+                      : (value) => setState(
+                          () => _status = value ?? VehicleStatus.available,
+                        ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _dateController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.vehicleLicenseExpiryDateLabel,
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_dateController.text.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(AppIcons.clear),
+                            onPressed: _isSubmitting ? null : _clearDate,
+                          ),
+                        IconButton(
+                          icon: const Icon(AppIcons.calendar),
+                          onPressed: _isSubmitting ? null : _pickDate,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: _isSubmitting ? null : _pickDate,
+                ),
+                if (widget.showExpectedFuelConsumption) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  TextFormField(
+                    controller: _rateController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: l10n.expectedFuelConsumptionLabel,
+                    ),
+                    validator: (_) =>
+                        _rateValid ? null : l10n.expectedFuelConsumptionInvalid,
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _notesController,
+                  decoration: InputDecoration(labelText: widget.notesLabel),
+                  maxLines: 3,
+                ),
               ],
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(controller: _notesController, decoration: InputDecoration(labelText: widget.notesLabel), maxLines: 3),
-            ]),
+            ),
           ),
         ),
       ),
-      actions: [TextButton(onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(), child: Text(l10n.cancelButton)), FilledButton(onPressed: _isSubmitting ? null : _submit, child: Text(l10n.saveButton))],
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: Text(l10n.cancelButton),
+        ),
+        FilledButton(
+          onPressed: _isSubmitting ? null : _submit,
+          child: Text(l10n.saveButton),
+        ),
+      ],
     );
   }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(context: context, initialDate: _selectedDate ?? now, firstDate: DateTime(now.year - 5), lastDate: DateTime(now.year + 20));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? now,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 20),
+    );
     if (picked == null || !mounted) return;
     setState(() {
       _selectedDate = DateTime(picked.year, picked.month, picked.day);
@@ -105,19 +214,31 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   }
 
   void _clearDate() => setState(() {
-        _selectedDate = null;
-        _dateController.clear();
-      });
+    _selectedDate = null;
+    _dateController.clear();
+  });
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
-    await widget.onSubmit(FleetFormData(plateNumber: _plateController.text.trim().toUpperCase(), status: _status, licenseExpiryDate: _selectedDate, expectedFuelConsumption: _parseRate(), notes: _optional(_notesController.text)));
+    await widget.onSubmit(
+      FleetFormData(
+        plateNumber: _plateController.text.trim().toUpperCase(),
+        status: _status,
+        licenseExpiryDate: _selectedDate,
+        expectedFuelConsumption: _parseRate(),
+        notes: _optional(_notesController.text),
+      ),
+    );
     if (mounted) Navigator.of(context).pop();
   }
 
-  bool get _rateValid => _rateController.text.trim().isEmpty || (_parseRate() != null && _parseRate()! >= 0);
-  double? _parseRate() => _rateController.text.trim().isEmpty ? null : double.tryParse(_rateController.text.trim().replaceAll(',', '.'));
+  bool get _rateValid =>
+      _rateController.text.trim().isEmpty ||
+      (_parseRate() != null && _parseRate()! >= 0);
+  double? _parseRate() => _rateController.text.trim().isEmpty
+      ? null
+      : double.tryParse(_rateController.text.trim().replaceAll(',', '.'));
   String? _optional(String value) => value.trim().isEmpty ? null : value.trim();
 }
 

@@ -31,14 +31,18 @@ class SupabaseAuditLogsRemoteDataSource implements AuditLogsRemoteDataSource {
     final currentUserId = currentUser?.id;
     final resolvedActorUserId =
         _normalizeOptional(data.actorUserId) ?? currentUserId;
-    final resolvedActorEmail = _normalizeOptional(data.actorEmail) ??
+    final resolvedActorEmail =
+        _normalizeOptional(data.actorEmail) ??
         (resolvedActorUserId == currentUserId ? currentUser?.email : null);
-    final resolvedActorDisplayName = _normalizeOptional(data.actorDisplayName) ??
+    final resolvedActorDisplayName =
+        _normalizeOptional(data.actorDisplayName) ??
         await _getActorDisplayName(resolvedActorUserId) ??
         resolvedActorEmail ??
         _normalizeOptional(data.actorRole);
 
-    await _client.from(AuditDbFields.tableName).insert(
+    await _client
+        .from(AuditDbFields.tableName)
+        .insert(
           data.toInsertMap(
             resolvedActorUserId: resolvedActorUserId,
             resolvedActorDisplayName: resolvedActorDisplayName,
@@ -80,7 +84,9 @@ class SupabaseAuditLogsRemoteDataSource implements AuditLogsRemoteDataSource {
 
     if (rows.isEmpty) return null;
     final firstRow = Map<String, dynamic>.from(rows.first);
-    return _normalizeOptional(firstRow[UserProfileDbFields.fullName] as String?);
+    return _normalizeOptional(
+      firstRow[UserProfileDbFields.fullName] as String?,
+    );
   }
 
   String? _normalizeOptional(String? value) {

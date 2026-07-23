@@ -15,6 +15,7 @@ abstract final class AppRoutes {
   static const String routes = '/app/routes';
   static const String trips = '/app/trips';
   static const String expenses = '/app/expenses';
+  static const String driverSettlements = '/app/driver-settlements';
   static const String invoices = '/app/invoices';
   static const String reports = '/app/reports';
   static const String settings = '/app/settings';
@@ -32,6 +33,7 @@ abstract final class AppRoutes {
     routes,
     trips,
     expenses,
+    driverSettlements,
     invoices,
     reports,
     settings,

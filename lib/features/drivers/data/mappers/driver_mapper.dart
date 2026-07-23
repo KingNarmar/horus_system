@@ -33,7 +33,9 @@ extension DriverAuditMapper on DriverModel {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       DriverDbFields.notes: notes,
       DbCommonFields.isActive: isActive,
       DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
@@ -50,7 +52,9 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       DriverDbFields.notes: notes,
     };
   }
@@ -61,7 +65,9 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      DriverDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       DriverDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };

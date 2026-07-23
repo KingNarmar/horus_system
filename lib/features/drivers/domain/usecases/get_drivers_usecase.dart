@@ -24,7 +24,10 @@ class GetDriversUseCase implements UseCase<List<Driver>, GetDriversParams> {
     if (!DriversPermissionPolicy.canViewDrivers(context.role)) {
       return Future.value(
         const FailureResult<List<Driver>>(
-          PermissionFailure(code: FailureCodes.permissionDriversView, message: 'You are not allowed to view drivers.'),
+          PermissionFailure(
+            code: FailureCodes.permissionDriversView,
+            message: 'You are not allowed to view drivers.',
+          ),
         ),
       );
     }

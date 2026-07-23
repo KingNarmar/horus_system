@@ -24,7 +24,10 @@ class CompanyUsersRepositoryImpl implements CompanyUsersRepository {
 
       if (normalizedCompanyId.isEmpty) {
         return const FailureResult(
-          ValidationFailure(code: FailureCodes.validationCompanyIdRequired, message: 'Company id is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
         );
       }
 
@@ -35,7 +38,10 @@ class CompanyUsersRepositoryImpl implements CompanyUsersRepository {
       return Success(models.map((model) => model.toEntity()).toList());
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));

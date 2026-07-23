@@ -18,7 +18,8 @@ class ReactivateDriverParams {
   });
 }
 
-class ReactivateDriverUseCase implements UseCase<Driver, ReactivateDriverParams> {
+class ReactivateDriverUseCase
+    implements UseCase<Driver, ReactivateDriverParams> {
   final DriversRepository _repository;
 
   const ReactivateDriverUseCase(this._repository);
@@ -29,7 +30,10 @@ class ReactivateDriverUseCase implements UseCase<Driver, ReactivateDriverParams>
     if (!DriversPermissionPolicy.canManageDrivers(context.role)) {
       return Future.value(
         const FailureResult<Driver>(
-          PermissionFailure(code: FailureCodes.permissionDriversManagement, message: 'Drivers management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionDriversManagement,
+            message: 'Drivers management is not allowed.',
+          ),
         ),
       );
     }

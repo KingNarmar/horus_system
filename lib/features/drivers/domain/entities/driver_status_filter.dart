@@ -1,11 +1,7 @@
 import 'driver.dart';
 import 'driver_status.dart';
 
-enum DriverStatusFilter {
-  active,
-  inactive,
-  all,
-}
+enum DriverStatusFilter { active, inactive, all }
 
 extension DriverStatusFilterX on DriverStatusFilter {
   bool matches(Driver driver) {

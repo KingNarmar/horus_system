@@ -5,7 +5,9 @@ import '../entities/trailer_entity.dart';
 import '../entities/trailer_write_data.dart';
 
 abstract class FleetRepository {
-  Future<Result<List<TractorHead>>> getTractorHeads({required String companyId});
+  Future<Result<List<TractorHead>>> getTractorHeads({
+    required String companyId,
+  });
 
   Future<Result<List<TrailerEntity>>> getTrailers({required String companyId});
 

@@ -24,7 +24,20 @@ class AppShellMobileLayout extends StatelessWidget {
     super.key,
   });
 
-  static const List<int> primaryIndexes = [0, 5, 3, 8];
+  static const List<AppShellModule> primaryModules = [
+    AppShellModule.dashboard,
+    AppShellModule.trips,
+    AppShellModule.fleet,
+    AppShellModule.reports,
+  ];
+
+  List<int> get primaryIndexes => primaryModules
+      .map(
+        (module) => appShellDestinations.indexWhere(
+          (destination) => destination.module == module,
+        ),
+      )
+      .toList(growable: false);
 
   int get navIndex {
     final index = primaryIndexes.indexOf(selectedIndex);
@@ -34,6 +47,7 @@ class AppShellMobileLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final indexes = primaryIndexes;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +65,7 @@ class AppShellMobileLayout extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navIndex,
         onDestinationSelected: (index) {
-          if (index == primaryIndexes.length) {
+          if (index == indexes.length) {
             AppShellMobileMoreSheet.show(
               context: context,
               selectedIndex: selectedIndex,
@@ -60,29 +74,15 @@ class AppShellMobileLayout extends StatelessWidget {
             return;
           }
 
-          onSelect(primaryIndexes[index]);
+          onSelect(indexes[index]);
         },
         destinations: [
-          NavigationDestination(
-            icon: const Icon(AppIcons.dashboard),
-            selectedIcon: const Icon(AppIcons.dashboardSelected),
-            label: appShellDestinations[0].label(context),
-          ),
-          NavigationDestination(
-            icon: const Icon(AppIcons.trips),
-            selectedIcon: const Icon(AppIcons.tripsSelected),
-            label: appShellDestinations[5].label(context),
-          ),
-          NavigationDestination(
-            icon: const Icon(AppIcons.fleet),
-            selectedIcon: const Icon(AppIcons.fleetSelected),
-            label: appShellDestinations[3].label(context),
-          ),
-          NavigationDestination(
-            icon: const Icon(AppIcons.reports),
-            selectedIcon: const Icon(AppIcons.reportsSelected),
-            label: appShellDestinations[8].label(context),
-          ),
+          for (final index in indexes)
+            NavigationDestination(
+              icon: Icon(appShellDestinations[index].icon),
+              selectedIcon: Icon(appShellDestinations[index].selectedIcon),
+              label: appShellDestinations[index].label(context),
+            ),
           NavigationDestination(
             icon: const Icon(AppIcons.appsOutlined),
             selectedIcon: const Icon(AppIcons.apps),

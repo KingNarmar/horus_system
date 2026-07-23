@@ -309,7 +309,9 @@ class TripsCubit extends Cubit<TripsState> {
   }) async {
     final context = _currentCompanyContext;
     final current = state;
-    if (context == null || current is! TripsLoaded || current.isTripExpenseSaving) {
+    if (context == null ||
+        current is! TripsLoaded ||
+        current.isTripExpenseSaving) {
       return;
     }
 
@@ -395,7 +397,10 @@ class TripsCubit extends Cubit<TripsState> {
           selectedTripNetProfit: netProfit,
           isDetailsLoading: false,
           detailsFailure: null,
-          allTrips: _upsertTripInList(currentAfterCalculation.allTrips, details),
+          allTrips: _upsertTripInList(
+            currentAfterCalculation.allTrips,
+            details,
+          ),
         ),
       );
       return;
@@ -451,7 +456,8 @@ class TripsCubit extends Cubit<TripsState> {
   Future<void> _loadExpenseTypesIfNeeded() async {
     final current = state;
     if (current is! TripsLoaded || current.isExpenseTypesLoading) return;
-    if (current.expenseTypes.isNotEmpty && current.expenseTypesFailure == null) {
+    if (current.expenseTypes.isNotEmpty &&
+        current.expenseTypesFailure == null) {
       return;
     }
 
@@ -460,7 +466,9 @@ class TripsCubit extends Cubit<TripsState> {
     );
 
     final result = await getExpenseTypesUseCase(
-      GetExpenseTypesParams(currentCompanyContext: current.currentCompanyContext),
+      GetExpenseTypesParams(
+        currentCompanyContext: current.currentCompanyContext,
+      ),
     );
 
     final latestState = state;

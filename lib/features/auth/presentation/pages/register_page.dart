@@ -232,7 +232,8 @@ class _RegisterLayout extends StatelessWidget {
                               width: AppSizes.loadingIndicatorSm,
                               height: AppSizes.loadingIndicatorSm,
                               child: CircularProgressIndicator(
-                                strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                                strokeWidth:
+                                    AppSizes.loadingIndicatorStrokeWidth,
                               ),
                             )
                           : Text(l10n.createAccountButton),

@@ -1,10 +1,4 @@
-enum AuditAction {
-  created,
-  updated,
-  deactivated,
-  reactivated,
-  statusChanged,
-}
+enum AuditAction { created, updated, deactivated, reactivated, statusChanged }
 
 extension AuditActionX on AuditAction {
   String get value {

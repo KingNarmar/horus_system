@@ -100,7 +100,10 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
     );
   }
 
-  final amount = _firstText([log.newValues?['amount'], log.metadata?['amount']]);
+  final amount = _firstText([
+    log.newValues?['amount'],
+    log.metadata?['amount'],
+  ]);
   if (amount != null && _isExpenseAudit(log)) {
     return '$entityName - $amount';
   }

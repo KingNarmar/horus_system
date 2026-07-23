@@ -169,7 +169,10 @@ class AddTripExpenseUseCase
       notes: _optional(params.notes),
     );
 
-    return _repository.addTripExpense(data: data, actorRole: context.role.value);
+    return _repository.addTripExpense(
+      data: data,
+      actorRole: context.role.value,
+    );
   }
 }
 

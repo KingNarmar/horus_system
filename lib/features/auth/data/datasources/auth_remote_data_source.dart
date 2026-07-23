@@ -37,7 +37,10 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {UserProfileDbFields.fullName: fullName, UserProfileDbFields.phone: phone},
+      data: {
+        UserProfileDbFields.fullName: fullName,
+        UserProfileDbFields.phone: phone,
+      },
     );
 
     final user = response.user;
@@ -110,7 +113,9 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     return AuthUserModel(
       id: user.id,
       email: user.email,
-      phone: user.phone ?? _readStringMetadata(metadata, UserProfileDbFields.phone),
+      phone:
+          user.phone ??
+          _readStringMetadata(metadata, UserProfileDbFields.phone),
       fullName:
           _readStringMetadata(metadata, UserProfileDbFields.fullName) ??
           _readStringMetadata(metadata, 'name'),

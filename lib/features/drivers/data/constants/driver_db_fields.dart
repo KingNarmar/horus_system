@@ -1,6 +1,6 @@
 abstract class DriverDbFields {
   static const tableName = 'drivers';
-  
+
   static const fullName = 'full_name';
   static const phone = 'phone';
   static const nationalId = 'national_id';

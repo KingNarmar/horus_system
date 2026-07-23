@@ -27,7 +27,9 @@ extension TrailerWriteDataMapper on TrailerWriteData {
     return {
       DbCommonFields.companyId: companyId,
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
     };
@@ -36,7 +38,9 @@ extension TrailerWriteDataMapper on TrailerWriteData {
   Map<String, dynamic> toUpdateMap() {
     return {
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate?.toUtc().toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
+          ?.toUtc()
+          .toIso8601String(),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),

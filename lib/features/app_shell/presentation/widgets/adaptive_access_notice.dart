@@ -21,7 +21,10 @@ class AdaptiveAccessNotice extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Row(
           children: [
-            Icon(AppIcons.supportedDevices, color: colorScheme.onPrimaryContainer),
+            Icon(
+              AppIcons.supportedDevices,
+              color: colorScheme.onPrimaryContainer,
+            ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(

@@ -36,11 +36,17 @@ class CompanyRepositoryImpl implements CompanyRepository {
       return Success(companyModel.toEntity());
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
+        AuthFailure(
+          code: error.statusCode ?? 'auth_error',
+          message: error.message,
+        ),
       );
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
@@ -56,11 +62,17 @@ class CompanyRepositoryImpl implements CompanyRepository {
       );
     } on AuthException catch (error) {
       return FailureResult(
-        AuthFailure(code: error.statusCode ?? 'auth_error', message: error.message),
+        AuthFailure(
+          code: error.statusCode ?? 'auth_error',
+          message: error.message,
+        ),
       );
     } on PostgrestException catch (error) {
       return FailureResult(
-        ServerFailure(code: error.code ?? FailureCodes.serverError, message: error.message),
+        ServerFailure(
+          code: error.code ?? FailureCodes.serverError,
+          message: error.message,
+        ),
       );
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));

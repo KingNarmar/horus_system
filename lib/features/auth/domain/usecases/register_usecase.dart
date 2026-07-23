@@ -34,7 +34,10 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (fullName.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authFullNameRequired, message: 'Full name is required.'),
+          ValidationFailure(
+            code: FailureCodes.authFullNameRequired,
+            message: 'Full name is required.',
+          ),
         ),
       );
     }
@@ -42,7 +45,10 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (phone.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authPhoneRequired, message: 'Phone number is required.'),
+          ValidationFailure(
+            code: FailureCodes.authPhoneRequired,
+            message: 'Phone number is required.',
+          ),
         ),
       );
     }
@@ -50,7 +56,10 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (email.isEmpty) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authEmailRequired, message: 'Email is required.'),
+          ValidationFailure(
+            code: FailureCodes.authEmailRequired,
+            message: 'Email is required.',
+          ),
         ),
       );
     }
@@ -58,7 +67,10 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
     if (password.length < 6) {
       return Future.value(
         const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authPasswordTooShort, message: 'Password must be at least 6 characters.'),
+          ValidationFailure(
+            code: FailureCodes.authPasswordTooShort,
+            message: 'Password must be at least 6 characters.',
+          ),
         ),
       );
     }

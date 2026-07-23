@@ -33,8 +33,5 @@ class ConflictFailure extends Failure {
 }
 
 class UnexpectedFailure extends Failure {
-  const UnexpectedFailure({
-    super.code = 'unexpected_error',
-    super.message,
-  });
+  const UnexpectedFailure({super.code = 'unexpected_error', super.message});
 }

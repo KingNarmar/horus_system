@@ -9,8 +9,8 @@ class AppLocaleCubit extends Cubit<Locale> {
   final AppLocaleStorage _storage;
 
   AppLocaleCubit({required AppLocaleStorage storage})
-      : _storage = storage,
-        super(english) {
+    : _storage = storage,
+      super(english) {
     unawaited(_loadSavedLocale());
   }
 

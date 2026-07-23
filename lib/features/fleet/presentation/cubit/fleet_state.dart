@@ -51,16 +51,20 @@ class FleetLoaded extends FleetState {
     this.activityFailure,
   });
 
-  bool isActiveStateChanging(String id) => activeStateChangingAssetIds.contains(id);
+  bool isActiveStateChanging(String id) =>
+      activeStateChangingAssetIds.contains(id);
 
   List<TractorHead> get tractorHeads {
     final query = searchQuery.trim().toLowerCase();
     return allTractorHeads.where((item) {
       if (!statusFilter.matches(item.isActive)) return false;
       if (query.isEmpty) return true;
-      return [item.plateNumber, item.status.value, item.expectedFuelConsumption?.toString(), item.notes]
-          .whereType<String>()
-          .any((value) => value.toLowerCase().contains(query));
+      return [
+        item.plateNumber,
+        item.status.value,
+        item.expectedFuelConsumption?.toString(),
+        item.notes,
+      ].whereType<String>().any((value) => value.toLowerCase().contains(query));
     }).toList();
   }
 
@@ -69,9 +73,11 @@ class FleetLoaded extends FleetState {
     return allTrailers.where((item) {
       if (!statusFilter.matches(item.isActive)) return false;
       if (query.isEmpty) return true;
-      return [item.plateNumber, item.status.value, item.technicalNotes]
-          .whereType<String>()
-          .any((value) => value.toLowerCase().contains(query));
+      return [
+        item.plateNumber,
+        item.status.value,
+        item.technicalNotes,
+      ].whereType<String>().any((value) => value.toLowerCase().contains(query));
     }).toList();
   }
 
@@ -96,11 +102,17 @@ class FleetLoaded extends FleetState {
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
       selectedTab: selectedTab ?? this.selectedTab,
-      activeStateChangingAssetIds: activeStateChangingAssetIds ?? this.activeStateChangingAssetIds,
-      selectedAssetId: selectedAssetId == _notSet ? this.selectedAssetId : selectedAssetId as String?,
-      selectedAssetActivity: selectedAssetActivity ?? this.selectedAssetActivity,
+      activeStateChangingAssetIds:
+          activeStateChangingAssetIds ?? this.activeStateChangingAssetIds,
+      selectedAssetId: selectedAssetId == _notSet
+          ? this.selectedAssetId
+          : selectedAssetId as String?,
+      selectedAssetActivity:
+          selectedAssetActivity ?? this.selectedAssetActivity,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
-      activityFailure: activityFailure == _notSet ? this.activityFailure : activityFailure as Failure?,
+      activityFailure: activityFailure == _notSet
+          ? this.activityFailure
+          : activityFailure as Failure?,
     );
   }
 }

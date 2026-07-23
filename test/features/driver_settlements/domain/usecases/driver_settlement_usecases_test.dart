@@ -5,6 +5,7 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_driver_option.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_direction.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_source_type.dart';
@@ -58,7 +59,62 @@ void main() {
       expect(preview.calculation.closingDriverBalance, -100);
       expect(preview.calculation.netSalaryPayable, 850);
       expect(preview.items, hasLength(1));
+      expect(repository.driverOptionCalls, 1);
       expect(repository.snapshotCalls, 1);
+    });
+
+    test(
+      'rejects preview for an inactive driver before snapshot load',
+      () async {
+        final repository = _FakeDriverSettlementsRepository(
+          driverOption: const DriverSettlementDriverOption(
+            id: _driverId,
+            displayName: 'Inactive Driver',
+            isActive: false,
+          ),
+        );
+        final useCase = CalculateDriverSettlementPreviewUseCase(repository);
+
+        final result = await useCase(
+          DriverSettlementCalculationParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+            periodStart: DateTime(2026, 7),
+            periodEnd: DateTime(2026, 7, 31),
+          ),
+        );
+
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationDriverSettlementDriverInactive,
+        );
+        expect(repository.driverOptionCalls, 1);
+        expect(repository.snapshotCalls, 0);
+      },
+    );
+
+    test('rejects draft for a missing company driver', () async {
+      final repository = _FakeDriverSettlementsRepository(driverOption: null);
+      final useCase = CreateDriverSettlementDraftUseCase(repository);
+
+      final result = await useCase(
+        CreateDriverSettlementDraftParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+          driverId: _driverId,
+          periodStart: DateTime(2026, 7),
+          periodEnd: DateTime(2026, 7, 31),
+        ),
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationDriverSettlementDriverNotFound,
+      );
+      expect(repository.driverOptionCalls, 1);
+      expect(repository.snapshotCalls, 0);
+      expect(repository.createDraftCalls, 0);
     });
 
     test('rejects preview recovery above outstanding driver debt', () async {
@@ -117,6 +173,21 @@ void main() {
       expect(repository.createDraftCalls, 0);
     });
 
+    test('loads company-scoped driver options for finance roles', () async {
+      final repository = _FakeDriverSettlementsRepository();
+      final useCase = GetDriverSettlementDriverOptionsUseCase(repository);
+
+      final result = await useCase(
+        GetDriverSettlementDriverOptionsParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+        ),
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull, hasLength(1));
+      expect(repository.driverOptionsCalls, 1);
+    });
+
     test(
       'blocks draft creation for non-finance roles before repository calls',
       () async {
@@ -137,6 +208,7 @@ void main() {
           result.failureOrNull?.code,
           FailureCodes.permissionDriverSettlementsManagement,
         );
+        expect(repository.driverOptionCalls, 0);
         expect(repository.snapshotCalls, 0);
         expect(repository.createDraftCalls, 0);
       },
@@ -160,6 +232,7 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.validationDriverSettlementPeriodInvalid,
       );
+      expect(repository.driverOptionCalls, 0);
       expect(repository.snapshotCalls, 0);
     });
 
@@ -197,12 +270,20 @@ CurrentCompanyContext _context(CompanyRole role) {
 
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   final DriverSettlementSourceSnapshot snapshot;
+  final DriverSettlementDriverOption? driverOption;
   int snapshotCalls = 0;
   int createDraftCalls = 0;
   int voidCalls = 0;
+  int driverOptionsCalls = 0;
+  int driverOptionCalls = 0;
 
   _FakeDriverSettlementsRepository({
     this.snapshot = const DriverSettlementSourceSnapshot(),
+    this.driverOption = const DriverSettlementDriverOption(
+      id: _driverId,
+      displayName: 'Driver',
+      isActive: true,
+    ),
   });
 
   @override
@@ -223,6 +304,15 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   }
 
   @override
+  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
+    required String companyId,
+    required String driverId,
+  }) async {
+    driverOptionCalls++;
+    return Success(driverOption);
+  }
+
+  @override
   Future<Result<DriverSettlement>> getDriverSettlementById({
     required String companyId,
     required String settlementId,
@@ -237,6 +327,20 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     bool includeVoided = false,
   }) async {
     return Success([_settlement()]);
+  }
+
+  @override
+  Future<Result<List<DriverSettlementDriverOption>>> getDriverOptions({
+    required String companyId,
+  }) async {
+    driverOptionsCalls++;
+    return const Success([
+      DriverSettlementDriverOption(
+        id: _driverId,
+        displayName: 'Driver',
+        isActive: true,
+      ),
+    ]);
   }
 
   @override

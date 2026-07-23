@@ -45,10 +45,7 @@ void main() {
 
     test('rejects negative freight price', () async {
       final result = await useCase(
-        const CalculateTripNetProfitParams(
-          freightPrice: -1,
-          totalExpenses: 0,
-        ),
+        const CalculateTripNetProfitParams(freightPrice: -1, totalExpenses: 0),
       );
 
       expect(result, isA<FailureResult<double>>());

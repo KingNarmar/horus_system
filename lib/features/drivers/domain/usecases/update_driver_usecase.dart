@@ -42,7 +42,10 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
     if (!DriversPermissionPolicy.canManageDrivers(context.role)) {
       return Future.value(
         const FailureResult<Driver>(
-          PermissionFailure(code: FailureCodes.permissionDriversManagement, message: 'Drivers management is not allowed.'),
+          PermissionFailure(
+            code: FailureCodes.permissionDriversManagement,
+            message: 'Drivers management is not allowed.',
+          ),
         ),
       );
     }
@@ -51,7 +54,10 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
     if (fullName.isEmpty) {
       return Future.value(
         const FailureResult<Driver>(
-          ValidationFailure(code: FailureCodes.validationDriverNameRequired, message: 'Driver name is required.'),
+          ValidationFailure(
+            code: FailureCodes.validationDriverNameRequired,
+            message: 'Driver name is required.',
+          ),
         ),
       );
     }

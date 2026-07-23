@@ -23,59 +23,146 @@ class FleetDetailsDialog extends StatelessWidget {
   final String notesLabel;
   final FleetLoaded? state;
 
-  const FleetDetailsDialog({required this.assetId, required this.plateNumber, required this.status, required this.isActive, required this.licenseExpiryDate, required this.notes, required this.notesLabel, required this.state, this.expectedFuelConsumption, super.key});
+  const FleetDetailsDialog({
+    required this.assetId,
+    required this.plateNumber,
+    required this.status,
+    required this.isActive,
+    required this.licenseExpiryDate,
+    required this.notes,
+    required this.notesLabel,
+    required this.state,
+    this.expectedFuelConsumption,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final activity = state?.selectedAssetId == assetId ? state!.selectedAssetActivity : const <AuditLog>[];
-    final isLoading = state?.selectedAssetId == assetId && (state?.isActivityLoading ?? false);
-    final failure = state?.selectedAssetId == assetId ? state?.activityFailure : null;
+    final activity = state?.selectedAssetId == assetId
+        ? state!.selectedAssetActivity
+        : const <AuditLog>[];
+    final isLoading =
+        state?.selectedAssetId == assetId &&
+        (state?.isActivityLoading ?? false);
+    final failure = state?.selectedAssetId == assetId
+        ? state?.activityFailure
+        : null;
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.detailsDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.detailsDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(children: [
-                Expanded(child: Text(l10n.fleetDetailsTitle(plateNumber), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold))),
-                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(AppIcons.clear)),
-              ]),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.fleetDetailsTitle(plateNumber),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(AppIcons.clear),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.lg),
-              _Section(title: l10n.fleetBasicInfo, children: [
-                _DetailRow(label: l10n.plateNumberLabel, value: plateNumber),
-                _DetailRow(label: l10n.vehicleStatusLabel, value: l10n.vehicleStatusText(status)),
-                _DetailRow(label: l10n.vehicleLicenseExpiryDateLabel, value: _dateOnlyOrEmpty(context, licenseExpiryDate)),
-                if (expectedFuelConsumption != null) _DetailRow(label: l10n.expectedFuelConsumptionLabel, value: _numberText(expectedFuelConsumption!)),
-                _DetailRow(label: notesLabel, value: _optional(notes, l10n)),
-                _DetailRow(label: l10n.statusHeader, value: isActive ? l10n.activeStatus : l10n.inactiveStatus),
-              ]),
+              _Section(
+                title: l10n.fleetBasicInfo,
+                children: [
+                  _DetailRow(label: l10n.plateNumberLabel, value: plateNumber),
+                  _DetailRow(
+                    label: l10n.vehicleStatusLabel,
+                    value: l10n.vehicleStatusText(status),
+                  ),
+                  _DetailRow(
+                    label: l10n.vehicleLicenseExpiryDateLabel,
+                    value: _dateOnlyOrEmpty(context, licenseExpiryDate),
+                  ),
+                  if (expectedFuelConsumption != null)
+                    _DetailRow(
+                      label: l10n.expectedFuelConsumptionLabel,
+                      value: _numberText(expectedFuelConsumption!),
+                    ),
+                  _DetailRow(label: notesLabel, value: _optional(notes, l10n)),
+                  _DetailRow(
+                    label: l10n.statusHeader,
+                    value: isActive ? l10n.activeStatus : l10n.inactiveStatus,
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.md),
-              _Section(title: l10n.fleetAccountability, children: [
-                _DetailRow(label: l10n.fleetCreatedBy, value: _actorName(createdLog, l10n)),
-                _DetailRow(label: l10n.fleetCreatedRole, value: l10n.fleetAuditRoleLabel(createdLog?.actorRole)),
-                _DetailRow(label: l10n.fleetCreatedAt, value: createdLog == null ? l10n.fleetNotAvailable : _formatDateTime(context, createdLog.createdAt)),
-                _DetailRow(label: l10n.fleetLastActivityBy, value: _actorName(latestLog, l10n)),
-                _DetailRow(label: l10n.fleetLastActivityRole, value: l10n.fleetAuditRoleLabel(latestLog?.actorRole)),
-                _DetailRow(label: l10n.fleetLastActivityAt, value: latestLog == null ? l10n.fleetNotAvailable : _formatDateTime(context, latestLog.createdAt)),
-              ]),
+              _Section(
+                title: l10n.fleetAccountability,
+                children: [
+                  _DetailRow(
+                    label: l10n.fleetCreatedBy,
+                    value: _actorName(createdLog, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.fleetCreatedRole,
+                    value: l10n.fleetAuditRoleLabel(createdLog?.actorRole),
+                  ),
+                  _DetailRow(
+                    label: l10n.fleetCreatedAt,
+                    value: createdLog == null
+                        ? l10n.fleetNotAvailable
+                        : _formatDateTime(context, createdLog.createdAt),
+                  ),
+                  _DetailRow(
+                    label: l10n.fleetLastActivityBy,
+                    value: _actorName(latestLog, l10n),
+                  ),
+                  _DetailRow(
+                    label: l10n.fleetLastActivityRole,
+                    value: l10n.fleetAuditRoleLabel(latestLog?.actorRole),
+                  ),
+                  _DetailRow(
+                    label: l10n.fleetLastActivityAt,
+                    value: latestLog == null
+                        ? l10n.fleetNotAvailable
+                        : _formatDateTime(context, latestLog.createdAt),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.md),
-              _Section(title: l10n.fleetActivityTimeline, children: [
-                if (isLoading)
-                  Row(children: const [SizedBox(height: AppSizes.iconSm, width: AppSizes.iconSm, child: CircularProgressIndicator(strokeWidth: AppSizes.loadingIndicatorStrokeWidth)), SizedBox(width: AppSpacing.sm), _LoadingText()])
-                else if (failure != null)
-                  Text(l10n.localizedErrorMessage(failure))
-                else if (activity.isEmpty)
-                  Text(l10n.fleetNoActivityFound)
-                else
-                  ...activity.map((log) => _TimelineItem(log: log)),
-              ]),
+              _Section(
+                title: l10n.fleetActivityTimeline,
+                children: [
+                  if (isLoading)
+                    Row(
+                      children: const [
+                        SizedBox(
+                          height: AppSizes.iconSm,
+                          width: AppSizes.iconSm,
+                          child: CircularProgressIndicator(
+                            strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                          ),
+                        ),
+                        SizedBox(width: AppSpacing.sm),
+                        _LoadingText(),
+                      ],
+                    )
+                  else if (failure != null)
+                    Text(l10n.localizedErrorMessage(failure))
+                  else if (activity.isEmpty)
+                    Text(l10n.fleetNoActivityFound)
+                  else
+                    ...activity.map((log) => _TimelineItem(log: log)),
+                ],
+              ),
             ],
           ),
         ),
@@ -100,7 +187,9 @@ class FleetDetailsDialog extends StatelessWidget {
 
   String _optional(String? value, AppLocalizations l10n) {
     final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? l10n.emptyValue : normalized;
+    return normalized == null || normalized.isEmpty
+        ? l10n.emptyValue
+        : normalized;
   }
 }
 
@@ -116,25 +205,73 @@ class _TimelineItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    const visibleKeys = ['plate_number', 'license_expiry_date', 'expected_fuel_consumption', 'status', 'notes', 'technical_notes', 'is_active'];
-    final changes = AuditChangeBuilder.buildChanges(log: log, visibleKeys: visibleKeys, fieldLabelBuilder: l10n.fleetAuditFieldLabel, valueLabelBuilder: l10n.fleetAuditValueLabel);
-    final actorName = log.actorDisplayName?.trim().isNotEmpty == true ? log.actorDisplayName!.trim() : (log.actorEmail?.trim().isNotEmpty == true ? log.actorEmail!.trim() : l10n.fleetUnknownUser);
+    const visibleKeys = [
+      'plate_number',
+      'license_expiry_date',
+      'expected_fuel_consumption',
+      'status',
+      'notes',
+      'technical_notes',
+      'is_active',
+    ];
+    final changes = AuditChangeBuilder.buildChanges(
+      log: log,
+      visibleKeys: visibleKeys,
+      fieldLabelBuilder: l10n.fleetAuditFieldLabel,
+      valueLabelBuilder: l10n.fleetAuditValueLabel,
+    );
+    final actorName = log.actorDisplayName?.trim().isNotEmpty == true
+        ? log.actorDisplayName!.trim()
+        : (log.actorEmail?.trim().isNotEmpty == true
+              ? log.actorEmail!.trim()
+              : l10n.fleetUnknownUser);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Padding(padding: EdgeInsets.only(top: AppSpacing.xs), child: Icon(AppIcons.auditHistory, size: AppSizes.iconSm)),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(l10n.fleetAuditActionLabel(log.action.value), style: const TextStyle(fontWeight: FontWeight.w600)),
-          Text(l10n.auditTimelineHeader(actorName, l10n.fleetAuditRoleLabel(log.actorRole), _formatDateTime(context, log.createdAt))),
-          if (changes.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(l10n.fleetChanges, style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: AppSpacing.xs),
-            ...changes.map((change) => Text(l10n.auditChangeLine(change.label, change.oldValue, change.newValue))),
-          ],
-        ])),
-      ]),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: AppSpacing.xs),
+            child: Icon(AppIcons.auditHistory, size: AppSizes.iconSm),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.fleetAuditActionLabel(log.action.value),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  l10n.auditTimelineHeader(
+                    actorName,
+                    l10n.fleetAuditRoleLabel(log.actorRole),
+                    _formatDateTime(context, log.createdAt),
+                  ),
+                ),
+                if (changes.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l10n.fleetChanges,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  ...changes.map(
+                    (change) => Text(
+                      l10n.auditChangeLine(
+                        change.label,
+                        change.oldValue,
+                        change.newValue,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -144,7 +281,24 @@ class _Section extends StatelessWidget {
   final List<Widget> children;
   const _Section({required this.title, required this.children});
   @override
-  Widget build(BuildContext context) => Card(child: Padding(padding: const EdgeInsets.all(AppSpacing.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)), const SizedBox(height: AppSpacing.md), ...children])));
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          ...children,
+        ],
+      ),
+    ),
+  );
 }
 
 class _DetailRow extends StatelessWidget {
@@ -152,7 +306,22 @@ class _DetailRow extends StatelessWidget {
   final String value;
   const _DetailRow({required this.label, required this.value});
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: AppSpacing.sm), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: AppSizes.detailsLabelWidth, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))), Expanded(child: Text(value))]));
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: AppSizes.detailsLabelWidth,
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        Expanded(child: Text(value)),
+      ],
+    ),
+  );
 }
 
 String _formatDateTime(BuildContext context, DateTime value) {

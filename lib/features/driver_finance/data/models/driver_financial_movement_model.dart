@@ -31,7 +31,9 @@ class DriverFinancialMovementModel {
       companyId: map['company_id'] as String,
       driverId: map['driver_id'] as String,
       tripId: map['trip_id'] as String?,
-      type: driverFinancialMovementTypeFromValue(map['movement_type'] as String),
+      type: driverFinancialMovementTypeFromValue(
+        map['movement_type'] as String,
+      ),
       amount: _toDouble(map['amount']),
       movementDate: _toDateTime(map['movement_date']) ?? DateTime.now(),
       notes: map['notes'] as String?,

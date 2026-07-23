@@ -10,7 +10,10 @@ void main() {
     });
 
     test('removes Arabic diacritics and tatweel', () {
-      expect(normalizeSearchText('الإِطَارات'), normalizeSearchText('الاطارات'));
+      expect(
+        normalizeSearchText('الإِطَارات'),
+        normalizeSearchText('الاطارات'),
+      );
       expect(normalizeSearchText('الـغرامات'), normalizeSearchText('الغرامات'));
     });
 
