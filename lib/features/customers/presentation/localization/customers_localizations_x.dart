@@ -1,29 +1,13 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 
 extension CustomersLocalizationsX on AppLocalizations {
   String customerAuditActionLabel(String action) {
-    return switch (action) {
-      'created' => customerAuditActionCreated,
-      'updated' => customerAuditActionUpdated,
-      'deactivated' => customerAuditActionDeactivated,
-      'reactivated' => customerAuditActionReactivated,
-      'status_changed' => customerAuditActionStatusChanged,
-      _ => action,
-    };
+    return auditActionValueDisplayLabel(action);
   }
 
   String customerAuditRoleLabel(String? role) {
-    if (role == null || role.trim().isEmpty) return customerNotAvailable;
-
-    return switch (role) {
-      'owner' => roleOwner,
-      'admin' => roleAdmin,
-      'operations' => roleOperations,
-      'accountant' => roleAccountant,
-      'viewer' => roleViewer,
-      'driver' => roleDriver,
-      _ => role,
-    };
+    return auditRoleDisplayLabel(role);
   }
 
   String customerAuditFieldLabel(String key) {

@@ -1,4 +1,5 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/vehicle_status.dart';
 
 extension FleetLocalizationsX on AppLocalizations {
@@ -19,28 +20,11 @@ extension FleetLocalizationsX on AppLocalizations {
   }
 
   String fleetAuditActionLabel(String action) {
-    return switch (action) {
-      'created' => fleetAuditActionCreated,
-      'updated' => fleetAuditActionUpdated,
-      'deactivated' => fleetAuditActionDeactivated,
-      'reactivated' => fleetAuditActionReactivated,
-      'status_changed' => fleetAuditActionStatusChanged,
-      _ => action,
-    };
+    return auditActionValueDisplayLabel(action);
   }
 
   String fleetAuditRoleLabel(String? role) {
-    if (role == null || role.trim().isEmpty) return fleetNotAvailable;
-
-    return switch (role) {
-      'owner' => roleOwner,
-      'admin' => roleAdmin,
-      'operations' => roleOperations,
-      'accountant' => roleAccountant,
-      'viewer' => roleViewer,
-      'driver' => roleDriver,
-      _ => role,
-    };
+    return auditRoleDisplayLabel(role);
   }
 
   String fleetAuditFieldLabel(String key) {

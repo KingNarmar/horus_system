@@ -9,6 +9,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
@@ -158,7 +159,7 @@ class DriverDetailsDialog extends StatelessWidget {
                   ),
                   AdaptiveDetailRow(
                     label: l10n.createdRole,
-                    value: createdLog?.actorRole ?? l10n.notAvailable,
+                    value: l10n.auditRoleDisplayLabel(createdLog?.actorRole),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.createdAt,
@@ -172,7 +173,7 @@ class DriverDetailsDialog extends StatelessWidget {
                   ),
                   AdaptiveDetailRow(
                     label: l10n.lastActivityRole,
-                    value: latestLog?.actorRole ?? l10n.notAvailable,
+                    value: l10n.auditRoleDisplayLabel(latestLog?.actorRole),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.lastActivityAt,
@@ -258,7 +259,7 @@ class _ActivityTimelineItem extends StatelessWidget {
           Text(
             l10n.auditTimelineHeader(
               _actorName(log, l10n),
-              log.actorRole ?? l10n.notAvailable,
+              l10n.auditRoleDisplayLabel(log.actorRole),
               _formatDateTime(context, log.createdAt),
             ),
           ),

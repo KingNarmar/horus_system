@@ -1,4 +1,5 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 
 extension RoutesLocalizationsX on AppLocalizations {
   String get activeStatusLabel => routeActiveStatusLabel;
@@ -12,27 +13,11 @@ extension RoutesLocalizationsX on AppLocalizations {
   String get emptyValue => '-';
 
   String routeAuditActionLabel(String action) {
-    return switch (action) {
-      'created' => routeAuditActionCreated,
-      'updated' => routeAuditActionUpdated,
-      'deactivated' => routeAuditActionDeactivated,
-      'reactivated' => routeAuditActionReactivated,
-      'status_changed' => routeAuditActionStatusChanged,
-      _ => action,
-    };
+    return auditActionValueDisplayLabel(action);
   }
 
   String routeAuditRoleLabel(String? role) {
-    return switch (role) {
-      'owner' => roleOwner,
-      'admin' => roleAdmin,
-      'operations' => roleOperations,
-      'accountant' => roleAccountant,
-      'viewer' => roleViewer,
-      'driver' => roleDriver,
-      null || '' => routeNotAvailable,
-      _ => role,
-    };
+    return auditRoleDisplayLabel(role);
   }
 
   String routeAuditFieldLabel(String key) {
