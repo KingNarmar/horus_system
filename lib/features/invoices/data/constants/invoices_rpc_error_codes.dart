@@ -1,0 +1,33 @@
+abstract final class InvoicesRpcErrorCodes {
+  static const noRowsReturned = 'PGRST116';
+  static const permissionDenied = 'P2610';
+  static const regionalSettingsNotConfigured = 'P2611';
+  static const settingsNotConfigured = 'P2612';
+  static const customerNotFound = 'P2613';
+  static const customerInactive = 'P2614';
+  static const tripNotFound = 'P2615';
+  static const tripNotBillable = 'P2616';
+  static const tripAlreadyInvoiced = 'P2617';
+  static const invoiceNotFound = 'P2618';
+  static const invalidStatusTransition = 'P2619';
+  static const totalsChanged = 'P2620';
+  static const freightPrecisionInvalid = 'P2621';
+  static const dueDateBeforeIssue = 'P2622';
+  static const cancellationReasonRequired = 'P2623';
+  static const linesRequired = 'P2624';
+  static const currencyMismatch = 'P2625';
+  static const discountNegative = 'P2626';
+  static const discountExceedsSubtotal = 'P2627';
+  static const taxRateOutOfRange = 'P2628';
+  static const totalNotPositive = 'P2629';
+  static const issueDateFuture = 'P2630';
+  static const duplicateTrips = 'P2631';
+  static const customerMismatch = 'P2632';
+  static const companyNotFound = 'P2633';
+  static const prefixInvalid = 'P2634';
+  static const issueDateRequired = 'P2635';
+  static const dueDateRequired = 'P2636';
+  static const customerSnapshotChanged = 'P2637';
+  static const tripSnapshotChanged = 'P2638';
+  static const sequenceExhausted = 'P2639';
+}

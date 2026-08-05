@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/company_model.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../domain/entities/company_role.dart';
 import '../constants/company_db_fields.dart';
+import '../models/company_model.dart';
 
 abstract class CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
@@ -44,13 +45,13 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
     final companyPayload = _removeNullValues({
       DbCommonFields.id: companyId,
       CompanyDbFields.name: name,
-      'business_type': businessType,
-      'phone': phone,
-      'email': email,
-      'country': country,
-      'city': city,
-      'created_by': userId,
-      'updated_by': userId,
+      CompanyDbFields.businessType: businessType,
+      CompanyDbFields.phone: phone,
+      CompanyDbFields.email: email,
+      CompanyDbFields.country: country,
+      CompanyDbFields.city: city,
+      DbCommonFields.createdBy: userId,
+      DbCommonFields.updatedBy: userId,
     });
 
     await _client.from(CompanyDbFields.companiesTable).insert(companyPayload);
@@ -58,9 +59,9 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
     await _client.from(CompanyDbFields.companyUsersTable).insert({
       DbCommonFields.companyId: companyId,
       CompanyDbFields.userId: userId,
-      CompanyDbFields.role: 'owner',
-      'created_by': userId,
-      'updated_by': userId,
+      CompanyDbFields.role: CompanyRole.owner.value,
+      DbCommonFields.createdBy: userId,
+      DbCommonFields.updatedBy: userId,
     });
 
     return CompanyModel(
@@ -78,9 +79,7 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   Future<List<CompanyModel>> getMyCompanies() async {
     final response = await _client
         .from(CompanyDbFields.companiesTable)
-        .select(
-          'id,name,business_type,phone,email,country,city,logo_url,is_active',
-        )
+        .select(_companySelectColumns)
         .eq(DbCommonFields.isActive, true)
         .order(DbCommonFields.createdAt);
 
@@ -113,3 +112,18 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
         '${chars.substring(20)}';
   }
 }
+
+final _companySelectColumns = <String>[
+  DbCommonFields.id,
+  CompanyDbFields.name,
+  CompanyDbFields.businessType,
+  CompanyDbFields.phone,
+  CompanyDbFields.email,
+  CompanyDbFields.country,
+  CompanyDbFields.city,
+  CompanyDbFields.logoUrl,
+  CompanyDbFields.baseCurrencyCode,
+  CompanyDbFields.baseCurrencyFractionDigits,
+  CompanyDbFields.businessTimezone,
+  DbCommonFields.isActive,
+].join(',');

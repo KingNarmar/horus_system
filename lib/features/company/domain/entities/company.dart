@@ -7,6 +7,9 @@ class Company {
   final String? country;
   final String? city;
   final String? logoUrl;
+  final String? baseCurrencyCode;
+  final int? baseCurrencyFractionDigits;
+  final String? businessTimezone;
   final bool isActive;
 
   const Company({
@@ -18,6 +21,15 @@ class Company {
     this.country,
     this.city,
     this.logoUrl,
+    this.baseCurrencyCode,
+    this.baseCurrencyFractionDigits,
+    this.businessTimezone,
     this.isActive = true,
   });
+
+  bool get hasCompleteRegionalSettings {
+    return baseCurrencyCode != null &&
+        baseCurrencyFractionDigits != null &&
+        businessTimezone != null;
+  }
 }
