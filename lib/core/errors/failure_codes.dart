@@ -40,6 +40,11 @@ class FailureCodes {
       'permission_driver_settlements_management';
   static const String permissionDriverSettlementsView =
       'permission_driver_settlements_view';
+  static const String permissionInvoicesManagement =
+      'permission_invoices_management';
+  static const String permissionInvoicesView = 'permission_invoices_view';
+  static const String permissionInvoicesIssue = 'permission_invoices_issue';
+  static const String permissionInvoicesCancel = 'permission_invoices_cancel';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -119,10 +124,69 @@ class FailureCodes {
       'validation_driver_settlement_driver_inactive';
   static const String validationDriverSettlementVoidReasonRequired =
       'validation_driver_settlement_void_reason_required';
+  static const String validationInvoiceIdRequired =
+      'validation_invoice_id_required';
+  static const String validationInvoiceCustomerRequired =
+      'validation_invoice_customer_required';
+  static const String validationInvoiceTripsRequired =
+      'validation_invoice_trips_required';
+  static const String validationInvoiceSingleTripRequired =
+      'validation_invoice_single_trip_required';
+  static const String validationInvoiceGroupedTripsRequired =
+      'validation_invoice_grouped_trips_required';
+  static const String validationInvoiceDuplicateTrip =
+      'validation_invoice_duplicate_trip';
+  static const String validationInvoiceCurrencyInvalid =
+      'validation_invoice_currency_invalid';
+  static const String validationInvoiceCurrencyMismatch =
+      'validation_invoice_currency_mismatch';
+  static const String validationInvoiceIssueDateFuture =
+      'validation_invoice_issue_date_future';
+  static const String validationInvoiceDueDateBeforeIssue =
+      'validation_invoice_due_date_before_issue';
+  static const String validationInvoiceCancellationReasonRequired =
+      'validation_invoice_cancellation_reason_required';
+  static const String validationInvoiceLineAmountPositive =
+      'validation_invoice_line_amount_positive';
+  static const String validationInvoiceDiscountNegative =
+      'validation_invoice_discount_negative';
+  static const String validationInvoiceDiscountExceedsSubtotal =
+      'validation_invoice_discount_exceeds_subtotal';
+  static const String validationInvoiceTaxRateOutOfRange =
+      'validation_invoice_tax_rate_out_of_range';
+  static const String validationInvoiceTotalPositive =
+      'validation_invoice_total_positive';
+
+  // Not found
+  static const String invoiceTripNotFound = 'invoice_trip_not_found';
 
   // Conflicts
   static const String conflictTripVehicleAlreadyOpen =
       'conflict_trip_vehicle_already_open';
+  static const String conflictInvoiceCustomerInactive =
+      'conflict_invoice_customer_inactive';
+  static const String conflictInvoiceCustomerCompanyMismatch =
+      'conflict_invoice_customer_company_mismatch';
+  static const String conflictInvoiceCustomerMismatch =
+      'conflict_invoice_customer_mismatch';
+  static const String conflictInvoiceTripCompanyMismatch =
+      'conflict_invoice_trip_company_mismatch';
+  static const String conflictInvoiceTripCustomerMismatch =
+      'conflict_invoice_trip_customer_mismatch';
+  static const String conflictInvoiceTripAlreadyInvoiced =
+      'conflict_invoice_trip_already_invoiced';
+  static const String conflictInvoiceTripNotBillable =
+      'conflict_invoice_trip_not_billable';
+  static const String conflictInvoiceStatusTransitionInvalid =
+      'conflict_invoice_status_transition_invalid';
+  static const String conflictInvoiceIssuedImmutable =
+      'conflict_invoice_issued_immutable';
+  static const String conflictInvoiceCustomerSnapshotChanged =
+      'conflict_invoice_customer_snapshot_changed';
+  static const String conflictInvoiceTripSnapshotChanged =
+      'conflict_invoice_trip_snapshot_changed';
+  static const String conflictInvoiceTotalsMismatch =
+      'conflict_invoice_totals_mismatch';
 
   // Generic
   static const String serverError = 'server_error';
