@@ -60,14 +60,13 @@ extension InvoiceFailureLocalizationsX on BuildContext {
     Failure failure,
     InvoicesLocalizations strings,
   ) {
-    return switch (failure) {
-      ServerFailure || UnexpectedFailure =>
-        l10n.localizedErrorMessage(failure),
-      PermissionFailure => strings.permissionManageFailure,
-      NotFoundFailure => strings.invoiceNotFoundFailure,
-      ConflictFailure => strings.invoiceChangedFailure,
-      ValidationFailure => strings.draftFailed,
-      _ => strings.loadFailed,
-    };
+    if (failure is ServerFailure || failure is UnexpectedFailure) {
+      return l10n.localizedErrorMessage(failure);
+    }
+    if (failure is PermissionFailure) return strings.permissionManageFailure;
+    if (failure is NotFoundFailure) return strings.invoiceNotFoundFailure;
+    if (failure is ConflictFailure) return strings.invoiceChangedFailure;
+    if (failure is ValidationFailure) return strings.draftFailed;
+    return strings.loadFailed;
   }
 }
