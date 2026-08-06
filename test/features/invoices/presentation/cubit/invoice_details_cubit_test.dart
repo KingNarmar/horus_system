@@ -69,40 +69,46 @@ void main() {
     expect(state.canIssue, isTrue);
   });
 
-  test('issuing updates details without returning to full-page loading', () async {
-    repository.invoice = _invoice();
-    await cubit.loadInvoiceDetails(
-      currentCompanyContext: _context(),
-      invoiceId: 'invoice-1',
-    );
+  test(
+    'issuing updates details without returning to full-page loading',
+    () async {
+      repository.invoice = _invoice();
+      await cubit.loadInvoiceDetails(
+        currentCompanyContext: _context(),
+        invoiceId: 'invoice-1',
+      );
 
-    final issued = await cubit.issueInvoice(
-      issueDate: DateTime.utc(2026, 8, 6),
-      dueDate: DateTime.utc(2026, 8, 31),
-    );
+      final issued = await cubit.issueInvoice(
+        issueDate: DateTime.utc(2026, 8, 6),
+        dueDate: DateTime.utc(2026, 8, 31),
+      );
 
-    final state = cubit.state as InvoiceDetailsLoaded;
-    expect(issued, isTrue);
-    expect(state.invoice.status, InvoiceStatus.issued);
-    expect(state.feedback, InvoiceDetailsFeedback.issued);
-    expect(state.pendingAction, isNull);
-  });
+      final state = cubit.state as InvoiceDetailsLoaded;
+      expect(issued, isTrue);
+      expect(state.invoice.status, InvoiceStatus.issued);
+      expect(state.feedback, InvoiceDetailsFeedback.issued);
+      expect(state.pendingAction, isNull);
+    },
+  );
 
-  test('cancelling updates the selected invoice and preserves feedback', () async {
-    repository.invoice = _invoice(status: InvoiceStatus.issued);
-    await cubit.loadInvoiceDetails(
-      currentCompanyContext: _context(),
-      invoiceId: 'invoice-1',
-    );
+  test(
+    'cancelling updates the selected invoice and preserves feedback',
+    () async {
+      repository.invoice = _invoice(status: InvoiceStatus.issued);
+      await cubit.loadInvoiceDetails(
+        currentCompanyContext: _context(),
+        invoiceId: 'invoice-1',
+      );
 
-    final cancelled = await cubit.cancelInvoice(reason: 'Customer request');
+      final cancelled = await cubit.cancelInvoice(reason: 'Customer request');
 
-    final state = cubit.state as InvoiceDetailsLoaded;
-    expect(cancelled, isTrue);
-    expect(state.invoice.status, InvoiceStatus.cancelled);
-    expect(state.invoice.cancellationReason, 'Customer request');
-    expect(state.feedback, InvoiceDetailsFeedback.cancelled);
-  });
+      final state = cubit.state as InvoiceDetailsLoaded;
+      expect(cancelled, isTrue);
+      expect(state.invoice.status, InvoiceStatus.cancelled);
+      expect(state.invoice.cancellationReason, 'Customer request');
+      expect(state.feedback, InvoiceDetailsFeedback.cancelled);
+    },
+  );
 
   test('a stale details response cannot replace the active tenant', () async {
     final companyAResult = Completer<Invoice>();
@@ -121,14 +127,10 @@ void main() {
       invoiceId: 'invoice-b',
     );
 
-    companyBResult.complete(
-      _invoice(id: 'invoice-b', companyId: 'company-b'),
-    );
+    companyBResult.complete(_invoice(id: 'invoice-b', companyId: 'company-b'));
     await secondLoad;
 
-    companyAResult.complete(
-      _invoice(id: 'invoice-a', companyId: 'company-a'),
-    );
+    companyAResult.complete(_invoice(id: 'invoice-a', companyId: 'company-a'));
     await firstLoad;
 
     final state = cubit.state as InvoiceDetailsLoaded;
@@ -219,8 +221,7 @@ AuditLog _auditLog() {
   );
 }
 
-final class _FakeBusinessDateProvider
-    implements CompanyBusinessDateProvider {
+final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
   const _FakeBusinessDateProvider();
 
   @override
@@ -345,8 +346,7 @@ final class _FakeInvoicesRepository implements InvoicesRepository {
       issueDate: issueDate ?? source.issueDate,
       dueDate: dueDate ?? source.dueDate,
       notes: source.notes,
-      cancellationReason:
-          cancellationReason ?? source.cancellationReason,
+      cancellationReason: cancellationReason ?? source.cancellationReason,
       createdAt: source.createdAt,
       updatedAt: DateTime.utc(2026, 8, 6, 12),
     );
@@ -364,12 +364,14 @@ final class _FakeAuditLogRepository implements AuditLogRepository {
     required String entityId,
   }) async {
     return Success(
-      logs.where((log) {
-        return log.companyId == companyId &&
-            log.module == module &&
-            log.entityType == entityType &&
-            log.entityId == entityId;
-      }).toList(growable: false),
+      logs
+          .where((log) {
+            return log.companyId == companyId &&
+                log.module == module &&
+                log.entityType == entityType &&
+                log.entityId == entityId;
+          })
+          .toList(growable: false),
     );
   }
 

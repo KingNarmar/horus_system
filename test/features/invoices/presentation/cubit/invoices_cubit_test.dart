@@ -92,21 +92,24 @@ void main() {
     expect(state.allInvoices.single.id, 'invoice-b');
   });
 
-  test('creating a draft upserts the list and exposes scoped feedback', () async {
-    final trip = _billableTrip(id: 'trip-1');
-    repository.billableTrips = [trip];
-    await cubit.loadInvoices(_context());
+  test(
+    'creating a draft upserts the list and exposes scoped feedback',
+    () async {
+      final trip = _billableTrip(id: 'trip-1');
+      repository.billableTrips = [trip];
+      await cubit.loadInvoices(_context());
 
-    final created = await cubit.createDraftFromTrip(
-      InvoiceDraftFormInput.fromBillableTrip(trip),
-    );
+      final created = await cubit.createDraftFromTrip(
+        InvoiceDraftFormInput.fromBillableTrip(trip),
+      );
 
-    final state = cubit.state as InvoicesLoaded;
-    expect(created, isTrue);
-    expect(state.allInvoices.single.id, 'created-draft');
-    expect(state.feedback, InvoiceListFeedback.draftCreated);
-    expect(state.isCreatingDraft, isFalse);
-  });
+      final state = cubit.state as InvoicesLoaded;
+      expect(created, isTrue);
+      expect(state.allInvoices.single.id, 'created-draft');
+      expect(state.feedback, InvoiceListFeedback.draftCreated);
+      expect(state.isCreatingDraft, isFalse);
+    },
+  );
 }
 
 CurrentCompanyContext _context({
@@ -144,11 +147,7 @@ Invoice _invoice({
   String customerId = 'customer-1',
 }) {
   final line = InvoiceTripLine.fromBillableTrip(
-    _billableTrip(
-      id: 'trip-$id',
-      companyId: companyId,
-      customerId: customerId,
-    ),
+    _billableTrip(id: 'trip-$id', companyId: companyId, customerId: customerId),
   );
   final subtotal = line.amount;
   final zero = Money(minorUnits: 0, currency: _currency);
@@ -259,8 +258,7 @@ final class _FakeInvoicesRepository implements InvoicesRepository {
   }) async {
     return Success(
       invoices.firstWhere(
-        (invoice) =>
-            invoice.companyId == companyId && invoice.id == invoiceId,
+        (invoice) => invoice.companyId == companyId && invoice.id == invoiceId,
       ),
     );
   }

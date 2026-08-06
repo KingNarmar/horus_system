@@ -65,12 +65,7 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
   Future<void> reloadActivity() async {
     final currentState = state;
     if (currentState is! InvoiceDetailsLoaded) return;
-    emit(
-      currentState.copyWith(
-        isActivityLoading: true,
-        activityFailure: null,
-      ),
-    );
+    emit(currentState.copyWith(isActivityLoading: true, activityFailure: null));
     await _loadActivity(
       invoice: currentState.invoice,
       generation: _loadGeneration,

@@ -92,9 +92,9 @@ final class InvoicesLocalizations {
   String get auditIssued => _value('auditIssued');
   String get auditCancelled => _value('auditCancelled');
 
-  String tripOption(String reference, String amount) => _value('tripOption')
-      .replaceFirst('{reference}', reference)
-      .replaceFirst('{amount}', amount);
+  String tripOption(String reference, String amount) => _value(
+    'tripOption',
+  ).replaceFirst('{reference}', reference).replaceFirst('{amount}', amount);
 
   String lineReference(String reference) =>
       _value('lineReference').replaceFirst('{reference}', reference);
@@ -201,7 +201,8 @@ final class InvoicesLocalizations {
     'notes': 'ملاحظات',
     'saveDraft': 'حفظ المسودة',
     'savingDraft': 'جاري الحفظ...',
-    'searchHint': 'ابحث برقم الفاتورة أو العميل أو الحالة أو المبلغ أو الملاحظات',
+    'searchHint':
+        'ابحث برقم الفاتورة أو العميل أو الحالة أو المبلغ أو الملاحظات',
     'allStatuses': 'كل الحالات',
     'statusDraft': 'مسودة',
     'statusIssued': 'صادرة',
@@ -255,8 +256,7 @@ final class InvoicesLocalizations {
     'tripNotBillableFailure': 'الرحلة المحددة لم تعد قابلة للفوترة.',
     'tripAlreadyInvoicedFailure': 'تمت فوترة الرحلة المحددة بالفعل.',
     'customerInactiveFailure': 'العميل المحدد غير نشط.',
-    'regionalSettingsFailure':
-        'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
+    'regionalSettingsFailure': 'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
     'settingsFailure': 'اضبط إعدادات الفواتير أولًا.',
     'invoiceNotFoundFailure': 'تعذر العثور على الفاتورة داخل هذه الشركة.',
     'issueDateFutureFailure':
@@ -264,8 +264,7 @@ final class InvoicesLocalizations {
     'dueDateBeforeIssueFailure':
         'لا يمكن أن يكون تاريخ الاستحقاق قبل تاريخ الإصدار.',
     'cancellationReasonFailure': 'سبب إلغاء الفاتورة مطلوب.',
-    'invalidStatusFailure':
-        'هذا الإجراء غير مسموح للحالة الحالية للفاتورة.',
+    'invalidStatusFailure': 'هذا الإجراء غير مسموح للحالة الحالية للفاتورة.',
     'invoiceChangedFailure':
         'تغيرت الفاتورة أو رحلاتها. أعد تحميل الفاتورة وحاول مرة أخرى.',
     'unavailableValue': 'غير متاح',

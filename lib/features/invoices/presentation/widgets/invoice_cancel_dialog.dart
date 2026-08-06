@@ -49,10 +49,7 @@ final class _InvoiceCancelDialogState extends State<InvoiceCancelDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(strings.cancelInvoice),
-        ),
+        FilledButton(onPressed: _submit, child: Text(strings.cancelInvoice)),
       ],
     );
   }

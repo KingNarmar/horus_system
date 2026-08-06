@@ -28,15 +28,14 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     required this.updateInvoiceDraftUseCase,
   }) : super(const InvoicesInitial());
 
-  Future<void> loadInvoices(
-    CurrentCompanyContext currentCompanyContext,
-  ) async {
+  Future<void> loadInvoices(CurrentCompanyContext currentCompanyContext) async {
     final generation = ++_loadGeneration;
     _billableTripsGeneration++;
     _currentCompanyContext = currentCompanyContext;
 
     final previousState = state;
-    final previousLoadedState = previousState is InvoicesLoaded &&
+    final previousLoadedState =
+        previousState is InvoicesLoaded &&
             previousState.currentCompanyContext.companyId ==
                 currentCompanyContext.companyId
         ? previousState
@@ -280,11 +279,10 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         _currentCompanyContext?.companyId == companyId;
   }
 
-  InvoicesLoaded _upsertInvoice(
-    InvoicesLoaded currentState,
-    Invoice invoice,
-  ) {
-    final exists = currentState.allInvoices.any((item) => item.id == invoice.id);
+  InvoicesLoaded _upsertInvoice(InvoicesLoaded currentState, Invoice invoice) {
+    final exists = currentState.allInvoices.any(
+      (item) => item.id == invoice.id,
+    );
     final invoices = exists
         ? currentState.allInvoices
               .map((item) => item.id == invoice.id ? invoice : item)

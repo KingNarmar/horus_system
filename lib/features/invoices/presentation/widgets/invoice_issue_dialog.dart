@@ -140,8 +140,8 @@ final class _InvoiceIssueDialogState extends State<InvoiceIssueDialog> {
     final issueDate = _issueDate;
     final dueDate = _dueDate;
     if (issueDate == null || dueDate == null) return;
-    Navigator.of(context).pop(
-      InvoiceIssueDates(issueDate: issueDate, dueDate: dueDate),
-    );
+    Navigator.of(
+      context,
+    ).pop(InvoiceIssueDates(issueDate: issueDate, dueDate: dueDate));
   }
 }

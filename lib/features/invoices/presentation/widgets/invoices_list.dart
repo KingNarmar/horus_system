@@ -65,49 +65,53 @@ final class _InvoicesTable extends StatelessWidget {
             DataColumn(label: Text(strings.status)),
             DataColumn(label: Text(strings.actions)),
           ],
-          rows: invoices.map((invoice) {
-            return DataRow(
-              cells: [
-                DataCell(Text(invoice.number?.value ?? strings.draftNumber)),
-                DataCell(Text(invoice.customer.name)),
-                DataCell(
-                  Text(
-                    formatInvoiceDate(
-                      invoice.issueDate?.value,
-                      localeName,
-                      strings.unavailableValue,
+          rows: invoices
+              .map((invoice) {
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(invoice.number?.value ?? strings.draftNumber),
                     ),
-                  ),
-                ),
-                DataCell(
-                  Text(
-                    formatInvoiceDate(
-                      invoice.dueDate?.value,
-                      localeName,
-                      strings.unavailableValue,
+                    DataCell(Text(invoice.customer.name)),
+                    DataCell(
+                      Text(
+                        formatInvoiceDate(
+                          invoice.issueDate?.value,
+                          localeName,
+                          strings.unavailableValue,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                DataCell(
-                  Text(
-                    formatInvoiceMoney(
-                      invoice.totals.grandTotal,
-                      fractionDigits: currencyFractionDigits,
-                      localeName: localeName,
+                    DataCell(
+                      Text(
+                        formatInvoiceDate(
+                          invoice.dueDate?.value,
+                          localeName,
+                          strings.unavailableValue,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                DataCell(Text(invoice.status.localizedLabel(strings))),
-                DataCell(
-                  IconButton(
-                    onPressed: () => onViewDetails(invoice),
-                    icon: const Icon(AppIcons.view),
-                    tooltip: strings.details,
-                  ),
-                ),
-              ],
-            );
-          }).toList(growable: false),
+                    DataCell(
+                      Text(
+                        formatInvoiceMoney(
+                          invoice.totals.grandTotal,
+                          fractionDigits: currencyFractionDigits,
+                          localeName: localeName,
+                        ),
+                      ),
+                    ),
+                    DataCell(Text(invoice.status.localizedLabel(strings))),
+                    DataCell(
+                      IconButton(
+                        onPressed: () => onViewDetails(invoice),
+                        icon: const Icon(AppIcons.view),
+                        tooltip: strings.details,
+                      ),
+                    ),
+                  ],
+                );
+              })
+              .toList(growable: false),
         ),
       ),
     );
@@ -130,76 +134,80 @@ final class _InvoicesCards extends StatelessWidget {
     final strings = context.invoicesL10n;
     final localeName = Localizations.localeOf(context).toLanguageTag();
     return Column(
-      children: invoices.map((invoice) {
-        final number = invoice.number?.value ?? strings.draftNumber;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      children: invoices
+          .map((invoice) {
+            final number = invoice.number?.value ?? strings.draftNumber;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              number,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  number,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(invoice.customer.name),
+                              ],
                             ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(invoice.customer.name),
-                          ],
+                          ),
+                          Chip(
+                            label: Text(invoice.status.localizedLabel(strings)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _LabelValue(
+                        label: strings.issueDate,
+                        value: formatInvoiceDate(
+                          invoice.issueDate?.value,
+                          localeName,
+                          strings.unavailableValue,
                         ),
                       ),
-                      Chip(label: Text(invoice.status.localizedLabel(strings))),
+                      _LabelValue(
+                        label: strings.dueDate,
+                        value: formatInvoiceDate(
+                          invoice.dueDate?.value,
+                          localeName,
+                          strings.unavailableValue,
+                        ),
+                      ),
+                      _LabelValue(
+                        label: strings.total,
+                        value: formatInvoiceMoney(
+                          invoice.totals.grandTotal,
+                          fractionDigits: currencyFractionDigits,
+                          localeName: localeName,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: OutlinedButton.icon(
+                          onPressed: () => onViewDetails(invoice),
+                          icon: const Icon(AppIcons.view),
+                          label: Text(strings.details),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  _LabelValue(
-                    label: strings.issueDate,
-                    value: formatInvoiceDate(
-                      invoice.issueDate?.value,
-                      localeName,
-                      strings.unavailableValue,
-                    ),
-                  ),
-                  _LabelValue(
-                    label: strings.dueDate,
-                    value: formatInvoiceDate(
-                      invoice.dueDate?.value,
-                      localeName,
-                      strings.unavailableValue,
-                    ),
-                  ),
-                  _LabelValue(
-                    label: strings.total,
-                    value: formatInvoiceMoney(
-                      invoice.totals.grandTotal,
-                      fractionDigits: currencyFractionDigits,
-                      localeName: localeName,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: OutlinedButton.icon(
-                      onPressed: () => onViewDetails(invoice),
-                      icon: const Icon(AppIcons.view),
-                      label: Text(strings.details),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

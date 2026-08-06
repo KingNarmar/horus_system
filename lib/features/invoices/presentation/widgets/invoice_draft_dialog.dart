@@ -56,12 +56,14 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
                   border: const OutlineInputBorder(),
                 ),
                 hint: Text(strings.selectTrip),
-                items: widget.billableTrips.map((trip) {
-                  return DropdownMenuItem<String>(
-                    value: trip.id,
-                    child: Text(_tripLabel(context, trip)),
-                  );
-                }).toList(growable: false),
+                items: widget.billableTrips
+                    .map((trip) {
+                      return DropdownMenuItem<String>(
+                        value: trip.id,
+                        child: Text(_tripLabel(context, trip)),
+                      );
+                    })
+                    .toList(growable: false),
                 onChanged: _isSubmitting
                     ? null
                     : (value) => setState(() => _tripId = value),
@@ -99,9 +101,7 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
                   ),
                 )
               : const Icon(AppIcons.add),
-          label: Text(
-            _isSubmitting ? strings.savingDraft : strings.saveDraft,
-          ),
+          label: Text(_isSubmitting ? strings.savingDraft : strings.saveDraft),
         ),
       ],
     );

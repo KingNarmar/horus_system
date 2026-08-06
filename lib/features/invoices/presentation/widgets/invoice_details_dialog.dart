@@ -87,9 +87,8 @@ final class _LoadedInvoiceDetailsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
     final invoice = state.invoice;
-    final fractionDigits = state.currentCompanyContext.company
-            .baseCurrencyFractionDigits ??
-        0;
+    final fractionDigits =
+        state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0;
     return AlertDialog(
       title: Text(strings.invoiceDetails),
       content: SizedBox(
@@ -113,9 +112,7 @@ final class _LoadedInvoiceDetailsDialog extends StatelessWidget {
                 const SizedBox(height: AppSpacing.lg),
                 Text(
                   context.localizedInvoiceFailure(state.mutationFailure!),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ],
             ],
@@ -131,9 +128,7 @@ final class _LoadedInvoiceDetailsDialog extends StatelessWidget {
         ),
         if (state.canCancel)
           OutlinedButton.icon(
-            onPressed: state.isMutationPending
-                ? null
-                : () => onCancel(invoice),
+            onPressed: state.isMutationPending ? null : () => onCancel(invoice),
             icon: const Icon(AppIcons.deactivate),
             label: Text(
               state.pendingAction == InvoiceDetailsAction.cancel
@@ -143,9 +138,7 @@ final class _LoadedInvoiceDetailsDialog extends StatelessWidget {
           ),
         if (state.canIssue)
           FilledButton.icon(
-            onPressed: state.isMutationPending
-                ? null
-                : () => onIssue(invoice),
+            onPressed: state.isMutationPending ? null : () => onIssue(invoice),
             icon: const Icon(AppIcons.statusUpdate),
             label: Text(
               state.pendingAction == InvoiceDetailsAction.issue
@@ -261,9 +254,9 @@ final class _InvoiceLines extends StatelessWidget {
       children: [
         Text(
           strings.invoiceLines,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
         ...invoice.lines.map((line) {
@@ -327,9 +320,9 @@ final class _InvoiceActivity extends StatelessWidget {
       children: [
         Text(
           strings.activity,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
         if (state.activity.isEmpty)
@@ -349,7 +342,8 @@ final class _AuditEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeName = Localizations.localeOf(context).toLanguageTag();
-    final actor = log.actorDisplayName ??
+    final actor =
+        log.actorDisplayName ??
         log.actorEmail ??
         context.invoicesL10n.unavailableValue;
     return ListTile(

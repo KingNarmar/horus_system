@@ -13,9 +13,6 @@ void main() {
     expect(arabic.statusCancelled, 'ملغاة');
     expect(english.newDraft, 'New invoice');
     expect(arabic.tripRequired, 'اختر رحلة واحدة قابلة للفوترة.');
-    expect(
-      english.tripOption('LO-1', 'AED 100.00'),
-      'LO-1 • AED 100.00',
-    );
+    expect(english.tripOption('LO-1', 'AED 100.00'), 'LO-1 • AED 100.00');
   });
 }

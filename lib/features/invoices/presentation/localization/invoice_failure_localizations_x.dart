@@ -20,7 +20,8 @@ extension InvoiceFailureLocalizationsX on BuildContext {
         strings.permissionManageFailure,
       FailureCodes.validationInvoiceCustomerRequired =>
         strings.customerRequiredFailure,
-      FailureCodes.validationInvoiceTripsRequired => strings.tripsRequiredFailure,
+      FailureCodes.validationInvoiceTripsRequired =>
+        strings.tripsRequiredFailure,
       FailureCodes.validationInvoiceSingleTripRequired ||
       FailureCodes.validationInvoiceGroupedTripsRequired =>
         strings.singleTripRequiredFailure,
@@ -37,7 +38,8 @@ extension InvoiceFailureLocalizationsX on BuildContext {
       FailureCodes.validationInvoiceCancellationReasonRequired =>
         strings.cancellationReasonFailure,
       FailureCodes.conflictInvoiceStatusTransitionInvalid ||
-      FailureCodes.conflictInvoiceIssuedImmutable => strings.invalidStatusFailure,
+      FailureCodes.conflictInvoiceIssuedImmutable =>
+        strings.invalidStatusFailure,
       FailureCodes.conflictInvoiceCustomerSnapshotChanged ||
       FailureCodes.conflictInvoiceTripSnapshotChanged ||
       FailureCodes.conflictInvoiceTotalsMismatch ||
@@ -48,7 +50,8 @@ extension InvoiceFailureLocalizationsX on BuildContext {
       InvoiceFailureCodes.conflictSettingsNotConfigured ||
       InvoiceFailureCodes.validationPrefixInvalid => strings.settingsFailure,
       InvoiceFailureCodes.notFound ||
-      FailureCodes.validationInvoiceIdRequired => strings.invoiceNotFoundFailure,
+      FailureCodes.validationInvoiceIdRequired =>
+        strings.invoiceNotFoundFailure,
       InvoiceFailureCodes.customerNotFound => strings.customerRequiredFailure,
       InvoiceFailureCodes.validationIssueDateRequired ||
       InvoiceFailureCodes.validationDueDateRequired => strings.dateRequired,
@@ -56,10 +59,7 @@ extension InvoiceFailureLocalizationsX on BuildContext {
     };
   }
 
-  String _safeInvoiceFallback(
-    Failure failure,
-    InvoicesLocalizations strings,
-  ) {
+  String _safeInvoiceFallback(Failure failure, InvoicesLocalizations strings) {
     if (failure is ServerFailure || failure is UnexpectedFailure) {
       return l10n.localizedErrorMessage(failure);
     }

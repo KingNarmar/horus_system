@@ -7,10 +7,7 @@ String formatInvoiceDate(DateTime? date, String localeName, String fallback) {
   return DateFormat.yMMMd(localeName).format(date);
 }
 
-String formatInvoiceDateTime(
-  DateTime date,
-  String localeName,
-) {
+String formatInvoiceDateTime(DateTime date, String localeName) {
   return DateFormat.yMMMd(localeName).add_jm().format(date.toLocal());
 }
 

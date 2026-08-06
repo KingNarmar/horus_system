@@ -64,11 +64,12 @@ final class _InvoicesPageState extends State<InvoicesPage> {
     await showDialog<void>(
       context: context,
       builder: (_) => BlocProvider<InvoiceDetailsCubit>(
-        create: (_) => InvoicesDependencies.createInvoiceDetailsCubit()
-          ..loadInvoiceDetails(
-            currentCompanyContext: widget.currentCompanyContext,
-            invoiceId: invoice.id,
-          ),
+        create: (_) =>
+            InvoicesDependencies.createInvoiceDetailsCubit()
+              ..loadInvoiceDetails(
+                currentCompanyContext: widget.currentCompanyContext,
+                invoiceId: invoice.id,
+              ),
         child: _InvoiceDetailsHost(
           currentCompanyContext: widget.currentCompanyContext,
           invoiceId: invoice.id,
@@ -85,9 +86,10 @@ final class _InvoicesPageState extends State<InvoicesPage> {
     final message = switch (state.feedback) {
       InvoiceListFeedback.draftCreated => strings.draftCreated,
       InvoiceListFeedback.draftUpdated => strings.draftUpdated,
-      null => state.mutationFailure == null
-          ? null
-          : context.localizedInvoiceFailure(state.mutationFailure!),
+      null =>
+        state.mutationFailure == null
+            ? null
+            : context.localizedInvoiceFailure(state.mutationFailure!),
     };
     if (message == null) return;
     ScaffoldMessenger.of(context)
@@ -114,7 +116,8 @@ final class _InvoicesPageState extends State<InvoicesPage> {
       builder: (context, state) {
         final cubit = context.read<InvoicesCubit>();
         final loaded = state is InvoicesLoaded ? state : null;
-        final canCreate = loaded?.canManageInvoiceDrafts == true &&
+        final canCreate =
+            loaded?.canManageInvoiceDrafts == true &&
             loaded!.billableTrips.isNotEmpty &&
             !loaded.isBillableTripsLoading &&
             loaded.billableTripsFailure == null;
@@ -127,8 +130,8 @@ final class _InvoicesPageState extends State<InvoicesPage> {
                 final title = Text(
                   strings.title,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
                 final addButton = loaded?.canManageInvoiceDrafts == true
                     ? FilledButton.icon(
@@ -204,9 +207,10 @@ final class _InvoiceDetailsHost extends StatelessWidget {
         final message = switch (state.feedback) {
           InvoiceDetailsFeedback.issued => strings.invoiceIssued,
           InvoiceDetailsFeedback.cancelled => strings.invoiceCancelled,
-          null => state.mutationFailure == null
-              ? null
-              : context.localizedInvoiceFailure(state.mutationFailure!),
+          null =>
+            state.mutationFailure == null
+                ? null
+                : context.localizedInvoiceFailure(state.mutationFailure!),
         };
         if (message == null) return;
         ScaffoldMessenger.of(context)
