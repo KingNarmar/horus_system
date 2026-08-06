@@ -1,10 +1,13 @@
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/invoices/domain/entities/billable_trip.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_creation_context.dart';
@@ -14,7 +17,6 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_status.da
 import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
 import 'package:horus_system/features/invoices/domain/repositories/invoices_repository.dart';
-import 'package:horus_system/features/invoices/domain/services/invoice_clock.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_draft_usecases.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_lifecycle_usecases.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_params.dart';
@@ -111,12 +113,15 @@ void main() {
   });
 
   group('invoice lifecycle use cases', () {
-    test('future issue dates are rejected', () async {
+    test('future issue dates are rejected against company date', () async {
       final repository = _FakeInvoicesRepository();
+      final businessDateProvider = _FixedBusinessDateProvider(
+        DateTime.utc(2026, 8, 5),
+      );
       final result =
           await IssueInvoiceUseCase(
             repository,
-            clock: _FixedClock(DateTime.utc(2026, 8, 5)),
+            businessDateProvider: businessDateProvider,
           )(
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.owner),
@@ -130,15 +135,49 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.validationInvoiceIssueDateFuture,
       );
+      expect(businessDateProvider.lastCompanyId, 'company-1');
       expect(repository.issueCalls, 0);
+    });
+
+    test('missing company settings stop invoice issuance', () async {
+      final repository = _FakeInvoicesRepository();
+      final businessDateProvider = _FixedBusinessDateProvider.withResult(
+        const FailureResult<DateTime>(
+          ConflictFailure(
+            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          ),
+        ),
+      );
+      final result =
+          await IssueInvoiceUseCase(
+            repository,
+            businessDateProvider: businessDateProvider,
+          )(
+            IssueInvoiceParams(
+              currentCompanyContext: _context(CompanyRole.admin),
+              invoiceId: 'invoice-1',
+              issueDate: DateTime.utc(2026, 8, 5),
+              dueDate: DateTime.utc(2026, 9, 4),
+            ),
+          );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      );
+      expect(repository.issueCalls, 0);
+      expect(repository.creationContextCalls, 0);
     });
 
     test('draft invoice can be issued with company and actor scope', () async {
       final repository = _FakeInvoicesRepository();
+      final businessDateProvider = _FixedBusinessDateProvider(
+        DateTime.utc(2026, 8, 5),
+      );
       final result =
           await IssueInvoiceUseCase(
             repository,
-            clock: _FixedClock(DateTime.utc(2026, 8, 5)),
+            businessDateProvider: businessDateProvider,
           )(
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),
@@ -149,6 +188,7 @@ void main() {
           );
 
       expect(result, isA<Success<Invoice>>());
+      expect(businessDateProvider.lastCompanyId, 'company-1');
       expect(repository.issueCalls, 1);
       expect(repository.lastCompanyId, 'company-1');
       expect(repository.lastActorRole, 'admin');
@@ -160,7 +200,9 @@ void main() {
       final result =
           await IssueInvoiceUseCase(
             repository,
-            clock: _FixedClock(DateTime.utc(2026, 8, 5)),
+            businessDateProvider: _FixedBusinessDateProvider(
+              DateTime.utc(2026, 8, 5),
+            ),
           )(
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),
@@ -216,13 +258,19 @@ Invoice _invoice({InvoiceStatus status = InvoiceStatus.draft}) {
   );
 }
 
-final class _FixedClock implements InvoiceClock {
-  final InvoiceDate _today;
+final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
+  final Result<DateTime> _result;
+  String? lastCompanyId;
 
-  _FixedClock(DateTime today) : _today = InvoiceDate.fromDateTime(today);
+  _FixedBusinessDateProvider(DateTime date) : _result = Success(date);
+
+  _FixedBusinessDateProvider.withResult(this._result);
 
   @override
-  InvoiceDate today() => _today;
+  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
+    lastCompanyId = companyId;
+    return _result;
+  }
 }
 
 final class _FakeInvoicesRepository implements InvoicesRepository {

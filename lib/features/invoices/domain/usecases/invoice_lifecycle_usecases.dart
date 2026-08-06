@@ -1,3 +1,4 @@
+import '../../../../core/domain/services/company_business_date_provider.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -8,7 +9,6 @@ import '../entities/invoice_creation_context.dart';
 import '../policies/invoice_lifecycle_policy.dart';
 import '../policies/invoices_permission_policy.dart';
 import '../repositories/invoices_repository.dart';
-import '../services/invoice_clock.dart';
 import '../services/invoice_issuance_validator.dart';
 import '../value_objects/invoice_date.dart';
 import 'invoice_params.dart';
@@ -16,15 +16,15 @@ import 'invoice_params.dart';
 final class IssueInvoiceUseCase
     implements UseCase<Invoice, IssueInvoiceParams> {
   final InvoicesRepository _repository;
-  final InvoiceClock _clock;
+  final CompanyBusinessDateProvider _businessDateProvider;
   final InvoiceIssuanceValidator _issuanceValidator;
 
   const IssueInvoiceUseCase(
     this._repository, {
-    required InvoiceClock clock,
+    required CompanyBusinessDateProvider businessDateProvider,
     InvoiceIssuanceValidator issuanceValidator =
         const InvoiceIssuanceValidator(),
-  }) : _clock = clock,
+  }) : _businessDateProvider = businessDateProvider,
        _issuanceValidator = issuanceValidator;
 
   @override
@@ -45,16 +45,27 @@ final class IssueInvoiceUseCase
 
     final issueDate = InvoiceDate.fromDateTime(params.issueDate);
     final dueDate = InvoiceDate.fromDateTime(params.dueDate);
-    if (issueDate.isAfter(_clock.today())) {
-      return const FailureResult<Invoice>(
-        ValidationFailure(code: FailureCodes.validationInvoiceIssueDateFuture),
-      );
-    }
     if (dueDate.isBefore(issueDate)) {
       return const FailureResult<Invoice>(
         ValidationFailure(
           code: FailureCodes.validationInvoiceDueDateBeforeIssue,
         ),
+      );
+    }
+
+    final businessDateResult = await _businessDateProvider.getBusinessDate(
+      companyId: context.companyId,
+    );
+    if (businessDateResult is FailureResult<DateTime>) {
+      return FailureResult<Invoice>(businessDateResult.failure);
+    }
+
+    final businessDate = InvoiceDate.fromDateTime(
+      (businessDateResult as Success<DateTime>).data,
+    );
+    if (issueDate.isAfter(businessDate)) {
+      return const FailureResult<Invoice>(
+        ValidationFailure(code: FailureCodes.validationInvoiceIssueDateFuture),
       );
     }
 

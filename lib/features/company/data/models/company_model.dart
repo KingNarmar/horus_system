@@ -10,6 +10,9 @@ class CompanyModel {
   final String? country;
   final String? city;
   final String? logoUrl;
+  final String? baseCurrencyCode;
+  final int? baseCurrencyFractionDigits;
+  final String? businessTimezone;
   final bool isActive;
 
   const CompanyModel({
@@ -21,6 +24,9 @@ class CompanyModel {
     this.country,
     this.city,
     this.logoUrl,
+    this.baseCurrencyCode,
+    this.baseCurrencyFractionDigits,
+    this.businessTimezone,
     this.isActive = true,
   });
 
@@ -28,12 +34,16 @@ class CompanyModel {
     return CompanyModel(
       id: map[DbCommonFields.id] as String,
       name: map[CompanyDbFields.name] as String,
-      businessType: map['business_type'] as String?,
-      phone: map['phone'] as String?,
-      email: map['email'] as String?,
-      country: map['country'] as String?,
-      city: map['city'] as String?,
-      logoUrl: map['logo_url'] as String?,
+      businessType: map[CompanyDbFields.businessType] as String?,
+      phone: map[CompanyDbFields.phone] as String?,
+      email: map[CompanyDbFields.email] as String?,
+      country: map[CompanyDbFields.country] as String?,
+      city: map[CompanyDbFields.city] as String?,
+      logoUrl: map[CompanyDbFields.logoUrl] as String?,
+      baseCurrencyCode: map[CompanyDbFields.baseCurrencyCode] as String?,
+      baseCurrencyFractionDigits:
+          (map[CompanyDbFields.baseCurrencyFractionDigits] as num?)?.toInt(),
+      businessTimezone: map[CompanyDbFields.businessTimezone] as String?,
       isActive: map[DbCommonFields.isActive] as bool? ?? true,
     );
   }

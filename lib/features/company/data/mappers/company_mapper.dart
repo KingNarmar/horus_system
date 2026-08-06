@@ -12,6 +12,9 @@ extension CompanyModelMapper on CompanyModel {
       country: country,
       city: city,
       logoUrl: logoUrl,
+      baseCurrencyCode: baseCurrencyCode,
+      baseCurrencyFractionDigits: baseCurrencyFractionDigits,
+      businessTimezone: businessTimezone,
       isActive: isActive,
     );
   }
