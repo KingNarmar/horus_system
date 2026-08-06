@@ -26,10 +26,22 @@ extension InvoiceFailureLocalizationsX on BuildContext {
         strings.tripAlreadyInvoicedFailure,
       FailureCodes.conflictInvoiceCustomerInactive =>
         strings.customerInactiveFailure,
+      FailureCodes.validationInvoiceIssueDateFuture =>
+        strings.issueDateFutureFailure,
+      FailureCodes.validationInvoiceDueDateBeforeIssue =>
+        strings.dueDateBeforeIssueFailure,
+      FailureCodes.validationInvoiceCancellationReasonRequired =>
+        strings.cancellationReasonFailure,
+      FailureCodes.conflictInvoiceStatusTransitionInvalid ||
+      FailureCodes.conflictInvoiceIssuedImmutable => strings.invalidStatusFailure,
+      FailureCodes.conflictInvoiceCustomerSnapshotChanged ||
+      FailureCodes.conflictInvoiceTripSnapshotChanged ||
+      FailureCodes.conflictInvoiceTotalsMismatch => strings.invoiceChangedFailure,
       CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
         strings.regionalSettingsFailure,
       InvoiceFailureCodes.conflictSettingsNotConfigured =>
         strings.settingsFailure,
+      InvoiceFailureCodes.notFound => strings.invoiceNotFoundFailure,
       _ => l10n.localizedErrorMessage(failure),
     };
   }

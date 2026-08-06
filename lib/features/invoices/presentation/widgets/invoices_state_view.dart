@@ -14,6 +14,7 @@ import 'invoices_list.dart';
 final class InvoicesStateView extends StatelessWidget {
   final InvoicesState state;
   final VoidCallback onRetry;
+  final VoidCallback onRetryBillableTrips;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<InvoiceStatus?> onStatusFilterChanged;
   final ValueChanged<Invoice> onViewDetails;
@@ -21,6 +22,7 @@ final class InvoicesStateView extends StatelessWidget {
   const InvoicesStateView({
     required this.state,
     required this.onRetry,
+    required this.onRetryBillableTrips,
     required this.onSearchChanged,
     required this.onStatusFilterChanged,
     required this.onViewDetails,
@@ -54,6 +56,23 @@ final class InvoicesStateView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (currentState.canManageInvoiceDrafts) ...[
+          if (currentState.isBillableTripsLoading)
+            _MessageCard(message: strings.loadingBillableTrips)
+          else if (currentState.billableTripsFailure != null)
+            _MessageCard(
+              message: context.localizedInvoiceFailure(
+                currentState.billableTripsFailure!,
+              ),
+              action: OutlinedButton(
+                onPressed: onRetryBillableTrips,
+                child: Text(context.l10n.retryButton),
+              ),
+            )
+          else if (currentState.billableTrips.isEmpty)
+            _MessageCard(message: strings.noBillableTrips),
+          const SizedBox(height: AppSpacing.md),
+        ],
         InvoicesFilters(
           statusFilter: currentState.statusFilter,
           onSearchChanged: onSearchChanged,

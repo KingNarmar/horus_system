@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../driver_settlements/presentation/localization/driver_settlements_localizations.dart';
+import '../../../invoices/presentation/localization/invoices_localizations.dart';
 
 enum AppShellModule {
   dashboard,
@@ -40,7 +41,7 @@ class AppShellDestination {
       AppShellModule.expenses => context.l10n.appShellExpensesLabel,
       AppShellModule.driverSettlements =>
         context.driverSettlementsL10n.appShellLabel,
-      AppShellModule.invoices => context.l10n.appShellInvoicesLabel,
+      AppShellModule.invoices => context.invoicesL10n.appShellLabel,
       AppShellModule.reports => context.l10n.appShellReportsLabel,
       AppShellModule.settings => context.l10n.appShellSettingsLabel,
     };
@@ -57,7 +58,7 @@ class AppShellDestination {
       AppShellModule.expenses => context.l10n.appShellExpensesDescription,
       AppShellModule.driverSettlements =>
         context.driverSettlementsL10n.appShellDescription,
-      AppShellModule.invoices => context.l10n.appShellInvoicesDescription,
+      AppShellModule.invoices => context.invoicesL10n.appShellDescription,
       AppShellModule.reports => context.l10n.appShellReportsDescription,
       AppShellModule.settings => context.l10n.appShellSettingsDescription,
     };

@@ -7,6 +7,18 @@ String formatInvoiceDate(DateTime? date, String localeName, String fallback) {
   return DateFormat.yMMMd(localeName).format(date);
 }
 
+String formatInvoiceDateTime(
+  DateTime date,
+  String localeName,
+) {
+  return DateFormat.yMMMd(localeName).add_jm().format(date.toLocal());
+}
+
+String formatInvoiceInputDate(DateTime? date) {
+  if (date == null) return '';
+  return DateFormat('yyyy-MM-dd').format(date);
+}
+
 String formatInvoiceMoney(
   Money money, {
   required int fractionDigits,
