@@ -10,6 +10,7 @@ import '../domain/usecases/invoice_draft_usecases.dart';
 import '../domain/usecases/invoice_lifecycle_usecases.dart';
 import '../domain/usecases/invoice_query_usecases.dart';
 import '../domain/usecases/invoice_settings_usecases.dart';
+import '../presentation/cubit/invoices_cubit.dart';
 
 abstract final class InvoicesDependencies {
   static InvoicesRepository createRepository() {
@@ -65,5 +66,15 @@ abstract final class InvoicesDependencies {
 
   static UpdateInvoiceSettingsUseCase createUpdateSettingsUseCase() {
     return UpdateInvoiceSettingsUseCase(createSettingsRepository());
+  }
+
+  static InvoicesCubit createInvoicesCubit() {
+    final repository = createRepository();
+    return InvoicesCubit(
+      getInvoicesUseCase: GetInvoicesUseCase(repository),
+      getBillableTripsUseCase: GetBillableTripsUseCase(repository),
+      createInvoiceFromTripUseCase: CreateInvoiceFromTripUseCase(repository),
+      updateInvoiceDraftUseCase: UpdateInvoiceDraftUseCase(repository),
+    );
   }
 }
