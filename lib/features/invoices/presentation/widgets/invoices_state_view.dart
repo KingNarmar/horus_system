@@ -53,6 +53,14 @@ final class InvoicesStateView extends StatelessWidget {
     final fractionDigits =
         currentState.currentCompanyContext.company.baseCurrencyFractionDigits ??
         0;
+    final filteredInvoices = currentState.filteredInvoices(
+      statusSearchTerms: {
+        InvoiceStatus.draft: [strings.statusDraft],
+        InvoiceStatus.issued: [strings.statusIssued],
+        InvoiceStatus.cancelled: [strings.statusCancelled],
+      },
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -81,13 +89,13 @@ final class InvoicesStateView extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (currentState.allInvoices.isEmpty)
           _MessageCard(message: strings.noInvoices)
-        else if (currentState.invoices.isEmpty)
+        else if (filteredInvoices.isEmpty)
           _MessageCard(message: strings.noMatchingInvoices)
         else
           LayoutBuilder(
             builder: (context, constraints) {
               return InvoicesList(
-                invoices: currentState.invoices,
+                invoices: filteredInvoices,
                 currencyFractionDigits: fractionDigits,
                 onViewDetails: onViewDetails,
                 useTable: constraints.maxWidth >= AppSizes.dataTableBreakpoint,

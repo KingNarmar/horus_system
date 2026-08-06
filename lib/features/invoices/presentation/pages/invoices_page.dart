@@ -134,7 +134,7 @@ final class _InvoicesPageState extends State<InvoicesPage> {
                     ? FilledButton.icon(
                         key: const ValueKey('invoiceAddDraftButton'),
                         onPressed: canCreate
-                            ? () => _openCreateDraft(loaded)
+                            ? () => _openCreateDraft(loaded!)
                             : null,
                         icon: const Icon(AppIcons.add),
                         label: Text(strings.newDraft),

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -14,11 +15,14 @@ extension InvoiceFailureLocalizationsX on BuildContext {
       FailureCodes.permissionInvoicesView => strings.permissionViewFailure,
       FailureCodes.permissionInvoicesManagement ||
       FailureCodes.permissionInvoicesIssue ||
-      FailureCodes.permissionInvoicesCancel => strings.permissionManageFailure,
+      FailureCodes.permissionInvoicesCancel ||
+      InvoiceFailureCodes.permissionSettingsManagement =>
+        strings.permissionManageFailure,
       FailureCodes.validationInvoiceCustomerRequired =>
         strings.customerRequiredFailure,
       FailureCodes.validationInvoiceTripsRequired => strings.tripsRequiredFailure,
-      FailureCodes.validationInvoiceSingleTripRequired =>
+      FailureCodes.validationInvoiceSingleTripRequired ||
+      FailureCodes.validationInvoiceGroupedTripsRequired =>
         strings.singleTripRequiredFailure,
       FailureCodes.conflictInvoiceTripNotBillable =>
         strings.tripNotBillableFailure,
@@ -36,13 +40,34 @@ extension InvoiceFailureLocalizationsX on BuildContext {
       FailureCodes.conflictInvoiceIssuedImmutable => strings.invalidStatusFailure,
       FailureCodes.conflictInvoiceCustomerSnapshotChanged ||
       FailureCodes.conflictInvoiceTripSnapshotChanged ||
-      FailureCodes.conflictInvoiceTotalsMismatch => strings.invoiceChangedFailure,
+      FailureCodes.conflictInvoiceTotalsMismatch ||
+      InvoiceFailureCodes.conflictSequenceExhausted =>
+        strings.invoiceChangedFailure,
       CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
         strings.regionalSettingsFailure,
-      InvoiceFailureCodes.conflictSettingsNotConfigured =>
-        strings.settingsFailure,
-      InvoiceFailureCodes.notFound => strings.invoiceNotFoundFailure,
-      _ => l10n.localizedErrorMessage(failure),
+      InvoiceFailureCodes.conflictSettingsNotConfigured ||
+      InvoiceFailureCodes.validationPrefixInvalid => strings.settingsFailure,
+      InvoiceFailureCodes.notFound ||
+      FailureCodes.validationInvoiceIdRequired => strings.invoiceNotFoundFailure,
+      InvoiceFailureCodes.customerNotFound => strings.customerRequiredFailure,
+      InvoiceFailureCodes.validationIssueDateRequired ||
+      InvoiceFailureCodes.validationDueDateRequired => strings.dateRequired,
+      _ => _safeInvoiceFallback(failure, strings),
+    };
+  }
+
+  String _safeInvoiceFallback(
+    Failure failure,
+    InvoicesLocalizations strings,
+  ) {
+    return switch (failure) {
+      ServerFailure || UnexpectedFailure =>
+        l10n.localizedErrorMessage(failure),
+      PermissionFailure => strings.permissionManageFailure,
+      NotFoundFailure => strings.invoiceNotFoundFailure,
+      ConflictFailure => strings.invoiceChangedFailure,
+      ValidationFailure => strings.draftFailed,
+      _ => strings.loadFailed,
     };
   }
 }
