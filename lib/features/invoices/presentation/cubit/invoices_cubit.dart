@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice.dart';
 import '../../domain/entities/invoice_status.dart';
 import '../../domain/policies/invoices_permission_policy.dart';
