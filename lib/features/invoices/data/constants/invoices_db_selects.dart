@@ -32,6 +32,9 @@ abstract final class InvoicesDbSelects {
   static const _lineColumns = <String>[
     InvoicesDbFields.linePosition,
     InvoicesDbFields.tripId,
+    InvoicesDbFields.tripNumber,
+    InvoicesDbFields.loadingLocation,
+    InvoicesDbFields.unloadingLocation,
     InvoicesDbFields.loadingOrderNumber,
     InvoicesDbFields.waybillNumber,
     InvoicesDbFields.serviceDate,

@@ -10,6 +10,10 @@ final class BillableTripModel {
   final int freightMinorUnits;
   final String currencyCode;
   final bool isAlreadyInvoiced;
+  final String? tripNumber;
+  final String? customerName;
+  final String? loadingLocation;
+  final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
   final DateTime? serviceDate;
@@ -23,6 +27,10 @@ final class BillableTripModel {
     required this.freightMinorUnits,
     required this.currencyCode,
     required this.isAlreadyInvoiced,
+    this.tripNumber,
+    this.customerName,
+    this.loadingLocation,
+    this.unloadingLocation,
     this.loadingOrderNumber,
     this.waybillNumber,
     this.serviceDate,
@@ -63,6 +71,18 @@ final class BillableTripModel {
         InvoicesDbFields.currencyCode,
       ),
       isAlreadyInvoiced: invoicedValue,
+      tripNumber: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.tripNumber],
+      ),
+      customerName: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.customerName],
+      ),
+      loadingLocation: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.loadingLocation],
+      ),
+      unloadingLocation: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.unloadingLocation],
+      ),
       loadingOrderNumber: InvoiceDataParser.optionalString(
         map[InvoicesDbFields.loadingOrderNumber],
       ),

@@ -17,6 +17,9 @@ void main() {
       expect(invoice.currency.value, 'AED');
       expect(invoice.lines, hasLength(2));
       expect(invoice.lines.first.tripId, 'trip-1');
+      expect(invoice.lines.first.tripNumber, 'TRIP-2026-000001');
+      expect(invoice.lines.first.loadingLocation, 'Dubai');
+      expect(invoice.lines.first.unloadingLocation, 'Abu Dhabi');
       expect(invoice.lines.first.amount.minorUnits, 6000);
       expect(invoice.lines.last.tripId, 'trip-2');
       expect(invoice.lines.last.amount.minorUnits, 4000);
@@ -102,6 +105,9 @@ Map<String, dynamic> _invoiceMap() {
       {
         'line_position': 2,
         'trip_id': 'trip-2',
+        'trip_number': 'TRIP-2026-000002',
+        'loading_location': 'Sharjah',
+        'unloading_location': 'Dubai',
         'loading_order_number': 'LO-2',
         'waybill_number': 'WB-2',
         'service_date': '2026-08-02',
@@ -112,6 +118,9 @@ Map<String, dynamic> _invoiceMap() {
       {
         'line_position': 1,
         'trip_id': 'trip-1',
+        'trip_number': 'TRIP-2026-000001',
+        'loading_location': 'Dubai',
+        'unloading_location': 'Abu Dhabi',
         'loading_order_number': 'LO-1',
         'waybill_number': 'WB-1',
         'service_date': '2026-08-01',

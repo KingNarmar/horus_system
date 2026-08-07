@@ -34,6 +34,9 @@ abstract final class InvoicesDbFields {
 
   static const invoiceId = 'invoice_id';
   static const tripId = 'trip_id';
+  static const tripNumber = 'trip_number';
+  static const loadingLocation = 'loading_location';
+  static const unloadingLocation = 'unloading_location';
   static const linePosition = 'line_position';
   static const loadingOrderNumber = 'loading_order_number';
   static const waybillNumber = 'waybill_number';

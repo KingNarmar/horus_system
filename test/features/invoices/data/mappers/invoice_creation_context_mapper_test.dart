@@ -18,6 +18,10 @@ void main() {
       expect(context.trips.single.freightAmount.minorUnits, 125050);
       expect(context.trips.single.freightAmount.currency.value, 'AED');
       expect(context.trips.single.isAlreadyInvoiced, isFalse);
+      expect(context.trips.single.tripNumber, 'TRIP-2026-000001');
+      expect(context.trips.single.customerName, 'Customer One');
+      expect(context.trips.single.loadingLocation, 'Dubai');
+      expect(context.trips.single.unloadingLocation, 'Abu Dhabi');
     });
 
     test('rejects a trip from another company', () {
@@ -70,6 +74,10 @@ Map<String, dynamic> _contextMap() {
         'freight_minor_units': 125050,
         'currency_code': 'AED',
         'is_already_invoiced': false,
+        'trip_number': 'TRIP-2026-000001',
+        'customer_name': 'Customer One',
+        'loading_location': 'Dubai',
+        'unloading_location': 'Abu Dhabi',
         'loading_order_number': 'LO-1',
         'waybill_number': 'WB-1',
         'service_date': '2026-08-01',

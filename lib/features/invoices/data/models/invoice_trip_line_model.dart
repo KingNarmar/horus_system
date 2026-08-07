@@ -4,6 +4,9 @@ import '../utils/invoice_data_parser.dart';
 final class InvoiceTripLineModel {
   final int linePosition;
   final String tripId;
+  final String? tripNumber;
+  final String? loadingLocation;
+  final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
   final DateTime? serviceDate;
@@ -14,6 +17,9 @@ final class InvoiceTripLineModel {
   const InvoiceTripLineModel({
     required this.linePosition,
     required this.tripId,
+    this.tripNumber,
+    this.loadingLocation,
+    this.unloadingLocation,
     this.loadingOrderNumber,
     this.waybillNumber,
     this.serviceDate,
@@ -31,6 +37,15 @@ final class InvoiceTripLineModel {
       tripId: InvoiceDataParser.requiredString(
         map[InvoicesDbFields.tripId],
         InvoicesDbFields.tripId,
+      ),
+      tripNumber: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.tripNumber],
+      ),
+      loadingLocation: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.loadingLocation],
+      ),
+      unloadingLocation: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.unloadingLocation],
       ),
       loadingOrderNumber: InvoiceDataParser.optionalString(
         map[InvoicesDbFields.loadingOrderNumber],
