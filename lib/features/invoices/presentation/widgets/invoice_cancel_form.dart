@@ -36,64 +36,65 @@ final class _InvoiceCancelFormState extends State<InvoiceCancelForm> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextFormField(
-            controller: _reasonController,
-            autofocus: true,
-            enabled: !widget.isSubmitting,
-            decoration: InputDecoration(
-              labelText: strings.cancellationReason,
-              border: const OutlineInputBorder(),
-            ),
-            validator: (value) {
-              return value == null || value.trim().isEmpty
-                  ? strings.cancellationReasonRequired
-                  : null;
-            },
-          ),
-          if (widget.failureMessage != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              widget.failureMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            alignment: WrapAlignment.end,
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              TextButton(
-                onPressed: widget.isSubmitting ? null : widget.onBack,
-                child: Text(strings.details),
-              ),
-              FilledButton.icon(
-                key: const ValueKey('invoiceCancelSubmitButton'),
-                onPressed: widget.isSubmitting ? null : _submit,
-                icon: widget.isSubmitting
-                    ? const SizedBox.square(
-                        dimension: AppSizes.loadingIndicatorSm,
-                        child: CircularProgressIndicator(
-                          strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
-                        ),
-                      )
-                    : const Icon(AppIcons.deactivate),
-                label: Text(
-                  widget.isSubmitting
-                      ? strings.cancelling
-                      : strings.cancelInvoice,
+    return AlertDialog(
+      title: Text(strings.cancelTitle),
+      content: SizedBox(
+        width: AppSizes.formDialogMaxWidth,
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _reasonController,
+                  autofocus: true,
+                  enabled: !widget.isSubmitting,
+                  decoration: InputDecoration(
+                    labelText: strings.cancellationReason,
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    return value == null || value.trim().isEmpty
+                        ? strings.cancellationReasonRequired
+                        : null;
+                  },
                 ),
-              ),
-            ],
+                if (widget.failureMessage != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    widget.failureMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
-        ],
+        ),
       ),
+      actions: [
+        TextButton(
+          onPressed: widget.isSubmitting ? null : widget.onBack,
+          child: Text(strings.details),
+        ),
+        FilledButton.icon(
+          key: const ValueKey('invoiceCancelSubmitButton'),
+          onPressed: widget.isSubmitting ? null : _submit,
+          icon: widget.isSubmitting
+              ? const SizedBox.square(
+                  dimension: AppSizes.loadingIndicatorSm,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                  ),
+                )
+              : const Icon(AppIcons.deactivate),
+          label: Text(
+            widget.isSubmitting ? strings.cancelling : strings.cancelInvoice,
+          ),
+        ),
+      ],
     );
   }
 

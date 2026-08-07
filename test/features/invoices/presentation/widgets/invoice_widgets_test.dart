@@ -32,6 +32,8 @@ void main() {
       ),
     );
 
+    expect(find.byType(AlertDialog), findsOneWidget);
+
     await tester.tap(find.byKey(const ValueKey('invoiceDraftTripField')));
     await tester.pumpAndSettle();
 
@@ -41,7 +43,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('invoice details never expose the raw trip UUID', (tester) async {
+  testWidgets('invoice details use the standard AlertDialog and hide raw UUID', (
+    tester,
+  ) async {
     const tripId = '771d829f-fd6e-46cd-bb30-e6ee8cc3a56f';
     await _setSurfaceSize(tester, const Size(390, 844));
     await _pumpLocalized(
@@ -54,12 +58,13 @@ void main() {
       ),
     );
 
+    expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.textContaining(tripId), findsNothing);
     expect(find.textContaining('DUBAI → SHARJAH'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('issue flow stays inside one adaptive dialog', (tester) async {
+  testWidgets('issue flow stays inside one standard AlertDialog', (tester) async {
     await _setSurfaceSize(tester, const Size(390, 844));
     await _pumpLocalized(
       tester,
@@ -71,8 +76,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(Dialog), findsOneWidget);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
 
     final issueButton = find.byKey(const ValueKey('invoiceIssueActionButton'));
     await tester.ensureVisible(issueButton);
@@ -80,13 +84,14 @@ void main() {
     await tester.tap(issueButton);
     await tester.pumpAndSettle();
 
-    expect(find.byType(Dialog), findsOneWidget);
-    expect(find.byType(AlertDialog), findsNothing);
-    expect(find.text('Issue invoice'), findsWidgets);
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Issue invoice'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('cancel flow stays inside one adaptive dialog', (tester) async {
+  testWidgets('cancel flow stays inside one standard AlertDialog', (
+    tester,
+  ) async {
     await _setSurfaceSize(tester, const Size(390, 844));
     await _pumpLocalized(
       tester,
@@ -98,8 +103,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(Dialog), findsOneWidget);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
 
     final cancelButton = find.byKey(
       const ValueKey('invoiceCancelActionButton'),
@@ -109,8 +113,7 @@ void main() {
     await tester.tap(cancelButton);
     await tester.pumpAndSettle();
 
-    expect(find.byType(Dialog), findsOneWidget);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text('Cancel invoice'), findsWidgets);
     expect(tester.takeException(), isNull);
   });

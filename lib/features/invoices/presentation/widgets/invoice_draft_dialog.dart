@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/widgets/adaptive_app_dialog.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../cubit/invoice_draft_form_input.dart';
 import '../helpers/invoice_formatters.dart';
@@ -40,15 +39,59 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    return AdaptiveAppDialog(
-      title: Text(
-        strings.createDraftTitle,
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    return AlertDialog(
+      title: Text(strings.createDraftTitle),
+      content: SizedBox(
+        width: AppSizes.formDialogMaxWidth,
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  key: const ValueKey('invoiceDraftTripField'),
+                  initialValue: _tripId,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: strings.trip,
+                    border: const OutlineInputBorder(),
+                  ),
+                  hint: Text(strings.selectTrip),
+                  items: widget.billableTrips
+                      .map((trip) {
+                        return DropdownMenuItem<String>(
+                          value: trip.id,
+                          child: Text(
+                            _tripLabel(context, trip),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      })
+                      .toList(growable: false),
+                  onChanged: _isSubmitting
+                      ? null
+                      : (value) => setState(() => _tripId = value),
+                  validator: (value) {
+                    return value == null || value.trim().isEmpty
+                        ? strings.tripRequired
+                        : null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _notesController,
+                  enabled: !_isSubmitting,
+                  decoration: InputDecoration(
+                    labelText: strings.notes,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      maxWidth: AppSizes.formDialogMaxWidth,
-      canClose: !_isSubmitting,
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
@@ -68,52 +111,6 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
           label: Text(_isSubmitting ? strings.savingDraft : strings.saveDraft),
         ),
       ],
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<String>(
-              key: const ValueKey('invoiceDraftTripField'),
-              initialValue: _tripId,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: strings.trip,
-                border: const OutlineInputBorder(),
-              ),
-              hint: Text(strings.selectTrip),
-              items: widget.billableTrips
-                  .map((trip) {
-                    return DropdownMenuItem<String>(
-                      value: trip.id,
-                      child: Text(
-                        _tripLabel(context, trip),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  })
-                  .toList(growable: false),
-              onChanged: _isSubmitting
-                  ? null
-                  : (value) => setState(() => _tripId = value),
-              validator: (value) {
-                return value == null || value.trim().isEmpty
-                    ? strings.tripRequired
-                    : null;
-              },
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _notesController,
-              enabled: !_isSubmitting,
-              decoration: InputDecoration(
-                labelText: strings.notes,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

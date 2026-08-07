@@ -5,7 +5,6 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../core/widgets/adaptive_app_dialog.dart';
 import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../domain/entities/invoice.dart';
@@ -47,30 +46,28 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
 
     if (currentState is InvoiceDetailsInitial ||
         currentState is InvoiceDetailsLoading) {
-      return AdaptiveAppDialog(
-        title: Text(
-          strings.invoiceDetails,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        maxWidth: AppSizes.detailsDialogMaxWidth,
-        child: const Padding(
-          padding: EdgeInsets.all(AppSpacing.xl),
-          child: Center(child: CircularProgressIndicator()),
+      return AlertDialog(
+        title: Text(strings.invoiceDetails),
+        content: const SizedBox(
+          width: AppSizes.detailsDialogMaxWidth,
+          child: Padding(
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
         ),
       );
     }
 
     if (currentState is InvoiceDetailsFailure) {
-      return AdaptiveAppDialog(
-        title: Text(
-          strings.invoiceDetails,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      return AlertDialog(
+        title: Text(strings.invoiceDetails),
+        content: SizedBox(
+          width: AppSizes.detailsDialogMaxWidth,
+          child: Text(
+            context.localizedInvoiceFailure(currentState.failure),
+            textAlign: TextAlign.center,
+          ),
         ),
-        maxWidth: AppSizes.detailsDialogMaxWidth,
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -81,10 +78,6 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
             child: Text(context.l10n.retryButton),
           ),
         ],
-        child: Text(
-          context.localizedInvoiceFailure(currentState.failure),
-          textAlign: TextAlign.center,
-        ),
       );
     }
 
@@ -93,21 +86,43 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     }
 
     final view = _effectiveView(currentState);
-    return AdaptiveAppDialog(
-      title: Text(
-        _titleForView(strings, view),
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    final invoice = currentState.invoice;
+    final failureMessage = currentState.mutationFailure == null
+        ? null
+        : context.localizedInvoiceFailure(currentState.mutationFailure!);
+
+    if (view == _InvoiceDetailsView.issue) {
+      return InvoiceIssueForm(
+        initialDate: invoice.issueDate?.value ?? invoice.createdAt,
+        issueDate: invoice.issueDate?.value,
+        dueDate: invoice.dueDate?.value,
+        isSubmitting:
+            currentState.pendingAction == InvoiceDetailsAction.issue,
+        failureMessage: failureMessage,
+        onBack: () => _showView(_InvoiceDetailsView.details),
+        onSubmit: (dates) => _issue(invoice, dates),
+      );
+    }
+
+    if (view == _InvoiceDetailsView.cancel) {
+      return InvoiceCancelForm(
+        isSubmitting:
+            currentState.pendingAction == InvoiceDetailsAction.cancel,
+        failureMessage: failureMessage,
+        onBack: () => _showView(_InvoiceDetailsView.details),
+        onSubmit: (reason) => _cancel(invoice, reason),
+      );
+    }
+
+    return AlertDialog(
+      title: Text(strings.invoiceDetails),
+      content: SizedBox(
+        width: AppSizes.detailsDialogMaxWidth,
+        child: SingleChildScrollView(
+          child: _LoadedInvoiceDetails(state: currentState),
+        ),
       ),
-      maxWidth: view == _InvoiceDetailsView.details
-          ? AppSizes.detailsDialogMaxWidth
-          : AppSizes.formDialogMaxWidth,
-      canClose: !currentState.isMutationPending,
-      actions: view == _InvoiceDetailsView.details
-          ? _detailsActions(context, currentState)
-          : const [],
-      child: _contentForView(context, currentState, view),
+      actions: _detailsActions(context, currentState),
     );
   }
 
@@ -119,47 +134,6 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       return _InvoiceDetailsView.details;
     }
     return _view;
-  }
-
-  String _titleForView(
-    InvoicesLocalizations strings,
-    _InvoiceDetailsView view,
-  ) {
-    return switch (view) {
-      _InvoiceDetailsView.details => strings.invoiceDetails,
-      _InvoiceDetailsView.issue => strings.issueTitle,
-      _InvoiceDetailsView.cancel => strings.cancelTitle,
-    };
-  }
-
-  Widget _contentForView(
-    BuildContext context,
-    InvoiceDetailsLoaded state,
-    _InvoiceDetailsView view,
-  ) {
-    final invoice = state.invoice;
-    final failureMessage = state.mutationFailure == null
-        ? null
-        : context.localizedInvoiceFailure(state.mutationFailure!);
-
-    return switch (view) {
-      _InvoiceDetailsView.details => _LoadedInvoiceDetails(state: state),
-      _InvoiceDetailsView.issue => InvoiceIssueForm(
-        initialDate: invoice.issueDate?.value ?? invoice.createdAt,
-        issueDate: invoice.issueDate?.value,
-        dueDate: invoice.dueDate?.value,
-        isSubmitting: state.pendingAction == InvoiceDetailsAction.issue,
-        failureMessage: failureMessage,
-        onBack: () => _showView(_InvoiceDetailsView.details),
-        onSubmit: (dates) => _issue(invoice, dates),
-      ),
-      _InvoiceDetailsView.cancel => InvoiceCancelForm(
-        isSubmitting: state.pendingAction == InvoiceDetailsAction.cancel,
-        failureMessage: failureMessage,
-        onBack: () => _showView(_InvoiceDetailsView.details),
-        onSubmit: (reason) => _cancel(invoice, reason),
-      ),
-    };
   }
 
   List<Widget> _detailsActions(
