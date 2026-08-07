@@ -85,9 +85,8 @@ final class _InvoiceIssueFormState extends State<InvoiceIssueForm> {
               suffixIcon: const Icon(AppIcons.calendar),
               border: const OutlineInputBorder(),
             ),
-            validator: (value) => value == null || value.isEmpty
-                ? strings.dateRequired
-                : null,
+            validator: (value) =>
+                value == null || value.isEmpty ? strings.dateRequired : null,
           ),
           const SizedBox(height: AppSpacing.md),
           TextFormField(
@@ -101,9 +100,8 @@ final class _InvoiceIssueFormState extends State<InvoiceIssueForm> {
               suffixIcon: const Icon(AppIcons.calendar),
               border: const OutlineInputBorder(),
             ),
-            validator: (value) => value == null || value.isEmpty
-                ? strings.dateRequired
-                : null,
+            validator: (value) =>
+                value == null || value.isEmpty ? strings.dateRequired : null,
           ),
           if (widget.failureMessage != null) ...[
             const SizedBox(height: AppSpacing.md),
