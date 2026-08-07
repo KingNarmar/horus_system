@@ -85,7 +85,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Issue invoice'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('invoiceIssueSubmitButton')),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 
