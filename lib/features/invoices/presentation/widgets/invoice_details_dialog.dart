@@ -96,8 +96,7 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
         initialDate: invoice.issueDate?.value ?? invoice.createdAt,
         issueDate: invoice.issueDate?.value,
         dueDate: invoice.dueDate?.value,
-        isSubmitting:
-            currentState.pendingAction == InvoiceDetailsAction.issue,
+        isSubmitting: currentState.pendingAction == InvoiceDetailsAction.issue,
         failureMessage: failureMessage,
         onBack: () => _showView(_InvoiceDetailsView.details),
         onSubmit: (dates) => _issue(invoice, dates),
@@ -106,8 +105,7 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
 
     if (view == _InvoiceDetailsView.cancel) {
       return InvoiceCancelForm(
-        isSubmitting:
-            currentState.pendingAction == InvoiceDetailsAction.cancel,
+        isSubmitting: currentState.pendingAction == InvoiceDetailsAction.cancel,
         failureMessage: failureMessage,
         onBack: () => _showView(_InvoiceDetailsView.details),
         onSubmit: (reason) => _cancel(invoice, reason),
