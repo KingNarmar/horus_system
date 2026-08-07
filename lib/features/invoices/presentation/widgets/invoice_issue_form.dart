@@ -68,80 +68,79 @@ final class _InvoiceIssueFormState extends State<InvoiceIssueForm> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    return AlertDialog(
-      title: Text(strings.issueTitle),
-      content: SizedBox(
-        width: AppSizes.formDialogMaxWidth,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _issueDateController,
-                  enabled: !widget.isSubmitting,
-                  readOnly: true,
-                  onTap: () => _pickDate(isIssueDate: true),
-                  decoration: InputDecoration(
-                    labelText: strings.issueDate,
-                    hintText: strings.selectIssueDate,
-                    suffixIcon: const Icon(AppIcons.calendar),
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? strings.dateRequired
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _dueDateController,
-                  enabled: !widget.isSubmitting,
-                  readOnly: true,
-                  onTap: () => _pickDate(isIssueDate: false),
-                  decoration: InputDecoration(
-                    labelText: strings.dueDate,
-                    hintText: strings.selectDueDate,
-                    suffixIcon: const Icon(AppIcons.calendar),
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? strings.dateRequired
-                      : null,
-                ),
-                if (widget.failureMessage != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    widget.failureMessage!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ],
-              ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: _issueDateController,
+            enabled: !widget.isSubmitting,
+            readOnly: true,
+            onTap: () => _pickDate(isIssueDate: true),
+            decoration: InputDecoration(
+              labelText: strings.issueDate,
+              hintText: strings.selectIssueDate,
+              suffixIcon: const Icon(AppIcons.calendar),
+              border: const OutlineInputBorder(),
             ),
+            validator: (value) => value == null || value.isEmpty
+                ? strings.dateRequired
+                : null,
           ),
-        ),
+          const SizedBox(height: AppSpacing.md),
+          TextFormField(
+            controller: _dueDateController,
+            enabled: !widget.isSubmitting,
+            readOnly: true,
+            onTap: () => _pickDate(isIssueDate: false),
+            decoration: InputDecoration(
+              labelText: strings.dueDate,
+              hintText: strings.selectDueDate,
+              suffixIcon: const Icon(AppIcons.calendar),
+              border: const OutlineInputBorder(),
+            ),
+            validator: (value) => value == null || value.isEmpty
+                ? strings.dateRequired
+                : null,
+          ),
+          if (widget.failureMessage != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              widget.failureMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.lg),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              TextButton(
+                onPressed: widget.isSubmitting ? null : widget.onBack,
+                child: Text(strings.details),
+              ),
+              FilledButton.icon(
+                key: const ValueKey('invoiceIssueSubmitButton'),
+                onPressed: widget.isSubmitting ? null : _submit,
+                icon: widget.isSubmitting
+                    ? const SizedBox.square(
+                        dimension: AppSizes.loadingIndicatorSm,
+                        child: CircularProgressIndicator(
+                          strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                        ),
+                      )
+                    : const Icon(AppIcons.statusUpdate),
+                label: Text(
+                  widget.isSubmitting ? strings.issuing : strings.issue,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: widget.isSubmitting ? null : widget.onBack,
-          child: Text(strings.details),
-        ),
-        FilledButton.icon(
-          key: const ValueKey('invoiceIssueSubmitButton'),
-          onPressed: widget.isSubmitting ? null : _submit,
-          icon: widget.isSubmitting
-              ? const SizedBox.square(
-                  dimension: AppSizes.loadingIndicatorSm,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
-                  ),
-                )
-              : const Icon(AppIcons.statusUpdate),
-          label: Text(widget.isSubmitting ? strings.issuing : strings.issue),
-        ),
-      ],
     );
   }
 
