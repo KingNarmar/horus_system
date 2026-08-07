@@ -46,38 +46,35 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
 
     if (currentState is InvoiceDetailsInitial ||
         currentState is InvoiceDetailsLoading) {
-      return AlertDialog(
-        title: Text(strings.invoiceDetails),
-        content: const SizedBox(
-          width: AppSizes.detailsDialogMaxWidth,
-          child: Padding(
-            padding: EdgeInsets.all(AppSpacing.xl),
-            child: Center(child: CircularProgressIndicator()),
-          ),
+      return _InvoiceDialogShell(
+        title: strings.invoiceDetails,
+        child: const Padding(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: Center(child: CircularProgressIndicator()),
         ),
       );
     }
 
     if (currentState is InvoiceDetailsFailure) {
-      return AlertDialog(
-        title: Text(strings.invoiceDetails),
-        content: SizedBox(
-          width: AppSizes.detailsDialogMaxWidth,
-          child: Text(
-            context.localizedInvoiceFailure(currentState.failure),
-            textAlign: TextAlign.center,
-          ),
+      return _InvoiceDialogShell(
+        title: strings.invoiceDetails,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              context.localizedInvoiceFailure(currentState.failure),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: OutlinedButton(
+                onPressed: widget.onRetry,
+                child: Text(context.l10n.retryButton),
+              ),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(strings.close),
-          ),
-          OutlinedButton(
-            onPressed: widget.onRetry,
-            child: Text(context.l10n.retryButton),
-          ),
-        ],
       );
     }
 
@@ -92,35 +89,55 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
         : context.localizedInvoiceFailure(currentState.mutationFailure!);
 
     if (view == _InvoiceDetailsView.issue) {
-      return InvoiceIssueForm(
-        initialDate: invoice.issueDate?.value ?? invoice.createdAt,
-        issueDate: invoice.issueDate?.value,
-        dueDate: invoice.dueDate?.value,
-        isSubmitting: currentState.pendingAction == InvoiceDetailsAction.issue,
-        failureMessage: failureMessage,
-        onBack: () => _showView(_InvoiceDetailsView.details),
-        onSubmit: (dates) => _issue(invoice, dates),
+      return _InvoiceDialogShell(
+        title: strings.issueTitle,
+        canClose: !currentState.isMutationPending,
+        child: InvoiceIssueForm(
+          initialDate: invoice.issueDate?.value ?? invoice.createdAt,
+          issueDate: invoice.issueDate?.value,
+          dueDate: invoice.dueDate?.value,
+          isSubmitting:
+              currentState.pendingAction == InvoiceDetailsAction.issue,
+          failureMessage: failureMessage,
+          onBack: () => _showView(_InvoiceDetailsView.details),
+          onSubmit: (dates) => _issue(invoice, dates),
+        ),
       );
     }
 
     if (view == _InvoiceDetailsView.cancel) {
-      return InvoiceCancelForm(
-        isSubmitting: currentState.pendingAction == InvoiceDetailsAction.cancel,
-        failureMessage: failureMessage,
-        onBack: () => _showView(_InvoiceDetailsView.details),
-        onSubmit: (reason) => _cancel(invoice, reason),
+      return _InvoiceDialogShell(
+        title: strings.cancelTitle,
+        canClose: !currentState.isMutationPending,
+        child: InvoiceCancelForm(
+          isSubmitting:
+              currentState.pendingAction == InvoiceDetailsAction.cancel,
+          failureMessage: failureMessage,
+          onBack: () => _showView(_InvoiceDetailsView.details),
+          onSubmit: (reason) => _cancel(invoice, reason),
+        ),
       );
     }
 
-    return AlertDialog(
-      title: Text(strings.invoiceDetails),
-      content: SizedBox(
-        width: AppSizes.detailsDialogMaxWidth,
-        child: SingleChildScrollView(
-          child: _LoadedInvoiceDetails(state: currentState),
-        ),
+    final actionButtons = _detailsActionButtons(context, currentState);
+    return _InvoiceDialogShell(
+      title: strings.invoiceDetails,
+      canClose: !currentState.isMutationPending,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _LoadedInvoiceDetails(state: currentState),
+          if (actionButtons.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: actionButtons,
+            ),
+          ],
+        ],
       ),
-      actions: _detailsActions(context, currentState),
     );
   }
 
@@ -134,18 +151,12 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     return _view;
   }
 
-  List<Widget> _detailsActions(
+  List<Widget> _detailsActionButtons(
     BuildContext context,
     InvoiceDetailsLoaded state,
   ) {
     final strings = context.invoicesL10n;
     return [
-      TextButton(
-        onPressed: state.isMutationPending
-            ? null
-            : () => Navigator.of(context).pop(),
-        child: Text(strings.close),
-      ),
       if (state.canCancel)
         OutlinedButton.icon(
           key: const ValueKey('invoiceCancelActionButton'),
@@ -185,6 +196,59 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   }
 }
 
+final class _InvoiceDialogShell extends StatelessWidget {
+  final String title;
+  final Widget child;
+  final bool canClose;
+
+  const _InvoiceDialogShell({
+    required this.title,
+    required this.child,
+    this.canClose = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.detailsDialogMaxWidth,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    key: const ValueKey('invoiceDialogCloseButton'),
+                    onPressed: canClose
+                        ? () => Navigator.of(context).pop()
+                        : null,
+                    icon: const Icon(AppIcons.clear),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              child,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 final class _LoadedInvoiceDetails extends StatelessWidget {
   final InvoiceDetailsLoaded state;
 
@@ -193,19 +257,32 @@ final class _LoadedInvoiceDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final invoice = state.invoice;
+    final strings = context.invoicesL10n;
     final fractionDigits =
         state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _InvoiceSummary(
-          invoice: invoice,
-          currencyFractionDigits: fractionDigits,
+        _InvoiceDetailsSection(
+          title: strings.details,
+          child: _InvoiceSummary(
+            invoice: invoice,
+            currencyFractionDigits: fractionDigits,
+          ),
         ),
-        const SizedBox(height: AppSpacing.xl),
-        _InvoiceLines(invoice: invoice, currencyFractionDigits: fractionDigits),
-        const SizedBox(height: AppSpacing.xl),
-        _InvoiceActivity(state: state),
+        const SizedBox(height: AppSpacing.md),
+        _InvoiceDetailsSection(
+          title: strings.invoiceLines,
+          child: _InvoiceLines(
+            invoice: invoice,
+            currencyFractionDigits: fractionDigits,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _InvoiceDetailsSection(
+          title: strings.activity,
+          child: _InvoiceActivity(state: state),
+        ),
         if (state.mutationFailure != null) ...[
           const SizedBox(height: AppSpacing.lg),
           Text(
@@ -214,6 +291,35 @@ final class _LoadedInvoiceDetails extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+final class _InvoiceDetailsSection extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _InvoiceDetailsSection({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            child,
+          ],
+        ),
+      ),
     );
   }
 }
@@ -322,13 +428,6 @@ final class _InvoiceLines extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          strings.invoiceLines,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.sm),
         ...invoice.lines.map(
           (line) => _InvoiceLineCard(
             title: strings.lineReference(
@@ -434,21 +533,13 @@ final class _InvoiceActivity extends StatelessWidget {
       return Text(context.localizedInvoiceFailure(state.activityFailure!));
     }
 
+    if (state.activity.isEmpty) {
+      return Text(strings.noActivity);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          strings.activity,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (state.activity.isEmpty)
-          Text(strings.noActivity)
-        else
-          ...state.activity.map((log) => _AuditEntry(log: log)),
-      ],
+      children: [...state.activity.map((log) => _AuditEntry(log: log))],
     );
   }
 }
