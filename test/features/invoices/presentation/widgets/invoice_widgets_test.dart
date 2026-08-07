@@ -41,6 +41,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('invoice details never expose the raw trip UUID', (tester) async {
+    const tripId = '771d829f-fd6e-46cd-bb30-e6ee8cc3a56f';
+    await _setSurfaceSize(tester, const Size(390, 844));
+    await _pumpLocalized(
+      tester,
+      child: InvoiceDetailsDialog(
+        state: _loadedState(tripId: tripId),
+        onRetry: () {},
+        onIssue: (_, _) async => false,
+        onCancel: (_, _) async => false,
+      ),
+    );
+
+    expect(find.textContaining(tripId), findsNothing);
+    expect(find.textContaining('DUBAI → SHARJAH'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('issue flow stays inside one adaptive dialog', (tester) async {
     await _setSurfaceSize(tester, const Size(390, 844));
     await _pumpLocalized(
@@ -56,12 +74,42 @@ void main() {
     expect(find.byType(Dialog), findsOneWidget);
     expect(find.byType(AlertDialog), findsNothing);
 
-    await tester.tap(find.byKey(const ValueKey('invoiceIssueActionButton')));
+    final issueButton = find.byKey(const ValueKey('invoiceIssueActionButton'));
+    await tester.ensureVisible(issueButton);
+    await tester.pumpAndSettle();
+    await tester.tap(issueButton);
     await tester.pumpAndSettle();
 
     expect(find.byType(Dialog), findsOneWidget);
     expect(find.byType(AlertDialog), findsNothing);
     expect(find.text('Issue invoice'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('cancel flow stays inside one adaptive dialog', (tester) async {
+    await _setSurfaceSize(tester, const Size(390, 844));
+    await _pumpLocalized(
+      tester,
+      child: InvoiceDetailsDialog(
+        state: _loadedState(),
+        onRetry: () {},
+        onIssue: (_, _) async => false,
+        onCancel: (_, _) async => false,
+      ),
+    );
+
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+
+    final cancelButton = find.byKey(const ValueKey('invoiceCancelActionButton'));
+    await tester.ensureVisible(cancelButton);
+    await tester.pumpAndSettle();
+    await tester.tap(cancelButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Cancel invoice'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }
@@ -84,8 +132,8 @@ BillableTrip _billableTrip({required String id}) {
   );
 }
 
-InvoiceDetailsLoaded _loadedState() {
-  final trip = _billableTrip(id: 'trip-1');
+InvoiceDetailsLoaded _loadedState({String tripId = 'trip-1'}) {
+  final trip = _billableTrip(id: tripId);
   final line = InvoiceTripLine.fromBillableTrip(trip);
   final zero = Money(minorUnits: 0, currency: _currency);
   return InvoiceDetailsLoaded(
