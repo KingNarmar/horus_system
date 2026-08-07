@@ -13,10 +13,8 @@ import '../cubit/invoices_cubit.dart';
 import '../cubit/invoices_state.dart';
 import '../localization/invoice_failure_localizations_x.dart';
 import '../localization/invoices_localizations.dart';
-import '../widgets/invoice_cancel_dialog.dart';
 import '../widgets/invoice_details_dialog.dart';
 import '../widgets/invoice_draft_dialog.dart';
-import '../widgets/invoice_issue_dialog.dart';
 import '../widgets/invoices_state_view.dart';
 
 final class InvoicesPage extends StatefulWidget {
@@ -226,35 +224,13 @@ final class _InvoiceDetailsHost extends StatelessWidget {
             currentCompanyContext: currentCompanyContext,
             invoiceId: invoiceId,
           ),
-          onIssue: (invoice) => _issue(context, invoice),
-          onCancel: (_) => _cancel(context),
+          onIssue: (_, dates) => cubit.issueInvoice(
+            issueDate: dates.issueDate,
+            dueDate: dates.dueDate,
+          ),
+          onCancel: (_, reason) => cubit.cancelInvoice(reason: reason),
         );
       },
     );
-  }
-
-  Future<void> _issue(BuildContext context, Invoice invoice) async {
-    final dates = await showDialog<InvoiceIssueDates>(
-      context: context,
-      builder: (_) => InvoiceIssueDialog(
-        initialDate: invoice.issueDate?.value ?? invoice.createdAt,
-        issueDate: invoice.issueDate?.value,
-        dueDate: invoice.dueDate?.value,
-      ),
-    );
-    if (dates == null || !context.mounted) return;
-    await context.read<InvoiceDetailsCubit>().issueInvoice(
-      issueDate: dates.issueDate,
-      dueDate: dates.dueDate,
-    );
-  }
-
-  Future<void> _cancel(BuildContext context) async {
-    final reason = await showDialog<String>(
-      context: context,
-      builder: (_) => const InvoiceCancelDialog(),
-    );
-    if (reason == null || !context.mounted) return;
-    await context.read<InvoiceDetailsCubit>().cancelInvoice(reason: reason);
   }
 }

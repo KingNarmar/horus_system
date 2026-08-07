@@ -5,6 +5,8 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/widgets/adaptive_app_dialog.dart';
+import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../domain/entities/invoice.dart';
 import '../cubit/invoice_details_state.dart';
@@ -12,12 +14,16 @@ import '../helpers/invoice_formatters.dart';
 import '../localization/invoice_failure_localizations_x.dart';
 import '../localization/invoice_status_localizations_x.dart';
 import '../localization/invoices_localizations.dart';
+import 'invoice_cancel_form.dart';
+import 'invoice_issue_form.dart';
 
-final class InvoiceDetailsDialog extends StatelessWidget {
+enum _InvoiceDetailsView { details, issue, cancel }
+
+final class InvoiceDetailsDialog extends StatefulWidget {
   final InvoiceDetailsState state;
   final VoidCallback onRetry;
-  final ValueChanged<Invoice> onIssue;
-  final ValueChanged<Invoice> onCancel;
+  final Future<bool> Function(Invoice invoice, InvoiceIssueDates dates) onIssue;
+  final Future<bool> Function(Invoice invoice, String reason) onCancel;
 
   const InvoiceDetailsDialog({
     required this.state,
@@ -28,12 +34,28 @@ final class InvoiceDetailsDialog extends StatelessWidget {
   });
 
   @override
+  State<InvoiceDetailsDialog> createState() => _InvoiceDetailsDialogState();
+}
+
+final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
+  _InvoiceDetailsView _view = _InvoiceDetailsView.details;
+
+  @override
   Widget build(BuildContext context) {
-    final currentState = state;
+    final currentState = widget.state;
+    final strings = context.invoicesL10n;
+
     if (currentState is InvoiceDetailsInitial ||
         currentState is InvoiceDetailsLoading) {
-      return const Dialog(
-        child: Padding(
+      return AdaptiveAppDialog(
+        title: Text(
+          strings.invoiceDetails,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        maxWidth: AppSizes.detailsDialogMaxWidth,
+        child: const Padding(
           padding: EdgeInsets.all(AppSpacing.xl),
           child: Center(child: CircularProgressIndicator()),
         ),
@@ -41,19 +63,25 @@ final class InvoiceDetailsDialog extends StatelessWidget {
     }
 
     if (currentState is InvoiceDetailsFailure) {
-      return AlertDialog(
-        title: Text(context.invoicesL10n.invoiceDetails),
-        content: Text(
+      return AdaptiveAppDialog(
+        title: Text(
+          strings.invoiceDetails,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        maxWidth: AppSizes.detailsDialogMaxWidth,
+        child: Text(
           context.localizedInvoiceFailure(currentState.failure),
           textAlign: TextAlign.center,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(context.invoicesL10n.close),
+            child: Text(strings.close),
           ),
           OutlinedButton(
-            onPressed: onRetry,
+            onPressed: widget.onRetry,
             child: Text(context.l10n.retryButton),
           ),
         ],
@@ -64,88 +92,158 @@ final class InvoiceDetailsDialog extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return _LoadedInvoiceDetailsDialog(
-      state: currentState,
-      onIssue: onIssue,
-      onCancel: onCancel,
+    final view = _effectiveView(currentState);
+    return AdaptiveAppDialog(
+      title: Text(
+        _titleForView(strings, view),
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      maxWidth: view == _InvoiceDetailsView.details
+          ? AppSizes.detailsDialogMaxWidth
+          : AppSizes.formDialogMaxWidth,
+      canClose: !currentState.isMutationPending,
+      child: _contentForView(context, currentState, view),
+      actions: view == _InvoiceDetailsView.details
+          ? _detailsActions(context, currentState)
+          : const [],
     );
+  }
+
+  _InvoiceDetailsView _effectiveView(InvoiceDetailsLoaded state) {
+    if (_view == _InvoiceDetailsView.issue && !state.canIssue) {
+      return _InvoiceDetailsView.details;
+    }
+    if (_view == _InvoiceDetailsView.cancel && !state.canCancel) {
+      return _InvoiceDetailsView.details;
+    }
+    return _view;
+  }
+
+  String _titleForView(
+    InvoicesLocalizations strings,
+    _InvoiceDetailsView view,
+  ) {
+    return switch (view) {
+      _InvoiceDetailsView.details => strings.invoiceDetails,
+      _InvoiceDetailsView.issue => strings.issueTitle,
+      _InvoiceDetailsView.cancel => strings.cancelTitle,
+    };
+  }
+
+  Widget _contentForView(
+    BuildContext context,
+    InvoiceDetailsLoaded state,
+    _InvoiceDetailsView view,
+  ) {
+    final invoice = state.invoice;
+    final failureMessage = state.mutationFailure == null
+        ? null
+        : context.localizedInvoiceFailure(state.mutationFailure!);
+
+    return switch (view) {
+      _InvoiceDetailsView.details => _LoadedInvoiceDetails(state: state),
+      _InvoiceDetailsView.issue => InvoiceIssueForm(
+        initialDate: invoice.issueDate?.value ?? invoice.createdAt,
+        issueDate: invoice.issueDate?.value,
+        dueDate: invoice.dueDate?.value,
+        isSubmitting: state.pendingAction == InvoiceDetailsAction.issue,
+        failureMessage: failureMessage,
+        onBack: () => _showView(_InvoiceDetailsView.details),
+        onSubmit: (dates) => _issue(invoice, dates),
+      ),
+      _InvoiceDetailsView.cancel => InvoiceCancelForm(
+        isSubmitting: state.pendingAction == InvoiceDetailsAction.cancel,
+        failureMessage: failureMessage,
+        onBack: () => _showView(_InvoiceDetailsView.details),
+        onSubmit: (reason) => _cancel(invoice, reason),
+      ),
+    };
+  }
+
+  List<Widget> _detailsActions(
+    BuildContext context,
+    InvoiceDetailsLoaded state,
+  ) {
+    final strings = context.invoicesL10n;
+    return [
+      TextButton(
+        onPressed: state.isMutationPending
+            ? null
+            : () => Navigator.of(context).pop(),
+        child: Text(strings.close),
+      ),
+      if (state.canCancel)
+        OutlinedButton.icon(
+          key: const ValueKey('invoiceCancelActionButton'),
+          onPressed: state.isMutationPending
+              ? null
+              : () => _showView(_InvoiceDetailsView.cancel),
+          icon: const Icon(AppIcons.deactivate),
+          label: Text(strings.cancelInvoice),
+        ),
+      if (state.canIssue)
+        FilledButton.icon(
+          key: const ValueKey('invoiceIssueActionButton'),
+          onPressed: state.isMutationPending
+              ? null
+              : () => _showView(_InvoiceDetailsView.issue),
+          icon: const Icon(AppIcons.statusUpdate),
+          label: Text(strings.issue),
+        ),
+    ];
+  }
+
+  void _showView(_InvoiceDetailsView view) {
+    if (!mounted) return;
+    setState(() => _view = view);
+  }
+
+  Future<void> _issue(Invoice invoice, InvoiceIssueDates dates) async {
+    final succeeded = await widget.onIssue(invoice, dates);
+    if (!mounted || !succeeded) return;
+    setState(() => _view = _InvoiceDetailsView.details);
+  }
+
+  Future<void> _cancel(Invoice invoice, String reason) async {
+    final succeeded = await widget.onCancel(invoice, reason);
+    if (!mounted || !succeeded) return;
+    setState(() => _view = _InvoiceDetailsView.details);
   }
 }
 
-final class _LoadedInvoiceDetailsDialog extends StatelessWidget {
+final class _LoadedInvoiceDetails extends StatelessWidget {
   final InvoiceDetailsLoaded state;
-  final ValueChanged<Invoice> onIssue;
-  final ValueChanged<Invoice> onCancel;
 
-  const _LoadedInvoiceDetailsDialog({
-    required this.state,
-    required this.onIssue,
-    required this.onCancel,
-  });
+  const _LoadedInvoiceDetails({required this.state});
 
   @override
   Widget build(BuildContext context) {
-    final strings = context.invoicesL10n;
     final invoice = state.invoice;
     final fractionDigits =
         state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0;
-    return AlertDialog(
-      title: Text(strings.invoiceDetails),
-      content: SizedBox(
-        width: AppSizes.detailsDialogMaxWidth,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _InvoiceSummary(
-                invoice: invoice,
-                currencyFractionDigits: fractionDigits,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              _InvoiceLines(
-                invoice: invoice,
-                currencyFractionDigits: fractionDigits,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              _InvoiceActivity(state: state),
-              if (state.mutationFailure != null) ...[
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  context.localizedInvoiceFailure(state.mutationFailure!),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _InvoiceSummary(
+          invoice: invoice,
+          currencyFractionDigits: fractionDigits,
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: state.isMutationPending
-              ? null
-              : () => Navigator.of(context).pop(),
-          child: Text(strings.close),
+        const SizedBox(height: AppSpacing.xl),
+        _InvoiceLines(
+          invoice: invoice,
+          currencyFractionDigits: fractionDigits,
         ),
-        if (state.canCancel)
-          OutlinedButton.icon(
-            onPressed: state.isMutationPending ? null : () => onCancel(invoice),
-            icon: const Icon(AppIcons.deactivate),
-            label: Text(
-              state.pendingAction == InvoiceDetailsAction.cancel
-                  ? strings.cancelling
-                  : strings.cancelInvoice,
-            ),
+        const SizedBox(height: AppSpacing.xl),
+        _InvoiceActivity(state: state),
+        if (state.mutationFailure != null) ...[
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            context.localizedInvoiceFailure(state.mutationFailure!),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
-        if (state.canIssue)
-          FilledButton.icon(
-            onPressed: state.isMutationPending ? null : () => onIssue(invoice),
-            icon: const Icon(AppIcons.statusUpdate),
-            label: Text(
-              state.pendingAction == InvoiceDetailsAction.issue
-                  ? strings.issuing
-                  : strings.issue,
-            ),
-          ),
+        ],
       ],
     );
   }
@@ -168,16 +266,16 @@ final class _InvoiceSummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _DetailRow(
+        AdaptiveDetailRow(
           label: strings.number,
           value: invoice.number?.value ?? strings.draftNumber,
         ),
-        _DetailRow(label: strings.customer, value: invoice.customer.name),
-        _DetailRow(
+        AdaptiveDetailRow(label: strings.customer, value: invoice.customer.name),
+        AdaptiveDetailRow(
           label: strings.status,
           value: invoice.status.localizedLabel(strings),
         ),
-        _DetailRow(
+        AdaptiveDetailRow(
           label: strings.issueDate,
           value: formatInvoiceDate(
             invoice.issueDate?.value,
@@ -185,7 +283,7 @@ final class _InvoiceSummary extends StatelessWidget {
             strings.unavailableValue,
           ),
         ),
-        _DetailRow(
+        AdaptiveDetailRow(
           label: strings.dueDate,
           value: formatInvoiceDate(
             invoice.dueDate?.value,
@@ -222,11 +320,11 @@ final class _InvoiceSummary extends StatelessWidget {
         ),
         if (invoice.notes != null) ...[
           const Divider(),
-          _DetailRow(label: strings.notes, value: invoice.notes!),
+          AdaptiveDetailRow(label: strings.notes, value: invoice.notes!),
         ],
         if (invoice.cancellationReason != null) ...[
           const Divider(),
-          _DetailRow(
+          AdaptiveDetailRow(
             label: strings.cancellationReason,
             value: invoice.cancellationReason!,
           ),
@@ -259,31 +357,80 @@ final class _InvoiceLines extends StatelessWidget {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
-        ...invoice.lines.map((line) {
-          final reference =
-              line.loadingOrderNumber ?? line.waybillNumber ?? line.tripId;
-          return Card(
-            child: ListTile(
-              title: Text(strings.lineReference(reference)),
-              subtitle: Text(
-                formatInvoiceDate(
-                  line.serviceDate,
-                  localeName,
-                  strings.unavailableValue,
-                ),
-              ),
-              trailing: Text(
-                formatInvoiceMoney(
-                  line.amount,
-                  fractionDigits: currencyFractionDigits,
-                  localeName: localeName,
-                ),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+        ...invoice.lines.map(
+          (line) => _InvoiceLineCard(
+            title: strings.lineReference(
+              formatInvoiceLineReference(
+                line,
+                fallback: strings.unavailableValue,
               ),
             ),
-          );
-        }),
+            date: formatInvoiceDate(
+              line.serviceDate,
+              localeName,
+              strings.unavailableValue,
+            ),
+            amount: formatInvoiceMoney(
+              line.amount,
+              fractionDigits: currencyFractionDigits,
+              localeName: localeName,
+            ),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+final class _InvoiceLineCard extends StatelessWidget {
+  final String title;
+  final String date;
+  final String amount;
+
+  const _InvoiceLineCard({
+    required this.title,
+    required this.date,
+    required this.amount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
+            return Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(date),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    amount,
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListTile(
+            title: Text(title),
+            subtitle: Text(date),
+            trailing: Text(
+              amount,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -306,7 +453,7 @@ final class _InvoiceActivity extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          Text(strings.loadingActivity),
+          Expanded(child: Text(strings.loadingActivity)),
         ],
       );
     }
@@ -357,34 +504,6 @@ final class _AuditEntry extends StatelessWidget {
   }
 }
 
-final class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: Text(label)),
-          const SizedBox(width: AppSpacing.md),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 final class _MoneyRow extends StatelessWidget {
   final String label;
   final Money money;
@@ -401,15 +520,15 @@ final class _MoneyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeName = Localizations.localeOf(context).toLanguageTag();
-    return DefaultTextStyle.merge(
-      style: emphasized ? const TextStyle(fontWeight: FontWeight.bold) : null,
-      child: _DetailRow(
-        label: label,
-        value: formatInvoiceMoney(
-          money,
-          fractionDigits: fractionDigits,
-          localeName: localeName,
-        ),
+    final style = emphasized ? const TextStyle(fontWeight: FontWeight.bold) : null;
+    return AdaptiveDetailRow(
+      label: label,
+      labelStyle: style,
+      valueStyle: style,
+      value: formatInvoiceMoney(
+        money,
+        fractionDigits: fractionDigits,
+        localeName: localeName,
       ),
     );
   }
