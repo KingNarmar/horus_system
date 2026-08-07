@@ -43,12 +43,31 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     return AdaptiveAppDialog(
       title: Text(
         strings.createDraftTitle,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
       ),
       maxWidth: AppSizes.formDialogMaxWidth,
       canClose: !_isSubmitting,
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+        ),
+        FilledButton.icon(
+          key: const ValueKey('invoiceDraftSaveButton'),
+          onPressed: _isSubmitting ? null : _submit,
+          icon: _isSubmitting
+              ? const SizedBox.square(
+                  dimension: AppSizes.loadingIndicatorSm,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                  ),
+                )
+              : const Icon(AppIcons.add),
+          label: Text(_isSubmitting ? strings.savingDraft : strings.saveDraft),
+        ),
+      ],
       child: Form(
         key: _formKey,
         child: Column(
@@ -95,25 +114,6 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-        ),
-        FilledButton.icon(
-          key: const ValueKey('invoiceDraftSaveButton'),
-          onPressed: _isSubmitting ? null : _submit,
-          icon: _isSubmitting
-              ? const SizedBox.square(
-                  dimension: AppSizes.loadingIndicatorSm,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
-                  ),
-                )
-              : const Icon(AppIcons.add),
-          label: Text(_isSubmitting ? strings.savingDraft : strings.saveDraft),
-        ),
-      ],
     );
   }
 

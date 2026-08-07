@@ -45,7 +45,9 @@ class AdaptiveAppDialog extends StatelessWidget {
                 children: [
                   Expanded(child: title),
                   IconButton(
-                    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).closeButtonTooltip,
                     onPressed: canClose
                         ? () => Navigator.of(context).pop()
                         : null,

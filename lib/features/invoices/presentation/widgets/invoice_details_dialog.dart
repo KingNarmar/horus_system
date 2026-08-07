@@ -50,9 +50,9 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       return AdaptiveAppDialog(
         title: Text(
           strings.invoiceDetails,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         maxWidth: AppSizes.detailsDialogMaxWidth,
         child: const Padding(
@@ -66,15 +66,11 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       return AdaptiveAppDialog(
         title: Text(
           strings.invoiceDetails,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         maxWidth: AppSizes.detailsDialogMaxWidth,
-        child: Text(
-          context.localizedInvoiceFailure(currentState.failure),
-          textAlign: TextAlign.center,
-        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -85,6 +81,10 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
             child: Text(context.l10n.retryButton),
           ),
         ],
+        child: Text(
+          context.localizedInvoiceFailure(currentState.failure),
+          textAlign: TextAlign.center,
+        ),
       );
     }
 
@@ -96,18 +96,18 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     return AdaptiveAppDialog(
       title: Text(
         _titleForView(strings, view),
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
       ),
       maxWidth: view == _InvoiceDetailsView.details
           ? AppSizes.detailsDialogMaxWidth
           : AppSizes.formDialogMaxWidth,
       canClose: !currentState.isMutationPending,
-      child: _contentForView(context, currentState, view),
       actions: view == _InvoiceDetailsView.details
           ? _detailsActions(context, currentState)
           : const [],
+      child: _contentForView(context, currentState, view),
     );
   }
 
@@ -231,10 +231,7 @@ final class _LoadedInvoiceDetails extends StatelessWidget {
           currencyFractionDigits: fractionDigits,
         ),
         const SizedBox(height: AppSpacing.xl),
-        _InvoiceLines(
-          invoice: invoice,
-          currencyFractionDigits: fractionDigits,
-        ),
+        _InvoiceLines(invoice: invoice, currencyFractionDigits: fractionDigits),
         const SizedBox(height: AppSpacing.xl),
         _InvoiceActivity(state: state),
         if (state.mutationFailure != null) ...[
@@ -270,7 +267,10 @@ final class _InvoiceSummary extends StatelessWidget {
           label: strings.number,
           value: invoice.number?.value ?? strings.draftNumber,
         ),
-        AdaptiveDetailRow(label: strings.customer, value: invoice.customer.name),
+        AdaptiveDetailRow(
+          label: strings.customer,
+          value: invoice.customer.name,
+        ),
         AdaptiveDetailRow(
           label: strings.status,
           value: invoice.status.localizedLabel(strings),
@@ -520,7 +520,9 @@ final class _MoneyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeName = Localizations.localeOf(context).toLanguageTag();
-    final style = emphasized ? const TextStyle(fontWeight: FontWeight.bold) : null;
+    final style = emphasized
+        ? const TextStyle(fontWeight: FontWeight.bold)
+        : null;
     return AdaptiveDetailRow(
       label: label,
       labelStyle: style,

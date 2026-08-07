@@ -101,7 +101,9 @@ void main() {
     expect(find.byType(Dialog), findsOneWidget);
     expect(find.byType(AlertDialog), findsNothing);
 
-    final cancelButton = find.byKey(const ValueKey('invoiceCancelActionButton'));
+    final cancelButton = find.byKey(
+      const ValueKey('invoiceCancelActionButton'),
+    );
     await tester.ensureVisible(cancelButton);
     await tester.pumpAndSettle();
     await tester.tap(cancelButton);
