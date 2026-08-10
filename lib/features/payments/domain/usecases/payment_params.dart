@@ -12,6 +12,12 @@ final class GetPayableInvoicesParams {
   const GetPayableInvoicesParams({required this.currentCompanyContext});
 }
 
+final class GetPaymentBusinessDateParams {
+  final CurrentCompanyContext currentCompanyContext;
+
+  const GetPaymentBusinessDateParams({required this.currentCompanyContext});
+}
+
 final class RegisterPaymentParams {
   final CurrentCompanyContext currentCompanyContext;
   final String invoiceId;
