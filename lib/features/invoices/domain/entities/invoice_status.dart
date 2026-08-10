@@ -1,6 +1,8 @@
 enum InvoiceStatus {
   draft('draft'),
   issued('issued'),
+  partiallyPaid('partially_paid'),
+  paid('paid'),
   cancelled('cancelled');
 
   final String value;
