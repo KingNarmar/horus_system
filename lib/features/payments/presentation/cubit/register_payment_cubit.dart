@@ -73,6 +73,11 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
     );
   }
 
+  Future<void> retryLoad() async {
+    final context = _currentCompanyContext;
+    if (context != null) await load(context);
+  }
+
   Future<bool> submit({
     required String invoiceId,
     required String paymentMethodId,
