@@ -13,6 +13,10 @@ abstract final class PaymentAmountParser {
 
     var normalized = _normalizeDigits(rawValue.trim());
     normalized = normalized.replaceAll('٫', '.').replaceAll('٬', ',');
+
+    final isNegative = normalized.startsWith('-');
+    if (isNegative) normalized = normalized.substring(1);
+
     normalized = _normalizeGrouping(normalized);
     if (normalized.isEmpty) return null;
     if (normalized.startsWith('.')) normalized = '0$normalized';
@@ -32,9 +36,10 @@ abstract final class PaymentAmountParser {
     );
     if (whole == null || fraction == null) return null;
 
-    final minorUnits = whole * scale + fraction;
-    if (minorUnits > _maxMinorUnits) return null;
+    final absoluteMinorUnits = whole * scale + fraction;
+    if (absoluteMinorUnits > _maxMinorUnits) return null;
 
+    final minorUnits = isNegative ? -absoluteMinorUnits : absoluteMinorUnits;
     return Money(minorUnits: minorUnits.toInt(), currency: currency);
   }
 
