@@ -9,8 +9,11 @@ abstract final class PaymentFailureCodes {
   static const validationAmountInvalid = 'validation_payment_amount_invalid';
   static const validationAmountPositive =
       'validation_payment_amount_positive';
+  static const validationCurrencyInvalid =
+      'validation_payment_currency_invalid';
   static const validationCurrencyMismatch =
       'validation_payment_currency_mismatch';
+  static const validationDateRequired = 'validation_payment_date_required';
   static const validationDateBeforeInvoice =
       'validation_payment_date_before_invoice';
   static const validationDateFuture = 'validation_payment_date_future';
