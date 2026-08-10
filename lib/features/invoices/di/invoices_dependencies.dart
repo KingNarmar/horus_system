@@ -1,4 +1,5 @@
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../audit/di/audit_dependencies.dart';
 import '../../company/di/company_dependencies.dart';
 import '../data/datasources/invoice_settings_remote_data_source.dart';
 import '../data/datasources/invoices_remote_data_source.dart';
@@ -10,6 +11,8 @@ import '../domain/usecases/invoice_draft_usecases.dart';
 import '../domain/usecases/invoice_lifecycle_usecases.dart';
 import '../domain/usecases/invoice_query_usecases.dart';
 import '../domain/usecases/invoice_settings_usecases.dart';
+import '../presentation/cubit/invoice_details_cubit.dart';
+import '../presentation/cubit/invoices_cubit.dart';
 
 abstract final class InvoicesDependencies {
   static InvoicesRepository createRepository() {
@@ -65,5 +68,28 @@ abstract final class InvoicesDependencies {
 
   static UpdateInvoiceSettingsUseCase createUpdateSettingsUseCase() {
     return UpdateInvoiceSettingsUseCase(createSettingsRepository());
+  }
+
+  static InvoiceDetailsCubit createInvoiceDetailsCubit() {
+    final repository = createRepository();
+    return InvoiceDetailsCubit(
+      getInvoiceDetailsUseCase: GetInvoiceDetailsUseCase(repository),
+      issueInvoiceUseCase: IssueInvoiceUseCase(
+        repository,
+        businessDateProvider: CompanyDependencies.createBusinessDateProvider(),
+      ),
+      cancelInvoiceUseCase: CancelInvoiceUseCase(repository),
+      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
+    );
+  }
+
+  static InvoicesCubit createInvoicesCubit() {
+    final repository = createRepository();
+    return InvoicesCubit(
+      getInvoicesUseCase: GetInvoicesUseCase(repository),
+      getBillableTripsUseCase: GetBillableTripsUseCase(repository),
+      createInvoiceFromTripUseCase: CreateInvoiceFromTripUseCase(repository),
+      updateInvoiceDraftUseCase: UpdateInvoiceDraftUseCase(repository),
+    );
   }
 }

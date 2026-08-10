@@ -3,6 +3,9 @@ import 'billable_trip.dart';
 
 final class InvoiceTripLine {
   final String tripId;
+  final String? tripNumber;
+  final String? loadingLocation;
+  final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
   final DateTime? serviceDate;
@@ -11,6 +14,9 @@ final class InvoiceTripLine {
 
   const InvoiceTripLine({
     required this.tripId,
+    this.tripNumber,
+    this.loadingLocation,
+    this.unloadingLocation,
     this.loadingOrderNumber,
     this.waybillNumber,
     this.serviceDate,
@@ -21,6 +27,9 @@ final class InvoiceTripLine {
   factory InvoiceTripLine.fromBillableTrip(BillableTrip trip) {
     return InvoiceTripLine(
       tripId: trip.id,
+      tripNumber: trip.tripNumber,
+      loadingLocation: trip.loadingLocation,
+      unloadingLocation: trip.unloadingLocation,
       loadingOrderNumber: trip.loadingOrderNumber,
       waybillNumber: trip.waybillNumber,
       serviceDate: trip.serviceDate,
@@ -34,6 +43,9 @@ final class InvoiceTripLine {
     return identical(this, other) ||
         other is InvoiceTripLine &&
             other.tripId == tripId &&
+            other.tripNumber == tripNumber &&
+            other.loadingLocation == loadingLocation &&
+            other.unloadingLocation == unloadingLocation &&
             other.loadingOrderNumber == loadingOrderNumber &&
             other.waybillNumber == waybillNumber &&
             other.serviceDate == serviceDate &&
@@ -44,6 +56,9 @@ final class InvoiceTripLine {
   @override
   int get hashCode => Object.hash(
     tripId,
+    tripNumber,
+    loadingLocation,
+    unloadingLocation,
     loadingOrderNumber,
     waybillNumber,
     serviceDate,

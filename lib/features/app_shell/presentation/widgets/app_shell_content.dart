@@ -23,6 +23,9 @@ import '../../../driver_settlements/presentation/pages/driver_settlements_page.d
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
+import '../../../invoices/di/invoices_dependencies.dart';
+import '../../../invoices/presentation/cubit/invoices_cubit.dart';
+import '../../../invoices/presentation/pages/invoices_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
@@ -87,6 +90,10 @@ class AppShellContent extends StatelessWidget {
       AppShellModule.driverSettlements => BlocProvider<DriverSettlementsCubit>(
         create: (_) => DriverSettlementsDependencies.createCubit(),
         child: DriverSettlementsPage(currentCompanyContext: contextData),
+      ),
+      AppShellModule.invoices => BlocProvider<InvoicesCubit>(
+        create: (_) => InvoicesDependencies.createInvoicesCubit(),
+        child: InvoicesPage(currentCompanyContext: contextData),
       ),
       AppShellModule.settings => _SettingsCard(contextData: contextData),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),

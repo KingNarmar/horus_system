@@ -8,6 +8,10 @@ final class BillableTrip {
   final TripStatus status;
   final Money freightAmount;
   final bool isAlreadyInvoiced;
+  final String? tripNumber;
+  final String? customerName;
+  final String? loadingLocation;
+  final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
   final DateTime? serviceDate;
@@ -20,6 +24,10 @@ final class BillableTrip {
     required this.status,
     required this.freightAmount,
     required this.isAlreadyInvoiced,
+    this.tripNumber,
+    this.customerName,
+    this.loadingLocation,
+    this.unloadingLocation,
     this.loadingOrderNumber,
     this.waybillNumber,
     this.serviceDate,

@@ -14,6 +14,9 @@ extension InvoiceTripLineModelMapper on InvoiceTripLineModel {
 
     return InvoiceTripLine(
       tripId: tripId,
+      tripNumber: tripNumber,
+      loadingLocation: loadingLocation,
+      unloadingLocation: unloadingLocation,
       loadingOrderNumber: loadingOrderNumber,
       waybillNumber: waybillNumber,
       serviceDate: serviceDate,
