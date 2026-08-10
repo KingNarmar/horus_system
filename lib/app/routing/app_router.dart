@@ -50,6 +50,7 @@ abstract final class AppRouter {
       AppRoutes.expenses => AppShellModule.expenses,
       AppRoutes.driverSettlements => AppShellModule.driverSettlements,
       AppRoutes.invoices => AppShellModule.invoices,
+      AppRoutes.payments => AppShellModule.payments,
       AppRoutes.reports => AppShellModule.reports,
       AppRoutes.settings => AppShellModule.settings,
       _ => AppShellModule.dashboard,
