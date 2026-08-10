@@ -11,6 +11,7 @@ import '../../../payment_methods/domain/entities/payment_method.dart';
 import '../../../payment_methods/domain/repositories/payment_methods_repository.dart';
 import '../entities/payable_invoice.dart';
 import '../entities/payment.dart';
+import '../entities/payment_balance.dart';
 import '../failures/payment_failure_codes.dart';
 import '../policies/payments_permission_policy.dart';
 import '../repositories/payments_repository.dart';
@@ -55,7 +56,9 @@ final class GetPayableInvoicesUseCase
        _balanceCalculator = balanceCalculator;
 
   @override
-  Future<Result<List<PayableInvoice>>> call(GetPayableInvoicesParams params) async {
+  Future<Result<List<PayableInvoice>>> call(
+    GetPayableInvoicesParams params,
+  ) async {
     final context = params.currentCompanyContext;
     if (!PaymentsPermissionPolicy.canViewPayments(context.role)) {
       return const FailureResult<List<PayableInvoice>>(
@@ -67,14 +70,14 @@ final class GetPayableInvoicesUseCase
       companyId: context.companyId,
     );
     if (invoicesResult is FailureResult<List<Invoice>>) {
-      return FailureResult(invoicesResult.failure);
+      return FailureResult<List<PayableInvoice>>(invoicesResult.failure);
     }
 
     final paymentsResult = await _paymentsRepository.getPayments(
       companyId: context.companyId,
     );
     if (paymentsResult is FailureResult<List<Payment>>) {
-      return FailureResult(paymentsResult.failure);
+      return FailureResult<List<PayableInvoice>>(paymentsResult.failure);
     }
 
     final invoices = (invoicesResult as Success<List<Invoice>>).data;
@@ -88,22 +91,43 @@ final class GetPayableInvoicesUseCase
         invoice: invoice,
         payments: payments.where((payment) => payment.invoiceId == invoice.id),
       );
-      if (balanceResult is FailureResult) {
-        return FailureResult(balanceResult.failure);
+      if (balanceResult is FailureResult<PaymentBalance>) {
+        return FailureResult<List<PayableInvoice>>(balanceResult.failure);
       }
 
-      final balance = (balanceResult as Success).data;
+      final balance = (balanceResult as Success<PaymentBalance>).data;
       if (balance.remaining.isPositive) {
         payableInvoices.add(PayableInvoice(invoice: invoice, balance: balance));
       }
     }
 
-    return Success(List.unmodifiable(payableInvoices));
+    return Success<List<PayableInvoice>>(List.unmodifiable(payableInvoices));
   }
 
   bool _isPayableStatus(InvoiceStatus status) {
     return status == InvoiceStatus.issued ||
         status == InvoiceStatus.partiallyPaid;
+  }
+}
+
+final class GetPaymentBusinessDateUseCase
+    implements UseCase<DateTime, GetPaymentBusinessDateParams> {
+  final CompanyBusinessDateProvider _businessDateProvider;
+
+  const GetPaymentBusinessDateUseCase(this._businessDateProvider);
+
+  @override
+  Future<Result<DateTime>> call(GetPaymentBusinessDateParams params) {
+    final context = params.currentCompanyContext;
+    if (!PaymentsPermissionPolicy.canRegisterPayments(context.role)) {
+      return Future.value(
+        const FailureResult<DateTime>(
+          PermissionFailure(code: PaymentFailureCodes.permissionManage),
+        ),
+      );
+    }
+
+    return _businessDateProvider.getBusinessDate(companyId: context.companyId);
   }
 }
 
@@ -158,7 +182,7 @@ final class RegisterPaymentUseCase
       invoiceId: invoiceId,
     );
     if (invoiceResult is FailureResult<Invoice>) {
-      return FailureResult(invoiceResult.failure);
+      return FailureResult<Payment>(invoiceResult.failure);
     }
     final invoice = (invoiceResult as Success<Invoice>).data;
 
@@ -228,7 +252,7 @@ final class RegisterPaymentUseCase
       companyId: context.companyId,
     );
     if (businessDateResult is FailureResult<DateTime>) {
-      return FailureResult(businessDateResult.failure);
+      return FailureResult<Payment>(businessDateResult.failure);
     }
     final businessDate = _dateOnly(
       (businessDateResult as Success<DateTime>).data,
@@ -239,11 +263,11 @@ final class RegisterPaymentUseCase
       );
     }
 
-    final methodsResult = await _paymentMethodsRepository.getActivePaymentMethods(
+    final methodsResult = await _paymentMethodsRepository.getPaymentMethods(
       companyId: context.companyId,
     );
     if (methodsResult is FailureResult<List<PaymentMethod>>) {
-      return FailureResult(methodsResult.failure);
+      return FailureResult<Payment>(methodsResult.failure);
     }
     final methods = (methodsResult as Success<List<PaymentMethod>>).data;
     PaymentMethod? selectedMethod;
@@ -271,17 +295,17 @@ final class RegisterPaymentUseCase
       invoiceId: invoiceId,
     );
     if (paymentsResult is FailureResult<List<Payment>>) {
-      return FailureResult(paymentsResult.failure);
+      return FailureResult<Payment>(paymentsResult.failure);
     }
 
     final balanceResult = _balanceCalculator.calculate(
       invoice: invoice,
       payments: (paymentsResult as Success<List<Payment>>).data,
     );
-    if (balanceResult is FailureResult) {
-      return FailureResult(balanceResult.failure);
+    if (balanceResult is FailureResult<PaymentBalance>) {
+      return FailureResult<Payment>(balanceResult.failure);
     }
-    final balance = (balanceResult as Success).data;
+    final balance = (balanceResult as Success<PaymentBalance>).data;
     if (amount.minorUnits > balance.remaining.minorUnits) {
       return const FailureResult<Payment>(
         ConflictFailure(code: PaymentFailureCodes.conflictOverpayment),
