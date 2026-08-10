@@ -199,7 +199,11 @@ class _MethodsTable extends StatelessWidget {
               (method) => DataRow(
                 cells: [
                   DataCell(Text(method.name)),
-                  DataCell(Chip(label: Text(method.isActive ? l10n.active : l10n.inactive))),
+                  DataCell(
+                    Chip(
+                      label: Text(method.isActive ? l10n.active : l10n.inactive),
+                    ),
+                  ),
                   if (state.canManagePaymentMethods)
                     DataCell(
                       _MethodActions(
@@ -298,7 +302,6 @@ class _MethodActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.paymentMethodsL10n;
     final isPending = state.pendingActionPaymentMethodId == method.id;
-    final statusActionBlocked = state.pendingActionPaymentMethodId != null;
 
     if (isPending) {
       return const SizedBox(
@@ -315,12 +318,12 @@ class _MethodActions extends StatelessWidget {
       children: [
         IconButton(
           tooltip: l10n.edit,
-          onPressed: state.isSubmitting ? null : () => onEdit(method),
+          onPressed: state.isMutationPending ? null : () => onEdit(method),
           icon: const Icon(AppIcons.edit),
         ),
         IconButton(
           tooltip: method.isActive ? l10n.deactivate : l10n.reactivate,
-          onPressed: statusActionBlocked || state.isSubmitting
+          onPressed: state.isMutationPending
               ? null
               : () => method.isActive
                     ? onDeactivate(method)

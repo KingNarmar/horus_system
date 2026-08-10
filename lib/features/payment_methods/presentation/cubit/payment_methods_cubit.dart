@@ -136,7 +136,7 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
     final currentState = state;
     if (context == null ||
         currentState is! PaymentMethodsLoaded ||
-        currentState.isSubmitting) {
+        currentState.isMutationPending) {
       return false;
     }
 
@@ -186,8 +186,11 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
   }) async {
     final context = _currentCompanyContext;
     final currentState = state;
-    if (context == null || currentState is! PaymentMethodsLoaded) return false;
-    if (currentState.pendingActionPaymentMethodId != null) return false;
+    if (context == null ||
+        currentState is! PaymentMethodsLoaded ||
+        currentState.isMutationPending) {
+      return false;
+    }
 
     final companyId = context.companyId;
     emit(

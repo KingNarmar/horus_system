@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/payment_methods/domain/entities/payment_method.dart';
@@ -8,6 +10,7 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
   List<PaymentMethod> methods = const [];
   List<PaymentMethod> activeMethods = const [];
   Failure? nextFailure;
+  Completer<Result<PaymentMethod>>? mutationCompleter;
   PaymentMethodWriteData? lastWriteData;
   String? lastActorRole;
   String? lastPaymentMethodId;
@@ -46,6 +49,10 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
     lastActorRole = actorRole;
     final failure = nextFailure;
     if (failure != null) return FailureResult(failure);
+
+    final pendingMutation = mutationCompleter;
+    if (pendingMutation != null) return pendingMutation.future;
+
     return Success(
       PaymentMethod(
         id: 'method-new',
@@ -67,6 +74,10 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
     lastActorRole = actorRole;
     final failure = nextFailure;
     if (failure != null) return FailureResult(failure);
+
+    final pendingMutation = mutationCompleter;
+    if (pendingMutation != null) return pendingMutation.future;
+
     return Success(
       PaymentMethod(
         id: paymentMethodId,
@@ -82,7 +93,7 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
     required String companyId,
     required String paymentMethodId,
     required String actorRole,
-  }) async {
+  }) {
     return _changeStatus(
       companyId: companyId,
       paymentMethodId: paymentMethodId,
@@ -96,7 +107,7 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
     required String companyId,
     required String paymentMethodId,
     required String actorRole,
-  }) async {
+  }) {
     return _changeStatus(
       companyId: companyId,
       paymentMethodId: paymentMethodId,
@@ -105,17 +116,20 @@ final class FakePaymentMethodsRepository implements PaymentMethodsRepository {
     );
   }
 
-  Result<PaymentMethod> _changeStatus({
+  Future<Result<PaymentMethod>> _changeStatus({
     required String companyId,
     required String paymentMethodId,
     required String actorRole,
     required bool isActive,
-  }) {
+  }) async {
     lastCompanyId = companyId;
     lastPaymentMethodId = paymentMethodId;
     lastActorRole = actorRole;
     final failure = nextFailure;
     if (failure != null) return FailureResult(failure);
+
+    final pendingMutation = mutationCompleter;
+    if (pendingMutation != null) return pendingMutation.future;
 
     String name = 'Method';
     for (final method in methods) {

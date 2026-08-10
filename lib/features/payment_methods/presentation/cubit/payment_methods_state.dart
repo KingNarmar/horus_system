@@ -52,6 +52,9 @@ final class PaymentMethodsLoaded extends PaymentMethodsState {
       .where(statusFilter.matches)
       .toList(growable: false);
 
+  bool get isMutationPending =>
+      isSubmitting || pendingActionPaymentMethodId != null;
+
   PaymentMethodsLoaded copyWith({
     List<PaymentMethod>? allMethods,
     PaymentMethodStatusFilter? statusFilter,

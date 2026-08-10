@@ -155,7 +155,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           children: [
             _PageHeader(
               canManage: loadedState?.canManagePaymentMethods ?? false,
-              isSubmitting: loadedState?.isSubmitting ?? false,
+              isBusy: loadedState?.isMutationPending ?? false,
               onAdd: _openForm,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -178,12 +178,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
 class _PageHeader extends StatelessWidget {
   final bool canManage;
-  final bool isSubmitting;
+  final bool isBusy;
   final VoidCallback onAdd;
 
   const _PageHeader({
     required this.canManage,
-    required this.isSubmitting,
+    required this.isBusy,
     required this.onAdd,
   });
 
@@ -191,7 +191,7 @@ class _PageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.paymentMethodsL10n;
     final addButton = FilledButton.icon(
-      onPressed: isSubmitting ? null : onAdd,
+      onPressed: isBusy ? null : onAdd,
       icon: const Icon(AppIcons.add),
       label: Text(l10n.addMethod),
     );

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -88,6 +91,80 @@ void main() {
       FailureCodes.conflictPaymentMethodDuplicateName,
     );
     expect(loaded.isSubmitting, isFalse);
+    await cubit.close();
+  });
+
+  test('submit mutation blocks status mutation until it completes', () async {
+    const cash = PaymentMethod(
+      id: 'cash',
+      companyId: 'company-1',
+      name: 'Cash',
+      isActive: true,
+    );
+    final completer = Completer<Result<PaymentMethod>>();
+    final repository = FakePaymentMethodsRepository()
+      ..methods = const [cash]
+      ..mutationCompleter = completer;
+    final cubit = _cubit(repository);
+    await cubit.loadPaymentMethods(_context());
+
+    final addFuture = cubit.addPaymentMethod('Card');
+    final pending = cubit.state as PaymentMethodsLoaded;
+    expect(pending.isSubmitting, isTrue);
+    expect(pending.isMutationPending, isTrue);
+
+    final statusSucceeded = await cubit.deactivatePaymentMethod(cash);
+    expect(statusSucceeded, isFalse);
+
+    completer.complete(
+      const Success(
+        PaymentMethod(
+          id: 'card',
+          companyId: 'company-1',
+          name: 'Card',
+          isActive: true,
+        ),
+      ),
+    );
+    expect(await addFuture, isTrue);
+    expect((cubit.state as PaymentMethodsLoaded).isMutationPending, isFalse);
+    await cubit.close();
+  });
+
+  test('status mutation blocks submit mutation until it completes', () async {
+    const cash = PaymentMethod(
+      id: 'cash',
+      companyId: 'company-1',
+      name: 'Cash',
+      isActive: true,
+    );
+    final completer = Completer<Result<PaymentMethod>>();
+    final repository = FakePaymentMethodsRepository()
+      ..methods = const [cash]
+      ..mutationCompleter = completer;
+    final cubit = _cubit(repository);
+    await cubit.loadPaymentMethods(_context());
+
+    final deactivateFuture = cubit.deactivatePaymentMethod(cash);
+    final pending = cubit.state as PaymentMethodsLoaded;
+    expect(pending.pendingActionPaymentMethodId, 'cash');
+    expect(pending.isMutationPending, isTrue);
+
+    final addSucceeded = await cubit.addPaymentMethod('Card');
+    expect(addSucceeded, isFalse);
+
+    completer.complete(
+      const Success(
+        PaymentMethod(
+          id: 'cash',
+          companyId: 'company-1',
+          name: 'Cash',
+          isActive: false,
+        ),
+      ),
+    );
+    expect(await deactivateFuture, isTrue);
+    expect((cubit.state as PaymentMethodsLoaded).isMutationPending, isFalse);
     await cubit.close();
   });
 }

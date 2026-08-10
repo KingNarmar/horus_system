@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/validators/app_validators.dart';
 import '../../domain/entities/payment_method.dart';
 import '../localization/payment_methods_localizations.dart';
 
@@ -72,12 +73,9 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
               labelText: l10n.nameLabel,
               hintText: l10n.nameHint,
             ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return l10n.nameRequired;
-              }
-              return null;
-            },
+            validator: (value) => AppValidators.hasRequiredText(value)
+                ? null
+                : l10n.nameRequired,
           ),
         ),
       ),
