@@ -74,10 +74,7 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
   Future<bool> addPaymentMethod(String name) {
     return _submitMutation(
       execute: (context) => addPaymentMethodUseCase(
-        AddPaymentMethodParams(
-          currentCompanyContext: context,
-          name: name,
-        ),
+        AddPaymentMethodParams(currentCompanyContext: context, name: name),
       ),
       mutation: PaymentMethodMutation.created,
     );
@@ -283,7 +280,8 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
   List<PaymentMethod> _sortMethods(Iterable<PaymentMethod> methods) {
     final sorted = methods.toList();
     sorted.sort(
-      (left, right) => left.name.toLowerCase().compareTo(right.name.toLowerCase()),
+      (left, right) =>
+          left.name.toLowerCase().compareTo(right.name.toLowerCase()),
     );
     return sorted;
   }

@@ -60,7 +60,9 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
         widget.paymentMethod == null ? l10n.addMethod : l10n.editMethod,
       ),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: Form(
           key: _formKey,
           child: TextFormField(
@@ -73,9 +75,8 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
               labelText: l10n.nameLabel,
               hintText: l10n.nameHint,
             ),
-            validator: (value) => AppValidators.hasRequiredText(value)
-                ? null
-                : l10n.nameRequired,
+            validator: (value) =>
+                AppValidators.hasRequiredText(value) ? null : l10n.nameRequired,
           ),
         ),
       ),

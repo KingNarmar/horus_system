@@ -24,15 +24,18 @@ void main() {
     expect(submitCalls, 0);
   });
 
-  test('feature localization contains matching English and Arabic concepts', () {
-    final english = PaymentMethodsLocalizations.forLocale(const Locale('en'));
-    final arabic = PaymentMethodsLocalizations.forLocale(const Locale('ar'));
+  test(
+    'feature localization contains matching English and Arabic concepts',
+    () {
+      final english = PaymentMethodsLocalizations.forLocale(const Locale('en'));
+      final arabic = PaymentMethodsLocalizations.forLocale(const Locale('ar'));
 
-    expect(english.title, 'Payment methods');
-    expect(arabic.title, 'طرق الدفع');
-    expect(english.addMethod, isNotEmpty);
-    expect(arabic.addMethod, isNotEmpty);
-    expect(english.duplicateNameFailure, isNotEmpty);
-    expect(arabic.duplicateNameFailure, isNotEmpty);
-  });
+      expect(english.title, 'Payment methods');
+      expect(arabic.title, 'طرق الدفع');
+      expect(english.addMethod, isNotEmpty);
+      expect(arabic.addMethod, isNotEmpty);
+      expect(english.duplicateNameFailure, isNotEmpty);
+      expect(arabic.duplicateNameFailure, isNotEmpty);
+    },
+  );
 }

@@ -31,7 +31,8 @@ class PaymentMethodsStateView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.paymentMethodsL10n;
     return switch (state) {
-      PaymentMethodsInitial() || PaymentMethodsLoading() => _Loading(l10n: l10n),
+      PaymentMethodsInitial() ||
+      PaymentMethodsLoading() => _Loading(l10n: l10n),
       PaymentMethodsFailure(:final failure) => _Failure(
         message: paymentMethodsFailureMessage(failure, l10n),
         onRetry: onRetry,
@@ -129,7 +130,9 @@ class _Loaded extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (methods.isEmpty)
-          Text(state.allMethods.isEmpty ? l10n.noMethods : l10n.noFilteredMethods)
+          Text(
+            state.allMethods.isEmpty ? l10n.noMethods : l10n.noFilteredMethods,
+          )
         else
           LayoutBuilder(
             builder: (context, constraints) {
@@ -201,7 +204,9 @@ class _MethodsTable extends StatelessWidget {
                   DataCell(Text(method.name)),
                   DataCell(
                     Chip(
-                      label: Text(method.isActive ? l10n.active : l10n.inactive),
+                      label: Text(
+                        method.isActive ? l10n.active : l10n.inactive,
+                      ),
                     ),
                   ),
                   if (state.canManagePaymentMethods)
@@ -328,7 +333,9 @@ class _MethodActions extends StatelessWidget {
               : () => method.isActive
                     ? onDeactivate(method)
                     : onReactivate(method),
-          icon: Icon(method.isActive ? AppIcons.deactivate : AppIcons.reactivate),
+          icon: Icon(
+            method.isActive ? AppIcons.deactivate : AppIcons.reactivate,
+          ),
         ),
       ],
     );

@@ -48,9 +48,8 @@ final class PaymentMethodsLoaded extends PaymentMethodsState {
     this.feedbackSequence = 0,
   });
 
-  List<PaymentMethod> get visibleMethods => allMethods
-      .where(statusFilter.matches)
-      .toList(growable: false);
+  List<PaymentMethod> get visibleMethods =>
+      allMethods.where(statusFilter.matches).toList(growable: false);
 
   bool get isMutationPending =>
       isSubmitting || pendingActionPaymentMethodId != null;

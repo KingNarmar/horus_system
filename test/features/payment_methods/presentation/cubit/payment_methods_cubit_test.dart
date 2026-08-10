@@ -65,34 +65,37 @@ void main() {
     await cubit.close();
   });
 
-  test('mutation failure preserves loaded data and exposes typed failure', () async {
-    final repository = FakePaymentMethodsRepository()
-      ..methods = const [
-        PaymentMethod(
-          id: 'cash',
-          companyId: 'company-1',
-          name: 'Cash',
-          isActive: true,
-        ),
-      ];
-    final cubit = _cubit(repository);
-    await cubit.loadPaymentMethods(_context());
-    repository.nextFailure = const ConflictFailure(
-      code: FailureCodes.conflictPaymentMethodDuplicateName,
-    );
+  test(
+    'mutation failure preserves loaded data and exposes typed failure',
+    () async {
+      final repository = FakePaymentMethodsRepository()
+        ..methods = const [
+          PaymentMethod(
+            id: 'cash',
+            companyId: 'company-1',
+            name: 'Cash',
+            isActive: true,
+          ),
+        ];
+      final cubit = _cubit(repository);
+      await cubit.loadPaymentMethods(_context());
+      repository.nextFailure = const ConflictFailure(
+        code: FailureCodes.conflictPaymentMethodDuplicateName,
+      );
 
-    final succeeded = await cubit.addPaymentMethod('cash');
-    final loaded = cubit.state as PaymentMethodsLoaded;
+      final succeeded = await cubit.addPaymentMethod('cash');
+      final loaded = cubit.state as PaymentMethodsLoaded;
 
-    expect(succeeded, isFalse);
-    expect(loaded.allMethods.single.id, 'cash');
-    expect(
-      loaded.mutationFailure?.code,
-      FailureCodes.conflictPaymentMethodDuplicateName,
-    );
-    expect(loaded.isSubmitting, isFalse);
-    await cubit.close();
-  });
+      expect(succeeded, isFalse);
+      expect(loaded.allMethods.single.id, 'cash');
+      expect(
+        loaded.mutationFailure?.code,
+        FailureCodes.conflictPaymentMethodDuplicateName,
+      );
+      expect(loaded.isSubmitting, isFalse);
+      await cubit.close();
+    },
+  );
 
   test('submit mutation blocks status mutation until it completes', () async {
     const cash = PaymentMethod(

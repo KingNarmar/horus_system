@@ -36,7 +36,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentCompanyContext.companyId !=
             widget.currentCompanyContext.companyId ||
-        oldWidget.currentCompanyContext.role != widget.currentCompanyContext.role) {
+        oldWidget.currentCompanyContext.role !=
+            widget.currentCompanyContext.role) {
       context.read<PaymentMethodsCubit>().loadPaymentMethods(
         widget.currentCompanyContext,
       );
@@ -161,9 +162,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             const SizedBox(height: AppSpacing.lg),
             PaymentMethodsStateView(
               state: state,
-              onRetry: () => cubit.loadPaymentMethods(
-                widget.currentCompanyContext,
-              ),
+              onRetry: () =>
+                  cubit.loadPaymentMethods(widget.currentCompanyContext),
               onStatusFilterChanged: cubit.setStatusFilter,
               onEdit: (method) => _openForm(paymentMethod: method),
               onDeactivate: _deactivate,
@@ -217,10 +217,7 @@ class _PageHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Expanded(child: _HeaderText()),
-            if (canManage) ...[
-              const SizedBox(width: AppSpacing.md),
-              addButton,
-            ],
+            if (canManage) ...[const SizedBox(width: AppSpacing.md), addButton],
           ],
         );
       },

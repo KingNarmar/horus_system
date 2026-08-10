@@ -182,7 +182,9 @@ class SupabasePaymentMethodsRemoteDataSource
     List<Map<String, dynamic>> response,
   ) {
     return response
-        .map((item) => PaymentMethodModel.fromMap(Map<String, dynamic>.from(item)))
+        .map(
+          (item) => PaymentMethodModel.fromMap(Map<String, dynamic>.from(item)),
+        )
         .toList();
   }
 }

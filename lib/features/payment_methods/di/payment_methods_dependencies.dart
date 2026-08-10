@@ -28,8 +28,12 @@ abstract final class PaymentMethodsDependencies {
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(repository),
       addPaymentMethodUseCase: AddPaymentMethodUseCase(repository),
       updatePaymentMethodUseCase: UpdatePaymentMethodUseCase(repository),
-      deactivatePaymentMethodUseCase: DeactivatePaymentMethodUseCase(repository),
-      reactivatePaymentMethodUseCase: ReactivatePaymentMethodUseCase(repository),
+      deactivatePaymentMethodUseCase: DeactivatePaymentMethodUseCase(
+        repository,
+      ),
+      reactivatePaymentMethodUseCase: ReactivatePaymentMethodUseCase(
+        repository,
+      ),
     );
   }
 

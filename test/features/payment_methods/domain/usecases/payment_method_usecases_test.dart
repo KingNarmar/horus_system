@@ -124,27 +124,30 @@ void main() {
       expect(reactivated.dataOrNull?.isActive, isTrue);
     });
 
-    test('active methods use case calls active-only repository contract', () async {
-      final repository = FakePaymentMethodsRepository()
-        ..activeMethods = const [
-          PaymentMethod(
-            id: 'cash',
-            companyId: 'company-1',
-            name: 'Cash',
-            isActive: true,
+    test(
+      'active methods use case calls active-only repository contract',
+      () async {
+        final repository = FakePaymentMethodsRepository()
+          ..activeMethods = const [
+            PaymentMethod(
+              id: 'cash',
+              companyId: 'company-1',
+              name: 'Cash',
+              isActive: true,
+            ),
+          ];
+        final result = await GetActivePaymentMethodsUseCase(repository)(
+          GetActivePaymentMethodsParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
           ),
-        ];
-      final result = await GetActivePaymentMethodsUseCase(repository)(
-        GetActivePaymentMethodsParams(
-          currentCompanyContext: _context(CompanyRole.accountant),
-        ),
-      );
+        );
 
-      expect(result.dataOrNull?.single.id, 'cash');
-      expect(repository.getActiveCalls, 1);
-      expect(repository.getAllCalls, 0);
-      expect(repository.lastCompanyId, 'company-1');
-    });
+        expect(result.dataOrNull?.single.id, 'cash');
+        expect(repository.getActiveCalls, 1);
+        expect(repository.getAllCalls, 0);
+        expect(repository.lastCompanyId, 'company-1');
+      },
+    );
   });
 }
 

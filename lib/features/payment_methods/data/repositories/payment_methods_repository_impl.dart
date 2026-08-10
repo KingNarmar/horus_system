@@ -34,50 +34,44 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   Future<Result<List<PaymentMethod>>> getPaymentMethods({
     required String companyId,
   }) {
-    return _guard(
-      () async {
-        final normalizedCompanyId = companyId.trim();
-        if (normalizedCompanyId.isEmpty) {
-          return const FailureResult<List<PaymentMethod>>(
-            ValidationFailure(
-              code: FailureCodes.validationCompanyIdRequired,
-              message: 'Company id is required.',
-            ),
-          );
-        }
-
-        final models = await remoteDataSource.getPaymentMethods(
-          companyId: normalizedCompanyId,
+    return _guard(() async {
+      final normalizedCompanyId = companyId.trim();
+      if (normalizedCompanyId.isEmpty) {
+        return const FailureResult<List<PaymentMethod>>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
         );
-        return Success(models.map((model) => model.toEntity()).toList());
-      },
-      permissionCode: FailureCodes.permissionPaymentMethodsView,
-    );
+      }
+
+      final models = await remoteDataSource.getPaymentMethods(
+        companyId: normalizedCompanyId,
+      );
+      return Success(models.map((model) => model.toEntity()).toList());
+    }, permissionCode: FailureCodes.permissionPaymentMethodsView);
   }
 
   @override
   Future<Result<List<PaymentMethod>>> getActivePaymentMethods({
     required String companyId,
   }) {
-    return _guard(
-      () async {
-        final normalizedCompanyId = companyId.trim();
-        if (normalizedCompanyId.isEmpty) {
-          return const FailureResult<List<PaymentMethod>>(
-            ValidationFailure(
-              code: FailureCodes.validationCompanyIdRequired,
-              message: 'Company id is required.',
-            ),
-          );
-        }
-
-        final models = await remoteDataSource.getActivePaymentMethods(
-          companyId: normalizedCompanyId,
+    return _guard(() async {
+      final normalizedCompanyId = companyId.trim();
+      if (normalizedCompanyId.isEmpty) {
+        return const FailureResult<List<PaymentMethod>>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
         );
-        return Success(models.map((model) => model.toEntity()).toList());
-      },
-      permissionCode: FailureCodes.permissionPaymentMethodsView,
-    );
+      }
+
+      final models = await remoteDataSource.getActivePaymentMethods(
+        companyId: normalizedCompanyId,
+      );
+      return Success(models.map((model) => model.toEntity()).toList());
+    }, permissionCode: FailureCodes.permissionPaymentMethodsView);
   }
 
   @override
@@ -85,18 +79,15 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
     required PaymentMethodWriteData data,
     required String actorRole,
   }) {
-    return _guard(
-      () async {
-        final model = await remoteDataSource.addPaymentMethod(data: data);
-        return _withAudit(
-          model: model,
-          actorRole: actorRole,
-          action: AuditAction.created,
-          description: _paymentMethodCreatedEvent,
-        );
-      },
-      permissionCode: FailureCodes.permissionPaymentMethodsManagement,
-    );
+    return _guard(() async {
+      final model = await remoteDataSource.addPaymentMethod(data: data);
+      return _withAudit(
+        model: model,
+        actorRole: actorRole,
+        action: AuditAction.created,
+        description: _paymentMethodCreatedEvent,
+      );
+    }, permissionCode: FailureCodes.permissionPaymentMethodsManagement);
   }
 
   @override
@@ -105,26 +96,23 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
     required PaymentMethodWriteData data,
     required String actorRole,
   }) {
-    return _guard(
-      () async {
-        final oldModel = await remoteDataSource.getPaymentMethodById(
-          companyId: data.companyId,
-          paymentMethodId: paymentMethodId,
-        );
-        final model = await remoteDataSource.updatePaymentMethod(
-          paymentMethodId: paymentMethodId,
-          data: data,
-        );
-        return _withAudit(
-          model: model,
-          actorRole: actorRole,
-          action: AuditAction.updated,
-          description: _paymentMethodUpdatedEvent,
-          oldValues: oldModel.toAuditValues(),
-        );
-      },
-      permissionCode: FailureCodes.permissionPaymentMethodsManagement,
-    );
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getPaymentMethodById(
+        companyId: data.companyId,
+        paymentMethodId: paymentMethodId,
+      );
+      final model = await remoteDataSource.updatePaymentMethod(
+        paymentMethodId: paymentMethodId,
+        data: data,
+      );
+      return _withAudit(
+        model: model,
+        actorRole: actorRole,
+        action: AuditAction.updated,
+        description: _paymentMethodUpdatedEvent,
+        oldValues: oldModel.toAuditValues(),
+      );
+    }, permissionCode: FailureCodes.permissionPaymentMethodsManagement);
   }
 
   @override
@@ -171,26 +159,23 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
     })
     mutate,
   }) {
-    return _guard(
-      () async {
-        final oldModel = await remoteDataSource.getPaymentMethodById(
-          companyId: companyId,
-          paymentMethodId: paymentMethodId,
-        );
-        final model = await mutate(
-          companyId: companyId,
-          paymentMethodId: paymentMethodId,
-        );
-        return _withAudit(
-          model: model,
-          actorRole: actorRole,
-          action: action,
-          description: description,
-          oldValues: oldModel.toAuditValues(),
-        );
-      },
-      permissionCode: FailureCodes.permissionPaymentMethodsManagement,
-    );
+    return _guard(() async {
+      final oldModel = await remoteDataSource.getPaymentMethodById(
+        companyId: companyId,
+        paymentMethodId: paymentMethodId,
+      );
+      final model = await mutate(
+        companyId: companyId,
+        paymentMethodId: paymentMethodId,
+      );
+      return _withAudit(
+        model: model,
+        actorRole: actorRole,
+        action: action,
+        description: description,
+        oldValues: oldModel.toAuditValues(),
+      );
+    }, permissionCode: FailureCodes.permissionPaymentMethodsManagement);
   }
 
   Future<Result<PaymentMethod>> _withAudit({
