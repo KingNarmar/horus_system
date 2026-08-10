@@ -9,8 +9,8 @@ import '../../../payment_methods/domain/entities/payment_method.dart';
 import '../../../payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import '../../domain/entities/payment.dart';
 import '../../domain/policies/payments_permission_policy.dart';
+import '../../domain/usecases/get_payments_usecase.dart';
 import '../../domain/usecases/payment_params.dart';
-import '../../domain/usecases/payment_usecases.dart';
 import 'payments_state.dart';
 
 final class PaymentsCubit extends Cubit<PaymentsState> {
