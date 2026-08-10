@@ -3,29 +3,76 @@
 -- Replaces the unused legacy payments shape with the canonical minor-unit
 -- contract and applies least-privilege company-scoped read access. Audit and
 -- lifecycle RPCs are defined in focused follow-up migrations.
+--
+-- The live verification workflow may apply this canonical shape manually
+-- before migration history is synchronized. Existing rows are accepted only
+-- when the table is already canonical; legacy rows still stop the migration.
 
 BEGIN;
 
 DO $$
+DECLARE
+  v_has_rows boolean;
+  v_has_legacy_amount boolean;
+  v_has_minor_units boolean;
+  v_has_currency_code boolean;
 BEGIN
   IF pg_catalog.to_regclass('public.payments') IS NULL THEN
     RAISE EXCEPTION 'Payments migration stopped: public.payments is missing.';
   END IF;
 
-  IF EXISTS (SELECT 1 FROM public.payments LIMIT 1) THEN
+  SELECT EXISTS (SELECT 1 FROM public.payments LIMIT 1)
+  INTO v_has_rows;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM information_schema.columns column_row
+    WHERE column_row.table_schema = 'public'
+      AND column_row.table_name = 'payments'
+      AND column_row.column_name = 'amount'
+  )
+  INTO v_has_legacy_amount;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM information_schema.columns column_row
+    WHERE column_row.table_schema = 'public'
+      AND column_row.table_name = 'payments'
+      AND column_row.column_name = 'amount_minor_units'
+  )
+  INTO v_has_minor_units;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM information_schema.columns column_row
+    WHERE column_row.table_schema = 'public'
+      AND column_row.table_name = 'payments'
+      AND column_row.column_name = 'currency_code'
+  )
+  INTO v_has_currency_code;
+
+  IF v_has_rows
+     AND (
+       v_has_legacy_amount
+       OR NOT v_has_minor_units
+       OR NOT v_has_currency_code
+     ) THEN
     RAISE EXCEPTION
       'Payments migration stopped: public.payments contains legacy data and requires an explicit data migration.';
   END IF;
 END
 $$;
 
--- The legacy table is empty and unused. Align money storage with the shared
--- Money value object and make invoice/method links mandatory for Issue #27.
+-- Align money storage with the shared Money value object and make
+-- invoice/method links mandatory for Issue #27.
 DROP TRIGGER IF EXISTS payments_set_updated_at ON public.payments;
 
 ALTER TABLE public.payments
   DROP CONSTRAINT IF EXISTS payments_amount_positive,
+  DROP CONSTRAINT IF EXISTS payments_amount_minor_units_positive,
+  DROP CONSTRAINT IF EXISTS payments_currency_code_check,
   DROP CONSTRAINT IF EXISTS payments_invoice_tenant_fk,
+  DROP CONSTRAINT IF EXISTS payments_invoice_currency_tenant_fk,
   DROP CONSTRAINT IF EXISTS payments_customer_id_fkey,
   DROP CONSTRAINT IF EXISTS payments_payment_method_id_fkey,
   DROP CONSTRAINT IF EXISTS payments_company_customer_fk,
@@ -33,11 +80,13 @@ ALTER TABLE public.payments
 
 ALTER TABLE public.payments
   DROP COLUMN IF EXISTS amount,
-  ADD COLUMN amount_minor_units bigint NOT NULL,
-  ADD COLUMN currency_code text NOT NULL,
+  ADD COLUMN IF NOT EXISTS amount_minor_units bigint,
+  ADD COLUMN IF NOT EXISTS currency_code text,
   ALTER COLUMN invoice_id SET NOT NULL,
   ALTER COLUMN payment_method_id SET NOT NULL,
-  ALTER COLUMN payment_date DROP DEFAULT;
+  ALTER COLUMN payment_date DROP DEFAULT,
+  ALTER COLUMN amount_minor_units SET NOT NULL,
+  ALTER COLUMN currency_code SET NOT NULL;
 
 ALTER TABLE public.payments
   ADD CONSTRAINT payments_amount_minor_units_positive
@@ -66,6 +115,8 @@ DROP INDEX IF EXISTS public.idx_payments_company_id;
 DROP INDEX IF EXISTS public.idx_payments_customer_id;
 DROP INDEX IF EXISTS public.idx_payments_invoice_id;
 DROP INDEX IF EXISTS public.payments_company_invoice_idx;
+DROP INDEX IF EXISTS public.payments_company_customer_date_idx;
+DROP INDEX IF EXISTS public.payments_company_date_idx;
 
 CREATE INDEX payments_company_invoice_idx
   ON public.payments (company_id, invoice_id, created_at DESC);
