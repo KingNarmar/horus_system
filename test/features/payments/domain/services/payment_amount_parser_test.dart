@@ -62,13 +62,19 @@ void main() {
     );
   });
 
-  test('preserves zero for the use case to enforce positive amount rule', () {
-    final money = PaymentAmountParser.tryParse(
+  test('preserves non-positive values for the use case positive rule', () {
+    final zero = PaymentAmountParser.tryParse(
       rawValue: '0',
       currency: currency,
       fractionDigits: 2,
     );
+    final negative = PaymentAmountParser.tryParse(
+      rawValue: '-25.50',
+      currency: currency,
+      fractionDigits: 2,
+    );
 
-    expect(money?.minorUnits, 0);
+    expect(zero?.minorUnits, 0);
+    expect(negative?.minorUnits, -2550);
   });
 }
