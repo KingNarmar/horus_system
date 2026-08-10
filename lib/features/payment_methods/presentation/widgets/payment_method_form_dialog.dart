@@ -58,8 +58,8 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       title: Text(
         widget.paymentMethod == null ? l10n.addMethod : l10n.editMethod,
       ),
-      content: SizedBox(
-        width: AppSizes.formDialogMaxWidth,
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
         child: Form(
           key: _formKey,
           child: TextFormField(
