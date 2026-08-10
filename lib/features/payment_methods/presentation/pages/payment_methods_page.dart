@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/payment_method.dart';
@@ -134,7 +135,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.paymentMethodsL10n;
     return BlocConsumer<PaymentMethodsCubit, PaymentMethodsState>(
       listenWhen: (previous, current) {
         if (current is! PaymentMethodsLoaded) return false;
@@ -150,37 +150,13 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       builder: (context, state) {
         final cubit = context.read<PaymentMethodsCubit>();
         final loadedState = state is PaymentMethodsLoaded ? state : null;
-        final canManage = loadedState?.canManagePaymentMethods ?? false;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.title,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(l10n.description),
-                    ],
-                  ),
-                ),
-                if (canManage)
-                  FilledButton.icon(
-                    onPressed: loadedState!.isSubmitting
-                        ? null
-                        : () => _openForm(),
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.addMethod),
-                  ),
-              ],
+            _PageHeader(
+              canManage: loadedState?.canManagePaymentMethods ?? false,
+              isSubmitting: loadedState?.isSubmitting ?? false,
+              onAdd: _openForm,
             ),
             const SizedBox(height: AppSpacing.lg),
             PaymentMethodsStateView(
@@ -196,6 +172,80 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           ],
         );
       },
+    );
+  }
+}
+
+class _PageHeader extends StatelessWidget {
+  final bool canManage;
+  final bool isSubmitting;
+  final VoidCallback onAdd;
+
+  const _PageHeader({
+    required this.canManage,
+    required this.isSubmitting,
+    required this.onAdd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.paymentMethodsL10n;
+    final addButton = FilledButton.icon(
+      onPressed: isSubmitting ? null : onAdd,
+      icon: const Icon(AppIcons.add),
+      label: Text(l10n.addMethod),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stackHeader =
+            constraints.maxWidth < AppSizes.detailsStackBreakpoint;
+        if (stackHeader) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _HeaderText(),
+              if (canManage) ...[
+                const SizedBox(height: AppSpacing.md),
+                addButton,
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Expanded(child: _HeaderText()),
+            if (canManage) ...[
+              const SizedBox(width: AppSpacing.md),
+              addButton,
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _HeaderText extends StatelessWidget {
+  const _HeaderText();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.paymentMethodsL10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.title,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(l10n.description),
+      ],
     );
   }
 }
