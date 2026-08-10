@@ -8,6 +8,7 @@ enum AuditEntityType {
   expense,
   invoice,
   payment,
+  paymentMethod,
   companyUser,
   companySettings,
 }
@@ -24,6 +25,7 @@ extension AuditEntityTypeX on AuditEntityType {
       AuditEntityType.expense => 'expense',
       AuditEntityType.invoice => 'invoice',
       AuditEntityType.payment => 'payment',
+      AuditEntityType.paymentMethod => 'payment_method',
       AuditEntityType.companyUser => 'company_user',
       AuditEntityType.companySettings => 'company_settings',
     };

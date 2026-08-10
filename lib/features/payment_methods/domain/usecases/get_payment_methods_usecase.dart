@@ -1,0 +1,38 @@
+import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure_codes.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../../../../core/utils/result.dart';
+import '../../../company/domain/entities/current_company_context.dart';
+import '../entities/payment_method.dart';
+import '../policies/payment_methods_permission_policy.dart';
+import '../repositories/payment_methods_repository.dart';
+
+class GetPaymentMethodsParams {
+  final CurrentCompanyContext currentCompanyContext;
+
+  const GetPaymentMethodsParams({required this.currentCompanyContext});
+}
+
+class GetPaymentMethodsUseCase
+    implements UseCase<List<PaymentMethod>, GetPaymentMethodsParams> {
+  final PaymentMethodsRepository _repository;
+
+  const GetPaymentMethodsUseCase(this._repository);
+
+  @override
+  Future<Result<List<PaymentMethod>>> call(GetPaymentMethodsParams params) {
+    final context = params.currentCompanyContext;
+    if (!PaymentMethodsPermissionPolicy.canViewPaymentMethods(context.role)) {
+      return Future.value(
+        const FailureResult<List<PaymentMethod>>(
+          PermissionFailure(
+            code: FailureCodes.permissionPaymentMethodsView,
+            message: 'Payment methods view is not allowed.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getPaymentMethods(companyId: context.companyId);
+  }
+}

@@ -45,6 +45,10 @@ class FailureCodes {
   static const String permissionInvoicesView = 'permission_invoices_view';
   static const String permissionInvoicesIssue = 'permission_invoices_issue';
   static const String permissionInvoicesCancel = 'permission_invoices_cancel';
+  static const String permissionPaymentMethodsManagement =
+      'permission_payment_methods_management';
+  static const String permissionPaymentMethodsView =
+      'permission_payment_methods_view';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -156,9 +160,14 @@ class FailureCodes {
       'validation_invoice_tax_rate_out_of_range';
   static const String validationInvoiceTotalPositive =
       'validation_invoice_total_positive';
+  static const String validationPaymentMethodIdRequired =
+      'validation_payment_method_id_required';
+  static const String validationPaymentMethodNameRequired =
+      'validation_payment_method_name_required';
 
   // Not found
   static const String invoiceTripNotFound = 'invoice_trip_not_found';
+  static const String paymentMethodNotFound = 'payment_method_not_found';
 
   // Conflicts
   static const String conflictTripVehicleAlreadyOpen =
@@ -187,6 +196,8 @@ class FailureCodes {
       'conflict_invoice_trip_snapshot_changed';
   static const String conflictInvoiceTotalsMismatch =
       'conflict_invoice_totals_mismatch';
+  static const String conflictPaymentMethodDuplicateName =
+      'conflict_payment_method_duplicate_name';
 
   // Generic
   static const String serverError = 'server_error';
