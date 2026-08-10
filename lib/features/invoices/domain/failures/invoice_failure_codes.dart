@@ -12,6 +12,7 @@ abstract final class InvoiceFailureCodes {
       'conflict_invoice_settings_not_configured';
   static const conflictSequenceExhausted =
       'conflict_invoice_sequence_exhausted';
+  static const conflictHasPayments = 'conflict_invoice_has_payments';
   static const notFound = 'invoice_not_found';
   static const customerNotFound = 'invoice_customer_not_found';
 }
