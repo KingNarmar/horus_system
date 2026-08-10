@@ -8,7 +8,10 @@ import '../../payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import '../data/datasources/payments_remote_data_source.dart';
 import '../data/repositories/payments_repository_impl.dart';
 import '../domain/repositories/payments_repository.dart';
-import '../domain/usecases/payment_usecases.dart';
+import '../domain/usecases/get_payable_invoices_usecase.dart';
+import '../domain/usecases/get_payment_business_date_usecase.dart';
+import '../domain/usecases/get_payments_usecase.dart';
+import '../domain/usecases/register_payment_usecase.dart';
 import '../presentation/cubit/payments_cubit.dart';
 import '../presentation/cubit/register_payment_cubit.dart';
 
