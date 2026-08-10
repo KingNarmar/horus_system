@@ -2,6 +2,7 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/payment_method.dart';
 import '../entities/payment_method_write_data.dart';
