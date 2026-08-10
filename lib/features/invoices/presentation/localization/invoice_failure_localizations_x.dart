@@ -37,6 +37,7 @@ extension InvoiceFailureLocalizationsX on BuildContext {
         strings.dueDateBeforeIssueFailure,
       FailureCodes.validationInvoiceCancellationReasonRequired =>
         strings.cancellationReasonFailure,
+      InvoiceFailureCodes.conflictHasPayments => strings.invoiceHasPaymentsFailure,
       FailureCodes.conflictInvoiceStatusTransitionInvalid ||
       FailureCodes.conflictInvoiceIssuedImmutable =>
         strings.invalidStatusFailure,
