@@ -30,4 +30,5 @@ abstract final class InvoicesRpcErrorCodes {
   static const customerSnapshotChanged = 'P2637';
   static const tripSnapshotChanged = 'P2638';
   static const sequenceExhausted = 'P2639';
+  static const hasPayments = 'P2640';
 }
