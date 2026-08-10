@@ -45,8 +45,9 @@ abstract class InvoicesRepository {
     required String actorRole,
   });
 
-  /// Must cancel the invoice and restore its trips atomically inside one
-  /// company-scoped transaction. Payment restrictions belong to Issue #27.
+  /// Must reject invoices with registered payments and otherwise cancel the
+  /// invoice and restore its trips atomically inside one company-scoped
+  /// transaction.
   Future<Result<Invoice>> cancelInvoice({
     required String companyId,
     required String invoiceId,
