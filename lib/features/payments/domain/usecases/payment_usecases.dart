@@ -127,6 +127,17 @@ final class GetPaymentBusinessDateUseCase
       );
     }
 
+    if (!_hasValidRegionalSettings(context.company.baseCurrencyCode,
+        context.company.baseCurrencyFractionDigits)) {
+      return Future.value(
+        const FailureResult<DateTime>(
+          ConflictFailure(
+            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          ),
+        ),
+      );
+    }
+
     return _businessDateProvider.getBusinessDate(companyId: context.companyId);
   }
 }
@@ -199,7 +210,10 @@ final class RegisterPaymentUseCase
     final baseCurrency = CurrencyCode.tryParse(
       context.company.baseCurrencyCode ?? '',
     );
-    if (fractionDigits == null || baseCurrency == null) {
+    if (fractionDigits == null ||
+        fractionDigits < 0 ||
+        fractionDigits > 4 ||
+        baseCurrency == null) {
       return const FailureResult<Payment>(
         ConflictFailure(
           code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
@@ -322,6 +336,13 @@ final class RegisterPaymentUseCase
       notes: _optional(params.notes),
     );
   }
+}
+
+bool _hasValidRegionalSettings(String? currencyCode, int? fractionDigits) {
+  return CurrencyCode.tryParse(currencyCode ?? '') != null &&
+      fractionDigits != null &&
+      fractionDigits >= 0 &&
+      fractionDigits <= 4;
 }
 
 String? _required(String value) {
