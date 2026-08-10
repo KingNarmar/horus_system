@@ -31,16 +31,7 @@ final class RegisterPaymentDialog extends StatelessWidget {
                 const Center(child: CircularProgressIndicator()),
               RegisterPaymentFailure(:final failure) => _LoadFailure(
                 message: paymentsFailureMessage(context, failure),
-                onRetry: () {
-                  final currentState = context.read<RegisterPaymentCubit>();
-                  final failedContext = switch (state) {
-                    RegisterPaymentFailure() => null,
-                    _ => null,
-                  };
-                  if (failedContext == null) {
-                    Navigator.of(context).pop(false);
-                  }
-                },
+                onRetry: context.read<RegisterPaymentCubit>().retryLoad,
               ),
               RegisterPaymentReady() => _RegisterPaymentForm(state: state),
             };
@@ -59,15 +50,23 @@ final class _LoadFailure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = context.paymentsL10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(message),
         const SizedBox(height: AppSpacing.lg),
-        FilledButton(
-          onPressed: onRetry,
-          child: Text(context.paymentsL10n.cancel),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(strings.cancel),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            FilledButton(onPressed: onRetry, child: Text(strings.retry)),
+          ],
         ),
       ],
     );
@@ -124,8 +123,7 @@ final class _RegisterPaymentFormState extends State<_RegisterPaymentForm> {
   }
 
   Future<void> _pickDate() async {
-    final selectedInvoice = _selectedInvoice;
-    final issueDate = selectedInvoice?.invoice.issueDate?.value;
+    final issueDate = _selectedInvoice?.invoice.issueDate?.value;
     if (issueDate == null) return;
 
     final firstDate = _dateOnly(issueDate);
