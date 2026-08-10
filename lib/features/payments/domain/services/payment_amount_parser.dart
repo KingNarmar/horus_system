@@ -12,7 +12,9 @@ abstract final class PaymentAmountParser {
     if (fractionDigits < 0 || fractionDigits > 4) return null;
 
     var normalized = _normalizeDigits(rawValue.trim());
-    normalized = normalized.replaceAll('٫', '.');
+    normalized = normalized.replaceAll('٫', '.').replaceAll('٬', ',');
+    normalized = _normalizeGrouping(normalized);
+    if (normalized.isEmpty) return null;
     if (normalized.startsWith('.')) normalized = '0$normalized';
 
     if (!RegExp(r'^\d+(?:\.\d*)?$').hasMatch(normalized)) return null;
@@ -24,10 +26,9 @@ abstract final class PaymentAmountParser {
 
     final scale = BigInt.from(10).pow(fractionDigits);
     final whole = BigInt.tryParse(wholePart);
+    final paddedFraction = fractionPart.padRight(fractionDigits, '0');
     final fraction = BigInt.tryParse(
-      fractionPart.padRight(fractionDigits, '0').isEmpty
-          ? '0'
-          : fractionPart.padRight(fractionDigits, '0'),
+      paddedFraction.isEmpty ? '0' : paddedFraction,
     );
     if (whole == null || fraction == null) return null;
 
@@ -35,6 +36,14 @@ abstract final class PaymentAmountParser {
     if (minorUnits > _maxMinorUnits) return null;
 
     return Money(minorUnits: minorUnits.toInt(), currency: currency);
+  }
+
+  static String _normalizeGrouping(String value) {
+    if (!value.contains(',')) return value;
+    if (!RegExp(r'^\d{1,3}(?:,\d{3})+(?:\.\d*)?$').hasMatch(value)) {
+      return '';
+    }
+    return value.replaceAll(',', '');
   }
 
   static String _normalizeDigits(String value) {
