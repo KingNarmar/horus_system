@@ -106,6 +106,9 @@ abstract final class InvoicesFailureMapper {
       InvoicesRpcErrorCodes.sequenceExhausted => const ConflictFailure(
         code: InvoiceFailureCodes.conflictSequenceExhausted,
       ),
+      InvoicesRpcErrorCodes.hasPayments => const ConflictFailure(
+        code: InvoiceFailureCodes.conflictHasPayments,
+      ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }
