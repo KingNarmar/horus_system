@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../../../../core/domain/value_objects/money.dart';
+import '../../../../core/localization/money_formatter.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice_trip_line.dart';
 
@@ -23,13 +24,11 @@ String formatInvoiceMoney(
   required int fractionDigits,
   required String localeName,
 }) {
-  final divisor = _powerOfTen(fractionDigits);
-  final amount = money.minorUnits / divisor;
-  final pattern = fractionDigits == 0
-      ? '#,##0'
-      : '#,##0.${List.filled(fractionDigits, '0').join()}';
-  final formatted = NumberFormat(pattern, localeName).format(amount);
-  return '${money.currency.value} $formatted';
+  return formatLocalizedMoney(
+    money,
+    fractionDigits: fractionDigits,
+    localeName: localeName,
+  );
 }
 
 String formatBillableTripReference(
@@ -93,12 +92,4 @@ String? _nonBlank(String? value) {
   final normalized = value?.trim();
   if (normalized == null || normalized.isEmpty) return null;
   return normalized;
-}
-
-int _powerOfTen(int exponent) {
-  var result = 1;
-  for (var index = 0; index < exponent; index++) {
-    result *= 10;
-  }
-  return result;
 }
