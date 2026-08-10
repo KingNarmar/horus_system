@@ -26,6 +26,9 @@ import '../../../fleet/presentation/pages/fleet_page.dart';
 import '../../../invoices/di/invoices_dependencies.dart';
 import '../../../invoices/presentation/cubit/invoices_cubit.dart';
 import '../../../invoices/presentation/pages/invoices_page.dart';
+import '../../../payment_methods/di/payment_methods_dependencies.dart';
+import '../../../payment_methods/presentation/cubit/payment_methods_cubit.dart';
+import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
@@ -95,7 +98,10 @@ class AppShellContent extends StatelessWidget {
         create: (_) => InvoicesDependencies.createInvoicesCubit(),
         child: InvoicesPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.settings => _SettingsCard(contextData: contextData),
+      AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
+        create: (_) => PaymentMethodsDependencies.createCubit(),
+        child: _SettingsContent(contextData: contextData),
+      ),
       _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };
   }
@@ -163,6 +169,24 @@ class _PlaceholderCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SettingsContent extends StatelessWidget {
+  final CurrentCompanyContext contextData;
+
+  const _SettingsContent({required this.contextData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SettingsCard(contextData: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        PaymentMethodsPage(currentCompanyContext: contextData),
+      ],
     );
   }
 }
