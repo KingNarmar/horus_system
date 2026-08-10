@@ -149,8 +149,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       },
       builder: (context, state) {
         final cubit = context.read<PaymentMethodsCubit>();
-        final canManage = state is PaymentMethodsLoaded &&
-            state.canManagePaymentMethods;
+        final loadedState = state is PaymentMethodsLoaded ? state : null;
+        final canManage = loadedState?.canManagePaymentMethods ?? false;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -174,7 +174,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 ),
                 if (canManage)
                   FilledButton.icon(
-                    onPressed: state.isSubmitting ? null : () => _openForm(),
+                    onPressed: loadedState!.isSubmitting
+                        ? null
+                        : () => _openForm(),
                     icon: const Icon(AppIcons.add),
                     label: Text(l10n.addMethod),
                   ),
