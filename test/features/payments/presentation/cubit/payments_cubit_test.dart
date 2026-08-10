@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -107,7 +108,7 @@ final class _FakePaymentsRepository implements PaymentsRepository {
     required String invoiceId,
     required String paymentMethodId,
     required DateTime paymentDate,
-    required dynamic amount,
+    required Money amount,
     String? referenceNumber,
     String? notes,
   }) => throw UnimplementedError();
