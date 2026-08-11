@@ -14,26 +14,51 @@ final class RegisterPaymentDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = context.paymentsL10n;
+    return BlocBuilder<RegisterPaymentCubit, RegisterPaymentState>(
+      builder: (context, state) {
+        final canDismiss = state is! RegisterPaymentReady || !state.isSubmitting;
 
-    return AlertDialog(
-      title: Text(strings.registrationTitle),
-      content: SizedBox(
-        width: AppSizes.formDialogMaxWidth,
-        child: BlocBuilder<RegisterPaymentCubit, RegisterPaymentState>(
-          builder: (context, state) {
-            return switch (state) {
-              RegisterPaymentInitial() || RegisterPaymentLoading() =>
-                const Center(child: CircularProgressIndicator()),
-              RegisterPaymentFailure(:final failure) => _LoadFailure(
-                message: paymentsFailureMessage(context, failure),
-                onRetry: context.read<RegisterPaymentCubit>().retryLoad,
-              ),
-              RegisterPaymentReady() => RegisterPaymentForm(state: state),
-            };
-          },
+        return PopScope(
+          canPop: canDismiss,
+          child: AlertDialog(
+            title: Text(context.paymentsL10n.registrationTitle),
+            content: SizedBox(
+              width: AppSizes.formDialogMaxWidth,
+              child: switch (state) {
+                RegisterPaymentInitial() || RegisterPaymentLoading() =>
+                  const _LoadingRegistration(),
+                RegisterPaymentFailure(:final failure) => _LoadFailure(
+                  message: paymentsFailureMessage(context, failure),
+                  onRetry: context.read<RegisterPaymentCubit>().retryLoad,
+                ),
+                RegisterPaymentReady() => RegisterPaymentForm(state: state),
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+final class _LoadingRegistration extends StatelessWidget {
+  const _LoadingRegistration();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: AppSpacing.lg),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.paymentsL10n.cancel),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
