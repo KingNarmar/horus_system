@@ -44,6 +44,7 @@ final class _PaymentsPageState extends State<PaymentsPage> {
   Future<void> _openRegisterPayment() async {
     final registered = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => BlocProvider<RegisterPaymentCubit>(
         create: (_) =>
             PaymentsDependencies.createRegisterPaymentCubit()
