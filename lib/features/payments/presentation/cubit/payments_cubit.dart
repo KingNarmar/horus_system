@@ -90,11 +90,12 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
 
   Future<void> refresh() async {
     final context = _currentCompanyContext;
-    if (context != null) await loadPayments(context);
+    if (!isClosed && context != null) await loadPayments(context);
   }
 
   bool _isCurrentLoad(int requestId, String companyId) {
-    return requestId == _loadRequestId &&
+    return !isClosed &&
+        requestId == _loadRequestId &&
         _currentCompanyContext?.companyId == companyId;
   }
 }
