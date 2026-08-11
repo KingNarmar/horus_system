@@ -114,7 +114,9 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
         notes: notes,
       ),
     );
-    if (_currentCompanyContext?.companyId != companyId) return false;
+    if (isClosed || _currentCompanyContext?.companyId != companyId) {
+      return false;
+    }
 
     final latestState = state;
     if (latestState is! RegisterPaymentReady) return false;
@@ -147,7 +149,8 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
   }
 
   bool _isCurrentLoad(int requestId, String companyId) {
-    return requestId == _loadRequestId &&
+    return !isClosed &&
+        requestId == _loadRequestId &&
         _currentCompanyContext?.companyId == companyId;
   }
 }
