@@ -33,7 +33,7 @@ void main() {
     );
 
     expect(find.text('INV-2026-000001'), findsOneWidget);
-    expect(find.text('Customer'), findsOneWidget);
+    expect(find.text('Acme Transport'), findsOneWidget);
     expect(find.text('Cash'), findsOneWidget);
     expect(find.text('AED 400.00'), findsOneWidget);
     expect(find.text('REF-1'), findsOneWidget);
@@ -89,7 +89,7 @@ Invoice _invoice() {
     customer: const InvoiceCustomerSnapshot(
       companyId: 'company-1',
       customerId: 'customer-1',
-      name: 'Customer',
+      name: 'Acme Transport',
     ),
     status: InvoiceStatus.partiallyPaid,
     number: InvoiceNumber.tryParse('INV-2026-000001'),
