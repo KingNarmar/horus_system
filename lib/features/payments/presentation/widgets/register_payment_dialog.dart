@@ -16,7 +16,8 @@ final class RegisterPaymentDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RegisterPaymentCubit, RegisterPaymentState>(
       builder: (context, state) {
-        final canDismiss = state is! RegisterPaymentReady || !state.isSubmitting;
+        final canDismiss =
+            state is! RegisterPaymentReady || !state.isSubmitting;
 
         return PopScope(
           canPop: canDismiss,
@@ -25,8 +26,8 @@ final class RegisterPaymentDialog extends StatelessWidget {
             content: SizedBox(
               width: AppSizes.formDialogMaxWidth,
               child: switch (state) {
-                RegisterPaymentInitial() || RegisterPaymentLoading() =>
-                  const _LoadingRegistration(),
+                RegisterPaymentInitial() ||
+                RegisterPaymentLoading() => const _LoadingRegistration(),
                 RegisterPaymentFailure(:final failure) => _LoadFailure(
                   message: paymentsFailureMessage(context, failure),
                   onRetry: context.read<RegisterPaymentCubit>().retryLoad,
