@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -66,6 +68,23 @@ void main() {
     expect(state.searchQuery, 'reference');
     await cubit.close();
   });
+
+  test('closing cubit while load is pending ignores late completion', () async {
+    final payments = _FakePaymentsRepository(deferGetPayments: true);
+    final cubit = _cubit(
+      payments,
+      _FakeInvoicesRepository(),
+      _FakePaymentMethodsRepository(),
+    );
+
+    final loadFuture = cubit.loadPayments(_context(CompanyRole.accountant));
+    await payments.loadRequested;
+    await cubit.close();
+    payments.completeDeferredLoad();
+
+    await loadFuture;
+    expect(cubit.isClosed, isTrue);
+  });
 }
 
 PaymentsCubit _cubit(
@@ -88,12 +107,29 @@ CurrentCompanyContext _context(CompanyRole role) {
 }
 
 final class _FakePaymentsRepository implements PaymentsRepository {
+  final bool deferGetPayments;
+  final Completer<void> _loadRequested = Completer<void>();
+  final Completer<Result<List<Payment>>> _deferredLoad =
+      Completer<Result<List<Payment>>>();
+
   String? lastCompanyId;
+
+  _FakePaymentsRepository({this.deferGetPayments = false});
+
+  Future<void> get loadRequested => _loadRequested.future;
+
+  void completeDeferredLoad() {
+    if (!_deferredLoad.isCompleted) {
+      _deferredLoad.complete(const Success<List<Payment>>([]));
+    }
+  }
 
   @override
   Future<Result<List<Payment>>> getPayments({required String companyId}) async {
     lastCompanyId = companyId;
-    return const Success<List<Payment>>([]);
+    if (!deferGetPayments) return const Success<List<Payment>>([]);
+    if (!_loadRequested.isCompleted) _loadRequested.complete();
+    return _deferredLoad.future;
   }
 
   @override
