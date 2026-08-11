@@ -1,8 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/company_membership_model.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/company_context_db_projection.dart';
 import '../constants/company_db_fields.dart';
+import '../models/company_membership_model.dart';
 
 abstract class CompanyContextRemoteDataSource {
   Future<List<CompanyMembershipModel>> loadUserCompanyMemberships();
@@ -26,12 +27,10 @@ class SupabaseCompanyContextRemoteDataSource
 
     final response = await _client
         .from(CompanyDbFields.companyUsersTable)
-        .select(
-          'role,is_active,companies!inner(id,name,business_type,phone,email,country,city,logo_url,is_active)',
-        )
+        .select(CompanyContextDbProjection.membershipSelect)
         .eq(CompanyDbFields.userId, userId)
         .eq(DbCommonFields.isActive, true)
-        .eq('companies.is_active', true)
+        .eq(CompanyContextDbProjection.activeCompanyFilter, true)
         .order(DbCommonFields.createdAt);
 
     return response
