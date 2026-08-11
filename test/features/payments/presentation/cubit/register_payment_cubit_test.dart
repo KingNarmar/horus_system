@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
@@ -84,6 +86,37 @@ void main() {
     expect(fixture.payments.registerCalls, 0);
     await fixture.cubit.close();
   });
+
+  test('closing cubit while load is pending ignores late completion', () async {
+    final businessDate = _DeferredBusinessDateProvider();
+    final fixture = _Fixture(businessDateProvider: businessDate);
+
+    final loadFuture = fixture.cubit.load(fixture.context);
+    await businessDate.requested;
+    await fixture.cubit.close();
+    businessDate.complete(DateTime.utc(2026, 8, 10));
+
+    await loadFuture;
+    expect(fixture.cubit.isClosed, isTrue);
+  });
+
+  test('closing cubit while submit is pending prevents late emit', () async {
+    final fixture = _Fixture(deferRegister: true);
+    await fixture.cubit.load(fixture.context);
+
+    final submitFuture = fixture.cubit.submit(
+      invoiceId: 'invoice-1',
+      paymentMethodId: 'method-1',
+      paymentDate: DateTime.utc(2026, 8, 10),
+      amountText: '400.00',
+    );
+    await fixture.payments.registerRequested;
+    await fixture.cubit.close();
+    fixture.payments.completeDeferredRegister();
+
+    expect(await submitFuture, isFalse);
+    expect(fixture.cubit.isClosed, isTrue);
+  });
 }
 
 final class _Fixture {
@@ -103,11 +136,16 @@ final class _Fixture {
   late final _FakePaymentMethodsRepository methods;
   late final RegisterPaymentCubit cubit;
 
-  _Fixture() {
-    payments = _FakePaymentsRepository();
+  _Fixture({
+    CompanyBusinessDateProvider? businessDateProvider,
+    bool deferRegister = false,
+  }) {
+    payments = _FakePaymentsRepository(deferRegister: deferRegister);
     invoices = _FakeInvoicesRepository(_invoice());
     methods = _FakePaymentMethodsRepository();
-    final businessDate = _FixedBusinessDateProvider(DateTime.utc(2026, 8, 10));
+    final businessDate =
+        businessDateProvider ??
+        _FixedBusinessDateProvider(DateTime.utc(2026, 8, 10));
 
     cubit = RegisterPaymentCubit(
       getPayableInvoicesUseCase: GetPayableInvoicesUseCase(
@@ -169,8 +207,42 @@ final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
   }
 }
 
+final class _DeferredBusinessDateProvider
+    implements CompanyBusinessDateProvider {
+  final Completer<void> _requested = Completer<void>();
+  final Completer<Result<DateTime>> _result = Completer<Result<DateTime>>();
+
+  Future<void> get requested => _requested.future;
+
+  void complete(DateTime value) {
+    _result.complete(Success<DateTime>(value));
+  }
+
+  @override
+  Future<Result<DateTime>> getBusinessDate({required String companyId}) {
+    if (!_requested.isCompleted) _requested.complete();
+    return _result.future;
+  }
+}
+
 final class _FakePaymentsRepository implements PaymentsRepository {
+  final bool deferRegister;
+  final Completer<void> _registerRequested = Completer<void>();
+  final Completer<Result<Payment>> _deferredRegisterResult =
+      Completer<Result<Payment>>();
+
   int registerCalls = 0;
+  Payment? _pendingPayment;
+
+  _FakePaymentsRepository({this.deferRegister = false});
+
+  Future<void> get registerRequested => _registerRequested.future;
+
+  void completeDeferredRegister() {
+    final payment = _pendingPayment;
+    if (payment == null || _deferredRegisterResult.isCompleted) return;
+    _deferredRegisterResult.complete(Success<Payment>(payment));
+  }
 
   @override
   Future<Result<List<Payment>>> getPayments({required String companyId}) async {
@@ -196,20 +268,24 @@ final class _FakePaymentsRepository implements PaymentsRepository {
     String? notes,
   }) async {
     registerCalls++;
-    return Success<Payment>(
-      Payment(
-        id: 'payment-1',
-        companyId: companyId,
-        invoiceId: invoiceId,
-        customerId: 'customer-1',
-        paymentMethodId: paymentMethodId,
-        paymentDate: paymentDate,
-        amount: amount,
-        referenceNumber: referenceNumber,
-        notes: notes,
-        createdAt: DateTime.utc(2026, 8, 10),
-      ),
+    final payment = Payment(
+      id: 'payment-1',
+      companyId: companyId,
+      invoiceId: invoiceId,
+      customerId: 'customer-1',
+      paymentMethodId: paymentMethodId,
+      paymentDate: paymentDate,
+      amount: amount,
+      referenceNumber: referenceNumber,
+      notes: notes,
+      createdAt: DateTime.utc(2026, 8, 10),
     );
+
+    if (!deferRegister) return Success<Payment>(payment);
+
+    _pendingPayment = payment;
+    if (!_registerRequested.isCompleted) _registerRequested.complete();
+    return _deferredRegisterResult.future;
   }
 }
 
