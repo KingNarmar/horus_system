@@ -137,8 +137,9 @@ final class _PaymentsStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = context.paymentsL10n;
+    final currentState = state;
 
-    return switch (state) {
+    return switch (currentState) {
       PaymentsInitial() || PaymentsLoading() => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
         child: Column(
@@ -154,7 +155,7 @@ final class _PaymentsStateView extends StatelessWidget {
         onRetry: onRetry,
       ),
       PaymentsLoaded() => _LoadedPaymentsView(
-        state: state,
+        state: currentState,
         onSearchChanged: onSearchChanged,
       ),
     };
