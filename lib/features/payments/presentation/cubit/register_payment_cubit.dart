@@ -66,8 +66,7 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
     emit(
       RegisterPaymentReady(
         currentCompanyContext: currentCompanyContext,
-        payableInvoices:
-            (invoicesResult as Success<List<PayableInvoice>>).data,
+        payableInvoices: (invoicesResult as Success<List<PayableInvoice>>).data,
         paymentMethods: (methodsResult as Success<List<PaymentMethod>>).data,
         businessDate: (businessDateResult as Success<DateTime>).data,
       ),

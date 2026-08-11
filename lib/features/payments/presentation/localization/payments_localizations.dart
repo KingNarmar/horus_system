@@ -70,9 +70,9 @@ final class PaymentsLocalizations {
   String get unavailableValue => _value('unavailableValue');
 
   String invoiceOption({required String number, required String customer}) {
-    return _value('invoiceOption')
-        .replaceFirst('{number}', number)
-        .replaceFirst('{customer}', customer);
+    return _value(
+      'invoiceOption',
+    ).replaceFirst('{number}', number).replaceFirst('{customer}', customer);
   }
 
   static const Map<String, String> _en = {
@@ -82,7 +82,8 @@ final class PaymentsLocalizations {
     'title': 'Payments',
     'registerPayment': 'Register payment',
     'registrationTitle': 'Register invoice payment',
-    'searchHint': 'Search invoice, customer, method, reference, amount, or notes',
+    'searchHint':
+        'Search invoice, customer, method, reference, amount, or notes',
     'loading': 'Loading payments...',
     'retry': 'Retry',
     'noPayments': 'No payments have been registered.',
@@ -112,21 +113,28 @@ final class PaymentsLocalizations {
     'submitting': 'Registering...',
     'paymentRegistered': 'Payment registered successfully.',
     'loadFailed': 'Payments could not be loaded.',
-    'registrationLoadFailed': 'Payment registration options could not be loaded.',
+    'registrationLoadFailed':
+        'Payment registration options could not be loaded.',
     'registrationFailed': 'The payment could not be registered.',
     'permissionViewFailure': 'This role cannot view payments.',
     'permissionManageFailure': 'This role cannot register payments.',
-    'invoiceNotFoundFailure': 'The selected invoice was not found in this company.',
+    'invoiceNotFoundFailure':
+        'The selected invoice was not found in this company.',
     'methodNotFoundFailure': 'The selected payment method was not found.',
     'invoiceStatusFailure': 'The selected invoice is no longer payable.',
-    'amountInvalidFailure': 'Enter an amount using the company currency precision.',
+    'amountInvalidFailure':
+        'Enter an amount using the company currency precision.',
     'amountPositiveFailure': 'The payment amount must be greater than zero.',
     'currencyInvalidFailure': 'The payment currency is invalid.',
-    'currencyMismatchFailure': 'The payment currency does not match the invoice.',
-    'dateBeforeInvoiceFailure': 'The payment date cannot be before the invoice date.',
-    'dateFutureFailure': 'The payment date cannot be after the company business date.',
+    'currencyMismatchFailure':
+        'The payment currency does not match the invoice.',
+    'dateBeforeInvoiceFailure':
+        'The payment date cannot be before the invoice date.',
+    'dateFutureFailure':
+        'The payment date cannot be after the company business date.',
     'inactiveMethodFailure': 'The selected payment method is inactive.',
-    'overpaymentFailure': 'The payment exceeds the invoice outstanding balance.',
+    'overpaymentFailure':
+        'The payment exceeds the invoice outstanding balance.',
     'balanceChangedFailure':
         'The invoice balance changed. Reload the payment form and try again.',
     'invoiceLinesFailure': 'The invoice has no payable trip lines.',
@@ -180,7 +188,8 @@ final class PaymentsLocalizations {
     'registrationFailed': 'تعذر تسجيل الدفعة.',
     'permissionViewFailure': 'هذا الدور غير مسموح له بعرض المدفوعات.',
     'permissionManageFailure': 'هذا الدور غير مسموح له بتسجيل المدفوعات.',
-    'invoiceNotFoundFailure': 'تعذر العثور على الفاتورة المحددة داخل هذه الشركة.',
+    'invoiceNotFoundFailure':
+        'تعذر العثور على الفاتورة المحددة داخل هذه الشركة.',
     'methodNotFoundFailure': 'تعذر العثور على طريقة الدفع المحددة.',
     'invoiceStatusFailure': 'الفاتورة المحددة لم تعد قابلة لاستقبال دفعات.',
     'amountInvalidFailure': 'أدخل المبلغ بدقة العملة المعتمدة للشركة.',
@@ -196,8 +205,7 @@ final class PaymentsLocalizations {
     'invoiceLinesFailure': 'لا تحتوي الفاتورة على بنود رحلات قابلة للسداد.',
     'tripStateFailure':
         'تغيرت حالة إحدى الرحلات المرتبطة. أعد تحميل الفاتورة ثم حاول مرة أخرى.',
-    'regionalSettingsFailure':
-        'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
+    'regionalSettingsFailure': 'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
     'unavailableValue': 'غير متاح',
     'invoiceOption': '{number} — {customer}',
   };

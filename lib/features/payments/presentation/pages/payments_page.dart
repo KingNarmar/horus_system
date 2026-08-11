@@ -45,8 +45,9 @@ final class _PaymentsPageState extends State<PaymentsPage> {
     final registered = await showDialog<bool>(
       context: context,
       builder: (_) => BlocProvider<RegisterPaymentCubit>(
-        create: (_) => PaymentsDependencies.createRegisterPaymentCubit()
-          ..load(widget.currentCompanyContext),
+        create: (_) =>
+            PaymentsDependencies.createRegisterPaymentCubit()
+              ..load(widget.currentCompanyContext),
         child: const RegisterPaymentDialog(),
       ),
     );
@@ -104,7 +105,10 @@ final class _PaymentsPageState extends State<PaymentsPage> {
                 }
 
                 return Row(
-                  children: [Expanded(child: title), ?registerButton],
+                  children: [
+                    Expanded(child: title),
+                    ?registerButton,
+                  ],
                 );
               },
             ),
@@ -218,7 +222,10 @@ final class _FailureView extends StatelessWidget {
         children: [
           Text(message),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: onRetry, child: Text(context.paymentsL10n.retry)),
+          FilledButton(
+            onPressed: onRetry,
+            child: Text(context.paymentsL10n.retry),
+          ),
         ],
       ),
     );

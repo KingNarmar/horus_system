@@ -51,7 +51,9 @@ final class RegisterPaymentUseCase
     final invoiceId = _required(params.invoiceId);
     if (invoiceId == null) {
       return const FailureResult<Payment>(
-        ValidationFailure(code: PaymentFailureCodes.validationInvoiceIdRequired),
+        ValidationFailure(
+          code: PaymentFailureCodes.validationInvoiceIdRequired,
+        ),
       );
     }
 
@@ -76,9 +78,7 @@ final class RegisterPaymentUseCase
     if (invoice.status != InvoiceStatus.issued &&
         invoice.status != InvoiceStatus.partiallyPaid) {
       return const FailureResult<Payment>(
-        ConflictFailure(
-          code: PaymentFailureCodes.conflictInvoiceStatusInvalid,
-        ),
+        ConflictFailure(code: PaymentFailureCodes.conflictInvoiceStatusInvalid),
       );
     }
 
@@ -98,9 +98,7 @@ final class RegisterPaymentUseCase
     }
     if (invoice.currency != baseCurrency) {
       return const FailureResult<Payment>(
-        ValidationFailure(
-          code: PaymentFailureCodes.validationCurrencyMismatch,
-        ),
+        ValidationFailure(code: PaymentFailureCodes.validationCurrencyMismatch),
       );
     }
 

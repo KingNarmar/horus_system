@@ -68,32 +68,38 @@ final class _PaymentsTable extends StatelessWidget {
           DataColumn(label: Text(strings.amount)),
           DataColumn(label: Text(strings.referenceNumber)),
         ],
-        rows: state.visiblePayments.map((payment) {
-          final invoice = state.invoiceFor(payment);
-          final method = state.paymentMethodFor(payment);
-          return DataRow(
-            cells: [
-              DataCell(
-                Text(invoice?.number?.value ?? strings.unavailableValue),
-              ),
-              DataCell(Text(invoice?.customer.name ?? strings.unavailableValue)),
-              DataCell(Text(method?.name ?? strings.unavailableValue)),
-              DataCell(Text(formatPaymentDate(payment.paymentDate, localeName))),
-              DataCell(
-                Text(
-                  formatLocalizedMoney(
-                    payment.amount,
-                    fractionDigits: fractionDigits,
-                    localeName: localeName,
+        rows: state.visiblePayments
+            .map((payment) {
+              final invoice = state.invoiceFor(payment);
+              final method = state.paymentMethodFor(payment);
+              return DataRow(
+                cells: [
+                  DataCell(
+                    Text(invoice?.number?.value ?? strings.unavailableValue),
                   ),
-                ),
-              ),
-              DataCell(
-                Text(payment.referenceNumber ?? strings.unavailableValue),
-              ),
-            ],
-          );
-        }).toList(growable: false),
+                  DataCell(
+                    Text(invoice?.customer.name ?? strings.unavailableValue),
+                  ),
+                  DataCell(Text(method?.name ?? strings.unavailableValue)),
+                  DataCell(
+                    Text(formatPaymentDate(payment.paymentDate, localeName)),
+                  ),
+                  DataCell(
+                    Text(
+                      formatLocalizedMoney(
+                        payment.amount,
+                        fractionDigits: fractionDigits,
+                        localeName: localeName,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    Text(payment.referenceNumber ?? strings.unavailableValue),
+                  ),
+                ],
+              );
+            })
+            .toList(growable: false),
       ),
     );
   }
@@ -111,61 +117,69 @@ final class _PaymentsCards extends StatelessWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
 
     return Column(
-      children: state.visiblePayments.map((payment) {
-        final invoice = state.invoiceFor(payment);
-        final method = state.paymentMethodFor(payment);
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    invoice?.number?.value ?? strings.unavailableValue,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+      children: state.visiblePayments
+          .map((payment) {
+            final invoice = state.invoiceFor(payment);
+            final method = state.paymentMethodFor(payment);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        invoice?.number?.value ?? strings.unavailableValue,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _DetailRow(
+                        label: strings.customer,
+                        value:
+                            invoice?.customer.name ?? strings.unavailableValue,
+                      ),
+                      _DetailRow(
+                        label: strings.paymentMethod,
+                        value: method?.name ?? strings.unavailableValue,
+                      ),
+                      _DetailRow(
+                        label: strings.paymentDate,
+                        value: formatPaymentDate(
+                          payment.paymentDate,
+                          localeName,
+                        ),
+                      ),
+                      _DetailRow(
+                        label: strings.amount,
+                        value: formatLocalizedMoney(
+                          payment.amount,
+                          fractionDigits: fractionDigits,
+                          localeName: localeName,
+                        ),
+                      ),
+                      if (payment.referenceNumber != null)
+                        _DetailRow(
+                          label: strings.referenceNumber,
+                          value: payment.referenceNumber!,
+                        ),
+                      if (payment.notes != null)
+                        _DetailRow(label: strings.notes, value: payment.notes!),
+                      _DetailRow(
+                        label: strings.createdAt,
+                        value: formatPaymentDateTime(
+                          payment.createdAt,
+                          localeName,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _DetailRow(
-                    label: strings.customer,
-                    value: invoice?.customer.name ?? strings.unavailableValue,
-                  ),
-                  _DetailRow(
-                    label: strings.paymentMethod,
-                    value: method?.name ?? strings.unavailableValue,
-                  ),
-                  _DetailRow(
-                    label: strings.paymentDate,
-                    value: formatPaymentDate(payment.paymentDate, localeName),
-                  ),
-                  _DetailRow(
-                    label: strings.amount,
-                    value: formatLocalizedMoney(
-                      payment.amount,
-                      fractionDigits: fractionDigits,
-                      localeName: localeName,
-                    ),
-                  ),
-                  if (payment.referenceNumber != null)
-                    _DetailRow(
-                      label: strings.referenceNumber,
-                      value: payment.referenceNumber!,
-                    ),
-                  if (payment.notes != null)
-                    _DetailRow(label: strings.notes, value: payment.notes!),
-                  _DetailRow(
-                    label: strings.createdAt,
-                    value: formatPaymentDateTime(payment.createdAt, localeName),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }
@@ -186,9 +200,9 @@ final class _DetailRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           Text(value),
         ],

@@ -118,10 +118,7 @@ Payment _payment({
     customerId: 'customer-1',
     paymentMethodId: 'method-1',
     paymentDate: DateTime.utc(2026, 8, 10),
-    amount: Money(
-      minorUnits: amountMinorUnits,
-      currency: paymentCurrency,
-    ),
+    amount: Money(minorUnits: amountMinorUnits, currency: paymentCurrency),
     createdAt: DateTime.utc(2026, 8, 10),
   );
 }

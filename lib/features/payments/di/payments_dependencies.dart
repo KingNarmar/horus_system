@@ -25,7 +25,8 @@ abstract final class PaymentsDependencies {
   static PaymentsCubit createPaymentsCubit() {
     final paymentsRepository = createRepository();
     final invoicesRepository = InvoicesDependencies.createRepository();
-    final paymentMethodsRepository = PaymentMethodsDependencies.createRepository();
+    final paymentMethodsRepository =
+        PaymentMethodsDependencies.createRepository();
 
     return PaymentsCubit(
       getPaymentsUseCase: GetPaymentsUseCase(paymentsRepository),
@@ -39,8 +40,10 @@ abstract final class PaymentsDependencies {
   static RegisterPaymentCubit createRegisterPaymentCubit() {
     final paymentsRepository = createRepository();
     final invoicesRepository = InvoicesDependencies.createRepository();
-    final paymentMethodsRepository = PaymentMethodsDependencies.createRepository();
-    final businessDateProvider = CompanyDependencies.createBusinessDateProvider();
+    final paymentMethodsRepository =
+        PaymentMethodsDependencies.createRepository();
+    final businessDateProvider =
+        CompanyDependencies.createBusinessDateProvider();
 
     return RegisterPaymentCubit(
       getPayableInvoicesUseCase: GetPayableInvoicesUseCase(

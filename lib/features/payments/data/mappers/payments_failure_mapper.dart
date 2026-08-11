@@ -13,9 +13,8 @@ abstract final class PaymentsFailureMapper {
     required String permissionCode,
   }) {
     return switch (error.code) {
-      PaymentsRpcErrorCodes.permissionDenied || '42501' => PermissionFailure(
-        code: permissionCode,
-      ),
+      PaymentsRpcErrorCodes.permissionDenied ||
+      '42501' => PermissionFailure(code: permissionCode),
       PaymentsRpcErrorCodes.invoiceNotFound => const NotFoundFailure(
         code: PaymentFailureCodes.invoiceNotFound,
       ),

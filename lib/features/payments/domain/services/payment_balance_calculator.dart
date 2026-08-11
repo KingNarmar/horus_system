@@ -56,7 +56,9 @@ final class PaymentBalanceCalculator {
       minorUnits: total.minorUnits - paidMinorUnits,
       currency: total.currency,
     );
-    return Success(PaymentBalance(total: total, paid: paid, remaining: remaining));
+    return Success(
+      PaymentBalance(total: total, paid: paid, remaining: remaining),
+    );
   }
 
   bool _isStateConsistent({

@@ -38,34 +38,40 @@ void main() {
       expect(fixture.payments.registerCalls, 0);
     });
 
-    test('zero amount is rejected in Domain before repository mutation', () async {
-      final fixture = _Fixture();
+    test(
+      'zero amount is rejected in Domain before repository mutation',
+      () async {
+        final fixture = _Fixture();
 
-      final result = await fixture.useCase(
-        _params(fixture.context, amountText: '0'),
-      );
+        final result = await fixture.useCase(
+          _params(fixture.context, amountText: '0'),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        PaymentFailureCodes.validationAmountPositive,
-      );
-      expect(fixture.payments.registerCalls, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          PaymentFailureCodes.validationAmountPositive,
+        );
+        expect(fixture.payments.registerCalls, 0);
+      },
+    );
 
-    test('future payment date is rejected against company business date', () async {
-      final fixture = _Fixture();
+    test(
+      'future payment date is rejected against company business date',
+      () async {
+        final fixture = _Fixture();
 
-      final result = await fixture.useCase(
-        _params(fixture.context, paymentDate: DateTime.utc(2026, 8, 11)),
-      );
+        final result = await fixture.useCase(
+          _params(fixture.context, paymentDate: DateTime.utc(2026, 8, 11)),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        PaymentFailureCodes.validationDateFuture,
-      );
-      expect(fixture.businessDate.lastCompanyId, 'company-1');
-      expect(fixture.payments.registerCalls, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          PaymentFailureCodes.validationDateFuture,
+        );
+        expect(fixture.businessDate.lastCompanyId, 'company-1');
+        expect(fixture.payments.registerCalls, 0);
+      },
+    );
 
     test('inactive payment method is rejected explicitly', () async {
       final fixture = _Fixture(methodIsActive: false);
@@ -96,28 +102,31 @@ void main() {
       expect(fixture.payments.registerCalls, 0);
     });
 
-    test('valid payment is company scoped and remains exact minor units', () async {
-      final fixture = _Fixture();
+    test(
+      'valid payment is company scoped and remains exact minor units',
+      () async {
+        final fixture = _Fixture();
 
-      final result = await fixture.useCase(
-        _params(
-          fixture.context,
-          amountText: '400.00',
-          referenceNumber: '  REF-1  ',
-          notes: '  note  ',
-        ),
-      );
+        final result = await fixture.useCase(
+          _params(
+            fixture.context,
+            amountText: '400.00',
+            referenceNumber: '  REF-1  ',
+            notes: '  note  ',
+          ),
+        );
 
-      expect(result, isA<Success<Payment>>());
-      expect(fixture.payments.registerCalls, 1);
-      expect(fixture.payments.lastCompanyId, 'company-1');
-      expect(fixture.payments.lastInvoiceId, 'invoice-1');
-      expect(fixture.payments.lastPaymentMethodId, 'method-1');
-      expect(fixture.payments.lastAmount?.minorUnits, 40000);
-      expect(fixture.payments.lastAmount?.currency.value, 'AED');
-      expect(fixture.payments.lastReferenceNumber, 'REF-1');
-      expect(fixture.payments.lastNotes, 'note');
-    });
+        expect(result, isA<Success<Payment>>());
+        expect(fixture.payments.registerCalls, 1);
+        expect(fixture.payments.lastCompanyId, 'company-1');
+        expect(fixture.payments.lastInvoiceId, 'invoice-1');
+        expect(fixture.payments.lastPaymentMethodId, 'method-1');
+        expect(fixture.payments.lastAmount?.minorUnits, 40000);
+        expect(fixture.payments.lastAmount?.currency.value, 'AED');
+        expect(fixture.payments.lastReferenceNumber, 'REF-1');
+        expect(fixture.payments.lastNotes, 'note');
+      },
+    );
   });
 
   group('GetPayableInvoicesUseCase', () {

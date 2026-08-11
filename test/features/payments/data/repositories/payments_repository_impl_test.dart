@@ -9,41 +9,47 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('maps payment models into domain entities on company-scoped read', () async {
-    final dataSource = _FakePaymentsRemoteDataSource(
-      payments: [_paymentModel()],
-    );
-    final repository = PaymentsRepositoryImpl(dataSource);
+  test(
+    'maps payment models into domain entities on company-scoped read',
+    () async {
+      final dataSource = _FakePaymentsRemoteDataSource(
+        payments: [_paymentModel()],
+      );
+      final repository = PaymentsRepositoryImpl(dataSource);
 
-    final result = await repository.getPayments(companyId: 'company-1');
+      final result = await repository.getPayments(companyId: 'company-1');
 
-    expect(result.failureOrNull, isNull);
-    expect(result.dataOrNull?.single.id, 'payment-1');
-    expect(result.dataOrNull?.single.amount.minorUnits, 40000);
-    expect(dataSource.lastCompanyId, 'company-1');
-  });
+      expect(result.failureOrNull, isNull);
+      expect(result.dataOrNull?.single.id, 'payment-1');
+      expect(result.dataOrNull?.single.amount.minorUnits, 40000);
+      expect(dataSource.lastCompanyId, 'company-1');
+    },
+  );
 
-  test('register delegates exact minor units and maps returned payment', () async {
-    final dataSource = _FakePaymentsRemoteDataSource(
-      registeredPayment: _paymentModel(),
-    );
-    final repository = PaymentsRepositoryImpl(dataSource);
-    final currency = CurrencyCode.tryParse('AED')!;
+  test(
+    'register delegates exact minor units and maps returned payment',
+    () async {
+      final dataSource = _FakePaymentsRemoteDataSource(
+        registeredPayment: _paymentModel(),
+      );
+      final repository = PaymentsRepositoryImpl(dataSource);
+      final currency = CurrencyCode.tryParse('AED')!;
 
-    final result = await repository.registerPayment(
-      companyId: 'company-1',
-      invoiceId: 'invoice-1',
-      paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
-      amount: Money(minorUnits: 40000, currency: currency),
-      referenceNumber: 'REF-1',
-    );
+      final result = await repository.registerPayment(
+        companyId: 'company-1',
+        invoiceId: 'invoice-1',
+        paymentMethodId: 'method-1',
+        paymentDate: DateTime.utc(2026, 8, 10),
+        amount: Money(minorUnits: 40000, currency: currency),
+        referenceNumber: 'REF-1',
+      );
 
-    expect(result.failureOrNull, isNull);
-    expect(result.dataOrNull?.id, 'payment-1');
-    expect(dataSource.lastAmount?.minorUnits, 40000);
-    expect(dataSource.lastInvoiceId, 'invoice-1');
-  });
+      expect(result.failureOrNull, isNull);
+      expect(result.dataOrNull?.id, 'payment-1');
+      expect(dataSource.lastAmount?.minorUnits, 40000);
+      expect(dataSource.lastInvoiceId, 'invoice-1');
+    },
+  );
 
   test('maps RPC overpayment to typed conflict failure', () async {
     final dataSource = _FakePaymentsRemoteDataSource(

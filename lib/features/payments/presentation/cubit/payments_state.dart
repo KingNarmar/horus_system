@@ -43,22 +43,24 @@ final class PaymentsLoaded extends PaymentsState {
     final query = searchQuery.trim().toLowerCase();
     if (query.isEmpty) return allPayments;
 
-    return allPayments.where((payment) {
-      final invoice = invoiceFor(payment);
-      final method = paymentMethodFor(payment);
-      final values = <String?>[
-        payment.referenceNumber,
-        payment.notes,
-        payment.amount.currency.value,
-        payment.amount.minorUnits.toString(),
-        invoice?.number?.value,
-        invoice?.customer.name,
-        method?.name,
-      ];
-      return values.any(
-        (value) => value?.toLowerCase().contains(query) ?? false,
-      );
-    }).toList(growable: false);
+    return allPayments
+        .where((payment) {
+          final invoice = invoiceFor(payment);
+          final method = paymentMethodFor(payment);
+          final values = <String?>[
+            payment.referenceNumber,
+            payment.notes,
+            payment.amount.currency.value,
+            payment.amount.minorUnits.toString(),
+            invoice?.number?.value,
+            invoice?.customer.name,
+            method?.name,
+          ];
+          return values.any(
+            (value) => value?.toLowerCase().contains(query) ?? false,
+          );
+        })
+        .toList(growable: false);
   }
 
   Invoice? invoiceFor(Payment payment) {

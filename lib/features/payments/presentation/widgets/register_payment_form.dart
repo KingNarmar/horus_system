@@ -131,32 +131,37 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
               initialValue: _invoiceId,
               isExpanded: true,
               decoration: InputDecoration(labelText: strings.invoice),
-              items: state.payableInvoices.map((item) {
-                final invoice = item.invoice;
-                return DropdownMenuItem<String>(
-                  value: invoice.id,
-                  child: Text(
-                    strings.invoiceOption(
-                      number: invoice.number?.value ?? strings.unavailableValue,
-                      customer: invoice.customer.name,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              }).toList(growable: false),
+              items: state.payableInvoices
+                  .map((item) {
+                    final invoice = item.invoice;
+                    return DropdownMenuItem<String>(
+                      value: invoice.id,
+                      child: Text(
+                        strings.invoiceOption(
+                          number:
+                              invoice.number?.value ?? strings.unavailableValue,
+                          customer: invoice.customer.name,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  })
+                  .toList(growable: false),
               onChanged: state.isSubmitting
                   ? null
                   : (value) {
                       setState(() {
                         _invoiceId = value;
-                        final issueDate = _selectedInvoice?.invoice.issueDate?.value;
+                        final issueDate =
+                            _selectedInvoice?.invoice.issueDate?.value;
                         if (issueDate != null &&
                             _paymentDate.isBefore(_dateOnly(issueDate))) {
                           _paymentDate = _dateOnly(issueDate);
                         }
                       });
                     },
-              validator: (value) => value == null ? strings.invoiceRequired : null,
+              validator: (value) =>
+                  value == null ? strings.invoiceRequired : null,
             ),
             if (selectedInvoice != null) ...[
               const SizedBox(height: AppSpacing.md),
@@ -190,10 +195,11 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
               controller: _amountController,
               enabled: !state.isSubmitting,
               decoration: InputDecoration(labelText: strings.amount),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (value) => (value ?? '').trim().isEmpty
-                  ? strings.amountRequired
-                  : null,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              validator: (value) =>
+                  (value ?? '').trim().isEmpty ? strings.amountRequired : null,
             ),
             const SizedBox(height: AppSpacing.md),
             InkWell(

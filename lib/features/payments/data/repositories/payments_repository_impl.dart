@@ -23,7 +23,9 @@ final class PaymentsRepositoryImpl implements PaymentsRepository {
     return _execute(
       permissionCode: PaymentFailureCodes.permissionView,
       action: () async {
-        final models = await _remoteDataSource.getPayments(companyId: companyId);
+        final models = await _remoteDataSource.getPayments(
+          companyId: companyId,
+        );
         return models.map((model) => model.toEntity()).toList(growable: false);
       },
     );

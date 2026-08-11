@@ -7,8 +7,7 @@ abstract final class PaymentFailureCodes {
   static const validationPaymentMethodIdRequired =
       'validation_payment_method_id_required';
   static const validationAmountInvalid = 'validation_payment_amount_invalid';
-  static const validationAmountPositive =
-      'validation_payment_amount_positive';
+  static const validationAmountPositive = 'validation_payment_amount_positive';
   static const validationCurrencyInvalid =
       'validation_payment_currency_invalid';
   static const validationCurrencyMismatch =
@@ -30,6 +29,5 @@ abstract final class PaymentFailureCodes {
       'conflict_payment_invoice_balance_invalid';
   static const conflictInvoiceLinesRequired =
       'conflict_payment_invoice_lines_required';
-  static const conflictTripStateInvalid =
-      'conflict_payment_trip_state_invalid';
+  static const conflictTripStateInvalid = 'conflict_payment_trip_state_invalid';
 }
