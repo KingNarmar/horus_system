@@ -34,6 +34,8 @@ abstract final class AppIcons {
   static const IconData login = Icons.login_outlined;
   static const IconData logout = Icons.logout_outlined;
   static const IconData password = Icons.lock_outline;
+  static const IconData payments = Icons.payments_outlined;
+  static const IconData paymentsSelected = Icons.payments;
   static const IconData phone = Icons.phone_outlined;
   static const IconData reactivate = Icons.check_circle_outline;
   static const IconData reports = Icons.bar_chart_outlined;

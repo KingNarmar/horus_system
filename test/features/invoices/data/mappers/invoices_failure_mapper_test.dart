@@ -75,6 +75,20 @@ void main() {
       expect(tripFailure.code, FailureCodes.conflictInvoiceTripSnapshotChanged);
     });
 
+    test('maps invoices with registered payments to cancellation conflict', () {
+      final failure = InvoicesFailureMapper.fromPostgrest(
+        const PostgrestException(
+          message: 'invoice_has_payments',
+          code: InvoicesRpcErrorCodes.hasPayments,
+        ),
+        permissionCode: FailureCodes.permissionInvoicesCancel,
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, InvoiceFailureCodes.conflictHasPayments);
+      expect(failure.message, isNull);
+    });
+
     test('maps PostgREST no-row responses to invoice not found', () {
       final failure = InvoicesFailureMapper.fromPostgrest(
         PostgrestException(

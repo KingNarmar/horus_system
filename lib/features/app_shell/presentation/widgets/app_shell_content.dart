@@ -29,6 +29,9 @@ import '../../../invoices/presentation/pages/invoices_page.dart';
 import '../../../payment_methods/di/payment_methods_dependencies.dart';
 import '../../../payment_methods/presentation/cubit/payment_methods_cubit.dart';
 import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
+import '../../../payments/di/payments_dependencies.dart';
+import '../../../payments/presentation/cubit/payments_cubit.dart';
+import '../../../payments/presentation/pages/payments_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
@@ -97,6 +100,10 @@ class AppShellContent extends StatelessWidget {
       AppShellModule.invoices => BlocProvider<InvoicesCubit>(
         create: (_) => InvoicesDependencies.createInvoicesCubit(),
         child: InvoicesPage(currentCompanyContext: contextData),
+      ),
+      AppShellModule.payments => BlocProvider<PaymentsCubit>(
+        create: (_) => PaymentsDependencies.createPaymentsCubit(),
+        child: PaymentsPage(currentCompanyContext: contextData),
       ),
       AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
         create: (_) => PaymentMethodsDependencies.createCubit(),

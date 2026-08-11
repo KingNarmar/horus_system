@@ -79,6 +79,7 @@ String _auditDescription(BuildContext context, String description) {
     'invoice_updated' => strings.auditUpdated,
     'invoice_issued' => strings.auditIssued,
     'invoice_cancelled' => strings.auditCancelled,
+    'invoice_payment_status_changed' => strings.auditPaymentStatusChanged,
     _ => strings.activity,
   };
 }

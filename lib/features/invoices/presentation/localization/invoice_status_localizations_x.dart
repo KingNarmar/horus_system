@@ -6,6 +6,8 @@ extension InvoiceStatusLocalizationsX on InvoiceStatus {
     return switch (this) {
       InvoiceStatus.draft => strings.statusDraft,
       InvoiceStatus.issued => strings.statusIssued,
+      InvoiceStatus.partiallyPaid => strings.statusPartiallyPaid,
+      InvoiceStatus.paid => strings.statusPaid,
       InvoiceStatus.cancelled => strings.statusCancelled,
     };
   }

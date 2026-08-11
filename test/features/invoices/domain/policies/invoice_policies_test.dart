@@ -48,12 +48,24 @@ void main() {
     }
   });
 
-  test('lifecycle policy keeps issued invoices immutable', () {
+  test('lifecycle policy keeps issued and paid invoices immutable', () {
     expect(InvoiceLifecyclePolicy.canEdit(InvoiceStatus.draft), isTrue);
     expect(InvoiceLifecyclePolicy.canIssue(InvoiceStatus.draft), isTrue);
     expect(InvoiceLifecyclePolicy.canCancel(InvoiceStatus.draft), isTrue);
+
     expect(InvoiceLifecyclePolicy.canEdit(InvoiceStatus.issued), isFalse);
     expect(InvoiceLifecyclePolicy.canCancel(InvoiceStatus.issued), isTrue);
+
+    expect(
+      InvoiceLifecyclePolicy.canEdit(InvoiceStatus.partiallyPaid),
+      isFalse,
+    );
+    expect(
+      InvoiceLifecyclePolicy.canCancel(InvoiceStatus.partiallyPaid),
+      isFalse,
+    );
+    expect(InvoiceLifecyclePolicy.canEdit(InvoiceStatus.paid), isFalse);
+    expect(InvoiceLifecyclePolicy.canCancel(InvoiceStatus.paid), isFalse);
     expect(InvoiceLifecyclePolicy.canCancel(InvoiceStatus.cancelled), isFalse);
   });
 }

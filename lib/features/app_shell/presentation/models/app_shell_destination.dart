@@ -4,6 +4,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../driver_settlements/presentation/localization/driver_settlements_localizations.dart';
 import '../../../invoices/presentation/localization/invoices_localizations.dart';
+import '../../../payments/presentation/localization/payments_localizations.dart';
 
 enum AppShellModule {
   dashboard,
@@ -15,6 +16,7 @@ enum AppShellModule {
   expenses,
   driverSettlements,
   invoices,
+  payments,
   reports,
   settings,
 }
@@ -42,6 +44,7 @@ class AppShellDestination {
       AppShellModule.driverSettlements =>
         context.driverSettlementsL10n.appShellLabel,
       AppShellModule.invoices => context.invoicesL10n.appShellLabel,
+      AppShellModule.payments => context.paymentsL10n.appShellLabel,
       AppShellModule.reports => context.l10n.appShellReportsLabel,
       AppShellModule.settings => context.l10n.appShellSettingsLabel,
     };
@@ -59,6 +62,7 @@ class AppShellDestination {
       AppShellModule.driverSettlements =>
         context.driverSettlementsL10n.appShellDescription,
       AppShellModule.invoices => context.invoicesL10n.appShellDescription,
+      AppShellModule.payments => context.paymentsL10n.appShellDescription,
       AppShellModule.reports => context.l10n.appShellReportsDescription,
       AppShellModule.settings => context.l10n.appShellSettingsDescription,
     };
@@ -110,6 +114,11 @@ const List<AppShellDestination> appShellDestinations = [
     module: AppShellModule.invoices,
     icon: AppIcons.invoices,
     selectedIcon: AppIcons.invoicesSelected,
+  ),
+  AppShellDestination(
+    module: AppShellModule.payments,
+    icon: AppIcons.payments,
+    selectedIcon: AppIcons.paymentsSelected,
   ),
   AppShellDestination(
     module: AppShellModule.reports,

@@ -28,6 +28,8 @@ final class InvoicesLocalizations {
   String get allStatuses => _value('allStatuses');
   String get statusDraft => _value('statusDraft');
   String get statusIssued => _value('statusIssued');
+  String get statusPartiallyPaid => _value('statusPartiallyPaid');
+  String get statusPaid => _value('statusPaid');
   String get statusCancelled => _value('statusCancelled');
   String get number => _value('number');
   String get draftNumber => _value('draftNumber');
@@ -85,12 +87,14 @@ final class InvoicesLocalizations {
   String get dueDateBeforeIssueFailure => _value('dueDateBeforeIssueFailure');
   String get cancellationReasonFailure => _value('cancellationReasonFailure');
   String get invalidStatusFailure => _value('invalidStatusFailure');
+  String get invoiceHasPaymentsFailure => _value('invoiceHasPaymentsFailure');
   String get invoiceChangedFailure => _value('invoiceChangedFailure');
   String get unavailableValue => _value('unavailableValue');
   String get auditCreated => _value('auditCreated');
   String get auditUpdated => _value('auditUpdated');
   String get auditIssued => _value('auditIssued');
   String get auditCancelled => _value('auditCancelled');
+  String get auditPaymentStatusChanged => _value('auditPaymentStatusChanged');
 
   String tripOption(String reference, String amount) => _value(
     'tripOption',
@@ -116,6 +120,8 @@ final class InvoicesLocalizations {
     'allStatuses': 'All statuses',
     'statusDraft': 'Draft',
     'statusIssued': 'Issued',
+    'statusPartiallyPaid': 'Partially paid',
+    'statusPaid': 'Paid',
     'statusCancelled': 'Cancelled',
     'number': 'Invoice number',
     'draftNumber': 'Draft',
@@ -177,6 +183,8 @@ final class InvoicesLocalizations {
     'cancellationReasonFailure': 'A cancellation reason is required.',
     'invalidStatusFailure':
         'This action is not allowed for the current invoice status.',
+    'invoiceHasPaymentsFailure':
+        'This invoice cannot be cancelled because payments are registered against it.',
     'invoiceChangedFailure':
         'The invoice or its trips changed. Reload the invoice and try again.',
     'unavailableValue': 'Not available',
@@ -184,6 +192,7 @@ final class InvoicesLocalizations {
     'auditUpdated': 'Invoice draft updated',
     'auditIssued': 'Invoice issued',
     'auditCancelled': 'Invoice cancelled',
+    'auditPaymentStatusChanged': 'Invoice payment status changed',
     'tripOption': '{reference} • {amount}',
     'lineReference': 'Trip {reference}',
   };
@@ -206,6 +215,8 @@ final class InvoicesLocalizations {
     'allStatuses': 'كل الحالات',
     'statusDraft': 'مسودة',
     'statusIssued': 'صادرة',
+    'statusPartiallyPaid': 'مدفوعة جزئيًا',
+    'statusPaid': 'مدفوعة',
     'statusCancelled': 'ملغاة',
     'number': 'رقم الفاتورة',
     'draftNumber': 'مسودة',
@@ -265,6 +276,8 @@ final class InvoicesLocalizations {
         'لا يمكن أن يكون تاريخ الاستحقاق قبل تاريخ الإصدار.',
     'cancellationReasonFailure': 'سبب إلغاء الفاتورة مطلوب.',
     'invalidStatusFailure': 'هذا الإجراء غير مسموح للحالة الحالية للفاتورة.',
+    'invoiceHasPaymentsFailure':
+        'لا يمكن إلغاء هذه الفاتورة لوجود مدفوعات مسجلة عليها.',
     'invoiceChangedFailure':
         'تغيرت الفاتورة أو رحلاتها. أعد تحميل الفاتورة وحاول مرة أخرى.',
     'unavailableValue': 'غير متاح',
@@ -272,6 +285,7 @@ final class InvoicesLocalizations {
     'auditUpdated': 'تم تحديث مسودة الفاتورة',
     'auditIssued': 'تم إصدار الفاتورة',
     'auditCancelled': 'تم إلغاء الفاتورة',
+    'auditPaymentStatusChanged': 'تغيرت حالة سداد الفاتورة',
     'tripOption': '{reference} • {amount}',
     'lineReference': 'الرحلة {reference}',
   };
