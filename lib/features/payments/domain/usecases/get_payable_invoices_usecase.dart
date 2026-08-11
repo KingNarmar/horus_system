@@ -55,14 +55,18 @@ final class GetPayableInvoicesUseCase
 
     final invoices = (invoicesResult as Success<List<Invoice>>).data;
     final payments = (paymentsResult as Success<List<Payment>>).data;
-    final payableInvoices = <PayableInvoice>[];
+    final paymentsByInvoice = <String, List<Payment>>{};
+    for (final payment in payments) {
+      (paymentsByInvoice[payment.invoiceId] ??= <Payment>[]).add(payment);
+    }
 
+    final payableInvoices = <PayableInvoice>[];
     for (final invoice in invoices) {
       if (!_isPayableStatus(invoice.status)) continue;
 
       final balanceResult = _balanceCalculator.calculate(
         invoice: invoice,
-        payments: payments.where((payment) => payment.invoiceId == invoice.id),
+        payments: paymentsByInvoice[invoice.id] ?? const <Payment>[],
       );
       if (balanceResult is FailureResult<PaymentBalance>) {
         return FailureResult<List<PayableInvoice>>(balanceResult.failure);
