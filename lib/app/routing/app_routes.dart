@@ -18,6 +18,7 @@ abstract final class AppRoutes {
   static const String driverSettlements = '/app/driver-settlements';
   static const String invoices = '/app/invoices';
   static const String payments = '/app/payments';
+  static const String customerStatements = '/app/customer-statements';
   static const String reports = '/app/reports';
   static const String settings = '/app/settings';
 
@@ -37,6 +38,7 @@ abstract final class AppRoutes {
     driverSettlements,
     invoices,
     payments,
+    customerStatements,
     reports,
     settings,
     companyUsers,

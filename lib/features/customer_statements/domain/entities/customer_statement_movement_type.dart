@@ -1,0 +1,1 @@
+enum CustomerStatementMovementType { invoice, payment }
