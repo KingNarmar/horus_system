@@ -225,6 +225,11 @@ final class CustomerStatementCalculator {
       return false;
     }
 
+    if (movement.type == CustomerStatementMovementType.invoice &&
+        movement.relatedInvoiceId != movement.sourceId) {
+      return false;
+    }
+
     final businessDate = _dateOnly(movement.businessDate);
     if (fromDate != null && businessDate.isBefore(_dateOnly(fromDate))) {
       return false;
