@@ -148,7 +148,9 @@ final class CustomerStatementCalculator {
       minorUnits: paidMinorUnits,
       currency: expectedCurrency,
     );
-    final closingBalance = openingBalance.add(totalInvoiced).subtract(totalPaid);
+    final closingBalance = openingBalance
+        .add(totalInvoiced)
+        .subtract(totalPaid);
 
     if (closingBalance != runningBalance) {
       return const FailureResult(

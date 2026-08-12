@@ -84,14 +84,20 @@ final class CustomerStatementSourceModel {
         period[CustomerStatementsDbConstants.toDate],
         CustomerStatementsDbConstants.toDate,
       ),
-      openingInvoices: _requiredList(
-        opening[CustomerStatementsDbConstants.invoices],
-        CustomerStatementsDbConstants.invoices,
-      ).map(CustomerStatementOpeningAmountModel.fromMap).toList(growable: false),
-      openingPayments: _requiredList(
-        opening[CustomerStatementsDbConstants.payments],
-        CustomerStatementsDbConstants.payments,
-      ).map(CustomerStatementOpeningAmountModel.fromMap).toList(growable: false),
+      openingInvoices:
+          _requiredList(
+                opening[CustomerStatementsDbConstants.invoices],
+                CustomerStatementsDbConstants.invoices,
+              )
+              .map(CustomerStatementOpeningAmountModel.fromMap)
+              .toList(growable: false),
+      openingPayments:
+          _requiredList(
+                opening[CustomerStatementsDbConstants.payments],
+                CustomerStatementsDbConstants.payments,
+              )
+              .map(CustomerStatementOpeningAmountModel.fromMap)
+              .toList(growable: false),
       movements: _requiredList(
         map[CustomerStatementsDbConstants.movements],
         CustomerStatementsDbConstants.movements,
@@ -196,12 +202,16 @@ List<Map<String, dynamic>> _requiredList(Object? value, String field) {
     throw FormatException('Invalid customer statement list: $field.');
   }
 
-  return value.map((item) {
-    if (item is! Map) {
-      throw FormatException('Invalid customer statement list item: $field.');
-    }
-    return Map<String, dynamic>.from(item);
-  }).toList(growable: false);
+  return value
+      .map((item) {
+        if (item is! Map) {
+          throw FormatException(
+            'Invalid customer statement list item: $field.',
+          );
+        }
+        return Map<String, dynamic>.from(item);
+      })
+      .toList(growable: false);
 }
 
 String _requiredString(Object? value, String field) {

@@ -66,9 +66,7 @@ void main() {
   });
 
   test('rejects empty customer id', () async {
-    final useCase = GetCustomerStatementUseCase(
-      repository: _FakeRepository(),
-    );
+    final useCase = GetCustomerStatementUseCase(repository: _FakeRepository());
 
     final result = await useCase(
       GetCustomerStatementParams(

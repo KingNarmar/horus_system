@@ -55,9 +55,7 @@ final class CustomerStatementsLocalizations {
 
   String customerOption({required String name, required bool isActive}) {
     if (isActive) return name;
-    return _value(
-      'inactiveCustomerOption',
-    ).replaceFirst('{name}', name);
+    return _value('inactiveCustomerOption').replaceFirst('{name}', name);
   }
 
   static const Map<String, String> _en = {
@@ -127,8 +125,7 @@ final class CustomerStatementsLocalizations {
     'clearDate': 'مسح التاريخ',
     'applyFilters': 'تطبيق',
     'clearDates': 'مسح التواريخ',
-    'selectCustomerPrompt':
-        'اختر عميلًا ثم طبّق الفلاتر لعرض كشف الحساب.',
+    'selectCustomerPrompt': 'اختر عميلًا ثم طبّق الفلاتر لعرض كشف الحساب.',
     'noMovements': 'لا توجد فواتير أو مدفوعات ضمن الفترة المحددة.',
     'openingBalance': 'الرصيد الافتتاحي',
     'invoiced': 'إجمالي الفواتير',
@@ -145,16 +142,13 @@ final class CustomerStatementsLocalizations {
     'permissionFailure': 'هذا الدور غير مسموح له بعرض كشوف حساب العملاء.',
     'customerRequiredFailure': 'اختر عميلًا.',
     'dateRangeFailure': 'لا يمكن أن يكون تاريخ البداية بعد تاريخ النهاية.',
-    'customerNotFoundFailure':
-        'تعذر العثور على العميل المحدد داخل هذه الشركة.',
+    'customerNotFoundFailure': 'تعذر العثور على العميل المحدد داخل هذه الشركة.',
     'sourceInvalidFailure':
         'بيانات كشف الحساب غير متسقة. أعد التحميل ثم حاول مرة أخرى.',
     'currencyMismatchFailure':
         'عملة كشف الحساب لا تطابق العملة المعتمدة للشركة.',
-    'movementInvalidFailure':
-        'يحتوي كشف الحساب على حركة مالية غير صالحة.',
-    'regionalSettingsFailure':
-        'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
+    'movementInvalidFailure': 'يحتوي كشف الحساب على حركة مالية غير صالحة.',
+    'regionalSettingsFailure': 'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.',
     'companyNotFoundFailure': 'تعذر العثور على الشركة الحالية.',
     'loadFailed': 'تعذر تحميل كشف حساب العميل.',
     'inactiveCustomerOption': '{name} — غير نشط',

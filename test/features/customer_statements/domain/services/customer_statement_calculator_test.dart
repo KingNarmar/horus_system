@@ -68,10 +68,11 @@ void main() {
     expect(statement.totalInvoiced.minorUnits, 120000);
     expect(statement.totalPaid.minorUnits, 120000);
     expect(statement.closingBalance.minorUnits, 0);
-    expect(
-      statement.lines.map((line) => line.runningBalance.minorUnits),
-      [120000, 80000, 0],
-    );
+    expect(statement.lines.map((line) => line.runningBalance.minorUnits), [
+      120000,
+      80000,
+      0,
+    ]);
     expect(statement.lines[1].signedAmount.minorUnits, -40000);
   });
 
@@ -169,10 +170,7 @@ void main() {
 
   test('rejects requested period mismatch from persisted source', () {
     final result = calculator.calculate(
-      source: _source(
-        currency: aed,
-        fromDate: DateTime(2026, 8, 9),
-      ),
+      source: _source(currency: aed, fromDate: DateTime(2026, 8, 9)),
       expectedCompanyId: 'company-1',
       expectedCustomerId: 'customer-1',
       expectedCurrency: aed,
@@ -241,10 +239,7 @@ void main() {
       currency: aed,
     );
     final result = calculator.calculate(
-      source: _source(
-        currency: aed,
-        movements: [duplicated, duplicated],
-      ),
+      source: _source(currency: aed, movements: [duplicated, duplicated]),
       expectedCompanyId: 'company-1',
       expectedCustomerId: 'customer-1',
       expectedCurrency: aed,

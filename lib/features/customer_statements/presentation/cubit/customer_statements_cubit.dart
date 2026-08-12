@@ -30,7 +30,10 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
       GetCustomersParams(currentCompanyContext: currentCompanyContext),
     );
 
-    if (!_isCurrentCustomersRequest(requestId, currentCompanyContext.companyId)) {
+    if (!_isCurrentCustomersRequest(
+      requestId,
+      currentCompanyContext.companyId,
+    )) {
       return;
     }
 

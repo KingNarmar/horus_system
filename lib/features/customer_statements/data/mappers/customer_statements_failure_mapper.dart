@@ -18,16 +18,16 @@ abstract final class CustomerStatementsFailureMapper {
         const ValidationFailure(
           code: CustomerStatementFailureCodes.validationDateRange,
         ),
-      CustomerStatementsRpcErrorCodes.companyNotFound =>
-        const NotFoundFailure(code: CompanyFailureCodes.notFound),
+      CustomerStatementsRpcErrorCodes.companyNotFound => const NotFoundFailure(
+        code: CompanyFailureCodes.notFound,
+      ),
       CustomerStatementsRpcErrorCodes.regionalSettingsNotConfigured =>
         const ConflictFailure(
           code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
         ),
-      CustomerStatementsRpcErrorCodes.customerNotFound =>
-        const NotFoundFailure(
-          code: CustomerStatementFailureCodes.customerNotFound,
-        ),
+      CustomerStatementsRpcErrorCodes.customerNotFound => const NotFoundFailure(
+        code: CustomerStatementFailureCodes.customerNotFound,
+      ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

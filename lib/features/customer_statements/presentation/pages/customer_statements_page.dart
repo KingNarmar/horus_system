@@ -86,10 +86,8 @@ final class _CustomerStatementsStateView extends StatelessWidget {
     final currentState = state;
 
     return switch (currentState) {
-      CustomerStatementsInitial() ||
-      CustomerStatementsLoadingCustomers() => _LoadingView(
-        message: strings.loadingCustomers,
-      ),
+      CustomerStatementsInitial() || CustomerStatementsLoadingCustomers() =>
+        _LoadingView(message: strings.loadingCustomers),
       CustomerStatementsLoadFailure(:final failure) => _FailureView(
         message: customerStatementsFailureMessage(context, failure),
         onRetry: onRetry,

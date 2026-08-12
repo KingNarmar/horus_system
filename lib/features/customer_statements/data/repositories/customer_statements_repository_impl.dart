@@ -37,11 +37,11 @@ final class CustomerStatementsRepositoryImpl
         AuthFailure(code: CompanyFailureCodes.authRequired),
       );
     } on PostgrestException catch (error) {
-      return FailureResult(CustomerStatementsFailureMapper.fromPostgrest(error));
-    } on FormatException {
-      return const FailureResult(
-        ServerFailure(code: FailureCodes.serverError),
+      return FailureResult(
+        CustomerStatementsFailureMapper.fromPostgrest(error),
       );
+    } on FormatException {
+      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
     } catch (_) {
       return const FailureResult(UnexpectedFailure());
     }

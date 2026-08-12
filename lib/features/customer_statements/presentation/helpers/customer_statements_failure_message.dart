@@ -7,10 +7,7 @@ import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/customer_statement_failure_codes.dart';
 import '../localization/customer_statements_localizations.dart';
 
-String customerStatementsFailureMessage(
-  BuildContext context,
-  Failure failure,
-) {
+String customerStatementsFailureMessage(BuildContext context, Failure failure) {
   final strings = context.customerStatementsL10n;
 
   return switch (failure.code) {

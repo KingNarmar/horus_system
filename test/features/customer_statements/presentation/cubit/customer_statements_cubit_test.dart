@@ -41,17 +41,20 @@ void main() {
     await cubit.close();
   });
 
-  test('inactive customer remains selectable for historical statements', () async {
-    final cubit = _cubit(_FakeCustomersRepository());
-    await cubit.load(_context);
+  test(
+    'inactive customer remains selectable for historical statements',
+    () async {
+      final cubit = _cubit(_FakeCustomersRepository());
+      await cubit.load(_context);
 
-    cubit.selectCustomer('customer-2');
+      cubit.selectCustomer('customer-2');
 
-    final state = cubit.state as CustomerStatementsReady;
-    expect(state.selectedCustomer?.isActive, isFalse);
-    expect(state.canApply, isTrue);
-    await cubit.close();
-  });
+      final state = cubit.state as CustomerStatementsReady;
+      expect(state.selectedCustomer?.isActive, isFalse);
+      expect(state.canApply, isTrue);
+      await cubit.close();
+    },
+  );
 
   test('valid customer enables apply and statement loads', () async {
     final statementRepository = _FakeStatementRepository();
@@ -131,7 +134,9 @@ final class _FakeCustomersRepository implements CustomersRepository {
   String? lastCompanyId;
 
   @override
-  Future<Result<List<Customer>>> getCustomers({required String companyId}) async {
+  Future<Result<List<Customer>>> getCustomers({
+    required String companyId,
+  }) async {
     lastCompanyId = companyId;
     return const Success([
       Customer(id: 'customer-1', companyId: 'company-1', name: 'Active'),

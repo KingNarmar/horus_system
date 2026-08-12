@@ -80,7 +80,8 @@ CustomerStatementSourceModel _model() {
   );
 }
 
-final class _FakeRemoteDataSource implements CustomerStatementsRemoteDataSource {
+final class _FakeRemoteDataSource
+    implements CustomerStatementsRemoteDataSource {
   final CustomerStatementSourceModel? model;
   final PostgrestException? error;
   final bool formatError;

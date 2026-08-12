@@ -3,8 +3,7 @@ abstract final class CustomerStatementFailureCodes {
 
   static const validationCustomerIdRequired =
       'validation_customer_statement_customer_id_required';
-  static const validationDateRange =
-      'validation_customer_statement_date_range';
+  static const validationDateRange = 'validation_customer_statement_date_range';
 
   static const customerNotFound = 'customer_statement_customer_not_found';
 

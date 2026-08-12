@@ -18,7 +18,8 @@ final class GetCustomerStatementUseCase
 
   const GetCustomerStatementUseCase({
     required CustomerStatementsRepository repository,
-    CustomerStatementCalculator calculator = const CustomerStatementCalculator(),
+    CustomerStatementCalculator calculator =
+        const CustomerStatementCalculator(),
   }) : _repository = repository,
        _calculator = calculator;
 
@@ -30,9 +31,7 @@ final class GetCustomerStatementUseCase
 
     if (!CustomerStatementsPermissionPolicy.canViewStatements(context.role)) {
       return const FailureResult(
-        PermissionFailure(
-          code: CustomerStatementFailureCodes.permissionView,
-        ),
+        PermissionFailure(code: CustomerStatementFailureCodes.permissionView),
       );
     }
 

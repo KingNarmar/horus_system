@@ -108,10 +108,11 @@ class AppShellContent extends StatelessWidget {
         create: (_) => PaymentsDependencies.createPaymentsCubit(),
         child: PaymentsPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.customerStatements => BlocProvider<CustomerStatementsCubit>(
-        create: (_) => CustomerStatementsDependencies.createCubit(),
-        child: CustomerStatementsPage(currentCompanyContext: contextData),
-      ),
+      AppShellModule.customerStatements =>
+        BlocProvider<CustomerStatementsCubit>(
+          create: (_) => CustomerStatementsDependencies.createCubit(),
+          child: CustomerStatementsPage(currentCompanyContext: contextData),
+        ),
       AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
         create: (_) => PaymentMethodsDependencies.createCubit(),
         child: _SettingsContent(contextData: contextData),

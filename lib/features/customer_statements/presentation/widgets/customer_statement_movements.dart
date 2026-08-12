@@ -69,9 +69,7 @@ final class _MovementsTable extends StatelessWidget {
                   ),
                   DataCell(Text(_typeLabel(context, line))),
                   DataCell(
-                    Text(
-                      line.movement.reference ?? strings.unavailableValue,
-                    ),
+                    Text(line.movement.reference ?? strings.unavailableValue),
                   ),
                   DataCell(Text(_money(context, line.signedAmount))),
                   DataCell(Text(_money(context, line.runningBalance))),
