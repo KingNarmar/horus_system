@@ -12,6 +12,8 @@ abstract final class AppIcons {
   static const IconData clear = Icons.close;
   static const IconData customers = Icons.apartment_outlined;
   static const IconData customersSelected = Icons.apartment;
+  static const IconData customerStatements = Icons.summarize_outlined;
+  static const IconData customerStatementsSelected = Icons.summarize;
   static const IconData dashboard = Icons.dashboard_outlined;
   static const IconData dashboardSelected = Icons.dashboard;
   static const IconData deactivate = Icons.block_outlined;

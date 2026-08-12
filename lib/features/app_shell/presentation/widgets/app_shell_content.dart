@@ -16,6 +16,9 @@ import '../../../company/presentation/extensions/company_role_localization.dart'
 import '../../../company_expenses/di/company_expenses_dependencies.dart';
 import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
 import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
+import '../../../customer_statements/di/customer_statements_dependencies.dart';
+import '../../../customer_statements/presentation/cubit/customer_statements_cubit.dart';
+import '../../../customer_statements/presentation/pages/customer_statements_page.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
 import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
@@ -104,6 +107,10 @@ class AppShellContent extends StatelessWidget {
       AppShellModule.payments => BlocProvider<PaymentsCubit>(
         create: (_) => PaymentsDependencies.createPaymentsCubit(),
         child: PaymentsPage(currentCompanyContext: contextData),
+      ),
+      AppShellModule.customerStatements => BlocProvider<CustomerStatementsCubit>(
+        create: (_) => CustomerStatementsDependencies.createCubit(),
+        child: CustomerStatementsPage(currentCompanyContext: contextData),
       ),
       AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
         create: (_) => PaymentMethodsDependencies.createCubit(),
