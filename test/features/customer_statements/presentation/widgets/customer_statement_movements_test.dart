@@ -25,7 +25,7 @@ void main() {
 
     expect(find.text('INV-1'), findsOneWidget);
     expect(find.text('REF-1'), findsOneWidget);
-    expect(find.text('AED 1,200.00'), findsOneWidget);
+    expect(find.text('AED 1,200.00'), findsNWidgets(2));
     expect(find.text('AED -400.00'), findsOneWidget);
     expect(find.text('AED 800.00'), findsOneWidget);
   });
