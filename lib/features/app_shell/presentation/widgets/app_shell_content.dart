@@ -20,6 +20,9 @@ import '../../../customer_statements/di/customer_statements_dependencies.dart';
 import '../../../customer_statements/presentation/cubit/customer_statements_cubit.dart';
 import '../../../customer_statements/presentation/pages/customer_statements_page.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
+import '../../../dashboard/di/dashboard_dependencies.dart';
+import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
+import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
 import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import '../../../driver_settlements/presentation/pages/driver_settlements_page.dart';
@@ -76,6 +79,10 @@ class AppShellContent extends StatelessWidget {
 
   Widget _contentForSelectedModule() {
     return switch (selected.module) {
+      AppShellModule.dashboard => BlocProvider<DashboardCubit>(
+        create: (_) => DashboardDependencies.createCubit(),
+        child: DashboardPage(currentCompanyContext: contextData),
+      ),
       AppShellModule.customers => CustomersPage(
         currentCompanyContext: contextData,
       ),
