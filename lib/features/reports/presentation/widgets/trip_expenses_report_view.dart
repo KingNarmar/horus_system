@@ -67,26 +67,32 @@ final class _ExpensesTable extends StatelessWidget {
             DataColumn(label: Text(strings.paidBy)),
             DataColumn(label: Text(strings.amount), numeric: true),
           ],
-          rows: report.rows.map((row) {
-            return DataRow(
-              cells: [
-                DataCell(Text(formatReportDate(row.expenseDate, localeName))),
-                DataCell(Text(reportDisplayValue(row.tripNumber, row.tripId))),
-                DataCell(Text(row.customerName)),
-                DataCell(Text(row.expenseName)),
-                DataCell(Text(strings.paidByLabel(row.paidBy))),
-                DataCell(
-                  Text(
-                    formatReportMoney(
-                      money: row.amount,
-                      fractionDigits: fractionDigits,
-                      localeName: localeName,
+          rows: report.rows
+              .map((row) {
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(formatReportDate(row.expenseDate, localeName)),
                     ),
-                  ),
-                ),
-              ],
-            );
-          }).toList(growable: false),
+                    DataCell(
+                      Text(reportDisplayValue(row.tripNumber, row.tripId)),
+                    ),
+                    DataCell(Text(row.customerName)),
+                    DataCell(Text(row.expenseName)),
+                    DataCell(Text(strings.paidByLabel(row.paidBy))),
+                    DataCell(
+                      Text(
+                        formatReportMoney(
+                          money: row.amount,
+                          fractionDigits: fractionDigits,
+                          localeName: localeName,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              })
+              .toList(growable: false),
         ),
       ),
     );
@@ -104,46 +110,48 @@ final class _ExpensesCards extends StatelessWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final fractionDigits = report.metadata.baseCurrencyFractionDigits;
     return Column(
-      children: report.rows.map((row) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    row.expenseName,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+      children: report.rows
+          .map((row) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        row.expenseName,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _Line(
+                        strings.date,
+                        formatReportDate(row.expenseDate, localeName),
+                      ),
+                      _Line(
+                        strings.trip,
+                        reportDisplayValue(row.tripNumber, row.tripId),
+                      ),
+                      _Line(strings.customer, row.customerName),
+                      _Line(strings.paidBy, strings.paidByLabel(row.paidBy)),
+                      _Line(
+                        strings.amount,
+                        formatReportMoney(
+                          money: row.amount,
+                          fractionDigits: fractionDigits,
+                          localeName: localeName,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _Line(
-                    strings.date,
-                    formatReportDate(row.expenseDate, localeName),
-                  ),
-                  _Line(
-                    strings.trip,
-                    reportDisplayValue(row.tripNumber, row.tripId),
-                  ),
-                  _Line(strings.customer, row.customerName),
-                  _Line(strings.paidBy, strings.paidByLabel(row.paidBy)),
-                  _Line(
-                    strings.amount,
-                    formatReportMoney(
-                      money: row.amount,
-                      fractionDigits: fractionDigits,
-                      localeName: localeName,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

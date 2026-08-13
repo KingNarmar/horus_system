@@ -30,9 +30,7 @@ final class GetOpenInvoicesReportUseCase
     final context = params.currentCompanyContext;
     if (!ReportsPermissionPolicy.canViewOpenInvoicesReport(context.role)) {
       return const FailureResult(
-        PermissionFailure(
-          code: ReportsFailureCodes.permissionOpenInvoicesView,
-        ),
+        PermissionFailure(code: ReportsFailureCodes.permissionOpenInvoicesView),
       );
     }
 
@@ -83,9 +81,7 @@ final class GetOpenInvoicesReportUseCase
         source.invalidPaymentAmountCount > 0 ||
         source.missingIssueDateCount > 0) {
       return const FailureResult(
-        ConflictFailure(
-          code: ReportsFailureCodes.conflictFinancialDataInvalid,
-        ),
+        ConflictFailure(code: ReportsFailureCodes.conflictFinancialDataInvalid),
       );
     }
 
@@ -146,7 +142,8 @@ final class GetOpenInvoicesReportUseCase
       final balanceResult = _balanceResolver.calculate(
         companyId: request.companyId,
         invoice: invoice,
-        payments: paymentsByInvoice[invoice.invoiceId] ??
+        payments:
+            paymentsByInvoice[invoice.invoiceId] ??
             const <OpenInvoiceSourcePayment>[],
       );
       if (balanceResult is FailureResult<PaymentBalance>) {

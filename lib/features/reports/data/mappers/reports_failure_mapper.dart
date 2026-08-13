@@ -13,8 +13,8 @@ abstract final class ReportsFailureMapper {
     required String permissionFailureCode,
   }) {
     return switch (error.code) {
-      ReportsRpcErrorCodes.permissionDenied || '42501' =>
-        PermissionFailure(code: permissionFailureCode),
+      ReportsRpcErrorCodes.permissionDenied ||
+      '42501' => PermissionFailure(code: permissionFailureCode),
       ReportsRpcErrorCodes.invalidDateRange => const ValidationFailure(
         code: ReportsFailureCodes.validationDateRange,
       ),

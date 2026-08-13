@@ -42,7 +42,9 @@ ReportsCubit _cubit(ReportsRepository repository) {
   return ReportsCubit(
     getOperationalReport: GetOperationalReportUseCase(repository: repository),
     getTripExpensesReport: GetTripExpensesReportUseCase(repository),
-    getTripNetProfitReport: GetTripNetProfitReportUseCase(repository: repository),
+    getTripNetProfitReport: GetTripNetProfitReportUseCase(
+      repository: repository,
+    ),
     getOpenInvoicesReport: GetOpenInvoicesReportUseCase(repository: repository),
   );
 }
@@ -81,7 +83,10 @@ final class _EmptyReportsRepository implements ReportsRepository {
   }) async {
     operationalCalls++;
     return Success(
-      OperationalTripReportSource(metadata: _metadata(fromDate, toDate), rows: []),
+      OperationalTripReportSource(
+        metadata: _metadata(fromDate, toDate),
+        rows: [],
+      ),
     );
   }
 

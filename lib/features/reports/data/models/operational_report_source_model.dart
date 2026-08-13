@@ -13,9 +13,10 @@ final class OperationalReportSourceModel {
   factory OperationalReportSourceModel.fromMap(Map<String, dynamic> map) {
     return OperationalReportSourceModel(
       metadata: ReportSourceMetadataModel.fromRoot(map),
-      rows: requiredMapList(map['rows'], 'rows')
-          .map(OperationalTripRowModel.fromMap)
-          .toList(growable: false),
+      rows: requiredMapList(
+        map['rows'],
+        'rows',
+      ).map(OperationalTripRowModel.fromMap).toList(growable: false),
     );
   }
 }

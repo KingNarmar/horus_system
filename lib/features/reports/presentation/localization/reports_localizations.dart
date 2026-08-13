@@ -48,8 +48,7 @@ final class ReportsLocalizations {
   String get expense => _isArabic ? 'المصروف' : 'Expense';
   String get paidBy => _isArabic ? 'الدافع' : 'Paid by';
   String get amount => _isArabic ? 'المبلغ' : 'Amount';
-  String get totalExpenses =>
-      _isArabic ? 'إجمالي المصروفات' : 'Total expenses';
+  String get totalExpenses => _isArabic ? 'إجمالي المصروفات' : 'Total expenses';
   String get freight => _isArabic ? 'سعر النقل' : 'Freight';
   String get netProfit => _isArabic ? 'صافي الربح' : 'Net profit';
   String get totalFreight => _isArabic ? 'إجمالي النقل' : 'Total freight';
@@ -67,8 +66,7 @@ final class ReportsLocalizations {
 
   String reportTypeLabel(ReportType type) {
     return switch (type) {
-      ReportType.dailyTrips =>
-        _isArabic ? 'الرحلات اليومية' : 'Daily trips',
+      ReportType.dailyTrips => _isArabic ? 'الرحلات اليومية' : 'Daily trips',
       ReportType.tripsByCustomer =>
         _isArabic ? 'الرحلات حسب العميل' : 'Trips by customer',
       ReportType.tripsByDriver =>
@@ -99,8 +97,7 @@ final class ReportsLocalizations {
       TripExpensePaidBy.company => _isArabic ? 'الشركة' : 'Company',
       TripExpensePaidBy.driverAdvance =>
         _isArabic ? 'عهدة السائق' : 'Driver advance',
-      TripExpensePaidBy.driverCash =>
-        _isArabic ? 'دفع السائق' : 'Driver cash',
+      TripExpensePaidBy.driverCash => _isArabic ? 'دفع السائق' : 'Driver cash',
       TripExpensePaidBy.customer => _isArabic ? 'العميل' : 'Customer',
       TripExpensePaidBy.other => _isArabic ? 'أخرى' : 'Other',
     };

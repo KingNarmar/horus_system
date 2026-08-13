@@ -69,34 +69,38 @@ final class _InvoicesTable extends StatelessWidget {
             DataColumn(label: Text(strings.paid), numeric: true),
             DataColumn(label: Text(strings.remaining), numeric: true),
           ],
-          rows: report.rows.map((row) {
-            final invoice = row.invoice;
-            return DataRow(
-              cells: [
-                DataCell(
-                  Text(
-                    reportDisplayValue(
-                      invoice.invoiceNumber,
-                      invoice.invoiceId,
+          rows: report.rows
+              .map((row) {
+                final invoice = row.invoice;
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(
+                        reportDisplayValue(
+                          invoice.invoiceNumber,
+                          invoice.invoiceId,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                DataCell(Text(invoice.customerName)),
-                DataCell(Text(formatReportDate(invoice.issueDate, localeName))),
-                DataCell(
-                  Text(
-                    invoice.dueDate == null
-                        ? strings.notAvailable
-                        : formatReportDate(invoice.dueDate!, localeName),
-                  ),
-                ),
-                DataCell(Text(strings.invoiceStatusLabel(invoice.status))),
-                DataCell(Text(_money(invoice.total, digits, localeName))),
-                DataCell(Text(_money(row.paid, digits, localeName))),
-                DataCell(Text(_money(row.remaining, digits, localeName))),
-              ],
-            );
-          }).toList(growable: false),
+                    DataCell(Text(invoice.customerName)),
+                    DataCell(
+                      Text(formatReportDate(invoice.issueDate, localeName)),
+                    ),
+                    DataCell(
+                      Text(
+                        invoice.dueDate == null
+                            ? strings.notAvailable
+                            : formatReportDate(invoice.dueDate!, localeName),
+                      ),
+                    ),
+                    DataCell(Text(strings.invoiceStatusLabel(invoice.status))),
+                    DataCell(Text(_money(invoice.total, digits, localeName))),
+                    DataCell(Text(_money(row.paid, digits, localeName))),
+                    DataCell(Text(_money(row.remaining, digits, localeName))),
+                  ],
+                );
+              })
+              .toList(growable: false),
         ),
       ),
     );
@@ -114,50 +118,52 @@ final class _InvoicesCards extends StatelessWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final digits = report.metadata.baseCurrencyFractionDigits;
     return Column(
-      children: report.rows.map((row) {
-        final invoice = row.invoice;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    reportDisplayValue(
-                      invoice.invoiceNumber,
-                      invoice.invoiceId,
-                    ),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+      children: report.rows
+          .map((row) {
+            final invoice = row.invoice;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        reportDisplayValue(
+                          invoice.invoiceNumber,
+                          invoice.invoiceId,
+                        ),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _Line(strings.customer, invoice.customerName),
+                      _Line(
+                        strings.issueDate,
+                        formatReportDate(invoice.issueDate, localeName),
+                      ),
+                      _Line(
+                        strings.status,
+                        strings.invoiceStatusLabel(invoice.status),
+                      ),
+                      _Line(
+                        strings.total,
+                        _money(invoice.total, digits, localeName),
+                      ),
+                      _Line(strings.paid, _money(row.paid, digits, localeName)),
+                      _Line(
+                        strings.remaining,
+                        _money(row.remaining, digits, localeName),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _Line(strings.customer, invoice.customerName),
-                  _Line(
-                    strings.issueDate,
-                    formatReportDate(invoice.issueDate, localeName),
-                  ),
-                  _Line(
-                    strings.status,
-                    strings.invoiceStatusLabel(invoice.status),
-                  ),
-                  _Line(
-                    strings.total,
-                    _money(invoice.total, digits, localeName),
-                  ),
-                  _Line(strings.paid, _money(row.paid, digits, localeName)),
-                  _Line(
-                    strings.remaining,
-                    _money(row.remaining, digits, localeName),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

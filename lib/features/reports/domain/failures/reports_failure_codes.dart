@@ -8,8 +8,7 @@ abstract final class ReportsFailureCodes {
   static const validationDateRange = 'reports.validation.date_range';
 
   static const conflictSourceInvalid = 'reports.conflict.source_invalid';
-  static const conflictCurrencyMismatch =
-      'reports.conflict.currency_mismatch';
+  static const conflictCurrencyMismatch = 'reports.conflict.currency_mismatch';
   static const conflictFinancialDataInvalid =
       'reports.conflict.financial_data_invalid';
   static const conflictInvoiceBalanceInvalid =

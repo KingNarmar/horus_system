@@ -36,29 +36,31 @@ extension OperationalReportSourceModelMapper on OperationalReportSourceModel {
   OperationalTripReportSource toEntity() {
     return OperationalTripReportSource(
       metadata: metadata.toEntity(),
-      rows: rows.map((row) {
-        return OperationalTripReportRow(
-          tripId: row.tripId,
-          tripNumber: row.tripNumber,
-          operationalDate: row.operationalDate,
-          status: _tripStatus(row.status),
-          customerId: row.customerId,
-          customerName: row.customerName,
-          driverId: row.driverId,
-          driverName: row.driverName,
-          tractorHeadId: row.tractorHeadId,
-          tractorHeadPlateNumber: row.tractorHeadPlateNumber,
-          trailerId: row.trailerId,
-          trailerPlateNumber: row.trailerPlateNumber,
-          routeId: row.routeId,
-          loadingLocation: row.loadingLocation,
-          unloadingLocation: row.unloadingLocation,
-          loadingOrderNumber: row.loadingOrderNumber,
-          waybillNumber: row.waybillNumber,
-          cargoType: row.cargoType,
-          quantityTons: row.quantityTons,
-        );
-      }).toList(growable: false),
+      rows: rows
+          .map((row) {
+            return OperationalTripReportRow(
+              tripId: row.tripId,
+              tripNumber: row.tripNumber,
+              operationalDate: row.operationalDate,
+              status: _tripStatus(row.status),
+              customerId: row.customerId,
+              customerName: row.customerName,
+              driverId: row.driverId,
+              driverName: row.driverName,
+              tractorHeadId: row.tractorHeadId,
+              tractorHeadPlateNumber: row.tractorHeadPlateNumber,
+              trailerId: row.trailerId,
+              trailerPlateNumber: row.trailerPlateNumber,
+              routeId: row.routeId,
+              loadingLocation: row.loadingLocation,
+              unloadingLocation: row.unloadingLocation,
+              loadingOrderNumber: row.loadingOrderNumber,
+              waybillNumber: row.waybillNumber,
+              cargoType: row.cargoType,
+              quantityTons: row.quantityTons,
+            );
+          })
+          .toList(growable: false),
     );
   }
 }
@@ -70,28 +72,30 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
       metadata: reportMetadata,
       precisionLossCount: precisionLossCount,
       negativeAmountCount: negativeAmountCount,
-      rows: rows.map((row) {
-        return TripExpenseReportRow(
-          expenseId: row.expenseId,
-          expenseDate: row.expenseDate,
-          tripId: row.tripId,
-          tripNumber: row.tripNumber,
-          tripDate: row.tripDate,
-          customerId: row.customerId,
-          customerName: row.customerName,
-          loadingLocation: row.loadingLocation,
-          unloadingLocation: row.unloadingLocation,
-          loadingOrderNumber: row.loadingOrderNumber,
-          waybillNumber: row.waybillNumber,
-          expenseTypeId: row.expenseTypeId,
-          expenseName: row.expenseName,
-          paidBy: _paidBy(row.paidBy),
-          amount: Money(
-            minorUnits: row.amountMinorUnits,
-            currency: reportMetadata.currency,
-          ),
-        );
-      }).toList(growable: false),
+      rows: rows
+          .map((row) {
+            return TripExpenseReportRow(
+              expenseId: row.expenseId,
+              expenseDate: row.expenseDate,
+              tripId: row.tripId,
+              tripNumber: row.tripNumber,
+              tripDate: row.tripDate,
+              customerId: row.customerId,
+              customerName: row.customerName,
+              loadingLocation: row.loadingLocation,
+              unloadingLocation: row.unloadingLocation,
+              loadingOrderNumber: row.loadingOrderNumber,
+              waybillNumber: row.waybillNumber,
+              expenseTypeId: row.expenseTypeId,
+              expenseName: row.expenseName,
+              paidBy: _paidBy(row.paidBy),
+              amount: Money(
+                minorUnits: row.amountMinorUnits,
+                currency: reportMetadata.currency,
+              ),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }
@@ -106,40 +110,44 @@ extension TripNetProfitReportSourceModelMapper
       negativeFreightCount: negativeFreightCount,
       expensePrecisionLossCount: expensePrecisionLossCount,
       negativeExpenseCount: negativeExpenseCount,
-      trips: trips.map((trip) {
-        return TripNetProfitSourceTrip(
-          tripId: trip.tripId,
-          tripNumber: trip.tripNumber,
-          operationalDate: trip.operationalDate,
-          status: _tripStatus(trip.status),
-          customerId: trip.customerId,
-          customerName: trip.customerName,
-          driverId: trip.driverId,
-          driverName: trip.driverName,
-          tractorHeadId: trip.tractorHeadId,
-          tractorHeadPlateNumber: trip.tractorHeadPlateNumber,
-          trailerId: trip.trailerId,
-          trailerPlateNumber: trip.trailerPlateNumber,
-          loadingLocation: trip.loadingLocation,
-          unloadingLocation: trip.unloadingLocation,
-          loadingOrderNumber: trip.loadingOrderNumber,
-          waybillNumber: trip.waybillNumber,
-          freight: Money(
-            minorUnits: trip.freightMinorUnits,
-            currency: reportMetadata.currency,
-          ),
-        );
-      }).toList(growable: false),
-      expenses: expenses.map((expense) {
-        return TripNetProfitSourceExpense(
-          expenseId: expense.expenseId,
-          tripId: expense.tripId,
-          amount: Money(
-            minorUnits: expense.amountMinorUnits,
-            currency: reportMetadata.currency,
-          ),
-        );
-      }).toList(growable: false),
+      trips: trips
+          .map((trip) {
+            return TripNetProfitSourceTrip(
+              tripId: trip.tripId,
+              tripNumber: trip.tripNumber,
+              operationalDate: trip.operationalDate,
+              status: _tripStatus(trip.status),
+              customerId: trip.customerId,
+              customerName: trip.customerName,
+              driverId: trip.driverId,
+              driverName: trip.driverName,
+              tractorHeadId: trip.tractorHeadId,
+              tractorHeadPlateNumber: trip.tractorHeadPlateNumber,
+              trailerId: trip.trailerId,
+              trailerPlateNumber: trip.trailerPlateNumber,
+              loadingLocation: trip.loadingLocation,
+              unloadingLocation: trip.unloadingLocation,
+              loadingOrderNumber: trip.loadingOrderNumber,
+              waybillNumber: trip.waybillNumber,
+              freight: Money(
+                minorUnits: trip.freightMinorUnits,
+                currency: reportMetadata.currency,
+              ),
+            );
+          })
+          .toList(growable: false),
+      expenses: expenses
+          .map((expense) {
+            return TripNetProfitSourceExpense(
+              expenseId: expense.expenseId,
+              tripId: expense.tripId,
+              amount: Money(
+                minorUnits: expense.amountMinorUnits,
+                currency: reportMetadata.currency,
+              ),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }
@@ -154,43 +162,47 @@ extension OpenInvoicesReportSourceModelMapper on OpenInvoicesReportSourceModel {
       invalidInvoiceAmountCount: invalidInvoiceAmountCount,
       invalidPaymentAmountCount: invalidPaymentAmountCount,
       missingIssueDateCount: missingIssueDateCount,
-      invoices: invoices.map((invoice) {
-        final currency = CurrencyCode.tryParse(invoice.currencyCode);
-        final status = InvoiceStatus.tryFromValue(invoice.status);
-        if (currency == null || status == null) {
-          throw const FormatException('Invalid invoice report source.');
-        }
-        return OpenInvoiceSourceInvoice(
-          invoiceId: invoice.invoiceId,
-          invoiceNumber: invoice.invoiceNumber,
-          customerId: invoice.customerId,
-          customerName: invoice.customerName,
-          status: status,
-          total: Money(
-            minorUnits: invoice.totalMinorUnits,
-            currency: currency,
-          ),
-          issueDate: invoice.issueDate,
-          dueDate: invoice.dueDate,
-          issuedAt: invoice.issuedAt,
-        );
-      }).toList(growable: false),
-      payments: payments.map((payment) {
-        final currency = CurrencyCode.tryParse(payment.currencyCode);
-        if (currency == null) {
-          throw const FormatException('Invalid payment report currency.');
-        }
-        return OpenInvoiceSourcePayment(
-          paymentId: payment.paymentId,
-          invoiceId: payment.invoiceId,
-          amount: Money(
-            minorUnits: payment.amountMinorUnits,
-            currency: currency,
-          ),
-          paymentDate: payment.paymentDate,
-          createdAt: payment.createdAt,
-        );
-      }).toList(growable: false),
+      invoices: invoices
+          .map((invoice) {
+            final currency = CurrencyCode.tryParse(invoice.currencyCode);
+            final status = InvoiceStatus.tryFromValue(invoice.status);
+            if (currency == null || status == null) {
+              throw const FormatException('Invalid invoice report source.');
+            }
+            return OpenInvoiceSourceInvoice(
+              invoiceId: invoice.invoiceId,
+              invoiceNumber: invoice.invoiceNumber,
+              customerId: invoice.customerId,
+              customerName: invoice.customerName,
+              status: status,
+              total: Money(
+                minorUnits: invoice.totalMinorUnits,
+                currency: currency,
+              ),
+              issueDate: invoice.issueDate,
+              dueDate: invoice.dueDate,
+              issuedAt: invoice.issuedAt,
+            );
+          })
+          .toList(growable: false),
+      payments: payments
+          .map((payment) {
+            final currency = CurrencyCode.tryParse(payment.currencyCode);
+            if (currency == null) {
+              throw const FormatException('Invalid payment report currency.');
+            }
+            return OpenInvoiceSourcePayment(
+              paymentId: payment.paymentId,
+              invoiceId: payment.invoiceId,
+              amount: Money(
+                minorUnits: payment.amountMinorUnits,
+                currency: currency,
+              ),
+              paymentDate: payment.paymentDate,
+              createdAt: payment.createdAt,
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

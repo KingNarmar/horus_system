@@ -47,12 +47,14 @@ final class OpenInvoicesReportSourceModel {
         validation['missing_issue_date_count'],
         'missing_issue_date_count',
       ),
-      invoices: requiredMapList(map['invoices'], 'invoices')
-          .map(OpenInvoiceModel.fromMap)
-          .toList(growable: false),
-      payments: requiredMapList(map['payments'], 'payments')
-          .map(OpenInvoicePaymentModel.fromMap)
-          .toList(growable: false),
+      invoices: requiredMapList(
+        map['invoices'],
+        'invoices',
+      ).map(OpenInvoiceModel.fromMap).toList(growable: false),
+      payments: requiredMapList(
+        map['payments'],
+        'payments',
+      ).map(OpenInvoicePaymentModel.fromMap).toList(growable: false),
     );
   }
 }

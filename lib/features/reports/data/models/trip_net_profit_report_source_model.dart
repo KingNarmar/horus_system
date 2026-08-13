@@ -41,12 +41,14 @@ final class TripNetProfitReportSourceModel {
         validation['negative_expense_count'],
         'negative_expense_count',
       ),
-      trips: requiredMapList(map['trips'], 'trips')
-          .map(TripNetProfitTripModel.fromMap)
-          .toList(growable: false),
-      expenses: requiredMapList(map['expenses'], 'expenses')
-          .map(TripNetProfitExpenseModel.fromMap)
-          .toList(growable: false),
+      trips: requiredMapList(
+        map['trips'],
+        'trips',
+      ).map(TripNetProfitTripModel.fromMap).toList(growable: false),
+      expenses: requiredMapList(
+        map['expenses'],
+        'expenses',
+      ).map(TripNetProfitExpenseModel.fromMap).toList(growable: false),
     );
   }
 }

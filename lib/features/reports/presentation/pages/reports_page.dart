@@ -112,10 +112,7 @@ final class _ReportsPageState extends State<ReportsPage> {
         const SizedBox(height: AppSpacing.lg),
         BlocBuilder<ReportsCubit, ReportsState>(
           builder: (context, state) {
-            return _ReportsStateView(
-              state: state,
-              onRetry: _load,
-            );
+            return _ReportsStateView(state: state, onRetry: _load);
           },
         ),
       ],
@@ -178,9 +175,9 @@ final class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(
+        context,
+      ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }
@@ -225,14 +222,17 @@ final class _ReportsStateView extends StatelessWidget {
           _AppliedPeriod(dateRange: dateRange),
           const SizedBox(height: AppSpacing.md),
           switch (content) {
-            OperationalReportsContent(:final report) =>
-              OperationalReportView(report: report),
-            TripExpensesReportsContent(:final report) =>
-              TripExpensesReportView(report: report),
+            OperationalReportsContent(:final report) => OperationalReportView(
+              report: report,
+            ),
+            TripExpensesReportsContent(:final report) => TripExpensesReportView(
+              report: report,
+            ),
             TripNetProfitReportsContent(:final report) =>
               TripNetProfitReportView(report: report),
-            OpenInvoicesReportsContent(:final report) =>
-              OpenInvoicesReportView(report: report),
+            OpenInvoicesReportsContent(:final report) => OpenInvoicesReportView(
+              report: report,
+            ),
           },
         ],
       ),

@@ -20,9 +20,9 @@ final class ReportTotalCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

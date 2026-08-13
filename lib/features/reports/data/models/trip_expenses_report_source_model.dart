@@ -26,9 +26,10 @@ final class TripExpensesReportSourceModel {
         validation['negative_amount_count'],
         'negative_amount_count',
       ),
-      rows: requiredMapList(map['rows'], 'rows')
-          .map(TripExpenseRowModel.fromMap)
-          .toList(growable: false),
+      rows: requiredMapList(
+        map['rows'],
+        'rows',
+      ).map(TripExpenseRowModel.fromMap).toList(growable: false),
     );
   }
 }

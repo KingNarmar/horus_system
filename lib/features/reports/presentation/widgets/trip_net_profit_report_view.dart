@@ -92,24 +92,28 @@ final class _ProfitTable extends StatelessWidget {
             DataColumn(label: Text(strings.totalExpenses), numeric: true),
             DataColumn(label: Text(strings.netProfit), numeric: true),
           ],
-          rows: report.rows.map((row) {
-            final trip = row.trip;
-            return DataRow(
-              cells: [
-                DataCell(
-                  Text(reportDisplayValue(trip.tripNumber, trip.tripId)),
-                ),
-                DataCell(
-                  Text(formatReportDate(trip.operationalDate, localeName)),
-                ),
-                DataCell(Text(trip.customerName)),
-                DataCell(Text(context.l10n.tripStatusLabel(trip.status))),
-                DataCell(Text(_money(trip.freight, digits, localeName))),
-                DataCell(Text(_money(row.totalExpenses, digits, localeName))),
-                DataCell(Text(_money(row.netProfit, digits, localeName))),
-              ],
-            );
-          }).toList(growable: false),
+          rows: report.rows
+              .map((row) {
+                final trip = row.trip;
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(reportDisplayValue(trip.tripNumber, trip.tripId)),
+                    ),
+                    DataCell(
+                      Text(formatReportDate(trip.operationalDate, localeName)),
+                    ),
+                    DataCell(Text(trip.customerName)),
+                    DataCell(Text(context.l10n.tripStatusLabel(trip.status))),
+                    DataCell(Text(_money(trip.freight, digits, localeName))),
+                    DataCell(
+                      Text(_money(row.totalExpenses, digits, localeName)),
+                    ),
+                    DataCell(Text(_money(row.netProfit, digits, localeName))),
+                  ],
+                );
+              })
+              .toList(growable: false),
         ),
       ),
     );
@@ -127,50 +131,52 @@ final class _ProfitCards extends StatelessWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final digits = report.metadata.baseCurrencyFractionDigits;
     return Column(
-      children: report.rows.map((row) {
-        final trip = row.trip;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    reportDisplayValue(trip.tripNumber, trip.tripId),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+      children: report.rows
+          .map((row) {
+            final trip = row.trip;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        reportDisplayValue(trip.tripNumber, trip.tripId),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _Line(
+                        strings.date,
+                        formatReportDate(trip.operationalDate, localeName),
+                      ),
+                      _Line(strings.customer, trip.customerName),
+                      _Line(
+                        strings.status,
+                        context.l10n.tripStatusLabel(trip.status),
+                      ),
+                      _Line(
+                        strings.freight,
+                        _money(trip.freight, digits, localeName),
+                      ),
+                      _Line(
+                        strings.totalExpenses,
+                        _money(row.totalExpenses, digits, localeName),
+                      ),
+                      _Line(
+                        strings.netProfit,
+                        _money(row.netProfit, digits, localeName),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _Line(
-                    strings.date,
-                    formatReportDate(trip.operationalDate, localeName),
-                  ),
-                  _Line(strings.customer, trip.customerName),
-                  _Line(
-                    strings.status,
-                    context.l10n.tripStatusLabel(trip.status),
-                  ),
-                  _Line(
-                    strings.freight,
-                    _money(trip.freight, digits, localeName),
-                  ),
-                  _Line(
-                    strings.totalExpenses,
-                    _money(row.totalExpenses, digits, localeName),
-                  ),
-                  _Line(
-                    strings.netProfit,
-                    _money(row.netProfit, digits, localeName),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

@@ -23,57 +23,67 @@ import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('operational report groups unassigned drivers and keeps cancelled trips', () async {
-    final repository = _FakeReportsRepository(
-      operational: (companyId, from, to) => OperationalTripReportSource(
-        metadata: _metadata(companyId, from, to),
-        rows: [
-          _operationalRow(id: 'trip-1', driverId: 'driver-1', driverName: 'Ali'),
-          _operationalRow(
-            id: 'trip-2',
-            driverId: null,
-            driverName: null,
-            status: TripStatus.cancelled,
-          ),
-        ],
-      ),
-    );
-    final useCase = GetOperationalReportUseCase(repository: repository);
+  test(
+    'operational report groups unassigned drivers and keeps cancelled trips',
+    () async {
+      final repository = _FakeReportsRepository(
+        operational: (companyId, from, to) => OperationalTripReportSource(
+          metadata: _metadata(companyId, from, to),
+          rows: [
+            _operationalRow(
+              id: 'trip-1',
+              driverId: 'driver-1',
+              driverName: 'Ali',
+            ),
+            _operationalRow(
+              id: 'trip-2',
+              driverId: null,
+              driverName: null,
+              status: TripStatus.cancelled,
+            ),
+          ],
+        ),
+      );
+      final useCase = GetOperationalReportUseCase(repository: repository);
 
-    final result = await useCase(
-      OperationalReportParams(
-        currentCompanyContext: _context(CompanyRole.viewer),
-        dimension: OperationalReportDimension.driver,
-        dateRange: const ReportDateRange(),
-      ),
-    );
+      final result = await useCase(
+        OperationalReportParams(
+          currentCompanyContext: _context(CompanyRole.viewer),
+          dimension: OperationalReportDimension.driver,
+          dateRange: const ReportDateRange(),
+        ),
+      );
 
-    final report = result.dataOrNull;
-    expect(report, isNotNull);
-    expect(report!.totalTrips, 2);
-    expect(report.groups, hasLength(2));
-    expect(report.groups.last.entityId, isNull);
-    expect(report.groups.last.rows.single.status, TripStatus.cancelled);
-  });
+      final report = result.dataOrNull;
+      expect(report, isNotNull);
+      expect(report!.totalTrips, 2);
+      expect(report.groups, hasLength(2));
+      expect(report.groups.last.entityId, isNull);
+      expect(report.groups.last.rows.single.status, TripStatus.cancelled);
+    },
+  );
 
-  test('driver is denied operational reports before repository access', () async {
-    final repository = _FakeReportsRepository();
-    final useCase = GetOperationalReportUseCase(repository: repository);
+  test(
+    'driver is denied operational reports before repository access',
+    () async {
+      final repository = _FakeReportsRepository();
+      final useCase = GetOperationalReportUseCase(repository: repository);
 
-    final result = await useCase(
-      OperationalReportParams(
-        currentCompanyContext: _context(CompanyRole.driver),
-        dimension: OperationalReportDimension.day,
-        dateRange: const ReportDateRange(),
-      ),
-    );
+      final result = await useCase(
+        OperationalReportParams(
+          currentCompanyContext: _context(CompanyRole.driver),
+          dimension: OperationalReportDimension.day,
+          dateRange: const ReportDateRange(),
+        ),
+      );
 
-    expect(
-      result.failureOrNull?.code,
-      ReportsFailureCodes.permissionOperationalView,
-    );
-    expect(repository.operationalCalls, 0);
-  });
+      expect(
+        result.failureOrNull?.code,
+        ReportsFailureCodes.permissionOperationalView,
+      );
+      expect(repository.operationalCalls, 0);
+    },
+  );
 
   test('invalid inclusive date range fails before repository access', () async {
     final repository = _FakeReportsRepository();
@@ -119,85 +129,94 @@ void main() {
     expect(result.dataOrNull?.totalExpenses.minorUnits, 4000);
   });
 
-  test('trip net profit uses all authoritative linked expenses from source', () async {
-    final currency = _currency;
-    final repository = _FakeReportsRepository(
-      netProfit: (companyId, from, to) => TripNetProfitReportSource(
-        metadata: _metadata(companyId, from, to),
-        freightPrecisionLossCount: 0,
-        negativeFreightCount: 0,
-        expensePrecisionLossCount: 0,
-        negativeExpenseCount: 0,
-        trips: [
-          _profitTrip(
-            id: 'trip-1',
-            freight: Money(minorUnits: 500000, currency: currency),
-          ),
-        ],
-        expenses: [
-          TripNetProfitSourceExpense(
-            expenseId: 'expense-late',
-            tripId: 'trip-1',
-            amount: Money(minorUnits: 20000, currency: currency),
-          ),
-        ],
-      ),
-    );
-    final useCase = GetTripNetProfitReportUseCase(repository: repository);
-
-    final result = await useCase(
-      ReportParams(
-        currentCompanyContext: _context(CompanyRole.owner),
-        dateRange: ReportDateRange(
-          fromDate: DateTime(2026, 6, 26),
-          toDate: DateTime(2026, 6, 26),
+  test(
+    'trip net profit uses all authoritative linked expenses from source',
+    () async {
+      final currency = _currency;
+      final repository = _FakeReportsRepository(
+        netProfit: (companyId, from, to) => TripNetProfitReportSource(
+          metadata: _metadata(companyId, from, to),
+          freightPrecisionLossCount: 0,
+          negativeFreightCount: 0,
+          expensePrecisionLossCount: 0,
+          negativeExpenseCount: 0,
+          trips: [
+            _profitTrip(
+              id: 'trip-1',
+              freight: Money(minorUnits: 500000, currency: currency),
+            ),
+          ],
+          expenses: [
+            TripNetProfitSourceExpense(
+              expenseId: 'expense-late',
+              tripId: 'trip-1',
+              amount: Money(minorUnits: 20000, currency: currency),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+      final useCase = GetTripNetProfitReportUseCase(repository: repository);
 
-    final report = result.dataOrNull;
-    expect(report?.totalFreight.minorUnits, 500000);
-    expect(report?.totalExpenses.minorUnits, 20000);
-    expect(report?.totalNetProfit.minorUnits, 480000);
-    expect(report?.rows.single.netProfit.minorUnits, 480000);
-  });
+      final result = await useCase(
+        ReportParams(
+          currentCompanyContext: _context(CompanyRole.owner),
+          dateRange: ReportDateRange(
+            fromDate: DateTime(2026, 6, 26),
+            toDate: DateTime(2026, 6, 26),
+          ),
+        ),
+      );
 
-  test('open invoices validates paid rows but excludes them from final report', () async {
-    final currency = _currency;
-    final repository = _FakeReportsRepository(
-      openInvoices: (companyId, from, to) => OpenInvoicesReportSource(
-        metadata: _metadata(companyId, from, to),
-        invoiceCurrencyMismatchCount: 0,
-        paymentCurrencyMismatchCount: 0,
-        invalidInvoiceAmountCount: 0,
-        invalidPaymentAmountCount: 0,
-        missingIssueDateCount: 0,
-        invoices: [
-          _invoice('issued', InvoiceStatus.issued, 100000),
-          _invoice('partial', InvoiceStatus.partiallyPaid, 120000),
-          _invoice('paid', InvoiceStatus.paid, 80000),
-        ],
-        payments: [
-          _payment('pay-partial', 'partial', 40000, currency),
-          _payment('pay-paid', 'paid', 80000, currency),
-        ],
-      ),
-    );
-    final useCase = GetOpenInvoicesReportUseCase(repository: repository);
+      final report = result.dataOrNull;
+      expect(report?.totalFreight.minorUnits, 500000);
+      expect(report?.totalExpenses.minorUnits, 20000);
+      expect(report?.totalNetProfit.minorUnits, 480000);
+      expect(report?.rows.single.netProfit.minorUnits, 480000);
+    },
+  );
 
-    final result = await useCase(
-      ReportParams(
-        currentCompanyContext: _context(CompanyRole.operations),
-        dateRange: const ReportDateRange(),
-      ),
-    );
+  test(
+    'open invoices validates paid rows but excludes them from final report',
+    () async {
+      final currency = _currency;
+      final repository = _FakeReportsRepository(
+        openInvoices: (companyId, from, to) => OpenInvoicesReportSource(
+          metadata: _metadata(companyId, from, to),
+          invoiceCurrencyMismatchCount: 0,
+          paymentCurrencyMismatchCount: 0,
+          invalidInvoiceAmountCount: 0,
+          invalidPaymentAmountCount: 0,
+          missingIssueDateCount: 0,
+          invoices: [
+            _invoice('issued', InvoiceStatus.issued, 100000),
+            _invoice('partial', InvoiceStatus.partiallyPaid, 120000),
+            _invoice('paid', InvoiceStatus.paid, 80000),
+          ],
+          payments: [
+            _payment('pay-partial', 'partial', 40000, currency),
+            _payment('pay-paid', 'paid', 80000, currency),
+          ],
+        ),
+      );
+      final useCase = GetOpenInvoicesReportUseCase(repository: repository);
 
-    final report = result.dataOrNull;
-    expect(report, isNotNull);
-    expect(report!.rows.map((row) => row.invoice.invoiceId), ['issued', 'partial']);
-    expect(report.rows.last.remaining.minorUnits, 80000);
-    expect(report.totalOutstanding.minorUnits, 180000);
-  });
+      final result = await useCase(
+        ReportParams(
+          currentCompanyContext: _context(CompanyRole.operations),
+          dateRange: const ReportDateRange(),
+        ),
+      );
+
+      final report = result.dataOrNull;
+      expect(report, isNotNull);
+      expect(report!.rows.map((row) => row.invoice.invoiceId), [
+        'issued',
+        'partial',
+      ]);
+      expect(report.rows.last.remaining.minorUnits, 80000);
+      expect(report.totalOutstanding.minorUnits, 180000);
+    },
+  );
 }
 
 CurrencyCode get _currency => CurrencyCode.tryParse('AED')!;
@@ -276,7 +295,10 @@ TripExpenseReportRow _expenseRow(String id, Money amount) {
   );
 }
 
-TripNetProfitSourceTrip _profitTrip({required String id, required Money freight}) {
+TripNetProfitSourceTrip _profitTrip({
+  required String id,
+  required Money freight,
+}) {
   return TripNetProfitSourceTrip(
     tripId: id,
     tripNumber: 'TR-1',
@@ -328,10 +350,14 @@ OpenInvoiceSourcePayment _payment(
 }
 
 final class _FakeReportsRepository implements ReportsRepository {
-  final OperationalTripReportSource Function(String, DateTime?, DateTime?)? operational;
-  final TripExpensesReportSource Function(String, DateTime?, DateTime?)? expenses;
-  final TripNetProfitReportSource Function(String, DateTime?, DateTime?)? netProfit;
-  final OpenInvoicesReportSource Function(String, DateTime?, DateTime?)? openInvoices;
+  final OperationalTripReportSource Function(String, DateTime?, DateTime?)?
+  operational;
+  final TripExpensesReportSource Function(String, DateTime?, DateTime?)?
+  expenses;
+  final TripNetProfitReportSource Function(String, DateTime?, DateTime?)?
+  netProfit;
+  final OpenInvoicesReportSource Function(String, DateTime?, DateTime?)?
+  openInvoices;
   int operationalCalls = 0;
 
   _FakeReportsRepository({

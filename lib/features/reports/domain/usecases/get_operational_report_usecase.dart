@@ -29,9 +29,7 @@ final class GetOperationalReportUseCase
     final context = params.currentCompanyContext;
     if (!ReportsPermissionPolicy.canViewOperationalReports(context.role)) {
       return const FailureResult(
-        PermissionFailure(
-          code: ReportsFailureCodes.permissionOperationalView,
-        ),
+        PermissionFailure(code: ReportsFailureCodes.permissionOperationalView),
       );
     }
 

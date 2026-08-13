@@ -79,9 +79,7 @@ final class GetTripNetProfitReportUseCase
         source.expensePrecisionLossCount > 0 ||
         source.negativeExpenseCount > 0) {
       return const FailureResult(
-        ConflictFailure(
-          code: ReportsFailureCodes.conflictFinancialDataInvalid,
-        ),
+        ConflictFailure(code: ReportsFailureCodes.conflictFinancialDataInvalid),
       );
     }
 
@@ -131,7 +129,8 @@ final class GetTripNetProfitReportUseCase
           ),
         );
       }
-      final current = expensesByTrip[expense.tripId] ??
+      final current =
+          expensesByTrip[expense.tripId] ??
           Money(minorUnits: 0, currency: request.currency);
       expensesByTrip[expense.tripId] = current.add(expense.amount);
     }
@@ -142,7 +141,8 @@ final class GetTripNetProfitReportUseCase
     final rows = <TripNetProfitReportRow>[];
 
     for (final trip in source.trips) {
-      final expenses = expensesByTrip[trip.tripId] ??
+      final expenses =
+          expensesByTrip[trip.tripId] ??
           Money(minorUnits: 0, currency: request.currency);
       if (!_isExactlyRepresentableAsDouble(trip.freight.minorUnits) ||
           !_isExactlyRepresentableAsDouble(expenses.minorUnits)) {

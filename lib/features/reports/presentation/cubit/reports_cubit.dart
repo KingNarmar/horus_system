@@ -83,9 +83,8 @@ final class ReportsCubit extends Cubit<ReportsState> {
         ),
       );
       return result.when(
-        success: (report) => Success<ReportsContent>(
-          OperationalReportsContent(report),
-        ),
+        success: (report) =>
+            Success<ReportsContent>(OperationalReportsContent(report)),
         failure: (failure) => FailureResult<ReportsContent>(failure),
       );
     }
@@ -96,21 +95,18 @@ final class ReportsCubit extends Cubit<ReportsState> {
     );
     return switch (reportType) {
       ReportType.tripExpenses => (await _getTripExpensesReport(params)).when(
-        success: (report) => Success<ReportsContent>(
-          TripExpensesReportsContent(report),
-        ),
+        success: (report) =>
+            Success<ReportsContent>(TripExpensesReportsContent(report)),
         failure: (failure) => FailureResult<ReportsContent>(failure),
       ),
       ReportType.tripNetProfit => (await _getTripNetProfitReport(params)).when(
-        success: (report) => Success<ReportsContent>(
-          TripNetProfitReportsContent(report),
-        ),
+        success: (report) =>
+            Success<ReportsContent>(TripNetProfitReportsContent(report)),
         failure: (failure) => FailureResult<ReportsContent>(failure),
       ),
       ReportType.openInvoices => (await _getOpenInvoicesReport(params)).when(
-        success: (report) => Success<ReportsContent>(
-          OpenInvoicesReportsContent(report),
-        ),
+        success: (report) =>
+            Success<ReportsContent>(OpenInvoicesReportsContent(report)),
         failure: (failure) => FailureResult<ReportsContent>(failure),
       ),
       ReportType.dailyTrips ||

@@ -18,9 +18,7 @@ abstract final class ReportsDependencies {
   static ReportsCubit createCubit() {
     final repository = createRepository();
     return ReportsCubit(
-      getOperationalReport: GetOperationalReportUseCase(
-        repository: repository,
-      ),
+      getOperationalReport: GetOperationalReportUseCase(repository: repository),
       getTripExpensesReport: GetTripExpensesReportUseCase(repository),
       getTripNetProfitReport: GetTripNetProfitReportUseCase(
         repository: repository,

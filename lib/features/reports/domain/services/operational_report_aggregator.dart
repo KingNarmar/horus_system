@@ -81,9 +81,7 @@ final class OperationalReportAggregator {
     }
 
     final groups = assigned.values.toList()
-      ..sort(
-        (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()),
-      );
+      ..sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
 
     final result = <OperationalTripReportGroup>[
       ...groups.map(

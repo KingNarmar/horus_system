@@ -12,7 +12,9 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(390, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(_app(report: _report(), locale: const Locale('en')));
+    await tester.pumpWidget(
+      _app(report: _report(), locale: const Locale('en')),
+    );
 
     expect(find.byType(DataTable), findsNothing);
     expect(find.text('Unassigned'), findsWidgets);
@@ -23,17 +25,23 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(1200, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(_app(report: _report(), locale: const Locale('en')));
+    await tester.pumpWidget(
+      _app(report: _report(), locale: const Locale('en')),
+    );
 
     expect(find.byType(DataTable), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('localizes unassigned group and status in Arabic RTL', (tester) async {
+  testWidgets('localizes unassigned group and status in Arabic RTL', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(_app(report: _report(), locale: const Locale('ar')));
+    await tester.pumpWidget(
+      _app(report: _report(), locale: const Locale('ar')),
+    );
 
     expect(find.text('غير مسند'), findsWidgets);
     final element = tester.element(find.text('غير مسند').first);
