@@ -38,6 +38,9 @@ import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
 import '../../../payments/di/payments_dependencies.dart';
 import '../../../payments/presentation/cubit/payments_cubit.dart';
 import '../../../payments/presentation/pages/payments_page.dart';
+import '../../../reports/di/reports_dependencies.dart';
+import '../../../reports/presentation/cubit/reports_cubit.dart';
+import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
@@ -120,6 +123,10 @@ class AppShellContent extends StatelessWidget {
           create: (_) => CustomerStatementsDependencies.createCubit(),
           child: CustomerStatementsPage(currentCompanyContext: contextData),
         ),
+      AppShellModule.reports => BlocProvider<ReportsCubit>(
+        create: (_) => ReportsDependencies.createCubit(),
+        child: ReportsPage(currentCompanyContext: contextData),
+      ),
       AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
         create: (_) => PaymentMethodsDependencies.createCubit(),
         child: _SettingsContent(contextData: contextData),
