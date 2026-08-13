@@ -131,7 +131,6 @@ class AppShellContent extends StatelessWidget {
         create: (_) => PaymentMethodsDependencies.createCubit(),
         child: _SettingsContent(contextData: contextData),
       ),
-      _ => _PlaceholderCard(contextData: contextData, selected: selected),
     };
   }
 }
@@ -158,44 +157,6 @@ class _ShellContentScrollView extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: child,
-        ),
-      ),
-    );
-  }
-}
-
-class _PlaceholderCard extends StatelessWidget {
-  final CurrentCompanyContext contextData;
-  final AppShellDestination selected;
-
-  const _PlaceholderCard({required this.contextData, required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = context.l10n;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(selected.selectedIcon, size: AppSizes.iconLg),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              selected.label(context),
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(selected.description(context)),
-            const SizedBox(height: AppSpacing.md),
-            Text(l10n.companyWithName(contextData.company.name)),
-            const SizedBox(height: AppSpacing.xl),
-            const AdaptiveAccessNotice(),
-          ],
         ),
       ),
     );

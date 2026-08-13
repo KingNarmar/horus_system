@@ -349,7 +349,9 @@ final class _FakeReportsRepository implements ReportsRepository {
   }) async {
     operationalCalls++;
     final builder = operational;
-    if (builder == null) throw StateError('Unexpected operational source call.');
+    if (builder == null) {
+      throw StateError('Unexpected operational source call.');
+    }
     return Success(builder(companyId, fromDate, toDate));
   }
 
@@ -360,7 +362,9 @@ final class _FakeReportsRepository implements ReportsRepository {
     required DateTime? toDate,
   }) async {
     final builder = expenses;
-    if (builder == null) throw StateError('Unexpected expenses source call.');
+    if (builder == null) {
+      throw StateError('Unexpected expenses source call.');
+    }
     return Success(builder(companyId, fromDate, toDate));
   }
 
@@ -371,7 +375,9 @@ final class _FakeReportsRepository implements ReportsRepository {
     required DateTime? toDate,
   }) async {
     final builder = netProfit;
-    if (builder == null) throw StateError('Unexpected net-profit source call.');
+    if (builder == null) {
+      throw StateError('Unexpected net-profit source call.');
+    }
     return Success(builder(companyId, fromDate, toDate));
   }
 
@@ -382,7 +388,9 @@ final class _FakeReportsRepository implements ReportsRepository {
     required DateTime? toDate,
   }) async {
     final builder = openInvoices;
-    if (builder == null) throw StateError('Unexpected open-invoices source call.');
+    if (builder == null) {
+      throw StateError('Unexpected open-invoices source call.');
+    }
     return Success(builder(companyId, fromDate, toDate));
   }
 }
