@@ -47,6 +47,7 @@ class _DriversPageState extends State<DriversPage> {
               nationalId: data.nationalId,
               licenseNumber: data.licenseNumber,
               licenseExpiryDate: data.licenseExpiryDate,
+              imageUploads: data.imageUploads,
               notes: data.notes,
             );
           }
@@ -57,6 +58,7 @@ class _DriversPageState extends State<DriversPage> {
             nationalId: data.nationalId,
             licenseNumber: data.licenseNumber,
             licenseExpiryDate: data.licenseExpiryDate,
+            imageUploads: data.imageUploads,
             notes: data.notes,
           );
         },
@@ -66,6 +68,7 @@ class _DriversPageState extends State<DriversPage> {
 
   Future<void> _openDetails(Driver driver) async {
     final cubit = context.read<DriversCubit>();
+    cubit.loadDriverImageUrls(driver);
     cubit.loadDriverActivity(driver);
     cubit.loadDriverFinancialMovements(driver);
     cubit.loadDriverTripOptions(driver);

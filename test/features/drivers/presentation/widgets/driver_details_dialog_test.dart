@@ -72,6 +72,50 @@ void main() {
       expect(find.textContaining('accountant'), findsNothing);
       expect(find.textContaining('status_changed'), findsNothing);
     });
+
+    testWidgets(
+      'normalizes license dates and image changes in audit timeline',
+      (tester) async {
+        final imageAuditLog = AuditLog(
+          id: 'audit-2',
+          companyId: _companyId,
+          actorRole: 'owner',
+          actorDisplayName: 'Mina Aly',
+          module: AuditModule.drivers,
+          entityType: AuditEntityType.driver,
+          entityId: _driverId,
+          entityDisplayName: 'test driver2',
+          action: AuditAction.updated,
+          description: 'driver_updated',
+          oldValues: const {
+            'license_expiry_date': '2026-08-18T20:00:00.000Z',
+            'national_id_image_path': 'old-path',
+          },
+          newValues: const {
+            'license_expiry_date': '2026-08-17T20:00:00.000Z',
+            'national_id_image_path': 'new-path',
+          },
+          createdAt: DateTime.utc(2026, 8, 14, 20, 47),
+        );
+
+        await _pumpDialog(
+          tester,
+          locale: const Locale('en'),
+          state: _state.copyWith(selectedDriverActivity: [imageAuditLog]),
+        );
+
+        expect(find.textContaining('License expiry date:'), findsNothing);
+        expect(find.textContaining('National ID front image:'), findsOneWidget);
+        expect(find.textContaining('Existing image'), findsOneWidget);
+        expect(find.textContaining('Updated image'), findsOneWidget);
+        expect(find.textContaining('National ID image:'), findsNothing);
+        expect(
+          find.textContaining('Image uploaded → Image uploaded'),
+          findsNothing,
+        );
+        expect(find.textContaining('T20:00:00.000Z'), findsNothing);
+      },
+    );
   });
 }
 
@@ -151,7 +195,11 @@ Future<void> _setSurfaceSize(WidgetTester tester, Size size) async {
   });
 }
 
-Future<void> _pumpDialog(WidgetTester tester, {required Locale locale}) async {
+Future<void> _pumpDialog(
+  WidgetTester tester, {
+  required Locale locale,
+  DriversLoaded? state,
+}) async {
   await tester.pumpWidget(
     MaterialApp(
       locale: locale,
@@ -160,7 +208,7 @@ Future<void> _pumpDialog(WidgetTester tester, {required Locale locale}) async {
       home: Scaffold(
         body: DriverDetailsDialog(
           driver: _driver,
-          state: _state,
+          state: state ?? _state,
           onAddAdvance: () {},
           onAddDriverCharge: () {},
           onAddCashReturn: () {},

@@ -53,6 +53,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSCameraUsageDescription</key>
+	<string>H.O.R.U.S uses the camera to capture driver photos and document images.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>H.O.R.U.S uses your photo library to select driver photos and document images.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

@@ -534,6 +534,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'License expiry date must be today or a future date.';
 
   @override
+  String get driverImagesSectionTitle => 'Driver images';
+
+  @override
+  String get driverProfileImageLabel => 'Driver photo';
+
+  @override
+  String get driverLicenseImageLabel => 'License image';
+
+  @override
+  String get driverLicenseFrontImageLabel => 'License front image';
+
+  @override
+  String get driverLicenseBackImageLabel => 'License back image';
+
+  @override
+  String get driverNationalIdImageLabel => 'National ID image';
+
+  @override
+  String get driverNationalIdFrontImageLabel => 'National ID front image';
+
+  @override
+  String get driverNationalIdBackImageLabel => 'National ID back image';
+
+  @override
+  String get driverChooseImageFromFiles => 'Choose file';
+
+  @override
+  String get driverTakeImageWithCamera => 'Camera';
+
+  @override
+  String get driverImageAlreadyUploaded => 'Image uploaded';
+
+  @override
+  String get driverExistingImageValue => 'Existing image';
+
+  @override
+  String get driverUpdatedImageValue => 'Updated image';
+
+  @override
+  String get driverImagesLoading => 'Loading images...';
+
+  @override
   String get notesLabel => 'Notes';
 
   @override

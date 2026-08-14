@@ -4,6 +4,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
@@ -131,6 +132,36 @@ class DriverDetailsDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
+              _DetailsSection(
+                title: l10n.driverImagesSectionTitle,
+                children: [
+                  if (isSelectedDriver && (state?.isImageUrlsLoading ?? false))
+                    Text(l10n.driverImagesLoading)
+                  else if (isSelectedDriver && state?.imageUrlsFailure != null)
+                    Text(l10n.localizedErrorMessage(state!.imageUrlsFailure!))
+                  else
+                    _DriverImagesGrid(
+                      profileImageUrl: isSelectedDriver
+                          ? state?.selectedDriverImageUrls.profileImageUrl
+                          : null,
+                      licenseImageUrl: isSelectedDriver
+                          ? state?.selectedDriverImageUrls.licenseImageUrl
+                          : null,
+                      licenseBackImageUrl: isSelectedDriver
+                          ? state?.selectedDriverImageUrls.licenseBackImageUrl
+                          : null,
+                      nationalIdImageUrl: isSelectedDriver
+                          ? state?.selectedDriverImageUrls.nationalIdImageUrl
+                          : null,
+                      nationalIdBackImageUrl: isSelectedDriver
+                          ? state
+                                ?.selectedDriverImageUrls
+                                .nationalIdBackImageUrl
+                          : null,
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
               DriverFinanceDetailsSection(
                 movements: movements,
                 balance: isSelectedDriver ? state?.selectedDriverBalance : null,
@@ -229,6 +260,117 @@ class DriverDetailsDialog extends StatelessWidget {
     return normalized == null || normalized.isEmpty
         ? l10n.emptyValue
         : normalized;
+  }
+}
+
+class _DriverImagesGrid extends StatelessWidget {
+  final String? profileImageUrl;
+  final String? licenseImageUrl;
+  final String? licenseBackImageUrl;
+  final String? nationalIdImageUrl;
+  final String? nationalIdBackImageUrl;
+
+  const _DriverImagesGrid({
+    required this.profileImageUrl,
+    required this.licenseImageUrl,
+    required this.licenseBackImageUrl,
+    required this.nationalIdImageUrl,
+    required this.nationalIdBackImageUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < AppSizes.dataTableBreakpoint;
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            _DriverImagePreview(
+              label: l10n.driverProfileImageLabel,
+              imageUrl: profileImageUrl,
+              width: compact ? constraints.maxWidth : 180,
+            ),
+            _DriverImagePreview(
+              label: l10n.driverLicenseFrontImageLabel,
+              imageUrl: licenseImageUrl,
+              width: compact ? constraints.maxWidth : 180,
+            ),
+            _DriverImagePreview(
+              label: l10n.driverLicenseBackImageLabel,
+              imageUrl: licenseBackImageUrl,
+              width: compact ? constraints.maxWidth : 180,
+            ),
+            _DriverImagePreview(
+              label: l10n.driverNationalIdFrontImageLabel,
+              imageUrl: nationalIdImageUrl,
+              width: compact ? constraints.maxWidth : 180,
+            ),
+            _DriverImagePreview(
+              label: l10n.driverNationalIdBackImageLabel,
+              imageUrl: nationalIdBackImageUrl,
+              width: compact ? constraints.maxWidth : 180,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DriverImagePreview extends StatelessWidget {
+  final String label;
+  final String? imageUrl;
+  final double width;
+
+  const _DriverImagePreview({
+    required this.label,
+    required this.imageUrl,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final normalizedUrl = imageUrl?.trim();
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: normalizedUrl == null || normalizedUrl.isEmpty
+                  ? Center(child: Text(l10n.emptyValue))
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      child: Image.network(
+                        normalizedUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(child: Text(l10n.emptyValue));
+                        },
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -342,7 +484,7 @@ class _ActivityTimelineItem extends StatelessWidget {
   }
 
   List<Widget> _changedFields(AuditLog log, AppLocalizations l10n) {
-    const fields = [
+    const textFields = [
       'full_name',
       'phone',
       'national_id',
@@ -351,17 +493,78 @@ class _ActivityTimelineItem extends StatelessWidget {
       'notes',
       'is_active',
     ];
-    final changes = AuditChangeBuilder.buildChanges(
-      log: log,
-      visibleKeys: fields,
-      fieldLabelBuilder: l10n.driverFieldLabel,
-      valueLabelBuilder: l10n.driverValueLabel,
-    );
+    final changes = [
+      ...AuditChangeBuilder.buildChanges(
+        log: log,
+        visibleKeys: textFields,
+        fieldLabelBuilder: l10n.driverFieldLabel,
+        valueLabelBuilder: l10n.driverValueLabel,
+        valuesEqualBuilder: _driverValuesEqual,
+      ),
+      ..._driverImageChanges(log, l10n),
+    ];
     return changes.map((change) {
       return Text(
         l10n.auditChangeLine(change.label, change.oldValue, change.newValue),
       );
     }).toList();
+  }
+
+  bool _driverValuesEqual(String key, Object? oldValue, Object? newValue) {
+    if (key == 'license_expiry_date') {
+      if (_isLegacyUtcDateShift(oldValue, newValue)) return true;
+      return _dateOnlyText(oldValue) == _dateOnlyText(newValue);
+    }
+    return oldValue?.toString() == newValue?.toString();
+  }
+
+  List<AuditChange> _driverImageChanges(AuditLog log, AppLocalizations l10n) {
+    return [
+      _driverImageChange(log, l10n, 'profile_image_path'),
+      _driverImageChange(log, l10n, 'license_image_path'),
+      _driverImageChange(log, l10n, 'license_back_image_path'),
+      _driverImageChange(log, l10n, 'national_id_image_path'),
+      _driverImageChange(log, l10n, 'national_id_back_image_path'),
+    ].whereType<AuditChange>().toList();
+  }
+
+  AuditChange? _driverImageChange(
+    AuditLog log,
+    AppLocalizations l10n,
+    String key,
+  ) {
+    final oldValue = log.oldValues?[key]?.toString().trim();
+    final newValue = log.newValues?[key]?.toString().trim();
+    if (oldValue == newValue) return null;
+
+    final hasOld = oldValue != null && oldValue.isNotEmpty;
+    final hasNew = newValue != null && newValue.isNotEmpty;
+    return AuditChange(
+      label: l10n.driverFieldLabel(key),
+      oldValue: hasOld ? l10n.driverExistingImageValue : l10n.emptyValue,
+      newValue: hasNew ? l10n.driverUpdatedImageValue : l10n.emptyValue,
+    );
+  }
+
+  String? _dateOnlyText(Object? value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) return null;
+    return text.length >= 10 ? text.substring(0, 10) : text;
+  }
+
+  bool _isLegacyUtcDateShift(Object? oldValue, Object? newValue) {
+    final oldText = oldValue?.toString().trim();
+    final newText = newValue?.toString().trim();
+    if (oldText == null || newText == null) return false;
+    if (!oldText.contains('T20:00:00') || !newText.contains('T20:00:00')) {
+      return false;
+    }
+
+    final oldDate = DateTime.tryParse(_dateOnlyText(oldText) ?? '');
+    final newDate = DateTime.tryParse(_dateOnlyText(newText) ?? '');
+    if (oldDate == null || newDate == null) return false;
+
+    return oldDate.difference(newDate).inDays.abs() == 1;
   }
 
   String _actorName(AuditLog log, AppLocalizations l10n) {

@@ -5,6 +5,7 @@ import '../../../driver_finance/domain/entities/driver_balance.dart';
 import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_image_urls.dart';
 import '../../domain/entities/driver_status_filter.dart';
 
 const Object _notSet = Object();
@@ -30,6 +31,9 @@ class DriversLoaded extends DriversState {
   final DriverStatusFilter statusFilter;
   final String? pendingActionDriverId;
   final Driver? selectedDriver;
+  final DriverImageUrls selectedDriverImageUrls;
+  final bool isImageUrlsLoading;
+  final Failure? imageUrlsFailure;
   final List<AuditLog> selectedDriverActivity;
   final bool isActivityLoading;
   final Failure? activityFailure;
@@ -51,6 +55,9 @@ class DriversLoaded extends DriversState {
     this.statusFilter = DriverStatusFilter.active,
     this.pendingActionDriverId,
     this.selectedDriver,
+    this.selectedDriverImageUrls = DriverImageUrls.empty,
+    this.isImageUrlsLoading = false,
+    this.imageUrlsFailure,
     this.selectedDriverActivity = const [],
     this.isActivityLoading = false,
     this.activityFailure,
@@ -91,6 +98,9 @@ class DriversLoaded extends DriversState {
     DriverStatusFilter? statusFilter,
     Object? pendingActionDriverId = _notSet,
     Object? selectedDriver = _notSet,
+    DriverImageUrls? selectedDriverImageUrls,
+    bool? isImageUrlsLoading,
+    Object? imageUrlsFailure = _notSet,
     List<AuditLog>? selectedDriverActivity,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
@@ -117,6 +127,12 @@ class DriversLoaded extends DriversState {
       selectedDriver: selectedDriver == _notSet
           ? this.selectedDriver
           : selectedDriver as Driver?,
+      selectedDriverImageUrls:
+          selectedDriverImageUrls ?? this.selectedDriverImageUrls,
+      isImageUrlsLoading: isImageUrlsLoading ?? this.isImageUrlsLoading,
+      imageUrlsFailure: imageUrlsFailure == _notSet
+          ? this.imageUrlsFailure
+          : imageUrlsFailure as Failure?,
       selectedDriverActivity:
           selectedDriverActivity ?? this.selectedDriverActivity,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,

@@ -8,6 +8,11 @@ class Driver {
   final String? nationalId;
   final String? licenseNumber;
   final DateTime? licenseExpiryDate;
+  final String? profileImagePath;
+  final String? licenseImagePath;
+  final String? licenseBackImagePath;
+  final String? nationalIdImagePath;
+  final String? nationalIdBackImagePath;
   final String? notes;
   final DriverStatus status;
   final DateTime? createdAt;
@@ -22,6 +27,11 @@ class Driver {
     this.nationalId,
     this.licenseNumber,
     this.licenseExpiryDate,
+    this.profileImagePath,
+    this.licenseImagePath,
+    this.licenseBackImagePath,
+    this.nationalIdImagePath,
+    this.nationalIdBackImagePath,
     this.notes,
     this.createdAt,
     this.updatedAt,

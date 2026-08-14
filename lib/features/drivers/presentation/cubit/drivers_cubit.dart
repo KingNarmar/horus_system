@@ -11,10 +11,13 @@ import '../../../driver_finance/domain/policies/driver_finance_permission_policy
 import '../../../driver_finance/domain/usecases/driver_finance_usecases.dart';
 import '../../../driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_image_file.dart';
+import '../../domain/entities/driver_image_urls.dart';
 import '../../domain/entities/driver_status_filter.dart';
 import '../../domain/policies/drivers_permission_policy.dart';
 import '../../domain/usecases/add_driver_usecase.dart';
 import '../../domain/usecases/deactivate_driver_usecase.dart';
+import '../../domain/usecases/get_driver_image_urls_usecase.dart';
 import '../../domain/usecases/get_drivers_usecase.dart';
 import '../../domain/usecases/reactivate_driver_usecase.dart';
 import '../../domain/usecases/update_driver_usecase.dart';
@@ -22,6 +25,7 @@ import 'drivers_state.dart';
 
 class DriversCubit extends Cubit<DriversState> {
   final GetDriversUseCase getDriversUseCase;
+  final GetDriverImageUrlsUseCase getDriverImageUrlsUseCase;
   final AddDriverUseCase addDriverUseCase;
   final UpdateDriverUseCase updateDriverUseCase;
   final DeactivateDriverUseCase deactivateDriverUseCase;
@@ -38,6 +42,7 @@ class DriversCubit extends Cubit<DriversState> {
 
   DriversCubit({
     required this.getDriversUseCase,
+    required this.getDriverImageUrlsUseCase,
     required this.addDriverUseCase,
     required this.updateDriverUseCase,
     required this.deactivateDriverUseCase,
@@ -149,6 +154,50 @@ class DriversCubit extends Cubit<DriversState> {
     );
   }
 
+  Future<void> loadDriverImageUrls(Driver driver) async {
+    final context = _currentCompanyContext;
+    final currentState = state;
+    if (context == null || currentState is! DriversLoaded) {
+      return;
+    }
+
+    emit(
+      currentState.copyWith(
+        selectedDriver: driver,
+        selectedDriverImageUrls: DriverImageUrls.empty,
+        isImageUrlsLoading: true,
+        imageUrlsFailure: null,
+      ),
+    );
+
+    final result = await getDriverImageUrlsUseCase(
+      GetDriverImageUrlsParams(currentCompanyContext: context, driver: driver),
+    );
+
+    final latestState = state;
+    if (latestState is! DriversLoaded ||
+        latestState.selectedDriver?.id != driver.id) {
+      return;
+    }
+
+    result.when(
+      success: (imageUrls) => emit(
+        latestState.copyWith(
+          selectedDriverImageUrls: imageUrls,
+          isImageUrlsLoading: false,
+          imageUrlsFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          selectedDriverImageUrls: DriverImageUrls.empty,
+          isImageUrlsLoading: false,
+          imageUrlsFailure: failure,
+        ),
+      ),
+    );
+  }
+
   Future<void> loadDriverFinancialMovements(Driver driver) async {
     final context = _currentCompanyContext;
     final currentState = state;
@@ -252,6 +301,9 @@ class DriversCubit extends Cubit<DriversState> {
       emit(
         currentState.copyWith(
           selectedDriver: null,
+          selectedDriverImageUrls: DriverImageUrls.empty,
+          isImageUrlsLoading: false,
+          imageUrlsFailure: null,
           selectedDriverActivity: const [],
           isActivityLoading: false,
           activityFailure: null,
@@ -274,6 +326,7 @@ class DriversCubit extends Cubit<DriversState> {
     String? nationalId,
     String? licenseNumber,
     DateTime? licenseExpiryDate,
+    DriverImageUploadSet? imageUploads,
     String? notes,
   }) async {
     final context = _currentCompanyContext;
@@ -289,6 +342,7 @@ class DriversCubit extends Cubit<DriversState> {
         nationalId: nationalId,
         licenseNumber: licenseNumber,
         licenseExpiryDate: licenseExpiryDate,
+        imageUploads: imageUploads,
         notes: notes,
       ),
     );
@@ -306,6 +360,7 @@ class DriversCubit extends Cubit<DriversState> {
     String? nationalId,
     String? licenseNumber,
     DateTime? licenseExpiryDate,
+    DriverImageUploadSet? imageUploads,
     String? notes,
   }) async {
     final context = _currentCompanyContext;
@@ -322,6 +377,7 @@ class DriversCubit extends Cubit<DriversState> {
         nationalId: nationalId,
         licenseNumber: licenseNumber,
         licenseExpiryDate: licenseExpiryDate,
+        imageUploads: imageUploads,
         notes: notes,
       ),
     );

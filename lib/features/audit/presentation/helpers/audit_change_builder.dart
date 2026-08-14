@@ -18,6 +18,8 @@ class AuditChangeBuilder {
     required List<String> visibleKeys,
     required String Function(String key) fieldLabelBuilder,
     required String Function(String key, Object? value) valueLabelBuilder,
+    bool Function(String key, Object? oldValue, Object? newValue)?
+    valuesEqualBuilder,
   }) {
     final oldValues = log.oldValues;
     final newValues = log.newValues;
@@ -27,7 +29,8 @@ class AuditChangeBuilder {
     for (final key in visibleKeys) {
       final oldValue = oldValues[key];
       final newValue = newValues[key];
-      if (_valuesEqual(oldValue, newValue)) continue;
+      final valuesEqual = valuesEqualBuilder ?? _valuesEqual;
+      if (valuesEqual(key, oldValue, newValue)) continue;
       changes.add(
         AuditChange(
           label: fieldLabelBuilder(key),
@@ -39,7 +42,7 @@ class AuditChangeBuilder {
     return changes;
   }
 
-  static bool _valuesEqual(Object? oldValue, Object? newValue) {
+  static bool _valuesEqual(String _, Object? oldValue, Object? newValue) {
     return oldValue?.toString() == newValue?.toString();
   }
 }

@@ -1,10 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_date_constraints.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_image_file.dart';
+import '../localization/drivers_localizations_x.dart';
 
 class DriverFormData {
   final String fullName;
@@ -12,6 +16,7 @@ class DriverFormData {
   final String? nationalId;
   final String? licenseNumber;
   final DateTime? licenseExpiryDate;
+  final DriverImageUploadSet? imageUploads;
   final String? notes;
 
   const DriverFormData({
@@ -20,6 +25,7 @@ class DriverFormData {
     this.nationalId,
     this.licenseNumber,
     this.licenseExpiryDate,
+    this.imageUploads,
     this.notes,
   });
 }
@@ -43,6 +49,12 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   late final TextEditingController _licenseExpiryController;
   late final TextEditingController _notesController;
   DateTime? _selectedLicenseExpiryDate;
+  final _imagePicker = ImagePicker();
+  _SelectedDriverImage? _profileImage;
+  _SelectedDriverImage? _licenseFrontImage;
+  _SelectedDriverImage? _licenseBackImage;
+  _SelectedDriverImage? _nationalIdFrontImage;
+  _SelectedDriverImage? _nationalIdBackImage;
   bool _isSubmitting = false;
 
   @override
@@ -156,6 +168,91 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   decoration: InputDecoration(labelText: l10n.notesLabel),
                   maxLines: 3,
                 ),
+                const SizedBox(height: AppSpacing.md),
+                _DriverImagePickerTile(
+                  label: l10n.driverProfileImageLabel,
+                  existingPath: widget.driver?.profileImagePath,
+                  selectedImage: _profileImage,
+                  isSubmitting: _isSubmitting,
+                  onPickFromFiles: () => _pickImage(
+                    target: _DriverImageTarget.profile,
+                    source: ImageSource.gallery,
+                  ),
+                  onTakePhoto: _canUseCamera
+                      ? () => _pickImage(
+                          target: _DriverImageTarget.profile,
+                          source: ImageSource.camera,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _DriverImagePickerTile(
+                  label: l10n.driverLicenseFrontImageLabel,
+                  existingPath: widget.driver?.licenseImagePath,
+                  selectedImage: _licenseFrontImage,
+                  isSubmitting: _isSubmitting,
+                  onPickFromFiles: () => _pickImage(
+                    target: _DriverImageTarget.licenseFront,
+                    source: ImageSource.gallery,
+                  ),
+                  onTakePhoto: _canUseCamera
+                      ? () => _pickImage(
+                          target: _DriverImageTarget.licenseFront,
+                          source: ImageSource.camera,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _DriverImagePickerTile(
+                  label: l10n.driverLicenseBackImageLabel,
+                  existingPath: widget.driver?.licenseBackImagePath,
+                  selectedImage: _licenseBackImage,
+                  isSubmitting: _isSubmitting,
+                  onPickFromFiles: () => _pickImage(
+                    target: _DriverImageTarget.licenseBack,
+                    source: ImageSource.gallery,
+                  ),
+                  onTakePhoto: _canUseCamera
+                      ? () => _pickImage(
+                          target: _DriverImageTarget.licenseBack,
+                          source: ImageSource.camera,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _DriverImagePickerTile(
+                  label: l10n.driverNationalIdFrontImageLabel,
+                  existingPath: widget.driver?.nationalIdImagePath,
+                  selectedImage: _nationalIdFrontImage,
+                  isSubmitting: _isSubmitting,
+                  onPickFromFiles: () => _pickImage(
+                    target: _DriverImageTarget.nationalIdFront,
+                    source: ImageSource.gallery,
+                  ),
+                  onTakePhoto: _canUseCamera
+                      ? () => _pickImage(
+                          target: _DriverImageTarget.nationalIdFront,
+                          source: ImageSource.camera,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _DriverImagePickerTile(
+                  label: l10n.driverNationalIdBackImageLabel,
+                  existingPath: widget.driver?.nationalIdBackImagePath,
+                  selectedImage: _nationalIdBackImage,
+                  isSubmitting: _isSubmitting,
+                  onPickFromFiles: () => _pickImage(
+                    target: _DriverImageTarget.nationalIdBack,
+                    source: ImageSource.gallery,
+                  ),
+                  onTakePhoto: _canUseCamera
+                      ? () => _pickImage(
+                          target: _DriverImageTarget.nationalIdBack,
+                          source: ImageSource.camera,
+                        )
+                      : null,
+                ),
               ],
             ),
           ),
@@ -217,6 +314,13 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         licenseExpiryDate: _selectedLicenseExpiryDate == null
             ? null
             : _dateOnlyValue(_selectedLicenseExpiryDate!),
+        imageUploads: DriverImageUploadSet(
+          profileImage: _profileImage?.file,
+          licenseFrontImage: _licenseFrontImage?.file,
+          licenseBackImage: _licenseBackImage?.file,
+          nationalIdFrontImage: _nationalIdFrontImage?.file,
+          nationalIdBackImage: _nationalIdBackImage?.file,
+        ),
         notes: _optional(_notesController.text),
       ),
     );
@@ -235,6 +339,130 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     final normalized = value.trim();
     return normalized.isEmpty ? null : normalized;
   }
+
+  Future<void> _pickImage({
+    required _DriverImageTarget target,
+    required ImageSource source,
+  }) async {
+    final picked = await _imagePicker.pickImage(
+      source: source,
+      imageQuality: 82,
+    );
+    if (picked == null || !mounted) return;
+
+    final bytes = await picked.readAsBytes();
+    final selected = _SelectedDriverImage(
+      displayName: picked.name,
+      file: DriverImageFile(
+        bytes: bytes,
+        fileName: picked.name,
+        mimeType: picked.mimeType,
+      ),
+    );
+
+    setState(() {
+      switch (target) {
+        case _DriverImageTarget.profile:
+          _profileImage = selected;
+        case _DriverImageTarget.licenseFront:
+          _licenseFrontImage = selected;
+        case _DriverImageTarget.licenseBack:
+          _licenseBackImage = selected;
+        case _DriverImageTarget.nationalIdFront:
+          _nationalIdFrontImage = selected;
+        case _DriverImageTarget.nationalIdBack:
+          _nationalIdBackImage = selected;
+      }
+    });
+  }
+}
+
+enum _DriverImageTarget {
+  profile,
+  licenseFront,
+  licenseBack,
+  nationalIdFront,
+  nationalIdBack,
+}
+
+class _SelectedDriverImage {
+  final String displayName;
+  final DriverImageFile file;
+
+  const _SelectedDriverImage({required this.displayName, required this.file});
+}
+
+class _DriverImagePickerTile extends StatelessWidget {
+  final String label;
+  final String? existingPath;
+  final _SelectedDriverImage? selectedImage;
+  final bool isSubmitting;
+  final VoidCallback onPickFromFiles;
+  final VoidCallback? onTakePhoto;
+
+  const _DriverImagePickerTile({
+    required this.label,
+    required this.existingPath,
+    required this.selectedImage,
+    required this.isSubmitting,
+    required this.onPickFromFiles,
+    required this.onTakePhoto,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final hasExisting = existingPath?.trim().isNotEmpty ?? false;
+    final status =
+        selectedImage?.displayName ??
+        (hasExisting ? l10n.driverImageAlreadyUploaded : l10n.emptyValue);
+
+    return InputDecorator(
+      decoration: InputDecoration(labelText: label),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(AppIcons.image),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  status,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              OutlinedButton.icon(
+                onPressed: isSubmitting ? null : onPickFromFiles,
+                icon: const Icon(AppIcons.uploadFile),
+                label: Text(l10n.driverChooseImageFromFiles),
+              ),
+              if (onTakePhoto != null)
+                OutlinedButton.icon(
+                  onPressed: isSubmitting ? null : onTakePhoto,
+                  icon: const Icon(AppIcons.camera),
+                  label: Text(l10n.driverTakeImageWithCamera),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+bool get _canUseCamera {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 }
 
 DateTime _driverLicenseExpiryFirstDate(DateTime today) {

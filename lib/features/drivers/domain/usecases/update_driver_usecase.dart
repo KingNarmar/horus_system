@@ -5,6 +5,7 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/driver.dart';
+import '../entities/driver_image_file.dart';
 import '../entities/driver_write_data.dart';
 import '../policies/drivers_permission_policy.dart';
 import '../repositories/drivers_repository.dart';
@@ -17,6 +18,7 @@ class UpdateDriverParams {
   final String? nationalId;
   final String? licenseNumber;
   final DateTime? licenseExpiryDate;
+  final DriverImageUploadSet? imageUploads;
   final String? notes;
 
   const UpdateDriverParams({
@@ -27,6 +29,7 @@ class UpdateDriverParams {
     this.nationalId,
     this.licenseNumber,
     this.licenseExpiryDate,
+    this.imageUploads,
     this.notes,
   });
 }
@@ -65,6 +68,7 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
     return _repository.updateDriver(
       driverId: params.driverId,
       actorRole: context.role.value,
+      imageUploads: params.imageUploads,
       data: DriverWriteData(
         companyId: context.companyId,
         fullName: fullName,
