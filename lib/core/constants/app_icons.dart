@@ -48,6 +48,7 @@ abstract final class AppIcons {
   static const IconData settings = Icons.settings_outlined;
   static const IconData settingsSelected = Icons.settings;
   static const IconData statusUpdate = Icons.published_with_changes_outlined;
+  static const IconData subscriptions = Icons.workspace_premium_outlined;
   static const IconData trips = Icons.route_outlined;
   static const IconData tripsSelected = Icons.route;
   static const IconData user = Icons.person_outline;
