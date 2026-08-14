@@ -529,6 +529,48 @@ class AppLocalizationsAr extends AppLocalizations {
       'تاريخ انتهاء الرخصة يجب أن يكون اليوم أو تاريخًا قادمًا.';
 
   @override
+  String get driverImagesSectionTitle => 'صور السائق';
+
+  @override
+  String get driverProfileImageLabel => 'صورة السائق';
+
+  @override
+  String get driverLicenseImageLabel => 'صورة الرخصة';
+
+  @override
+  String get driverLicenseFrontImageLabel => 'وش الرخصة';
+
+  @override
+  String get driverLicenseBackImageLabel => 'ضهر الرخصة';
+
+  @override
+  String get driverNationalIdImageLabel => 'صورة البطاقة';
+
+  @override
+  String get driverNationalIdFrontImageLabel => 'وش البطاقة';
+
+  @override
+  String get driverNationalIdBackImageLabel => 'ضهر البطاقة';
+
+  @override
+  String get driverChooseImageFromFiles => 'اختيار ملف';
+
+  @override
+  String get driverTakeImageWithCamera => 'الكاميرا';
+
+  @override
+  String get driverImageAlreadyUploaded => 'تم رفع الصورة';
+
+  @override
+  String get driverExistingImageValue => 'صورة موجودة';
+
+  @override
+  String get driverUpdatedImageValue => 'صورة محدثة';
+
+  @override
+  String get driverImagesLoading => 'جاري تحميل الصور...';
+
+  @override
   String get notesLabel => 'ملاحظات';
 
   @override

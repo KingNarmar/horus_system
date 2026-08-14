@@ -6,6 +6,11 @@ class DriverModel {
   final String? nationalId;
   final String? licenseNumber;
   final DateTime? licenseExpiryDate;
+  final String? profileImagePath;
+  final String? licenseImagePath;
+  final String? licenseBackImagePath;
+  final String? nationalIdImagePath;
+  final String? nationalIdBackImagePath;
   final String? notes;
   final bool isActive;
   final DateTime? createdAt;
@@ -19,6 +24,11 @@ class DriverModel {
     this.nationalId,
     this.licenseNumber,
     this.licenseExpiryDate,
+    this.profileImagePath,
+    this.licenseImagePath,
+    this.licenseBackImagePath,
+    this.nationalIdImagePath,
+    this.nationalIdBackImagePath,
     this.notes,
     this.isActive = true,
     this.createdAt,
@@ -34,6 +44,11 @@ class DriverModel {
       nationalId: map['national_id'] as String?,
       licenseNumber: map['license_number'] as String?,
       licenseExpiryDate: _toDateTime(map['license_expiry_date']),
+      profileImagePath: map['profile_image_path'] as String?,
+      licenseImagePath: map['license_image_path'] as String?,
+      licenseBackImagePath: map['license_back_image_path'] as String?,
+      nationalIdImagePath: map['national_id_image_path'] as String?,
+      nationalIdBackImagePath: map['national_id_back_image_path'] as String?,
       notes: map['notes'] as String?,
       isActive: map['is_active'] as bool? ?? true,
       createdAt: _toDateTime(map['created_at']),

@@ -1052,6 +1052,90 @@ abstract class AppLocalizations {
   /// **'License expiry date must be today or a future date.'**
   String get licenseExpiryDateMustBeFuture;
 
+  /// No description provided for @driverImagesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver images'**
+  String get driverImagesSectionTitle;
+
+  /// No description provided for @driverProfileImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver photo'**
+  String get driverProfileImageLabel;
+
+  /// No description provided for @driverLicenseImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License image'**
+  String get driverLicenseImageLabel;
+
+  /// No description provided for @driverLicenseFrontImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License front image'**
+  String get driverLicenseFrontImageLabel;
+
+  /// No description provided for @driverLicenseBackImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License back image'**
+  String get driverLicenseBackImageLabel;
+
+  /// No description provided for @driverNationalIdImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID image'**
+  String get driverNationalIdImageLabel;
+
+  /// No description provided for @driverNationalIdFrontImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID front image'**
+  String get driverNationalIdFrontImageLabel;
+
+  /// No description provided for @driverNationalIdBackImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID back image'**
+  String get driverNationalIdBackImageLabel;
+
+  /// No description provided for @driverChooseImageFromFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get driverChooseImageFromFiles;
+
+  /// No description provided for @driverTakeImageWithCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get driverTakeImageWithCamera;
+
+  /// No description provided for @driverImageAlreadyUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Image uploaded'**
+  String get driverImageAlreadyUploaded;
+
+  /// No description provided for @driverExistingImageValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing image'**
+  String get driverExistingImageValue;
+
+  /// No description provided for @driverUpdatedImageValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated image'**
+  String get driverUpdatedImageValue;
+
+  /// No description provided for @driverImagesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading images...'**
+  String get driverImagesLoading;
+
   /// No description provided for @notesLabel.
   ///
   /// In en, this message translates to:

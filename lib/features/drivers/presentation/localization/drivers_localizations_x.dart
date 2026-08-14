@@ -52,6 +52,11 @@ extension DriversLocalizationsX on AppLocalizations {
       'national_id' => nationalIdLabel,
       'license_number' => licenseNumberLabel,
       'license_expiry_date' => licenseExpiryDateLabel,
+      'profile_image_path' => driverProfileImageLabel,
+      'license_image_path' => driverLicenseFrontImageLabel,
+      'license_back_image_path' => driverLicenseBackImageLabel,
+      'national_id_image_path' => driverNationalIdFrontImageLabel,
+      'national_id_back_image_path' => driverNationalIdBackImageLabel,
       'notes' => notesLabel,
       'is_active' => driverStatusFieldLabel,
       _ => field,
@@ -63,6 +68,21 @@ extension DriversLocalizationsX on AppLocalizations {
       return driverStatusLabel(
         value == true ? DriverStatus.active : DriverStatus.inactive,
       );
+    }
+    if (field == 'profile_image_path' ||
+        field == 'license_image_path' ||
+        field == 'license_back_image_path' ||
+        field == 'national_id_image_path' ||
+        field == 'national_id_back_image_path') {
+      final text = value?.toString().trim();
+      return text == null || text.isEmpty
+          ? emptyValue
+          : driverImageAlreadyUploaded;
+    }
+    if (field == 'license_expiry_date') {
+      final text = value?.toString().trim();
+      if (text == null || text.isEmpty) return emptyValue;
+      return text.length >= 10 ? text.substring(0, 10) : text;
     }
 
     final text = value?.toString().trim();

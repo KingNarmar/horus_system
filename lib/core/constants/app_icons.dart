@@ -8,6 +8,7 @@ abstract final class AppIcons {
   static const IconData appsOutlined = Icons.apps_outlined;
   static const IconData auditHistory = Icons.history;
   static const IconData calendar = Icons.calendar_month_outlined;
+  static const IconData camera = Icons.photo_camera_outlined;
   static const IconData cashReturn = Icons.keyboard_return;
   static const IconData clear = Icons.close;
   static const IconData customers = Icons.apartment_outlined;
@@ -32,6 +33,7 @@ abstract final class AppIcons {
   static const IconData invitationSent = Icons.mark_email_read_outlined;
   static const IconData invoices = Icons.request_quote_outlined;
   static const IconData invoicesSelected = Icons.request_quote;
+  static const IconData image = Icons.image_outlined;
   static const IconData language = Icons.translate_outlined;
   static const IconData login = Icons.login_outlined;
   static const IconData logout = Icons.logout_outlined;
@@ -54,6 +56,7 @@ abstract final class AppIcons {
   static const IconData user = Icons.person_outline;
   static const IconData userAdd = Icons.person_add_alt_1;
   static const IconData userAdmin = Icons.admin_panel_settings_outlined;
+  static const IconData uploadFile = Icons.upload_file_outlined;
   static const IconData view = Icons.visibility_outlined;
   static const IconData supportedDevices = Icons.devices_outlined;
   static const IconData unavailableModule = Icons.group_outlined;

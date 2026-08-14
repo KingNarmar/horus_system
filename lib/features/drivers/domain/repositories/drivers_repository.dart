@@ -1,5 +1,7 @@
 import '../../../../core/utils/result.dart';
 import '../entities/driver.dart';
+import '../entities/driver_image_file.dart';
+import '../entities/driver_image_urls.dart';
 import '../entities/driver_write_data.dart';
 
 abstract class DriversRepository {
@@ -8,12 +10,14 @@ abstract class DriversRepository {
   Future<Result<Driver>> addDriver({
     required DriverWriteData data,
     required String actorRole,
+    DriverImageUploadSet? imageUploads,
   });
 
   Future<Result<Driver>> updateDriver({
     required String driverId,
     required DriverWriteData data,
     required String actorRole,
+    DriverImageUploadSet? imageUploads,
   });
 
   Future<Result<Driver>> deactivateDriver({
@@ -27,4 +31,6 @@ abstract class DriversRepository {
     required String driverId,
     required String actorRole,
   });
+
+  Future<Result<DriverImageUrls>> getDriverImageUrls({required Driver driver});
 }

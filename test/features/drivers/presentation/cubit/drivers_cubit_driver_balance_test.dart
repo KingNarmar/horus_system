@@ -19,11 +19,14 @@ import 'package:horus_system/features/driver_finance/domain/repositories/driver_
 import 'package:horus_system/features/driver_finance/domain/usecases/driver_finance_usecases.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_image_file.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_image_urls.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_status.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_write_data.dart';
 import 'package:horus_system/features/drivers/domain/repositories/drivers_repository.dart';
 import 'package:horus_system/features/drivers/domain/usecases/add_driver_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/deactivate_driver_usecase.dart';
+import 'package:horus_system/features/drivers/domain/usecases/get_driver_image_urls_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/get_drivers_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/reactivate_driver_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/update_driver_usecase.dart';
@@ -115,6 +118,7 @@ DriversCubit _createCubit({
   final driversRepository = _FakeDriversRepository();
   return DriversCubit(
     getDriversUseCase: GetDriversUseCase(driversRepository),
+    getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(driversRepository),
     addDriverUseCase: AddDriverUseCase(driversRepository),
     updateDriverUseCase: UpdateDriverUseCase(driversRepository),
     deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
@@ -169,6 +173,7 @@ class _FakeDriversRepository implements DriversRepository {
   Future<Result<Driver>> addDriver({
     required DriverWriteData data,
     required String actorRole,
+    DriverImageUploadSet? imageUploads,
   }) {
     throw UnimplementedError();
   }
@@ -178,6 +183,7 @@ class _FakeDriversRepository implements DriversRepository {
     required String driverId,
     required DriverWriteData data,
     required String actorRole,
+    DriverImageUploadSet? imageUploads,
   }) {
     throw UnimplementedError();
   }
@@ -198,6 +204,13 @@ class _FakeDriversRepository implements DriversRepository {
     required String actorRole,
   }) {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<DriverImageUrls>> getDriverImageUrls({
+    required Driver driver,
+  }) async {
+    return const Success<DriverImageUrls>(DriverImageUrls.empty);
   }
 }
 

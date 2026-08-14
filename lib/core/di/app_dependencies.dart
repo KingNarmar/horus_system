@@ -27,10 +27,12 @@ import '../../features/driver_finance/di/driver_finance_dependencies.dart';
 import '../../features/driver_finance/domain/usecases/driver_finance_usecases.dart';
 import '../../features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
+import '../../features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
 import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/deactivate_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
+import '../../features/drivers/domain/usecases/get_driver_image_urls_usecase.dart';
 import '../../features/drivers/domain/usecases/reactivate_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
@@ -111,6 +113,9 @@ abstract final class AppDependencies {
     );
     final driversRepository = DriversRepositoryImpl(
       remoteDataSource: driversRemoteDataSource,
+      imagesRemoteDataSource: SupabaseDriverImagesRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
     final driverFinanceRepository =
@@ -120,6 +125,7 @@ abstract final class AppDependencies {
 
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(driversRepository),
+      getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(driversRepository),
       addDriverUseCase: AddDriverUseCase(driversRepository),
       updateDriverUseCase: UpdateDriverUseCase(driversRepository),
       deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),

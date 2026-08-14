@@ -17,6 +17,11 @@ extension DriverModelMapper on DriverModel {
       nationalId: nationalId,
       licenseNumber: licenseNumber,
       licenseExpiryDate: licenseExpiryDate,
+      profileImagePath: profileImagePath,
+      licenseImagePath: licenseImagePath,
+      licenseBackImagePath: licenseBackImagePath,
+      nationalIdImagePath: nationalIdImagePath,
+      nationalIdBackImagePath: nationalIdBackImagePath,
       notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -33,9 +38,12 @@ extension DriverAuditMapper on DriverModel {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.profileImagePath: profileImagePath,
+      DriverDbFields.licenseImagePath: licenseImagePath,
+      DriverDbFields.licenseBackImagePath: licenseBackImagePath,
+      DriverDbFields.nationalIdImagePath: nationalIdImagePath,
+      DriverDbFields.nationalIdBackImagePath: nationalIdBackImagePath,
       DriverDbFields.notes: notes,
       DbCommonFields.isActive: isActive,
       DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
@@ -52,9 +60,12 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.profileImagePath: profileImagePath,
+      DriverDbFields.licenseImagePath: licenseImagePath,
+      DriverDbFields.licenseBackImagePath: licenseBackImagePath,
+      DriverDbFields.nationalIdImagePath: nationalIdImagePath,
+      DriverDbFields.nationalIdBackImagePath: nationalIdBackImagePath,
       DriverDbFields.notes: notes,
     };
   }
@@ -65,11 +76,20 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.profileImagePath: profileImagePath,
+      DriverDbFields.licenseImagePath: licenseImagePath,
+      DriverDbFields.licenseBackImagePath: licenseBackImagePath,
+      DriverDbFields.nationalIdImagePath: nationalIdImagePath,
+      DriverDbFields.nationalIdBackImagePath: nationalIdBackImagePath,
       DriverDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
+}
+
+String? _dateOnly(DateTime? value) {
+  if (value == null) return null;
+  final local = value.toLocal();
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }

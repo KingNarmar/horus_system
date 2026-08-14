@@ -6,8 +6,13 @@ abstract class DriverDbFields {
   static const nationalId = 'national_id';
   static const licenseNumber = 'license_number';
   static const licenseExpiryDate = 'license_expiry_date';
+  static const profileImagePath = 'profile_image_path';
+  static const licenseImagePath = 'license_image_path';
+  static const licenseBackImagePath = 'license_back_image_path';
+  static const nationalIdImagePath = 'national_id_image_path';
+  static const nationalIdBackImagePath = 'national_id_back_image_path';
   static const notes = 'notes';
 
   static const allColumns =
-      'id, company_id, full_name, phone, national_id, license_number, license_expiry_date, notes, is_active, created_at, updated_at';
+      'id, company_id, full_name, phone, national_id, license_number, license_expiry_date, profile_image_path, license_image_path, license_back_image_path, national_id_image_path, national_id_back_image_path, notes, is_active, created_at, updated_at';
 }

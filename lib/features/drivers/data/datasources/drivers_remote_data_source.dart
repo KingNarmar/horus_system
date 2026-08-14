@@ -5,6 +5,7 @@ import '../mappers/driver_mapper.dart';
 import '../models/driver_model.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/data/utils/uuid_v4.dart';
 import '../constants/driver_db_fields.dart';
 
 abstract class DriversRemoteDataSource {
@@ -16,6 +17,11 @@ abstract class DriversRemoteDataSource {
   });
 
   Future<DriverModel> addDriver({required DriverWriteData data});
+
+  Future<DriverModel> addDriverWithId({
+    required String driverId,
+    required DriverWriteData data,
+  });
 
   Future<DriverModel> updateDriver({
     required String driverId,
@@ -70,9 +76,17 @@ class SupabaseDriversRemoteDataSource implements DriversRemoteDataSource {
 
   @override
   Future<DriverModel> addDriver({required DriverWriteData data}) async {
+    return addDriverWithId(driverId: newUuidV4(), data: data);
+  }
+
+  @override
+  Future<DriverModel> addDriverWithId({
+    required String driverId,
+    required DriverWriteData data,
+  }) async {
     final response = await client
         .from(DriverDbFields.tableName)
-        .insert(data.toInsertMap())
+        .insert({DbCommonFields.id: driverId, ...data.toInsertMap()})
         .select(columns)
         .single();
 
