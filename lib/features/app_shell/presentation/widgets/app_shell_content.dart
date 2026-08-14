@@ -43,6 +43,9 @@ import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
+import '../../../subscriptions/di/subscriptions_dependencies.dart';
+import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
+import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
 import '../models/app_shell_destination.dart';
@@ -127,8 +130,15 @@ class AppShellContent extends StatelessWidget {
         create: (_) => ReportsDependencies.createCubit(),
         child: ReportsPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.settings => BlocProvider<PaymentMethodsCubit>(
-        create: (_) => PaymentMethodsDependencies.createCubit(),
+      AppShellModule.settings => MultiBlocProvider(
+        providers: [
+          BlocProvider<SubscriptionsCubit>(
+            create: (_) => SubscriptionsDependencies.createCubit(),
+          ),
+          BlocProvider<PaymentMethodsCubit>(
+            create: (_) => PaymentMethodsDependencies.createCubit(),
+          ),
+        ],
         child: _SettingsContent(contextData: contextData),
       ),
     };
@@ -174,6 +184,8 @@ class _SettingsContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SettingsCard(contextData: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        SubscriptionsPage(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         PaymentMethodsPage(currentCompanyContext: contextData),
       ],

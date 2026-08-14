@@ -49,6 +49,8 @@ class FailureCodes {
       'permission_payment_methods_management';
   static const String permissionPaymentMethodsView =
       'permission_payment_methods_view';
+  static const String permissionSubscriptionsView =
+      'permission_subscriptions_view';
 
   // Validation
   static const String validationCompanyIdRequired =
@@ -164,6 +166,7 @@ class FailureCodes {
       'validation_payment_method_id_required';
   static const String validationPaymentMethodNameRequired =
       'validation_payment_method_name_required';
+  static const String subscriptionStatusInvalid = 'subscription_status_invalid';
 
   // Not found
   static const String invoiceTripNotFound = 'invoice_trip_not_found';
