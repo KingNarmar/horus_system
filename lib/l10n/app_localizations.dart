@@ -710,6 +710,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancelButton;
 
+  /// No description provided for @okButton.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get okButton;
+
   /// No description provided for @retryButton.
   ///
   /// In en, this message translates to:
@@ -1117,6 +1123,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Image uploaded'**
   String get driverImageAlreadyUploaded;
+
+  /// No description provided for @driverImageSelectionFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image selection failed'**
+  String get driverImageSelectionFailedTitle;
 
   /// No description provided for @driverExistingImageValue.
   ///
@@ -2473,6 +2485,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Driver name is required.'**
   String get failureValidationDriverNameRequired;
+
+  /// No description provided for @failureValidationDriverImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected image must be 5 MB or smaller.'**
+  String get failureValidationDriverImageTooLarge;
+
+  /// No description provided for @failureValidationDriverImageTypeUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected image type is not supported. Use JPG, PNG, WebP, HEIC, or HEIF.'**
+  String get failureValidationDriverImageTypeUnsupported;
 
   /// No description provided for @failurePermissionFleetManagement.
   ///

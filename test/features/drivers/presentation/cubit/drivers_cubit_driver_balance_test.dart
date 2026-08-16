@@ -1,4 +1,6 @@
 import 'package:horus_system/core/utils/result.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
@@ -93,6 +95,29 @@ void main() {
       expect(balanceRepository.calls, 2);
       expect(balanceRepository.checkpointBoundaries, everyElement(isNull));
     });
+
+    test('keeps loaded state when driver update fails', () async {
+      final driversRepository = _FakeDriversRepository(
+        updateResult: const FailureResult<Driver>(
+          ValidationFailure(code: FailureCodes.validationDriverImageTooLarge),
+        ),
+      );
+      final cubit = _createCubit(
+        driversRepository: driversRepository,
+        financeRepository: _FakeDriverFinanceRepository(movements: const []),
+        balanceRepository: _FakeDriverBalanceRepository([]),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.loadDrivers(_ownerContext);
+      final failure = await cubit.updateDriver(
+        driver: _driver,
+        fullName: _driver.fullName,
+      );
+
+      expect(failure?.code, FailureCodes.validationDriverImageTooLarge);
+      expect(cubit.state, isA<DriversLoaded>());
+    });
   });
 }
 
@@ -104,6 +129,11 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.accountant,
 );
 
+const _ownerContext = CurrentCompanyContext(
+  company: Company(id: _companyId, name: 'Company'),
+  role: CompanyRole.owner,
+);
+
 const _driver = Driver(
   id: _driverId,
   companyId: _companyId,
@@ -112,17 +142,18 @@ const _driver = Driver(
 );
 
 DriversCubit _createCubit({
+  _FakeDriversRepository? driversRepository,
   required _FakeDriverFinanceRepository financeRepository,
   required _FakeDriverBalanceRepository balanceRepository,
 }) {
-  final driversRepository = _FakeDriversRepository();
+  final repository = driversRepository ?? _FakeDriversRepository();
   return DriversCubit(
-    getDriversUseCase: GetDriversUseCase(driversRepository),
-    getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(driversRepository),
-    addDriverUseCase: AddDriverUseCase(driversRepository),
-    updateDriverUseCase: UpdateDriverUseCase(driversRepository),
-    deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
-    reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
+    getDriversUseCase: GetDriversUseCase(repository),
+    getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(repository),
+    addDriverUseCase: AddDriverUseCase(repository),
+    updateDriverUseCase: UpdateDriverUseCase(repository),
+    deactivateDriverUseCase: DeactivateDriverUseCase(repository),
+    reactivateDriverUseCase: ReactivateDriverUseCase(repository),
     getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
       _FakeAuditLogRepository(),
     ),
@@ -164,6 +195,10 @@ DriverFinancialMovement _advance({required String id, required double amount}) {
 }
 
 class _FakeDriversRepository implements DriversRepository {
+  final Result<Driver>? updateResult;
+
+  const _FakeDriversRepository({this.updateResult});
+
   @override
   Future<Result<List<Driver>>> getDrivers({required String companyId}) async {
     return const Success<List<Driver>>([_driver]);
@@ -185,6 +220,8 @@ class _FakeDriversRepository implements DriversRepository {
     required String actorRole,
     DriverImageUploadSet? imageUploads,
   }) {
+    final result = updateResult;
+    if (result != null) return Future.value(result);
     throw UnimplementedError();
   }
 

@@ -33,4 +33,12 @@ class DriverImageUploadSet {
       licenseBackImage != null ||
       nationalIdFrontImage != null ||
       nationalIdBackImage != null;
+
+  Iterable<DriverImageFile> get images sync* {
+    if (profileImage != null) yield profileImage!;
+    if (licenseFrontImage != null) yield licenseFrontImage!;
+    if (licenseBackImage != null) yield licenseBackImage!;
+    if (nationalIdFrontImage != null) yield nationalIdFrontImage!;
+    if (nationalIdBackImage != null) yield nationalIdBackImage!;
+  }
 }

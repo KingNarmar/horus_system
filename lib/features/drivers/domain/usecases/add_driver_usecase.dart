@@ -9,6 +9,7 @@ import '../entities/driver_image_file.dart';
 import '../entities/driver_write_data.dart';
 import '../policies/drivers_permission_policy.dart';
 import '../repositories/drivers_repository.dart';
+import '../services/driver_image_upload_validator.dart';
 
 class AddDriverParams {
   final CurrentCompanyContext currentCompanyContext;
@@ -34,8 +35,13 @@ class AddDriverParams {
 
 class AddDriverUseCase implements UseCase<Driver, AddDriverParams> {
   final DriversRepository _repository;
+  final DriverImageUploadValidator _imageUploadValidator;
 
-  const AddDriverUseCase(this._repository);
+  const AddDriverUseCase(
+    this._repository, {
+    DriverImageUploadValidator imageUploadValidator =
+        const DriverImageUploadValidator(),
+  }) : _imageUploadValidator = imageUploadValidator;
 
   @override
   Future<Result<Driver>> call(AddDriverParams params) {
@@ -61,6 +67,13 @@ class AddDriverUseCase implements UseCase<Driver, AddDriverParams> {
           ),
         ),
       );
+    }
+
+    final imageFailure = _imageUploadValidator.validateUploadSet(
+      params.imageUploads,
+    );
+    if (imageFailure != null) {
+      return Future.value(FailureResult<Driver>(imageFailure));
     }
 
     return _repository.addDriver(

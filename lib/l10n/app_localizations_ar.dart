@@ -342,6 +342,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancelButton => 'إلغاء';
 
   @override
+  String get okButton => 'حسنًا';
+
+  @override
   String get retryButton => 'إعادة المحاولة';
 
   @override
@@ -560,6 +563,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverImageAlreadyUploaded => 'تم رفع الصورة';
+
+  @override
+  String get driverImageSelectionFailedTitle => 'فشل اختيار الصورة';
 
   @override
   String get driverExistingImageValue => 'صورة موجودة';
@@ -1280,6 +1286,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureValidationDriverNameRequired => 'اسم السائق مطلوب.';
+
+  @override
+  String get failureValidationDriverImageTooLarge =>
+      'الصورة المختارة لازم تكون 5 ميجابايت أو أقل.';
+
+  @override
+  String get failureValidationDriverImageTypeUnsupported =>
+      'نوع الصورة المختارة غير مدعوم. استخدم JPG أو PNG أو WebP أو HEIC أو HEIF.';
 
   @override
   String get failurePermissionFleetManagement =>
