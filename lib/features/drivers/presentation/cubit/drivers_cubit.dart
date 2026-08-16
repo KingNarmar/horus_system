@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
@@ -320,7 +321,7 @@ class DriversCubit extends Cubit<DriversState> {
     }
   }
 
-  Future<void> addDriver({
+  Future<Failure?> addDriver({
     required String fullName,
     String? phone,
     String? nationalId,
@@ -331,7 +332,7 @@ class DriversCubit extends Cubit<DriversState> {
   }) async {
     final context = _currentCompanyContext;
     if (context == null) {
-      return;
+      return const UnexpectedFailure();
     }
 
     final result = await addDriverUseCase(
@@ -347,13 +348,19 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    if (result is Success<Driver>) {
+      _upsertDriver(result.data);
+      return null;
+    }
+
+    if (result is FailureResult<Driver>) {
+      return result.failure;
+    }
+
+    return const UnexpectedFailure();
   }
 
-  Future<void> updateDriver({
+  Future<Failure?> updateDriver({
     required Driver driver,
     required String fullName,
     String? phone,
@@ -365,7 +372,7 @@ class DriversCubit extends Cubit<DriversState> {
   }) async {
     final context = _currentCompanyContext;
     if (context == null) {
-      return;
+      return const UnexpectedFailure();
     }
 
     final result = await updateDriverUseCase(
@@ -382,10 +389,16 @@ class DriversCubit extends Cubit<DriversState> {
       ),
     );
 
-    result.when(
-      success: _upsertDriver,
-      failure: (failure) => emit(DriversFailure(failure)),
-    );
+    if (result is Success<Driver>) {
+      _upsertDriver(result.data);
+      return null;
+    }
+
+    if (result is FailureResult<Driver>) {
+      return result.failure;
+    }
+
+    return const UnexpectedFailure();
   }
 
   Future<void> addDriverAdvance({

@@ -347,6 +347,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelButton => 'Cancel';
 
   @override
+  String get okButton => 'OK';
+
+  @override
   String get retryButton => 'Retry';
 
   @override
@@ -565,6 +568,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverImageAlreadyUploaded => 'Image uploaded';
+
+  @override
+  String get driverImageSelectionFailedTitle => 'Image selection failed';
 
   @override
   String get driverExistingImageValue => 'Existing image';
@@ -1299,6 +1305,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureValidationDriverNameRequired => 'Driver name is required.';
+
+  @override
+  String get failureValidationDriverImageTooLarge =>
+      'Selected image must be 5 MB or smaller.';
+
+  @override
+  String get failureValidationDriverImageTypeUnsupported =>
+      'Selected image type is not supported. Use JPG, PNG, WebP, HEIC, or HEIF.';
 
   @override
   String get failurePermissionFleetManagement =>

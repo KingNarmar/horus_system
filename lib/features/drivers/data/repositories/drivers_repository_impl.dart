@@ -1,5 +1,6 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show PostgrestException, StorageException;
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
@@ -106,6 +107,9 @@ class DriversRepositoryImpl implements DriversRepository {
           fallback: oldModel,
           uploadedPaths: uploadedPaths,
         );
+        if (!_hasDriverChanges(oldModel, dataWithImages)) {
+          return Success(oldModel.toEntity());
+        }
         final model = await remoteDataSource.updateDriver(
           driverId: driverId,
           data: dataWithImages,
@@ -377,6 +381,45 @@ class DriversRepositoryImpl implements DriversRepository {
     return result.failureOrNull;
   }
 
+  bool _hasDriverChanges(DriverModel oldModel, DriverWriteData data) {
+    return _textChanged(oldModel.fullName, data.fullName) ||
+        _textChanged(oldModel.phone, data.phone) ||
+        _textChanged(oldModel.nationalId, data.nationalId) ||
+        _textChanged(oldModel.licenseNumber, data.licenseNumber) ||
+        _dateChanged(oldModel.licenseExpiryDate, data.licenseExpiryDate) ||
+        _textChanged(oldModel.profileImagePath, data.profileImagePath) ||
+        _textChanged(oldModel.licenseImagePath, data.licenseImagePath) ||
+        _textChanged(
+          oldModel.licenseBackImagePath,
+          data.licenseBackImagePath,
+        ) ||
+        _textChanged(oldModel.nationalIdImagePath, data.nationalIdImagePath) ||
+        _textChanged(
+          oldModel.nationalIdBackImagePath,
+          data.nationalIdBackImagePath,
+        ) ||
+        _textChanged(oldModel.notes, data.notes);
+  }
+
+  bool _textChanged(String? oldValue, String? newValue) {
+    return _normalizeText(oldValue) != _normalizeText(newValue);
+  }
+
+  String? _normalizeText(String? value) {
+    final normalized = value?.trim();
+    return normalized == null || normalized.isEmpty ? null : normalized;
+  }
+
+  bool _dateChanged(DateTime? oldValue, DateTime? newValue) {
+    return _dateOnly(oldValue) != _dateOnly(newValue);
+  }
+
+  String? _dateOnly(DateTime? value) {
+    if (value == null) return null;
+    final local = value.toLocal();
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  }
+
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
@@ -387,8 +430,30 @@ class DriversRepositoryImpl implements DriversRepository {
           message: error.message,
         ),
       );
+    } on StorageException catch (error) {
+      return FailureResult(_storageFailure(error));
     } catch (error) {
       return FailureResult(UnexpectedFailure(message: error.toString()));
     }
+  }
+
+  Failure _storageFailure(StorageException error) {
+    final message = error.message.toLowerCase();
+    final statusCode = error.statusCode;
+    if (statusCode == '413' || message.contains('too large')) {
+      return const ValidationFailure(
+        code: FailureCodes.validationDriverImageTooLarge,
+        message: 'Driver image file is too large.',
+      );
+    }
+    if (statusCode == '415' ||
+        message.contains('mime') ||
+        message.contains('type')) {
+      return const ValidationFailure(
+        code: FailureCodes.validationDriverImageTypeUnsupported,
+        message: 'Driver image file type is not supported.',
+      );
+    }
+    return const ServerFailure(code: FailureCodes.serverError);
   }
 }

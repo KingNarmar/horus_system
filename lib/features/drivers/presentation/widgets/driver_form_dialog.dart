@@ -5,9 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_date_constraints.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
+import '../../domain/services/driver_image_upload_validator.dart';
 import '../localization/drivers_localizations_x.dart';
 
 class DriverFormData {
@@ -32,7 +35,7 @@ class DriverFormData {
 
 class DriverFormDialog extends StatefulWidget {
   final Driver? driver;
-  final Future<void> Function(DriverFormData data) onSubmit;
+  final Future<Failure?> Function(DriverFormData data) onSubmit;
 
   const DriverFormDialog({required this.onSubmit, this.driver, super.key});
 
@@ -55,6 +58,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   _SelectedDriverImage? _licenseBackImage;
   _SelectedDriverImage? _nationalIdFrontImage;
   _SelectedDriverImage? _nationalIdBackImage;
+  final _imageUploadValidator = const DriverImageUploadValidator();
+  Failure? _imageSelectionFailure;
+  _DriverImageTarget? _imageSelectionFailureTarget;
+  Failure? _submissionFailure;
   bool _isSubmitting = false;
 
   @override
@@ -173,6 +180,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   label: l10n.driverProfileImageLabel,
                   existingPath: widget.driver?.profileImagePath,
                   selectedImage: _profileImage,
+                  failureText: _imageFailureText(
+                    l10n,
+                    _DriverImageTarget.profile,
+                  ),
                   isSubmitting: _isSubmitting,
                   onPickFromFiles: () => _pickImage(
                     target: _DriverImageTarget.profile,
@@ -190,6 +201,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   label: l10n.driverLicenseFrontImageLabel,
                   existingPath: widget.driver?.licenseImagePath,
                   selectedImage: _licenseFrontImage,
+                  failureText: _imageFailureText(
+                    l10n,
+                    _DriverImageTarget.licenseFront,
+                  ),
                   isSubmitting: _isSubmitting,
                   onPickFromFiles: () => _pickImage(
                     target: _DriverImageTarget.licenseFront,
@@ -207,6 +222,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   label: l10n.driverLicenseBackImageLabel,
                   existingPath: widget.driver?.licenseBackImagePath,
                   selectedImage: _licenseBackImage,
+                  failureText: _imageFailureText(
+                    l10n,
+                    _DriverImageTarget.licenseBack,
+                  ),
                   isSubmitting: _isSubmitting,
                   onPickFromFiles: () => _pickImage(
                     target: _DriverImageTarget.licenseBack,
@@ -224,6 +243,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   label: l10n.driverNationalIdFrontImageLabel,
                   existingPath: widget.driver?.nationalIdImagePath,
                   selectedImage: _nationalIdFrontImage,
+                  failureText: _imageFailureText(
+                    l10n,
+                    _DriverImageTarget.nationalIdFront,
+                  ),
                   isSubmitting: _isSubmitting,
                   onPickFromFiles: () => _pickImage(
                     target: _DriverImageTarget.nationalIdFront,
@@ -241,6 +264,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                   label: l10n.driverNationalIdBackImageLabel,
                   existingPath: widget.driver?.nationalIdBackImagePath,
                   selectedImage: _nationalIdBackImage,
+                  failureText: _imageFailureText(
+                    l10n,
+                    _DriverImageTarget.nationalIdBack,
+                  ),
                   isSubmitting: _isSubmitting,
                   onPickFromFiles: () => _pickImage(
                     target: _DriverImageTarget.nationalIdBack,
@@ -253,6 +280,15 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
                         )
                       : null,
                 ),
+                if (_submissionFailure != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.localizedErrorMessage(_submissionFailure!),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -264,7 +300,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
           child: Text(l10n.cancelButton),
         ),
         FilledButton(
-          onPressed: _isSubmitting ? null : _submit,
+          onPressed: _isSubmitting || _hasBlockingImageFailure ? null : _submit,
           child: Text(l10n.saveButton),
         ),
       ],
@@ -302,10 +338,19 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
     });
   }
 
+  bool get _hasBlockingImageFailure =>
+      _imageSelectionFailure != null && _imageSelectionFailureTarget != null;
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isSubmitting = true);
-    await widget.onSubmit(
+    if (_hasBlockingImageFailure) return;
+    setState(() {
+      _isSubmitting = true;
+      _imageSelectionFailure = null;
+      _imageSelectionFailureTarget = null;
+      _submissionFailure = null;
+    });
+    final failure = await widget.onSubmit(
       DriverFormData(
         fullName: _nameController.text,
         phone: _optional(_phoneController.text),
@@ -324,6 +369,14 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         notes: _optional(_notesController.text),
       ),
     );
+    if (!mounted) return;
+    if (failure != null) {
+      setState(() {
+        _isSubmitting = false;
+        _submissionFailure = failure;
+      });
+      return;
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -359,8 +412,16 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         mimeType: picked.mimeType,
       ),
     );
+    final imageFailure = _imageUploadValidator.validateImage(selected.file);
+    if (imageFailure != null) {
+      await _showImageFailure(target, imageFailure);
+      return;
+    }
 
     setState(() {
+      _imageSelectionFailure = null;
+      _imageSelectionFailureTarget = null;
+      _submissionFailure = null;
       switch (target) {
         case _DriverImageTarget.profile:
           _profileImage = selected;
@@ -374,6 +435,40 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
           _nationalIdBackImage = selected;
       }
     });
+  }
+
+  String? _imageFailureText(AppLocalizations l10n, _DriverImageTarget target) {
+    if (_imageSelectionFailureTarget != target ||
+        _imageSelectionFailure == null) {
+      return null;
+    }
+    return l10n.localizedErrorMessage(_imageSelectionFailure!);
+  }
+
+  Future<void> _showImageFailure(
+    _DriverImageTarget target,
+    Failure failure,
+  ) async {
+    final l10n = context.l10n;
+    final message = l10n.localizedErrorMessage(failure);
+    setState(() {
+      _imageSelectionFailure = failure;
+      _imageSelectionFailureTarget = target;
+      _submissionFailure = null;
+    });
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.driverImageSelectionFailedTitle),
+        content: Text(message),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.okButton),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -396,6 +491,7 @@ class _DriverImagePickerTile extends StatelessWidget {
   final String label;
   final String? existingPath;
   final _SelectedDriverImage? selectedImage;
+  final String? failureText;
   final bool isSubmitting;
   final VoidCallback onPickFromFiles;
   final VoidCallback? onTakePhoto;
@@ -404,6 +500,7 @@ class _DriverImagePickerTile extends StatelessWidget {
     required this.label,
     required this.existingPath,
     required this.selectedImage,
+    required this.failureText,
     required this.isSubmitting,
     required this.onPickFromFiles,
     required this.onTakePhoto,
@@ -453,6 +550,13 @@ class _DriverImagePickerTile extends StatelessWidget {
                 ),
             ],
           ),
+          if (failureText != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              failureText!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
         ],
       ),
     );
