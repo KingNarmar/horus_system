@@ -12,6 +12,10 @@ import '../../domain/services/driver_image_upload_validator.dart';
 import 'driver_form_date_helpers.dart';
 import 'driver_form_image_picker_tile.dart';
 
+part 'driver_form_content.dart';
+part 'driver_form_image_actions.dart';
+part 'driver_form_submission.dart';
+
 class DriverFormData {
   final String fullName;
   final String? phone;
@@ -102,197 +106,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
       title: Text(
         widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
       ),
-      content: SizedBox(
-        width: 520,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: l10n.driverNameLabel),
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? l10n.driverNameRequired
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(labelText: l10n.phoneLabel),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _nationalIdController,
-                  decoration: InputDecoration(labelText: l10n.nationalIdLabel),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _licenseNumberController,
-                  decoration: InputDecoration(
-                    labelText: l10n.licenseNumberLabel,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _licenseExpiryController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.licenseExpiryDateLabel,
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_licenseExpiryController.text.isNotEmpty)
-                          IconButton(
-                            tooltip: MaterialLocalizations.of(
-                              context,
-                            ).deleteButtonTooltip,
-                            icon: const Icon(AppIcons.clear),
-                            onPressed: _isSubmitting
-                                ? null
-                                : _clearLicenseExpiryDate,
-                          ),
-                        IconButton(
-                          tooltip: l10n.licenseExpiryDateLabel,
-                          icon: const Icon(AppIcons.calendar),
-                          onPressed: _isSubmitting
-                              ? null
-                              : _pickLicenseExpiryDate,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: _isSubmitting ? null : _pickLicenseExpiryDate,
-                  validator: (_) => _isLicenseExpiryDateValid
-                      ? null
-                      : l10n.licenseExpiryDateMustBeFuture,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _notesController,
-                  decoration: InputDecoration(labelText: l10n.notesLabel),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DriverFormImagePickerTile(
-                  label: l10n.driverProfileImageLabel,
-                  existingPath: widget.driver?.profileImagePath,
-                  selectedImage: _profileImage,
-                  failureText: _imageFailureText(
-                    l10n,
-                    DriverImageTarget.profile,
-                  ),
-                  isSubmitting: _isSubmitting,
-                  onPickFromFiles: () => _pickImage(
-                    target: DriverImageTarget.profile,
-                    source: ImageSource.gallery,
-                  ),
-                  onTakePhoto: canUseDriverImageCamera
-                      ? () => _pickImage(
-                          target: DriverImageTarget.profile,
-                          source: ImageSource.camera,
-                        )
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DriverFormImagePickerTile(
-                  label: l10n.driverLicenseFrontImageLabel,
-                  existingPath: widget.driver?.licenseImagePath,
-                  selectedImage: _licenseFrontImage,
-                  failureText: _imageFailureText(
-                    l10n,
-                    DriverImageTarget.licenseFront,
-                  ),
-                  isSubmitting: _isSubmitting,
-                  onPickFromFiles: () => _pickImage(
-                    target: DriverImageTarget.licenseFront,
-                    source: ImageSource.gallery,
-                  ),
-                  onTakePhoto: canUseDriverImageCamera
-                      ? () => _pickImage(
-                          target: DriverImageTarget.licenseFront,
-                          source: ImageSource.camera,
-                        )
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DriverFormImagePickerTile(
-                  label: l10n.driverLicenseBackImageLabel,
-                  existingPath: widget.driver?.licenseBackImagePath,
-                  selectedImage: _licenseBackImage,
-                  failureText: _imageFailureText(
-                    l10n,
-                    DriverImageTarget.licenseBack,
-                  ),
-                  isSubmitting: _isSubmitting,
-                  onPickFromFiles: () => _pickImage(
-                    target: DriverImageTarget.licenseBack,
-                    source: ImageSource.gallery,
-                  ),
-                  onTakePhoto: canUseDriverImageCamera
-                      ? () => _pickImage(
-                          target: DriverImageTarget.licenseBack,
-                          source: ImageSource.camera,
-                        )
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DriverFormImagePickerTile(
-                  label: l10n.driverNationalIdFrontImageLabel,
-                  existingPath: widget.driver?.nationalIdImagePath,
-                  selectedImage: _nationalIdFrontImage,
-                  failureText: _imageFailureText(
-                    l10n,
-                    DriverImageTarget.nationalIdFront,
-                  ),
-                  isSubmitting: _isSubmitting,
-                  onPickFromFiles: () => _pickImage(
-                    target: DriverImageTarget.nationalIdFront,
-                    source: ImageSource.gallery,
-                  ),
-                  onTakePhoto: canUseDriverImageCamera
-                      ? () => _pickImage(
-                          target: DriverImageTarget.nationalIdFront,
-                          source: ImageSource.camera,
-                        )
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DriverFormImagePickerTile(
-                  label: l10n.driverNationalIdBackImageLabel,
-                  existingPath: widget.driver?.nationalIdBackImagePath,
-                  selectedImage: _nationalIdBackImage,
-                  failureText: _imageFailureText(
-                    l10n,
-                    DriverImageTarget.nationalIdBack,
-                  ),
-                  isSubmitting: _isSubmitting,
-                  onPickFromFiles: () => _pickImage(
-                    target: DriverImageTarget.nationalIdBack,
-                    source: ImageSource.gallery,
-                  ),
-                  onTakePhoto: canUseDriverImageCamera
-                      ? () => _pickImage(
-                          target: DriverImageTarget.nationalIdBack,
-                          source: ImageSource.camera,
-                        )
-                      : null,
-                ),
-                if (_submissionFailure != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    l10n.localizedErrorMessage(_submissionFailure!),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+      content: SizedBox(width: 520, child: _content(context)),
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
@@ -304,6 +118,59 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         ),
       ],
     );
+  }
+
+  void _setSubmissionFailure(Failure failure) {
+    setState(() {
+      _isSubmitting = false;
+      _submissionFailure = failure;
+    });
+  }
+
+  void _startSubmitting() {
+    setState(() {
+      _isSubmitting = true;
+      _imageSelectionFailure = null;
+      _imageSelectionFailureTarget = null;
+      _submissionFailure = null;
+    });
+  }
+
+  void _setSelectedImage(
+    DriverImageTarget target,
+    SelectedDriverImage selected,
+  ) {
+    setState(() {
+      _imageSelectionFailure = null;
+      _imageSelectionFailureTarget = null;
+      _submissionFailure = null;
+      switch (target) {
+        case DriverImageTarget.profile:
+          _profileImage = selected;
+        case DriverImageTarget.licenseFront:
+          _licenseFrontImage = selected;
+        case DriverImageTarget.licenseBack:
+          _licenseBackImage = selected;
+        case DriverImageTarget.nationalIdFront:
+          _nationalIdFrontImage = selected;
+        case DriverImageTarget.nationalIdBack:
+          _nationalIdBackImage = selected;
+      }
+    });
+  }
+
+  void _setImageSelectionFailure(DriverImageTarget target, Failure failure) {
+    setState(() {
+      _imageSelectionFailure = failure;
+      _imageSelectionFailureTarget = target;
+      _submissionFailure = null;
+    });
+  }
+
+  void _closeIfMounted() {
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _pickLicenseExpiryDate() async {
@@ -340,45 +207,6 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   bool get _hasBlockingImageFailure =>
       _imageSelectionFailure != null && _imageSelectionFailureTarget != null;
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_hasBlockingImageFailure) return;
-    setState(() {
-      _isSubmitting = true;
-      _imageSelectionFailure = null;
-      _imageSelectionFailureTarget = null;
-      _submissionFailure = null;
-    });
-    final failure = await widget.onSubmit(
-      DriverFormData(
-        fullName: _nameController.text,
-        phone: _optional(_phoneController.text),
-        nationalId: _optional(_nationalIdController.text),
-        licenseNumber: _optional(_licenseNumberController.text),
-        licenseExpiryDate: _selectedLicenseExpiryDate == null
-            ? null
-            : driverFormDateOnlyValue(_selectedLicenseExpiryDate!),
-        imageUploads: DriverImageUploadSet(
-          profileImage: _profileImage?.file,
-          licenseFrontImage: _licenseFrontImage?.file,
-          licenseBackImage: _licenseBackImage?.file,
-          nationalIdFrontImage: _nationalIdFrontImage?.file,
-          nationalIdBackImage: _nationalIdBackImage?.file,
-        ),
-        notes: _optional(_notesController.text),
-      ),
-    );
-    if (!mounted) return;
-    if (failure != null) {
-      setState(() {
-        _isSubmitting = false;
-        _submissionFailure = failure;
-      });
-      return;
-    }
-    if (mounted) Navigator.of(context).pop();
-  }
-
   bool get _isLicenseExpiryDateValid {
     final selectedDate = _selectedLicenseExpiryDate;
     if (selectedDate == null) return true;
@@ -390,83 +218,5 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   String? _optional(String value) {
     final normalized = value.trim();
     return normalized.isEmpty ? null : normalized;
-  }
-
-  Future<void> _pickImage({
-    required DriverImageTarget target,
-    required ImageSource source,
-  }) async {
-    final picked = await _imagePicker.pickImage(
-      source: source,
-      imageQuality: 82,
-    );
-    if (picked == null || !mounted) return;
-
-    final bytes = await picked.readAsBytes();
-    final selected = SelectedDriverImage(
-      displayName: picked.name,
-      file: DriverImageFile(
-        bytes: bytes,
-        fileName: picked.name,
-        mimeType: picked.mimeType,
-      ),
-    );
-    final imageFailure = _imageUploadValidator.validateImage(selected.file);
-    if (imageFailure != null) {
-      await _showImageFailure(target, imageFailure);
-      return;
-    }
-
-    setState(() {
-      _imageSelectionFailure = null;
-      _imageSelectionFailureTarget = null;
-      _submissionFailure = null;
-      switch (target) {
-        case DriverImageTarget.profile:
-          _profileImage = selected;
-        case DriverImageTarget.licenseFront:
-          _licenseFrontImage = selected;
-        case DriverImageTarget.licenseBack:
-          _licenseBackImage = selected;
-        case DriverImageTarget.nationalIdFront:
-          _nationalIdFrontImage = selected;
-        case DriverImageTarget.nationalIdBack:
-          _nationalIdBackImage = selected;
-      }
-    });
-  }
-
-  String? _imageFailureText(AppLocalizations l10n, DriverImageTarget target) {
-    if (_imageSelectionFailureTarget != target ||
-        _imageSelectionFailure == null) {
-      return null;
-    }
-    return l10n.localizedErrorMessage(_imageSelectionFailure!);
-  }
-
-  Future<void> _showImageFailure(
-    DriverImageTarget target,
-    Failure failure,
-  ) async {
-    final l10n = context.l10n;
-    final message = l10n.localizedErrorMessage(failure);
-    setState(() {
-      _imageSelectionFailure = failure;
-      _imageSelectionFailureTarget = target;
-      _submissionFailure = null;
-    });
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.driverImageSelectionFailedTitle),
-        content: Text(message),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.okButton),
-          ),
-        ],
-      ),
-    );
   }
 }
