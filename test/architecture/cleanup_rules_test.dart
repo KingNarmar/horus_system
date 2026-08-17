@@ -255,8 +255,123 @@ void main() {
         );
       }
     });
+
+    test('production Dart files stay below the maintainability line', () {
+      final productionFiles = _dartFilesUnder('lib').where(
+        (file) =>
+            !_isGeneratedLocalizationFile(file) &&
+            !_allowedOversizedProductionFiles.contains(_normalizedPath(file)),
+      );
+
+      for (final file in productionFiles) {
+        final lineCount = file.readAsLinesSync().length;
+        expect(
+          lineCount,
+          lessThanOrEqualTo(_maxProductionFileLines),
+          reason:
+              '${file.path} has $lineCount lines. Split large files before adding more responsibilities.',
+        );
+      }
+    });
+
+    test('new data sources use data constants for database table names', () {
+      final dataSourceFiles = _dartFilesUnder('lib/features').where((file) {
+        final path = _normalizedPath(file);
+        return path.contains('/data/datasources/') &&
+            !_allowedDataSourcesWithLocalTableConstants.contains(path);
+      });
+      final localTablePattern = RegExp(
+        r'''^\s*const\s+_\w*Table\w*\s*=\s*['"][^'"]+['"]''',
+      );
+
+      for (final file in dataSourceFiles) {
+        final content = file.readAsStringSync();
+        expect(
+          localTablePattern.hasMatch(content),
+          isFalse,
+          reason:
+              '${file.path} must keep database table names in data constants, not local datasource constants.',
+        );
+      }
+    });
+
+    test('new presentation localization code uses ARB-backed localization', () {
+      final localizationFiles = _dartFilesUnder('lib/features').where((file) {
+        final path = _normalizedPath(file);
+        return path.contains('/presentation/localization/') &&
+            !_allowedManualPresentationLocalizationFiles.contains(path);
+      });
+      final manualLanguageBranchPattern = RegExp(
+        r'''_isArabic\s*\?\s*['"][^'"]+['"]\s*:\s*['"][^'"]+['"]''',
+      );
+
+      for (final file in localizationFiles) {
+        final content = file.readAsStringSync();
+        expect(
+          manualLanguageBranchPattern.hasMatch(content),
+          isFalse,
+          reason:
+              '${file.path} must use ARB/generated localization instead of manual language string branches.',
+        );
+      }
+    });
+
+    test('new features include a matching test directory', () {
+      final featureDirectories = Directory('lib/features')
+          .listSync()
+          .whereType<Directory>()
+          .map(_normalizedDirectoryPath)
+          .where(
+            (path) =>
+                !_allowedFeaturesWithoutTests.contains(path.split('/').last),
+          );
+
+      for (final featurePath in featureDirectories) {
+        final featureName = featurePath.split('/').last;
+        final testDirectory = Directory('test/features/$featureName');
+        expect(
+          testDirectory.existsSync() &&
+              _dartFilesUnder(testDirectory.path).isNotEmpty,
+          isTrue,
+          reason:
+              'lib/features/$featureName must have matching tests under test/features/$featureName.',
+        );
+      }
+    });
   });
 }
+
+const _maxProductionFileLines = 500;
+
+const _allowedOversizedProductionFiles = {
+  'lib/features/drivers/presentation/cubit/drivers_cubit.dart',
+  'lib/features/drivers/presentation/widgets/driver_details_dialog.dart',
+  'lib/features/drivers/presentation/widgets/driver_form_dialog.dart',
+  'lib/features/fleet/presentation/widgets/fleet_asset_cards.dart',
+  'lib/features/trips/domain/usecases/trips_usecases.dart',
+  'lib/features/trips/presentation/cubit/trips_cubit.dart',
+  'lib/features/trips/presentation/widgets/trip_form_dialog.dart',
+};
+
+const _allowedDataSourcesWithLocalTableConstants = {
+  'lib/features/company_expenses/data/datasources/company_expenses_remote_data_source.dart',
+  'lib/features/expenses/data/datasources/trip_expenses_remote_data_source.dart',
+  'lib/features/routes/data/datasources/routes_remote_data_source.dart',
+  'lib/features/trips/data/datasources/trips_remote_data_source.dart',
+};
+
+const _allowedManualPresentationLocalizationFiles = {
+  'lib/features/reports/presentation/localization/reports_localizations.dart',
+  'lib/features/trips/presentation/localization/trips_localizations_x.dart',
+};
+
+const _allowedFeaturesWithoutTests = {
+  'auth',
+  'customers',
+  'expenses',
+  'fleet',
+  'routes',
+};
 
 String _read(String path) => File(path).readAsStringSync();
 
@@ -271,6 +386,10 @@ Iterable<File> _dartFilesUnder(String path) {
 }
 
 String _normalizedPath(File file) => file.path.replaceAll('\\', '/');
+
+String _normalizedDirectoryPath(Directory directory) {
+  return directory.path.replaceAll('\\', '/');
+}
 
 Iterable<String> _importUris(File file) sync* {
   final importPattern = RegExp(r'''^\s*(import|export)\s+['"]([^'"]+)['"]''');
@@ -323,4 +442,10 @@ bool _isForbiddenAuditDataImport(String importUri) {
       importUri.contains('../../audit/data/') ||
       importUri.contains('../../../audit/data/') ||
       importUri.contains('../../../../audit/data/');
+}
+
+bool _isGeneratedLocalizationFile(File file) {
+  final path = _normalizedPath(file);
+  return path.startsWith('lib/l10n/app_localizations') &&
+      path.endsWith('.dart');
 }
