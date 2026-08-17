@@ -3,35 +3,45 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show PostgrestException, StorageException;
 
 import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/data/utils/uuid_v4.dart';
 import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log_write_data.dart';
-import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
 import '../../domain/entities/driver_image_urls.dart';
 import '../../domain/entities/driver_write_data.dart';
 import '../../domain/repositories/drivers_repository.dart';
-import '../constants/driver_storage_constants.dart';
 import '../datasources/driver_images_remote_data_source.dart';
 import '../datasources/drivers_remote_data_source.dart';
 import '../mappers/driver_mapper.dart';
 import '../models/driver_model.dart';
+import 'driver_change_detector.dart';
+import 'driver_image_upload_coordinator.dart';
+import 'driver_repository_audit_writer.dart';
+import 'driver_repository_failure_mapper.dart';
 
 class DriversRepositoryImpl implements DriversRepository {
   final DriversRemoteDataSource remoteDataSource;
   final DriverImagesRemoteDataSource imagesRemoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
+  final DriverChangeDetector _changeDetector;
+  final DriverRepositoryFailureMapper _failureMapper;
 
   const DriversRepositoryImpl({
     required this.remoteDataSource,
     required this.imagesRemoteDataSource,
     required this.createAuditLogUseCase,
-  });
+  }) : _changeDetector = const DriverChangeDetector(),
+       _failureMapper = const DriverRepositoryFailureMapper();
+
+  DriverImageUploadCoordinator get _imageUploads {
+    return DriverImageUploadCoordinator(imagesRemoteDataSource);
+  }
+
+  DriverRepositoryAuditWriter get _auditWriter {
+    return DriverRepositoryAuditWriter(createAuditLogUseCase);
+  }
 
   @override
   Future<Result<List<Driver>>> getDrivers({required String companyId}) {
@@ -63,7 +73,7 @@ class DriversRepositoryImpl implements DriversRepository {
       final driverId = _driverIdForInsert();
       final uploadedPaths = <String>[];
       try {
-        final dataWithImages = await _dataWithUploadedImages(
+        final dataWithImages = await _imageUploads.dataWithUploadedImages(
           driverId: driverId,
           data: data,
           imageUploads: imageUploads,
@@ -80,7 +90,7 @@ class DriversRepositoryImpl implements DriversRepository {
           description: 'driver_created',
         );
       } catch (_) {
-        await imagesRemoteDataSource.removeImages(paths: uploadedPaths);
+        await _imageUploads.removeUploadedImages(paths: uploadedPaths);
         rethrow;
       }
     });
@@ -100,14 +110,14 @@ class DriversRepositoryImpl implements DriversRepository {
       );
       final uploadedPaths = <String>[];
       try {
-        final dataWithImages = await _dataWithUploadedImages(
+        final dataWithImages = await _imageUploads.dataWithUploadedImages(
           driverId: driverId,
           data: data,
           imageUploads: imageUploads,
           fallback: oldModel,
           uploadedPaths: uploadedPaths,
         );
-        if (!_hasDriverChanges(oldModel, dataWithImages)) {
+        if (!_changeDetector.hasDriverChanges(oldModel, dataWithImages)) {
           return Success(oldModel.toEntity());
         }
         final model = await remoteDataSource.updateDriver(
@@ -122,128 +132,13 @@ class DriversRepositoryImpl implements DriversRepository {
           oldValues: oldModel.toAuditValues(),
         );
       } catch (_) {
-        await imagesRemoteDataSource.removeImages(paths: uploadedPaths);
+        await _imageUploads.removeUploadedImages(paths: uploadedPaths);
         rethrow;
       }
     });
   }
 
   String _driverIdForInsert() => newUuidV4();
-
-  Future<DriverWriteData> _dataWithUploadedImages({
-    required String driverId,
-    required DriverWriteData data,
-    required List<String> uploadedPaths,
-    DriverImageUploadSet? imageUploads,
-    DriverModel? fallback,
-  }) async {
-    if (imageUploads == null || !imageUploads.hasAny) {
-      return _copyWithImagePaths(
-        data,
-        profileImagePath: data.profileImagePath ?? fallback?.profileImagePath,
-        licenseImagePath: data.licenseImagePath ?? fallback?.licenseImagePath,
-        licenseBackImagePath:
-            data.licenseBackImagePath ?? fallback?.licenseBackImagePath,
-        nationalIdImagePath:
-            data.nationalIdImagePath ?? fallback?.nationalIdImagePath,
-        nationalIdBackImagePath:
-            data.nationalIdBackImagePath ?? fallback?.nationalIdBackImagePath,
-      );
-    }
-
-    final profileImagePath = await _uploadOptionalImage(
-      companyId: data.companyId,
-      driverId: driverId,
-      folder: DriverStorageConstants.profileFolder,
-      image: imageUploads.profileImage,
-      fallbackPath: fallback?.profileImagePath,
-      uploadedPaths: uploadedPaths,
-    );
-    final licenseImagePath = await _uploadOptionalImage(
-      companyId: data.companyId,
-      driverId: driverId,
-      folder: DriverStorageConstants.licenseFrontFolder,
-      image: imageUploads.licenseFrontImage,
-      fallbackPath: fallback?.licenseImagePath,
-      uploadedPaths: uploadedPaths,
-    );
-    final licenseBackImagePath = await _uploadOptionalImage(
-      companyId: data.companyId,
-      driverId: driverId,
-      folder: DriverStorageConstants.licenseBackFolder,
-      image: imageUploads.licenseBackImage,
-      fallbackPath: fallback?.licenseBackImagePath,
-      uploadedPaths: uploadedPaths,
-    );
-    final nationalIdImagePath = await _uploadOptionalImage(
-      companyId: data.companyId,
-      driverId: driverId,
-      folder: DriverStorageConstants.nationalIdFrontFolder,
-      image: imageUploads.nationalIdFrontImage,
-      fallbackPath: fallback?.nationalIdImagePath,
-      uploadedPaths: uploadedPaths,
-    );
-    final nationalIdBackImagePath = await _uploadOptionalImage(
-      companyId: data.companyId,
-      driverId: driverId,
-      folder: DriverStorageConstants.nationalIdBackFolder,
-      image: imageUploads.nationalIdBackImage,
-      fallbackPath: fallback?.nationalIdBackImagePath,
-      uploadedPaths: uploadedPaths,
-    );
-
-    return _copyWithImagePaths(
-      data,
-      profileImagePath: profileImagePath,
-      licenseImagePath: licenseImagePath,
-      licenseBackImagePath: licenseBackImagePath,
-      nationalIdImagePath: nationalIdImagePath,
-      nationalIdBackImagePath: nationalIdBackImagePath,
-    );
-  }
-
-  Future<String?> _uploadOptionalImage({
-    required String companyId,
-    required String driverId,
-    required String folder,
-    required DriverImageFile? image,
-    required String? fallbackPath,
-    required List<String> uploadedPaths,
-  }) async {
-    if (image == null) return fallbackPath;
-    final path = await imagesRemoteDataSource.uploadDriverImage(
-      companyId: companyId,
-      driverId: driverId,
-      folder: folder,
-      image: image,
-    );
-    uploadedPaths.add(path);
-    return path;
-  }
-
-  DriverWriteData _copyWithImagePaths(
-    DriverWriteData data, {
-    String? profileImagePath,
-    String? licenseImagePath,
-    String? licenseBackImagePath,
-    String? nationalIdImagePath,
-    String? nationalIdBackImagePath,
-  }) {
-    return DriverWriteData(
-      companyId: data.companyId,
-      fullName: data.fullName,
-      phone: data.phone,
-      nationalId: data.nationalId,
-      licenseNumber: data.licenseNumber,
-      licenseExpiryDate: data.licenseExpiryDate,
-      profileImagePath: profileImagePath,
-      licenseImagePath: licenseImagePath,
-      licenseBackImagePath: licenseBackImagePath,
-      nationalIdImagePath: nationalIdImagePath,
-      nationalIdBackImagePath: nationalIdBackImagePath,
-      notes: data.notes,
-    );
-  }
 
   @override
   Future<Result<Driver>> deactivateDriver({
@@ -282,24 +177,24 @@ class DriversRepositoryImpl implements DriversRepository {
     return _guard(() async {
       return Success(
         DriverImageUrls(
-          profileImageUrl: await _signedUrl(driver.profileImagePath),
-          licenseImageUrl: await _signedUrl(driver.licenseImagePath),
-          licenseBackImageUrl: await _signedUrl(driver.licenseBackImagePath),
-          nationalIdImageUrl: await _signedUrl(driver.nationalIdImagePath),
-          nationalIdBackImageUrl: await _signedUrl(
+          profileImageUrl: await _imageUploads.signedUrl(
+            driver.profileImagePath,
+          ),
+          licenseImageUrl: await _imageUploads.signedUrl(
+            driver.licenseImagePath,
+          ),
+          licenseBackImageUrl: await _imageUploads.signedUrl(
+            driver.licenseBackImagePath,
+          ),
+          nationalIdImageUrl: await _imageUploads.signedUrl(
+            driver.nationalIdImagePath,
+          ),
+          nationalIdBackImageUrl: await _imageUploads.signedUrl(
             driver.nationalIdBackImagePath,
           ),
         ),
       );
     });
-  }
-
-  Future<String?> _signedUrl(String? path) {
-    final normalized = path?.trim();
-    if (normalized == null || normalized.isEmpty) {
-      return Future.value();
-    }
-    return imagesRemoteDataSource.createSignedUrl(path: normalized);
   }
 
   Future<Result<Driver>> _changeStatus({
@@ -337,7 +232,7 @@ class DriversRepositoryImpl implements DriversRepository {
     required String description,
     Map<String, Object?>? oldValues,
   }) async {
-    final auditFailure = await _writeDriverAudit(
+    final auditFailure = await _auditWriter.writeDriverAudit(
       companyId: model.companyId,
       actorRole: actorRole,
       entityId: model.id,
@@ -352,108 +247,15 @@ class DriversRepositoryImpl implements DriversRepository {
     return Success(model.toEntity());
   }
 
-  Future<Failure?> _writeDriverAudit({
-    required String companyId,
-    required String actorRole,
-    required String entityId,
-    required String entityDisplayName,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-    Map<String, Object?>? newValues,
-  }) async {
-    final result = await createAuditLogUseCase(
-      CreateAuditLogParams(
-        data: AuditLogWriteData(
-          companyId: companyId,
-          actorRole: actorRole,
-          module: AuditModule.drivers,
-          entityType: AuditEntityType.driver,
-          entityId: entityId,
-          entityDisplayName: entityDisplayName,
-          action: action,
-          description: description,
-          oldValues: oldValues,
-          newValues: newValues,
-        ),
-      ),
-    );
-    return result.failureOrNull;
-  }
-
-  bool _hasDriverChanges(DriverModel oldModel, DriverWriteData data) {
-    return _textChanged(oldModel.fullName, data.fullName) ||
-        _textChanged(oldModel.phone, data.phone) ||
-        _textChanged(oldModel.nationalId, data.nationalId) ||
-        _textChanged(oldModel.licenseNumber, data.licenseNumber) ||
-        _dateChanged(oldModel.licenseExpiryDate, data.licenseExpiryDate) ||
-        _textChanged(oldModel.profileImagePath, data.profileImagePath) ||
-        _textChanged(oldModel.licenseImagePath, data.licenseImagePath) ||
-        _textChanged(
-          oldModel.licenseBackImagePath,
-          data.licenseBackImagePath,
-        ) ||
-        _textChanged(oldModel.nationalIdImagePath, data.nationalIdImagePath) ||
-        _textChanged(
-          oldModel.nationalIdBackImagePath,
-          data.nationalIdBackImagePath,
-        ) ||
-        _textChanged(oldModel.notes, data.notes);
-  }
-
-  bool _textChanged(String? oldValue, String? newValue) {
-    return _normalizeText(oldValue) != _normalizeText(newValue);
-  }
-
-  String? _normalizeText(String? value) {
-    final normalized = value?.trim();
-    return normalized == null || normalized.isEmpty ? null : normalized;
-  }
-
-  bool _dateChanged(DateTime? oldValue, DateTime? newValue) {
-    return _dateOnly(oldValue) != _dateOnly(newValue);
-  }
-
-  String? _dateOnly(DateTime? value) {
-    if (value == null) return null;
-    final local = value.toLocal();
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-  }
-
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } on StorageException catch (error) {
-      return FailureResult(_storageFailure(error));
+      return FailureResult(_failureMapper.fromStorage(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
-  }
-
-  Failure _storageFailure(StorageException error) {
-    final message = error.message.toLowerCase();
-    final statusCode = error.statusCode;
-    if (statusCode == '413' || message.contains('too large')) {
-      return const ValidationFailure(
-        code: FailureCodes.validationDriverImageTooLarge,
-        message: 'Driver image file is too large.',
-      );
-    }
-    if (statusCode == '415' ||
-        message.contains('mime') ||
-        message.contains('type')) {
-      return const ValidationFailure(
-        code: FailureCodes.validationDriverImageTypeUnsupported,
-        message: 'Driver image file type is not supported.',
-      );
-    }
-    return const ServerFailure(code: FailureCodes.serverError);
   }
 }
