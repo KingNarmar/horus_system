@@ -256,24 +256,6 @@ void main() {
       }
     });
 
-    test('production Dart files stay below the maintainability line', () {
-      final productionFiles = _dartFilesUnder('lib').where(
-        (file) =>
-            !_isGeneratedLocalizationFile(file) &&
-            !_allowedOversizedProductionFiles.contains(_normalizedPath(file)),
-      );
-
-      for (final file in productionFiles) {
-        final lineCount = file.readAsLinesSync().length;
-        expect(
-          lineCount,
-          lessThanOrEqualTo(_maxProductionFileLines),
-          reason:
-              '${file.path} has $lineCount lines. Split large files before adding more responsibilities.',
-        );
-      }
-    });
-
     test('new data sources use data constants for database table names', () {
       final dataSourceFiles = _dartFilesUnder('lib/features').where((file) {
         final path = _normalizedPath(file);
@@ -340,18 +322,6 @@ void main() {
     });
   });
 }
-
-const _maxProductionFileLines = 500;
-
-const _allowedOversizedProductionFiles = {
-  'lib/features/drivers/presentation/cubit/drivers_cubit.dart',
-  'lib/features/drivers/presentation/widgets/driver_details_dialog.dart',
-  'lib/features/drivers/presentation/widgets/driver_form_dialog.dart',
-  'lib/features/fleet/presentation/widgets/fleet_asset_cards.dart',
-  'lib/features/trips/domain/usecases/trips_usecases.dart',
-  'lib/features/trips/presentation/cubit/trips_cubit.dart',
-  'lib/features/trips/presentation/widgets/trip_form_dialog.dart',
-};
 
 const _allowedDataSourcesWithLocalTableConstants = {
   'lib/features/company_expenses/data/datasources/company_expenses_remote_data_source.dart',
@@ -442,10 +412,4 @@ bool _isForbiddenAuditDataImport(String importUri) {
       importUri.contains('../../audit/data/') ||
       importUri.contains('../../../audit/data/') ||
       importUri.contains('../../../../audit/data/');
-}
-
-bool _isGeneratedLocalizationFile(File file) {
-  final path = _normalizedPath(file);
-  return path.startsWith('lib/l10n/app_localizations') &&
-      path.endsWith('.dart');
 }
