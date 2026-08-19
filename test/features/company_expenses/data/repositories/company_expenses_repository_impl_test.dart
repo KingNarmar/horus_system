@@ -41,6 +41,29 @@ void main() {
       expect(auditRepository.logs.single.description, 'company_expense_created');
     });
 
+    test('does not write audit when mutation fails', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeCompanyExpensesRemoteDataSource(
+        operations: operations,
+        addError: Exception('mutation failed'),
+      );
+      final auditRepository = _FakeAuditLogRepository(operations: operations);
+      final repository = CompanyExpensesRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
+      );
+
+      final result = await repository.addCompanyExpense(
+        data: _writeData(),
+        actorRole: 'accountant',
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(operations, ['add_expense']);
+      expect(auditRepository.logs, isEmpty);
+    });
+
     test('propagates audit failure after successful mutation', () async {
       final remoteDataSource = _FakeCompanyExpensesRemoteDataSource();
       final auditRepository = _FakeAuditLogRepository(
@@ -169,13 +192,14 @@ CompanyExpenseModel _expenseModel({
 class _FakeCompanyExpensesRemoteDataSource
     implements CompanyExpensesRemoteDataSource {
   final List<String>? operations;
+  final Object? addError;
   int addCalls = 0;
   String? lastLookupCompanyId;
   String? lastLookupExpenseId;
   String? lastListCompanyId;
   bool? lastIncludeVoided;
 
-  _FakeCompanyExpensesRemoteDataSource({this.operations});
+  _FakeCompanyExpensesRemoteDataSource({this.operations, this.addError});
 
   @override
   Future<CompanyExpenseModel> addCompanyExpense({
@@ -183,6 +207,7 @@ class _FakeCompanyExpensesRemoteDataSource
   }) async {
     addCalls++;
     operations?.add('add_expense');
+    if (addError != null) throw addError!;
     return _expenseModel(amount: data.amount);
   }
 
