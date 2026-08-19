@@ -182,9 +182,13 @@ Rules:
 
 ## Maintainability Rules
 
-- Code must be readable, maintainable, testable, and scalable.
-- Review files near 400 lines for splitting.
-- Split files above 500 lines unless strongly justified.
+- Code must be readable, maintainable, testable, extensible, and scalable.
+- File length is a review signal only; it is not a refactoring rule or a quality metric by itself.
+- Files approaching or exceeding roughly 400–500 lines should receive an explicit architectural and design review.
+- Do not split a file only because it crosses a line-count threshold.
+- Refactor when Clean Architecture boundaries, SOLID principles, SRP, cohesion, coupling, complexity, readability, testability, extensibility, duplication, or independent reasons to change show a real maintenance problem.
+- A smaller file may still require refactoring when responsibilities are mixed or the design is difficult to test, extend, modify, or maintain.
+- A larger file may remain valid when it is cohesive, has one clear responsibility, and remains easy to test, extend, modify, and maintain.
 - Avoid duplicated hardcoded constants.
 - Shared app-wide code belongs in `core/`.
 - Feature-specific code stays in the feature.
@@ -264,7 +268,7 @@ Before opening or accepting a pull request, verify:
 - [ ] Typed Failure codes are used and mapped to localized UI messages.
 - [ ] Audit is structured, reusable, company-scoped, and not written from UI/Cubits.
 - [ ] UI is responsive/adaptive where applicable.
-- [ ] Large files were reviewed for splitting.
+- [ ] Files with significant size or complexity were reviewed for architecture, SRP, cohesion, coupling, testability, extensibility, and maintainability; no split was made solely for line count.
 - [ ] No temporary fixes, unrelated changes, or over-engineering were introduced.
 - [ ] `dart format` was run when Dart files changed.
 - [ ] `flutter analyze` passes.
