@@ -109,10 +109,7 @@ void main() {
       );
 
       expect(result, isA<Success>());
-      expect(
-        events,
-        ['get', 'status', 'history', 'audit:trip_status_changed'],
-      );
+      expect(events, ['get', 'status', 'history', 'audit:trip_status_changed']);
       expect(remoteDataSource.lastGetByIdCompanyId, _companyId);
       expect(remoteDataSource.lastStatusCompanyId, _companyId);
       expect(remoteDataSource.lastHistoryCompanyId, _companyId);

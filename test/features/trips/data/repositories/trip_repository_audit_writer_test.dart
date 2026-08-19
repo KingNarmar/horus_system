@@ -18,7 +18,10 @@ void main() {
       );
 
       await writer.writeCreated(
-        model: _tripModel(loadingOrderNumber: '  LO-001  ', waybillNumber: 'WB'),
+        model: _tripModel(
+          loadingOrderNumber: '  LO-001  ',
+          waybillNumber: 'WB',
+        ),
         actorRole: 'owner',
       );
 
