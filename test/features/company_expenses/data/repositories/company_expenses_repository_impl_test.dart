@@ -38,7 +38,10 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, _expenseId);
       expect(operations, ['add_expense', 'audit']);
-      expect(auditRepository.logs.single.description, 'company_expense_created');
+      expect(
+        auditRepository.logs.single.description,
+        'company_expense_created',
+      );
     });
 
     test('does not write audit when mutation fails', () async {
@@ -106,7 +109,10 @@ void main() {
       expect(operations, ['get_expense', 'update_expense', 'audit']);
       expect(remoteDataSource.lastLookupCompanyId, _companyId);
       expect(remoteDataSource.lastLookupExpenseId, _expenseId);
-      expect(auditRepository.logs.single.description, 'company_expense_updated');
+      expect(
+        auditRepository.logs.single.description,
+        'company_expense_updated',
+      );
       expect(auditRepository.logs.single.oldValues?['amount'], 125.5);
       expect(auditRepository.logs.single.newValues?['amount'], 175);
     });
@@ -136,7 +142,10 @@ void main() {
       expect(operations, ['get_expense', 'void_expense', 'audit']);
       expect(remoteDataSource.lastLookupCompanyId, _companyId);
       expect(remoteDataSource.lastLookupExpenseId, _expenseId);
-      expect(auditRepository.logs.single.description, 'company_expense_voided');
+      expect(
+        auditRepository.logs.single.description,
+        'company_expense_voided',
+      );
       expect(auditRepository.logs.single.oldValues?['is_voided'], isFalse);
       expect(auditRepository.logs.single.newValues?['is_voided'], isTrue);
     });
