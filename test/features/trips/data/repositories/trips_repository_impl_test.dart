@@ -42,9 +42,9 @@ void main() {
       expect(remoteDataSource.lastHistoryNewStatus, TripStatus.created);
       expect(remoteDataSource.lastHistoryActorRole, 'owner');
 
-      final audit = auditRepository.lastData;
-      expect(audit, isNotNull);
-      expect(audit!.companyId, _companyId);
+      expect(auditRepository.lastData, isNotNull);
+      final audit = auditRepository.lastData!;
+      expect(audit.companyId, _companyId);
       expect(audit.module, AuditModule.trips);
       expect(audit.entityType, AuditEntityType.trip);
       expect(audit.entityId, _tripId);
@@ -78,9 +78,9 @@ void main() {
       expect(events, ['get', 'save', 'audit:trip_updated']);
       expect(remoteDataSource.lastGetByIdCompanyId, _companyId);
 
-      final audit = auditRepository.lastData;
-      expect(audit, isNotNull);
-      expect(audit!.actorRole, 'operations');
+      expect(auditRepository.lastData, isNotNull);
+      final audit = auditRepository.lastData!;
+      expect(audit.actorRole, 'operations');
       expect(audit.action, AuditAction.updated);
       expect(audit.description, 'trip_updated');
       expect(audit.oldValues?['waybill_number'], 'WB-OLD');
@@ -121,9 +121,9 @@ void main() {
       expect(remoteDataSource.lastHistoryActorRole, 'operations');
       expect(remoteDataSource.lastHistoryNotes, 'Loaded at yard');
 
-      final audit = auditRepository.lastData;
-      expect(audit, isNotNull);
-      expect(audit!.companyId, _companyId);
+      expect(auditRepository.lastData, isNotNull);
+      final audit = auditRepository.lastData!;
+      expect(audit.companyId, _companyId);
       expect(audit.action, AuditAction.statusChanged);
       expect(audit.description, 'trip_status_changed');
       expect(audit.oldValues?['status'], 'assigned');
