@@ -51,10 +51,3 @@ abstract final class DriverSettlementsDbFields {
   static const expenseDate = 'expense_date';
   static const paidBy = 'paid_by';
 }
-
-abstract final class DriverSettlementAuditKeys {
-  static const entityDisplayName = 'driver_settlement';
-  static const created = 'driver_settlement_created';
-  static const finalized = 'driver_settlement_finalized';
-  static const voided = 'driver_settlement_voided';
-}
