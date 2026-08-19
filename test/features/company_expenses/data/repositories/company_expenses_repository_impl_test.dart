@@ -142,10 +142,7 @@ void main() {
       expect(operations, ['get_expense', 'void_expense', 'audit']);
       expect(remoteDataSource.lastLookupCompanyId, _companyId);
       expect(remoteDataSource.lastLookupExpenseId, _expenseId);
-      expect(
-        auditRepository.logs.single.description,
-        'company_expense_voided',
-      );
+      expect(auditRepository.logs.single.description, 'company_expense_voided');
       expect(auditRepository.logs.single.oldValues?['is_voided'], isFalse);
       expect(auditRepository.logs.single.newValues?['is_voided'], isTrue);
     });
