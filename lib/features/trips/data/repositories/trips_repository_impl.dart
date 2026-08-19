@@ -1,13 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log_write_data.dart';
-import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
@@ -17,20 +10,22 @@ import '../../domain/entities/trip_write_data.dart';
 import '../../domain/repositories/trips_repository.dart';
 import '../datasources/trips_remote_data_source.dart';
 import '../mappers/trip_mapper.dart';
-import '../models/trip_model.dart';
-
-const _tripCreatedEvent = 'trip_created';
-const _tripUpdatedEvent = 'trip_updated';
-const _tripStatusChangedEvent = 'trip_status_changed';
+import 'trip_repository_audit_writer.dart';
+import 'trip_repository_failure_mapper.dart';
 
 class TripsRepositoryImpl implements TripsRepository {
   final TripsRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
+  final TripRepositoryFailureMapper _failureMapper;
 
   const TripsRepositoryImpl({
     required this.remoteDataSource,
     required this.createAuditLogUseCase,
-  });
+  }) : _failureMapper = const TripRepositoryFailureMapper();
+
+  TripRepositoryAuditWriter get _auditWriter {
+    return TripRepositoryAuditWriter(createAuditLogUseCase);
+  }
 
   @override
   Future<Result<List<TripEntity>>> getTrips({required String companyId}) {
@@ -85,14 +80,9 @@ class TripsRepositoryImpl implements TripsRepository {
         actorRole: actorRole,
       );
 
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await _auditWriter.writeCreated(
+        model: model,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: AuditAction.created,
-        description: _tripCreatedEvent,
-        newValues: model.toAuditValues(),
       );
 
       if (auditFailure != null) {
@@ -117,15 +107,10 @@ class TripsRepositoryImpl implements TripsRepository {
 
       final model = await remoteDataSource.saveTrip(id: id, data: data);
 
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await _auditWriter.writeUpdated(
+        oldModel: oldModel,
+        model: model,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: AuditAction.updated,
-        description: _tripUpdatedEvent,
-        oldValues: oldModel.toAuditValues(),
-        newValues: model.toAuditValues(),
       );
 
       if (auditFailure != null) {
@@ -167,20 +152,13 @@ class TripsRepositoryImpl implements TripsRepository {
         notes: notes,
       );
 
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await _auditWriter.writeStatusChanged(
+        oldModel: oldModel,
+        model: model,
+        oldStatus: oldStatus,
+        newStatus: newStatus,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: AuditAction.statusChanged,
-        description: _tripStatusChangedEvent,
-        oldValues: oldModel.toAuditValues(),
-        newValues: model.toAuditValues(),
-        metadata: {
-          'old_status': oldStatus.value,
-          'new_status': newStatus.value,
-          'notes': notes,
-        },
+        notes: notes,
       );
 
       if (auditFailure != null) {
@@ -225,76 +203,13 @@ class TripsRepositoryImpl implements TripsRepository {
     });
   }
 
-  Future<Failure?> _writeAudit({
-    required String companyId,
-    required String actorRole,
-    required String entityId,
-    required String entityDisplayName,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-    Map<String, Object?>? newValues,
-    Map<String, Object?>? metadata,
-  }) async {
-    final result = await createAuditLogUseCase(
-      CreateAuditLogParams(
-        data: AuditLogWriteData(
-          companyId: companyId,
-          actorRole: actorRole,
-          module: AuditModule.trips,
-          entityType: AuditEntityType.trip,
-          entityId: entityId,
-          entityDisplayName: entityDisplayName,
-          action: action,
-          description: description,
-          oldValues: oldValues,
-          newValues: newValues,
-          metadata: metadata,
-        ),
-      ),
-    );
-
-    return result.failureOrNull;
-  }
-
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
-  }
-}
-
-extension _TripModelDisplayName on TripModel {
-  String get displayName {
-    final loadingOrder = loadingOrderNumber?.trim();
-    if (loadingOrder != null && loadingOrder.isNotEmpty) {
-      return loadingOrder;
-    }
-
-    final waybill = waybillNumber?.trim();
-    if (waybill != null && waybill.isNotEmpty) {
-      return waybill;
-    }
-
-    final customer = customerName?.trim();
-    final route = routeName?.trim();
-
-    if (customer != null &&
-        customer.isNotEmpty &&
-        route != null &&
-        route.isNotEmpty) {
-      return '$customer - $route';
-    }
-
-    return id;
   }
 }
