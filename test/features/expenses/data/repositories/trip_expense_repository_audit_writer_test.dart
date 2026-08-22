@@ -71,24 +71,27 @@ void main() {
       expect(data.metadata?['trip_total_expenses'], 350);
     });
 
-    test('keeps null old snapshot when expense lookup does not find a row', () async {
-      final repository = _CapturingAuditLogRepository();
-      final writer = TripExpenseRepositoryAuditWriter(
-        CreateAuditLogUseCase(repository),
-      );
+    test(
+      'keeps null old snapshot when expense lookup does not find a row',
+      () async {
+        final repository = _CapturingAuditLogRepository();
+        final writer = TripExpenseRepositoryAuditWriter(
+          CreateAuditLogUseCase(repository),
+        );
 
-      final failure = await writer.writeUpdated(
-        companyId: _companyId,
-        tripId: _tripId,
-        oldModel: null,
-        model: _expenseModel(amount: 175),
-        tripTotalExpenses: 350,
-        actorRole: 'accountant',
-      );
+        final failure = await writer.writeUpdated(
+          companyId: _companyId,
+          tripId: _tripId,
+          oldModel: null,
+          model: _expenseModel(amount: 175),
+          tripTotalExpenses: 350,
+          actorRole: 'accountant',
+        );
 
-      expect(failure, isNull);
-      expect(repository.logs.single.oldValues, isNull);
-    });
+        expect(failure, isNull);
+        expect(repository.logs.single.oldValues, isNull);
+      },
+    );
   });
 }
 
