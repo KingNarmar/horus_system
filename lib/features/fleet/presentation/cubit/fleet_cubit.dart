@@ -9,13 +9,13 @@ import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../../domain/entities/vehicle_status_filter.dart';
-import '../../domain/policies/fleet_permission_policy.dart';
 import '../../domain/usecases/fleet_usecases.dart';
 import 'fleet_state.dart';
 
 class FleetCubit extends Cubit<FleetState> {
   final GetTractorHeadsUseCase getTractorHeadsUseCase;
   final GetTrailersUseCase getTrailersUseCase;
+  final CanManageFleetUseCase canManageFleetUseCase;
   final SaveTractorHeadUseCase saveTractorHeadUseCase;
   final SaveTrailerUseCase saveTrailerUseCase;
   final DeactivateTractorHeadUseCase deactivateTractorHeadUseCase;
@@ -28,6 +28,7 @@ class FleetCubit extends Cubit<FleetState> {
   FleetCubit({
     required this.getTractorHeadsUseCase,
     required this.getTrailersUseCase,
+    required this.canManageFleetUseCase,
     required this.saveTractorHeadUseCase,
     required this.saveTrailerUseCase,
     required this.deactivateTractorHeadUseCase,
@@ -57,14 +58,22 @@ class FleetCubit extends Cubit<FleetState> {
       emit(FleetFailure(failure));
       return;
     }
+
+    final manageResult = await canManageFleetUseCase(
+      CanManageFleetParams(currentCompanyContext: currentCompanyContext),
+    );
+    final manageFailure = manageResult.failureOrNull;
+    if (manageFailure != null) {
+      emit(FleetFailure(manageFailure));
+      return;
+    }
+
     emit(
       FleetLoaded(
         currentCompanyContext: currentCompanyContext,
         allTractorHeads: tractorHeadsResult.dataOrNull ?? const [],
         allTrailers: trailersResult.dataOrNull ?? const [],
-        canManageFleet: FleetPermissionPolicy.canManageFleet(
-          currentCompanyContext.role,
-        ),
+        canManageFleet: manageResult.dataOrNull ?? false,
         searchQuery: query,
         statusFilter: filter,
         selectedTab: tab,
@@ -226,11 +235,19 @@ class FleetCubit extends Cubit<FleetState> {
   }
 
   void _upsertTractorHead(TractorHead item) => _mapLoaded(
-    (s) =>
-        s.copyWith(allTractorHeads: _upsert(s.allTractorHeads, item, item.id)),
+    (s) => s.copyWith(
+      allTractorHeads: _upsertById(
+        s.allTractorHeads,
+        item,
+        (current) => current.id,
+      ),
+    ),
   );
+
   void _upsertTrailer(TrailerEntity item) => _mapLoaded(
-    (s) => s.copyWith(allTrailers: _upsert(s.allTrailers, item, item.id)),
+    (s) => s.copyWith(
+      allTrailers: _upsertById(s.allTrailers, item, (current) => current.id),
+    ),
   );
 
   bool _isAssetActionRunning(String id) =>
@@ -250,13 +267,9 @@ class FleetCubit extends Cubit<FleetState> {
   }
 }
 
-List<T> _upsert<T>(List<T> items, T next, String id) {
-  bool matches(T item) {
-    final dynamic current = item;
-    return current.id == id;
-  }
-
-  final exists = items.any(matches);
+List<T> _upsertById<T>(List<T> items, T next, String Function(T item) idOf) {
+  final nextId = idOf(next);
+  final exists = items.any((item) => idOf(item) == nextId);
   if (!exists) return [next, ...items];
-  return items.map((item) => matches(item) ? next : item).toList();
+  return items.map((item) => idOf(item) == nextId ? next : item).toList();
 }

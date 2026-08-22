@@ -18,6 +18,11 @@ class GetFleetParams {
   const GetFleetParams({required this.currentCompanyContext});
 }
 
+class CanManageFleetParams {
+  final CurrentCompanyContext currentCompanyContext;
+  const CanManageFleetParams({required this.currentCompanyContext});
+}
+
 class SaveTractorHeadParams {
   final CurrentCompanyContext currentCompanyContext;
   final String? id;
@@ -102,6 +107,19 @@ class GetTrailersUseCase
       );
     }
     return _repository.getTrailers(companyId: context.companyId);
+  }
+}
+
+class CanManageFleetUseCase implements UseCase<bool, CanManageFleetParams> {
+  const CanManageFleetUseCase();
+
+  @override
+  Future<Result<bool>> call(CanManageFleetParams params) {
+    return Future.value(
+      Success<bool>(
+        FleetPermissionPolicy.canManageFleet(params.currentCompanyContext.role),
+      ),
+    );
   }
 }
 
