@@ -203,7 +203,8 @@ TripExpenseModel _expenseModel({double amount = 100}) {
   );
 }
 
-class _FakeTripExpensesRemoteDataSource implements TripExpensesRemoteDataSource {
+class _FakeTripExpensesRemoteDataSource
+    implements TripExpensesRemoteDataSource {
   final List<String>? operations;
   final Object? addError;
   final Object? recalculateError;
