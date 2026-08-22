@@ -86,10 +86,22 @@ void main() {
         auditRepository.logs[0].newValues?[TractorHeadDbFields.plateNumber],
         'T-NEW',
       );
-      expect(auditRepository.logs[1].oldValues?[DbCommonFields.isActive], isTrue);
-      expect(auditRepository.logs[1].newValues?[DbCommonFields.isActive], isFalse);
-      expect(auditRepository.logs[2].oldValues?[DbCommonFields.isActive], isFalse);
-      expect(auditRepository.logs[2].newValues?[DbCommonFields.isActive], isTrue);
+      expect(
+        auditRepository.logs[1].oldValues?[DbCommonFields.isActive],
+        isTrue,
+      );
+      expect(
+        auditRepository.logs[1].newValues?[DbCommonFields.isActive],
+        isFalse,
+      );
+      expect(
+        auditRepository.logs[2].oldValues?[DbCommonFields.isActive],
+        isFalse,
+      );
+      expect(
+        auditRepository.logs[2].newValues?[DbCommonFields.isActive],
+        isTrue,
+      );
     });
 
     test('writes exact trailer create audit payload', () async {
@@ -159,10 +171,22 @@ void main() {
         auditRepository.logs[0].newValues?[TrailerDbFields.plateNumber],
         'TR-NEW',
       );
-      expect(auditRepository.logs[1].oldValues?[DbCommonFields.isActive], isTrue);
-      expect(auditRepository.logs[1].newValues?[DbCommonFields.isActive], isFalse);
-      expect(auditRepository.logs[2].oldValues?[DbCommonFields.isActive], isFalse);
-      expect(auditRepository.logs[2].newValues?[DbCommonFields.isActive], isTrue);
+      expect(
+        auditRepository.logs[1].oldValues?[DbCommonFields.isActive],
+        isTrue,
+      );
+      expect(
+        auditRepository.logs[1].newValues?[DbCommonFields.isActive],
+        isFalse,
+      );
+      expect(
+        auditRepository.logs[2].oldValues?[DbCommonFields.isActive],
+        isFalse,
+      );
+      expect(
+        auditRepository.logs[2].newValues?[DbCommonFields.isActive],
+        isTrue,
+      );
     });
 
     test('returns audit failure unchanged', () async {

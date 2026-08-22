@@ -41,7 +41,9 @@ void main() {
 
     test('creates tractor head then writes audit', () async {
       final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(operations: operations);
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
       final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = _repository(
         remoteDataSource,
@@ -61,7 +63,9 @@ void main() {
 
     test('creates trailer then writes audit', () async {
       final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(operations: operations);
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
       final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = _repository(
         remoteDataSource,
@@ -135,7 +139,9 @@ void main() {
 
     test('preserves tractor lifecycle sequencing and scope', () async {
       final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(operations: operations);
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
       final repository = _repository(
         remoteDataSource,
         auditRepository: _FakeAuditLogRepository(operations: operations),
@@ -168,7 +174,9 @@ void main() {
 
     test('preserves trailer lifecycle sequencing and scope', () async {
       final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(operations: operations);
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
       final repository = _repository(
         remoteDataSource,
         auditRepository: _FakeAuditLogRepository(operations: operations),
@@ -225,7 +233,9 @@ void main() {
     test('propagates audit failure after successful mutation', () async {
       const failure = ValidationFailure(code: FailureCodes.serverError);
       final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(operations: operations);
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
       final repository = _repository(
         remoteDataSource,
         auditRepository: _FakeAuditLogRepository(
