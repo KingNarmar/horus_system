@@ -85,7 +85,9 @@ class _FakeCustomersRepository implements CustomersRepository {
   String? lastCompanyId;
 
   @override
-  Future<Result<List<Customer>>> getCustomers({required String companyId}) async {
+  Future<Result<List<Customer>>> getCustomers({
+    required String companyId,
+  }) async {
     getCustomersCalls += 1;
     lastCompanyId = companyId;
     return const Success<List<Customer>>([]);

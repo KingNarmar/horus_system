@@ -132,10 +132,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
         companyId: companyId,
         customerId: customerId,
       );
-      final model = await mutate(
-        companyId: companyId,
-        customerId: customerId,
-      );
+      final model = await mutate(companyId: companyId, customerId: customerId);
       final auditFailure = await writeAudit(
         oldModel: oldModel,
         model: model,

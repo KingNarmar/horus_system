@@ -49,35 +49,38 @@ void main() {
       expect(auditRepository.logs.single.description, 'customer_created');
     });
 
-    test('updates after company-scoped old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-        oldModel: _model(name: 'Old Customer'),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+    test(
+      'updates after company-scoped old snapshot lookup and audits last',
+      () async {
+        final operations = <String>[];
+        final remoteDataSource = _FakeCustomersRemoteDataSource(
+          operations: operations,
+          oldModel: _model(name: 'Old Customer'),
+        );
+        final auditRepository = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(
+          remoteDataSource,
+          auditRepository: auditRepository,
+        );
 
-      final result = await repository.updateCustomer(
-        customerId: _customerId,
-        data: _writeData(name: 'Updated Customer'),
-        actorRole: 'admin',
-      );
+        final result = await repository.updateCustomer(
+          customerId: _customerId,
+          data: _writeData(name: 'Updated Customer'),
+          actorRole: 'admin',
+        );
 
-      expect(result, isA<Success<Customer>>());
-      expect(operations, ['get_customer', 'update_customer', 'audit']);
-      expect(remoteDataSource.lastLookupCompanyId, _companyId);
-      expect(remoteDataSource.lastLookupCustomerId, _customerId);
-      expect(auditRepository.logs.single.description, 'customer_updated');
-      expect(auditRepository.logs.single.oldValues?['name'], 'Old Customer');
-      expect(
-        auditRepository.logs.single.newValues?['name'],
-        'Updated Customer',
-      );
-    });
+        expect(result, isA<Success<Customer>>());
+        expect(operations, ['get_customer', 'update_customer', 'audit']);
+        expect(remoteDataSource.lastLookupCompanyId, _companyId);
+        expect(remoteDataSource.lastLookupCustomerId, _customerId);
+        expect(auditRepository.logs.single.description, 'customer_updated');
+        expect(auditRepository.logs.single.oldValues?['name'], 'Old Customer');
+        expect(
+          auditRepository.logs.single.newValues?['name'],
+          'Updated Customer',
+        );
+      },
+    );
 
     test('deactivates after old snapshot lookup and audits last', () async {
       final operations = <String>[];
@@ -210,10 +213,7 @@ CustomerWriteData _writeData({String name = 'Customer One'}) {
   );
 }
 
-CustomerModel _model({
-  String name = 'Customer One',
-  bool isActive = true,
-}) {
+CustomerModel _model({String name = 'Customer One', bool isActive = true}) {
   return CustomerModel(
     id: _customerId,
     companyId: _companyId,

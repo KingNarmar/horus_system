@@ -93,10 +93,7 @@ void main() {
 const _companyId = 'company-1';
 const _customerId = 'customer-1';
 
-CustomerModel _model({
-  String name = 'Customer One',
-  bool isActive = true,
-}) {
+CustomerModel _model({String name = 'Customer One', bool isActive = true}) {
   return CustomerModel(
     id: _customerId,
     companyId: _companyId,
