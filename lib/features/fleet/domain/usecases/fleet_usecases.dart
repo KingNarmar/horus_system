@@ -117,9 +117,7 @@ class CanManageFleetUseCase implements UseCase<bool, CanManageFleetParams> {
   Future<Result<bool>> call(CanManageFleetParams params) {
     return Future.value(
       Success<bool>(
-        FleetPermissionPolicy.canManageFleet(
-          params.currentCompanyContext.role,
-        ),
+        FleetPermissionPolicy.canManageFleet(params.currentCompanyContext.role),
       ),
     );
   }

@@ -335,7 +335,7 @@ const _allowedManualPresentationLocalizationFiles = {
   'lib/features/trips/presentation/localization/trips_localizations_x.dart',
 };
 
-const _allowedFeaturesWithoutTests = {'auth', 'fleet'};
+const _allowedFeaturesWithoutTests = {'auth'};
 
 String _read(String path) => File(path).readAsStringSync();
 

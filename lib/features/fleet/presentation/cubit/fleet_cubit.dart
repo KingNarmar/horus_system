@@ -246,11 +246,7 @@ class FleetCubit extends Cubit<FleetState> {
 
   void _upsertTrailer(TrailerEntity item) => _mapLoaded(
     (s) => s.copyWith(
-      allTrailers: _upsertById(
-        s.allTrailers,
-        item,
-        (current) => current.id,
-      ),
+      allTrailers: _upsertById(s.allTrailers, item, (current) => current.id),
     ),
   );
 
@@ -271,11 +267,7 @@ class FleetCubit extends Cubit<FleetState> {
   }
 }
 
-List<T> _upsertById<T>(
-  List<T> items,
-  T next,
-  String Function(T item) idOf,
-) {
+List<T> _upsertById<T>(List<T> items, T next, String Function(T item) idOf) {
   final nextId = idOf(next);
   final exists = items.any((item) => idOf(item) == nextId);
   if (!exists) return [next, ...items];

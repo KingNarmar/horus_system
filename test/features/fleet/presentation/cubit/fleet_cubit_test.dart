@@ -25,23 +25,26 @@ import 'package:test/test.dart';
 
 void main() {
   group('FleetCubit', () {
-    test('loads both asset types and uses injected manage permission use case', () async {
-      final repository = _FakeFleetRepository();
-      final cubit = _createCubit(
-        repository,
-        canManageFleetUseCase: const _FixedCanManageFleetUseCase(false),
-      );
-      addTearDown(cubit.close);
+    test(
+      'loads both asset types and uses injected manage permission use case',
+      () async {
+        final repository = _FakeFleetRepository();
+        final cubit = _createCubit(
+          repository,
+          canManageFleetUseCase: const _FixedCanManageFleetUseCase(false),
+        );
+        addTearDown(cubit.close);
 
-      await cubit.loadFleet(_ownerContext);
+        await cubit.loadFleet(_ownerContext);
 
-      final state = cubit.state as FleetLoaded;
-      expect(repository.getTractorHeadsCalls, 1);
-      expect(repository.getTrailersCalls, 1);
-      expect(state.allTractorHeads, [_tractor]);
-      expect(state.allTrailers, [_trailer]);
-      expect(state.canManageFleet, isFalse);
-    });
+        final state = cubit.state as FleetLoaded;
+        expect(repository.getTractorHeadsCalls, 1);
+        expect(repository.getTrailersCalls, 1);
+        expect(state.allTractorHeads, [_tractor]);
+        expect(state.allTrailers, [_trailer]);
+        expect(state.canManageFleet, isFalse);
+      },
+    );
 
     test('reload preserves search, status filter, and selected tab', () async {
       final repository = _FakeFleetRepository();
@@ -64,9 +67,7 @@ void main() {
 
     test('load failure emits FleetFailure', () async {
       const failure = UnexpectedFailure(message: 'load failed');
-      final repository = _FakeFleetRepository(
-        loadTractorHeadsFailure: failure,
-      );
+      final repository = _FakeFleetRepository(loadTractorHeadsFailure: failure);
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
@@ -148,33 +149,36 @@ void main() {
       expect(state.allTrailers.single.plateNumber, 'TR-UPDATED');
     });
 
-    test('duplicate active-state action for same id is ignored while pending', () async {
-      final completer = Completer<Result<TractorHead>>();
-      final repository = _FakeFleetRepository(
-        deactivateTractorCompleter: completer,
-      );
-      final cubit = _createCubit(repository);
-      addTearDown(cubit.close);
+    test(
+      'duplicate active-state action for same id is ignored while pending',
+      () async {
+        final completer = Completer<Result<TractorHead>>();
+        final repository = _FakeFleetRepository(
+          deactivateTractorCompleter: completer,
+        );
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.loadFleet(_ownerContext);
-      final firstAction = cubit.deactivateTractorHead(_tractor);
-      await Future<void>.delayed(Duration.zero);
+        await cubit.loadFleet(_ownerContext);
+        final firstAction = cubit.deactivateTractorHead(_tractor);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(
-        (cubit.state as FleetLoaded).isActiveStateChanging(_tractor.id),
-        isTrue,
-      );
+        expect(
+          (cubit.state as FleetLoaded).isActiveStateChanging(_tractor.id),
+          isTrue,
+        );
 
-      await cubit.deactivateTractorHead(_tractor);
-      expect(repository.deactivateTractorHeadCalls, 1);
+        await cubit.deactivateTractorHead(_tractor);
+        expect(repository.deactivateTractorHeadCalls, 1);
 
-      completer.complete(const Success<TractorHead>(_inactiveTractor));
-      await firstAction;
+        completer.complete(const Success<TractorHead>(_inactiveTractor));
+        await firstAction;
 
-      final state = cubit.state as FleetLoaded;
-      expect(state.isActiveStateChanging(_tractor.id), isFalse);
-      expect(state.allTractorHeads.single.isActive, isFalse);
-    });
+        final state = cubit.state as FleetLoaded;
+        expect(state.isActiveStateChanging(_tractor.id), isFalse);
+        expect(state.allTractorHeads.single.isActive, isFalse);
+      },
+    );
   });
 }
 
@@ -257,8 +261,8 @@ class _FixedCanManageFleetUseCase extends CanManageFleetUseCase {
 }
 
 class _FakeFleetRepository implements FleetRepository {
-  final List<TractorHead> tractorHeads;
-  final List<TrailerEntity> trailers;
+  final List<TractorHead> tractorHeads = const [_tractor];
+  final List<TrailerEntity> trailers = const [_trailer];
   final UnexpectedFailure? loadTractorHeadsFailure;
   final TractorHead? nextAddedTractor;
   final TractorHead? nextSavedTractor;
@@ -271,8 +275,6 @@ class _FakeFleetRepository implements FleetRepository {
   int deactivateTractorHeadCalls = 0;
 
   _FakeFleetRepository({
-    this.tractorHeads = const [_tractor],
-    this.trailers = const [_trailer],
     this.loadTractorHeadsFailure,
     this.nextAddedTractor,
     this.nextSavedTractor,

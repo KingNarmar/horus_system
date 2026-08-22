@@ -15,39 +15,45 @@ import 'package:test/test.dart';
 
 void main() {
   group('CanManageFleetUseCase', () {
-    test('returns the Domain permission policy result for every role', () async {
-      const useCase = CanManageFleetUseCase();
+    test(
+      'returns the Domain permission policy result for every role',
+      () async {
+        const useCase = CanManageFleetUseCase();
 
-      for (final role in CompanyRole.values) {
-        final result = await useCase(
-          CanManageFleetParams(currentCompanyContext: _context(role: role)),
-        );
+        for (final role in CompanyRole.values) {
+          final result = await useCase(
+            CanManageFleetParams(currentCompanyContext: _context(role: role)),
+          );
 
-        expect(result, isA<Success<bool>>());
-        expect(
-          result.dataOrNull,
-          FleetPermissionPolicy.canManageFleet(role),
-          reason: 'Unexpected Fleet management result for $role',
-        );
-      }
-    });
+          expect(result, isA<Success<bool>>());
+          expect(
+            result.dataOrNull,
+            FleetPermissionPolicy.canManageFleet(role),
+            reason: 'Unexpected Fleet management result for $role',
+          );
+        }
+      },
+    );
   });
 
   group('Fleet read use cases', () {
-    test('denies unauthorized tractor-head view before repository call', () async {
-      final repository = _FakeFleetRepository();
-      final useCase = GetTractorHeadsUseCase(repository);
+    test(
+      'denies unauthorized tractor-head view before repository call',
+      () async {
+        final repository = _FakeFleetRepository();
+        final useCase = GetTractorHeadsUseCase(repository);
 
-      final result = await useCase(
-        GetFleetParams(
-          currentCompanyContext: _context(role: CompanyRole.driver),
-        ),
-      );
+        final result = await useCase(
+          GetFleetParams(
+            currentCompanyContext: _context(role: CompanyRole.driver),
+          ),
+        );
 
-      expect(result, isA<FailureResult<List<TractorHead>>>());
-      expect(result.failureOrNull?.code, FailureCodes.permissionFleetView);
-      expect(repository.getTractorHeadsCalls, 0);
-    });
+        expect(result, isA<FailureResult<List<TractorHead>>>());
+        expect(result.failureOrNull?.code, FailureCodes.permissionFleetView);
+        expect(repository.getTractorHeadsCalls, 0);
+      },
+    );
 
     test('authorized trailer read forwards exact company id', () async {
       final repository = _FakeFleetRepository();
@@ -157,50 +163,56 @@ void main() {
       expect(data.notes, 'Workshop');
     });
 
-    test('nonblank id updates using trimmed id and blank notes as null', () async {
-      final repository = _FakeFleetRepository();
-      final useCase = SaveTractorHeadUseCase(repository);
+    test(
+      'nonblank id updates using trimmed id and blank notes as null',
+      () async {
+        final repository = _FakeFleetRepository();
+        final useCase = SaveTractorHeadUseCase(repository);
 
-      final result = await useCase(
-        SaveTractorHeadParams(
-          currentCompanyContext: _context(role: CompanyRole.admin),
-          id: '  tractor-1  ',
-          plateNumber: 'T-200',
-          status: VehicleStatus.available,
-          notes: '   ',
-        ),
-      );
+        final result = await useCase(
+          SaveTractorHeadParams(
+            currentCompanyContext: _context(role: CompanyRole.admin),
+            id: '  tractor-1  ',
+            plateNumber: 'T-200',
+            status: VehicleStatus.available,
+            notes: '   ',
+          ),
+        );
 
-      expect(result, isA<Success<TractorHead>>());
-      expect(repository.addTractorHeadCalls, 0);
-      expect(repository.saveTractorHeadCalls, 1);
-      expect(repository.lastAssetId, 'tractor-1');
-      expect(repository.lastActorRole, CompanyRole.admin.value);
-      expect(repository.lastTractorWriteData?.notes, isNull);
-    });
+        expect(result, isA<Success<TractorHead>>());
+        expect(repository.addTractorHeadCalls, 0);
+        expect(repository.saveTractorHeadCalls, 1);
+        expect(repository.lastAssetId, 'tractor-1');
+        expect(repository.lastActorRole, CompanyRole.admin.value);
+        expect(repository.lastTractorWriteData?.notes, isNull);
+      },
+    );
   });
 
   group('SaveTrailerUseCase', () {
-    test('creates with normalized plate and optional technical notes', () async {
-      final repository = _FakeFleetRepository();
-      final useCase = SaveTrailerUseCase(repository);
+    test(
+      'creates with normalized plate and optional technical notes',
+      () async {
+        final repository = _FakeFleetRepository();
+        final useCase = SaveTrailerUseCase(repository);
 
-      final result = await useCase(
-        SaveTrailerParams(
-          currentCompanyContext: _context(role: CompanyRole.operations),
-          plateNumber: '  TR-100  ',
-          status: VehicleStatus.available,
-          technicalNotes: '   ',
-        ),
-      );
+        final result = await useCase(
+          SaveTrailerParams(
+            currentCompanyContext: _context(role: CompanyRole.operations),
+            plateNumber: '  TR-100  ',
+            status: VehicleStatus.available,
+            technicalNotes: '   ',
+          ),
+        );
 
-      expect(result, isA<Success<TrailerEntity>>());
-      expect(repository.addTrailerCalls, 1);
-      expect(repository.lastActorRole, CompanyRole.operations.value);
-      final data = repository.lastTrailerWriteData!;
-      expect(data.plateNumber, 'TR-100');
-      expect(data.technicalNotes, isNull);
-    });
+        expect(result, isA<Success<TrailerEntity>>());
+        expect(repository.addTrailerCalls, 1);
+        expect(repository.lastActorRole, CompanyRole.operations.value);
+        final data = repository.lastTrailerWriteData!;
+        expect(data.plateNumber, 'TR-100');
+        expect(data.technicalNotes, isNull);
+      },
+    );
   });
 
   group('Fleet lifecycle use cases', () {
