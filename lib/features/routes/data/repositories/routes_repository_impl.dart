@@ -1,13 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log_write_data.dart';
-import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/route_entity.dart';
 import '../../domain/entities/route_write_data.dart';
@@ -15,20 +9,22 @@ import '../../domain/repositories/routes_repository.dart';
 import '../datasources/routes_remote_data_source.dart';
 import '../mappers/route_mapper.dart';
 import '../models/route_model.dart';
-
-const _routeCreatedEvent = 'route_created';
-const _routeUpdatedEvent = 'route_updated';
-const _routeDeactivatedEvent = 'route_deactivated';
-const _routeReactivatedEvent = 'route_reactivated';
+import 'route_repository_audit_writer.dart';
+import 'route_repository_failure_mapper.dart';
 
 class RoutesRepositoryImpl implements RoutesRepository {
   final RoutesRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
+  final RouteRepositoryFailureMapper _failureMapper;
 
   const RoutesRepositoryImpl({
     required this.remoteDataSource,
     required this.createAuditLogUseCase,
-  });
+  }) : _failureMapper = const RouteRepositoryFailureMapper();
+
+  RouteRepositoryAuditWriter get _auditWriter {
+    return RouteRepositoryAuditWriter(createAuditLogUseCase);
+  }
 
   @override
   Future<Result<List<RouteEntity>>> getRoutes({required String companyId}) {
@@ -45,18 +41,14 @@ class RoutesRepositoryImpl implements RoutesRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addRoute(data: data);
-
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await _auditWriter.writeCreated(
+        model: model,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: AuditAction.created,
-        description: _routeCreatedEvent,
-        newValues: model.toAuditValues(),
       );
 
-      if (auditFailure != null) return FailureResult(auditFailure);
+      if (auditFailure != null) {
+        return FailureResult<RouteEntity>(auditFailure);
+      }
       return Success(model.toEntity());
     });
   }
@@ -72,21 +64,16 @@ class RoutesRepositoryImpl implements RoutesRepository {
         companyId: data.companyId,
         id: id,
       );
-
       final model = await remoteDataSource.saveRoute(id: id, data: data);
-
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await _auditWriter.writeUpdated(
+        oldModel: oldModel,
+        model: model,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: AuditAction.updated,
-        description: _routeUpdatedEvent,
-        oldValues: oldModel.toAuditValues(),
-        newValues: model.toAuditValues(),
       );
 
-      if (auditFailure != null) return FailureResult(auditFailure);
+      if (auditFailure != null) {
+        return FailureResult<RouteEntity>(auditFailure);
+      }
       return Success(model.toEntity());
     });
   }
@@ -101,9 +88,8 @@ class RoutesRepositoryImpl implements RoutesRepository {
       companyId: companyId,
       id: id,
       actorRole: actorRole,
-      action: AuditAction.deactivated,
-      description: _routeDeactivatedEvent,
       change: remoteDataSource.deactivateRoute,
+      writeAudit: _auditWriter.writeDeactivated,
     );
   }
 
@@ -117,9 +103,8 @@ class RoutesRepositoryImpl implements RoutesRepository {
       companyId: companyId,
       id: id,
       actorRole: actorRole,
-      action: AuditAction.reactivated,
-      description: _routeReactivatedEvent,
       change: remoteDataSource.reactivateRoute,
+      writeAudit: _auditWriter.writeReactivated,
     );
   }
 
@@ -127,84 +112,44 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
-    required AuditAction action,
-    required String description,
     required Future<RouteModel> Function({
       required String companyId,
       required String id,
     })
     change,
+    required Future<Failure?> Function({
+      required RouteModel oldModel,
+      required RouteModel model,
+      required String actorRole,
+    })
+    writeAudit,
   }) {
     return _guard(() async {
       final oldModel = await remoteDataSource.getRouteById(
         companyId: companyId,
         id: id,
       );
-
       final model = await change(companyId: companyId, id: id);
-
-      final auditFailure = await _writeAudit(
-        companyId: model.companyId,
+      final auditFailure = await writeAudit(
+        oldModel: oldModel,
+        model: model,
         actorRole: actorRole,
-        entityId: model.id,
-        entityDisplayName: model.displayName,
-        action: action,
-        description: description,
-        oldValues: oldModel.toAuditValues(),
-        newValues: model.toAuditValues(),
       );
 
-      if (auditFailure != null) return FailureResult(auditFailure);
+      if (auditFailure != null) {
+        return FailureResult<RouteEntity>(auditFailure);
+      }
       return Success(model.toEntity());
     });
-  }
-
-  Future<Failure?> _writeAudit({
-    required String companyId,
-    required String actorRole,
-    required String entityId,
-    required String entityDisplayName,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-    Map<String, Object?>? newValues,
-  }) async {
-    final result = await createAuditLogUseCase(
-      CreateAuditLogParams(
-        data: AuditLogWriteData(
-          companyId: companyId,
-          actorRole: actorRole,
-          module: AuditModule.routes,
-          entityType: AuditEntityType.route,
-          entityId: entityId,
-          entityDisplayName: entityDisplayName,
-          action: action,
-          description: description,
-          oldValues: oldValues,
-          newValues: newValues,
-        ),
-      ),
-    );
-
-    return result.failureOrNull;
   }
 
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
-}
-
-extension _RouteModelDisplayName on RouteModel {
-  String get displayName => '$loadingLocation → $unloadingLocation';
 }
