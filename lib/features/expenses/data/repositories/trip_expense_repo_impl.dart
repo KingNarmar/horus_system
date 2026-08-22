@@ -1,13 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log_write_data.dart';
-import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/expense_type_option.dart';
 import '../../domain/entities/trip_expense.dart';
@@ -16,18 +9,22 @@ import '../../domain/repositories/trip_expenses_repository.dart';
 import '../datasources/trip_expenses_remote_data_source.dart';
 import '../mappers/trip_expense_mapper.dart';
 import '../models/trip_expense_model.dart';
-
-const _tripExpenseCreatedEvent = 'trip_expense_created';
-const _tripExpenseUpdatedEvent = 'trip_expense_updated';
+import 'trip_expense_repository_audit_writer.dart';
+import 'trip_expense_repository_failure_mapper.dart';
 
 class TripExpensesRepositoryImpl implements TripExpensesRepository {
   final TripExpensesRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
+  final TripExpenseRepositoryFailureMapper _failureMapper;
 
   const TripExpensesRepositoryImpl({
     required this.remoteDataSource,
     required this.createAuditLogUseCase,
-  });
+  }) : _failureMapper = const TripExpenseRepositoryFailureMapper();
+
+  TripExpenseRepositoryAuditWriter get _auditWriter {
+    return TripExpenseRepositoryAuditWriter(createAuditLogUseCase);
+  }
 
   @override
   Future<Result<List<TripExpense>>> getTripExpenses({
@@ -66,16 +63,17 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         companyId: data.companyId,
         tripId: data.tripId,
       );
-      final auditFailure = await _writeAudit(
+      final auditFailure = await _auditWriter.writeCreated(
         companyId: data.companyId,
         tripId: data.tripId,
+        model: model,
+        tripTotalExpenses: total,
         actorRole: actorRole,
-        action: AuditAction.created,
-        description: _tripExpenseCreatedEvent,
-        newValues: model.toAuditValues(),
-        metadata: _metadata(model, total),
       );
-      if (auditFailure != null) return FailureResult<TripExpense>(auditFailure);
+
+      if (auditFailure != null) {
+        return FailureResult<TripExpense>(auditFailure);
+      }
       return Success(model.toEntity());
     });
   }
@@ -100,17 +98,18 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         companyId: data.companyId,
         tripId: data.tripId,
       );
-      final auditFailure = await _writeAudit(
+      final auditFailure = await _auditWriter.writeUpdated(
         companyId: data.companyId,
         tripId: data.tripId,
+        oldModel: oldModel,
+        model: model,
+        tripTotalExpenses: total,
         actorRole: actorRole,
-        action: AuditAction.updated,
-        description: _tripExpenseUpdatedEvent,
-        oldValues: oldModel?.toAuditValues(),
-        newValues: model.toAuditValues(),
-        metadata: _metadata(model, total),
       );
-      if (auditFailure != null) return FailureResult<TripExpense>(auditFailure);
+
+      if (auditFailure != null) {
+        return FailureResult<TripExpense>(auditFailure);
+      }
       return Success(model.toEntity());
     });
   }
@@ -130,58 +129,13 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
     return null;
   }
 
-  Future<Failure?> _writeAudit({
-    required String companyId,
-    required String tripId,
-    required String actorRole,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-    Map<String, Object?>? newValues,
-    Map<String, Object?>? metadata,
-  }) async {
-    final result = await createAuditLogUseCase(
-      CreateAuditLogParams(
-        data: AuditLogWriteData(
-          companyId: companyId,
-          actorRole: actorRole,
-          module: AuditModule.trips,
-          entityType: AuditEntityType.trip,
-          entityId: tripId,
-          entityDisplayName: 'Trip expense',
-          action: action,
-          description: description,
-          oldValues: oldValues,
-          newValues: newValues,
-          metadata: metadata,
-        ),
-      ),
-    );
-    return result.failureOrNull;
-  }
-
-  Map<String, Object?> _metadata(TripExpenseModel model, double total) {
-    return {
-      'expense_id': model.id,
-      'expense_name': model.expenseName,
-      'amount': model.amount,
-      'paid_by': model.paidBy,
-      'trip_total_expenses': total,
-    };
-  }
-
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
