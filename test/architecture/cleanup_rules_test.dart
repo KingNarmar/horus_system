@@ -338,7 +338,6 @@ const _allowedManualPresentationLocalizationFiles = {
 const _allowedFeaturesWithoutTests = {
   'auth',
   'customers',
-  'expenses',
   'fleet',
   'routes',
 };
