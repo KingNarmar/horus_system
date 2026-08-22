@@ -1,13 +1,7 @@
-import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/entities/audit_entity_type.dart';
-import '../../../audit/domain/entities/audit_log_write_data.dart';
-import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_write_data.dart';
@@ -15,37 +9,27 @@ import '../../domain/repositories/customers_repository.dart';
 import '../datasources/customers_remote_data_source.dart';
 import '../mappers/customer_mapper.dart';
 import '../models/customer_model.dart';
-
-const _customerCreatedEvent = 'customer_created';
-const _customerUpdatedEvent = 'customer_updated';
-const _customerDeactivatedEvent = 'customer_deactivated';
-const _customerReactivatedEvent = 'customer_reactivated';
+import 'customer_repository_audit_writer.dart';
+import 'customer_repository_failure_mapper.dart';
 
 class CustomersRepositoryImpl implements CustomersRepository {
   final CustomersRemoteDataSource remoteDataSource;
   final CreateAuditLogUseCase createAuditLogUseCase;
+  final CustomerRepositoryFailureMapper _failureMapper;
 
   const CustomersRepositoryImpl({
     required this.remoteDataSource,
     required this.createAuditLogUseCase,
-  });
+  }) : _failureMapper = const CustomerRepositoryFailureMapper();
+
+  CustomerRepositoryAuditWriter get _auditWriter {
+    return CustomerRepositoryAuditWriter(createAuditLogUseCase);
+  }
 
   @override
   Future<Result<List<Customer>>> getCustomers({required String companyId}) {
     return _guard(() async {
-      final normalizedCompanyId = companyId.trim();
-      if (normalizedCompanyId.isEmpty) {
-        return const FailureResult<List<Customer>>(
-          ValidationFailure(
-            code: FailureCodes.validationCompanyIdRequired,
-            message: 'Company id is required.',
-          ),
-        );
-      }
-
-      final models = await remoteDataSource.getCustomers(
-        companyId: normalizedCompanyId,
-      );
+      final models = await remoteDataSource.getCustomers(companyId: companyId);
       return Success(models.map((model) => model.toEntity()).toList());
     });
   }
@@ -57,12 +41,15 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addCustomer(data: data);
-      return _withAudit(
+      final auditFailure = await _auditWriter.writeCreated(
         model: model,
         actorRole: actorRole,
-        action: AuditAction.created,
-        description: _customerCreatedEvent,
       );
+
+      if (auditFailure != null) {
+        return FailureResult<Customer>(auditFailure);
+      }
+      return Success(model.toEntity());
     });
   }
 
@@ -81,13 +68,16 @@ class CustomersRepositoryImpl implements CustomersRepository {
         customerId: customerId,
         data: data,
       );
-      return _withAudit(
+      final auditFailure = await _auditWriter.writeUpdated(
+        oldModel: oldModel,
         model: model,
         actorRole: actorRole,
-        action: AuditAction.updated,
-        description: _customerUpdatedEvent,
-        oldValues: oldModel.toAuditValues(),
       );
+
+      if (auditFailure != null) {
+        return FailureResult<Customer>(auditFailure);
+      }
+      return Success(model.toEntity());
     });
   }
 
@@ -101,9 +91,8 @@ class CustomersRepositoryImpl implements CustomersRepository {
       companyId: companyId,
       customerId: customerId,
       actorRole: actorRole,
-      action: AuditAction.deactivated,
-      description: _customerDeactivatedEvent,
       mutate: remoteDataSource.deactivateCustomer,
+      writeAudit: _auditWriter.writeDeactivated,
     );
   }
 
@@ -117,9 +106,8 @@ class CustomersRepositoryImpl implements CustomersRepository {
       companyId: companyId,
       customerId: customerId,
       actorRole: actorRole,
-      action: AuditAction.reactivated,
-      description: _customerReactivatedEvent,
       mutate: remoteDataSource.reactivateCustomer,
+      writeAudit: _auditWriter.writeReactivated,
     );
   }
 
@@ -127,13 +115,17 @@ class CustomersRepositoryImpl implements CustomersRepository {
     required String companyId,
     required String customerId,
     required String actorRole,
-    required AuditAction action,
-    required String description,
     required Future<CustomerModel> Function({
       required String companyId,
       required String customerId,
     })
     mutate,
+    required Future<Failure?> Function({
+      required CustomerModel oldModel,
+      required CustomerModel model,
+      required String actorRole,
+    })
+    writeAudit,
   }) {
     return _guard(() async {
       final oldModel = await remoteDataSource.getCustomerById(
@@ -141,82 +133,26 @@ class CustomersRepositoryImpl implements CustomersRepository {
         customerId: customerId,
       );
       final model = await mutate(companyId: companyId, customerId: customerId);
-      return _withAudit(
+      final auditFailure = await writeAudit(
+        oldModel: oldModel,
         model: model,
         actorRole: actorRole,
-        action: action,
-        description: description,
-        oldValues: oldModel.toAuditValues(),
       );
+
+      if (auditFailure != null) {
+        return FailureResult<Customer>(auditFailure);
+      }
+      return Success(model.toEntity());
     });
-  }
-
-  Future<Result<Customer>> _withAudit({
-    required CustomerModel model,
-    required String actorRole,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-  }) async {
-    final auditFailure = await _writeCustomerAudit(
-      companyId: model.companyId,
-      actorRole: actorRole,
-      entityId: model.id,
-      entityDisplayName: model.name,
-      action: action,
-      description: description,
-      oldValues: oldValues,
-      newValues: model.toAuditValues(),
-    );
-
-    if (auditFailure != null) {
-      return FailureResult(auditFailure);
-    }
-
-    return Success(model.toEntity());
-  }
-
-  Future<Failure?> _writeCustomerAudit({
-    required String companyId,
-    required String actorRole,
-    required String entityId,
-    required String entityDisplayName,
-    required AuditAction action,
-    required String description,
-    Map<String, Object?>? oldValues,
-    Map<String, Object?>? newValues,
-  }) async {
-    final result = await createAuditLogUseCase(
-      CreateAuditLogParams(
-        data: AuditLogWriteData(
-          companyId: companyId,
-          actorRole: actorRole,
-          module: AuditModule.customers,
-          entityType: AuditEntityType.customer,
-          entityId: entityId,
-          entityDisplayName: entityDisplayName,
-          action: action,
-          description: description,
-          oldValues: oldValues,
-          newValues: newValues,
-        ),
-      ),
-    );
-    return result.failureOrNull;
   }
 
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }

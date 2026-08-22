@@ -1,4 +1,5 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
+
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -34,6 +35,18 @@ class GetCustomersUseCase
       );
     }
 
-    return _repository.getCustomers(companyId: currentContext.companyId);
+    final companyId = currentContext.companyId.trim();
+    if (companyId.isEmpty) {
+      return Future.value(
+        const FailureResult<List<Customer>>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getCustomers(companyId: companyId);
   }
 }
