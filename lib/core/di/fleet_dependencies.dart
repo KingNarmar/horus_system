@@ -16,6 +16,7 @@ abstract final class FleetDependencies {
     return FleetCubit(
       getTractorHeadsUseCase: GetTractorHeadsUseCase(repository),
       getTrailersUseCase: GetTrailersUseCase(repository),
+      canManageFleetUseCase: const CanManageFleetUseCase(),
       saveTractorHeadUseCase: SaveTractorHeadUseCase(repository),
       saveTrailerUseCase: SaveTrailerUseCase(repository),
       deactivateTractorHeadUseCase: DeactivateTractorHeadUseCase(repository),
