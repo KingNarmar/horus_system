@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/company_expense_db_fields.dart';
+
 class CompanyExpenseModel {
   final String id;
   final String companyId;
@@ -39,30 +42,33 @@ class CompanyExpenseModel {
 
   factory CompanyExpenseModel.fromMap(Map<String, dynamic> map) {
     return CompanyExpenseModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      categoryId: map['category_id'] as String,
-      driverId: map['driver_id'] as String?,
-      tractorHeadId: map['tractor_head_id'] as String?,
-      trailerId: map['trailer_id'] as String?,
-      tripId: map['trip_id'] as String?,
-      amount: _amountFrom(map['amount']),
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
+      categoryId: map[CompanyExpenseDbFields.categoryId] as String,
+      driverId: map[CompanyExpenseDbFields.driverId] as String?,
+      tractorHeadId: map[CompanyExpenseDbFields.tractorHeadId] as String?,
+      trailerId: map[CompanyExpenseDbFields.trailerId] as String?,
+      tripId: map[CompanyExpenseDbFields.tripId] as String?,
+      amount: _amountFrom(map[CompanyExpenseDbFields.amount]),
       expenseDate:
-          DateTime.tryParse(map['expense_date'].toString()) ?? DateTime.now(),
-      referenceNumber: map['reference_number'] as String?,
-      notes: map['notes'] as String?,
-      isVoided: map['is_voided'] as bool? ?? false,
-      voidedAt: map['voided_at'] == null
+          DateTime.tryParse(
+            map[CompanyExpenseDbFields.expenseDate].toString(),
+          ) ??
+          DateTime.now(),
+      referenceNumber: map[CompanyExpenseDbFields.referenceNumber] as String?,
+      notes: map[CompanyExpenseDbFields.notes] as String?,
+      isVoided: map[CompanyExpenseDbFields.isVoided] as bool? ?? false,
+      voidedAt: map[CompanyExpenseDbFields.voidedAt] == null
           ? null
-          : DateTime.tryParse(map['voided_at'].toString()),
-      voidedBy: map['voided_by'] as String?,
-      voidReason: map['void_reason'] as String?,
-      createdAt: map['created_at'] == null
+          : DateTime.tryParse(map[CompanyExpenseDbFields.voidedAt].toString()),
+      voidedBy: map[CompanyExpenseDbFields.voidedBy] as String?,
+      voidReason: map[CompanyExpenseDbFields.voidReason] as String?,
+      createdAt: map[DbCommonFields.createdAt] == null
           ? null
-          : DateTime.tryParse(map['created_at'].toString()),
-      updatedAt: map['updated_at'] == null
+          : DateTime.tryParse(map[DbCommonFields.createdAt].toString()),
+      updatedAt: map[DbCommonFields.updatedAt] == null
           ? null
-          : DateTime.tryParse(map['updated_at'].toString()),
+          : DateTime.tryParse(map[DbCommonFields.updatedAt].toString()),
     );
   }
 
