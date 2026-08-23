@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/trip_db_fields.dart';
+
 class TripStatusHistoryModel {
   final String id;
   final String companyId;
@@ -25,16 +28,19 @@ class TripStatusHistoryModel {
 
   factory TripStatusHistoryModel.fromMap(Map<String, dynamic> map) {
     return TripStatusHistoryModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      tripId: map['trip_id'] as String,
-      oldStatus: map['old_status'] as String?,
-      newStatus: map['new_status'] as String? ?? 'created',
-      changedByUserId: map['changed_by'] as String?,
-      changedByName: map['changed_by_name'] as String?,
-      changedByRole: map['changed_by_role'] as String?,
-      notes: map['notes'] as String?,
-      changedAt: _toDateTime(map['changed_at']) ?? DateTime.now(),
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
+      tripId: map[TripStatusHistoryDbFields.tripId] as String,
+      oldStatus: map[TripStatusHistoryDbFields.oldStatus] as String?,
+      newStatus:
+          map[TripStatusHistoryDbFields.newStatus] as String? ?? 'created',
+      changedByUserId: map[TripStatusHistoryDbFields.changedBy] as String?,
+      changedByName: map[TripStatusHistoryDbFields.changedByName] as String?,
+      changedByRole: map[TripStatusHistoryDbFields.changedByRole] as String?,
+      notes: map[TripStatusHistoryDbFields.notes] as String?,
+      changedAt:
+          _toDateTime(map[TripStatusHistoryDbFields.changedAt]) ??
+          DateTime.now(),
     );
   }
 

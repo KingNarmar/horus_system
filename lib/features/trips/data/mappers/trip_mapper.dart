@@ -4,6 +4,7 @@ import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_write_data.dart';
+import '../constants/trip_db_fields.dart';
 import '../models/trip_model.dart';
 import '../models/trip_status_history_model.dart';
 
@@ -42,27 +43,33 @@ extension TripModelMapper on TripModel {
     return {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
-      'customer_id': customerId,
-      'route_id': routeId,
-      'driver_id': driverId,
-      'tractor_head_id': tractorHeadId,
-      'trailer_id': trailerId,
-      'status': status,
-      'loading_order_number': loadingOrderNumber,
-      'waybill_number': waybillNumber,
-      'quantity_tons': quantityTons,
-      'freight_price': freightPrice,
-      'total_expenses': totalExpenses,
-      'scheduled_loading_at': scheduledLoadingAt?.toUtc().toIso8601String(),
-      'scheduled_delivery_at': scheduledDeliveryAt?.toUtc().toIso8601String(),
-      'actual_loading_at': actualLoadingAt?.toUtc().toIso8601String(),
-      'actual_delivery_at': actualDeliveryAt?.toUtc().toIso8601String(),
-      'notes': notes,
-      'customer_name': customerName,
-      'route_name': routeName,
-      'driver_name': driverName,
-      'tractor_head_plate_number': tractorHeadPlateNumber,
-      'trailer_plate_number': trailerPlateNumber,
+      TripDbFields.customerId: customerId,
+      TripDbFields.routeId: routeId,
+      TripDbFields.driverId: driverId,
+      TripDbFields.tractorHeadId: tractorHeadId,
+      TripDbFields.trailerId: trailerId,
+      TripDbFields.status: status,
+      TripDbFields.loadingOrderNumber: loadingOrderNumber,
+      TripDbFields.waybillNumber: waybillNumber,
+      TripDbFields.quantityTons: quantityTons,
+      TripDbFields.freightPrice: freightPrice,
+      TripDbFields.totalExpenses: totalExpenses,
+      TripDbFields.scheduledLoadingAt: scheduledLoadingAt
+          ?.toUtc()
+          .toIso8601String(),
+      TripDbFields.scheduledDeliveryAt: scheduledDeliveryAt
+          ?.toUtc()
+          .toIso8601String(),
+      TripDbFields.actualLoadingAt: actualLoadingAt?.toUtc().toIso8601String(),
+      TripDbFields.actualDeliveryAt: actualDeliveryAt
+          ?.toUtc()
+          .toIso8601String(),
+      TripDbFields.notes: notes,
+      TripDbFields.customerNameAlias: customerName,
+      TripDbFields.routeNameAlias: routeName,
+      TripDbFields.driverNameAlias: driverName,
+      TripDbFields.tractorHeadPlateNumberAlias: tractorHeadPlateNumber,
+      TripDbFields.trailerPlateNumberAlias: trailerPlateNumber,
       DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
       DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
     };
@@ -90,39 +97,39 @@ extension TripWriteDataMapper on TripWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
       DbCommonFields.companyId: companyId,
-      'customer_id': customerId,
-      'route_id': routeId,
-      'driver_id': driverId,
-      'tractor_head_id': tractorHeadId,
-      'trailer_id': trailerId,
-      'loading_order_number': loadingOrderNumber,
-      'waybill_number': waybillNumber,
-      'quantity_tons': quantityTons,
-      'freight_price': freightPrice,
-      'scheduled_loading_at': _toUtcIsoString(scheduledLoadingAt),
-      'scheduled_delivery_at': _toUtcIsoString(scheduledDeliveryAt),
-      'actual_loading_at': _toUtcIsoString(actualLoadingAt),
-      'actual_delivery_at': _toUtcIsoString(actualDeliveryAt),
-      'notes': notes,
+      TripDbFields.customerId: customerId,
+      TripDbFields.routeId: routeId,
+      TripDbFields.driverId: driverId,
+      TripDbFields.tractorHeadId: tractorHeadId,
+      TripDbFields.trailerId: trailerId,
+      TripDbFields.loadingOrderNumber: loadingOrderNumber,
+      TripDbFields.waybillNumber: waybillNumber,
+      TripDbFields.quantityTons: quantityTons,
+      TripDbFields.freightPrice: freightPrice,
+      TripDbFields.scheduledLoadingAt: _toUtcIsoString(scheduledLoadingAt),
+      TripDbFields.scheduledDeliveryAt: _toUtcIsoString(scheduledDeliveryAt),
+      TripDbFields.actualLoadingAt: _toUtcIsoString(actualLoadingAt),
+      TripDbFields.actualDeliveryAt: _toUtcIsoString(actualDeliveryAt),
+      TripDbFields.notes: notes,
     };
   }
 
   Map<String, dynamic> toUpdateMap() {
     return {
-      'customer_id': customerId,
-      'route_id': routeId,
-      'driver_id': driverId,
-      'tractor_head_id': tractorHeadId,
-      'trailer_id': trailerId,
-      'loading_order_number': loadingOrderNumber,
-      'waybill_number': waybillNumber,
-      'quantity_tons': quantityTons,
-      'freight_price': freightPrice,
-      'scheduled_loading_at': _toUtcIsoString(scheduledLoadingAt),
-      'scheduled_delivery_at': _toUtcIsoString(scheduledDeliveryAt),
-      'actual_loading_at': _toUtcIsoString(actualLoadingAt),
-      'actual_delivery_at': _toUtcIsoString(actualDeliveryAt),
-      'notes': notes,
+      TripDbFields.customerId: customerId,
+      TripDbFields.routeId: routeId,
+      TripDbFields.driverId: driverId,
+      TripDbFields.tractorHeadId: tractorHeadId,
+      TripDbFields.trailerId: trailerId,
+      TripDbFields.loadingOrderNumber: loadingOrderNumber,
+      TripDbFields.waybillNumber: waybillNumber,
+      TripDbFields.quantityTons: quantityTons,
+      TripDbFields.freightPrice: freightPrice,
+      TripDbFields.scheduledLoadingAt: _toUtcIsoString(scheduledLoadingAt),
+      TripDbFields.scheduledDeliveryAt: _toUtcIsoString(scheduledDeliveryAt),
+      TripDbFields.actualLoadingAt: _toUtcIsoString(actualLoadingAt),
+      TripDbFields.actualDeliveryAt: _toUtcIsoString(actualDeliveryAt),
+      TripDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
@@ -131,7 +138,7 @@ extension TripWriteDataMapper on TripWriteData {
 extension TripStatusMapper on TripStatus {
   Map<String, dynamic> toTripStatusUpdateMap() {
     return {
-      'status': value,
+      TripDbFields.status: value,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
@@ -145,11 +152,11 @@ extension TripStatusMapper on TripStatus {
   }) {
     return {
       DbCommonFields.companyId: companyId,
-      'trip_id': tripId,
-      'old_status': oldStatus?.value,
-      'new_status': value,
-      'changed_by_role': actorRole,
-      'notes': notes,
+      TripStatusHistoryDbFields.tripId: tripId,
+      TripStatusHistoryDbFields.oldStatus: oldStatus?.value,
+      TripStatusHistoryDbFields.newStatus: value,
+      TripStatusHistoryDbFields.changedByRole: actorRole,
+      TripStatusHistoryDbFields.notes: notes,
     };
   }
 }

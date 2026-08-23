@@ -6,62 +6,10 @@ import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_lookup_option.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_write_data.dart';
+import '../constants/trip_db_fields.dart';
 import '../mappers/trip_mapper.dart';
 import '../models/trip_model.dart';
 import '../models/trip_status_history_model.dart';
-
-const _tripsTable = 'trips';
-const _tripStatusHistoryTable = 'trip_status_history';
-
-const _customersTable = 'customers';
-const _routesTable = 'routes';
-const _driversTable = 'drivers';
-const _tractorHeadsTable = 'tractor_heads';
-const _trailersTable = 'trailers';
-
-const _openTripStatusFilter =
-    'status.eq.created,status.eq.assigned,status.eq.loaded,status.eq.on_road,status.eq.arrived';
-
-const _tripColumns = '''
-id,
-company_id,
-customer_id,
-route_id,
-driver_id,
-tractor_head_id,
-trailer_id,
-status,
-loading_order_number,
-waybill_number,
-quantity_tons,
-freight_price,
-total_expenses,
-scheduled_loading_at,
-scheduled_delivery_at,
-actual_loading_at,
-actual_delivery_at,
-notes,
-created_at,
-updated_at,
-customers!trips_company_customer_fk(name),
-routes!trips_company_route_fk(loading_location, unloading_location),
-drivers!trips_company_driver_fk(full_name),
-tractor_heads!trips_company_tractor_fk(plate_number),
-trailers!trips_company_trailer_fk(plate_number)
-''';
-
-const _tripStatusHistoryColumns = '''
-id,
-company_id,
-trip_id,
-old_status,
-new_status,
-changed_by,
-changed_by_name,
-changed_by_role,
-notes,
-changed_at
-''';
 
 abstract class TripsRemoteDataSource {
   Future<List<TripModel>> getTrips({required String companyId});
@@ -113,8 +61,8 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   @override
   Future<List<TripModel>> getTrips({required String companyId}) async {
     final rows = await client
-        .from(_tripsTable)
-        .select(_tripColumns)
+        .from(TripDbFields.tableName)
+        .select(TripDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId)
         .order(DbCommonFields.createdAt, ascending: false);
 
@@ -129,8 +77,8 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String id,
   }) async {
     final row = await client
-        .from(_tripsTable)
-        .select(_tripColumns)
+        .from(TripDbFields.tableName)
+        .select(TripDbFields.allColumns)
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
         .single();
@@ -145,28 +93,28 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     final results = await Future.wait<List<TripLookupOption>>([
       _getSimpleLookupOptions(
         companyId: companyId,
-        table: _customersTable,
-        labelColumn: 'name',
-        orderColumn: 'name',
+        table: TripLookupDbFields.customersTableName,
+        labelColumn: TripLookupDbFields.name,
+        orderColumn: TripLookupDbFields.name,
       ),
       _getRouteLookupOptions(companyId: companyId),
       _getSimpleLookupOptions(
         companyId: companyId,
-        table: _driversTable,
-        labelColumn: 'full_name',
-        orderColumn: 'full_name',
+        table: TripLookupDbFields.driversTableName,
+        labelColumn: TripLookupDbFields.fullName,
+        orderColumn: TripLookupDbFields.fullName,
       ),
       _getSimpleLookupOptions(
         companyId: companyId,
-        table: _tractorHeadsTable,
-        labelColumn: 'plate_number',
-        orderColumn: 'plate_number',
+        table: TripLookupDbFields.tractorHeadsTableName,
+        labelColumn: TripLookupDbFields.plateNumber,
+        orderColumn: TripLookupDbFields.plateNumber,
       ),
       _getSimpleLookupOptions(
         companyId: companyId,
-        table: _trailersTable,
-        labelColumn: 'plate_number',
-        orderColumn: 'plate_number',
+        table: TripLookupDbFields.trailersTableName,
+        labelColumn: TripLookupDbFields.plateNumber,
+        orderColumn: TripLookupDbFields.plateNumber,
       ),
     ]);
 
@@ -182,9 +130,9 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   @override
   Future<TripModel> createTrip({required TripWriteData data}) async {
     final row = await client
-        .from(_tripsTable)
+        .from(TripDbFields.tableName)
         .insert(data.toInsertMap())
-        .select(_tripColumns)
+        .select(TripDbFields.allColumns)
         .single();
 
     return TripModel.fromMap(Map<String, dynamic>.from(row));
@@ -196,11 +144,11 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripWriteData data,
   }) async {
     final row = await client
-        .from(_tripsTable)
+        .from(TripDbFields.tableName)
         .update(data.toUpdateMap())
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
-        .select(_tripColumns)
+        .select(TripDbFields.allColumns)
         .single();
 
     return TripModel.fromMap(Map<String, dynamic>.from(row));
@@ -213,11 +161,11 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripStatus newStatus,
   }) async {
     final row = await client
-        .from(_tripsTable)
+        .from(TripDbFields.tableName)
         .update(newStatus.toTripStatusUpdateMap())
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
-        .select(_tripColumns)
+        .select(TripDbFields.allColumns)
         .single();
 
     return TripModel.fromMap(Map<String, dynamic>.from(row));
@@ -242,13 +190,13 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
 
     final actorDisplayName = await _getCurrentActorDisplayName();
     if (actorDisplayName != null) {
-      insertMap['changed_by_name'] = actorDisplayName;
+      insertMap[TripStatusHistoryDbFields.changedByName] = actorDisplayName;
     }
 
     final row = await client
-        .from(_tripStatusHistoryTable)
+        .from(TripStatusHistoryDbFields.tableName)
         .insert(insertMap)
-        .select(_tripStatusHistoryColumns)
+        .select(TripStatusHistoryDbFields.allColumns)
         .single();
 
     return TripStatusHistoryModel.fromMap(Map<String, dynamic>.from(row));
@@ -260,11 +208,11 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String tripId,
   }) async {
     final rows = await client
-        .from(_tripStatusHistoryTable)
-        .select(_tripStatusHistoryColumns)
+        .from(TripStatusHistoryDbFields.tableName)
+        .select(TripStatusHistoryDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .eq('trip_id', tripId)
-        .order('changed_at', ascending: false);
+        .eq(TripStatusHistoryDbFields.tripId, tripId)
+        .order(TripStatusHistoryDbFields.changedAt, ascending: false);
 
     return rows
         .map(
@@ -284,7 +232,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     if (tractorHeadId != null) {
       final hasOpenTractorTrip = await _hasOpenTripForSingleVehicle(
         companyId: companyId,
-        column: 'tractor_head_id',
+        column: TripDbFields.tractorHeadId,
         vehicleId: tractorHeadId,
         excludingTripId: excludingTripId,
       );
@@ -295,7 +243,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     if (trailerId != null) {
       final hasOpenTrailerTrip = await _hasOpenTripForSingleVehicle(
         companyId: companyId,
-        column: 'trailer_id',
+        column: TripDbFields.trailerId,
         vehicleId: trailerId,
         excludingTripId: excludingTripId,
       );
@@ -314,7 +262,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   }) async {
     final rows = await client
         .from(table)
-        .select('id, $labelColumn')
+        .select('${DbCommonFields.id}, $labelColumn')
         .eq(DbCommonFields.companyId, companyId)
         .eq(DbCommonFields.isActive, true)
         .order(orderColumn);
@@ -339,18 +287,20 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String companyId,
   }) async {
     final rows = await client
-        .from(_routesTable)
-        .select('id, loading_location, unloading_location')
+        .from(TripLookupDbFields.routesTableName)
+        .select(TripLookupDbFields.routeColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DbCommonFields.isActive, true)
-        .order('loading_location');
+        .order(TripLookupDbFields.loadingLocation);
 
     final options = <TripLookupOption>[];
 
     for (final row in rows) {
       final map = Map<String, dynamic>.from(row);
-      final loading = map['loading_location']?.toString().trim() ?? '';
-      final unloading = map['unloading_location']?.toString().trim() ?? '';
+      final loading =
+          map[TripLookupDbFields.loadingLocation]?.toString().trim() ?? '';
+      final unloading =
+          map[TripLookupDbFields.unloadingLocation]?.toString().trim() ?? '';
 
       if (loading.isEmpty && unloading.isEmpty) continue;
 
@@ -373,23 +323,23 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   }) async {
     if (excludingTripId == null) {
       final rows = await client
-          .from(_tripsTable)
+          .from(TripDbFields.tableName)
           .select(DbCommonFields.id)
           .eq(DbCommonFields.companyId, companyId)
           .eq(column, vehicleId)
-          .or(_openTripStatusFilter)
+          .or(TripDbFields.openTripStatusFilter)
           .limit(1);
 
       return rows.isNotEmpty;
     }
 
     final rows = await client
-        .from(_tripsTable)
+        .from(TripDbFields.tableName)
         .select(DbCommonFields.id)
         .eq(DbCommonFields.companyId, companyId)
         .eq(column, vehicleId)
         .neq(DbCommonFields.id, excludingTripId)
-        .or(_openTripStatusFilter)
+        .or(TripDbFields.openTripStatusFilter)
         .limit(1);
 
     return rows.isNotEmpty;
