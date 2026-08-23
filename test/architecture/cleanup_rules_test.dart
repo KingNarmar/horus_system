@@ -330,9 +330,7 @@ const _allowedDataSourcesWithLocalTableConstants = {
   'lib/features/trips/data/datasources/trips_remote_data_source.dart',
 };
 
-const _allowedManualPresentationLocalizationFiles = {
-  'lib/features/trips/presentation/localization/trips_localizations_x.dart',
-};
+const _allowedManualPresentationLocalizationFiles = <String>{};
 
 const _allowedFeaturesWithoutTests = {'auth'};
 

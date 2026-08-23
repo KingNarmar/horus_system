@@ -1617,4 +1617,396 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportsLoadFailed => 'تعذر تحميل التقرير.';
+
+  @override
+  String get tripDetailsHeaderTitle => 'تفاصيل الرحلة';
+
+  @override
+  String get tripsTitle => 'الرحلات';
+
+  @override
+  String get addTripButton => 'إضافة رحلة';
+
+  @override
+  String get addTripTitle => 'إضافة رحلة';
+
+  @override
+  String get editTripTitle => 'تعديل رحلة';
+
+  @override
+  String get searchTripsHint => 'ابحث في الرحلات';
+
+  @override
+  String get noTripsFound => 'لا توجد رحلات.';
+
+  @override
+  String get noTripsMatchFilters =>
+      'لا توجد رحلات مطابقة للبحث أو الفلتر الحالي.';
+
+  @override
+  String get tripCustomerHeader => 'العميل';
+
+  @override
+  String get tripRouteHeader => 'المسار';
+
+  @override
+  String get tripDriverHeader => 'السائق';
+
+  @override
+  String get tripVehicleHeader => 'المركبة';
+
+  @override
+  String get tripTractorHeadLabel => 'رأس الجرار';
+
+  @override
+  String get tripTrailerLabel => 'المقطورة';
+
+  @override
+  String get tripLoadingOrderHeader => 'أمر التحميل';
+
+  @override
+  String get tripWaybillHeader => 'رقم البوليصة';
+
+  @override
+  String get tripQuantityHeader => 'الكمية';
+
+  @override
+  String get tripTonsSuffix => 'طن';
+
+  @override
+  String get tripFreightPriceHeader => 'سعر النقل';
+
+  @override
+  String get tripTotalExpensesLabel => 'إجمالي المصروفات';
+
+  @override
+  String get tripNetProfitHeader => 'صافي الربح';
+
+  @override
+  String get tripViewDetails => 'عرض التفاصيل';
+
+  @override
+  String get tripEditButton => 'تعديل';
+
+  @override
+  String get tripUpdateStatus => 'تحديث الحالة';
+
+  @override
+  String get tripEmptyValue => '-';
+
+  @override
+  String get tripOptionalNone => 'بدون';
+
+  @override
+  String get tripScheduledLoadingAtLabel => 'موعد التحميل المخطط';
+
+  @override
+  String get tripScheduledDeliveryAtLabel => 'موعد التسليم المخطط';
+
+  @override
+  String get tripActualLoadingAtLabel => 'وقت التحميل الفعلي';
+
+  @override
+  String get tripActualDeliveryAtLabel => 'وقت التسليم الفعلي';
+
+  @override
+  String get tripBasicInfo => 'البيانات الأساسية';
+
+  @override
+  String get tripAccountability => 'المساءلة';
+
+  @override
+  String get tripActivityTimeline => 'سجل النشاط';
+
+  @override
+  String get tripStatusHistoryTitle => 'سجل حالات الرحلة';
+
+  @override
+  String get tripExpensesTitle => 'مصروفات الرحلة';
+
+  @override
+  String get tripLoadingExpenses => 'جاري تحميل المصروفات...';
+
+  @override
+  String get tripNoExpensesFound => 'لا توجد مصروفات بعد.';
+
+  @override
+  String get tripAddExpenseButton => 'إضافة مصروف';
+
+  @override
+  String get tripEditExpenseTitle => 'تعديل مصروف';
+
+  @override
+  String get tripAddExpenseTitle => 'إضافة مصروف';
+
+  @override
+  String get tripExpenseNameLabel => 'اسم المصروف';
+
+  @override
+  String get tripExpenseTypeLabel => 'نوع المصروف';
+
+  @override
+  String get tripExpenseTypeRequired => 'نوع المصروف مطلوب.';
+
+  @override
+  String get tripExpenseAmountLabel => 'المبلغ';
+
+  @override
+  String get tripExpensePaidByLabel => 'الدافع';
+
+  @override
+  String get tripExpenseDateLabel => 'تاريخ المصروف';
+
+  @override
+  String get tripExpenseDateHelperText => 'مثال: 2026-06-26';
+
+  @override
+  String get tripExpenseDateInvalid => 'أدخل تاريخ صحيح.';
+
+  @override
+  String get tripExpenseNameRequired => 'اسم المصروف مطلوب.';
+
+  @override
+  String get tripExpenseAmountPositive => 'المبلغ لازم يكون أكبر من صفر.';
+
+  @override
+  String get tripExpenseTypesUnavailable => 'أنواع المصروفات غير متاحة حاليًا.';
+
+  @override
+  String get tripLoadingActivity => 'جاري تحميل النشاط...';
+
+  @override
+  String get tripLoadingStatusHistory => 'جاري تحميل سجل الحالات...';
+
+  @override
+  String get tripLoadingLookups => 'جاري تحميل بيانات النموذج...';
+
+  @override
+  String get tripRequiredLookupsMissing =>
+      'لازم يكون عندك عميل واحد ومسار واحد على الأقل قبل إنشاء رحلة.';
+
+  @override
+  String get tripNoActivityFound => 'لا يوجد نشاط بعد.';
+
+  @override
+  String get tripNoStatusHistoryFound => 'لا يوجد سجل حالات بعد.';
+
+  @override
+  String get tripCreatedBy => 'تم الإنشاء بواسطة';
+
+  @override
+  String get tripCreatedRole => 'دور منشئ السجل';
+
+  @override
+  String get tripCreatedAt => 'وقت الإنشاء';
+
+  @override
+  String get tripLastActivityBy => 'آخر نشاط بواسطة';
+
+  @override
+  String get tripLastActivityRole => 'دور آخر نشاط';
+
+  @override
+  String get tripLastActivityAt => 'وقت آخر نشاط';
+
+  @override
+  String get tripUnknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get tripChanges => 'التغييرات';
+
+  @override
+  String get tripAuditDetails => 'التفاصيل';
+
+  @override
+  String get tripCloseButton => 'إغلاق';
+
+  @override
+  String get tripNextStatusLabel => 'الحالة التالية';
+
+  @override
+  String get tripStatusNotesLabel => 'ملاحظات تغيير الحالة';
+
+  @override
+  String get tripNoAvailableStatusActions =>
+      'لا توجد حالات متاحة بعد الحالة الحالية.';
+
+  @override
+  String get tripCustomerRequired => 'العميل مطلوب.';
+
+  @override
+  String get tripRouteRequired => 'المسار مطلوب.';
+
+  @override
+  String get tripNumberInvalid => 'أدخل رقم صحيح غير سالب.';
+
+  @override
+  String get tripDateTimeHelperText => 'اختياري - مثال: 2026-06-20 14:30';
+
+  @override
+  String get tripDateTimeInvalid => 'أدخل تاريخ ووقت صحيحين.';
+
+  @override
+  String get tripDeliveryBeforeLoadingInvalid =>
+      'موعد التسليم لا يمكن أن يكون قبل موعد التحميل.';
+
+  @override
+  String get tripsStatusAllFilter => 'الكل';
+
+  @override
+  String get tripsStatusOpenFilter => 'المفتوحة';
+
+  @override
+  String get tripsStatusCreatedFilter => 'جديدة';
+
+  @override
+  String get tripsStatusAssignedFilter => 'مخصصة';
+
+  @override
+  String get tripsStatusLoadedFilter => 'تم التحميل';
+
+  @override
+  String get tripsStatusOnRoadFilter => 'على الطريق';
+
+  @override
+  String get tripsStatusArrivedFilter => 'وصلت';
+
+  @override
+  String get tripsStatusDeliveredFilter => 'تم التسليم';
+
+  @override
+  String get tripsStatusDocumentsReceivedFilter => 'تم استلام المستندات';
+
+  @override
+  String get tripsStatusInvoicedFilter => 'تمت الفوترة';
+
+  @override
+  String get tripsStatusPaidFilter => 'مدفوعة';
+
+  @override
+  String get tripsStatusCancelledFilter => 'ملغاة';
+
+  @override
+  String tripCurrentStatusLine(String status) {
+    return 'الحالة الحالية: $status';
+  }
+
+  @override
+  String tripStatusHistoryLine(String oldStatus, String newStatus) {
+    return 'من $oldStatus إلى $newStatus';
+  }
+
+  @override
+  String tripChangedByLine(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String tripAuditTimelineHeader(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String tripAuditChangeLine(String label, String oldValue, String newValue) {
+    return '$label: من $oldValue إلى $newValue';
+  }
+
+  @override
+  String tripAuditDetailLine(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String tripDetailsTitleText(String name) {
+    return 'تفاصيل الرحلة: $name';
+  }
+
+  @override
+  String tripUpdateStatusTitleText(String name) {
+    return 'تحديث حالة الرحلة: $name';
+  }
+
+  @override
+  String get tripExpensePaidByCompany => 'الشركة';
+
+  @override
+  String get tripExpensePaidByDriverAdvance => 'عهدة السائق';
+
+  @override
+  String get tripExpensePaidByDriverCash => 'دفع السائق';
+
+  @override
+  String get tripExpensePaidByCustomer => 'العميل';
+
+  @override
+  String get tripExpensePaidByOther => 'أخرى';
+
+  @override
+  String get tripExpenseTypeFuel => 'وقود';
+
+  @override
+  String get tripExpenseTypeRoadFees => 'رسوم طرق';
+
+  @override
+  String get tripExpenseTypeWeighbridge => 'ميزان';
+
+  @override
+  String get tripExpenseTypeLoading => 'تحميل';
+
+  @override
+  String get tripExpenseTypeUnloading => 'تفريغ';
+
+  @override
+  String get tripExpenseTypeFines => 'غرامات';
+
+  @override
+  String get tripExpenseTypeEmergencyMaintenance => 'صيانة طارئة';
+
+  @override
+  String get tripExpenseTypeDriverAdvance => 'عهدة سائق';
+
+  @override
+  String get tripExpenseTypeOther => 'أخرى';
+
+  @override
+  String get tripAuditActionCreated => 'تم الإنشاء';
+
+  @override
+  String get tripAuditActionUpdated => 'تم التعديل';
+
+  @override
+  String get tripAuditActionStatusChanged => 'تم تغيير الحالة';
+
+  @override
+  String get tripAuditActionDeactivated => 'تم إلغاء التفعيل';
+
+  @override
+  String get tripAuditActionReactivated => 'تمت إعادة التفعيل';
+
+  @override
+  String get tripAuditRoleOwner => 'مالك';
+
+  @override
+  String get tripAuditRoleAdmin => 'مدير';
+
+  @override
+  String get tripAuditRoleOperations => 'تشغيل';
+
+  @override
+  String get tripAuditRoleAccountant => 'محاسب';
+
+  @override
+  String get tripAuditRoleViewer => 'مشاهد';
+
+  @override
+  String get tripAuditRoleDriver => 'سائق';
+
+  @override
+  String get tripAuditFieldExpenseId => 'معرّف المصروف';
+
+  @override
+  String get tripAuditFieldTractorPlate => 'رقم رأس الجرار';
+
+  @override
+  String get tripAuditFieldTrailerPlate => 'رقم المقطورة';
 }

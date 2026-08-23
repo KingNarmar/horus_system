@@ -3079,6 +3079,750 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The report could not be loaded.'**
   String get reportsLoadFailed;
+
+  /// No description provided for @tripDetailsHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details'**
+  String get tripDetailsHeaderTitle;
+
+  /// No description provided for @tripsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get tripsTitle;
+
+  /// No description provided for @addTripButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trip'**
+  String get addTripButton;
+
+  /// No description provided for @addTripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trip'**
+  String get addTripTitle;
+
+  /// No description provided for @editTripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get editTripTitle;
+
+  /// No description provided for @searchTripsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trips'**
+  String get searchTripsHint;
+
+  /// No description provided for @noTripsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips found.'**
+  String get noTripsFound;
+
+  /// No description provided for @noTripsMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips match the current search or filter.'**
+  String get noTripsMatchFilters;
+
+  /// No description provided for @tripCustomerHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get tripCustomerHeader;
+
+  /// No description provided for @tripRouteHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get tripRouteHeader;
+
+  /// No description provided for @tripDriverHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get tripDriverHeader;
+
+  /// No description provided for @tripVehicleHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get tripVehicleHeader;
+
+  /// No description provided for @tripTractorHeadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractor head'**
+  String get tripTractorHeadLabel;
+
+  /// No description provided for @tripTrailerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailer'**
+  String get tripTrailerLabel;
+
+  /// No description provided for @tripLoadingOrderHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading order'**
+  String get tripLoadingOrderHeader;
+
+  /// No description provided for @tripWaybillHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Waybill'**
+  String get tripWaybillHeader;
+
+  /// No description provided for @tripQuantityHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get tripQuantityHeader;
+
+  /// No description provided for @tripTonsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'t'**
+  String get tripTonsSuffix;
+
+  /// No description provided for @tripFreightPriceHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Freight'**
+  String get tripFreightPriceHeader;
+
+  /// No description provided for @tripTotalExpensesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expenses'**
+  String get tripTotalExpensesLabel;
+
+  /// No description provided for @tripNetProfitHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get tripNetProfitHeader;
+
+  /// No description provided for @tripViewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View details'**
+  String get tripViewDetails;
+
+  /// No description provided for @tripEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get tripEditButton;
+
+  /// No description provided for @tripUpdateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update status'**
+  String get tripUpdateStatus;
+
+  /// No description provided for @tripEmptyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'-'**
+  String get tripEmptyValue;
+
+  /// No description provided for @tripOptionalNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get tripOptionalNone;
+
+  /// No description provided for @tripScheduledLoadingAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled loading'**
+  String get tripScheduledLoadingAtLabel;
+
+  /// No description provided for @tripScheduledDeliveryAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled delivery'**
+  String get tripScheduledDeliveryAtLabel;
+
+  /// No description provided for @tripActualLoadingAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual loading'**
+  String get tripActualLoadingAtLabel;
+
+  /// No description provided for @tripActualDeliveryAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual delivery'**
+  String get tripActualDeliveryAtLabel;
+
+  /// No description provided for @tripBasicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get tripBasicInfo;
+
+  /// No description provided for @tripAccountability.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountability'**
+  String get tripAccountability;
+
+  /// No description provided for @tripActivityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity timeline'**
+  String get tripActivityTimeline;
+
+  /// No description provided for @tripStatusHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Status history'**
+  String get tripStatusHistoryTitle;
+
+  /// No description provided for @tripExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses'**
+  String get tripExpensesTitle;
+
+  /// No description provided for @tripLoadingExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading expenses...'**
+  String get tripLoadingExpenses;
+
+  /// No description provided for @tripNoExpensesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yet.'**
+  String get tripNoExpensesFound;
+
+  /// No description provided for @tripAddExpenseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get tripAddExpenseButton;
+
+  /// No description provided for @tripEditExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get tripEditExpenseTitle;
+
+  /// No description provided for @tripAddExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get tripAddExpenseTitle;
+
+  /// No description provided for @tripExpenseNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense name'**
+  String get tripExpenseNameLabel;
+
+  /// No description provided for @tripExpenseTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense type'**
+  String get tripExpenseTypeLabel;
+
+  /// No description provided for @tripExpenseTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense type is required.'**
+  String get tripExpenseTypeRequired;
+
+  /// No description provided for @tripExpenseAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get tripExpenseAmountLabel;
+
+  /// No description provided for @tripExpensePaidByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get tripExpensePaidByLabel;
+
+  /// No description provided for @tripExpenseDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense date'**
+  String get tripExpenseDateLabel;
+
+  /// No description provided for @tripExpenseDateHelperText.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 2026-06-26'**
+  String get tripExpenseDateHelperText;
+
+  /// No description provided for @tripExpenseDateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid date.'**
+  String get tripExpenseDateInvalid;
+
+  /// No description provided for @tripExpenseNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense name is required.'**
+  String get tripExpenseNameRequired;
+
+  /// No description provided for @tripExpenseAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than zero.'**
+  String get tripExpenseAmountPositive;
+
+  /// No description provided for @tripExpenseTypesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense types are unavailable.'**
+  String get tripExpenseTypesUnavailable;
+
+  /// No description provided for @tripLoadingActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading activity...'**
+  String get tripLoadingActivity;
+
+  /// No description provided for @tripLoadingStatusHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading status history...'**
+  String get tripLoadingStatusHistory;
+
+  /// No description provided for @tripLoadingLookups.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading form data...'**
+  String get tripLoadingLookups;
+
+  /// No description provided for @tripRequiredLookupsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one customer and one route are required before creating a trip.'**
+  String get tripRequiredLookupsMissing;
+
+  /// No description provided for @tripNoActivityFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get tripNoActivityFound;
+
+  /// No description provided for @tripNoStatusHistoryFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No status history yet.'**
+  String get tripNoStatusHistoryFound;
+
+  /// No description provided for @tripCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get tripCreatedBy;
+
+  /// No description provided for @tripCreatedRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Created role'**
+  String get tripCreatedRole;
+
+  /// No description provided for @tripCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get tripCreatedAt;
+
+  /// No description provided for @tripLastActivityBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity by'**
+  String get tripLastActivityBy;
+
+  /// No description provided for @tripLastActivityRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity role'**
+  String get tripLastActivityRole;
+
+  /// No description provided for @tripLastActivityAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity at'**
+  String get tripLastActivityAt;
+
+  /// No description provided for @tripUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get tripUnknownUser;
+
+  /// No description provided for @tripChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get tripChanges;
+
+  /// No description provided for @tripAuditDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get tripAuditDetails;
+
+  /// No description provided for @tripCloseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get tripCloseButton;
+
+  /// No description provided for @tripNextStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next status'**
+  String get tripNextStatusLabel;
+
+  /// No description provided for @tripStatusNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status change notes'**
+  String get tripStatusNotesLabel;
+
+  /// No description provided for @tripNoAvailableStatusActions.
+  ///
+  /// In en, this message translates to:
+  /// **'No available status actions for the current status.'**
+  String get tripNoAvailableStatusActions;
+
+  /// No description provided for @tripCustomerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer is required.'**
+  String get tripCustomerRequired;
+
+  /// No description provided for @tripRouteRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Route is required.'**
+  String get tripRouteRequired;
+
+  /// No description provided for @tripNumberInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number.'**
+  String get tripNumberInvalid;
+
+  /// No description provided for @tripDateTimeHelperText.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional - example: 2026-06-20 14:30'**
+  String get tripDateTimeHelperText;
+
+  /// No description provided for @tripDateTimeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid date and time.'**
+  String get tripDateTimeInvalid;
+
+  /// No description provided for @tripDeliveryBeforeLoadingInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery cannot be before loading.'**
+  String get tripDeliveryBeforeLoadingInvalid;
+
+  /// No description provided for @tripsStatusAllFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tripsStatusAllFilter;
+
+  /// No description provided for @tripsStatusOpenFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get tripsStatusOpenFilter;
+
+  /// No description provided for @tripsStatusCreatedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get tripsStatusCreatedFilter;
+
+  /// No description provided for @tripsStatusAssignedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get tripsStatusAssignedFilter;
+
+  /// No description provided for @tripsStatusLoadedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded'**
+  String get tripsStatusLoadedFilter;
+
+  /// No description provided for @tripsStatusOnRoadFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'On road'**
+  String get tripsStatusOnRoadFilter;
+
+  /// No description provided for @tripsStatusArrivedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get tripsStatusArrivedFilter;
+
+  /// No description provided for @tripsStatusDeliveredFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get tripsStatusDeliveredFilter;
+
+  /// No description provided for @tripsStatusDocumentsReceivedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents received'**
+  String get tripsStatusDocumentsReceivedFilter;
+
+  /// No description provided for @tripsStatusInvoicedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoiced'**
+  String get tripsStatusInvoicedFilter;
+
+  /// No description provided for @tripsStatusPaidFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get tripsStatusPaidFilter;
+
+  /// No description provided for @tripsStatusCancelledFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get tripsStatusCancelledFilter;
+
+  /// No description provided for @tripCurrentStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Current status: {status}'**
+  String tripCurrentStatusLine(String status);
+
+  /// No description provided for @tripStatusHistoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'From {oldStatus} to {newStatus}'**
+  String tripStatusHistoryLine(String oldStatus, String newStatus);
+
+  /// No description provided for @tripChangedByLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} ({role}) - {dateTime}'**
+  String tripChangedByLine(String actor, String role, String dateTime);
+
+  /// No description provided for @tripAuditTimelineHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} ({role}) - {dateTime}'**
+  String tripAuditTimelineHeader(String actor, String role, String dateTime);
+
+  /// No description provided for @tripAuditChangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: from {oldValue} to {newValue}'**
+  String tripAuditChangeLine(String label, String oldValue, String newValue);
+
+  /// No description provided for @tripAuditDetailLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value}'**
+  String tripAuditDetailLine(String label, String value);
+
+  /// No description provided for @tripDetailsTitleText.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details: {name}'**
+  String tripDetailsTitleText(String name);
+
+  /// No description provided for @tripUpdateStatusTitleText.
+  ///
+  /// In en, this message translates to:
+  /// **'Update trip status: {name}'**
+  String tripUpdateStatusTitleText(String name);
+
+  /// No description provided for @tripExpensePaidByCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get tripExpensePaidByCompany;
+
+  /// No description provided for @tripExpensePaidByDriverAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver advance'**
+  String get tripExpensePaidByDriverAdvance;
+
+  /// No description provided for @tripExpensePaidByDriverCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver cash'**
+  String get tripExpensePaidByDriverCash;
+
+  /// No description provided for @tripExpensePaidByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get tripExpensePaidByCustomer;
+
+  /// No description provided for @tripExpensePaidByOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tripExpensePaidByOther;
+
+  /// No description provided for @tripExpenseTypeFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get tripExpenseTypeFuel;
+
+  /// No description provided for @tripExpenseTypeRoadFees.
+  ///
+  /// In en, this message translates to:
+  /// **'Road fees'**
+  String get tripExpenseTypeRoadFees;
+
+  /// No description provided for @tripExpenseTypeWeighbridge.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighbridge'**
+  String get tripExpenseTypeWeighbridge;
+
+  /// No description provided for @tripExpenseTypeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get tripExpenseTypeLoading;
+
+  /// No description provided for @tripExpenseTypeUnloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Unloading'**
+  String get tripExpenseTypeUnloading;
+
+  /// No description provided for @tripExpenseTypeFines.
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get tripExpenseTypeFines;
+
+  /// No description provided for @tripExpenseTypeEmergencyMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency maintenance'**
+  String get tripExpenseTypeEmergencyMaintenance;
+
+  /// No description provided for @tripExpenseTypeDriverAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver advance'**
+  String get tripExpenseTypeDriverAdvance;
+
+  /// No description provided for @tripExpenseTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tripExpenseTypeOther;
+
+  /// No description provided for @tripAuditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get tripAuditActionCreated;
+
+  /// No description provided for @tripAuditActionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get tripAuditActionUpdated;
+
+  /// No description provided for @tripAuditActionStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get tripAuditActionStatusChanged;
+
+  /// No description provided for @tripAuditActionDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get tripAuditActionDeactivated;
+
+  /// No description provided for @tripAuditActionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivated'**
+  String get tripAuditActionReactivated;
+
+  /// No description provided for @tripAuditRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get tripAuditRoleOwner;
+
+  /// No description provided for @tripAuditRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get tripAuditRoleAdmin;
+
+  /// No description provided for @tripAuditRoleOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get tripAuditRoleOperations;
+
+  /// No description provided for @tripAuditRoleAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant'**
+  String get tripAuditRoleAccountant;
+
+  /// No description provided for @tripAuditRoleViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewer'**
+  String get tripAuditRoleViewer;
+
+  /// No description provided for @tripAuditRoleDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get tripAuditRoleDriver;
+
+  /// No description provided for @tripAuditFieldExpenseId.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense id'**
+  String get tripAuditFieldExpenseId;
+
+  /// No description provided for @tripAuditFieldTractorPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractor plate'**
+  String get tripAuditFieldTractorPlate;
+
+  /// No description provided for @tripAuditFieldTrailerPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailer plate'**
+  String get tripAuditFieldTrailerPlate;
 }
 
 class _AppLocalizationsDelegate

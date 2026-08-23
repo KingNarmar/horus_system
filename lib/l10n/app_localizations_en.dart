@@ -1639,4 +1639,396 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsLoadFailed => 'The report could not be loaded.';
+
+  @override
+  String get tripDetailsHeaderTitle => 'Trip details';
+
+  @override
+  String get tripsTitle => 'Trips';
+
+  @override
+  String get addTripButton => 'Add trip';
+
+  @override
+  String get addTripTitle => 'Add trip';
+
+  @override
+  String get editTripTitle => 'Edit trip';
+
+  @override
+  String get searchTripsHint => 'Search trips';
+
+  @override
+  String get noTripsFound => 'No trips found.';
+
+  @override
+  String get noTripsMatchFilters =>
+      'No trips match the current search or filter.';
+
+  @override
+  String get tripCustomerHeader => 'Customer';
+
+  @override
+  String get tripRouteHeader => 'Route';
+
+  @override
+  String get tripDriverHeader => 'Driver';
+
+  @override
+  String get tripVehicleHeader => 'Vehicle';
+
+  @override
+  String get tripTractorHeadLabel => 'Tractor head';
+
+  @override
+  String get tripTrailerLabel => 'Trailer';
+
+  @override
+  String get tripLoadingOrderHeader => 'Loading order';
+
+  @override
+  String get tripWaybillHeader => 'Waybill';
+
+  @override
+  String get tripQuantityHeader => 'Quantity';
+
+  @override
+  String get tripTonsSuffix => 't';
+
+  @override
+  String get tripFreightPriceHeader => 'Freight';
+
+  @override
+  String get tripTotalExpensesLabel => 'Total expenses';
+
+  @override
+  String get tripNetProfitHeader => 'Net profit';
+
+  @override
+  String get tripViewDetails => 'View details';
+
+  @override
+  String get tripEditButton => 'Edit';
+
+  @override
+  String get tripUpdateStatus => 'Update status';
+
+  @override
+  String get tripEmptyValue => '-';
+
+  @override
+  String get tripOptionalNone => 'None';
+
+  @override
+  String get tripScheduledLoadingAtLabel => 'Scheduled loading';
+
+  @override
+  String get tripScheduledDeliveryAtLabel => 'Scheduled delivery';
+
+  @override
+  String get tripActualLoadingAtLabel => 'Actual loading';
+
+  @override
+  String get tripActualDeliveryAtLabel => 'Actual delivery';
+
+  @override
+  String get tripBasicInfo => 'Basic information';
+
+  @override
+  String get tripAccountability => 'Accountability';
+
+  @override
+  String get tripActivityTimeline => 'Activity timeline';
+
+  @override
+  String get tripStatusHistoryTitle => 'Status history';
+
+  @override
+  String get tripExpensesTitle => 'Trip expenses';
+
+  @override
+  String get tripLoadingExpenses => 'Loading expenses...';
+
+  @override
+  String get tripNoExpensesFound => 'No expenses yet.';
+
+  @override
+  String get tripAddExpenseButton => 'Add expense';
+
+  @override
+  String get tripEditExpenseTitle => 'Edit expense';
+
+  @override
+  String get tripAddExpenseTitle => 'Add expense';
+
+  @override
+  String get tripExpenseNameLabel => 'Expense name';
+
+  @override
+  String get tripExpenseTypeLabel => 'Expense type';
+
+  @override
+  String get tripExpenseTypeRequired => 'Expense type is required.';
+
+  @override
+  String get tripExpenseAmountLabel => 'Amount';
+
+  @override
+  String get tripExpensePaidByLabel => 'Paid by';
+
+  @override
+  String get tripExpenseDateLabel => 'Expense date';
+
+  @override
+  String get tripExpenseDateHelperText => 'Example: 2026-06-26';
+
+  @override
+  String get tripExpenseDateInvalid => 'Enter a valid date.';
+
+  @override
+  String get tripExpenseNameRequired => 'Expense name is required.';
+
+  @override
+  String get tripExpenseAmountPositive => 'Amount must be greater than zero.';
+
+  @override
+  String get tripExpenseTypesUnavailable => 'Expense types are unavailable.';
+
+  @override
+  String get tripLoadingActivity => 'Loading activity...';
+
+  @override
+  String get tripLoadingStatusHistory => 'Loading status history...';
+
+  @override
+  String get tripLoadingLookups => 'Loading form data...';
+
+  @override
+  String get tripRequiredLookupsMissing =>
+      'At least one customer and one route are required before creating a trip.';
+
+  @override
+  String get tripNoActivityFound => 'No activity yet.';
+
+  @override
+  String get tripNoStatusHistoryFound => 'No status history yet.';
+
+  @override
+  String get tripCreatedBy => 'Created by';
+
+  @override
+  String get tripCreatedRole => 'Created role';
+
+  @override
+  String get tripCreatedAt => 'Created at';
+
+  @override
+  String get tripLastActivityBy => 'Last activity by';
+
+  @override
+  String get tripLastActivityRole => 'Last activity role';
+
+  @override
+  String get tripLastActivityAt => 'Last activity at';
+
+  @override
+  String get tripUnknownUser => 'Unknown user';
+
+  @override
+  String get tripChanges => 'Changes';
+
+  @override
+  String get tripAuditDetails => 'Details';
+
+  @override
+  String get tripCloseButton => 'Close';
+
+  @override
+  String get tripNextStatusLabel => 'Next status';
+
+  @override
+  String get tripStatusNotesLabel => 'Status change notes';
+
+  @override
+  String get tripNoAvailableStatusActions =>
+      'No available status actions for the current status.';
+
+  @override
+  String get tripCustomerRequired => 'Customer is required.';
+
+  @override
+  String get tripRouteRequired => 'Route is required.';
+
+  @override
+  String get tripNumberInvalid => 'Enter a valid non-negative number.';
+
+  @override
+  String get tripDateTimeHelperText => 'Optional - example: 2026-06-20 14:30';
+
+  @override
+  String get tripDateTimeInvalid => 'Enter a valid date and time.';
+
+  @override
+  String get tripDeliveryBeforeLoadingInvalid =>
+      'Delivery cannot be before loading.';
+
+  @override
+  String get tripsStatusAllFilter => 'All';
+
+  @override
+  String get tripsStatusOpenFilter => 'Open';
+
+  @override
+  String get tripsStatusCreatedFilter => 'Created';
+
+  @override
+  String get tripsStatusAssignedFilter => 'Assigned';
+
+  @override
+  String get tripsStatusLoadedFilter => 'Loaded';
+
+  @override
+  String get tripsStatusOnRoadFilter => 'On road';
+
+  @override
+  String get tripsStatusArrivedFilter => 'Arrived';
+
+  @override
+  String get tripsStatusDeliveredFilter => 'Delivered';
+
+  @override
+  String get tripsStatusDocumentsReceivedFilter => 'Documents received';
+
+  @override
+  String get tripsStatusInvoicedFilter => 'Invoiced';
+
+  @override
+  String get tripsStatusPaidFilter => 'Paid';
+
+  @override
+  String get tripsStatusCancelledFilter => 'Cancelled';
+
+  @override
+  String tripCurrentStatusLine(String status) {
+    return 'Current status: $status';
+  }
+
+  @override
+  String tripStatusHistoryLine(String oldStatus, String newStatus) {
+    return 'From $oldStatus to $newStatus';
+  }
+
+  @override
+  String tripChangedByLine(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String tripAuditTimelineHeader(String actor, String role, String dateTime) {
+    return '$actor ($role) - $dateTime';
+  }
+
+  @override
+  String tripAuditChangeLine(String label, String oldValue, String newValue) {
+    return '$label: from $oldValue to $newValue';
+  }
+
+  @override
+  String tripAuditDetailLine(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String tripDetailsTitleText(String name) {
+    return 'Trip details: $name';
+  }
+
+  @override
+  String tripUpdateStatusTitleText(String name) {
+    return 'Update trip status: $name';
+  }
+
+  @override
+  String get tripExpensePaidByCompany => 'Company';
+
+  @override
+  String get tripExpensePaidByDriverAdvance => 'Driver advance';
+
+  @override
+  String get tripExpensePaidByDriverCash => 'Driver cash';
+
+  @override
+  String get tripExpensePaidByCustomer => 'Customer';
+
+  @override
+  String get tripExpensePaidByOther => 'Other';
+
+  @override
+  String get tripExpenseTypeFuel => 'Fuel';
+
+  @override
+  String get tripExpenseTypeRoadFees => 'Road fees';
+
+  @override
+  String get tripExpenseTypeWeighbridge => 'Weighbridge';
+
+  @override
+  String get tripExpenseTypeLoading => 'Loading';
+
+  @override
+  String get tripExpenseTypeUnloading => 'Unloading';
+
+  @override
+  String get tripExpenseTypeFines => 'Fines';
+
+  @override
+  String get tripExpenseTypeEmergencyMaintenance => 'Emergency maintenance';
+
+  @override
+  String get tripExpenseTypeDriverAdvance => 'Driver advance';
+
+  @override
+  String get tripExpenseTypeOther => 'Other';
+
+  @override
+  String get tripAuditActionCreated => 'Created';
+
+  @override
+  String get tripAuditActionUpdated => 'Updated';
+
+  @override
+  String get tripAuditActionStatusChanged => 'Status changed';
+
+  @override
+  String get tripAuditActionDeactivated => 'Deactivated';
+
+  @override
+  String get tripAuditActionReactivated => 'Reactivated';
+
+  @override
+  String get tripAuditRoleOwner => 'Owner';
+
+  @override
+  String get tripAuditRoleAdmin => 'Admin';
+
+  @override
+  String get tripAuditRoleOperations => 'Operations';
+
+  @override
+  String get tripAuditRoleAccountant => 'Accountant';
+
+  @override
+  String get tripAuditRoleViewer => 'Viewer';
+
+  @override
+  String get tripAuditRoleDriver => 'Driver';
+
+  @override
+  String get tripAuditFieldExpenseId => 'Expense id';
+
+  @override
+  String get tripAuditFieldTractorPlate => 'Tractor plate';
+
+  @override
+  String get tripAuditFieldTrailerPlate => 'Trailer plate';
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../cubit/trips_state.dart';
-import '../localization/trips_localizations_x.dart';
 import 'trip_details_helpers.dart';
 import 'trip_details_shared_widgets.dart';
 

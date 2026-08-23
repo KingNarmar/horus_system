@@ -4,7 +4,6 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_state.dart';
-import '../localization/trips_localizations_x.dart';
 import 'trip_accountability_section.dart';
 import 'trip_activity_timeline_section.dart';
 import 'trip_basic_info_section.dart';
