@@ -43,4 +43,11 @@ abstract final class AppRoutes {
     settings,
     companyUsers,
   };
+
+  static const Set<String> knownRoutes = {
+    root,
+    ...publicRoutes,
+    ...authenticatedRoutes,
+    ...companyRequiredRoutes,
+  };
 }
