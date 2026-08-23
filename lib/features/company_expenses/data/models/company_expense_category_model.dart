@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/company_expense_db_fields.dart';
+
 class CompanyExpenseCategoryModel {
   final String id;
   final String companyId;
@@ -19,17 +22,17 @@ class CompanyExpenseCategoryModel {
 
   factory CompanyExpenseCategoryModel.fromMap(Map<String, dynamic> map) {
     return CompanyExpenseCategoryModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      name: map['name'] as String,
-      code: map['code'] as String?,
-      isActive: map['is_active'] as bool? ?? true,
-      createdAt: map['created_at'] == null
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
+      name: map[CompanyExpenseCategoryDbFields.name] as String,
+      code: map[CompanyExpenseCategoryDbFields.code] as String?,
+      isActive: map[DbCommonFields.isActive] as bool? ?? true,
+      createdAt: map[DbCommonFields.createdAt] == null
           ? null
-          : DateTime.tryParse(map['created_at'].toString()),
-      updatedAt: map['updated_at'] == null
+          : DateTime.tryParse(map[DbCommonFields.createdAt].toString()),
+      updatedAt: map[DbCommonFields.updatedAt] == null
           ? null
-          : DateTime.tryParse(map['updated_at'].toString()),
+          : DateTime.tryParse(map[DbCommonFields.updatedAt].toString()),
     );
   }
 }
