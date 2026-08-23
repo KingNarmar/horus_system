@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('TripExpensesRepositoryImpl', () {
-    test('adds expense, recalculates total, then writes audit', () async {
+    test('adds expense, reads DB-owned total, then writes audit', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         operations: operations,
@@ -36,9 +36,9 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, _expenseId);
-      expect(operations, ['add_expense', 'recalculate', 'audit']);
-      expect(remoteDataSource.lastRecalculateCompanyId, _companyId);
-      expect(remoteDataSource.lastRecalculateTripId, _tripId);
+      expect(operations, ['add_expense', 'read_total', 'audit']);
+      expect(remoteDataSource.lastTotalReadCompanyId, _companyId);
+      expect(remoteDataSource.lastTotalReadTripId, _tripId);
       expect(auditRepository.logs.single.description, 'trip_expense_created');
       expect(
         auditRepository.logs.single.metadata?['trip_total_expenses'],
@@ -46,7 +46,7 @@ void main() {
       );
     });
 
-    test('does not recalculate or audit when mutation fails', () async {
+    test('does not read total or audit when mutation fails', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         operations: operations,
@@ -69,11 +69,11 @@ void main() {
       expect(auditRepository.logs, isEmpty);
     });
 
-    test('does not write audit when recalculation fails', () async {
+    test('does not write audit when persisted total read fails', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         operations: operations,
-        recalculateError: Exception('recalculation failed'),
+        totalReadError: Exception('total read failed'),
       );
       final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = TripExpensesRepositoryImpl(
@@ -88,11 +88,11 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(operations, ['add_expense', 'recalculate']);
+      expect(operations, ['add_expense', 'read_total']);
       expect(auditRepository.logs, isEmpty);
     });
 
-    test('propagates audit failure after mutation and recalculation', () async {
+    test('propagates audit failure after mutation and total read', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         operations: operations,
@@ -113,42 +113,49 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(operations, ['add_expense', 'recalculate', 'audit']);
+      expect(operations, ['add_expense', 'read_total', 'audit']);
     });
 
-    test('updates after old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeTripExpensesRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = TripExpensesRepositoryImpl(
-        remoteDataSource: remoteDataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
-      );
+    test(
+      'updates after old snapshot lookup and audits persisted total last',
+      () async {
+        final operations = <String>[];
+        final remoteDataSource = _FakeTripExpensesRemoteDataSource(
+          operations: operations,
+        );
+        final auditRepository = _FakeAuditLogRepository(operations: operations);
+        final repository = TripExpensesRepositoryImpl(
+          remoteDataSource: remoteDataSource,
+          createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
+        );
 
-      final result = await repository.updateTripExpense(
-        id: _expenseId,
-        data: _writeData(amount: 175),
-        actorRole: 'accountant',
-      );
+        final result = await repository.updateTripExpense(
+          id: _expenseId,
+          data: _writeData(amount: 175),
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.amount, 175);
-      expect(operations, [
-        'get_expenses',
-        'update_expense',
-        'recalculate',
-        'audit',
-      ]);
-      expect(remoteDataSource.lastListCompanyId, _companyId);
-      expect(remoteDataSource.lastListTripId, _tripId);
-      expect(remoteDataSource.lastRecalculateCompanyId, _companyId);
-      expect(remoteDataSource.lastRecalculateTripId, _tripId);
-      expect(auditRepository.logs.single.description, 'trip_expense_updated');
-      expect(auditRepository.logs.single.oldValues?['amount'], 100);
-      expect(auditRepository.logs.single.newValues?['amount'], 175);
-    });
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.amount, 175);
+        expect(operations, [
+          'get_expenses',
+          'update_expense',
+          'read_total',
+          'audit',
+        ]);
+        expect(remoteDataSource.lastListCompanyId, _companyId);
+        expect(remoteDataSource.lastListTripId, _tripId);
+        expect(remoteDataSource.lastTotalReadCompanyId, _companyId);
+        expect(remoteDataSource.lastTotalReadTripId, _tripId);
+        expect(auditRepository.logs.single.description, 'trip_expense_updated');
+        expect(auditRepository.logs.single.oldValues?['amount'], 100);
+        expect(auditRepository.logs.single.newValues?['amount'], 175);
+        expect(
+          auditRepository.logs.single.metadata?['trip_total_expenses'],
+          _tripTotal,
+        );
+      },
+    );
 
     test('forwards company and trip scope when loading expenses', () async {
       final remoteDataSource = _FakeTripExpensesRemoteDataSource();
@@ -207,16 +214,16 @@ class _FakeTripExpensesRemoteDataSource
     implements TripExpensesRemoteDataSource {
   final List<String>? operations;
   final Object? addError;
-  final Object? recalculateError;
+  final Object? totalReadError;
   String? lastListCompanyId;
   String? lastListTripId;
-  String? lastRecalculateCompanyId;
-  String? lastRecalculateTripId;
+  String? lastTotalReadCompanyId;
+  String? lastTotalReadTripId;
 
   _FakeTripExpensesRemoteDataSource({
     this.operations,
     this.addError,
-    this.recalculateError,
+    this.totalReadError,
   });
 
   @override
@@ -256,14 +263,14 @@ class _FakeTripExpensesRemoteDataSource
   }
 
   @override
-  Future<double> recalculateTripTotalExpenses({
+  Future<double> getTripTotalExpenses({
     required String companyId,
     required String tripId,
   }) async {
-    operations?.add('recalculate');
-    lastRecalculateCompanyId = companyId;
-    lastRecalculateTripId = tripId;
-    if (recalculateError != null) throw recalculateError!;
+    operations?.add('read_total');
+    lastTotalReadCompanyId = companyId;
+    lastTotalReadTripId = tripId;
+    if (totalReadError != null) throw totalReadError!;
     return _tripTotal;
   }
 }

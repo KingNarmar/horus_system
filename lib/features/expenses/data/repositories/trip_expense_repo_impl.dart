@@ -59,7 +59,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTripExpense(data: data);
-      final total = await remoteDataSource.recalculateTripTotalExpenses(
+      final total = await remoteDataSource.getTripTotalExpenses(
         companyId: data.companyId,
         tripId: data.tripId,
       );
@@ -94,7 +94,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         id: id,
         data: data,
       );
-      final total = await remoteDataSource.recalculateTripTotalExpenses(
+      final total = await remoteDataSource.getTripTotalExpenses(
         companyId: data.companyId,
         tripId: data.tripId,
       );

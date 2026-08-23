@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
-import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/expense_type_option.dart';
 import '../../domain/entities/trip_expense_write_data.dart';
 import '../constants/trip_expense_db_fields.dart';
@@ -23,7 +22,7 @@ abstract class TripExpensesRemoteDataSource {
     required TripExpenseWriteData data,
   });
 
-  Future<double> recalculateTripTotalExpenses({
+  Future<double> getTripTotalExpenses({
     required String companyId,
     required String tripId,
   });
@@ -109,35 +108,21 @@ class SupabaseTripExpensesRemoteDataSource
   }
 
   @override
-  Future<double> recalculateTripTotalExpenses({
+  Future<double> getTripTotalExpenses({
     required String companyId,
     required String tripId,
   }) async {
-    final rows = await client
-        .from(TripExpenseDbFields.tableName)
-        .select(TripExpenseDbFields.amount)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(TripExpenseDbFields.tripId, tripId);
-
-    var total = 0.0;
-    for (final row in rows) {
-      final amount = Map<String, dynamic>.from(row)[TripExpenseDbFields.amount];
-      if (amount is num) {
-        total += amount.toDouble();
-      } else {
-        total += double.tryParse(amount.toString()) ?? 0;
-      }
-    }
-
-    await client
+    final row = await client
         .from(TripExpenseLinkedTripDbFields.tableName)
-        .update({
-          TripExpenseLinkedTripDbFields.totalExpenses: total,
-          DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-        })
+        .select(TripExpenseLinkedTripDbFields.totalExpenses)
         .eq(DbCommonFields.companyId, companyId)
-        .eq(DbCommonFields.id, tripId);
+        .eq(DbCommonFields.id, tripId)
+        .single();
 
-    return total;
+    final total = Map<String, dynamic>.from(
+      row,
+    )[TripExpenseLinkedTripDbFields.totalExpenses];
+    if (total is num) return total.toDouble();
+    return double.tryParse(total.toString()) ?? 0;
   }
 }
