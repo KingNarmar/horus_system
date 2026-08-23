@@ -69,6 +69,29 @@ void main() {
       },
     );
 
+    test('preserves nullable void fields for active expenses', () {
+      final model = CompanyExpenseModel.fromMap({
+        'id': 'expense-2',
+        'company_id': 'company-1',
+        'category_id': 'category-1',
+        'amount': 50,
+        'expense_date': '2026-08-22',
+        'is_voided': false,
+        'voided_at': null,
+        'voided_by': null,
+        'void_reason': null,
+        'created_at': null,
+        'updated_at': null,
+      });
+
+      expect(model.isVoided, isFalse);
+      expect(model.voidedAt, isNull);
+      expect(model.voidedBy, isNull);
+      expect(model.voidReason, isNull);
+      expect(model.createdAt, isNull);
+      expect(model.updatedAt, isNull);
+    });
+
     test('maps model to the Domain entity without changing values', () {
       final expenseDate = DateTime.utc(2026, 8, 20);
       final model = CompanyExpenseModel(
