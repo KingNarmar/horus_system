@@ -3,48 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../domain/entities/company_expense_void_data.dart';
 import '../../domain/entities/company_expense_write_data.dart';
+import '../constants/company_expense_db_fields.dart';
 import '../mappers/company_expense_mapper.dart';
 import '../models/company_expense_category_model.dart';
 import '../models/company_expense_form_lookups_model.dart';
 import '../models/company_expense_link_option_model.dart';
 import '../models/company_expense_model.dart';
-
-const _companyExpenseCategoriesTable = 'company_expense_categories';
-const _companyExpensesTable = 'company_expenses';
-const _driversTable = 'drivers';
-const _tractorHeadsTable = 'tractor_heads';
-const _trailersTable = 'trailers';
-const _tripsTable = 'trips';
-
-const _companyExpenseCategoryColumns = '''
-id,
-company_id,
-name,
-code,
-is_active,
-created_at,
-updated_at
-''';
-
-const _companyExpenseColumns = '''
-id,
-company_id,
-category_id,
-driver_id,
-tractor_head_id,
-trailer_id,
-trip_id,
-amount,
-expense_date,
-reference_number,
-notes,
-is_voided,
-voided_at,
-voided_by,
-void_reason,
-created_at,
-updated_at
-''';
 
 abstract class CompanyExpensesRemoteDataSource {
   Future<List<CompanyExpenseCategoryModel>> getCategories({
@@ -92,15 +56,15 @@ class SupabaseCompanyExpensesRemoteDataSource
     required bool includeInactive,
   }) async {
     var query = client
-        .from(_companyExpenseCategoriesTable)
-        .select(_companyExpenseCategoryColumns)
+        .from(CompanyExpenseCategoryDbFields.tableName)
+        .select(CompanyExpenseCategoryDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId);
 
     if (!includeInactive) {
       query = query.eq(DbCommonFields.isActive, true);
     }
 
-    final rows = await query.order('name');
+    final rows = await query.order(CompanyExpenseCategoryDbFields.name);
     return rows
         .map(
           (row) => CompanyExpenseCategoryModel.fromMap(
@@ -116,16 +80,16 @@ class SupabaseCompanyExpensesRemoteDataSource
     required bool includeVoided,
   }) async {
     var query = client
-        .from(_companyExpensesTable)
-        .select(_companyExpenseColumns)
+        .from(CompanyExpenseDbFields.tableName)
+        .select(CompanyExpenseDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId);
 
     if (!includeVoided) {
-      query = query.eq('is_voided', false);
+      query = query.eq(CompanyExpenseDbFields.isVoided, false);
     }
 
     final rows = await query
-        .order('expense_date', ascending: false)
+        .order(CompanyExpenseDbFields.expenseDate, ascending: false)
         .order(DbCommonFields.createdAt, ascending: false);
 
     return rows
@@ -141,22 +105,22 @@ class SupabaseCompanyExpensesRemoteDataSource
   }) async {
     final results = await Future.wait<List<CompanyExpenseLinkOptionModel>>([
       _getActiveLookupOptions(
-        tableName: _driversTable,
+        tableName: CompanyExpenseLookupDbFields.driversTableName,
         companyId: companyId,
-        labelFields: const ['full_name'],
-        orderColumn: 'full_name',
+        labelFields: const [CompanyExpenseLookupDbFields.fullName],
+        orderColumn: CompanyExpenseLookupDbFields.fullName,
       ),
       _getActiveLookupOptions(
-        tableName: _tractorHeadsTable,
+        tableName: CompanyExpenseLookupDbFields.tractorHeadsTableName,
         companyId: companyId,
-        labelFields: const ['plate_number'],
-        orderColumn: 'plate_number',
+        labelFields: const [CompanyExpenseLookupDbFields.plateNumber],
+        orderColumn: CompanyExpenseLookupDbFields.plateNumber,
       ),
       _getActiveLookupOptions(
-        tableName: _trailersTable,
+        tableName: CompanyExpenseLookupDbFields.trailersTableName,
         companyId: companyId,
-        labelFields: const ['plate_number'],
-        orderColumn: 'plate_number',
+        labelFields: const [CompanyExpenseLookupDbFields.plateNumber],
+        orderColumn: CompanyExpenseLookupDbFields.plateNumber,
       ),
       _getTripLookupOptions(companyId: companyId),
     ]);
@@ -175,8 +139,8 @@ class SupabaseCompanyExpensesRemoteDataSource
     required String id,
   }) async {
     final row = await client
-        .from(_companyExpensesTable)
-        .select(_companyExpenseColumns)
+        .from(CompanyExpenseDbFields.tableName)
+        .select(CompanyExpenseDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DbCommonFields.id, id)
         .single();
@@ -189,9 +153,9 @@ class SupabaseCompanyExpensesRemoteDataSource
     required CompanyExpenseWriteData data,
   }) async {
     final row = await client
-        .from(_companyExpensesTable)
+        .from(CompanyExpenseDbFields.tableName)
         .insert(data.toInsertMap())
-        .select(_companyExpenseColumns)
+        .select(CompanyExpenseDbFields.allColumns)
         .single();
 
     return CompanyExpenseModel.fromMap(Map<String, dynamic>.from(row));
@@ -205,15 +169,15 @@ class SupabaseCompanyExpensesRemoteDataSource
     final updateMap = data.toUpdateMap();
     final actorUserId = client.auth.currentUser?.id;
     if (actorUserId != null) {
-      updateMap['updated_by'] = actorUserId;
+      updateMap[DbCommonFields.updatedBy] = actorUserId;
     }
 
     final row = await client
-        .from(_companyExpensesTable)
+        .from(CompanyExpenseDbFields.tableName)
         .update(updateMap)
         .eq(DbCommonFields.companyId, data.companyId)
         .eq(DbCommonFields.id, id)
-        .select(_companyExpenseColumns)
+        .select(CompanyExpenseDbFields.allColumns)
         .single();
 
     return CompanyExpenseModel.fromMap(Map<String, dynamic>.from(row));
@@ -225,11 +189,11 @@ class SupabaseCompanyExpensesRemoteDataSource
   }) async {
     final actorUserId = client.auth.currentUser?.id;
     final row = await client
-        .from(_companyExpensesTable)
+        .from(CompanyExpenseDbFields.tableName)
         .update(data.toVoidMap(actorUserId: actorUserId))
         .eq(DbCommonFields.companyId, data.companyId)
         .eq(DbCommonFields.id, data.expenseId)
-        .select(_companyExpenseColumns)
+        .select(CompanyExpenseDbFields.allColumns)
         .single();
 
     return CompanyExpenseModel.fromMap(Map<String, dynamic>.from(row));
@@ -241,7 +205,7 @@ class SupabaseCompanyExpensesRemoteDataSource
     required List<String> labelFields,
     required String orderColumn,
   }) async {
-    final columns = ['id', ...labelFields].join(', ');
+    final columns = [DbCommonFields.id, ...labelFields].join(', ');
     final rows = await client
         .from(tableName)
         .select(columns)
@@ -263,8 +227,8 @@ class SupabaseCompanyExpensesRemoteDataSource
     required String companyId,
   }) async {
     final rows = await client
-        .from(_tripsTable)
-        .select('id, loading_order_number, waybill_number, created_at')
+        .from(CompanyExpenseLookupDbFields.tripsTableName)
+        .select(CompanyExpenseLookupDbFields.tripColumns)
         .eq(DbCommonFields.companyId, companyId)
         .order(DbCommonFields.createdAt, ascending: false);
 
@@ -272,7 +236,10 @@ class SupabaseCompanyExpensesRemoteDataSource
         .map(
           (row) => _lookupOptionFromRow(
             Map<String, dynamic>.from(row),
-            labelFields: const ['loading_order_number', 'waybill_number'],
+            labelFields: const [
+              CompanyExpenseLookupDbFields.loadingOrderNumber,
+              CompanyExpenseLookupDbFields.waybillNumber,
+            ],
           ),
         )
         .toList();
