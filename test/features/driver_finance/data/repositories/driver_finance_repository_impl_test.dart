@@ -230,7 +230,6 @@ class _FakeDriverFinanceRemoteDataSource
   final List<DriverFinancialMovementModel> movements;
   final List<DriverFinanceTripOptionModel> tripOptions;
   final DriverFinancialMovementModel? addedMovement;
-  final Object? movementReadError;
   final Object? tripOptionReadError;
   final Object? addError;
 
@@ -245,7 +244,6 @@ class _FakeDriverFinanceRemoteDataSource
     this.movements = const [],
     this.tripOptions = const [],
     this.addedMovement,
-    this.movementReadError,
     this.tripOptionReadError,
     this.addError,
   });
@@ -257,7 +255,6 @@ class _FakeDriverFinanceRemoteDataSource
   }) async {
     lastMovementCompanyId = companyId;
     lastMovementDriverId = driverId;
-    if (movementReadError != null) throw movementReadError!;
     return movements;
   }
 
