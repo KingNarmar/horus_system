@@ -12,17 +12,20 @@ import 'package:test/test.dart';
 
 void main() {
   group('LoginUseCase', () {
-    test('rejects empty or whitespace email with stable failure code', () async {
-      final repository = _FakeAuthRepository();
-      final useCase = LoginUseCase(repository);
+    test(
+      'rejects empty or whitespace email with stable failure code',
+      () async {
+        final repository = _FakeAuthRepository();
+        final useCase = LoginUseCase(repository);
 
-      final result = await useCase(
-        const LoginParams(email: '   ', password: 'secret'),
-      );
+        final result = await useCase(
+          const LoginParams(email: '   ', password: 'secret'),
+        );
 
-      expect(result.failureOrNull?.code, FailureCodes.authEmailRequired);
-      expect(repository.loginCalls, 0);
-    });
+        expect(result.failureOrNull?.code, FailureCodes.authEmailRequired);
+        expect(repository.loginCalls, 0);
+      },
+    );
 
     test('rejects empty password with stable failure code', () async {
       final repository = _FakeAuthRepository();
@@ -36,20 +39,23 @@ void main() {
       expect(repository.loginCalls, 0);
     });
 
-    test('trims email, delegates once, and preserves repository result', () async {
-      final expected = Success<AuthUser>(_user);
-      final repository = _FakeAuthRepository(loginResult: expected);
-      final useCase = LoginUseCase(repository);
+    test(
+      'trims email, delegates once, and preserves repository result',
+      () async {
+        final expected = Success<AuthUser>(_user);
+        final repository = _FakeAuthRepository(loginResult: expected);
+        final useCase = LoginUseCase(repository);
 
-      final result = await useCase(
-        const LoginParams(email: '  user@example.com  ', password: 'secret'),
-      );
+        final result = await useCase(
+          const LoginParams(email: '  user@example.com  ', password: 'secret'),
+        );
 
-      expect(result, same(expected));
-      expect(repository.loginCalls, 1);
-      expect(repository.lastLoginEmail, 'user@example.com');
-      expect(repository.lastLoginPassword, 'secret');
-    });
+        expect(result, same(expected));
+        expect(repository.loginCalls, 1);
+        expect(repository.lastLoginEmail, 'user@example.com');
+        expect(repository.lastLoginPassword, 'secret');
+      },
+    );
   });
 
   group('RegisterUseCase', () {
@@ -195,8 +201,7 @@ class _FakeAuthRepository implements AuthRepository {
   }) : registerResult = registerResult ?? const Success<AuthUser>(_user),
        loginResult = loginResult ?? const Success<AuthUser>(_user),
        logoutResult = logoutResult ?? const Success<void>(null),
-       currentUserResult =
-           currentUserResult ?? const Success<AuthUser?>(_user);
+       currentUserResult = currentUserResult ?? const Success<AuthUser?>(_user);
 
   Result<AuthUser> registerResult;
   Result<AuthUser> loginResult;

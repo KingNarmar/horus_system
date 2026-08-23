@@ -299,10 +299,9 @@ void main() {
     });
 
     test('new features include a matching test directory', () {
-      final featureDirectories = Directory('lib/features')
-          .listSync()
-          .whereType<Directory>()
-          .map(_normalizedDirectoryPath);
+      final featureDirectories = Directory(
+        'lib/features',
+      ).listSync().whereType<Directory>().map(_normalizedDirectoryPath);
 
       for (final featurePath in featureDirectories) {
         final featureName = featurePath.split('/').last;

@@ -88,10 +88,7 @@ void main() {
 
     test('AuthException maps to AuthFailure with status code', () async {
       final dataSource = _FakeAuthRemoteDataSource(
-        loginError: AuthException(
-          'Invalid credentials',
-          statusCode: '401',
-        ),
+        loginError: AuthException('Invalid credentials', statusCode: '401'),
       );
       final repository = AuthRepositoryImpl(dataSource);
 
@@ -105,22 +102,25 @@ void main() {
       expect(result.failureOrNull?.message, 'Invalid credentials');
     });
 
-    test('AuthException without status code uses existing fallback code', () async {
-      final dataSource = _FakeAuthRemoteDataSource(
-        registerError: const AuthException('Registration failed'),
-      );
-      final repository = AuthRepositoryImpl(dataSource);
+    test(
+      'AuthException without status code uses existing fallback code',
+      () async {
+        final dataSource = _FakeAuthRemoteDataSource(
+          registerError: const AuthException('Registration failed'),
+        );
+        final repository = AuthRepositoryImpl(dataSource);
 
-      final result = await repository.register(
-        fullName: 'Mina Adly',
-        phone: '0500000000',
-        email: 'user@example.com',
-        password: 'secret',
-      );
+        final result = await repository.register(
+          fullName: 'Mina Adly',
+          phone: '0500000000',
+          email: 'user@example.com',
+          password: 'secret',
+        );
 
-      expect(result.failureOrNull, isA<AuthFailure>());
-      expect(result.failureOrNull?.code, 'auth_error');
-    });
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.code, 'auth_error');
+      },
+    );
 
     test('unexpected exceptions map to UnexpectedFailure', () async {
       final dataSource = _FakeAuthRemoteDataSource(
