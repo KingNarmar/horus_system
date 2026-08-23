@@ -65,14 +65,17 @@ void main() {
       expect(model.updatedAt, isNull);
     });
 
-    test('defaults active state to true when the persistence key is absent', () {
-      final map = _persistenceMap();
-      map.remove('is_active');
+    test(
+      'defaults active state to true when the persistence key is absent',
+      () {
+        final map = _persistenceMap();
+        map.remove('is_active');
 
-      final model = RouteModel.fromMap(map);
+        final model = RouteModel.fromMap(map);
 
-      expect(model.isActive, isTrue);
-    });
+        expect(model.isActive, isTrue);
+      },
+    );
   });
 }
 
