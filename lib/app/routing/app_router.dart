@@ -11,6 +11,16 @@ import 'app_route_guards.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
+  static List<Route<dynamic>> onGenerateInitialRoutes(String initialRouteName) {
+    final startupRouteName = AppRoutes.knownRoutes.contains(initialRouteName)
+        ? initialRouteName
+        : AppRoutes.root;
+
+    return [
+      onGenerateRoute(RouteSettings(name: startupRouteName)),
+    ];
+  }
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute<void>(
       settings: settings,
