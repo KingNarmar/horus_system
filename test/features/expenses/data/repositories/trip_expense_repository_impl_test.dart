@@ -116,43 +116,46 @@ void main() {
       expect(operations, ['add_expense', 'read_total', 'audit']);
     });
 
-    test('updates after old snapshot lookup and audits persisted total last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeTripExpensesRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = TripExpensesRepositoryImpl(
-        remoteDataSource: remoteDataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
-      );
+    test(
+      'updates after old snapshot lookup and audits persisted total last',
+      () async {
+        final operations = <String>[];
+        final remoteDataSource = _FakeTripExpensesRemoteDataSource(
+          operations: operations,
+        );
+        final auditRepository = _FakeAuditLogRepository(operations: operations);
+        final repository = TripExpensesRepositoryImpl(
+          remoteDataSource: remoteDataSource,
+          createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
+        );
 
-      final result = await repository.updateTripExpense(
-        id: _expenseId,
-        data: _writeData(amount: 175),
-        actorRole: 'accountant',
-      );
+        final result = await repository.updateTripExpense(
+          id: _expenseId,
+          data: _writeData(amount: 175),
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.amount, 175);
-      expect(operations, [
-        'get_expenses',
-        'update_expense',
-        'read_total',
-        'audit',
-      ]);
-      expect(remoteDataSource.lastListCompanyId, _companyId);
-      expect(remoteDataSource.lastListTripId, _tripId);
-      expect(remoteDataSource.lastTotalReadCompanyId, _companyId);
-      expect(remoteDataSource.lastTotalReadTripId, _tripId);
-      expect(auditRepository.logs.single.description, 'trip_expense_updated');
-      expect(auditRepository.logs.single.oldValues?['amount'], 100);
-      expect(auditRepository.logs.single.newValues?['amount'], 175);
-      expect(
-        auditRepository.logs.single.metadata?['trip_total_expenses'],
-        _tripTotal,
-      );
-    });
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.amount, 175);
+        expect(operations, [
+          'get_expenses',
+          'update_expense',
+          'read_total',
+          'audit',
+        ]);
+        expect(remoteDataSource.lastListCompanyId, _companyId);
+        expect(remoteDataSource.lastListTripId, _tripId);
+        expect(remoteDataSource.lastTotalReadCompanyId, _companyId);
+        expect(remoteDataSource.lastTotalReadTripId, _tripId);
+        expect(auditRepository.logs.single.description, 'trip_expense_updated');
+        expect(auditRepository.logs.single.oldValues?['amount'], 100);
+        expect(auditRepository.logs.single.newValues?['amount'], 175);
+        expect(
+          auditRepository.logs.single.metadata?['trip_total_expenses'],
+          _tripTotal,
+        );
+      },
+    );
 
     test('forwards company and trip scope when loading expenses', () async {
       final remoteDataSource = _FakeTripExpensesRemoteDataSource();
