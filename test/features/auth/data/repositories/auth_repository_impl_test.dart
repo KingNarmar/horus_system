@@ -19,7 +19,7 @@ void main() {
         password: 'secret',
       );
 
-      expect(result, isA<Success>());
+      expect(result, isA<Success<AuthUser>>());
       final user = result.dataOrNull;
       expect(user?.id, _model.id);
       expect(user?.email, _model.email);
@@ -68,7 +68,7 @@ void main() {
 
       final result = await repository.getCurrentUser();
 
-      expect(result, isA<Success>());
+      expect(result, isA<Success<AuthUser?>>());
       expect(result.dataOrNull, isNull);
     });
 
