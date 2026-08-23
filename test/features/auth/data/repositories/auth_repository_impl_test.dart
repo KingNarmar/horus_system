@@ -3,6 +3,7 @@ import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:horus_system/features/auth/data/models/auth_user_model.dart';
 import 'package:horus_system/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:horus_system/features/auth/domain/entities/auth_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 import 'package:test/test.dart';
 
