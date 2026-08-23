@@ -16,9 +16,7 @@ abstract final class AppRouter {
         ? initialRouteName
         : AppRoutes.root;
 
-    return [
-      onGenerateRoute(RouteSettings(name: startupRouteName)),
-    ];
+    return [onGenerateRoute(RouteSettings(name: startupRouteName))];
   }
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {

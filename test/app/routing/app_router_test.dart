@@ -12,7 +12,9 @@ import 'package:horus_system/features/company/domain/entities/current_company_co
 
 void main() {
   group('AppRouter startup routes', () {
-    testWidgets('keeps default startup on the guarded root flow', (tester) async {
+    testWidgets('keeps default startup on the guarded root flow', (
+      tester,
+    ) async {
       final page = await _startupPage(tester, AppRoutes.root);
 
       expect(page, isA<AuthGate>());
@@ -64,9 +66,7 @@ Future<Widget> _startupPage(
   String startupRouteName,
 ) async {
   const hostKey = ValueKey('route-test-host');
-  await tester.pumpWidget(
-    const MaterialApp(home: SizedBox(key: hostKey)),
-  );
+  await tester.pumpWidget(const MaterialApp(home: SizedBox(key: hostKey)));
 
   final routes = AppRouter.onGenerateInitialRoutes(startupRouteName);
   expect(routes, hasLength(1));
