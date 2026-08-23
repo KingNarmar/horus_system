@@ -2665,6 +2665,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile details not set yet'**
   String get profileDetailsNotSetYet;
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsReportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportsReportLabel;
+
+  /// No description provided for @reportsFromDate.
+  ///
+  /// In en, this message translates to:
+  /// **'From date'**
+  String get reportsFromDate;
+
+  /// No description provided for @reportsToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'To date'**
+  String get reportsToDate;
+
+  /// No description provided for @reportsSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get reportsSelectDate;
+
+  /// No description provided for @reportsApplyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get reportsApplyFilters;
+
+  /// No description provided for @reportsClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear dates'**
+  String get reportsClearFilters;
+
+  /// No description provided for @reportsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading report...'**
+  String get reportsLoading;
+
+  /// No description provided for @reportsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get reportsRetry;
+
+  /// No description provided for @reportsNoRows.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for the selected period.'**
+  String get reportsNoRows;
+
+  /// No description provided for @reportsNoAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports are available for this role.'**
+  String get reportsNoAccess;
+
+  /// No description provided for @reportsUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get reportsUnassigned;
+
+  /// No description provided for @reportsAllDates.
+  ///
+  /// In en, this message translates to:
+  /// **'All dates'**
+  String get reportsAllDates;
+
+  /// No description provided for @reportsNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get reportsNotAvailable;
+
+  /// No description provided for @reportsTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get reportsTrip;
+
+  /// No description provided for @reportsDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get reportsDate;
+
+  /// No description provided for @reportsCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get reportsCustomer;
+
+  /// No description provided for @reportsDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get reportsDriver;
+
+  /// No description provided for @reportsTractorHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Tractor head'**
+  String get reportsTractorHead;
+
+  /// No description provided for @reportsTrailer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailer'**
+  String get reportsTrailer;
+
+  /// No description provided for @reportsRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get reportsRoute;
+
+  /// No description provided for @reportsStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get reportsStatus;
+
+  /// No description provided for @reportsTripsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get reportsTripsCount;
+
+  /// No description provided for @reportsLoadingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading order'**
+  String get reportsLoadingOrder;
+
+  /// No description provided for @reportsWaybill.
+  ///
+  /// In en, this message translates to:
+  /// **'Waybill'**
+  String get reportsWaybill;
+
+  /// No description provided for @reportsExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get reportsExpense;
+
+  /// No description provided for @reportsPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get reportsPaidBy;
+
+  /// No description provided for @reportsAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get reportsAmount;
+
+  /// No description provided for @reportsTotalExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expenses'**
+  String get reportsTotalExpenses;
+
+  /// No description provided for @reportsFreight.
+  ///
+  /// In en, this message translates to:
+  /// **'Freight'**
+  String get reportsFreight;
+
+  /// No description provided for @reportsNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get reportsNetProfit;
+
+  /// No description provided for @reportsTotalFreight.
+  ///
+  /// In en, this message translates to:
+  /// **'Total freight'**
+  String get reportsTotalFreight;
+
+  /// No description provided for @reportsTotalNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total net profit'**
+  String get reportsTotalNetProfit;
+
+  /// No description provided for @reportsInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get reportsInvoice;
+
+  /// No description provided for @reportsIssueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue date'**
+  String get reportsIssueDate;
+
+  /// No description provided for @reportsDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get reportsDueDate;
+
+  /// No description provided for @reportsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get reportsTotal;
+
+  /// No description provided for @reportsPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get reportsPaid;
+
+  /// No description provided for @reportsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get reportsRemaining;
+
+  /// No description provided for @reportsTotalOutstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Total outstanding'**
+  String get reportsTotalOutstanding;
+
+  /// No description provided for @reportsTypeDailyTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily trips'**
+  String get reportsTypeDailyTrips;
+
+  /// No description provided for @reportsTypeTripsByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips by customer'**
+  String get reportsTypeTripsByCustomer;
+
+  /// No description provided for @reportsTypeTripsByDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips by driver'**
+  String get reportsTypeTripsByDriver;
+
+  /// No description provided for @reportsTypeTripsByTractorHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips by tractor head'**
+  String get reportsTypeTripsByTractorHead;
+
+  /// No description provided for @reportsTypeTripsByTrailer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips by trailer'**
+  String get reportsTypeTripsByTrailer;
+
+  /// No description provided for @reportsTypeTripExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip expenses'**
+  String get reportsTypeTripExpenses;
+
+  /// No description provided for @reportsTypeTripNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip net profit'**
+  String get reportsTypeTripNetProfit;
+
+  /// No description provided for @reportsTypeOpenInvoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Open invoices'**
+  String get reportsTypeOpenInvoices;
+
+  /// No description provided for @reportsGroupTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} trips'**
+  String reportsGroupTrips(int count);
+
+  /// No description provided for @reportsDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Period: {from} — {to}'**
+  String reportsDateRange(String from, String to);
+
+  /// No description provided for @reportsPaidByCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get reportsPaidByCompany;
+
+  /// No description provided for @reportsPaidByDriverAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver advance'**
+  String get reportsPaidByDriverAdvance;
+
+  /// No description provided for @reportsPaidByDriverCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver cash'**
+  String get reportsPaidByDriverCash;
+
+  /// No description provided for @reportsPaidByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get reportsPaidByCustomer;
+
+  /// No description provided for @reportsPaidByOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get reportsPaidByOther;
+
+  /// No description provided for @reportsInvoiceStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get reportsInvoiceStatusDraft;
+
+  /// No description provided for @reportsInvoiceStatusIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get reportsInvoiceStatusIssued;
+
+  /// No description provided for @reportsInvoiceStatusPartiallyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Partially paid'**
+  String get reportsInvoiceStatusPartiallyPaid;
+
+  /// No description provided for @reportsInvoiceStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get reportsInvoiceStatusPaid;
+
+  /// No description provided for @reportsInvoiceStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get reportsInvoiceStatusCancelled;
+
+  /// No description provided for @reportsPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This role cannot view the selected report.'**
+  String get reportsPermissionFailure;
+
+  /// No description provided for @reportsInvalidDateRangeFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The from date cannot be after the to date.'**
+  String get reportsInvalidDateRangeFailure;
+
+  /// No description provided for @reportsRegionalSettingsFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure the company currency and business timezone first.'**
+  String get reportsRegionalSettingsFailure;
+
+  /// No description provided for @reportsCompanyNotFoundFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The current company could not be found.'**
+  String get reportsCompanyNotFoundFailure;
+
+  /// No description provided for @reportsSourceInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The report data is inconsistent. Reload and try again.'**
+  String get reportsSourceInvalidFailure;
+
+  /// No description provided for @reportsCurrencyMismatchFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Report financial data does not match the company currency.'**
+  String get reportsCurrencyMismatchFailure;
+
+  /// No description provided for @reportsFinancialDataInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Report financial data contains an invalid amount or balance.'**
+  String get reportsFinancialDataInvalidFailure;
+
+  /// No description provided for @reportsInvoiceBalanceInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'An invoice balance is inconsistent with its status and payments.'**
+  String get reportsInvoiceBalanceInvalidFailure;
+
+  /// No description provided for @reportsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The report could not be loaded.'**
+  String get reportsLoadFailed;
 }
 
 class _AppLocalizationsDelegate

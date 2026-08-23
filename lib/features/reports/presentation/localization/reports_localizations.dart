@@ -1,149 +1,113 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../cubit/report_type.dart';
 
 final class ReportsLocalizations {
-  final bool _isArabic;
+  final AppLocalizations _l10n;
 
-  const ReportsLocalizations._(this._isArabic);
+  const ReportsLocalizations(this._l10n);
 
-  factory ReportsLocalizations.forLocale(Locale locale) {
-    return ReportsLocalizations._(locale.languageCode == 'ar');
-  }
+  String get title => _l10n.reportsTitle;
+  String get reportLabel => _l10n.reportsReportLabel;
+  String get fromDate => _l10n.reportsFromDate;
+  String get toDate => _l10n.reportsToDate;
+  String get selectDate => _l10n.reportsSelectDate;
+  String get applyFilters => _l10n.reportsApplyFilters;
+  String get clearFilters => _l10n.reportsClearFilters;
+  String get loading => _l10n.reportsLoading;
+  String get retry => _l10n.reportsRetry;
+  String get noRows => _l10n.reportsNoRows;
+  String get noAccess => _l10n.reportsNoAccess;
+  String get unassigned => _l10n.reportsUnassigned;
+  String get allDates => _l10n.reportsAllDates;
+  String get notAvailable => _l10n.reportsNotAvailable;
 
-  String get title => _isArabic ? 'التقارير' : 'Reports';
-  String get reportLabel => _isArabic ? 'التقرير' : 'Report';
-  String get fromDate => _isArabic ? 'من تاريخ' : 'From date';
-  String get toDate => _isArabic ? 'إلى تاريخ' : 'To date';
-  String get selectDate => _isArabic ? 'اختر تاريخًا' : 'Select date';
-  String get applyFilters => _isArabic ? 'تطبيق' : 'Apply';
-  String get clearFilters => _isArabic ? 'مسح التواريخ' : 'Clear dates';
-  String get loading =>
-      _isArabic ? 'جاري تحميل التقرير...' : 'Loading report...';
-  String get retry => _isArabic ? 'إعادة المحاولة' : 'Retry';
-  String get noRows => _isArabic
-      ? 'لا توجد بيانات للفترة المحددة.'
-      : 'No data for the selected period.';
-  String get noAccess => _isArabic
-      ? 'لا توجد تقارير متاحة لهذا الدور.'
-      : 'No reports are available for this role.';
-  String get unassigned => _isArabic ? 'غير مسند' : 'Unassigned';
-  String get allDates => _isArabic ? 'كل التواريخ' : 'All dates';
-  String get notAvailable => _isArabic ? 'غير متاح' : 'Not available';
+  String get trip => _l10n.reportsTrip;
+  String get date => _l10n.reportsDate;
+  String get customer => _l10n.reportsCustomer;
+  String get driver => _l10n.reportsDriver;
+  String get tractorHead => _l10n.reportsTractorHead;
+  String get trailer => _l10n.reportsTrailer;
+  String get route => _l10n.reportsRoute;
+  String get status => _l10n.reportsStatus;
+  String get tripsCount => _l10n.reportsTripsCount;
+  String get loadingOrder => _l10n.reportsLoadingOrder;
+  String get waybill => _l10n.reportsWaybill;
 
-  String get trip => _isArabic ? 'الرحلة' : 'Trip';
-  String get date => _isArabic ? 'التاريخ' : 'Date';
-  String get customer => _isArabic ? 'العميل' : 'Customer';
-  String get driver => _isArabic ? 'السائق' : 'Driver';
-  String get tractorHead => _isArabic ? 'رأس الجرار' : 'Tractor head';
-  String get trailer => _isArabic ? 'المقطورة' : 'Trailer';
-  String get route => _isArabic ? 'المسار' : 'Route';
-  String get status => _isArabic ? 'الحالة' : 'Status';
-  String get tripsCount => _isArabic ? 'عدد الرحلات' : 'Trips';
-  String get loadingOrder => _isArabic ? 'أمر التحميل' : 'Loading order';
-  String get waybill => _isArabic ? 'البوليصة' : 'Waybill';
+  String get expense => _l10n.reportsExpense;
+  String get paidBy => _l10n.reportsPaidBy;
+  String get amount => _l10n.reportsAmount;
+  String get totalExpenses => _l10n.reportsTotalExpenses;
+  String get freight => _l10n.reportsFreight;
+  String get netProfit => _l10n.reportsNetProfit;
+  String get totalFreight => _l10n.reportsTotalFreight;
+  String get totalNetProfit => _l10n.reportsTotalNetProfit;
 
-  String get expense => _isArabic ? 'المصروف' : 'Expense';
-  String get paidBy => _isArabic ? 'الدافع' : 'Paid by';
-  String get amount => _isArabic ? 'المبلغ' : 'Amount';
-  String get totalExpenses => _isArabic ? 'إجمالي المصروفات' : 'Total expenses';
-  String get freight => _isArabic ? 'سعر النقل' : 'Freight';
-  String get netProfit => _isArabic ? 'صافي الربح' : 'Net profit';
-  String get totalFreight => _isArabic ? 'إجمالي النقل' : 'Total freight';
-  String get totalNetProfit =>
-      _isArabic ? 'إجمالي صافي الربح' : 'Total net profit';
-
-  String get invoice => _isArabic ? 'الفاتورة' : 'Invoice';
-  String get issueDate => _isArabic ? 'تاريخ الإصدار' : 'Issue date';
-  String get dueDate => _isArabic ? 'تاريخ الاستحقاق' : 'Due date';
-  String get total => _isArabic ? 'الإجمالي' : 'Total';
-  String get paid => _isArabic ? 'المدفوع' : 'Paid';
-  String get remaining => _isArabic ? 'المتبقي' : 'Remaining';
-  String get totalOutstanding =>
-      _isArabic ? 'إجمالي المستحق' : 'Total outstanding';
+  String get invoice => _l10n.reportsInvoice;
+  String get issueDate => _l10n.reportsIssueDate;
+  String get dueDate => _l10n.reportsDueDate;
+  String get total => _l10n.reportsTotal;
+  String get paid => _l10n.reportsPaid;
+  String get remaining => _l10n.reportsRemaining;
+  String get totalOutstanding => _l10n.reportsTotalOutstanding;
 
   String reportTypeLabel(ReportType type) {
     return switch (type) {
-      ReportType.dailyTrips => _isArabic ? 'الرحلات اليومية' : 'Daily trips',
-      ReportType.tripsByCustomer =>
-        _isArabic ? 'الرحلات حسب العميل' : 'Trips by customer',
-      ReportType.tripsByDriver =>
-        _isArabic ? 'الرحلات حسب السائق' : 'Trips by driver',
-      ReportType.tripsByTractorHead =>
-        _isArabic ? 'الرحلات حسب رأس الجرار' : 'Trips by tractor head',
-      ReportType.tripsByTrailer =>
-        _isArabic ? 'الرحلات حسب المقطورة' : 'Trips by trailer',
-      ReportType.tripExpenses =>
-        _isArabic ? 'مصروفات الرحلات' : 'Trip expenses',
-      ReportType.tripNetProfit =>
-        _isArabic ? 'صافي ربح الرحلات' : 'Trip net profit',
-      ReportType.openInvoices =>
-        _isArabic ? 'الفواتير المفتوحة' : 'Open invoices',
+      ReportType.dailyTrips => _l10n.reportsTypeDailyTrips,
+      ReportType.tripsByCustomer => _l10n.reportsTypeTripsByCustomer,
+      ReportType.tripsByDriver => _l10n.reportsTypeTripsByDriver,
+      ReportType.tripsByTractorHead => _l10n.reportsTypeTripsByTractorHead,
+      ReportType.tripsByTrailer => _l10n.reportsTypeTripsByTrailer,
+      ReportType.tripExpenses => _l10n.reportsTypeTripExpenses,
+      ReportType.tripNetProfit => _l10n.reportsTypeTripNetProfit,
+      ReportType.openInvoices => _l10n.reportsTypeOpenInvoices,
     };
   }
 
-  String groupTrips(int count) {
-    return _isArabic ? '$count رحلة' : '$count trips';
-  }
+  String groupTrips(int count) => _l10n.reportsGroupTrips(count);
 
   String dateRange(String from, String to) {
-    return _isArabic ? 'الفترة: $from — $to' : 'Period: $from — $to';
+    return _l10n.reportsDateRange(from, to);
   }
 
   String paidByLabel(TripExpensePaidBy value) {
     return switch (value) {
-      TripExpensePaidBy.company => _isArabic ? 'الشركة' : 'Company',
-      TripExpensePaidBy.driverAdvance =>
-        _isArabic ? 'عهدة السائق' : 'Driver advance',
-      TripExpensePaidBy.driverCash => _isArabic ? 'دفع السائق' : 'Driver cash',
-      TripExpensePaidBy.customer => _isArabic ? 'العميل' : 'Customer',
-      TripExpensePaidBy.other => _isArabic ? 'أخرى' : 'Other',
+      TripExpensePaidBy.company => _l10n.reportsPaidByCompany,
+      TripExpensePaidBy.driverAdvance => _l10n.reportsPaidByDriverAdvance,
+      TripExpensePaidBy.driverCash => _l10n.reportsPaidByDriverCash,
+      TripExpensePaidBy.customer => _l10n.reportsPaidByCustomer,
+      TripExpensePaidBy.other => _l10n.reportsPaidByOther,
     };
   }
 
   String invoiceStatusLabel(InvoiceStatus status) {
     return switch (status) {
-      InvoiceStatus.draft => _isArabic ? 'مسودة' : 'Draft',
-      InvoiceStatus.issued => _isArabic ? 'صادرة' : 'Issued',
-      InvoiceStatus.partiallyPaid =>
-        _isArabic ? 'مدفوعة جزئيًا' : 'Partially paid',
-      InvoiceStatus.paid => _isArabic ? 'مدفوعة' : 'Paid',
-      InvoiceStatus.cancelled => _isArabic ? 'ملغاة' : 'Cancelled',
+      InvoiceStatus.draft => _l10n.reportsInvoiceStatusDraft,
+      InvoiceStatus.issued => _l10n.reportsInvoiceStatusIssued,
+      InvoiceStatus.partiallyPaid => _l10n.reportsInvoiceStatusPartiallyPaid,
+      InvoiceStatus.paid => _l10n.reportsInvoiceStatusPaid,
+      InvoiceStatus.cancelled => _l10n.reportsInvoiceStatusCancelled,
     };
   }
 
-  String get permissionFailure => _isArabic
-      ? 'هذا الدور غير مسموح له بعرض التقرير المحدد.'
-      : 'This role cannot view the selected report.';
-  String get invalidDateRangeFailure => _isArabic
-      ? 'يجب ألا يكون تاريخ البداية بعد تاريخ النهاية.'
-      : 'The from date cannot be after the to date.';
-  String get regionalSettingsFailure => _isArabic
-      ? 'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.'
-      : 'Configure the company currency and business timezone first.';
-  String get companyNotFoundFailure => _isArabic
-      ? 'تعذر العثور على الشركة الحالية.'
-      : 'The current company could not be found.';
-  String get sourceInvalidFailure => _isArabic
-      ? 'بيانات التقرير غير متسقة. أعد التحميل ثم حاول مرة أخرى.'
-      : 'The report data is inconsistent. Reload and try again.';
-  String get currencyMismatchFailure => _isArabic
-      ? 'البيانات المالية للتقرير لا تطابق عملة الشركة.'
-      : 'Report financial data does not match the company currency.';
-  String get financialDataInvalidFailure => _isArabic
-      ? 'تحتوي بيانات التقرير المالية على مبلغ أو رصيد غير صالح.'
-      : 'Report financial data contains an invalid amount or balance.';
-  String get invoiceBalanceInvalidFailure => _isArabic
-      ? 'رصيد إحدى الفواتير غير متسق مع حالة الفاتورة ومدفوعاتها.'
-      : 'An invoice balance is inconsistent with its status and payments.';
-  String get loadFailed =>
-      _isArabic ? 'تعذر تحميل التقرير.' : 'The report could not be loaded.';
+  String get permissionFailure => _l10n.reportsPermissionFailure;
+  String get invalidDateRangeFailure => _l10n.reportsInvalidDateRangeFailure;
+  String get regionalSettingsFailure => _l10n.reportsRegionalSettingsFailure;
+  String get companyNotFoundFailure => _l10n.reportsCompanyNotFoundFailure;
+  String get sourceInvalidFailure => _l10n.reportsSourceInvalidFailure;
+  String get currencyMismatchFailure => _l10n.reportsCurrencyMismatchFailure;
+  String get financialDataInvalidFailure =>
+      _l10n.reportsFinancialDataInvalidFailure;
+  String get invoiceBalanceInvalidFailure =>
+      _l10n.reportsInvoiceBalanceInvalidFailure;
+  String get loadFailed => _l10n.reportsLoadFailed;
 }
 
 extension ReportsLocalizationsBuildContextX on BuildContext {
   ReportsLocalizations get reportsL10n {
-    return ReportsLocalizations.forLocale(Localizations.localeOf(this));
+    return ReportsLocalizations(AppLocalizations.of(this));
   }
 }

@@ -331,7 +331,6 @@ const _allowedDataSourcesWithLocalTableConstants = {
 };
 
 const _allowedManualPresentationLocalizationFiles = {
-  'lib/features/reports/presentation/localization/reports_localizations.dart',
   'lib/features/trips/presentation/localization/trips_localizations_x.dart',
 };
 
