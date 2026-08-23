@@ -26,45 +26,48 @@ void main() {
   });
 
   group('CompanyExpenseModel', () {
-    test('parses persistence values, numeric amount, dates, and nullable links', () {
-      final model = CompanyExpenseModel.fromMap({
-        'id': 'expense-1',
-        'company_id': 'company-1',
-        'category_id': 'category-1',
-        'driver_id': null,
-        'tractor_head_id': 'tractor-1',
-        'trailer_id': null,
-        'trip_id': 'trip-1',
-        'amount': '1250.75',
-        'expense_date': '2026-08-20',
-        'reference_number': 'REF-10',
-        'notes': null,
-        'is_voided': true,
-        'voided_at': '2026-08-21T08:30:00.000Z',
-        'voided_by': 'user-1',
-        'void_reason': 'duplicate',
-        'created_at': '2026-08-20T06:00:00.000Z',
-        'updated_at': '2026-08-21T08:30:00.000Z',
-      });
+    test(
+      'parses persistence values, numeric amount, dates, and nullable links',
+      () {
+        final model = CompanyExpenseModel.fromMap({
+          'id': 'expense-1',
+          'company_id': 'company-1',
+          'category_id': 'category-1',
+          'driver_id': null,
+          'tractor_head_id': 'tractor-1',
+          'trailer_id': null,
+          'trip_id': 'trip-1',
+          'amount': '1250.75',
+          'expense_date': '2026-08-20',
+          'reference_number': 'REF-10',
+          'notes': null,
+          'is_voided': true,
+          'voided_at': '2026-08-21T08:30:00.000Z',
+          'voided_by': 'user-1',
+          'void_reason': 'duplicate',
+          'created_at': '2026-08-20T06:00:00.000Z',
+          'updated_at': '2026-08-21T08:30:00.000Z',
+        });
 
-      expect(model.id, 'expense-1');
-      expect(model.companyId, 'company-1');
-      expect(model.categoryId, 'category-1');
-      expect(model.driverId, isNull);
-      expect(model.tractorHeadId, 'tractor-1');
-      expect(model.trailerId, isNull);
-      expect(model.tripId, 'trip-1');
-      expect(model.amount, 1250.75);
-      expect(model.expenseDate, DateTime.parse('2026-08-20'));
-      expect(model.referenceNumber, 'REF-10');
-      expect(model.notes, isNull);
-      expect(model.isVoided, isTrue);
-      expect(model.voidedAt, DateTime.parse('2026-08-21T08:30:00.000Z'));
-      expect(model.voidedBy, 'user-1');
-      expect(model.voidReason, 'duplicate');
-      expect(model.createdAt, DateTime.parse('2026-08-20T06:00:00.000Z'));
-      expect(model.updatedAt, DateTime.parse('2026-08-21T08:30:00.000Z'));
-    });
+        expect(model.id, 'expense-1');
+        expect(model.companyId, 'company-1');
+        expect(model.categoryId, 'category-1');
+        expect(model.driverId, isNull);
+        expect(model.tractorHeadId, 'tractor-1');
+        expect(model.trailerId, isNull);
+        expect(model.tripId, 'trip-1');
+        expect(model.amount, 1250.75);
+        expect(model.expenseDate, DateTime.parse('2026-08-20'));
+        expect(model.referenceNumber, 'REF-10');
+        expect(model.notes, isNull);
+        expect(model.isVoided, isTrue);
+        expect(model.voidedAt, DateTime.parse('2026-08-21T08:30:00.000Z'));
+        expect(model.voidedBy, 'user-1');
+        expect(model.voidReason, 'duplicate');
+        expect(model.createdAt, DateTime.parse('2026-08-20T06:00:00.000Z'));
+        expect(model.updatedAt, DateTime.parse('2026-08-21T08:30:00.000Z'));
+      },
+    );
 
     test('maps model to the Domain entity without changing values', () {
       final expenseDate = DateTime.utc(2026, 8, 20);
@@ -204,7 +207,9 @@ void main() {
       expect(map['expense_date'], '2026-08-22');
       expect(map['reference_number'], isNull);
       expect(map['notes'], isNull);
-      final updatedAt = DateTime.tryParse(map[DbCommonFields.updatedAt] as String);
+      final updatedAt = DateTime.tryParse(
+        map[DbCommonFields.updatedAt] as String,
+      );
       expect(updatedAt, isNotNull);
       expect(updatedAt?.isUtc, isTrue);
     });
@@ -224,7 +229,9 @@ void main() {
       expect(map[DbCommonFields.updatedBy], 'user-1');
 
       final voidedAt = DateTime.tryParse(map['voided_at'] as String);
-      final updatedAt = DateTime.tryParse(map[DbCommonFields.updatedAt] as String);
+      final updatedAt = DateTime.tryParse(
+        map[DbCommonFields.updatedAt] as String,
+      );
       expect(voidedAt, isNotNull);
       expect(voidedAt?.isUtc, isTrue);
       expect(updatedAt, isNotNull);
