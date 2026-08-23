@@ -6,7 +6,6 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
-import '../localization/trips_localizations_x.dart';
 
 class TripActions extends StatelessWidget {
   final TripEntity trip;
