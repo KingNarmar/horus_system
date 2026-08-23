@@ -302,11 +302,7 @@ void main() {
       final featureDirectories = Directory('lib/features')
           .listSync()
           .whereType<Directory>()
-          .map(_normalizedDirectoryPath)
-          .where(
-            (path) =>
-                !_allowedFeaturesWithoutTests.contains(path.split('/').last),
-          );
+          .map(_normalizedDirectoryPath);
 
       for (final featurePath in featureDirectories) {
         final featureName = featurePath.split('/').last;
@@ -330,8 +326,6 @@ const _allowedDataSourcesWithLocalTableConstants = {
 };
 
 const _allowedManualPresentationLocalizationFiles = <String>{};
-
-const _allowedFeaturesWithoutTests = {'auth'};
 
 String _read(String path) => File(path).readAsStringSync();
 
