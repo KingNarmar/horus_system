@@ -53,6 +53,19 @@ void main() {
       expect(dataSource.logoutCalls, 1);
     });
 
+    test('logout unexpected exception maps to UnexpectedFailure', () async {
+      final dataSource = _FakeAuthRemoteDataSource(
+        logoutError: StateError('logout boom'),
+      );
+      final repository = AuthRepositoryImpl(dataSource);
+
+      final result = await repository.logout();
+
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.message, contains('logout boom'));
+      expect(dataSource.logoutCalls, 1);
+    });
+
     test('getCurrentUser maps an authenticated model', () async {
       final dataSource = _FakeAuthRemoteDataSource();
       final repository = AuthRepositoryImpl(dataSource);
