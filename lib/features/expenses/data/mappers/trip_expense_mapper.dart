@@ -3,6 +3,7 @@ import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/trip_expense.dart';
 import '../../domain/entities/trip_expense_paid_by.dart';
 import '../../domain/entities/trip_expense_write_data.dart';
+import '../constants/trip_expense_db_fields.dart';
 import '../models/trip_expense_model.dart';
 
 extension TripExpenseModelMapper on TripExpenseModel {
@@ -27,14 +28,14 @@ extension TripExpenseModelMapper on TripExpenseModel {
     return {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
-      'trip_id': tripId,
-      'expense_type_id': expenseTypeId,
-      'expense_name': expenseName,
-      'amount': amount,
-      'paid_by': paidBy,
-      'expense_date': _dateOnly(expenseDate),
-      'notes': notes,
-      'expense_type_name': expenseTypeName,
+      TripExpenseDbFields.tripId: tripId,
+      TripExpenseDbFields.expenseTypeId: expenseTypeId,
+      TripExpenseDbFields.expenseName: expenseName,
+      TripExpenseDbFields.amount: amount,
+      TripExpenseDbFields.paidBy: paidBy,
+      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.notes: notes,
+      TripExpenseDbFields.expenseTypeNameAlias: expenseTypeName,
       DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
       DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
     };
@@ -45,24 +46,24 @@ extension TripExpenseWriteDataMapper on TripExpenseWriteData {
   Map<String, dynamic> toInsertMap() {
     return {
       DbCommonFields.companyId: companyId,
-      'trip_id': tripId,
-      'expense_type_id': expenseTypeId,
-      'expense_name': expenseName,
-      'amount': amount,
-      'paid_by': paidBy.value,
-      'expense_date': _dateOnly(expenseDate),
-      'notes': notes,
+      TripExpenseDbFields.tripId: tripId,
+      TripExpenseDbFields.expenseTypeId: expenseTypeId,
+      TripExpenseDbFields.expenseName: expenseName,
+      TripExpenseDbFields.amount: amount,
+      TripExpenseDbFields.paidBy: paidBy.value,
+      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.notes: notes,
     };
   }
 
   Map<String, dynamic> toUpdateMap() {
     return {
-      'expense_type_id': expenseTypeId,
-      'expense_name': expenseName,
-      'amount': amount,
-      'paid_by': paidBy.value,
-      'expense_date': _dateOnly(expenseDate),
-      'notes': notes,
+      TripExpenseDbFields.expenseTypeId: expenseTypeId,
+      TripExpenseDbFields.expenseName: expenseName,
+      TripExpenseDbFields.amount: amount,
+      TripExpenseDbFields.paidBy: paidBy.value,
+      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }

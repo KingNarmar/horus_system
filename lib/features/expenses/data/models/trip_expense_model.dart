@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/trip_expense_db_fields.dart';
+
 class TripExpenseModel {
   final String id;
   final String companyId;
@@ -29,21 +32,28 @@ class TripExpenseModel {
 
   factory TripExpenseModel.fromMap(Map<String, dynamic> map) {
     return TripExpenseModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      tripId: map['trip_id'] as String,
-      expenseTypeId: map['expense_type_id'] as String?,
-      expenseName: map['expense_name'] as String? ?? '',
-      amount: _toDouble(map['amount']) ?? 0,
-      paidBy: map['paid_by'] as String? ?? 'company',
-      expenseDate: _toDateTime(map['expense_date']) ?? DateTime.now(),
-      notes: map['notes'] as String?,
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
+      tripId: map[TripExpenseDbFields.tripId] as String,
+      expenseTypeId: map[TripExpenseDbFields.expenseTypeId] as String?,
+      expenseName: map[TripExpenseDbFields.expenseName] as String? ?? '',
+      amount: _toDouble(map[TripExpenseDbFields.amount]) ?? 0,
+      paidBy: map[TripExpenseDbFields.paidBy] as String? ?? 'company',
+      expenseDate:
+          _toDateTime(map[TripExpenseDbFields.expenseDate]) ?? DateTime.now(),
+      notes: map[TripExpenseDbFields.notes] as String?,
       expenseTypeName:
-          map['expense_type_name'] as String? ??
-          _nestedString(map['expense_type'], 'name') ??
-          _nestedString(map['expense_types'], 'name'),
-      createdAt: _toDateTime(map['created_at']),
-      updatedAt: _toDateTime(map['updated_at']),
+          map[TripExpenseDbFields.expenseTypeNameAlias] as String? ??
+          _nestedString(
+            map[TripExpenseDbFields.expenseTypeRelationKey],
+            TripExpenseTypeLookupDbFields.name,
+          ) ??
+          _nestedString(
+            map[TripExpenseTypeLookupDbFields.tableName],
+            TripExpenseTypeLookupDbFields.name,
+          ),
+      createdAt: _toDateTime(map[DbCommonFields.createdAt]),
+      updatedAt: _toDateTime(map[DbCommonFields.updatedAt]),
     );
   }
 

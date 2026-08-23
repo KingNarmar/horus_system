@@ -4,27 +4,9 @@ import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/expense_type_option.dart';
 import '../../domain/entities/trip_expense_write_data.dart';
+import '../constants/trip_expense_db_fields.dart';
 import '../mappers/trip_expense_mapper.dart';
 import '../models/trip_expense_model.dart';
-
-const _tripExpensesTable = 'trip_expenses';
-const _expenseTypesTable = 'expense_types';
-const _tripsTable = 'trips';
-
-const _tripExpenseColumns = '''
-id,
-company_id,
-trip_id,
-expense_type_id,
-expense_name,
-amount,
-paid_by,
-expense_date,
-notes,
-created_at,
-updated_at,
-expense_types!trip_expenses_company_type_fk(name)
-''';
 
 abstract class TripExpensesRemoteDataSource {
   Future<List<TripExpenseModel>> getTripExpenses({
@@ -59,11 +41,11 @@ class SupabaseTripExpensesRemoteDataSource
     required String tripId,
   }) async {
     final rows = await client
-        .from(_tripExpensesTable)
-        .select(_tripExpenseColumns)
+        .from(TripExpenseDbFields.tableName)
+        .select(TripExpenseDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .eq('trip_id', tripId)
-        .order('expense_date', ascending: false)
+        .eq(TripExpenseDbFields.tripId, tripId)
+        .order(TripExpenseDbFields.expenseDate, ascending: false)
         .order(DbCommonFields.createdAt, ascending: false);
 
     return rows
@@ -76,17 +58,18 @@ class SupabaseTripExpensesRemoteDataSource
     required String companyId,
   }) async {
     final rows = await client
-        .from(_expenseTypesTable)
-        .select('id, name')
+        .from(TripExpenseTypeLookupDbFields.tableName)
+        .select(TripExpenseTypeLookupDbFields.lookupColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DbCommonFields.isActive, true)
-        .order('name');
+        .order(TripExpenseTypeLookupDbFields.name);
 
     final options = <ExpenseTypeOption>[];
 
     for (final row in rows) {
       final map = Map<String, dynamic>.from(row);
-      final name = map['name']?.toString().trim() ?? '';
+      final name =
+          map[TripExpenseTypeLookupDbFields.name]?.toString().trim() ?? '';
       if (name.isEmpty) continue;
       options.add(
         ExpenseTypeOption(id: map[DbCommonFields.id] as String, name: name),
@@ -101,9 +84,9 @@ class SupabaseTripExpensesRemoteDataSource
     required TripExpenseWriteData data,
   }) async {
     final row = await client
-        .from(_tripExpensesTable)
+        .from(TripExpenseDbFields.tableName)
         .insert(data.toInsertMap())
-        .select(_tripExpenseColumns)
+        .select(TripExpenseDbFields.allColumns)
         .single();
 
     return TripExpenseModel.fromMap(Map<String, dynamic>.from(row));
@@ -115,11 +98,11 @@ class SupabaseTripExpensesRemoteDataSource
     required TripExpenseWriteData data,
   }) async {
     final row = await client
-        .from(_tripExpensesTable)
+        .from(TripExpenseDbFields.tableName)
         .update(data.toUpdateMap())
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
-        .select(_tripExpenseColumns)
+        .select(TripExpenseDbFields.allColumns)
         .single();
 
     return TripExpenseModel.fromMap(Map<String, dynamic>.from(row));
@@ -131,14 +114,14 @@ class SupabaseTripExpensesRemoteDataSource
     required String tripId,
   }) async {
     final rows = await client
-        .from(_tripExpensesTable)
-        .select('amount')
+        .from(TripExpenseDbFields.tableName)
+        .select(TripExpenseDbFields.amount)
         .eq(DbCommonFields.companyId, companyId)
-        .eq('trip_id', tripId);
+        .eq(TripExpenseDbFields.tripId, tripId);
 
     var total = 0.0;
     for (final row in rows) {
-      final amount = Map<String, dynamic>.from(row)['amount'];
+      final amount = Map<String, dynamic>.from(row)[TripExpenseDbFields.amount];
       if (amount is num) {
         total += amount.toDouble();
       } else {
@@ -147,9 +130,9 @@ class SupabaseTripExpensesRemoteDataSource
     }
 
     await client
-        .from(_tripsTable)
+        .from(TripExpenseLinkedTripDbFields.tableName)
         .update({
-          'total_expenses': total,
+          TripExpenseLinkedTripDbFields.totalExpenses: total,
           DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
         .eq(DbCommonFields.companyId, companyId)
