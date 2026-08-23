@@ -172,8 +172,19 @@ void main() {
       expect(repository.logoutCalls, 1);
     });
 
-    test('GetCurrentUserUseCase preserves repository result', () async {
+    test('GetCurrentUserUseCase preserves repository success result', () async {
       final expected = Success<AuthUser?>(_user);
+      final repository = _FakeAuthRepository(currentUserResult: expected);
+
+      final result = await GetCurrentUserUseCase(repository)(const NoParams());
+
+      expect(result, same(expected));
+      expect(repository.getCurrentUserCalls, 1);
+    });
+
+    test('GetCurrentUserUseCase preserves repository failure result', () async {
+      const failure = UnexpectedFailure(message: 'restore failed');
+      const expected = FailureResult<AuthUser?>(failure);
       final repository = _FakeAuthRepository(currentUserResult: expected);
 
       final result = await GetCurrentUserUseCase(repository)(const NoParams());
