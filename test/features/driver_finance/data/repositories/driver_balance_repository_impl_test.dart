@@ -58,7 +58,10 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<PermissionFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.permissionDriverFinanceView);
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionDriverFinanceView,
+      );
       expect(
         result.failureOrNull?.message,
         'Driver finance access is not allowed.',

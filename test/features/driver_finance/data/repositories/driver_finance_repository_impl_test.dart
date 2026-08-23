@@ -32,7 +32,10 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull, hasLength(1));
       expect(result.dataOrNull?.single.id, _movementId);
-      expect(result.dataOrNull?.single.type, DriverFinancialMovementType.advance);
+      expect(
+        result.dataOrNull?.single.type,
+        DriverFinancialMovementType.advance,
+      );
       expect(dataSource.lastMovementCompanyId, _companyId);
       expect(dataSource.lastMovementDriverId, _driverId);
     });
