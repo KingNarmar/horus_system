@@ -1,3 +1,6 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../constants/route_db_fields.dart';
+
 class RouteModel {
   final String id;
   final String companyId;
@@ -27,17 +30,17 @@ class RouteModel {
 
   factory RouteModel.fromMap(Map<String, dynamic> map) {
     return RouteModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
-      loadingLocation: map['loading_location'] as String,
-      unloadingLocation: map['unloading_location'] as String,
-      governorateFrom: map['governorate_from'] as String?,
-      governorateTo: map['governorate_to'] as String?,
-      defaultFreightPrice: _toDouble(map['default_freight_price']),
-      notes: map['notes'] as String?,
-      isActive: map['is_active'] as bool? ?? true,
-      createdAt: _toDateTime(map['created_at']),
-      updatedAt: _toDateTime(map['updated_at']),
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
+      loadingLocation: map[RouteDbFields.loadingLocation] as String,
+      unloadingLocation: map[RouteDbFields.unloadingLocation] as String,
+      governorateFrom: map[RouteDbFields.governorateFrom] as String?,
+      governorateTo: map[RouteDbFields.governorateTo] as String?,
+      defaultFreightPrice: _toDouble(map[RouteDbFields.defaultFreightPrice]),
+      notes: map[RouteDbFields.notes] as String?,
+      isActive: map[DbCommonFields.isActive] as bool? ?? true,
+      createdAt: _toDateTime(map[DbCommonFields.createdAt]),
+      updatedAt: _toDateTime(map[DbCommonFields.updatedAt]),
     );
   }
 

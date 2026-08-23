@@ -326,7 +326,6 @@ void main() {
 const _allowedDataSourcesWithLocalTableConstants = {
   'lib/features/company_expenses/data/datasources/company_expenses_remote_data_source.dart',
   'lib/features/expenses/data/datasources/trip_expenses_remote_data_source.dart',
-  'lib/features/routes/data/datasources/routes_remote_data_source.dart',
   'lib/features/trips/data/datasources/trips_remote_data_source.dart',
 };
 

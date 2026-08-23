@@ -3,13 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/route_write_data.dart';
+import '../constants/route_db_fields.dart';
 import '../mappers/route_mapper.dart';
 import '../models/route_model.dart';
-
-const _routesTable = 'routes';
-
-const _routeColumns =
-    'id, company_id, loading_location, unloading_location, governorate_from, governorate_to, default_freight_price, notes, is_active, created_at, updated_at';
 
 abstract class RoutesRemoteDataSource {
   Future<List<RouteModel>> getRoutes({required String companyId});
@@ -45,10 +41,10 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   @override
   Future<List<RouteModel>> getRoutes({required String companyId}) async {
     final rows = await client
-        .from(_routesTable)
-        .select(_routeColumns)
+        .from(RouteDbFields.tableName)
+        .select(RouteDbFields.allColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .order('loading_location');
+        .order(RouteDbFields.loadingLocation);
 
     return rows
         .map((row) => RouteModel.fromMap(Map<String, dynamic>.from(row)))
@@ -61,8 +57,8 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required String id,
   }) async {
     final row = await client
-        .from(_routesTable)
-        .select(_routeColumns)
+        .from(RouteDbFields.tableName)
+        .select(RouteDbFields.allColumns)
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
         .single();
@@ -73,9 +69,9 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   @override
   Future<RouteModel> addRoute({required RouteWriteData data}) async {
     final row = await client
-        .from(_routesTable)
+        .from(RouteDbFields.tableName)
         .insert(data.toInsertMap())
-        .select(_routeColumns)
+        .select(RouteDbFields.allColumns)
         .single();
 
     return RouteModel.fromMap(Map<String, dynamic>.from(row));
@@ -87,11 +83,11 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required RouteWriteData data,
   }) async {
     final row = await client
-        .from(_routesTable)
+        .from(RouteDbFields.tableName)
         .update(data.toUpdateMap())
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
-        .select(_routeColumns)
+        .select(RouteDbFields.allColumns)
         .single();
 
     return RouteModel.fromMap(Map<String, dynamic>.from(row));
@@ -119,14 +115,14 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required bool isActive,
   }) async {
     final row = await client
-        .from(_routesTable)
+        .from(RouteDbFields.tableName)
         .update({
           DbCommonFields.isActive: isActive,
           DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
         })
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
-        .select(_routeColumns)
+        .select(RouteDbFields.allColumns)
         .single();
 
     return RouteModel.fromMap(Map<String, dynamic>.from(row));
