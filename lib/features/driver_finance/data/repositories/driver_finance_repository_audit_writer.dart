@@ -4,6 +4,7 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
+import '../../domain/entities/driver_financial_movement_type.dart';
 import '../mappers/driver_financial_movement_mapper.dart';
 import '../models/driver_financial_movement_model.dart';
 
