@@ -222,10 +222,8 @@ Future<List<AuthState>> _recordStates(
   AuthCubit cubit,
   Future<void> Function() action,
 ) async {
-  final states = <AuthState>[];
-  final subscription = cubit.stream.listen(states.add);
+  final states = cubit.stream.take(2).toList();
   await action();
-  await subscription.cancel();
   return states;
 }
 
