@@ -1399,4 +1399,222 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileDetailsNotSetYet => 'لم يتم تعيين تفاصيل الملف الشخصي بعد';
+
+  @override
+  String get reportsTitle => 'التقارير';
+
+  @override
+  String get reportsReportLabel => 'التقرير';
+
+  @override
+  String get reportsFromDate => 'من تاريخ';
+
+  @override
+  String get reportsToDate => 'إلى تاريخ';
+
+  @override
+  String get reportsSelectDate => 'اختر تاريخًا';
+
+  @override
+  String get reportsApplyFilters => 'تطبيق';
+
+  @override
+  String get reportsClearFilters => 'مسح التواريخ';
+
+  @override
+  String get reportsLoading => 'جاري تحميل التقرير...';
+
+  @override
+  String get reportsRetry => 'إعادة المحاولة';
+
+  @override
+  String get reportsNoRows => 'لا توجد بيانات للفترة المحددة.';
+
+  @override
+  String get reportsNoAccess => 'لا توجد تقارير متاحة لهذا الدور.';
+
+  @override
+  String get reportsUnassigned => 'غير مسند';
+
+  @override
+  String get reportsAllDates => 'كل التواريخ';
+
+  @override
+  String get reportsNotAvailable => 'غير متاح';
+
+  @override
+  String get reportsTrip => 'الرحلة';
+
+  @override
+  String get reportsDate => 'التاريخ';
+
+  @override
+  String get reportsCustomer => 'العميل';
+
+  @override
+  String get reportsDriver => 'السائق';
+
+  @override
+  String get reportsTractorHead => 'رأس الجرار';
+
+  @override
+  String get reportsTrailer => 'المقطورة';
+
+  @override
+  String get reportsRoute => 'المسار';
+
+  @override
+  String get reportsStatus => 'الحالة';
+
+  @override
+  String get reportsTripsCount => 'عدد الرحلات';
+
+  @override
+  String get reportsLoadingOrder => 'أمر التحميل';
+
+  @override
+  String get reportsWaybill => 'البوليصة';
+
+  @override
+  String get reportsExpense => 'المصروف';
+
+  @override
+  String get reportsPaidBy => 'الدافع';
+
+  @override
+  String get reportsAmount => 'المبلغ';
+
+  @override
+  String get reportsTotalExpenses => 'إجمالي المصروفات';
+
+  @override
+  String get reportsFreight => 'سعر النقل';
+
+  @override
+  String get reportsNetProfit => 'صافي الربح';
+
+  @override
+  String get reportsTotalFreight => 'إجمالي النقل';
+
+  @override
+  String get reportsTotalNetProfit => 'إجمالي صافي الربح';
+
+  @override
+  String get reportsInvoice => 'الفاتورة';
+
+  @override
+  String get reportsIssueDate => 'تاريخ الإصدار';
+
+  @override
+  String get reportsDueDate => 'تاريخ الاستحقاق';
+
+  @override
+  String get reportsTotal => 'الإجمالي';
+
+  @override
+  String get reportsPaid => 'المدفوع';
+
+  @override
+  String get reportsRemaining => 'المتبقي';
+
+  @override
+  String get reportsTotalOutstanding => 'إجمالي المستحق';
+
+  @override
+  String get reportsTypeDailyTrips => 'الرحلات اليومية';
+
+  @override
+  String get reportsTypeTripsByCustomer => 'الرحلات حسب العميل';
+
+  @override
+  String get reportsTypeTripsByDriver => 'الرحلات حسب السائق';
+
+  @override
+  String get reportsTypeTripsByTractorHead => 'الرحلات حسب رأس الجرار';
+
+  @override
+  String get reportsTypeTripsByTrailer => 'الرحلات حسب المقطورة';
+
+  @override
+  String get reportsTypeTripExpenses => 'مصروفات الرحلات';
+
+  @override
+  String get reportsTypeTripNetProfit => 'صافي ربح الرحلات';
+
+  @override
+  String get reportsTypeOpenInvoices => 'الفواتير المفتوحة';
+
+  @override
+  String reportsGroupTrips(int count) {
+    return '$count رحلة';
+  }
+
+  @override
+  String reportsDateRange(String from, String to) {
+    return 'الفترة: $from — $to';
+  }
+
+  @override
+  String get reportsPaidByCompany => 'الشركة';
+
+  @override
+  String get reportsPaidByDriverAdvance => 'عهدة السائق';
+
+  @override
+  String get reportsPaidByDriverCash => 'دفع السائق';
+
+  @override
+  String get reportsPaidByCustomer => 'العميل';
+
+  @override
+  String get reportsPaidByOther => 'أخرى';
+
+  @override
+  String get reportsInvoiceStatusDraft => 'مسودة';
+
+  @override
+  String get reportsInvoiceStatusIssued => 'صادرة';
+
+  @override
+  String get reportsInvoiceStatusPartiallyPaid => 'مدفوعة جزئيًا';
+
+  @override
+  String get reportsInvoiceStatusPaid => 'مدفوعة';
+
+  @override
+  String get reportsInvoiceStatusCancelled => 'ملغاة';
+
+  @override
+  String get reportsPermissionFailure =>
+      'هذا الدور غير مسموح له بعرض التقرير المحدد.';
+
+  @override
+  String get reportsInvalidDateRangeFailure =>
+      'يجب ألا يكون تاريخ البداية بعد تاريخ النهاية.';
+
+  @override
+  String get reportsRegionalSettingsFailure =>
+      'اضبط عملة الشركة والمنطقة الزمنية للعمل أولًا.';
+
+  @override
+  String get reportsCompanyNotFoundFailure => 'تعذر العثور على الشركة الحالية.';
+
+  @override
+  String get reportsSourceInvalidFailure =>
+      'بيانات التقرير غير متسقة. أعد التحميل ثم حاول مرة أخرى.';
+
+  @override
+  String get reportsCurrencyMismatchFailure =>
+      'البيانات المالية للتقرير لا تطابق عملة الشركة.';
+
+  @override
+  String get reportsFinancialDataInvalidFailure =>
+      'تحتوي بيانات التقرير المالية على مبلغ أو رصيد غير صالح.';
+
+  @override
+  String get reportsInvoiceBalanceInvalidFailure =>
+      'رصيد إحدى الفواتير غير متسق مع حالة الفاتورة ومدفوعاتها.';
+
+  @override
+  String get reportsLoadFailed => 'تعذر تحميل التقرير.';
 }

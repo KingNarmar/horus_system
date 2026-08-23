@@ -1420,4 +1420,223 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileDetailsNotSetYet => 'Profile details not set yet';
+
+  @override
+  String get reportsTitle => 'Reports';
+
+  @override
+  String get reportsReportLabel => 'Report';
+
+  @override
+  String get reportsFromDate => 'From date';
+
+  @override
+  String get reportsToDate => 'To date';
+
+  @override
+  String get reportsSelectDate => 'Select date';
+
+  @override
+  String get reportsApplyFilters => 'Apply';
+
+  @override
+  String get reportsClearFilters => 'Clear dates';
+
+  @override
+  String get reportsLoading => 'Loading report...';
+
+  @override
+  String get reportsRetry => 'Retry';
+
+  @override
+  String get reportsNoRows => 'No data for the selected period.';
+
+  @override
+  String get reportsNoAccess => 'No reports are available for this role.';
+
+  @override
+  String get reportsUnassigned => 'Unassigned';
+
+  @override
+  String get reportsAllDates => 'All dates';
+
+  @override
+  String get reportsNotAvailable => 'Not available';
+
+  @override
+  String get reportsTrip => 'Trip';
+
+  @override
+  String get reportsDate => 'Date';
+
+  @override
+  String get reportsCustomer => 'Customer';
+
+  @override
+  String get reportsDriver => 'Driver';
+
+  @override
+  String get reportsTractorHead => 'Tractor head';
+
+  @override
+  String get reportsTrailer => 'Trailer';
+
+  @override
+  String get reportsRoute => 'Route';
+
+  @override
+  String get reportsStatus => 'Status';
+
+  @override
+  String get reportsTripsCount => 'Trips';
+
+  @override
+  String get reportsLoadingOrder => 'Loading order';
+
+  @override
+  String get reportsWaybill => 'Waybill';
+
+  @override
+  String get reportsExpense => 'Expense';
+
+  @override
+  String get reportsPaidBy => 'Paid by';
+
+  @override
+  String get reportsAmount => 'Amount';
+
+  @override
+  String get reportsTotalExpenses => 'Total expenses';
+
+  @override
+  String get reportsFreight => 'Freight';
+
+  @override
+  String get reportsNetProfit => 'Net profit';
+
+  @override
+  String get reportsTotalFreight => 'Total freight';
+
+  @override
+  String get reportsTotalNetProfit => 'Total net profit';
+
+  @override
+  String get reportsInvoice => 'Invoice';
+
+  @override
+  String get reportsIssueDate => 'Issue date';
+
+  @override
+  String get reportsDueDate => 'Due date';
+
+  @override
+  String get reportsTotal => 'Total';
+
+  @override
+  String get reportsPaid => 'Paid';
+
+  @override
+  String get reportsRemaining => 'Remaining';
+
+  @override
+  String get reportsTotalOutstanding => 'Total outstanding';
+
+  @override
+  String get reportsTypeDailyTrips => 'Daily trips';
+
+  @override
+  String get reportsTypeTripsByCustomer => 'Trips by customer';
+
+  @override
+  String get reportsTypeTripsByDriver => 'Trips by driver';
+
+  @override
+  String get reportsTypeTripsByTractorHead => 'Trips by tractor head';
+
+  @override
+  String get reportsTypeTripsByTrailer => 'Trips by trailer';
+
+  @override
+  String get reportsTypeTripExpenses => 'Trip expenses';
+
+  @override
+  String get reportsTypeTripNetProfit => 'Trip net profit';
+
+  @override
+  String get reportsTypeOpenInvoices => 'Open invoices';
+
+  @override
+  String reportsGroupTrips(int count) {
+    return '$count trips';
+  }
+
+  @override
+  String reportsDateRange(String from, String to) {
+    return 'Period: $from — $to';
+  }
+
+  @override
+  String get reportsPaidByCompany => 'Company';
+
+  @override
+  String get reportsPaidByDriverAdvance => 'Driver advance';
+
+  @override
+  String get reportsPaidByDriverCash => 'Driver cash';
+
+  @override
+  String get reportsPaidByCustomer => 'Customer';
+
+  @override
+  String get reportsPaidByOther => 'Other';
+
+  @override
+  String get reportsInvoiceStatusDraft => 'Draft';
+
+  @override
+  String get reportsInvoiceStatusIssued => 'Issued';
+
+  @override
+  String get reportsInvoiceStatusPartiallyPaid => 'Partially paid';
+
+  @override
+  String get reportsInvoiceStatusPaid => 'Paid';
+
+  @override
+  String get reportsInvoiceStatusCancelled => 'Cancelled';
+
+  @override
+  String get reportsPermissionFailure =>
+      'This role cannot view the selected report.';
+
+  @override
+  String get reportsInvalidDateRangeFailure =>
+      'The from date cannot be after the to date.';
+
+  @override
+  String get reportsRegionalSettingsFailure =>
+      'Configure the company currency and business timezone first.';
+
+  @override
+  String get reportsCompanyNotFoundFailure =>
+      'The current company could not be found.';
+
+  @override
+  String get reportsSourceInvalidFailure =>
+      'The report data is inconsistent. Reload and try again.';
+
+  @override
+  String get reportsCurrencyMismatchFailure =>
+      'Report financial data does not match the company currency.';
+
+  @override
+  String get reportsFinancialDataInvalidFailure =>
+      'Report financial data contains an invalid amount or balance.';
+
+  @override
+  String get reportsInvoiceBalanceInvalidFailure =>
+      'An invoice balance is inconsistent with its status and payments.';
+
+  @override
+  String get reportsLoadFailed => 'The report could not be loaded.';
 }
