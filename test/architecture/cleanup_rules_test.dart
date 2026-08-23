@@ -318,9 +318,7 @@ void main() {
   });
 }
 
-const _allowedDataSourcesWithLocalTableConstants = {
-  'lib/features/expenses/data/datasources/trip_expenses_remote_data_source.dart',
-};
+const _allowedDataSourcesWithLocalTableConstants = <String>{};
 
 const _allowedManualPresentationLocalizationFiles = <String>{};
 
