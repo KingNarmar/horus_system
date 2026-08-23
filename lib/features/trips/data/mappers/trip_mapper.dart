@@ -54,14 +54,16 @@ extension TripModelMapper on TripModel {
       TripDbFields.quantityTons: quantityTons,
       TripDbFields.freightPrice: freightPrice,
       TripDbFields.totalExpenses: totalExpenses,
-      TripDbFields.scheduledLoadingAt:
-          scheduledLoadingAt?.toUtc().toIso8601String(),
-      TripDbFields.scheduledDeliveryAt:
-          scheduledDeliveryAt?.toUtc().toIso8601String(),
-      TripDbFields.actualLoadingAt:
-          actualLoadingAt?.toUtc().toIso8601String(),
-      TripDbFields.actualDeliveryAt:
-          actualDeliveryAt?.toUtc().toIso8601String(),
+      TripDbFields.scheduledLoadingAt: scheduledLoadingAt
+          ?.toUtc()
+          .toIso8601String(),
+      TripDbFields.scheduledDeliveryAt: scheduledDeliveryAt
+          ?.toUtc()
+          .toIso8601String(),
+      TripDbFields.actualLoadingAt: actualLoadingAt?.toUtc().toIso8601String(),
+      TripDbFields.actualDeliveryAt: actualDeliveryAt
+          ?.toUtc()
+          .toIso8601String(),
       TripDbFields.notes: notes,
       TripDbFields.customerNameAlias: customerName,
       TripDbFields.routeNameAlias: routeName,

@@ -32,13 +32,15 @@ class TripStatusHistoryModel {
       companyId: map[DbCommonFields.companyId] as String,
       tripId: map[TripStatusHistoryDbFields.tripId] as String,
       oldStatus: map[TripStatusHistoryDbFields.oldStatus] as String?,
-      newStatus: map[TripStatusHistoryDbFields.newStatus] as String? ?? 'created',
+      newStatus:
+          map[TripStatusHistoryDbFields.newStatus] as String? ?? 'created',
       changedByUserId: map[TripStatusHistoryDbFields.changedBy] as String?,
       changedByName: map[TripStatusHistoryDbFields.changedByName] as String?,
       changedByRole: map[TripStatusHistoryDbFields.changedByRole] as String?,
       notes: map[TripStatusHistoryDbFields.notes] as String?,
       changedAt:
-          _toDateTime(map[TripStatusHistoryDbFields.changedAt]) ?? DateTime.now(),
+          _toDateTime(map[TripStatusHistoryDbFields.changedAt]) ??
+          DateTime.now(),
     );
   }
 

@@ -147,10 +147,12 @@ class TripModel {
   static String? _routeDisplayName(Object? value) {
     if (value is! Map) return null;
 
-    final loadingLocation =
-        value[TripLookupDbFields.loadingLocation]?.toString().trim();
-    final unloadingLocation =
-        value[TripLookupDbFields.unloadingLocation]?.toString().trim();
+    final loadingLocation = value[TripLookupDbFields.loadingLocation]
+        ?.toString()
+        .trim();
+    final unloadingLocation = value[TripLookupDbFields.unloadingLocation]
+        ?.toString()
+        .trim();
 
     if (loadingLocation != null &&
         loadingLocation.isNotEmpty &&

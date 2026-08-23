@@ -202,31 +202,34 @@ void main() {
   });
 
   group('TripStatusHistoryModel', () {
-    test('parses history values including nullable old-status and actor fields', () {
-      final model = TripStatusHistoryModel.fromMap({
-        'id': 'history-1',
-        'company_id': 'company-1',
-        'trip_id': 'trip-1',
-        'old_status': null,
-        'new_status': 'assigned',
-        'changed_by': null,
-        'changed_by_name': null,
-        'changed_by_role': null,
-        'notes': null,
-        'changed_at': '2026-08-20T09:00:00.000Z',
-      });
+    test(
+      'parses history values including nullable old-status and actor fields',
+      () {
+        final model = TripStatusHistoryModel.fromMap({
+          'id': 'history-1',
+          'company_id': 'company-1',
+          'trip_id': 'trip-1',
+          'old_status': null,
+          'new_status': 'assigned',
+          'changed_by': null,
+          'changed_by_name': null,
+          'changed_by_role': null,
+          'notes': null,
+          'changed_at': '2026-08-20T09:00:00.000Z',
+        });
 
-      expect(model.id, 'history-1');
-      expect(model.companyId, 'company-1');
-      expect(model.tripId, 'trip-1');
-      expect(model.oldStatus, isNull);
-      expect(model.newStatus, 'assigned');
-      expect(model.changedByUserId, isNull);
-      expect(model.changedByName, isNull);
-      expect(model.changedByRole, isNull);
-      expect(model.notes, isNull);
-      expect(model.changedAt, DateTime.parse('2026-08-20T09:00:00.000Z'));
-    });
+        expect(model.id, 'history-1');
+        expect(model.companyId, 'company-1');
+        expect(model.tripId, 'trip-1');
+        expect(model.oldStatus, isNull);
+        expect(model.newStatus, 'assigned');
+        expect(model.changedByUserId, isNull);
+        expect(model.changedByName, isNull);
+        expect(model.changedByRole, isNull);
+        expect(model.notes, isNull);
+        expect(model.changedAt, DateTime.parse('2026-08-20T09:00:00.000Z'));
+      },
+    );
 
     test('maps history model to Domain statuses and actor values', () {
       final changedAt = DateTime.utc(2026, 8, 20, 9);
@@ -307,10 +310,7 @@ void main() {
         values[TripDbFields.scheduledLoadingAt],
         '2026-08-20T06:00:00.000Z',
       );
-      expect(
-        values[TripDbFields.actualDeliveryAt],
-        '2026-08-21T09:00:00.000Z',
-      );
+      expect(values[TripDbFields.actualDeliveryAt], '2026-08-21T09:00:00.000Z');
       expect(values[TripDbFields.customerNameAlias], 'Customer A');
       expect(values[TripDbFields.routeNameAlias], 'Dubai -> Abu Dhabi');
       expect(values[TripDbFields.driverNameAlias], 'Driver A');
