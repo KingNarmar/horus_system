@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app/routing/app_router.dart';
-import 'app/routing/app_routes.dart';
 import 'core/constants/app_sizes.dart';
 import 'core/constants/app_spacing.dart';
 import 'core/di/app_dependencies.dart';
@@ -62,7 +61,7 @@ class HorusApp extends StatelessWidget {
             builder: DevicePreview.appBuilder,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            initialRoute: AppRoutes.root,
+            onGenerateInitialRoutes: AppRouter.onGenerateInitialRoutes,
             onGenerateRoute: AppRouter.onGenerateRoute,
           );
         },
