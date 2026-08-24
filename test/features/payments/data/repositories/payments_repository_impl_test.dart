@@ -50,35 +50,38 @@ void main() {
       },
     );
 
-    test('register delegates exact arguments and maps returned payment', () async {
-      final dataSource = _FakePaymentsRemoteDataSource(
-        registeredPayment: _paymentModel(),
-      );
-      final repository = PaymentsRepositoryImpl(dataSource);
-      final currency = CurrencyCode.tryParse('AED')!;
-      final paymentDate = DateTime.utc(2026, 8, 10);
-      final amount = Money(minorUnits: 40000, currency: currency);
+    test(
+      'register delegates exact arguments and maps returned payment',
+      () async {
+        final dataSource = _FakePaymentsRemoteDataSource(
+          registeredPayment: _paymentModel(),
+        );
+        final repository = PaymentsRepositoryImpl(dataSource);
+        final currency = CurrencyCode.tryParse('AED')!;
+        final paymentDate = DateTime.utc(2026, 8, 10);
+        final amount = Money(minorUnits: 40000, currency: currency);
 
-      final result = await repository.registerPayment(
-        companyId: 'company-1',
-        invoiceId: 'invoice-1',
-        paymentMethodId: 'method-1',
-        paymentDate: paymentDate,
-        amount: amount,
-        referenceNumber: 'REF-1',
-        notes: 'Paid by bank transfer',
-      );
+        final result = await repository.registerPayment(
+          companyId: 'company-1',
+          invoiceId: 'invoice-1',
+          paymentMethodId: 'method-1',
+          paymentDate: paymentDate,
+          amount: amount,
+          referenceNumber: 'REF-1',
+          notes: 'Paid by bank transfer',
+        );
 
-      expect(result.failureOrNull, isNull);
-      expect(result.dataOrNull?.id, 'payment-1');
-      expect(dataSource.lastCompanyId, 'company-1');
-      expect(dataSource.lastInvoiceId, 'invoice-1');
-      expect(dataSource.lastPaymentMethodId, 'method-1');
-      expect(dataSource.lastPaymentDate, paymentDate);
-      expect(dataSource.lastAmount, same(amount));
-      expect(dataSource.lastReferenceNumber, 'REF-1');
-      expect(dataSource.lastNotes, 'Paid by bank transfer');
-    });
+        expect(result.failureOrNull, isNull);
+        expect(result.dataOrNull?.id, 'payment-1');
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(dataSource.lastInvoiceId, 'invoice-1');
+        expect(dataSource.lastPaymentMethodId, 'method-1');
+        expect(dataSource.lastPaymentDate, paymentDate);
+        expect(dataSource.lastAmount, same(amount));
+        expect(dataSource.lastReferenceNumber, 'REF-1');
+        expect(dataSource.lastNotes, 'Paid by bank transfer');
+      },
+    );
 
     test('uses view permission code for payment reads', () async {
       final repository = PaymentsRepositoryImpl(
@@ -138,21 +141,27 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<ConflictFailure>());
-      expect(result.failureOrNull?.code, PaymentFailureCodes.conflictOverpayment);
-      expect(result.failureOrNull?.message, isNull);
-    });
-
-    test('maps auth exceptions to the existing auth-required failure', () async {
-      final repository = PaymentsRepositoryImpl(
-        _FakePaymentsRemoteDataSource(nextError: AuthException('expired')),
+      expect(
+        result.failureOrNull?.code,
+        PaymentFailureCodes.conflictOverpayment,
       );
-
-      final result = await repository.getPayments(companyId: 'company-1');
-
-      expect(result.failureOrNull, isA<AuthFailure>());
-      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
       expect(result.failureOrNull?.message, isNull);
     });
+
+    test(
+      'maps auth exceptions to the existing auth-required failure',
+      () async {
+        final repository = PaymentsRepositoryImpl(
+          _FakePaymentsRemoteDataSource(nextError: AuthException('expired')),
+        );
+
+        final result = await repository.getPayments(companyId: 'company-1');
+
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
 
     test('keeps model mapping inside corrupt-data failure boundary', () async {
       final repository = PaymentsRepositoryImpl(
