@@ -19,9 +19,7 @@ final class InvoiceSettingsRepositoryImpl implements InvoiceSettingsRepository {
   static const _failureMapper = InvoicesRepositoryFailureMapper();
 
   @override
-  Future<Result<CompanyInvoiceSettings?>> get({
-    required String companyId,
-  }) {
+  Future<Result<CompanyInvoiceSettings?>> get({required String companyId}) {
     return _execute(
       permissionCode: FailureCodes.permissionInvoicesView,
       action: () async {
@@ -58,10 +56,7 @@ final class InvoiceSettingsRepositoryImpl implements InvoiceSettingsRepository {
       return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(
-        _failureMapper.fromPostgrest(
-          error,
-          permissionCode: permissionCode,
-        ),
+        _failureMapper.fromPostgrest(error, permissionCode: permissionCode),
       );
     } on FormatException catch (error) {
       return FailureResult(_failureMapper.fromFormatException(error));
