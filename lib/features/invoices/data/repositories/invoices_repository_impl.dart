@@ -1,10 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice.dart';
 import '../../domain/entities/invoice_creation_context.dart';
@@ -16,12 +14,14 @@ import '../mappers/billable_trip_mapper.dart';
 import '../mappers/invoice_creation_context_mapper.dart';
 import '../mappers/invoice_draft_write_mapper.dart';
 import '../mappers/invoice_mapper.dart';
-import '../mappers/invoices_failure_mapper.dart';
+import 'invoices_repository_failure_mapper.dart';
 
 final class InvoicesRepositoryImpl implements InvoicesRepository {
   final InvoicesRemoteDataSource _remoteDataSource;
 
   const InvoicesRepositoryImpl(this._remoteDataSource);
+
+  static const _failureMapper = InvoicesRepositoryFailureMapper();
 
   @override
   Future<Result<List<Invoice>>> getInvoices({required String companyId}) {
@@ -169,21 +169,19 @@ final class InvoicesRepositoryImpl implements InvoicesRepository {
   }) async {
     try {
       return Success(await action());
-    } on AuthException {
-      return const FailureResult(
-        AuthFailure(code: CompanyFailureCodes.authRequired),
-      );
+    } on AuthException catch (error) {
+      return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(
-        InvoicesFailureMapper.fromPostgrest(
+        _failureMapper.fromPostgrest(
           error,
           permissionCode: permissionCode,
         ),
       );
-    } on FormatException {
-      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
-    } catch (_) {
-      return const FailureResult(UnexpectedFailure());
+    } on FormatException catch (error) {
+      return FailureResult(_failureMapper.fromFormatException(error));
+    } catch (error) {
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
