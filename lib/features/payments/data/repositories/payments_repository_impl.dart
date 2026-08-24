@@ -84,10 +84,7 @@ final class PaymentsRepositoryImpl implements PaymentsRepository {
       return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(
-        _failureMapper.fromPostgrest(
-          error,
-          permissionCode: permissionCode,
-        ),
+        _failureMapper.fromPostgrest(error, permissionCode: permissionCode),
       );
     } on FormatException catch (error) {
       return FailureResult(_failureMapper.fromFormatException(error));
