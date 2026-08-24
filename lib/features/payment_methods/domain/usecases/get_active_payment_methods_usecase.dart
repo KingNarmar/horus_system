@@ -35,6 +35,18 @@ class GetActivePaymentMethodsUseCase
       );
     }
 
-    return _repository.getActivePaymentMethods(companyId: context.companyId);
+    final companyId = context.companyId.trim();
+    if (companyId.isEmpty) {
+      return Future.value(
+        const FailureResult<List<PaymentMethod>>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getActivePaymentMethods(companyId: companyId);
   }
 }
