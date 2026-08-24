@@ -1,16 +1,18 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../mappers/auth_user_mapper.dart';
+import 'auth_repository_failure_mapper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
 
   const AuthRepositoryImpl(this._remoteDataSource);
+
+  static const _failureMapper = AuthRepositoryFailureMapper();
 
   @override
   Future<Result<AuthUser>> register({
@@ -18,8 +20,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phone,
     required String email,
     required String password,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final userModel = await _remoteDataSource.register(
         fullName: fullName,
         phone: phone,
@@ -28,73 +30,47 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       return Success(userModel.toEntity());
-    } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
-    } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
-    }
+    });
   }
 
   @override
   Future<Result<AuthUser>> login({
     required String email,
     required String password,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final userModel = await _remoteDataSource.login(
         email: email,
         password: password,
       );
 
       return Success(userModel.toEntity());
-    } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
-    } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
-    }
+    });
   }
 
   @override
-  Future<Result<void>> logout() async {
-    try {
+  Future<Result<void>> logout() {
+    return _guard(() async {
       await _remoteDataSource.logout();
       return const Success<void>(null);
-    } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
-    } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
-    }
+    });
   }
 
   @override
-  Future<Result<AuthUser?>> getCurrentUser() async {
-    try {
+  Future<Result<AuthUser?>> getCurrentUser() {
+    return _guard(() async {
       final userModel = await _remoteDataSource.getCurrentUser();
       return Success(userModel?.toEntity());
+    });
+  }
+
+  Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
+    try {
+      return await action();
     } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromAuthException(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
