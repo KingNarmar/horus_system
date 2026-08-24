@@ -88,7 +88,10 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionSubscriptionsView,
       );
-      expect(result.failureOrNull?.message, 'Subscription view is not allowed.');
+      expect(
+        result.failureOrNull?.message,
+        'Subscription view is not allowed.',
+      );
     },
   );
 
