@@ -131,7 +131,7 @@ void main() {
       final result = await GetPaymentMethodsUseCase(repository)(
         GetPaymentMethodsParams(
           currentCompanyContext: _context(
-            CompanyRole.viewer,
+            CompanyRole.driver,
             companyId: '   ',
           ),
         ),
@@ -188,6 +188,26 @@ void main() {
       expect(result.dataOrNull?.single.id, 'cash');
       expect(repository.getAllCalls, 1);
       expect(repository.lastCompanyId, 'company-1');
+    });
+
+    test('active-methods read denies permission before company validation', () async {
+      final repository = FakePaymentMethodsRepository();
+
+      final result = await GetActivePaymentMethodsUseCase(repository)(
+        GetActivePaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.driver,
+            companyId: '   ',
+          ),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionPaymentMethodsView,
+      );
+      expect(repository.getActiveCalls, 0);
     });
 
     test('active-methods read validates and trims company id', () async {
