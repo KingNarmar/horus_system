@@ -51,6 +51,15 @@ void main() {
       expect(netProfit.dataOrNull?.metadata.companyId, 'company-1');
       expect(openInvoices.dataOrNull?.metadata.companyId, 'company-1');
       expect(dataSource.calls, hasLength(4));
+      expect(
+        dataSource.calls.map((call) => call.operation).toList(growable: false),
+        const [
+          _ReportOperation.operational,
+          _ReportOperation.tripExpenses,
+          _ReportOperation.tripNetProfit,
+          _ReportOperation.openInvoices,
+        ],
+      );
       for (final call in dataSource.calls) {
         expect(call.companyId, 'company-1');
         expect(call.fromDate, fromDate);
