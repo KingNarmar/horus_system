@@ -125,45 +125,51 @@ void main() {
       expect(reactivated.dataOrNull?.isActive, isTrue);
     });
 
-    test('all-methods read denies permission before company validation', () async {
-      final repository = FakePaymentMethodsRepository();
+    test(
+      'all-methods read denies permission before company validation',
+      () async {
+        final repository = FakePaymentMethodsRepository();
 
-      final result = await GetPaymentMethodsUseCase(repository)(
-        GetPaymentMethodsParams(
-          currentCompanyContext: _context(
-            CompanyRole.driver,
-            companyId: '   ',
+        final result = await GetPaymentMethodsUseCase(repository)(
+          GetPaymentMethodsParams(
+            currentCompanyContext: _context(
+              CompanyRole.driver,
+              companyId: '   ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result.failureOrNull, isA<PermissionFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.permissionPaymentMethodsView,
-      );
-      expect(repository.getAllCalls, 0);
-    });
+        expect(result.failureOrNull, isA<PermissionFailure>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.permissionPaymentMethodsView,
+        );
+        expect(repository.getAllCalls, 0);
+      },
+    );
 
-    test('all-methods read rejects blank company id before repository', () async {
-      final repository = FakePaymentMethodsRepository();
+    test(
+      'all-methods read rejects blank company id before repository',
+      () async {
+        final repository = FakePaymentMethodsRepository();
 
-      final result = await GetPaymentMethodsUseCase(repository)(
-        GetPaymentMethodsParams(
-          currentCompanyContext: _context(
-            CompanyRole.owner,
-            companyId: '   ',
+        final result = await GetPaymentMethodsUseCase(repository)(
+          GetPaymentMethodsParams(
+            currentCompanyContext: _context(
+              CompanyRole.owner,
+              companyId: '   ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result.failureOrNull, isA<ValidationFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationCompanyIdRequired,
-      );
-      expect(repository.getAllCalls, 0);
-    });
+        expect(result.failureOrNull, isA<ValidationFailure>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationCompanyIdRequired,
+        );
+        expect(repository.getAllCalls, 0);
+      },
+    );
 
     test('all-methods read trims company id before repository call', () async {
       final repository = FakePaymentMethodsRepository()
@@ -190,25 +196,28 @@ void main() {
       expect(repository.lastCompanyId, 'company-1');
     });
 
-    test('active-methods read denies permission before company validation', () async {
-      final repository = FakePaymentMethodsRepository();
+    test(
+      'active-methods read denies permission before company validation',
+      () async {
+        final repository = FakePaymentMethodsRepository();
 
-      final result = await GetActivePaymentMethodsUseCase(repository)(
-        GetActivePaymentMethodsParams(
-          currentCompanyContext: _context(
-            CompanyRole.driver,
-            companyId: '   ',
+        final result = await GetActivePaymentMethodsUseCase(repository)(
+          GetActivePaymentMethodsParams(
+            currentCompanyContext: _context(
+              CompanyRole.driver,
+              companyId: '   ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result.failureOrNull, isA<PermissionFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.permissionPaymentMethodsView,
-      );
-      expect(repository.getActiveCalls, 0);
-    });
+        expect(result.failureOrNull, isA<PermissionFailure>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.permissionPaymentMethodsView,
+        );
+        expect(repository.getActiveCalls, 0);
+      },
+    );
 
     test('active-methods read validates and trims company id', () async {
       final repository = FakePaymentMethodsRepository()

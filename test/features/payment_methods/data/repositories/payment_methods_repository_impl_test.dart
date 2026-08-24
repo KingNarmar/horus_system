@@ -30,21 +30,24 @@ void main() {
       expect(auditRepository.logs, isEmpty);
     });
 
-    test('active read forwards exact company scope and maps entities', () async {
-      final events = <String>[];
-      final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(dataSource, auditRepository);
+    test(
+      'active read forwards exact company scope and maps entities',
+      () async {
+        final events = <String>[];
+        final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
+        final auditRepository = _FakeAuditLogRepository(events: events);
+        final repository = _repository(dataSource, auditRepository);
 
-      final result = await repository.getActivePaymentMethods(
-        companyId: 'company-1',
-      );
+        final result = await repository.getActivePaymentMethods(
+          companyId: 'company-1',
+        );
 
-      expect(result.dataOrNull?.single.id, 'method-1');
-      expect(dataSource.lastCompanyId, 'company-1');
-      expect(events, ['getActive']);
-      expect(auditRepository.logs, isEmpty);
-    });
+        expect(result.dataOrNull?.single.id, 'method-1');
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(events, ['getActive']);
+        expect(auditRepository.logs, isEmpty);
+      },
+    );
 
     test('add sequence remains mutation then audit then entity', () async {
       final events = <String>[];
@@ -65,73 +68,82 @@ void main() {
       expect(auditRepository.logs.single.description, 'payment_method_created');
     });
 
-    test('update sequence remains old snapshot then mutation then audit', () async {
-      final events = <String>[];
-      final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(dataSource, auditRepository);
+    test(
+      'update sequence remains old snapshot then mutation then audit',
+      () async {
+        final events = <String>[];
+        final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
+        final auditRepository = _FakeAuditLogRepository(events: events);
+        final repository = _repository(dataSource, auditRepository);
 
-      final result = await repository.updatePaymentMethod(
-        paymentMethodId: 'method-1',
-        data: const PaymentMethodWriteData(
+        final result = await repository.updatePaymentMethod(
+          paymentMethodId: 'method-1',
+          data: const PaymentMethodWriteData(
+            companyId: 'company-1',
+            name: 'Card',
+          ),
+          actorRole: 'admin',
+        );
+
+        expect(result.dataOrNull?.name, 'Card');
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(dataSource.lastPaymentMethodId, 'method-1');
+        expect(events, ['lookup', 'update', 'audit']);
+        final audit = auditRepository.logs.single;
+        expect(audit.description, 'payment_method_updated');
+        expect(audit.oldValues?['name'], 'Cash');
+        expect(audit.newValues?['name'], 'Card');
+      },
+    );
+
+    test(
+      'deactivate sequence remains old snapshot then mutation then audit',
+      () async {
+        final events = <String>[];
+        final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
+        final auditRepository = _FakeAuditLogRepository(events: events);
+        final repository = _repository(dataSource, auditRepository);
+
+        final result = await repository.deactivatePaymentMethod(
           companyId: 'company-1',
-          name: 'Card',
-        ),
-        actorRole: 'admin',
-      );
+          paymentMethodId: 'method-1',
+          actorRole: 'owner',
+        );
 
-      expect(result.dataOrNull?.name, 'Card');
-      expect(dataSource.lastCompanyId, 'company-1');
-      expect(dataSource.lastPaymentMethodId, 'method-1');
-      expect(events, ['lookup', 'update', 'audit']);
-      final audit = auditRepository.logs.single;
-      expect(audit.description, 'payment_method_updated');
-      expect(audit.oldValues?['name'], 'Cash');
-      expect(audit.newValues?['name'], 'Card');
-    });
+        expect(result.dataOrNull?.isActive, isFalse);
+        expect(events, ['lookup', 'deactivate', 'audit']);
+        final audit = auditRepository.logs.single;
+        expect(audit.description, 'payment_method_deactivated');
+        expect(audit.oldValues?['is_active'], isTrue);
+        expect(audit.newValues?['is_active'], isFalse);
+      },
+    );
 
-    test('deactivate sequence remains old snapshot then mutation then audit', () async {
-      final events = <String>[];
-      final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(dataSource, auditRepository);
+    test(
+      'reactivate sequence remains old snapshot then mutation then audit',
+      () async {
+        final events = <String>[];
+        final dataSource = _FakePaymentMethodsRemoteDataSource(
+          events: events,
+          model: _model(isActive: false),
+        );
+        final auditRepository = _FakeAuditLogRepository(events: events);
+        final repository = _repository(dataSource, auditRepository);
 
-      final result = await repository.deactivatePaymentMethod(
-        companyId: 'company-1',
-        paymentMethodId: 'method-1',
-        actorRole: 'owner',
-      );
+        final result = await repository.reactivatePaymentMethod(
+          companyId: 'company-1',
+          paymentMethodId: 'method-1',
+          actorRole: 'owner',
+        );
 
-      expect(result.dataOrNull?.isActive, isFalse);
-      expect(events, ['lookup', 'deactivate', 'audit']);
-      final audit = auditRepository.logs.single;
-      expect(audit.description, 'payment_method_deactivated');
-      expect(audit.oldValues?['is_active'], isTrue);
-      expect(audit.newValues?['is_active'], isFalse);
-    });
-
-    test('reactivate sequence remains old snapshot then mutation then audit', () async {
-      final events = <String>[];
-      final dataSource = _FakePaymentMethodsRemoteDataSource(
-        events: events,
-        model: _model(isActive: false),
-      );
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(dataSource, auditRepository);
-
-      final result = await repository.reactivatePaymentMethod(
-        companyId: 'company-1',
-        paymentMethodId: 'method-1',
-        actorRole: 'owner',
-      );
-
-      expect(result.dataOrNull?.isActive, isTrue);
-      expect(events, ['lookup', 'reactivate', 'audit']);
-      final audit = auditRepository.logs.single;
-      expect(audit.description, 'payment_method_reactivated');
-      expect(audit.oldValues?['is_active'], isFalse);
-      expect(audit.newValues?['is_active'], isTrue);
-    });
+        expect(result.dataOrNull?.isActive, isTrue);
+        expect(events, ['lookup', 'reactivate', 'audit']);
+        final audit = auditRepository.logs.single;
+        expect(audit.description, 'payment_method_reactivated');
+        expect(audit.oldValues?['is_active'], isFalse);
+        expect(audit.newValues?['is_active'], isTrue);
+      },
+    );
 
     test('failed mutation does not write audit', () async {
       final events = <String>[];
@@ -256,12 +268,12 @@ void main() {
 
     test('generic Postgrest and unexpected errors preserve mapping', () async {
       final postgrestEvents = <String>[];
-      final postgrestDataSource = _FakePaymentMethodsRemoteDataSource(
-        events: postgrestEvents,
-      )..getAllError = const PostgrestException(
-        message: 'database unavailable',
-        code: 'PGRST500',
-      );
+      final postgrestDataSource =
+          _FakePaymentMethodsRemoteDataSource(events: postgrestEvents)
+            ..getAllError = const PostgrestException(
+              message: 'database unavailable',
+              code: 'PGRST500',
+            );
       final postgrestRepository = _repository(
         postgrestDataSource,
         _FakeAuditLogRepository(events: postgrestEvents),
@@ -283,9 +295,8 @@ void main() {
         _FakeAuditLogRepository(events: unexpectedEvents),
       );
 
-      final unexpectedResult = await unexpectedRepository.getActivePaymentMethods(
-        companyId: 'company-1',
-      );
+      final unexpectedResult = await unexpectedRepository
+          .getActivePaymentMethods(companyId: 'company-1');
       expect(unexpectedResult.failureOrNull, isA<UnexpectedFailure>());
       expect(
         unexpectedResult.failureOrNull?.message,

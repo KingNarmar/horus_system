@@ -56,36 +56,39 @@ void main() {
       expect(data.newValues?['name'], 'Card');
     });
 
-    test('preserves deactivate and reactivate semantic audit contracts', () async {
-      final repository = _CapturingAuditLogRepository();
-      final writer = PaymentMethodRepositoryAuditWriter(
-        CreateAuditLogUseCase(repository),
-      );
+    test(
+      'preserves deactivate and reactivate semantic audit contracts',
+      () async {
+        final repository = _CapturingAuditLogRepository();
+        final writer = PaymentMethodRepositoryAuditWriter(
+          CreateAuditLogUseCase(repository),
+        );
 
-      await writer.writeDeactivated(
-        oldModel: _model(name: 'Cash', isActive: true),
-        model: _model(name: 'Cash', isActive: false),
-        actorRole: 'owner',
-      );
-      await writer.writeReactivated(
-        oldModel: _model(name: 'Cash', isActive: false),
-        model: _model(name: 'Cash', isActive: true),
-        actorRole: 'owner',
-      );
+        await writer.writeDeactivated(
+          oldModel: _model(name: 'Cash', isActive: true),
+          model: _model(name: 'Cash', isActive: false),
+          actorRole: 'owner',
+        );
+        await writer.writeReactivated(
+          oldModel: _model(name: 'Cash', isActive: false),
+          model: _model(name: 'Cash', isActive: true),
+          actorRole: 'owner',
+        );
 
-      expect(repository.logs, hasLength(2));
-      final deactivated = repository.logs[0];
-      expect(deactivated.action, AuditAction.deactivated);
-      expect(deactivated.description, 'payment_method_deactivated');
-      expect(deactivated.oldValues?['is_active'], isTrue);
-      expect(deactivated.newValues?['is_active'], isFalse);
+        expect(repository.logs, hasLength(2));
+        final deactivated = repository.logs[0];
+        expect(deactivated.action, AuditAction.deactivated);
+        expect(deactivated.description, 'payment_method_deactivated');
+        expect(deactivated.oldValues?['is_active'], isTrue);
+        expect(deactivated.newValues?['is_active'], isFalse);
 
-      final reactivated = repository.logs[1];
-      expect(reactivated.action, AuditAction.reactivated);
-      expect(reactivated.description, 'payment_method_reactivated');
-      expect(reactivated.oldValues?['is_active'], isFalse);
-      expect(reactivated.newValues?['is_active'], isTrue);
-    });
+        final reactivated = repository.logs[1];
+        expect(reactivated.action, AuditAction.reactivated);
+        expect(reactivated.description, 'payment_method_reactivated');
+        expect(reactivated.oldValues?['is_active'], isFalse);
+        expect(reactivated.newValues?['is_active'], isTrue);
+      },
+    );
 
     test('propagates audit use-case failure', () async {
       final repository = _CapturingAuditLogRepository(

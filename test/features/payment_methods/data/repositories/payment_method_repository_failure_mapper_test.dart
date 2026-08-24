@@ -21,7 +21,10 @@ void main() {
 
       expect(failure, isA<ConflictFailure>());
       expect(failure.code, FailureCodes.conflictPaymentMethodDuplicateName);
-      expect(failure.message, 'A payment method with this name already exists.');
+      expect(
+        failure.message,
+        'A payment method with this name already exists.',
+      );
     });
 
     test('maps missing-row error to stable not-found failure', () {
