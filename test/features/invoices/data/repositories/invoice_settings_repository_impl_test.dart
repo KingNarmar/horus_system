@@ -1,6 +1,5 @@
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
-import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/invoices/data/constants/invoices_rpc_error_codes.dart';
 import 'package:horus_system/features/invoices/data/datasources/invoice_settings_remote_data_source.dart';
@@ -20,7 +19,6 @@ void main() {
         dataSource,
       ).get(companyId: 'company-1');
 
-      expect(result, isA<Success<dynamic>>());
       expect(result.isSuccess, isTrue);
       expect(result.dataOrNull, isNull);
       expect(dataSource.getCompanyId, 'company-1');
