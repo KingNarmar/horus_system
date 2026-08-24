@@ -142,10 +142,8 @@ final class _FakeDashboardRemoteDataSource
 
   String? lastCompanyId;
 
-  _FakeDashboardRemoteDataSource({
-    DashboardSourceModel? model,
-    this.nextError,
-  }) : model = model ?? _dashboardModel();
+  _FakeDashboardRemoteDataSource({DashboardSourceModel? model, this.nextError})
+    : model = model ?? _dashboardModel();
 
   @override
   Future<DashboardSourceModel> getDashboardSource({
