@@ -137,15 +137,18 @@ void main() {
       expect(failure.message, isNull);
     });
 
-    test('maps corrupt persisted format failures to generic server failure', () {
-      final failure = mapper.fromFormatException(
-        const FormatException('invalid persisted payment'),
-      );
+    test(
+      'maps corrupt persisted format failures to generic server failure',
+      () {
+        final failure = mapper.fromFormatException(
+          const FormatException('invalid persisted payment'),
+        );
 
-      expect(failure, isA<ServerFailure>());
-      expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, isNull);
-    });
+        expect(failure, isA<ServerFailure>());
+        expect(failure.code, FailureCodes.serverError);
+        expect(failure.message, isNull);
+      },
+    );
 
     test('maps unexpected failures without exposing internal text', () {
       final failure = mapper.fromUnexpected(StateError('secret internal text'));
