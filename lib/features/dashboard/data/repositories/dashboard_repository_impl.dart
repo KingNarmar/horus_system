@@ -1,40 +1,42 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/entities/dashboard_source.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../datasources/dashboard_remote_data_source.dart';
-import '../mappers/dashboard_failure_mapper.dart';
 import '../mappers/dashboard_source_mapper.dart';
+import 'dashboard_repository_failure_mapper.dart';
 
 final class DashboardRepositoryImpl implements DashboardRepository {
   final DashboardRemoteDataSource _remoteDataSource;
 
   const DashboardRepositoryImpl(this._remoteDataSource);
 
+  static const _failureMapper = DashboardRepositoryFailureMapper();
+
   @override
   Future<Result<DashboardSource>> getDashboardSource({
     required String companyId,
-  }) async {
-    try {
-      final model = await _remoteDataSource.getDashboardSource(
+  }) {
+    return _guard(
+      () async => (await _remoteDataSource.getDashboardSource(
         companyId: companyId,
-      );
-      return Success(model.toEntity());
-    } on AuthException {
-      return const FailureResult(
-        AuthFailure(code: CompanyFailureCodes.authRequired),
-      );
+      )).toEntity(),
+    );
+  }
+
+  Future<Result<T>> _guard<T>(Future<T> Function() action) async {
+    try {
+      return Success(await action());
+    } on AuthException catch (error) {
+      return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
-      return FailureResult(DashboardFailureMapper.fromPostgrest(error));
-    } on FormatException {
-      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
-    } catch (_) {
-      return const FailureResult(UnexpectedFailure());
+      return FailureResult(_failureMapper.fromPostgrest(error));
+    } on FormatException catch (error) {
+      return FailureResult(_failureMapper.fromFormatException(error));
+    } catch (error) {
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
