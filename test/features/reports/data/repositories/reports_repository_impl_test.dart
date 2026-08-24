@@ -136,20 +136,23 @@ void main() {
       );
     });
 
-    test('maps auth exceptions to the existing auth-required failure', () async {
-      final repository = ReportsRepositoryImpl(
-        _FakeReportsRemoteDataSource(error: AuthException('expired')),
-      );
+    test(
+      'maps auth exceptions to the existing auth-required failure',
+      () async {
+        final repository = ReportsRepositoryImpl(
+          _FakeReportsRemoteDataSource(error: AuthException('expired')),
+        );
 
-      final result = await repository.getOperationalTripSource(
-        companyId: 'company-1',
-        fromDate: null,
-        toDate: null,
-      );
+        final result = await repository.getOperationalTripSource(
+          companyId: 'company-1',
+          fromDate: null,
+          toDate: null,
+        );
 
-      expect(result.failureOrNull, isA<AuthFailure>());
-      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
-    });
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+      },
+    );
 
     test('keeps source mapping inside corrupt-data failure boundary', () async {
       final repository = ReportsRepositoryImpl(
@@ -171,9 +174,7 @@ void main() {
 
     test('maps unexpected failures without exposing internal text', () async {
       final repository = ReportsRepositoryImpl(
-        _FakeReportsRemoteDataSource(
-          error: StateError('secret internal text'),
-        ),
+        _FakeReportsRemoteDataSource(error: StateError('secret internal text')),
       );
 
       final result = await repository.getTripNetProfitSource(
@@ -200,9 +201,7 @@ ReportSourceMetadataModel _metadata({String currencyCode = 'AED'}) {
   );
 }
 
-OperationalReportSourceModel _operationalModel({
-  String currencyCode = 'AED',
-}) {
+OperationalReportSourceModel _operationalModel({String currencyCode = 'AED'}) {
   return OperationalReportSourceModel(
     metadata: _metadata(currencyCode: currencyCode),
     rows: const [],
