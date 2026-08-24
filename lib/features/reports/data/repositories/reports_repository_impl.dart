@@ -1,10 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/entities/open_invoices_report.dart';
 import '../../domain/entities/operational_trip_report.dart';
 import '../../domain/entities/trip_expenses_report.dart';
@@ -13,12 +10,14 @@ import '../../domain/failures/reports_failure_codes.dart';
 import '../../domain/repositories/reports_repository.dart';
 import '../datasources/reports_remote_data_source.dart';
 import '../mappers/report_source_mappers.dart';
-import '../mappers/reports_failure_mapper.dart';
+import 'reports_repository_failure_mapper.dart';
 
 final class ReportsRepositoryImpl implements ReportsRepository {
   final ReportsRemoteDataSource _remoteDataSource;
 
   const ReportsRepositoryImpl(this._remoteDataSource);
+
+  static const _failureMapper = ReportsRepositoryFailureMapper();
 
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
@@ -90,21 +89,19 @@ final class ReportsRepositoryImpl implements ReportsRepository {
   }) async {
     try {
       return Success(await action());
-    } on AuthException {
-      return const FailureResult(
-        AuthFailure(code: CompanyFailureCodes.authRequired),
-      );
+    } on AuthException catch (error) {
+      return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(
-        ReportsFailureMapper.fromPostgrest(
+        _failureMapper.fromPostgrest(
           error,
           permissionFailureCode: permissionFailureCode,
         ),
       );
-    } on FormatException {
-      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
-    } catch (_) {
-      return const FailureResult(UnexpectedFailure());
+    } on FormatException catch (error) {
+      return FailureResult(_failureMapper.fromFormatException(error));
+    } catch (error) {
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
