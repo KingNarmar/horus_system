@@ -7,6 +7,7 @@ import 'package:horus_system/features/payment_methods/domain/entities/payment_me
 import 'package:horus_system/features/payment_methods/domain/usecases/add_payment_method_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/deactivate_payment_method_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/get_active_payment_methods_usecase.dart';
+import 'package:horus_system/features/payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/reactivate_payment_method_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/update_payment_method_usecase.dart';
 import 'package:test/test.dart';
@@ -124,36 +125,120 @@ void main() {
       expect(reactivated.dataOrNull?.isActive, isTrue);
     });
 
-    test(
-      'active methods use case calls active-only repository contract',
-      () async {
-        final repository = FakePaymentMethodsRepository()
-          ..activeMethods = const [
-            PaymentMethod(
-              id: 'cash',
-              companyId: 'company-1',
-              name: 'Cash',
-              isActive: true,
-            ),
-          ];
-        final result = await GetActivePaymentMethodsUseCase(repository)(
-          GetActivePaymentMethodsParams(
-            currentCompanyContext: _context(CompanyRole.accountant),
-          ),
-        );
+    test('all-methods read denies permission before company validation', () async {
+      final repository = FakePaymentMethodsRepository();
 
-        expect(result.dataOrNull?.single.id, 'cash');
-        expect(repository.getActiveCalls, 1);
-        expect(repository.getAllCalls, 0);
-        expect(repository.lastCompanyId, 'company-1');
-      },
-    );
+      final result = await GetPaymentMethodsUseCase(repository)(
+        GetPaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.viewer,
+            companyId: '   ',
+          ),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionPaymentMethodsView,
+      );
+      expect(repository.getAllCalls, 0);
+    });
+
+    test('all-methods read rejects blank company id before repository', () async {
+      final repository = FakePaymentMethodsRepository();
+
+      final result = await GetPaymentMethodsUseCase(repository)(
+        GetPaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.owner,
+            companyId: '   ',
+          ),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationCompanyIdRequired,
+      );
+      expect(repository.getAllCalls, 0);
+    });
+
+    test('all-methods read trims company id before repository call', () async {
+      final repository = FakePaymentMethodsRepository()
+        ..methods = const [
+          PaymentMethod(
+            id: 'cash',
+            companyId: 'company-1',
+            name: 'Cash',
+            isActive: true,
+          ),
+        ];
+
+      final result = await GetPaymentMethodsUseCase(repository)(
+        GetPaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.admin,
+            companyId: '  company-1  ',
+          ),
+        ),
+      );
+
+      expect(result.dataOrNull?.single.id, 'cash');
+      expect(repository.getAllCalls, 1);
+      expect(repository.lastCompanyId, 'company-1');
+    });
+
+    test('active-methods read validates and trims company id', () async {
+      final repository = FakePaymentMethodsRepository()
+        ..activeMethods = const [
+          PaymentMethod(
+            id: 'cash',
+            companyId: 'company-1',
+            name: 'Cash',
+            isActive: true,
+          ),
+        ];
+      final useCase = GetActivePaymentMethodsUseCase(repository);
+
+      final invalidResult = await useCase(
+        GetActivePaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.accountant,
+            companyId: '   ',
+          ),
+        ),
+      );
+      expect(
+        invalidResult.failureOrNull?.code,
+        FailureCodes.validationCompanyIdRequired,
+      );
+      expect(repository.getActiveCalls, 0);
+
+      final result = await useCase(
+        GetActivePaymentMethodsParams(
+          currentCompanyContext: _context(
+            CompanyRole.accountant,
+            companyId: '  company-1  ',
+          ),
+        ),
+      );
+
+      expect(result.dataOrNull?.single.id, 'cash');
+      expect(repository.getActiveCalls, 1);
+      expect(repository.getAllCalls, 0);
+      expect(repository.lastCompanyId, 'company-1');
+    });
   });
 }
 
-CurrentCompanyContext _context(CompanyRole role) {
+CurrentCompanyContext _context(
+  CompanyRole role, {
+  String companyId = 'company-1',
+}) {
   return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Company One'),
+    company: Company(id: companyId, name: 'Company One'),
     role: role,
   );
 }
