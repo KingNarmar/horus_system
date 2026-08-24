@@ -33,10 +33,9 @@ void main() {
         );
       final prefix = InvoicePrefix.tryParse('new')!;
 
-      final result = await InvoiceSettingsRepositoryImpl(dataSource).update(
-        companyId: 'company-1',
-        prefix: prefix,
-      );
+      final result = await InvoiceSettingsRepositoryImpl(
+        dataSource,
+      ).update(companyId: 'company-1', prefix: prefix);
 
       expect(result.isSuccess, isTrue);
       expect(dataSource.updateCompanyId, 'company-1');
@@ -70,10 +69,9 @@ void main() {
           );
         final prefix = InvoicePrefix.tryParse('INV')!;
 
-        final result = await InvoiceSettingsRepositoryImpl(dataSource).update(
-          companyId: 'company-1',
-          prefix: prefix,
-        );
+        final result = await InvoiceSettingsRepositoryImpl(
+          dataSource,
+        ).update(companyId: 'company-1', prefix: prefix);
 
         expect(result.failureOrNull, isA<PermissionFailure>());
         expect(
