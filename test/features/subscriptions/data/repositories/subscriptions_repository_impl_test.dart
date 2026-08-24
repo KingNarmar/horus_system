@@ -92,16 +92,19 @@ void main() {
     },
   );
 
-  test('getAvailablePlans maps unexpected failure through feature mapper', () async {
-    final error = Exception('unexpected');
-    final remote = _FakeSubscriptionsRemoteDataSource(plansError: error);
-    final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+  test(
+    'getAvailablePlans maps unexpected failure through feature mapper',
+    () async {
+      final error = Exception('unexpected');
+      final remote = _FakeSubscriptionsRemoteDataSource(plansError: error);
+      final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
 
-    final result = await repository.getAvailablePlans();
+      final result = await repository.getAvailablePlans();
 
-    expect(result.failureOrNull, isA<UnexpectedFailure>());
-    expect(result.failureOrNull?.message, error.toString());
-  });
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.message, error.toString());
+    },
+  );
 }
 
 final class _FakeSubscriptionsRemoteDataSource
