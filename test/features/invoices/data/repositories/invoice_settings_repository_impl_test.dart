@@ -13,7 +13,8 @@ import 'package:test/test.dart';
 void main() {
   group('InvoiceSettingsRepositoryImpl', () {
     test('preserves company-scoped nullable settings read', () async {
-      final dataSource = _FakeInvoiceSettingsRemoteDataSource()..getModel = null;
+      final dataSource = _FakeInvoiceSettingsRemoteDataSource()
+        ..getModel = null;
 
       final result = await InvoiceSettingsRepositoryImpl(
         dataSource,
@@ -59,53 +60,62 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.permissionInvoicesView);
     });
 
-    test('maps update permission failures using settings management code', () async {
-      final dataSource = _FakeInvoiceSettingsRemoteDataSource()
-        ..updateError = PostgrestException(
-          message: 'permission denied',
-          code: InvoicesRpcErrorCodes.permissionDenied,
-        );
-      final prefix = InvoicePrefix.tryParse('INV')!;
+    test(
+      'maps update permission failures using settings management code',
+      () async {
+        final dataSource = _FakeInvoiceSettingsRemoteDataSource()
+          ..updateError = PostgrestException(
+            message: 'permission denied',
+            code: InvoicesRpcErrorCodes.permissionDenied,
+          );
+        final prefix = InvoicePrefix.tryParse('INV')!;
 
-      final result = await InvoiceSettingsRepositoryImpl(dataSource).update(
-        companyId: 'company-1',
-        prefix: prefix,
-      );
-
-      expect(result.failureOrNull, isA<PermissionFailure>());
-      expect(
-        result.failureOrNull?.code,
-        InvoiceFailureCodes.permissionSettingsManagement,
-      );
-    });
-
-    test('maps auth exceptions to the existing auth-required failure', () async {
-      final dataSource = _FakeInvoiceSettingsRemoteDataSource()
-        ..getError = AuthException('expired');
-
-      final result = await InvoiceSettingsRepositoryImpl(
-        dataSource,
-      ).get(companyId: 'company-1');
-
-      expect(result.failureOrNull, isA<AuthFailure>());
-      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
-    });
-
-    test('keeps model mapping inside the corrupt-data failure boundary', () async {
-      final dataSource = _FakeInvoiceSettingsRemoteDataSource()
-        ..getModel = const CompanyInvoiceSettingsModel(
+        final result = await InvoiceSettingsRepositoryImpl(dataSource).update(
           companyId: 'company-1',
-          invoicePrefix: 'invalid prefix!',
+          prefix: prefix,
         );
 
-      final result = await InvoiceSettingsRepositoryImpl(
-        dataSource,
-      ).get(companyId: 'company-1');
+        expect(result.failureOrNull, isA<PermissionFailure>());
+        expect(
+          result.failureOrNull?.code,
+          InvoiceFailureCodes.permissionSettingsManagement,
+        );
+      },
+    );
 
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-    });
+    test(
+      'maps auth exceptions to the existing auth-required failure',
+      () async {
+        final dataSource = _FakeInvoiceSettingsRemoteDataSource()
+          ..getError = AuthException('expired');
+
+        final result = await InvoiceSettingsRepositoryImpl(
+          dataSource,
+        ).get(companyId: 'company-1');
+
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+      },
+    );
+
+    test(
+      'keeps model mapping inside the corrupt-data failure boundary',
+      () async {
+        final dataSource = _FakeInvoiceSettingsRemoteDataSource()
+          ..getModel = const CompanyInvoiceSettingsModel(
+            companyId: 'company-1',
+            invoicePrefix: 'invalid prefix!',
+          );
+
+        final result = await InvoiceSettingsRepositoryImpl(
+          dataSource,
+        ).get(companyId: 'company-1');
+
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
 
     test('maps unexpected failures without exposing internal text', () async {
       final dataSource = _FakeInvoiceSettingsRemoteDataSource()
