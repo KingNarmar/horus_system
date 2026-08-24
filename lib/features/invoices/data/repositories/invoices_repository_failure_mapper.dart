@@ -1,4 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, PostgrestException;
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
@@ -7,8 +8,14 @@ import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/invoice_failure_codes.dart';
 import '../constants/invoices_rpc_error_codes.dart';
 
-abstract final class InvoicesFailureMapper {
-  static Failure fromPostgrest(
+final class InvoicesRepositoryFailureMapper {
+  const InvoicesRepositoryFailureMapper();
+
+  Failure fromAuthException(AuthException _) {
+    return const AuthFailure(code: CompanyFailureCodes.authRequired);
+  }
+
+  Failure fromPostgrest(
     PostgrestException error, {
     required String permissionCode,
   }) {
@@ -111,5 +118,13 @@ abstract final class InvoicesFailureMapper {
       ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
+  }
+
+  Failure fromFormatException(FormatException _) {
+    return const ServerFailure(code: FailureCodes.serverError);
+  }
+
+  Failure fromUnexpected(Object _) {
+    return const UnexpectedFailure();
   }
 }
