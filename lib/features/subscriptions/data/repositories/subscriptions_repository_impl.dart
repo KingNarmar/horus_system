@@ -1,19 +1,19 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/company_subscription.dart';
 import '../../domain/entities/subscription_plan.dart';
 import '../../domain/repositories/subscriptions_repository.dart';
 import '../datasources/subscriptions_remote_data_source.dart';
 import '../mappers/subscription_mapper.dart';
+import 'subscriptions_repository_failure_mapper.dart';
 
 final class SubscriptionsRepositoryImpl implements SubscriptionsRepository {
   final SubscriptionsRemoteDataSource remoteDataSource;
 
   const SubscriptionsRepositoryImpl({required this.remoteDataSource});
+
+  static const _failureMapper = SubscriptionsRepositoryFailureMapper();
 
   @override
   Future<Result<List<SubscriptionPlan>>> getAvailablePlans() {
@@ -28,18 +28,8 @@ final class SubscriptionsRepositoryImpl implements SubscriptionsRepository {
     required String companyId,
   }) {
     return _guard(() async {
-      final normalizedCompanyId = companyId.trim();
-      if (normalizedCompanyId.isEmpty) {
-        return const FailureResult<CompanySubscription?>(
-          ValidationFailure(
-            code: FailureCodes.validationCompanyIdRequired,
-            message: 'Company id is required.',
-          ),
-        );
-      }
-
       final model = await remoteDataSource.getCurrentCompanySubscription(
-        companyId: normalizedCompanyId,
+        companyId: companyId,
       );
       if (model == null) return const Success(null);
 
@@ -55,22 +45,9 @@ final class SubscriptionsRepositoryImpl implements SubscriptionsRepository {
     try {
       return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(_mapPostgrestException(error));
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
-  }
-
-  Failure _mapPostgrestException(PostgrestException error) {
-    return switch (error.code) {
-      '42501' => const PermissionFailure(
-        code: FailureCodes.permissionSubscriptionsView,
-        message: 'Subscription view is not allowed.',
-      ),
-      _ => ServerFailure(
-        code: FailureCodes.serverError,
-        message: error.message,
-      ),
-    };
   }
 }

@@ -1,8 +1,10 @@
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/subscriptions/data/datasources/subscriptions_remote_data_source.dart';
 import 'package:horus_system/features/subscriptions/data/models/company_subscription_model.dart';
 import 'package:horus_system/features/subscriptions/data/models/subscription_plan_model.dart';
 import 'package:horus_system/features/subscriptions/data/repositories/subscriptions_repository_impl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
@@ -16,7 +18,7 @@ void main() {
   });
 
   test(
-    'getCurrentCompanySubscription trims and scopes by company id',
+    'getCurrentCompanySubscription forwards the exact company id it receives',
     () async {
       final remote = _FakeSubscriptionsRemoteDataSource(
         subscription: _subscriptionModel(status: 'active'),
@@ -28,7 +30,7 @@ void main() {
       );
 
       expect(result.dataOrNull?.companyId, 'company-1');
-      expect(remote.requestedCompanyIds, ['company-1']);
+      expect(remote.requestedCompanyIds, [' company-1 ']);
     },
   );
 
@@ -44,24 +46,6 @@ void main() {
 
       expect(result.dataOrNull, isNull);
       expect(result.isSuccess, isTrue);
-    },
-  );
-
-  test(
-    'getCurrentCompanySubscription validates company id before remote call',
-    () async {
-      final remote = _FakeSubscriptionsRemoteDataSource();
-      final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
-
-      final result = await repository.getCurrentCompanySubscription(
-        companyId: ' ',
-      );
-
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationCompanyIdRequired,
-      );
-      expect(remote.requestedCompanyIds, isEmpty);
     },
   );
 
@@ -83,6 +67,47 @@ void main() {
       );
     },
   );
+
+  test(
+    'getCurrentCompanySubscription maps Postgrest failure through feature mapper',
+    () async {
+      final remote = _FakeSubscriptionsRemoteDataSource(
+        subscriptionError: const PostgrestException(
+          message: 'permission denied',
+          code: '42501',
+        ),
+      );
+      final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+
+      final result = await repository.getCurrentCompanySubscription(
+        companyId: 'company-1',
+      );
+
+      expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionSubscriptionsView,
+      );
+      expect(
+        result.failureOrNull?.message,
+        'Subscription view is not allowed.',
+      );
+    },
+  );
+
+  test(
+    'getAvailablePlans maps unexpected failure through feature mapper',
+    () async {
+      final error = Exception('unexpected');
+      final remote = _FakeSubscriptionsRemoteDataSource(plansError: error);
+      final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+
+      final result = await repository.getAvailablePlans();
+
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.message, error.toString());
+    },
+  );
 }
 
 final class _FakeSubscriptionsRemoteDataSource
@@ -90,14 +115,19 @@ final class _FakeSubscriptionsRemoteDataSource
   _FakeSubscriptionsRemoteDataSource({
     this.plans = const [],
     this.subscription,
+    this.plansError,
+    this.subscriptionError,
   });
 
   final List<SubscriptionPlanModel> plans;
   final CompanySubscriptionModel? subscription;
+  final Object? plansError;
+  final Object? subscriptionError;
   final requestedCompanyIds = <String>[];
 
   @override
   Future<List<SubscriptionPlanModel>> getAvailablePlans() async {
+    if (plansError != null) throw plansError!;
     return plans;
   }
 
@@ -106,6 +136,7 @@ final class _FakeSubscriptionsRemoteDataSource
     required String companyId,
   }) async {
     requestedCompanyIds.add(companyId);
+    if (subscriptionError != null) throw subscriptionError!;
     return subscription;
   }
 }

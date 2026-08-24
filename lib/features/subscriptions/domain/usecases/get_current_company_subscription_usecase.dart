@@ -38,8 +38,18 @@ final class GetCurrentCompanySubscriptionUseCase
       );
     }
 
-    return _repository.getCurrentCompanySubscription(
-      companyId: context.companyId,
-    );
+    final companyId = context.companyId.trim();
+    if (companyId.isEmpty) {
+      return Future.value(
+        const FailureResult<CompanySubscription?>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getCurrentCompanySubscription(companyId: companyId);
   }
 }

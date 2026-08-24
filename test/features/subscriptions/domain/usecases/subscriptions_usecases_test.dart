@@ -45,13 +45,15 @@ void main() {
   });
 
   test(
-    'current subscription use case scopes lookup to current company',
+    'current subscription use case trims and scopes lookup to current company',
     () async {
       final repository = _FakeSubscriptionsRepository();
       final useCase = GetCurrentCompanySubscriptionUseCase(repository);
 
       final result = await useCase(
-        GetCurrentCompanySubscriptionParams(currentCompanyContext: _context()),
+        GetCurrentCompanySubscriptionParams(
+          currentCompanyContext: _context(companyId: ' company-1 '),
+        ),
       );
 
       expect(result.dataOrNull, repository.currentSubscription);
@@ -59,28 +61,58 @@ void main() {
     },
   );
 
-  test('current subscription use case blocks non-owner roles', () async {
-    final repository = _FakeSubscriptionsRepository();
-    final useCase = GetCurrentCompanySubscriptionUseCase(repository);
+  test(
+    'current subscription use case validates company id before repository call',
+    () async {
+      final repository = _FakeSubscriptionsRepository();
+      final useCase = GetCurrentCompanySubscriptionUseCase(repository);
 
-    final result = await useCase(
-      GetCurrentCompanySubscriptionParams(
-        currentCompanyContext: _context(role: CompanyRole.accountant),
-      ),
-    );
+      final result = await useCase(
+        GetCurrentCompanySubscriptionParams(
+          currentCompanyContext: _context(companyId: '   '),
+        ),
+      );
 
-    expect(result.failureOrNull, isA<PermissionFailure>());
-    expect(
-      result.failureOrNull?.code,
-      FailureCodes.permissionSubscriptionsView,
-    );
-    expect(repository.currentSubscriptionCompanyIds, isEmpty);
-  });
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationCompanyIdRequired,
+      );
+      expect(repository.currentSubscriptionCompanyIds, isEmpty);
+    },
+  );
+
+  test(
+    'current subscription use case checks permission before company validation',
+    () async {
+      final repository = _FakeSubscriptionsRepository();
+      final useCase = GetCurrentCompanySubscriptionUseCase(repository);
+
+      final result = await useCase(
+        GetCurrentCompanySubscriptionParams(
+          currentCompanyContext: _context(
+            role: CompanyRole.accountant,
+            companyId: '   ',
+          ),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionSubscriptionsView,
+      );
+      expect(repository.currentSubscriptionCompanyIds, isEmpty);
+    },
+  );
 }
 
-CurrentCompanyContext _context({CompanyRole role = CompanyRole.owner}) {
+CurrentCompanyContext _context({
+  CompanyRole role = CompanyRole.owner,
+  String companyId = 'company-1',
+}) {
   return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Company One'),
+    company: Company(id: companyId, name: 'Company One'),
     role: role,
   );
 }
