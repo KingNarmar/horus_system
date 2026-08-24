@@ -1,4 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, PostgrestException;
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
@@ -7,8 +8,14 @@ import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/reports_failure_codes.dart';
 import '../constants/reports_db_constants.dart';
 
-abstract final class ReportsFailureMapper {
-  static Failure fromPostgrest(
+final class ReportsRepositoryFailureMapper {
+  const ReportsRepositoryFailureMapper();
+
+  Failure fromAuthException(AuthException _) {
+    return const AuthFailure(code: CompanyFailureCodes.authRequired);
+  }
+
+  Failure fromPostgrest(
     PostgrestException error, {
     required String permissionFailureCode,
   }) {
@@ -27,5 +34,13 @@ abstract final class ReportsFailureMapper {
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
+  }
+
+  Failure fromFormatException(FormatException _) {
+    return const ServerFailure(code: FailureCodes.serverError);
+  }
+
+  Failure fromUnexpected(Object _) {
+    return const UnexpectedFailure();
   }
 }
