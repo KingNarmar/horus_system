@@ -33,6 +33,18 @@ class GetPaymentMethodsUseCase
       );
     }
 
-    return _repository.getPaymentMethods(companyId: context.companyId);
+    final companyId = context.companyId.trim();
+    if (companyId.isEmpty) {
+      return Future.value(
+        const FailureResult<List<PaymentMethod>>(
+          ValidationFailure(
+            code: FailureCodes.validationCompanyIdRequired,
+            message: 'Company id is required.',
+          ),
+        ),
+      );
+    }
+
+    return _repository.getPaymentMethods(companyId: companyId);
   }
 }
