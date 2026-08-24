@@ -2,21 +2,20 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
 import '../../../../core/domain/value_objects/money.dart';
-import '../../../../core/errors/common_failures.dart';
-import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/entities/payment.dart';
 import '../../domain/failures/payment_failure_codes.dart';
 import '../../domain/repositories/payments_repository.dart';
 import '../datasources/payments_remote_data_source.dart';
 import '../mappers/payment_mapper.dart';
-import '../mappers/payments_failure_mapper.dart';
+import 'payments_repository_failure_mapper.dart';
 
 final class PaymentsRepositoryImpl implements PaymentsRepository {
   final PaymentsRemoteDataSource _remoteDataSource;
 
   const PaymentsRepositoryImpl(this._remoteDataSource);
+
+  static const _failureMapper = PaymentsRepositoryFailureMapper();
 
   @override
   Future<Result<List<Payment>>> getPayments({required String companyId}) {
@@ -81,21 +80,19 @@ final class PaymentsRepositoryImpl implements PaymentsRepository {
   }) async {
     try {
       return Success(await action());
-    } on AuthException {
-      return const FailureResult(
-        AuthFailure(code: CompanyFailureCodes.authRequired),
-      );
+    } on AuthException catch (error) {
+      return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(
-        PaymentsFailureMapper.fromPostgrest(
+        _failureMapper.fromPostgrest(
           error,
           permissionCode: permissionCode,
         ),
       );
-    } on FormatException {
-      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
-    } catch (_) {
-      return const FailureResult(UnexpectedFailure());
+    } on FormatException catch (error) {
+      return FailureResult(_failureMapper.fromFormatException(error));
+    } catch (error) {
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
