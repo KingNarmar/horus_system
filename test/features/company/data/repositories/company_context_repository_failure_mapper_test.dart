@@ -37,9 +37,7 @@ void main() {
 
     test('sanitizes missing company context exceptions', () {
       final failure = mapper.fromMissingCompanyContext(
-        const MissingCompanyContextException(
-          message: 'secret provider detail',
-        ),
+        const MissingCompanyContextException(message: 'secret provider detail'),
       );
 
       expect(failure, isA<ValidationFailure>());

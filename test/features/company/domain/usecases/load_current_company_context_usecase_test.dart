@@ -105,8 +105,8 @@ final class _FakeCompanyContextRepository implements CompanyContextRepository {
            const FailureResult<CurrentCompanyContext>(UnexpectedFailure());
 
   @override
-  Future<Result<List<CurrentCompanyContext>>>
-  loadUserCompanyContexts() async => loadResult;
+  Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async =>
+      loadResult;
 
   @override
   Future<Result<CurrentCompanyContext>> selectCompany(String companyId) async {

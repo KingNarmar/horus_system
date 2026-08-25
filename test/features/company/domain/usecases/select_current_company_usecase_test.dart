@@ -56,11 +56,10 @@ final class _FakeCompanyContextRepository implements CompanyContextRepository {
   int selectCalls = 0;
   String? selectedCompanyId;
 
-  _FakeCompanyContextRepository({
-    Result<CurrentCompanyContext>? selectResult,
-  }) : selectResult =
-           selectResult ??
-           const FailureResult<CurrentCompanyContext>(UnexpectedFailure());
+  _FakeCompanyContextRepository({Result<CurrentCompanyContext>? selectResult})
+    : selectResult =
+          selectResult ??
+          const FailureResult<CurrentCompanyContext>(UnexpectedFailure());
 
   @override
   Future<Result<CurrentCompanyContext>> selectCompany(String companyId) async {
@@ -70,8 +69,8 @@ final class _FakeCompanyContextRepository implements CompanyContextRepository {
   }
 
   @override
-  Future<Result<List<CurrentCompanyContext>>>
-  loadUserCompanyContexts() async => const Success([]);
+  Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async =>
+      const Success([]);
 
   @override
   Future<Result<CurrentCompanyContext?>> getCurrentCompanyContext() async =>
