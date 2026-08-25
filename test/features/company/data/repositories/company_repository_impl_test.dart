@@ -9,72 +9,78 @@ import 'package:test/test.dart';
 
 void main() {
   group('CompanyRepositoryImpl', () {
-    test('createCompany forwards exact arguments and maps Domain entity', () async {
-      final dataSource = _FakeCompanyRemoteDataSource(
-        createModel: const CompanyModel(
-          id: 'company-1',
+    test(
+      'createCompany forwards exact arguments and maps Domain entity',
+      () async {
+        final dataSource = _FakeCompanyRemoteDataSource(
+          createModel: const CompanyModel(
+            id: 'company-1',
+            name: 'Horus Transport',
+            businessType: 'Heavy Transport',
+            phone: '+971500000000',
+            email: 'ops@example.com',
+            country: 'AE',
+            city: 'Dubai',
+            logoUrl: 'logo.png',
+            baseCurrencyCode: 'AED',
+            baseCurrencyFractionDigits: 2,
+            businessTimezone: 'Asia/Dubai',
+            isActive: false,
+          ),
+        );
+        final repository = CompanyRepositoryImpl(dataSource);
+
+        final result = await repository.createCompany(
           name: 'Horus Transport',
           businessType: 'Heavy Transport',
           phone: '+971500000000',
           email: 'ops@example.com',
           country: 'AE',
           city: 'Dubai',
-          logoUrl: 'logo.png',
-          baseCurrencyCode: 'AED',
-          baseCurrencyFractionDigits: 2,
-          businessTimezone: 'Asia/Dubai',
-          isActive: false,
-        ),
-      );
-      final repository = CompanyRepositoryImpl(dataSource);
+        );
 
-      final result = await repository.createCompany(
-        name: 'Horus Transport',
-        businessType: 'Heavy Transport',
-        phone: '+971500000000',
-        email: 'ops@example.com',
-        country: 'AE',
-        city: 'Dubai',
-      );
+        expect(result.failureOrNull, isNull);
+        expect(dataSource.createName, 'Horus Transport');
+        expect(dataSource.createBusinessType, 'Heavy Transport');
+        expect(dataSource.createPhone, '+971500000000');
+        expect(dataSource.createEmail, 'ops@example.com');
+        expect(dataSource.createCountry, 'AE');
+        expect(dataSource.createCity, 'Dubai');
+        expect(result.dataOrNull?.id, 'company-1');
+        expect(result.dataOrNull?.name, 'Horus Transport');
+        expect(result.dataOrNull?.logoUrl, 'logo.png');
+        expect(result.dataOrNull?.baseCurrencyCode, 'AED');
+        expect(result.dataOrNull?.baseCurrencyFractionDigits, 2);
+        expect(result.dataOrNull?.businessTimezone, 'Asia/Dubai');
+        expect(result.dataOrNull?.isActive, isFalse);
+      },
+    );
 
-      expect(result.failureOrNull, isNull);
-      expect(dataSource.createName, 'Horus Transport');
-      expect(dataSource.createBusinessType, 'Heavy Transport');
-      expect(dataSource.createPhone, '+971500000000');
-      expect(dataSource.createEmail, 'ops@example.com');
-      expect(dataSource.createCountry, 'AE');
-      expect(dataSource.createCity, 'Dubai');
-      expect(result.dataOrNull?.id, 'company-1');
-      expect(result.dataOrNull?.name, 'Horus Transport');
-      expect(result.dataOrNull?.logoUrl, 'logo.png');
-      expect(result.dataOrNull?.baseCurrencyCode, 'AED');
-      expect(result.dataOrNull?.baseCurrencyFractionDigits, 2);
-      expect(result.dataOrNull?.businessTimezone, 'Asia/Dubai');
-      expect(result.dataOrNull?.isActive, isFalse);
-    });
+    test(
+      'getMyCompanies preserves datasource order and maps entities',
+      () async {
+        final dataSource = _FakeCompanyRemoteDataSource(
+          listModels: const [
+            CompanyModel(id: 'company-2', name: 'Second Company'),
+            CompanyModel(id: 'company-1', name: 'First Company'),
+          ],
+        );
+        final repository = CompanyRepositoryImpl(dataSource);
 
-    test('getMyCompanies preserves datasource order and maps entities', () async {
-      final dataSource = _FakeCompanyRemoteDataSource(
-        listModels: const [
-          CompanyModel(id: 'company-2', name: 'Second Company'),
-          CompanyModel(id: 'company-1', name: 'First Company'),
-        ],
-      );
-      final repository = CompanyRepositoryImpl(dataSource);
+        final result = await repository.getMyCompanies();
 
-      final result = await repository.getMyCompanies();
-
-      expect(result.failureOrNull, isNull);
-      expect(dataSource.listCallCount, 1);
-      expect(result.dataOrNull?.map((company) => company.id).toList(), [
-        'company-2',
-        'company-1',
-      ]);
-      expect(result.dataOrNull?.map((company) => company.name).toList(), [
-        'Second Company',
-        'First Company',
-      ]);
-    });
+        expect(result.failureOrNull, isNull);
+        expect(dataSource.listCallCount, 1);
+        expect(result.dataOrNull?.map((company) => company.id).toList(), [
+          'company-2',
+          'company-1',
+        ]);
+        expect(result.dataOrNull?.map((company) => company.name).toList(), [
+          'Second Company',
+          'First Company',
+        ]);
+      },
+    );
 
     test('maps auth failures through sanitized repository boundary', () async {
       final repository = CompanyRepositoryImpl(
