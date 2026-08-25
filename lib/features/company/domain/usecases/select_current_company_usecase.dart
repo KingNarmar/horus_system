@@ -28,7 +28,6 @@ class SelectCurrentCompanyUseCase
         const FailureResult<CurrentCompanyContext>(
           ValidationFailure(
             code: FailureCodes.validationCompanyContextRequired,
-            message: 'Company context is required.',
           ),
         ),
       );
