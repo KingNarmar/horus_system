@@ -47,22 +47,25 @@ void main() {
       expect(repository.calls, 0);
     });
 
-    test('rejects empty normalized company id without repository call', () async {
-      final repository = _FakeCompanyUsersRepository();
-      final result = await GetCompanyUsersUseCase(repository)(
-        GetCompanyUsersParams(
-          currentCompanyContext: _context(companyId: '   '),
-        ),
-      );
+    test(
+      'rejects empty normalized company id without repository call',
+      () async {
+        final repository = _FakeCompanyUsersRepository();
+        final result = await GetCompanyUsersUseCase(repository)(
+          GetCompanyUsersParams(
+            currentCompanyContext: _context(companyId: '   '),
+          ),
+        );
 
-      expect(result.failureOrNull, isA<ValidationFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationCompanyIdRequired,
-      );
-      expect(result.failureOrNull?.message, isNull);
-      expect(repository.calls, 0);
-    });
+        expect(result.failureOrNull, isA<ValidationFailure>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationCompanyIdRequired,
+        );
+        expect(result.failureOrNull?.message, isNull);
+        expect(repository.calls, 0);
+      },
+    );
 
     test('normalizes company id before repository call', () async {
       final repository = _FakeCompanyUsersRepository();

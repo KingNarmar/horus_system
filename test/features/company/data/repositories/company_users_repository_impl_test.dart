@@ -11,11 +11,11 @@ void main() {
   group('CompanyUsersRepositoryImpl', () {
     test('forwards company id exactly without Data normalization', () async {
       final dataSource = _FakeCompanyUsersRemoteDataSource();
-      final repository = CompanyUsersRepositoryImpl(remoteDataSource: dataSource);
-
-      final result = await repository.getCompanyUsers(
-        companyId: ' company-1 ',
+      final repository = CompanyUsersRepositoryImpl(
+        remoteDataSource: dataSource,
       );
+
+      final result = await repository.getCompanyUsers(companyId: ' company-1 ');
 
       expect(result.failureOrNull, isNull);
       expect(dataSource.calls, 1);
@@ -45,7 +45,9 @@ void main() {
           ),
         ],
       );
-      final repository = CompanyUsersRepositoryImpl(remoteDataSource: dataSource);
+      final repository = CompanyUsersRepositoryImpl(
+        remoteDataSource: dataSource,
+      );
 
       final result = await repository.getCompanyUsers(companyId: 'company-1');
 
@@ -131,10 +133,7 @@ final class _FakeCompanyUsersRemoteDataSource
   int calls = 0;
   String? companyId;
 
-  _FakeCompanyUsersRemoteDataSource({
-    this.models = const [],
-    this.error,
-  });
+  _FakeCompanyUsersRemoteDataSource({this.models = const [], this.error});
 
   @override
   Future<List<CompanyUserModel>> getCompanyUsers({
