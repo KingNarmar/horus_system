@@ -29,16 +29,20 @@ class GetCompanyUsersUseCase
     if (!canViewUsers) {
       return Future.value(
         const FailureResult<List<CompanyUser>>(
-          PermissionFailure(
-            code: FailureCodes.permissionCompanyUsersView,
-            message: 'This role cannot view company users.',
-          ),
+          PermissionFailure(code: FailureCodes.permissionCompanyUsersView),
         ),
       );
     }
 
-    return _repository.getCompanyUsers(
-      companyId: currentCompanyContext.companyId,
-    );
+    final companyId = currentCompanyContext.companyId.trim();
+    if (companyId.isEmpty) {
+      return Future.value(
+        const FailureResult<List<CompanyUser>>(
+          ValidationFailure(code: FailureCodes.validationCompanyIdRequired),
+        ),
+      );
+    }
+
+    return _repository.getCompanyUsers(companyId: companyId);
   }
 }
