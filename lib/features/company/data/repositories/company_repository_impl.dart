@@ -1,18 +1,19 @@
-import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/company.dart';
 import '../../domain/repositories/company_repository.dart';
 import '../datasources/company_remote_data_source.dart';
 import '../mappers/company_mapper.dart';
+import 'company_repository_failure_mapper.dart';
 
 class CompanyRepositoryImpl implements CompanyRepository {
   final CompanyRemoteDataSource _remoteDataSource;
 
   const CompanyRepositoryImpl(this._remoteDataSource);
+
+  static const _failureMapper = CompanyRepositoryFailureMapper();
 
   @override
   Future<Result<Company>> createCompany({
@@ -22,60 +23,37 @@ class CompanyRepositoryImpl implements CompanyRepository {
     String? email,
     String? country,
     String? city,
-  }) async {
-    try {
-      final companyModel = await _remoteDataSource.createCompany(
+  }) {
+    return _guard(
+      () async => (await _remoteDataSource.createCompany(
         name: name,
         businessType: businessType,
         phone: phone,
         email: email,
         country: country,
         city: city,
-      );
-
-      return Success(companyModel.toEntity());
-    } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
-    } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
-    } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
-    }
+      )).toEntity(),
+    );
   }
 
   @override
-  Future<Result<List<Company>>> getMyCompanies() async {
+  Future<Result<List<Company>>> getMyCompanies() {
+    return _guard(
+      () async => (await _remoteDataSource.getMyCompanies())
+          .map((company) => company.toEntity())
+          .toList(),
+    );
+  }
+
+  Future<Result<T>> _guard<T>(Future<T> Function() action) async {
     try {
-      final companyModels = await _remoteDataSource.getMyCompanies();
-      return Success(
-        companyModels.map((company) => company.toEntity()).toList(),
-      );
+      return Success(await action());
     } on AuthException catch (error) {
-      return FailureResult(
-        AuthFailure(
-          code: error.statusCode ?? 'auth_error',
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
