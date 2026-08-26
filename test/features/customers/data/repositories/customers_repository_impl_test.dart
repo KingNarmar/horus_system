@@ -13,6 +13,7 @@ import 'package:horus_system/features/customers/data/models/customer_model.dart'
 import 'package:horus_system/features/customers/data/repositories/customers_repository_impl.dart';
 import 'package:horus_system/features/customers/domain/entities/customer.dart';
 import 'package:horus_system/features/customers/domain/entities/customer_write_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -25,6 +26,30 @@ void main() {
 
       expect(result, isA<Success<List<Customer>>>());
       expect(remoteDataSource.lastListCompanyId, _companyId);
+    });
+
+    test('sanitizes read PostgREST failures', () async {
+      final repository = _repository(
+        _FakeCustomersRemoteDataSource(readError: _postgrestException),
+      );
+
+      final result = await repository.getCustomers(companyId: _companyId);
+
+      expect(result.failureOrNull, isA<ServerFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
+    });
+
+    test('keeps model mapping inside the sanitized boundary', () async {
+      final repository = _repository(
+        _FakeCustomersRemoteDataSource(models: [_ThrowingCustomerModel()]),
+      );
+
+      final result = await repository.getCustomers(companyId: _companyId);
+
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
     });
 
     test('adds customer then writes audit', () async {
@@ -153,6 +178,8 @@ void main() {
 
       expect(result, isA<FailureResult<Customer>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_customer']);
       expect(auditRepository.logs, isEmpty);
     });
@@ -185,6 +212,13 @@ void main() {
 
 const _companyId = 'company-1';
 const _customerId = 'customer-1';
+
+const _postgrestException = PostgrestException(
+  message: 'secret backend message',
+  code: 'XX999',
+  details: 'private database details',
+  hint: 'internal database hint',
+);
 
 CustomersRepositoryImpl _repository(
   CustomersRemoteDataSource remoteDataSource, {
@@ -234,6 +268,8 @@ CustomerModel _model({String name = 'Customer One', bool isActive = true}) {
 
 class _FakeCustomersRemoteDataSource implements CustomersRemoteDataSource {
   final List<String>? operations;
+  final List<CustomerModel> models;
+  final Object? readError;
   final Object? addError;
   final CustomerModel oldModel;
   String? lastListCompanyId;
@@ -242,15 +278,20 @@ class _FakeCustomersRemoteDataSource implements CustomersRemoteDataSource {
 
   _FakeCustomersRemoteDataSource({
     this.operations,
+    List<CustomerModel>? models,
+    this.readError,
     this.addError,
     CustomerModel? oldModel,
-  }) : oldModel = oldModel ?? _model(name: 'Old Customer');
+  }) : models = models ?? [_model()],
+       oldModel = oldModel ?? _model(name: 'Old Customer');
 
   @override
   Future<List<CustomerModel>> getCustomers({required String companyId}) async {
     operations?.add('get_customers');
     lastListCompanyId = companyId;
-    return [_model()];
+    final error = readError;
+    if (error != null) throw error;
+    return models;
   }
 
   @override
@@ -297,6 +338,14 @@ class _FakeCustomersRemoteDataSource implements CustomersRemoteDataSource {
     operations?.add('reactivate_customer');
     return _model(isActive: true);
   }
+}
+
+class _ThrowingCustomerModel extends CustomerModel {
+  _ThrowingCustomerModel()
+    : super(id: _customerId, companyId: _companyId, name: 'Customer');
+
+  @override
+  String get id => throw StateError('secret model mapping detail');
 }
 
 class _FakeAuditLogRepository implements AuditLogRepository {
