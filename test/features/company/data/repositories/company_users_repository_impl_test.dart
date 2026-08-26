@@ -78,24 +78,51 @@ void main() {
       ]);
     });
 
-    test('maps PostgREST failures through sanitized boundary', () async {
+    test('preserves nullable optional profile fields', () async {
       final repository = CompanyUsersRepositoryImpl(
         remoteDataSource: _FakeCompanyUsersRemoteDataSource(
-          error: const PostgrestException(
-            message: 'secret backend message',
-            code: 'XX999',
-            details: 'private database details',
-            hint: 'internal database hint',
-          ),
+          models: const [
+            CompanyUserModel(
+              id: 'company-user-1',
+              companyId: 'company-1',
+              userId: 'user-1',
+              role: CompanyRole.admin,
+              isActive: true,
+            ),
+          ],
         ),
       );
 
       final result = await repository.getCompanyUsers(companyId: 'company-1');
 
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
+      expect(result.failureOrNull, isNull);
+      expect(result.dataOrNull?.single.displayName, isNull);
+      expect(result.dataOrNull?.single.phone, isNull);
     });
+
+    test(
+      'maps datasource PostgREST failures through sanitized boundary',
+      () async {
+        final repository = CompanyUsersRepositoryImpl(
+          remoteDataSource: _FakeCompanyUsersRemoteDataSource(
+            error: const PostgrestException(
+              message: 'secret backend message',
+              code: 'XX999',
+              details: 'private database details',
+              hint: 'internal database hint',
+            ),
+          ),
+        );
+
+        final result = await repository.getCompanyUsers(
+          companyId: 'company-1',
+        );
+
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
 
     test('maps unexpected datasource failure without internal text', () async {
       final repository = CompanyUsersRepositoryImpl(
