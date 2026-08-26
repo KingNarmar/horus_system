@@ -44,9 +44,7 @@ void main() {
 
     test('keeps model mapping inside the sanitized boundary', () async {
       final repository = _repository(
-        remoteDataSource: _FakeDriversRemoteDataSource(
-          _ThrowingDriverModel(),
-        ),
+        remoteDataSource: _FakeDriversRemoteDataSource(_ThrowingDriverModel()),
       );
 
       final result = await repository.getDrivers(companyId: _companyId);
