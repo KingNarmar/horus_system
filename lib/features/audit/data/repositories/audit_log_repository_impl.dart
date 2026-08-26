@@ -1,7 +1,5 @@
-import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/audit_entity_type.dart';
 import '../../domain/entities/audit_log.dart';
@@ -9,27 +7,21 @@ import '../../domain/entities/audit_log_write_data.dart';
 import '../../domain/entities/audit_module.dart';
 import '../../domain/repositories/audit_log_repository.dart';
 import '../datasources/audit_logs_remote_data_source.dart';
+import 'audit_log_repository_failure_mapper.dart';
 
 class AuditLogRepositoryImpl implements AuditLogRepository {
   final AuditLogsRemoteDataSource remoteDataSource;
+  final AuditLogRepositoryFailureMapper _failureMapper;
 
-  const AuditLogRepositoryImpl({required this.remoteDataSource});
+  const AuditLogRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const AuditLogRepositoryFailureMapper();
 
   @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    try {
+  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) {
+    return _guard(() async {
       await remoteDataSource.createAuditLog(data: data);
       return const Success(null);
-    } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
-    } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
-    }
+    });
   }
 
   @override
@@ -38,8 +30,8 @@ class AuditLogRepositoryImpl implements AuditLogRepository {
     required AuditModule module,
     required AuditEntityType entityType,
     required String entityId,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final models = await remoteDataSource.getEntityAuditLogs(
         companyId: companyId,
         module: module,
@@ -48,15 +40,16 @@ class AuditLogRepositoryImpl implements AuditLogRepository {
       );
 
       return Success(models.map((model) => model.toEntity()).toList());
+    });
+  }
+
+  Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
+    try {
+      return await action();
     } on PostgrestException catch (error) {
-      return FailureResult(
-        ServerFailure(
-          code: error.code ?? FailureCodes.serverError,
-          message: error.message,
-        ),
-      );
+      return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
-      return FailureResult(UnexpectedFailure(message: error.toString()));
+      return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
 }
