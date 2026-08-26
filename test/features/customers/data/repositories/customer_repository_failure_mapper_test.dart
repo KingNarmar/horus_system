@@ -8,36 +8,29 @@ void main() {
   group('CustomerRepositoryFailureMapper', () {
     const mapper = CustomerRepositoryFailureMapper();
 
-    test('preserves Postgrest code and message', () {
-      const error = PostgrestException(
-        message: 'permission denied',
-        code: '42501',
+    test('sanitizes PostgREST persistence failures', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'secret backend message',
+          code: 'XX999',
+          details: 'private database details',
+          hint: 'internal database hint',
+        ),
       );
-
-      final failure = mapper.fromPostgrest(error);
-
-      expect(failure, isA<ServerFailure>());
-      expect(failure.code, '42501');
-      expect(failure.message, 'permission denied');
-    });
-
-    test('falls back to server error when Postgrest code is absent', () {
-      const error = PostgrestException(message: 'database error');
-
-      final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, 'database error');
+      expect(failure.message, isNull);
     });
 
-    test('preserves unexpected error text', () {
-      final error = Exception('unexpected');
-
-      final failure = mapper.fromUnexpected(error);
+    test('sanitizes unexpected failures', () {
+      final failure = mapper.fromUnexpected(
+        StateError('secret internal exception text'),
+      );
 
       expect(failure, isA<UnexpectedFailure>());
-      expect(failure.message, error.toString());
+      expect(failure.code, FailureCodes.unexpectedError);
+      expect(failure.message, isNull);
     });
   });
 }
