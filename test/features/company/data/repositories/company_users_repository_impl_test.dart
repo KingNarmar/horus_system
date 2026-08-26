@@ -114,9 +114,7 @@ void main() {
           ),
         );
 
-        final result = await repository.getCompanyUsers(
-          companyId: 'company-1',
-        );
+        final result = await repository.getCompanyUsers(companyId: 'company-1');
 
         expect(result.failureOrNull, isA<ServerFailure>());
         expect(result.failureOrNull?.code, FailureCodes.serverError);

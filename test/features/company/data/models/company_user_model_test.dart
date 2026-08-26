@@ -5,9 +5,7 @@ import 'package:test/test.dart';
 void main() {
   group('CompanyUserModel.fromMaps', () {
     test('keeps optional profile fields null when profile row is absent', () {
-      final model = CompanyUserModel.fromMaps(
-        companyUserMap: _companyUserMap,
-      );
+      final model = CompanyUserModel.fromMaps(companyUserMap: _companyUserMap);
 
       expect(model.displayName, isNull);
       expect(model.phone, isNull);
