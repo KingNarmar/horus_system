@@ -8,11 +8,8 @@ import '../../../../core/errors/failure_codes.dart';
 final class DriverRepositoryFailureMapper {
   const DriverRepositoryFailureMapper();
 
-  Failure fromPostgrest(PostgrestException error) {
-    return ServerFailure(
-      code: error.code ?? FailureCodes.serverError,
-      message: error.message,
-    );
+  Failure fromPostgrest(PostgrestException _) {
+    return const ServerFailure(code: FailureCodes.serverError);
   }
 
   Failure fromStorage(StorageException error) {
@@ -35,7 +32,7 @@ final class DriverRepositoryFailureMapper {
     return const ServerFailure(code: FailureCodes.serverError);
   }
 
-  Failure fromUnexpected(Object error) {
-    return UnexpectedFailure(message: error.toString());
+  Failure fromUnexpected(Object _) {
+    return const UnexpectedFailure();
   }
 }
