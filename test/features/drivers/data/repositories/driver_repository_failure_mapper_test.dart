@@ -23,17 +23,14 @@ void main() {
       expect(failure.message, isNull);
     });
 
-    test(
-      'maps oversized Storage failures to the existing validation code',
-      () {
-        final failure = mapper.fromStorage(
-          const StorageException('Payload is too large', statusCode: '413'),
-        );
+    test('maps oversized Storage failures to the existing validation code', () {
+      final failure = mapper.fromStorage(
+        const StorageException('Payload is too large', statusCode: '413'),
+      );
 
-        expect(failure, isA<ValidationFailure>());
-        expect(failure.code, FailureCodes.validationDriverImageTooLarge);
-      },
-    );
+      expect(failure, isA<ValidationFailure>());
+      expect(failure.code, FailureCodes.validationDriverImageTooLarge);
+    });
 
     test(
       'maps unsupported Storage failures to the existing validation code',
@@ -43,10 +40,7 @@ void main() {
         );
 
         expect(failure, isA<ValidationFailure>());
-        expect(
-          failure.code,
-          FailureCodes.validationDriverImageTypeUnsupported,
-        );
+        expect(failure.code, FailureCodes.validationDriverImageTypeUnsupported);
       },
     );
 
