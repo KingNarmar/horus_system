@@ -53,26 +53,22 @@ class SupabaseCompanyUsersRemoteDataSource
   Future<Map<String, Map<String, dynamic>>> _loadProfilesByUserId(
     List<String> userIds,
   ) async {
-    try {
-      final userProfilesResponse = await _client
-          .from(UserProfileDbFields.tableName)
-          .select('id,full_name,phone')
-          .inFilter(DbCommonFields.id, userIds);
+    final userProfilesResponse = await _client
+        .from(UserProfileDbFields.tableName)
+        .select('id,full_name,phone')
+        .inFilter(DbCommonFields.id, userIds);
 
-      final profilesByUserId = <String, Map<String, dynamic>>{};
+    final profilesByUserId = <String, Map<String, dynamic>>{};
 
-      for (final item in userProfilesResponse) {
-        final profileMap = Map<String, dynamic>.from(item);
-        final userId = profileMap[DbCommonFields.id] as String?;
+    for (final item in userProfilesResponse) {
+      final profileMap = Map<String, dynamic>.from(item);
+      final userId = profileMap[DbCommonFields.id] as String?;
 
-        if (userId != null) {
-          profilesByUserId[userId] = profileMap;
-        }
+      if (userId != null) {
+        profilesByUserId[userId] = profileMap;
       }
-
-      return profilesByUserId;
-    } on PostgrestException {
-      return const {};
     }
+
+    return profilesByUserId;
   }
 }
