@@ -42,9 +42,7 @@ void main() {
 
     test('keeps model mapping inside the sanitized boundary', () async {
       final repository = _repository(
-        _FakeCustomersRemoteDataSource(
-          models: [_ThrowingCustomerModel()],
-        ),
+        _FakeCustomersRemoteDataSource(models: [_ThrowingCustomerModel()]),
       );
 
       final result = await repository.getCustomers(companyId: _companyId);
