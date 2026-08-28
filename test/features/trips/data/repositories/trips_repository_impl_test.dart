@@ -184,7 +184,11 @@ void main() {
         statusModel: _loadedTripModel,
         events: events,
       );
-      final repository = _repository(remoteDataSource);
+      final auditRepository = _FakeAuditLogRepository(events: events);
+      final repository = _repository(
+        remoteDataSource,
+        auditRepository: auditRepository,
+      );
 
       final result = await repository.updateTripStatus(
         companyId: _companyId,
