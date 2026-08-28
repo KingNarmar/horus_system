@@ -33,12 +33,12 @@ final class AuthRepositoryFailureMapper {
     final code = switch (error.code) {
       _invalidCredentialsCode => FailureCodes.authInvalidCredentials,
       _emailNotConfirmedCode => FailureCodes.authEmailNotConfirmed,
-      _emailExistsCode || _userAlreadyExistsCode =>
-        FailureCodes.authAccountAlreadyExists,
+      _emailExistsCode => FailureCodes.authAccountAlreadyExists,
+      _userAlreadyExistsCode => FailureCodes.authAccountAlreadyExists,
       _weakPasswordCode => FailureCodes.authWeakPassword,
       _invalidEmailCode => FailureCodes.authInvalidEmail,
-      _requestRateLimitCode || _emailSendRateLimitCode =>
-        FailureCodes.authRateLimited,
+      _requestRateLimitCode => FailureCodes.authRateLimited,
+      _emailSendRateLimitCode => FailureCodes.authRateLimited,
       _ => FailureCodes.authError,
     };
 
