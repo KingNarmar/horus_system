@@ -52,35 +52,32 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test(
-      'sanitizes unexpected add failure and stops before audit',
-      () async {
-        final operations = <String>[];
-        final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
-          operations: operations,
-          addError: Exception('mutation internal detail'),
-        );
-        final auditRepository = FakeCompanyExpenseAuditLogRepository(
-          operations: operations,
-        );
-        final repository = createCompanyExpensesRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
+    test('sanitizes unexpected add failure and stops before audit', () async {
+      final operations = <String>[];
+      final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
+        operations: operations,
+        addError: Exception('mutation internal detail'),
+      );
+      final auditRepository = FakeCompanyExpenseAuditLogRepository(
+        operations: operations,
+      );
+      final repository = createCompanyExpensesRepository(
+        remoteDataSource,
+        auditRepository: auditRepository,
+      );
 
-        final result = await repository.addCompanyExpense(
-          data: companyExpenseWriteData(),
-          actorRole: 'accountant',
-        );
+      final result = await repository.addCompanyExpense(
+        data: companyExpenseWriteData(),
+        actorRole: 'accountant',
+      );
 
-        expect(result, isA<FailureResult>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(operations, ['add_expense']);
-        expect(auditRepository.logs, isEmpty);
-      },
-    );
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(operations, ['add_expense']);
+      expect(auditRepository.logs, isEmpty);
+    });
 
     test('sanitizes Postgrest add failure and stops before audit', () async {
       final operations = <String>[];
