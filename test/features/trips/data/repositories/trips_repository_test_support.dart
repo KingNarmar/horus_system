@@ -187,7 +187,9 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   }
 
   @override
-  Future<TripFormLookups> getTripFormLookups({required String companyId}) async {
+  Future<TripFormLookups> getTripFormLookups({
+    required String companyId,
+  }) async {
     events.add('lookups');
     lastLookupsCompanyId = companyId;
     _throwIfNeeded(TripDataOperation.lookups);
