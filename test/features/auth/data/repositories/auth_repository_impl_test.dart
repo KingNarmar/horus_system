@@ -11,46 +11,52 @@ import 'package:test/test.dart';
 
 void main() {
   group('AuthRepositoryImpl', () {
-    test('register forwards inputs and maps data model to domain entity', () async {
-      final dataSource = _FakeAuthRemoteDataSource();
-      final repository = AuthRepositoryImpl(dataSource);
+    test(
+      'register forwards inputs and maps data model to domain entity',
+      () async {
+        final dataSource = _FakeAuthRemoteDataSource();
+        final repository = AuthRepositoryImpl(dataSource);
 
-      final result = await repository.register(
-        fullName: 'Mina Adly',
-        phone: '0500000000',
-        email: 'user@example.com',
-        password: 'secret',
-      );
+        final result = await repository.register(
+          fullName: 'Mina Adly',
+          phone: '0500000000',
+          email: 'user@example.com',
+          password: 'secret',
+        );
 
-      expect(result, isA<Success<AuthUser>>());
-      final user = result.dataOrNull;
-      expect(user?.id, _model.id);
-      expect(user?.email, _model.email);
-      expect(user?.phone, _model.phone);
-      expect(user?.fullName, _model.fullName);
-      expect(user?.isEmailConfirmed, isTrue);
-      expect(dataSource.registerCalls, 1);
-      expect(dataSource.lastRegisterFullName, 'Mina Adly');
-      expect(dataSource.lastRegisterPhone, '0500000000');
-      expect(dataSource.lastRegisterEmail, 'user@example.com');
-      expect(dataSource.lastRegisterPassword, 'secret');
-    });
+        expect(result, isA<Success<AuthUser>>());
+        final user = result.dataOrNull;
+        expect(user?.id, _model.id);
+        expect(user?.email, _model.email);
+        expect(user?.phone, _model.phone);
+        expect(user?.fullName, _model.fullName);
+        expect(user?.isEmailConfirmed, isTrue);
+        expect(dataSource.registerCalls, 1);
+        expect(dataSource.lastRegisterFullName, 'Mina Adly');
+        expect(dataSource.lastRegisterPhone, '0500000000');
+        expect(dataSource.lastRegisterEmail, 'user@example.com');
+        expect(dataSource.lastRegisterPassword, 'secret');
+      },
+    );
 
-    test('login forwards inputs and maps data model to domain entity', () async {
-      final dataSource = _FakeAuthRemoteDataSource();
-      final repository = AuthRepositoryImpl(dataSource);
+    test(
+      'login forwards inputs and maps data model to domain entity',
+      () async {
+        final dataSource = _FakeAuthRemoteDataSource();
+        final repository = AuthRepositoryImpl(dataSource);
 
-      final result = await repository.login(
-        email: 'user@example.com',
-        password: 'secret',
-      );
+        final result = await repository.login(
+          email: 'user@example.com',
+          password: 'secret',
+        );
 
-      expect(result.dataOrNull?.id, _model.id);
-      expect(result.dataOrNull?.email, _model.email);
-      expect(dataSource.loginCalls, 1);
-      expect(dataSource.lastLoginEmail, 'user@example.com');
-      expect(dataSource.lastLoginPassword, 'secret');
-    });
+        expect(result.dataOrNull?.id, _model.id);
+        expect(result.dataOrNull?.email, _model.email);
+        expect(dataSource.loginCalls, 1);
+        expect(dataSource.lastLoginEmail, 'user@example.com');
+        expect(dataSource.lastLoginPassword, 'secret');
+      },
+    );
 
     test('logout success returns Success<void>', () async {
       final dataSource = _FakeAuthRemoteDataSource();
@@ -63,19 +69,22 @@ void main() {
       expect(dataSource.logoutCalls, 1);
     });
 
-    test('logout unexpected exception maps to sanitized UnexpectedFailure', () async {
-      final dataSource = _FakeAuthRemoteDataSource(
-        logoutError: StateError('logout boom'),
-      );
-      final repository = AuthRepositoryImpl(dataSource);
+    test(
+      'logout unexpected exception maps to sanitized UnexpectedFailure',
+      () async {
+        final dataSource = _FakeAuthRemoteDataSource(
+          logoutError: StateError('logout boom'),
+        );
+        final repository = AuthRepositoryImpl(dataSource);
 
-      final result = await repository.logout();
+        final result = await repository.logout();
 
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(dataSource.logoutCalls, 1);
-    });
+        expect(result.failureOrNull, isA<UnexpectedFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(dataSource.logoutCalls, 1);
+      },
+    );
 
     test('getCurrentUser maps an authenticated model', () async {
       final dataSource = _FakeAuthRemoteDataSource();
@@ -117,26 +126,29 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('AuthException without semantic code uses sanitized fallback', () async {
-      final dataSource = _FakeAuthRemoteDataSource(
-        registerError: const AuthException(
-          'Registration failed with backend detail',
-          statusCode: '400',
-        ),
-      );
-      final repository = AuthRepositoryImpl(dataSource);
+    test(
+      'AuthException without semantic code uses sanitized fallback',
+      () async {
+        final dataSource = _FakeAuthRemoteDataSource(
+          registerError: const AuthException(
+            'Registration failed with backend detail',
+            statusCode: '400',
+          ),
+        );
+        final repository = AuthRepositoryImpl(dataSource);
 
-      final result = await repository.register(
-        fullName: 'Mina Adly',
-        phone: '0500000000',
-        email: 'user@example.com',
-        password: 'secret',
-      );
+        final result = await repository.register(
+          fullName: 'Mina Adly',
+          phone: '0500000000',
+          email: 'user@example.com',
+          password: 'secret',
+        );
 
-      expect(result.failureOrNull, isA<AuthFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.authError);
-      expect(result.failureOrNull?.message, isNull);
-    });
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.authError);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
 
     test('PostgrestException maps to sanitized ServerFailure', () async {
       final dataSource = _FakeAuthRemoteDataSource(
