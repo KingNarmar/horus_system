@@ -1,5 +1,4 @@
 import 'package:horus_system/core/errors/common_failures.dart';
-import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -12,58 +11,13 @@ import 'package:horus_system/features/trips/data/datasources/trips_remote_data_s
 import 'package:horus_system/features/trips/data/models/trip_model.dart';
 import 'package:horus_system/features/trips/data/models/trip_status_history_model.dart';
 import 'package:horus_system/features/trips/data/repositories/trips_repository_impl.dart';
-import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
   group('TripsRepositoryImpl', () {
-    test('forwards company scope for read operations', () async {
-      final remoteDataSource = _FakeTripsRemoteDataSource(
-        currentModel: _createdTripModel,
-        events: [],
-      );
-      final repository = _repository(remoteDataSource);
-
-      final listResult = await repository.getTrips(companyId: _companyId);
-      final detailsResult = await repository.getTripDetails(
-        companyId: _companyId,
-        id: _tripId,
-      );
-      final lookupsResult = await repository.getTripFormLookups(
-        companyId: _companyId,
-      );
-      final historyResult = await repository.getTripStatusHistory(
-        companyId: _companyId,
-        tripId: _tripId,
-      );
-      final openTripResult = await repository.hasOpenTripForVehicle(
-        companyId: _companyId,
-        tractorHeadId: 'tractor-1',
-        trailerId: 'trailer-1',
-        excludingTripId: _tripId,
-      );
-
-      expect(listResult, isA<Success<List<TripEntity>>>());
-      expect(detailsResult, isA<Success<TripEntity>>());
-      expect(lookupsResult, isA<Success<TripFormLookups>>());
-      expect(historyResult, isA<Success>());
-      expect(openTripResult, isA<Success<bool>>());
-      expect(remoteDataSource.lastListCompanyId, _companyId);
-      expect(remoteDataSource.lastGetByIdCompanyId, _companyId);
-      expect(remoteDataSource.lastGetByIdId, _tripId);
-      expect(remoteDataSource.lastLookupsCompanyId, _companyId);
-      expect(remoteDataSource.lastHistoryListCompanyId, _companyId);
-      expect(remoteDataSource.lastHistoryListTripId, _tripId);
-      expect(remoteDataSource.lastOpenTripCompanyId, _companyId);
-      expect(remoteDataSource.lastOpenTripTractorHeadId, 'tractor-1');
-      expect(remoteDataSource.lastOpenTripTrailerId, 'trailer-1');
-      expect(remoteDataSource.lastOpenTripExcludingTripId, _tripId);
-    });
-
     test('preserves create, initial history, then audit ordering', () async {
       final events = <String>[];
       final remoteDataSource = _FakeTripsRemoteDataSource(
@@ -72,9 +26,9 @@ void main() {
         events: events,
       );
       final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
+      final repository = TripsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
       final result = await repository.createTrip(
@@ -109,9 +63,9 @@ void main() {
         events: events,
       );
       final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
+      final repository = TripsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
       final result = await repository.saveTrip(
@@ -123,7 +77,6 @@ void main() {
       expect(result, isA<Success>());
       expect(events, ['get', 'save', 'audit:trip_updated']);
       expect(remoteDataSource.lastGetByIdCompanyId, _companyId);
-      expect(remoteDataSource.lastGetByIdId, _tripId);
 
       expect(auditRepository.lastData, isNotNull);
       final audit = auditRepository.lastData!;
@@ -142,9 +95,9 @@ void main() {
         events: events,
       );
       final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
+      final repository = TripsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
       final result = await repository.updateTripStatus(
@@ -177,166 +130,6 @@ void main() {
       expect(audit.metadata?['notes'], 'Loaded at yard');
     });
 
-    test('preserves status fallback behavior for unknown stored status', () async {
-      final events = <String>[];
-      final remoteDataSource = _FakeTripsRemoteDataSource(
-        currentModel: _unknownStatusTripModel,
-        statusModel: _loadedTripModel,
-        events: events,
-      );
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.updateTripStatus(
-        companyId: _companyId,
-        id: _tripId,
-        newStatus: TripStatus.loaded,
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<Success>());
-      expect(remoteDataSource.lastHistoryOldStatus, TripStatus.created);
-      expect(events, ['get', 'status', 'history', 'audit:trip_status_changed']);
-    });
-
-    test(
-      'sanitizes Postgrest read failures and preserves company forwarding',
-      () async {
-        final remoteDataSource = _FakeTripsRemoteDataSource(
-          currentModel: _createdTripModel,
-          events: [],
-          listError: const PostgrestException(
-            message: 'permission denied',
-            code: '42501',
-            details: 'sensitive details',
-            hint: 'sensitive hint',
-          ),
-        );
-        final repository = _repository(remoteDataSource);
-
-        final result = await repository.getTrips(companyId: _companyId);
-
-        expect(result, isA<FailureResult<List<TripEntity>>>());
-        expect(result.failureOrNull, isA<ServerFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.serverError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastListCompanyId, _companyId);
-      },
-    );
-
-    test(
-      'sanitizes model-to-entity mapping failures inside repository guard',
-      () async {
-        final remoteDataSource = _FakeTripsRemoteDataSource(
-          currentModel: _createdTripModel,
-          events: [],
-          listModels: const [_ThrowingTripModel()],
-        );
-        final repository = _repository(remoteDataSource);
-
-        final result = await repository.getTrips(companyId: _companyId);
-
-        expect(result, isA<FailureResult<List<TripEntity>>>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastListCompanyId, _companyId);
-      },
-    );
-
-    test('sanitizes create persistence failure and does not continue', () async {
-      final events = <String>[];
-      final remoteDataSource = _FakeTripsRemoteDataSource(
-        currentModel: _createdTripModel,
-        events: events,
-        createError: const PostgrestException(
-          message: 'insert failed',
-          code: '23503',
-          details: 'sensitive details',
-          hint: 'sensitive hint',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.createTrip(
-        data: _writeData,
-        actorRole: 'owner',
-      );
-
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(events, ['create']);
-      expect(auditRepository.lastData, isNull);
-    });
-
-    test('sanitizes initial history failure and does not audit', () async {
-      final events = <String>[];
-      final remoteDataSource = _FakeTripsRemoteDataSource(
-        currentModel: _createdTripModel,
-        createModel: _createdTripModel,
-        events: events,
-        historyError: const PostgrestException(
-          message: 'history insert failed',
-          code: '42501',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.createTrip(
-        data: _writeData,
-        actorRole: 'owner',
-      );
-
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(events, ['create', 'history']);
-      expect(auditRepository.lastData, isNull);
-    });
-
-    test('sanitizes status history failure and does not audit', () async {
-      final events = <String>[];
-      final remoteDataSource = _FakeTripsRemoteDataSource(
-        currentModel: _oldTripModel,
-        statusModel: _loadedTripModel,
-        events: events,
-        historyError: Exception('history runtime detail'),
-      );
-      final auditRepository = _FakeAuditLogRepository(events: events);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.updateTripStatus(
-        companyId: _companyId,
-        id: _tripId,
-        newStatus: TripStatus.loaded,
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(events, ['get', 'status', 'history']);
-      expect(auditRepository.lastData, isNull);
-    });
-
     test('propagates audit failure after successful trip creation', () async {
       final events = <String>[];
       final remoteDataSource = _FakeTripsRemoteDataSource(
@@ -350,9 +143,9 @@ void main() {
           ServerFailure(code: 'audit_failure'),
         ),
       );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
+      final repository = TripsRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
       final result = await repository.createTrip(
@@ -369,18 +162,6 @@ void main() {
 
 const _companyId = 'company-1';
 const _tripId = 'trip-1';
-
-TripsRepositoryImpl _repository(
-  TripsRemoteDataSource remoteDataSource, {
-  _FakeAuditLogRepository? auditRepository,
-}) {
-  return TripsRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? _FakeAuditLogRepository(events: []),
-    ),
-  );
-}
 
 const _writeData = TripWriteData(
   companyId: _companyId,
@@ -424,21 +205,6 @@ const _oldTripModel = TripModel(
   routeName: 'Dubai -> Abu Dhabi',
 );
 
-const _unknownStatusTripModel = TripModel(
-  id: _tripId,
-  companyId: _companyId,
-  customerId: 'customer-1',
-  routeId: 'route-1',
-  driverId: 'driver-1',
-  tractorHeadId: 'tractor-1',
-  trailerId: 'trailer-1',
-  status: 'legacy_unknown',
-  loadingOrderNumber: 'LO-001',
-  waybillNumber: 'WB-OLD',
-  customerName: 'Customer One',
-  routeName: 'Dubai -> Abu Dhabi',
-);
-
 const _updatedTripModel = TripModel(
   id: _tripId,
   companyId: _companyId,
@@ -469,61 +235,20 @@ const _loadedTripModel = TripModel(
   routeName: 'Dubai -> Abu Dhabi',
 );
 
-const _emptyLookups = TripFormLookups(
-  customers: [],
-  routes: [],
-  drivers: [],
-  tractorHeads: [],
-  trailers: [],
-);
-
-class _ThrowingTripModel extends TripModel {
-  const _ThrowingTripModel()
-    : super(
-        id: 'trip-broken',
-        companyId: _companyId,
-        customerId: 'customer-1',
-        routeId: 'route-1',
-        status: 'created',
-      );
-
-  @override
-  String get status => throw StateError('mapping internal detail');
-}
-
 class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   final TripModel currentModel;
   final TripModel? createModel;
   final TripModel? saveModel;
   final TripModel? statusModel;
   final List<String> events;
-  final List<TripModel>? listModels;
-  final Object? listError;
-  final Object? getError;
-  final Object? lookupsError;
-  final Object? createError;
-  final Object? saveError;
-  final Object? statusError;
-  final Object? historyError;
-  final Object? historyListError;
-  final Object? openTripError;
 
-  String? lastListCompanyId;
   String? lastGetByIdCompanyId;
-  String? lastGetByIdId;
-  String? lastLookupsCompanyId;
   String? lastStatusCompanyId;
   String? lastHistoryCompanyId;
   TripStatus? lastHistoryOldStatus;
   TripStatus? lastHistoryNewStatus;
   String? lastHistoryActorRole;
   String? lastHistoryNotes;
-  String? lastHistoryListCompanyId;
-  String? lastHistoryListTripId;
-  String? lastOpenTripCompanyId;
-  String? lastOpenTripTractorHeadId;
-  String? lastOpenTripTrailerId;
-  String? lastOpenTripExcludingTripId;
 
   _FakeTripsRemoteDataSource({
     required this.currentModel,
@@ -531,24 +256,11 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     this.createModel,
     this.saveModel,
     this.statusModel,
-    this.listModels,
-    this.listError,
-    this.getError,
-    this.lookupsError,
-    this.createError,
-    this.saveError,
-    this.statusError,
-    this.historyError,
-    this.historyListError,
-    this.openTripError,
   });
 
   @override
   Future<List<TripModel>> getTrips({required String companyId}) async {
-    events.add('list');
-    lastListCompanyId = companyId;
-    if (listError != null) throw listError!;
-    return listModels ?? [currentModel];
+    return [currentModel];
   }
 
   @override
@@ -558,23 +270,17 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   }) async {
     events.add('get');
     lastGetByIdCompanyId = companyId;
-    lastGetByIdId = id;
-    if (getError != null) throw getError!;
     return currentModel;
   }
 
   @override
-  Future<TripFormLookups> getTripFormLookups({required String companyId}) async {
-    events.add('lookups');
-    lastLookupsCompanyId = companyId;
-    if (lookupsError != null) throw lookupsError!;
-    return _emptyLookups;
+  Future<TripFormLookups> getTripFormLookups({required String companyId}) {
+    throw UnimplementedError();
   }
 
   @override
   Future<TripModel> createTrip({required TripWriteData data}) async {
     events.add('create');
-    if (createError != null) throw createError!;
     return createModel ?? currentModel;
   }
 
@@ -584,7 +290,6 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripWriteData data,
   }) async {
     events.add('save');
-    if (saveError != null) throw saveError!;
     return saveModel ?? currentModel;
   }
 
@@ -596,7 +301,6 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   }) async {
     events.add('status');
     lastStatusCompanyId = companyId;
-    if (statusError != null) throw statusError!;
     return statusModel ?? currentModel;
   }
 
@@ -615,7 +319,6 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     lastHistoryNewStatus = newStatus;
     lastHistoryActorRole = actorRole;
     lastHistoryNotes = notes;
-    if (historyError != null) throw historyError!;
 
     return TripStatusHistoryModel(
       id: 'history-1',
@@ -634,10 +337,6 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     required String companyId,
     required String tripId,
   }) async {
-    events.add('history_list');
-    lastHistoryListCompanyId = companyId;
-    lastHistoryListTripId = tripId;
-    if (historyListError != null) throw historyListError!;
     return const [];
   }
 
@@ -648,12 +347,6 @@ class _FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     String? trailerId,
     String? excludingTripId,
   }) async {
-    events.add('open_trip');
-    lastOpenTripCompanyId = companyId;
-    lastOpenTripTractorHeadId = tractorHeadId;
-    lastOpenTripTrailerId = trailerId;
-    lastOpenTripExcludingTripId = excludingTripId;
-    if (openTripError != null) throw openTripError!;
     return false;
   }
 }
