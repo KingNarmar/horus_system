@@ -8,36 +8,42 @@ void main() {
   group('CompanyExpenseRepositoryFailureMapper', () {
     const mapper = CompanyExpenseRepositoryFailureMapper();
 
-    test('preserves Postgrest code and message', () {
+    test('sanitizes Postgrest failures to stable server error', () {
       const error = PostgrestException(
         message: 'permission denied',
         code: '42501',
+        details: 'sensitive details',
+        hint: 'sensitive hint',
       );
 
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
-      expect(failure.code, '42501');
-      expect(failure.message, 'permission denied');
+      expect(failure.code, FailureCodes.serverError);
+      expect(failure.message, isNull);
+      expect(failure.code, isNot(error.code));
+      expect(failure.message, isNot(error.message));
     });
 
-    test('falls back to server error when Postgrest code is absent', () {
+    test('uses stable server error when Postgrest code is absent', () {
       const error = PostgrestException(message: 'database error');
 
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, 'database error');
+      expect(failure.message, isNull);
     });
 
-    test('preserves unexpected error text', () {
-      final error = Exception('unexpected');
+    test('sanitizes unexpected failures', () {
+      final error = Exception('unexpected internal detail');
 
       final failure = mapper.fromUnexpected(error);
 
       expect(failure, isA<UnexpectedFailure>());
-      expect(failure.message, error.toString());
+      expect(failure.code, FailureCodes.unexpectedError);
+      expect(failure.message, isNull);
+      expect(failure.message, isNot(error.toString()));
     });
   });
 }
