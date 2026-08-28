@@ -142,11 +142,11 @@ void main() {
       expect(auditRepository.logs.single.newValues?['is_active'], isTrue);
     });
 
-    test('does not audit when mutation fails', () async {
+    test('sanitizes unexpected mutation failure and does not audit', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeRoutesRemoteDataSource(
         operations: operations,
-        addError: Exception('mutation failed'),
+        addError: Exception('mutation failed internal detail'),
       );
       final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = _repository(
@@ -161,6 +161,38 @@ void main() {
 
       expect(result, isA<FailureResult<RouteEntity>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(operations, ['add_route']);
+      expect(auditRepository.logs, isEmpty);
+    });
+
+    test('sanitizes Postgrest mutation failure and does not audit', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeRoutesRemoteDataSource(
+        operations: operations,
+        addError: const PostgrestException(
+          message: 'permission denied',
+          code: '42501',
+          details: 'sensitive details',
+          hint: 'sensitive hint',
+        ),
+      );
+      final auditRepository = _FakeAuditLogRepository(operations: operations);
+      final repository = _repository(
+        remoteDataSource,
+        auditRepository: auditRepository,
+      );
+
+      final result = await repository.addRoute(
+        data: _writeData(),
+        actorRole: 'operations',
+      );
+
+      expect(result, isA<FailureResult<RouteEntity>>());
+      expect(result.failureOrNull, isA<ServerFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_route']);
       expect(auditRepository.logs, isEmpty);
     });
@@ -189,11 +221,13 @@ void main() {
       expect(operations, ['add_route', 'audit']);
     });
 
-    test('maps Postgrest failures through repository guard', () async {
+    test('sanitizes Postgrest read failures through repository guard', () async {
       final remoteDataSource = _FakeRoutesRemoteDataSource(
         listError: const PostgrestException(
           message: 'permission denied',
           code: '42501',
+          details: 'sensitive details',
+          hint: 'sensitive hint',
         ),
       );
       final repository = _repository(remoteDataSource);
@@ -202,9 +236,28 @@ void main() {
 
       expect(result, isA<FailureResult<List<RouteEntity>>>());
       expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, '42501');
-      expect(result.failureOrNull?.message, 'permission denied');
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(remoteDataSource.lastListCompanyId, _companyId);
     });
+
+    test(
+      'sanitizes model-to-entity mapping failures inside repository guard',
+      () async {
+        final remoteDataSource = _FakeRoutesRemoteDataSource(
+          listModels: const [_ThrowingRouteModel()],
+        );
+        final repository = _repository(remoteDataSource);
+
+        final result = await repository.getRoutes(companyId: _companyId);
+
+        expect(result, isA<FailureResult<List<RouteEntity>>>());
+        expect(result.failureOrNull, isA<UnexpectedFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(remoteDataSource.lastListCompanyId, _companyId);
+      },
+    );
   });
 }
 
@@ -258,10 +311,25 @@ RouteModel _model({
   );
 }
 
+class _ThrowingRouteModel extends RouteModel {
+  const _ThrowingRouteModel()
+    : super(
+        id: 'route-broken',
+        companyId: _companyId,
+        loadingLocation: 'ignored',
+        unloadingLocation: 'Abu Dhabi',
+        isActive: true,
+      );
+
+  @override
+  String get loadingLocation => throw StateError('mapping internal detail');
+}
+
 class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
   final List<String>? operations;
   final Object? listError;
   final Object? addError;
+  final List<RouteModel>? listModels;
   final RouteModel oldModel;
   String? lastListCompanyId;
   String? lastLookupCompanyId;
@@ -273,6 +341,7 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
     this.operations,
     this.listError,
     this.addError,
+    this.listModels,
     RouteModel? oldModel,
   }) : oldModel = oldModel ?? _model(loadingLocation: 'Old Loading');
 
@@ -281,7 +350,7 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
     operations?.add('get_routes');
     lastListCompanyId = companyId;
     if (listError != null) throw listError!;
-    return [_model()];
+    return listModels ?? [_model()];
   }
 
   @override
