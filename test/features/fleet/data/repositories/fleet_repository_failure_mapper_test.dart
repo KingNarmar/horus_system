@@ -8,7 +8,7 @@ void main() {
   group('FleetRepositoryFailureMapper', () {
     const mapper = FleetRepositoryFailureMapper();
 
-    test('preserves Postgrest code and message', () {
+    test('sanitizes Postgrest code and message', () {
       const error = PostgrestException(
         message: 'permission denied',
         code: '42501',
@@ -17,8 +17,8 @@ void main() {
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
-      expect(failure.code, '42501');
-      expect(failure.message, 'permission denied');
+      expect(failure.code, FailureCodes.serverError);
+      expect(failure.message, isNull);
     });
 
     test('uses server fallback code when Postgrest code is missing', () {
@@ -28,14 +28,15 @@ void main() {
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, 'server failure');
+      expect(failure.message, isNull);
     });
 
-    test('maps unexpected errors without changing their text', () {
+    test('sanitizes unexpected errors', () {
       final failure = mapper.fromUnexpected(StateError('unexpected failure'));
 
       expect(failure, isA<UnexpectedFailure>());
-      expect(failure.message, 'Bad state: unexpected failure');
+      expect(failure.code, FailureCodes.unexpectedError);
+      expect(failure.message, isNull);
     });
   });
 }
