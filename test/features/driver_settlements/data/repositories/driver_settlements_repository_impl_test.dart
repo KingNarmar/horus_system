@@ -219,21 +219,24 @@ void main() {
       expect(remoteDataSource.lastSnapshotPeriod, same(period));
     });
 
-    test('forwards company driver and includeVoided for settlement reads', () async {
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
-      final repository = createDriverSettlementsRepository(remoteDataSource);
+    test(
+      'forwards company driver and includeVoided for settlement reads',
+      () async {
+        final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
+        final repository = createDriverSettlementsRepository(remoteDataSource);
 
-      final result = await repository.getDriverSettlements(
-        companyId: testCompanyId,
-        driverId: testDriverId,
-        includeVoided: true,
-      );
+        final result = await repository.getDriverSettlements(
+          companyId: testCompanyId,
+          driverId: testDriverId,
+          includeVoided: true,
+        );
 
-      expect(result, isA<Success>());
-      expect(remoteDataSource.lastListCompanyId, testCompanyId);
-      expect(remoteDataSource.lastListDriverId, testDriverId);
-      expect(remoteDataSource.lastIncludeVoided, isTrue);
-    });
+        expect(result, isA<Success>());
+        expect(remoteDataSource.lastListCompanyId, testCompanyId);
+        expect(remoteDataSource.lastListDriverId, testDriverId);
+        expect(remoteDataSource.lastIncludeVoided, isTrue);
+      },
+    );
 
     test('forwards company and settlement id for settlement lookup', () async {
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
@@ -253,7 +256,9 @@ void main() {
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
       final repository = createDriverSettlementsRepository(remoteDataSource);
 
-      final result = await repository.getDriverOptions(companyId: testCompanyId);
+      final result = await repository.getDriverOptions(
+        companyId: testCompanyId,
+      );
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.single.displayName, 'Driver One');
@@ -261,19 +266,22 @@ void main() {
       expect(remoteDataSource.lastDriverOptionsCompanyId, testCompanyId);
     });
 
-    test('maps driver option lookup with exact company and driver forwarding', () async {
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
-      final repository = createDriverSettlementsRepository(remoteDataSource);
+    test(
+      'maps driver option lookup with exact company and driver forwarding',
+      () async {
+        final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
+        final repository = createDriverSettlementsRepository(remoteDataSource);
 
-      final result = await repository.getDriverOptionById(
-        companyId: testCompanyId,
-        driverId: testDriverId,
-      );
+        final result = await repository.getDriverOptionById(
+          companyId: testCompanyId,
+          driverId: testDriverId,
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.id, testDriverId);
-      expect(remoteDataSource.lastDriverOptionCompanyId, testCompanyId);
-      expect(remoteDataSource.lastDriverOptionDriverId, testDriverId);
-    });
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.id, testDriverId);
+        expect(remoteDataSource.lastDriverOptionCompanyId, testCompanyId);
+        expect(remoteDataSource.lastDriverOptionDriverId, testDriverId);
+      },
+    );
   });
 }
