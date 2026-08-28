@@ -221,25 +221,28 @@ void main() {
       expect(operations, ['add_route', 'audit']);
     });
 
-    test('sanitizes Postgrest read failures through repository guard', () async {
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        listError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-          details: 'sensitive details',
-          hint: 'sensitive hint',
-        ),
-      );
-      final repository = _repository(remoteDataSource);
+    test(
+      'sanitizes Postgrest read failures through repository guard',
+      () async {
+        final remoteDataSource = _FakeRoutesRemoteDataSource(
+          listError: const PostgrestException(
+            message: 'permission denied',
+            code: '42501',
+            details: 'sensitive details',
+            hint: 'sensitive hint',
+          ),
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.getRoutes(companyId: _companyId);
+        final result = await repository.getRoutes(companyId: _companyId);
 
-      expect(result, isA<FailureResult<List<RouteEntity>>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(remoteDataSource.lastListCompanyId, _companyId);
-    });
+        expect(result, isA<FailureResult<List<RouteEntity>>>());
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(remoteDataSource.lastListCompanyId, _companyId);
+      },
+    );
 
     test(
       'sanitizes model-to-entity mapping failures inside repository guard',
