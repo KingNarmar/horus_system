@@ -226,6 +226,38 @@ void main() {
 
       expect(result, isA<FailureResult<TractorHead>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(operations, ['add_tractor']);
+      expect(auditRepository.logs, isEmpty);
+    });
+
+    test('sanitizes Postgrest mutation failures without auditing', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+        addTractorError: const PostgrestException(
+          message: 'permission denied',
+          code: '42501',
+          details: 'internal policy details',
+          hint: 'internal hint',
+        ),
+      );
+      final auditRepository = _FakeAuditLogRepository(operations: operations);
+      final repository = _repository(
+        remoteDataSource,
+        auditRepository: auditRepository,
+      );
+
+      final result = await repository.addTractorHead(
+        data: _tractorWriteData(),
+        actorRole: 'operations',
+      );
+
+      expect(result, isA<FailureResult<TractorHead>>());
+      expect(result.failureOrNull, isA<ServerFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_tractor']);
       expect(auditRepository.logs, isEmpty);
     });
@@ -254,7 +286,7 @@ void main() {
       expect(operations, ['add_trailer', 'audit']);
     });
 
-    test('maps Postgrest failures through repository guard', () async {
+    test('sanitizes Postgrest failures through repository guard', () async {
       final repository = _repository(
         _FakeFleetRemoteDataSource(
           tractorListError: const PostgrestException(
@@ -268,11 +300,11 @@ void main() {
 
       expect(result, isA<FailureResult<List<TractorHead>>>());
       expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, '42501');
-      expect(result.failureOrNull?.message, 'permission denied');
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
     });
 
-    test('maps unexpected failures through repository guard', () async {
+    test('sanitizes unexpected failures through repository guard', () async {
       final repository = _repository(
         _FakeFleetRemoteDataSource(trailerListError: StateError('bad list')),
       );
@@ -281,7 +313,36 @@ void main() {
 
       expect(result, isA<FailureResult<List<TrailerEntity>>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.message, 'Bad state: bad list');
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+    });
+
+    test('keeps tractor model mapping inside the sanitized guard', () async {
+      final repository = _repository(
+        _FakeFleetRemoteDataSource(
+          tractorListModel: _ThrowingTractorHeadModel(),
+        ),
+      );
+
+      final result = await repository.getTractorHeads(companyId: _companyId);
+
+      expect(result, isA<FailureResult<List<TractorHead>>>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+    });
+
+    test('keeps trailer model mapping inside the sanitized guard', () async {
+      final repository = _repository(
+        _FakeFleetRemoteDataSource(trailerListModel: _ThrowingTrailerModel()),
+      );
+
+      final result = await repository.getTrailers(companyId: _companyId);
+
+      expect(result, isA<FailureResult<List<TrailerEntity>>>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
     });
   });
 }
@@ -352,6 +413,8 @@ class _FakeFleetRemoteDataSource implements FleetRemoteDataSource {
   final Object? tractorListError;
   final Object? trailerListError;
   final Object? addTractorError;
+  final TractorHeadModel tractorListModel;
+  final TrailerModel trailerListModel;
   final TractorHeadModel tractorOldModel;
   final TrailerModel trailerOldModel;
 
@@ -371,9 +434,13 @@ class _FakeFleetRemoteDataSource implements FleetRemoteDataSource {
     this.tractorListError,
     this.trailerListError,
     this.addTractorError,
+    TractorHeadModel? tractorListModel,
+    TrailerModel? trailerListModel,
     TractorHeadModel? tractorOldModel,
     TrailerModel? trailerOldModel,
-  }) : tractorOldModel = tractorOldModel ?? _tractorModel(),
+  }) : tractorListModel = tractorListModel ?? _tractorModel(),
+       trailerListModel = trailerListModel ?? _trailerModel(),
+       tractorOldModel = tractorOldModel ?? _tractorModel(),
        trailerOldModel = trailerOldModel ?? _trailerModel();
 
   @override
@@ -382,14 +449,14 @@ class _FakeFleetRemoteDataSource implements FleetRemoteDataSource {
   }) async {
     lastTractorListCompanyId = companyId;
     if (tractorListError != null) throw tractorListError!;
-    return [_tractorModel()];
+    return [tractorListModel];
   }
 
   @override
   Future<List<TrailerModel>> getTrailers({required String companyId}) async {
     lastTrailerListCompanyId = companyId;
     if (trailerListError != null) throw trailerListError!;
-    return [_trailerModel()];
+    return [trailerListModel];
   }
 
   @override
@@ -490,6 +557,34 @@ class _FakeFleetRemoteDataSource implements FleetRemoteDataSource {
     lastTrailerLifecycleId = id;
     return _trailerModel(isActive: true);
   }
+}
+
+class _ThrowingTractorHeadModel extends TractorHeadModel {
+  _ThrowingTractorHeadModel()
+    : super(
+        id: _tractorId,
+        companyId: _companyId,
+        plateNumber: 'T-THROW',
+        status: 'available',
+        isActive: true,
+      );
+
+  @override
+  String get status => throw StateError('internal tractor mapping failure');
+}
+
+class _ThrowingTrailerModel extends TrailerModel {
+  _ThrowingTrailerModel()
+    : super(
+        id: _trailerId,
+        companyId: _companyId,
+        plateNumber: 'TR-THROW',
+        status: 'available',
+        isActive: true,
+      );
+
+  @override
+  String get status => throw StateError('internal trailer mapping failure');
 }
 
 class _FakeAuditLogRepository implements AuditLogRepository {
