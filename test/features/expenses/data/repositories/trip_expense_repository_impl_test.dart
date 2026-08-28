@@ -308,25 +308,22 @@ void main() {
       expect(remoteDataSource.lastExpenseTypesCompanyId, _companyId);
     });
 
-    test(
-      'sanitizes model mapping failures inside repository guard',
-      () async {
-        final remoteDataSource = _FakeTripExpensesRemoteDataSource(
-          listModels: [_ThrowingTripExpenseModel()],
-        );
-        final repository = _repository(remoteDataSource);
+    test('sanitizes model mapping failures inside repository guard', () async {
+      final remoteDataSource = _FakeTripExpensesRemoteDataSource(
+        listModels: [_ThrowingTripExpenseModel()],
+      );
+      final repository = _repository(remoteDataSource);
 
-        final result = await repository.getTripExpenses(
-          companyId: _companyId,
-          tripId: _tripId,
-        );
+      final result = await repository.getTripExpenses(
+        companyId: _companyId,
+        tripId: _tripId,
+      );
 
-        expect(result, isA<FailureResult>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-      },
-    );
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+    });
   });
 }
 
