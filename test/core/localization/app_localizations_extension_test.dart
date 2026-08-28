@@ -49,6 +49,89 @@ void main() {
       expect(message, 'Unexpected error occurred.');
     });
 
+    testWidgets(
+      'maps stable Auth failure codes to actionable English messages',
+      (tester) async {
+        final l10n = await _pumpLocalizations(tester, const Locale('en'));
+
+        const cases = <String, String>{
+          FailureCodes.authInvalidCredentials: 'Incorrect email or password.',
+          FailureCodes.authEmailNotConfirmed:
+              'Confirm your email before signing in.',
+          FailureCodes.authAccountAlreadyExists:
+              'An account already exists for this email.',
+          FailureCodes.authWeakPassword:
+              'The password does not meet the security requirements.',
+          FailureCodes.authInvalidEmail: 'Enter a valid email address.',
+          FailureCodes.authRateLimited: 'Too many attempts. Try again later.',
+          FailureCodes.authError:
+              "We couldn't complete this account action. Try again.",
+        };
+
+        for (final entry in cases.entries) {
+          expect(
+            l10n.localizedErrorMessage(AuthFailure(code: entry.key)),
+            entry.value,
+          );
+        }
+      },
+    );
+    testWidgets(
+      'maps stable Auth failure codes to actionable Arabic messages',
+      (tester) async {
+        final l10n = await _pumpLocalizations(tester, const Locale('ar'));
+
+        const cases = <String, String>{
+          FailureCodes.authInvalidCredentials:
+              'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+          FailureCodes.authEmailNotConfirmed:
+              'أكّد بريدك الإلكتروني قبل تسجيل الدخول.',
+          FailureCodes.authAccountAlreadyExists:
+              'يوجد حساب بالفعل لهذا البريد الإلكتروني.',
+          FailureCodes.authWeakPassword:
+              'كلمة المرور لا تستوفي متطلبات الأمان.',
+          FailureCodes.authInvalidEmail: 'أدخل عنوان بريد إلكتروني صالحًا.',
+          FailureCodes.authRateLimited:
+              'تمت محاولات كثيرة. حاول مرة أخرى لاحقًا.',
+          FailureCodes.authError: 'تعذر إتمام إجراء الحساب. حاول مرة أخرى.',
+        };
+
+        for (final entry in cases.entries) {
+          expect(
+            l10n.localizedErrorMessage(AuthFailure(code: entry.key)),
+            entry.value,
+          );
+        }
+      },
+    );
+    testWidgets(
+      'does not expose raw unknown Auth failure messages through safe fallback',
+      (tester) async {
+        final english = await _pumpLocalizations(tester, const Locale('en'));
+
+        expect(
+          english.localizedErrorMessage(
+            const AuthFailure(
+              code: 'future_auth_failure',
+              message: 'private backend auth detail',
+            ),
+          ),
+          "We couldn't complete this account action. Try again.",
+        );
+
+        final arabic = await _pumpLocalizations(tester, const Locale('ar'));
+
+        expect(
+          arabic.localizedErrorMessage(
+            const AuthFailure(
+              code: 'future_auth_failure',
+              message: 'private backend auth detail',
+            ),
+          ),
+          'تعذر إتمام إجراء الحساب. حاول مرة أخرى.',
+        );
+      },
+    );
     testWidgets('localizes audit validation failure codes in English', (
       tester,
     ) async {

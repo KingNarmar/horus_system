@@ -5,6 +5,13 @@ class FailureCodes {
   static const String authFullNameRequired = 'auth_full_name_required';
   static const String authPhoneRequired = 'auth_phone_required';
   static const String authPasswordTooShort = 'auth_password_too_short';
+  static const String authInvalidCredentials = 'auth_invalid_credentials';
+  static const String authEmailNotConfirmed = 'auth_email_not_confirmed';
+  static const String authAccountAlreadyExists = 'auth_account_already_exists';
+  static const String authWeakPassword = 'auth_weak_password';
+  static const String authInvalidEmail = 'auth_invalid_email';
+  static const String authRateLimited = 'auth_rate_limited';
+  static const String authError = 'auth_error';
 
   // Permissions
   static const String permissionDriversManagement =

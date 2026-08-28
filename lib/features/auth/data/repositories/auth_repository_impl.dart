@@ -1,5 +1,3 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
-
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -67,10 +65,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() action) async {
     try {
       return await action();
-    } on AuthException catch (error) {
-      return FailureResult(_failureMapper.fromAuthException(error));
     } catch (error) {
-      return FailureResult(_failureMapper.fromUnexpected(error));
+      return FailureResult(_failureMapper.fromException(error));
     }
   }
 }
