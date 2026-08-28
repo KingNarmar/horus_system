@@ -8,62 +8,74 @@ void main() {
   group('DriverFinanceRepositoryFailureMapper', () {
     const mapper = DriverFinanceRepositoryFailureMapper();
 
-    test('maps movement Postgrest errors to server failure', () {
+    test('sanitizes movement Postgrest backend payload', () {
       const error = PostgrestException(
         message: 'movement denied',
         code: '42501',
+        details: 'backend details',
+        hint: 'backend hint',
       );
 
       final failure = mapper.fromMovementPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
-      expect(failure.code, '42501');
-      expect(failure.message, 'movement denied');
+      expect(failure.code, FailureCodes.serverError);
+      expect(failure.message, isNull);
+      expect(failure.code, isNot(error.code));
+      expect(failure.message, isNot(error.message));
     });
 
-    test('falls back to server error when Postgrest code is absent', () {
+    test('maps movement Postgrest without code to the same server failure', () {
       const error = PostgrestException(message: 'database error');
 
       final failure = mapper.fromMovementPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, 'database error');
+      expect(failure.message, isNull);
     });
 
-    test('maps balance 42501 to Driver Finance view permission failure', () {
+    test('preserves balance 42501 as sanitized Driver Finance permission', () {
       const error = PostgrestException(
         message: 'permission denied',
         code: '42501',
+        details: 'backend details',
+        hint: 'backend hint',
       );
 
       final failure = mapper.fromBalancePostgrest(error);
 
       expect(failure, isA<PermissionFailure>());
       expect(failure.code, FailureCodes.permissionDriverFinanceView);
-      expect(failure.message, 'Driver finance access is not allowed.');
+      expect(failure.message, isNull);
     });
 
-    test('maps other balance Postgrest errors to server failure', () {
+    test('sanitizes other balance Postgrest errors to server failure', () {
       const error = PostgrestException(
         message: 'database unavailable',
         code: 'PGRST500',
+        details: 'backend details',
+        hint: 'backend hint',
       );
 
       final failure = mapper.fromBalancePostgrest(error);
 
       expect(failure, isA<ServerFailure>());
-      expect(failure.code, 'PGRST500');
-      expect(failure.message, 'database unavailable');
+      expect(failure.code, FailureCodes.serverError);
+      expect(failure.message, isNull);
+      expect(failure.code, isNot(error.code));
+      expect(failure.message, isNot(error.message));
     });
 
-    test('preserves unexpected error text', () {
-      final error = Exception('unexpected');
+    test('sanitizes unexpected runtime text', () {
+      final error = Exception('unexpected runtime details');
 
       final failure = mapper.fromUnexpected(error);
 
       expect(failure, isA<UnexpectedFailure>());
-      expect(failure.message, error.toString());
+      expect(failure.code, FailureCodes.unexpectedError);
+      expect(failure.message, isNull);
+      expect(failure.message, isNot(error.toString()));
     });
   });
 }

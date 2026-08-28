@@ -39,11 +39,15 @@ void main() {
       );
     });
 
-    test('maps 42501 to Driver Finance view permission failure', () async {
+    test('sanitizes 42501 to Driver Finance view permission failure', () async {
+      final beforeExclusive = DateTime(2026, 7, 23);
+      final checkpointBeforeExclusive = DateTime(2026, 9, 1);
       final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
         error: const PostgrestException(
           message: 'permission denied',
           code: '42501',
+          details: 'backend details',
+          hint: 'backend hint',
         ),
       );
       final repository = DriverBalanceRepositoryImpl(
@@ -53,7 +57,8 @@ void main() {
       final result = await repository.getCanonicalDriverBalance(
         companyId: _companyId,
         driverId: _driverId,
-        beforeExclusive: DateTime(2026, 7, 23),
+        beforeExclusive: beforeExclusive,
+        checkpointBeforeExclusive: checkpointBeforeExclusive,
       );
 
       expect(result, isA<FailureResult>());
@@ -62,17 +67,24 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionDriverFinanceView,
       );
+      expect(result.failureOrNull?.message, isNull);
+      expect(remoteDataSource.balanceCalls, 1);
+      expect(remoteDataSource.lastCompanyId, _companyId);
+      expect(remoteDataSource.lastDriverId, _driverId);
+      expect(remoteDataSource.lastBeforeExclusive, beforeExclusive);
       expect(
-        result.failureOrNull?.message,
-        'Driver finance access is not allowed.',
+        remoteDataSource.lastCheckpointBeforeExclusive,
+        checkpointBeforeExclusive,
       );
     });
 
-    test('maps other Postgrest errors to server failure', () async {
+    test('sanitizes other Postgrest errors to server failure', () async {
       final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
         error: const PostgrestException(
           message: 'database unavailable',
           code: 'PGRST500',
+          details: 'backend details',
+          hint: 'backend hint',
         ),
       );
       final repository = DriverBalanceRepositoryImpl(
@@ -87,11 +99,11 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, 'PGRST500');
-      expect(result.failureOrNull?.message, 'database unavailable');
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
     });
 
-    test('maps unexpected errors without changing their text', () async {
+    test('sanitizes unexpected errors', () async {
       final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
         error: Exception('unexpected balance failure'),
       );
@@ -107,10 +119,29 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(
-        result.failureOrNull?.message,
-        'Exception: unexpected balance failure',
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+    });
+
+    test('sanitizes model-to-entity mapping failure inside boundary', () async {
+      final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
+        balanceModel: _invalidCheckpointModel(),
       );
+      final repository = DriverBalanceRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+      );
+
+      final result = await repository.getCanonicalDriverBalance(
+        companyId: _companyId,
+        driverId: _driverId,
+        beforeExclusive: DateTime(2026, 7, 23),
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(remoteDataSource.balanceCalls, 1);
     });
   });
 }
@@ -125,6 +156,19 @@ DriverBalanceModel _balanceModel() {
     checkpointSettlementId: 'settlement-1',
     checkpointPeriodEnd: DateTime(2026, 8, 31),
     checkpointSnapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
+    checkpointClosingBalance: -5600,
+    totalAdvances: 100,
+    totalDriverCharges: 50,
+    totalTripExpenseCredits: 100,
+    totalCashReturns: 25,
+  );
+}
+
+DriverBalanceModel _invalidCheckpointModel() {
+  return const DriverBalanceModel(
+    companyId: _companyId,
+    driverId: _driverId,
+    checkpointSettlementId: 'settlement-1',
     checkpointClosingBalance: -5600,
     totalAdvances: 100,
     totalDriverCharges: 50,

@@ -36,6 +36,7 @@ void main() {
         result.dataOrNull?.single.type,
         DriverFinancialMovementType.advance,
       );
+      expect(dataSource.movementReadCalls, 1);
       expect(dataSource.lastMovementCompanyId, _companyId);
       expect(dataSource.lastMovementDriverId, _driverId);
     });
@@ -56,8 +57,51 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.single.id, _tripId);
       expect(result.dataOrNull?.single.label, 'Trip 1');
+      expect(dataSource.tripOptionReadCalls, 1);
       expect(dataSource.lastTripOptionCompanyId, _companyId);
       expect(dataSource.lastTripOptionDriverId, _driverId);
+    });
+
+    test('sanitizes movement read Postgrest failure and keeps scope', () async {
+      final dataSource = _FakeDriverFinanceRemoteDataSource(
+        movementReadError: const PostgrestException(
+          message: 'backend movement read failure',
+          code: 'PGRST500',
+          details: 'backend details',
+          hint: 'backend hint',
+        ),
+      );
+      final repository = _repository(dataSource);
+
+      final result = await repository.getDriverMovements(
+        companyId: _companyId,
+        driverId: _driverId,
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<ServerFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(dataSource.movementReadCalls, 1);
+      expect(dataSource.lastMovementCompanyId, _companyId);
+      expect(dataSource.lastMovementDriverId, _driverId);
+    });
+
+    test('sanitizes model-to-entity mapping failures inside guard', () async {
+      final dataSource = _FakeDriverFinanceRemoteDataSource(
+        movements: [_ThrowingMovementModel()],
+      );
+      final repository = _repository(dataSource);
+
+      final result = await repository.getDriverMovements(
+        companyId: _companyId,
+        driverId: _driverId,
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
     });
 
     test('adds movement then writes audit then returns entity', () async {
@@ -81,6 +125,7 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, _movementId);
       expect(operations, ['add_movement', 'audit']);
+      expect(dataSource.addCalls, 1);
       expect(dataSource.lastWriteData, same(writeData));
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
@@ -106,11 +151,18 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(dataSource.addCalls, 1);
       expect(operations, ['add_movement']);
       expect(auditRepository.logs, isEmpty);
     });
 
-    test('propagates audit failure after successful persistence', () async {
+    test('propagates audit failure unchanged after persistence', () async {
+      const auditFailure = ServerFailure(
+        code: FailureCodes.serverError,
+        message: 'audit failed',
+      );
       final operations = <String>[];
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         operations: operations,
@@ -118,12 +170,7 @@ void main() {
       );
       final auditRepository = _FakeAuditLogRepository(
         operations: operations,
-        result: const FailureResult<void>(
-          ServerFailure(
-            code: FailureCodes.serverError,
-            message: 'audit failed',
-          ),
-        ),
+        result: const FailureResult<void>(auditFailure),
       );
       final repository = DriverFinanceRepositoryImpl(
         remoteDataSource: dataSource,
@@ -136,39 +183,44 @@ void main() {
       );
 
       expect(result, isA<FailureResult>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull, same(auditFailure));
       expect(operations, ['add_movement', 'audit']);
     });
 
-    test('maps movement Postgrest failures without audit', () async {
-      final operations = <String>[];
-      final dataSource = _FakeDriverFinanceRemoteDataSource(
-        operations: operations,
-        addError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = DriverFinanceRepositoryImpl(
-        remoteDataSource: dataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
-      );
+    test(
+      'sanitizes movement Postgrest mutation failure without audit',
+      () async {
+        final operations = <String>[];
+        final dataSource = _FakeDriverFinanceRemoteDataSource(
+          operations: operations,
+          addError: const PostgrestException(
+            message: 'permission denied',
+            code: '42501',
+            details: 'backend details',
+            hint: 'backend hint',
+          ),
+        );
+        final auditRepository = _FakeAuditLogRepository(operations: operations);
+        final repository = DriverFinanceRepositoryImpl(
+          remoteDataSource: dataSource,
+          createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
+        );
 
-      final result = await repository.addDriverMovement(
-        data: _writeData(),
-        actorRole: 'accountant',
-      );
+        final result = await repository.addDriverMovement(
+          data: _writeData(),
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, '42501');
-      expect(result.failureOrNull?.message, 'permission denied');
-      expect(operations, ['add_movement']);
-      expect(auditRepository.logs, isEmpty);
-    });
+        expect(result, isA<FailureResult>());
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(operations, ['add_movement']);
+        expect(auditRepository.logs, isEmpty);
+      },
+    );
 
-    test('maps unexpected read failures', () async {
+    test('sanitizes unexpected read failures', () async {
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         tripOptionReadError: Exception('read failed'),
       );
@@ -181,7 +233,10 @@ void main() {
 
       expect(result, isA<FailureResult>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.message, 'Exception: read failed');
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(dataSource.lastTripOptionCompanyId, _companyId);
+      expect(dataSource.lastTripOptionDriverId, _driverId);
     });
   });
 }
@@ -227,15 +282,35 @@ DriverFinancialMovementWriteData _writeData() {
   );
 }
 
+final class _ThrowingMovementModel extends DriverFinancialMovementModel {
+  _ThrowingMovementModel()
+    : super(
+        id: _movementId,
+        companyId: _companyId,
+        driverId: _driverId,
+        tripId: _tripId,
+        type: DriverFinancialMovementType.advance,
+        amount: 125.5,
+        movementDate: DateTime.utc(2026, 8, 23),
+      );
+
+  @override
+  String get id => throw StateError('movement mapping failed');
+}
+
 class _FakeDriverFinanceRemoteDataSource
     implements DriverFinanceRemoteDataSource {
   final List<String>? operations;
   final List<DriverFinancialMovementModel> movements;
   final List<DriverFinanceTripOptionModel> tripOptions;
   final DriverFinancialMovementModel? addedMovement;
+  final Object? movementReadError;
   final Object? tripOptionReadError;
   final Object? addError;
 
+  int movementReadCalls = 0;
+  int tripOptionReadCalls = 0;
+  int addCalls = 0;
   String? lastMovementCompanyId;
   String? lastMovementDriverId;
   String? lastTripOptionCompanyId;
@@ -247,6 +322,7 @@ class _FakeDriverFinanceRemoteDataSource
     this.movements = const [],
     this.tripOptions = const [],
     this.addedMovement,
+    this.movementReadError,
     this.tripOptionReadError,
     this.addError,
   });
@@ -256,8 +332,10 @@ class _FakeDriverFinanceRemoteDataSource
     required String companyId,
     required String driverId,
   }) async {
+    movementReadCalls++;
     lastMovementCompanyId = companyId;
     lastMovementDriverId = driverId;
+    if (movementReadError != null) throw movementReadError!;
     return movements;
   }
 
@@ -266,6 +344,7 @@ class _FakeDriverFinanceRemoteDataSource
     required String companyId,
     required String driverId,
   }) async {
+    tripOptionReadCalls++;
     lastTripOptionCompanyId = companyId;
     lastTripOptionDriverId = driverId;
     if (tripOptionReadError != null) throw tripOptionReadError!;
@@ -276,6 +355,7 @@ class _FakeDriverFinanceRemoteDataSource
   Future<DriverFinancialMovementModel> addDriverMovement({
     required DriverFinancialMovementWriteData data,
   }) async {
+    addCalls++;
     operations?.add('add_movement');
     lastWriteData = data;
     if (addError != null) throw addError!;
