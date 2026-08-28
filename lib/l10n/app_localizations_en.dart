@@ -196,6 +196,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordMinLength => 'Password must be at least 6 characters.';
 
   @override
+  String get failureAuthInvalidCredentials => 'Incorrect email or password.';
+
+  @override
+  String get failureAuthEmailNotConfirmed =>
+      'Confirm your email before signing in.';
+
+  @override
+  String get failureAuthAccountAlreadyExists =>
+      'An account already exists for this email.';
+
+  @override
+  String get failureAuthWeakPassword =>
+      'The password does not meet the security requirements.';
+
+  @override
+  String get failureAuthInvalidEmail => 'Enter a valid email address.';
+
+  @override
+  String get failureAuthRateLimited => 'Too many attempts. Try again later.';
+
+  @override
+  String get failureAuthError =>
+      'We couldn\'t complete this account action. Try again.';
+
+  @override
   String get createAccountButton => 'Create account';
 
   @override

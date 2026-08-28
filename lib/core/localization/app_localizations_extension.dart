@@ -14,7 +14,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
 
   String get _genericServerErrorMessage => failureServerError;
 
-  String get _genericAuthErrorMessage => failureUnexpectedError;
+  String get _genericAuthErrorMessage => failureAuthError;
 
   String _safeFallbackErrorMessage(Failure failure) {
     if (failure is ServerFailure) return _genericServerErrorMessage;
@@ -52,13 +52,13 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.authEmailRequired => emailRequired,
       FailureCodes.authFullNameRequired => fullNameRequired,
       FailureCodes.authPhoneRequired => phoneNumberRequired,
-      FailureCodes.authEmailNotConfirmed => checkYourEmailTitle,
-      FailureCodes.authWeakPassword => passwordMinLength,
-      FailureCodes.authInvalidCredentials => _genericAuthErrorMessage,
-      FailureCodes.authAccountAlreadyExists => _genericAuthErrorMessage,
-      FailureCodes.authInvalidEmail => _genericAuthErrorMessage,
-      FailureCodes.authRateLimited => _genericAuthErrorMessage,
-      FailureCodes.authError => _genericAuthErrorMessage,
+      FailureCodes.authEmailNotConfirmed => failureAuthEmailNotConfirmed,
+      FailureCodes.authWeakPassword => failureAuthWeakPassword,
+      FailureCodes.authInvalidCredentials => failureAuthInvalidCredentials,
+      FailureCodes.authAccountAlreadyExists => failureAuthAccountAlreadyExists,
+      FailureCodes.authInvalidEmail => failureAuthInvalidEmail,
+      FailureCodes.authRateLimited => failureAuthRateLimited,
+      FailureCodes.authError => failureAuthError,
       FailureCodes.validationDriverIdRequired =>
         failureValidationDriverIdRequired,
       FailureCodes.validationDriverNameRequired =>

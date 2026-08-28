@@ -434,6 +434,48 @@ abstract class AppLocalizations {
   /// **'Password must be at least 6 characters.'**
   String get passwordMinLength;
 
+  /// No description provided for @failureAuthInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password.'**
+  String get failureAuthInvalidCredentials;
+
+  /// No description provided for @failureAuthEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email before signing in.'**
+  String get failureAuthEmailNotConfirmed;
+
+  /// No description provided for @failureAuthAccountAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists for this email.'**
+  String get failureAuthAccountAlreadyExists;
+
+  /// No description provided for @failureAuthWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password does not meet the security requirements.'**
+  String get failureAuthWeakPassword;
+
+  /// No description provided for @failureAuthInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get failureAuthInvalidEmail;
+
+  /// No description provided for @failureAuthRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again later.'**
+  String get failureAuthRateLimited;
+
+  /// No description provided for @failureAuthError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t complete this account action. Try again.'**
+  String get failureAuthError;
+
   /// No description provided for @createAccountButton.
   ///
   /// In en, this message translates to:

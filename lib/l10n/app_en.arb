@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "en",
   "appTitle": "H.O.R.U.S System",
   "appSubtitle": "Heavy Operations & Route Unified System",
@@ -58,6 +58,13 @@
   "phoneNumberLabel": "Phone number",
   "phoneNumberRequired": "Phone number is required.",
   "passwordMinLength": "Password must be at least 6 characters.",
+  "failureAuthInvalidCredentials": "Incorrect email or password.",
+  "failureAuthEmailNotConfirmed": "Confirm your email before signing in.",
+  "failureAuthAccountAlreadyExists": "An account already exists for this email.",
+  "failureAuthWeakPassword": "The password does not meet the security requirements.",
+  "failureAuthInvalidEmail": "Enter a valid email address.",
+  "failureAuthRateLimited": "Too many attempts. Try again later.",
+  "failureAuthError": "We couldn't complete this account action. Try again.",
   "createAccountButton": "Create account",
   "checkYourEmailTitle": "Check your email",
   "emailConfirmationMessage": "We sent a confirmation link to {email}. Open the email, confirm your account, then return to H.O.R.U.S System and log in.",

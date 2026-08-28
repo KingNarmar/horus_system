@@ -193,6 +193,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordMinLength => 'كلمة المرور يجب ألا تقل عن 6 أحرف.';
 
   @override
+  String get failureAuthInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+
+  @override
+  String get failureAuthEmailNotConfirmed =>
+      'أكّد بريدك الإلكتروني قبل تسجيل الدخول.';
+
+  @override
+  String get failureAuthAccountAlreadyExists =>
+      'يوجد حساب بالفعل لهذا البريد الإلكتروني.';
+
+  @override
+  String get failureAuthWeakPassword => 'كلمة المرور لا تستوفي متطلبات الأمان.';
+
+  @override
+  String get failureAuthInvalidEmail => 'أدخل عنوان بريد إلكتروني صالحًا.';
+
+  @override
+  String get failureAuthRateLimited =>
+      'تمت محاولات كثيرة. حاول مرة أخرى لاحقًا.';
+
+  @override
+  String get failureAuthError => 'تعذر إتمام إجراء الحساب. حاول مرة أخرى.';
+
+  @override
   String get createAccountButton => 'إنشاء الحساب';
 
   @override
