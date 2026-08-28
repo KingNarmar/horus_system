@@ -54,10 +54,10 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.authPhoneRequired => phoneNumberRequired,
       FailureCodes.authEmailNotConfirmed => checkYourEmailTitle,
       FailureCodes.authWeakPassword => passwordMinLength,
-      FailureCodes.authInvalidCredentials ||
-      FailureCodes.authAccountAlreadyExists ||
-      FailureCodes.authInvalidEmail ||
-      FailureCodes.authRateLimited ||
+      FailureCodes.authInvalidCredentials => _genericAuthErrorMessage,
+      FailureCodes.authAccountAlreadyExists => _genericAuthErrorMessage,
+      FailureCodes.authInvalidEmail => _genericAuthErrorMessage,
+      FailureCodes.authRateLimited => _genericAuthErrorMessage,
       FailureCodes.authError => _genericAuthErrorMessage,
       FailureCodes.validationDriverIdRequired =>
         failureValidationDriverIdRequired,
