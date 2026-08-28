@@ -238,39 +238,40 @@ Replace-RegexBlockIfNeeded `
   -Replacement $arabicTestBlock
 
 $unknownAuthTestBlock = @"
-    testWidgets('does not expose raw unknown Auth failure messages', (
-      tester,
-    ) async {
-      final english = await _pumpLocalizations(tester, const Locale('en'));
+    testWidgets(
+      'does not expose raw unknown Auth failure messages through safe fallback',
+      (tester) async {
+        final english = await _pumpLocalizations(tester, const Locale('en'));
 
-      expect(
-        english.localizedErrorMessage(
-          const AuthFailure(
-            code: 'future_auth_failure',
-            message: 'private backend auth detail',
+        expect(
+          english.localizedErrorMessage(
+            const AuthFailure(
+              code: 'future_auth_failure',
+              message: 'private backend auth detail',
+            ),
           ),
-        ),
-        `"We couldn't complete this account action. Try again.`",
-      );
+          `"We couldn't complete this account action. Try again.`",
+        );
 
-      final arabic = await _pumpLocalizations(tester, const Locale('ar'));
+        final arabic = await _pumpLocalizations(tester, const Locale('ar'));
 
-      expect(
-        arabic.localizedErrorMessage(
-          const AuthFailure(
-            code: 'future_auth_failure',
-            message: 'private backend auth detail',
+        expect(
+          arabic.localizedErrorMessage(
+            const AuthFailure(
+              code: 'future_auth_failure',
+              message: 'private backend auth detail',
+            ),
           ),
-        ),
-        '$arError',
-      );
-    });
+          '$arError',
+        );
+      },
+    );
 
 "@
 
 Replace-RegexBlockIfNeeded `
   -Path $testPath `
-  -NewMarker "We couldn't complete this account action. Try again." `
+  -NewMarker 'does not expose raw unknown Auth failure messages through safe fallback' `
   -Pattern "    testWidgets\('does not expose raw unknown Auth failure messages'.*?(?=    testWidgets\('localizes audit validation failure codes in English')" `
   -Replacement $unknownAuthTestBlock
 
