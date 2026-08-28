@@ -31,8 +31,7 @@ DriverSettlementsRepositoryImpl createDriverSettlementsRepository(
 }) {
   return DriverSettlementsRepositoryImpl(
     remoteDataSource: remoteDataSource,
-    driverBalanceRepository:
-        balanceRepository ?? FakeDriverBalanceRepository(),
+    driverBalanceRepository: balanceRepository ?? FakeDriverBalanceRepository(),
     createAuditLogUseCase: CreateAuditLogUseCase(
       auditRepository ?? FakeDriverSettlementAuditLogRepository(),
     ),
