@@ -8,13 +8,10 @@ final class TripRepositoryFailureMapper {
   const TripRepositoryFailureMapper();
 
   Failure fromPostgrest(PostgrestException error) {
-    return ServerFailure(
-      code: error.code ?? FailureCodes.serverError,
-      message: error.message,
-    );
+    return const ServerFailure(code: FailureCodes.serverError);
   }
 
   Failure fromUnexpected(Object error) {
-    return UnexpectedFailure(message: error.toString());
+    return const UnexpectedFailure(code: FailureCodes.unexpectedError);
   }
 }
