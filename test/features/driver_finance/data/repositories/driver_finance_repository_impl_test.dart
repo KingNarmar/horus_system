@@ -187,35 +187,38 @@ void main() {
       expect(operations, ['add_movement', 'audit']);
     });
 
-    test('sanitizes movement Postgrest mutation failure without audit', () async {
-      final operations = <String>[];
-      final dataSource = _FakeDriverFinanceRemoteDataSource(
-        operations: operations,
-        addError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-          details: 'backend details',
-          hint: 'backend hint',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = DriverFinanceRepositoryImpl(
-        remoteDataSource: dataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
-      );
+    test(
+      'sanitizes movement Postgrest mutation failure without audit',
+      () async {
+        final operations = <String>[];
+        final dataSource = _FakeDriverFinanceRemoteDataSource(
+          operations: operations,
+          addError: const PostgrestException(
+            message: 'permission denied',
+            code: '42501',
+            details: 'backend details',
+            hint: 'backend hint',
+          ),
+        );
+        final auditRepository = _FakeAuditLogRepository(operations: operations);
+        final repository = DriverFinanceRepositoryImpl(
+          remoteDataSource: dataSource,
+          createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
+        );
 
-      final result = await repository.addDriverMovement(
-        data: _writeData(),
-        actorRole: 'accountant',
-      );
+        final result = await repository.addDriverMovement(
+          data: _writeData(),
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['add_movement']);
-      expect(auditRepository.logs, isEmpty);
-    });
+        expect(result, isA<FailureResult>());
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(operations, ['add_movement']);
+        expect(auditRepository.logs, isEmpty);
+      },
+    );
 
     test('sanitizes unexpected read failures', () async {
       final dataSource = _FakeDriverFinanceRemoteDataSource(
