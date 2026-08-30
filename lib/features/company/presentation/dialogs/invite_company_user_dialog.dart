@@ -34,7 +34,9 @@ class _InviteCompanyUserDialogState extends State<InviteCompanyUserDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedRole = widget.assignableRoles.firstOrNull;
+    _selectedRole = widget.assignableRoles.isEmpty
+        ? null
+        : widget.assignableRoles.first;
   }
 
   @override
