@@ -209,7 +209,9 @@ class _CompanyInvitationAcceptancePageState
                     ? const SizedBox(
                         width: AppSizes.iconMd,
                         height: AppSizes.iconMd,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                          strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                        ),
                       )
                     : Text(l10n.invitationAcceptButton),
               ),
