@@ -41,9 +41,20 @@ class DeactivateCompanyMemberUseCase
       );
     }
 
+    final membershipId = params.membershipId.trim();
+    if (membershipId.isEmpty) {
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(
+            code: CompanyFailureCodes.validationMembershipIdRequired,
+          ),
+        ),
+      );
+    }
+
     return _repository.deactivate(
       companyId: context.companyId,
-      membershipId: params.membershipId.trim(),
+      membershipId: membershipId,
     );
   }
 }
