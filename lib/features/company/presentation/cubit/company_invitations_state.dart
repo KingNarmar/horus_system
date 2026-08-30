@@ -35,9 +35,11 @@ class CompanyInvitationsCommandInProgress extends CompanyInvitationsState {
 
 class CompanyInvitationsFailure extends CompanyInvitationsState {
   final Failure failure;
+  final List<CompanyInvitation> invitations;
 
   const CompanyInvitationsFailure({
     required super.companyId,
     required this.failure,
+    required this.invitations,
   });
 }
