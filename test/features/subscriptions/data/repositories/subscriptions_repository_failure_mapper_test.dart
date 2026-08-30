@@ -8,39 +8,48 @@ void main() {
   group('SubscriptionsRepositoryFailureMapper', () {
     const mapper = SubscriptionsRepositoryFailureMapper();
 
-    test('maps 42501 to stable subscriptions view permission failure', () {
+    test('maps 42501 to sanitized subscriptions view permission failure', () {
       const error = PostgrestException(
         message: 'permission denied',
         code: '42501',
+        details: 'internal permission details',
+        hint: 'internal permission hint',
       );
 
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<PermissionFailure>());
       expect(failure.code, FailureCodes.permissionSubscriptionsView);
-      expect(failure.message, 'Subscription view is not allowed.');
+      expect(failure.message, isNull);
     });
 
-    test('maps other Postgrest errors to server failure', () {
+    test('maps other Postgrest errors to sanitized server failure', () {
       const error = PostgrestException(
         message: 'database unavailable',
         code: 'PGRST500',
+        details: 'internal database details',
+        hint: 'internal database hint',
       );
 
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, 'database unavailable');
+      expect(failure.message, isNull);
+      expect(failure.message, isNot(error.message));
+      expect(failure.message, isNot(error.details));
+      expect(failure.message, isNot(error.hint));
     });
 
-    test('preserves unexpected error text', () {
-      final error = Exception('unexpected');
+    test('maps unexpected error without runtime text', () {
+      final error = StateError('unexpected runtime details');
 
       final failure = mapper.fromUnexpected(error);
 
       expect(failure, isA<UnexpectedFailure>());
-      expect(failure.message, error.toString());
+      expect(failure.code, FailureCodes.unexpectedError);
+      expect(failure.message, isNull);
+      expect(failure.message, isNot(error.toString()));
     });
   });
 }
