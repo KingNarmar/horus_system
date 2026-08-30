@@ -50,7 +50,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
         ),
       ),
       failure: (failure) => emit(
-        CompanyInvitationsFailure(companyId: companyId, failure: failure),
+        CompanyInvitationsFailure(
+          companyId: companyId,
+          failure: failure,
+          invitations: const [],
+        ),
       ),
     );
   }
@@ -62,10 +66,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
   }) async {
     final companyId = currentCompanyContext.companyId;
     _scopeCompanyId = companyId;
+    final invitations = _currentInvitations(companyId);
     emit(
       CompanyInvitationsCommandInProgress(
         companyId: companyId,
-        invitations: _currentInvitations(companyId),
+        invitations: invitations,
       ),
     );
 
@@ -82,7 +87,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     await result.when(
       success: (_) => load(currentCompanyContext),
       failure: (failure) async => emit(
-        CompanyInvitationsFailure(companyId: companyId, failure: failure),
+        CompanyInvitationsFailure(
+          companyId: companyId,
+          failure: failure,
+          invitations: invitations,
+        ),
       ),
     );
   }
@@ -123,10 +132,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
   ) async {
     final companyId = context.companyId;
     _scopeCompanyId = companyId;
+    final invitations = _currentInvitations(companyId);
     emit(
       CompanyInvitationsCommandInProgress(
         companyId: companyId,
-        invitations: _currentInvitations(companyId),
+        invitations: invitations,
       ),
     );
 
@@ -136,7 +146,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     await result.when(
       success: (_) => load(context),
       failure: (failure) async => emit(
-        CompanyInvitationsFailure(companyId: companyId, failure: failure),
+        CompanyInvitationsFailure(
+          companyId: companyId,
+          failure: failure,
+          invitations: invitations,
+        ),
       ),
     );
   }
@@ -148,6 +162,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     if (current is CompanyInvitationsCommandInProgress) {
       return current.invitations;
     }
+    if (current is CompanyInvitationsFailure) return current.invitations;
     return const [];
   }
 }
