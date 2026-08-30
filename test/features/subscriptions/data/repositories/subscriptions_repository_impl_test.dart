@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/subscriptions/data/datasources/subscriptions_remote_data_source.dart';
@@ -50,7 +52,7 @@ void main() {
   );
 
   test(
-    'getCurrentCompanySubscription exposes invalid status failure',
+    'getCurrentCompanySubscription exposes sanitized invalid status failure',
     () async {
       final remote = _FakeSubscriptionsRemoteDataSource(
         subscription: _subscriptionModel(status: 'paused'),
@@ -61,20 +63,24 @@ void main() {
         companyId: 'company-1',
       );
 
+      expect(result.failureOrNull, isA<ServerFailure>());
       expect(
         result.failureOrNull?.code,
         FailureCodes.subscriptionStatusInvalid,
       );
+      expect(result.failureOrNull?.message, isNull);
     },
   );
 
   test(
-    'getCurrentCompanySubscription maps Postgrest failure through feature mapper',
+    'getCurrentCompanySubscription maps 42501 through sanitized feature mapper',
     () async {
       final remote = _FakeSubscriptionsRemoteDataSource(
         subscriptionError: const PostgrestException(
           message: 'permission denied',
           code: '42501',
+          details: 'internal permission details',
+          hint: 'internal permission hint',
         ),
       );
       final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
@@ -88,26 +94,53 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionSubscriptionsView,
       );
-      expect(
-        result.failureOrNull?.message,
-        'Subscription view is not allowed.',
-      );
+      expect(result.failureOrNull?.message, isNull);
+      expect(remote.requestedCompanyIds, ['company-1']);
     },
   );
 
-  test(
-    'getAvailablePlans maps unexpected failure through feature mapper',
-    () async {
-      final error = Exception('unexpected');
-      final remote = _FakeSubscriptionsRemoteDataSource(plansError: error);
-      final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+  test('getAvailablePlans sanitizes generic Postgrest failure', () async {
+    final remote = _FakeSubscriptionsRemoteDataSource(
+      plansError: const PostgrestException(
+        message: 'database unavailable',
+        code: 'PGRST500',
+        details: 'internal database details',
+        hint: 'internal database hint',
+      ),
+    );
+    final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
 
-      final result = await repository.getAvailablePlans();
+    final result = await repository.getAvailablePlans();
 
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.message, error.toString());
-    },
-  );
+    expect(result.failureOrNull, isA<ServerFailure>());
+    expect(result.failureOrNull?.code, FailureCodes.serverError);
+    expect(result.failureOrNull?.message, isNull);
+  });
+
+  test('getAvailablePlans sanitizes unexpected failure', () async {
+    final error = StateError('unexpected runtime details');
+    final remote = _FakeSubscriptionsRemoteDataSource(plansError: error);
+    final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+
+    final result = await repository.getAvailablePlans();
+
+    expect(result.failureOrNull, isA<UnexpectedFailure>());
+    expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+    expect(result.failureOrNull?.message, isNull);
+  });
+
+  test('plan mapping failure stays inside repository boundary', () async {
+    final remote = _FakeSubscriptionsRemoteDataSource(
+      plans: _ThrowingSubscriptionPlanList(),
+    );
+    final repository = SubscriptionsRepositoryImpl(remoteDataSource: remote);
+
+    final result = await repository.getAvailablePlans();
+
+    expect(result.failureOrNull, isA<UnexpectedFailure>());
+    expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+    expect(result.failureOrNull?.message, isNull);
+  });
 }
 
 final class _FakeSubscriptionsRemoteDataSource
@@ -138,6 +171,25 @@ final class _FakeSubscriptionsRemoteDataSource
     requestedCompanyIds.add(companyId);
     if (subscriptionError != null) throw subscriptionError!;
     return subscription;
+  }
+}
+
+final class _ThrowingSubscriptionPlanList
+    extends ListBase<SubscriptionPlanModel> {
+  @override
+  int get length => 1;
+
+  @override
+  set length(int _) => throw UnsupportedError('test-only list');
+
+  @override
+  SubscriptionPlanModel operator [](int index) {
+    throw StateError('subscription plan mapping failed');
+  }
+
+  @override
+  void operator []=(int index, SubscriptionPlanModel value) {
+    throw UnsupportedError('test-only list');
   }
 }
 
