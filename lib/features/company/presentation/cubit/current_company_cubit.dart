@@ -60,8 +60,6 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   }
 
   Future<void> refreshAndSelectCompany(String companyId) async {
-    emit(const CurrentCompanyLoading());
-
     final result = await _refreshSelectedCompanyContextUseCase(
       RefreshSelectedCompanyContextParams(companyId: companyId),
     );
