@@ -1,6 +1,7 @@
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation_preview.dart';
+import 'package:horus_system/features/company/domain/entities/company_invitation_status.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
@@ -46,7 +47,10 @@ void main() {
         ),
       );
 
-      expect(result.failureOrNull?.code, CompanyFailureCodes.invitationEmailInvalid);
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.invitationEmailInvalid,
+      );
       expect(repository.sendCalls, 0);
     });
 
@@ -62,7 +66,10 @@ void main() {
         ),
       );
 
-      expect(result.failureOrNull?.code, CompanyFailureCodes.invitationRoleNotAllowed);
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.invitationRoleNotAllowed,
+      );
       expect(repository.sendCalls, 0);
     });
   });
@@ -168,7 +175,9 @@ class _FakeCompanyInvitationsRepository implements CompanyInvitationsRepository 
   }
 
   @override
-  Future<Result<CompanyInvitationPreview>> getInvitationPreview(String token) async {
+  Future<Result<CompanyInvitationPreview>> getInvitationPreview(
+    String token,
+  ) async {
     previewCalls += 1;
     lastToken = token;
     return Success(
