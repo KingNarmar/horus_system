@@ -70,16 +70,23 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
         return;
       }
 
-      final code = data is Map ? data['code'] as String? : null;
       throw CompanyInvitationDeliveryException(
-        code ?? CompanyFailureCodes.invitationDeliveryFailed,
+        _semanticCode(data) ?? CompanyFailureCodes.invitationDeliveryFailed,
       );
     } on CompanyInvitationDeliveryException {
       rethrow;
-    } on FunctionException {
-      throw const CompanyInvitationDeliveryException(
-        CompanyFailureCodes.invitationDeliveryFailed,
+    } on FunctionException catch (error) {
+      throw CompanyInvitationDeliveryException(
+        _semanticCode(error.details) ??
+            CompanyFailureCodes.invitationDeliveryFailed,
       );
     }
+  }
+
+  static String? _semanticCode(Object? payload) {
+    if (payload is! Map) return null;
+    final value = payload['code'];
+    if (value is! String || !value.startsWith('company_')) return null;
+    return value;
   }
 }
