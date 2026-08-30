@@ -63,6 +63,25 @@ void main() {
     expect(entity.lastSentAt, DateTime.parse('2026-08-30T12:00:00Z'));
   });
 
+  test('CompanyInvitationModel rejects unknown role schema drift', () {
+    expect(
+      () => CompanyInvitationModel.fromRpcMap({
+        'invitation_id': 'invitation-1',
+        'company_id': 'company-1',
+        'email_normalized': 'user@example.com',
+        'invitation_role': 'future_role',
+        'effective_status': 'pending',
+        'expires_at': '2026-09-01T12:00:00Z',
+        'last_sent_at': null,
+        'send_count': 0,
+        'created_at': '2026-08-30T11:00:00Z',
+        'accepted_at': null,
+        'revoked_at': null,
+      }),
+      throwsFormatException,
+    );
+  });
+
   test('CompanyInvitationPreviewModel maps sanitized preview row', () {
     final model = CompanyInvitationPreviewModel.fromRpcMap({
       'invitation_id': 'invitation-1',
