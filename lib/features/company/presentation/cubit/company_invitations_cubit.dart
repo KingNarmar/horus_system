@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/result.dart';
 import '../../domain/entities/company_invitation.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/entities/current_company_context.dart';
@@ -118,7 +119,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
 
   Future<void> _runCommand(
     CurrentCompanyContext context,
-    Future<dynamic> Function() action,
+    Future<Result<void>> Function() action,
   ) async {
     final companyId = context.companyId;
     _scopeCompanyId = companyId;
