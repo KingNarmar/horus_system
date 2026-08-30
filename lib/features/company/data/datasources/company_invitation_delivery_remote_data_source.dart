@@ -59,16 +59,27 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
   }
 
   Future<void> _invoke(Map<String, dynamic> body) async {
-    final response = await _client.functions.invoke(_functionName, body: body);
-    final data = response.data;
+    try {
+      final response = await _client.functions.invoke(
+        _functionName,
+        body: body,
+      );
+      final data = response.data;
 
-    if (data is Map && data['ok'] == true) {
-      return;
+      if (data is Map && data['ok'] == true) {
+        return;
+      }
+
+      final code = data is Map ? data['code'] as String? : null;
+      throw CompanyInvitationDeliveryException(
+        code ?? CompanyFailureCodes.invitationDeliveryFailed,
+      );
+    } on CompanyInvitationDeliveryException {
+      rethrow;
+    } on FunctionException {
+      throw const CompanyInvitationDeliveryException(
+        CompanyFailureCodes.invitationDeliveryFailed,
+      );
     }
-
-    final code = data is Map ? data['code'] as String? : null;
-    throw CompanyInvitationDeliveryException(
-      code ?? CompanyFailureCodes.invitationDeliveryFailed,
-    );
   }
 }
