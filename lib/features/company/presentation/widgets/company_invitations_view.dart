@@ -159,7 +159,9 @@ class CompanyInvitationsView extends StatelessWidget {
             children: [
               const Icon(AppIcons.resend, size: AppSizes.iconSm),
               const SizedBox(width: AppSpacing.sm),
-              Text(context.l10n.companyInvitationResendAction),
+              Flexible(
+                child: Text(context.l10n.companyInvitationResendAction),
+              ),
             ],
           ),
         ),
@@ -169,7 +171,9 @@ class CompanyInvitationsView extends StatelessWidget {
             children: [
               const Icon(AppIcons.deactivate, size: AppSizes.iconSm),
               const SizedBox(width: AppSpacing.sm),
-              Text(context.l10n.companyInvitationRevokeAction),
+              Flexible(
+                child: Text(context.l10n.companyInvitationRevokeAction),
+              ),
             ],
           ),
         ),
