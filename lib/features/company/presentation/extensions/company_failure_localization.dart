@@ -1,5 +1,5 @@
-import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/failures/company_failure_codes.dart';
 
@@ -52,15 +52,7 @@ extension CompanyFailureLocalizationX on AppLocalizations {
         failureCompanyOwnershipTransferNotAllowed,
       CompanyFailureCodes.lastOwnerRequired => failureCompanyLastOwnerRequired,
       CompanyFailureCodes.notFound => failureCompanyNotAvailable,
-      _ => _fallbackCompanyErrorMessage(failure),
+      _ => localizedErrorMessage(failure),
     };
-  }
-
-  String _fallbackCompanyErrorMessage(Failure failure) {
-    if (failure is AuthFailure) return failureAuthError;
-    if (failure is ServerFailure) return failureServerError;
-    if (failure is UnexpectedFailure) return failureUnexpectedError;
-
-    return failureUnexpectedError;
   }
 }
