@@ -15,6 +15,12 @@ type InvitationRequest = {
   invitation_id?: unknown
 }
 
+type EdgeEnvironment = {
+  supabaseUrl: string
+  publishableKey: string
+  appUrl: string
+}
+
 type PreparedInvitation = {
   invitation_id: string
   company_id: string
@@ -23,6 +29,10 @@ type PreparedInvitation = {
   expires_at: string
   delivery_attempt_id: string
 }
+
+type RpcResult =
+  | { ok: true; data: unknown }
+  | { ok: false; status: number; code: string }
 
 const corsHeaders = {
   'access-control-allow-origin': '*',
@@ -97,14 +107,10 @@ Deno.serve(async (request: Request) => {
   }
 
   const preparation = preparationResult.data
-  const invitationUrl = buildInvitationUrl(
-    environment.appUrl,
-    rawToken,
-  )
   const emailContent = buildCompanyInvitationEmail({
     companyName: companyNameResult.companyName,
-    inviteUrl: invitationUrl,
-    roleLabel: localizedRoleLabel(preparation.invitation_role),
+    inviteUrl: buildInvitationUrl(environment.appUrl, rawToken),
+    roleLabel: bilingualRoleLabel(preparation.invitation_role),
     expiresAt: preparation.expires_at,
   })
 
@@ -163,11 +169,7 @@ function requiredString(value: unknown): string | null {
   return normalized.length > 0 ? normalized : null
 }
 
-function readEnvironment(): {
-  supabaseUrl: string
-  publishableKey: string
-  appUrl: string
-} | null {
+function readEnvironment(): EdgeEnvironment | null {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')?.trim()
   const publishableKey = readPublishableKey()
   const appUrl = Deno.env.get('HORUS_INVITATION_APP_URL')?.trim()
@@ -198,7 +200,7 @@ function readPublishableKey(): string | null {
 }
 
 async function loadCompanyName(input: {
-  environment: ReturnType<typeof readEnvironment> & {}
+  environment: EdgeEnvironment
   authorization: string
   companyId: string
 }): Promise<
@@ -224,7 +226,11 @@ async function loadCompanyName(input: {
   }
 
   if (!response.ok) {
-    return { ok: false, status: mapHttpStatus(response.status), code: 'server_error' }
+    return {
+      ok: false,
+      status: mapHttpStatus(response.status),
+      code: 'server_error',
+    }
   }
 
   const rows = await safeJson(response)
@@ -241,13 +247,16 @@ async function loadCompanyName(input: {
 }
 
 async function prepareNewInvitation(input: {
-  environment: ReturnType<typeof readEnvironment> & {}
+  environment: EdgeEnvironment
   authorization: string
   companyId: string
   email: string | null
   role: string | null
   tokenHash: string
-}) {
+}): Promise<
+  | { ok: true; data: PreparedInvitation }
+  | { ok: false; status: number; code: string }
+> {
   if (!input.email || !input.role) {
     return failureResult(400, 'company_invitation_request_invalid')
   }
@@ -266,12 +275,15 @@ async function prepareNewInvitation(input: {
 }
 
 async function prepareResend(input: {
-  environment: ReturnType<typeof readEnvironment> & {}
+  environment: EdgeEnvironment
   authorization: string
   companyId: string
   invitationId: string | null
   tokenHash: string
-}) {
+}): Promise<
+  | { ok: true; data: PreparedInvitation }
+  | { ok: false; status: number; code: string }
+> {
   if (!input.invitationId) {
     return failureResult(400, 'company_invitation_request_invalid')
   }
@@ -289,7 +301,7 @@ async function prepareResend(input: {
 }
 
 async function prepareInvitationRpc(input: {
-  environment: ReturnType<typeof readEnvironment> & {}
+  environment: EdgeEnvironment
   authorization: string
   functionName: string
   body: Record<string, unknown>
@@ -322,14 +334,11 @@ async function prepareInvitationRpc(input: {
 }
 
 async function callRpc(input: {
-  environment: ReturnType<typeof readEnvironment> & {}
+  environment: EdgeEnvironment
   authorization: string
   functionName: string
   body: Record<string, unknown>
-}): Promise<
-  | { ok: true; data: unknown }
-  | { ok: false; status: number; code: string }
-> {
+}): Promise<RpcResult> {
   let response: Response
   try {
     response = await fetch(
@@ -347,15 +356,14 @@ async function callRpc(input: {
   const data = await safeJson(response)
   if (response.ok) return { ok: true, data }
 
-  const semanticCode = extractSemanticCode(data)
   return failureResult(
     mapHttpStatus(response.status),
-    semanticCode ?? 'server_error',
+    extractSemanticCode(data) ?? 'server_error',
   )
 }
 
 function userApiHeaders(
-  environment: ReturnType<typeof readEnvironment> & {},
+  environment: EdgeEnvironment,
   authorization: string,
 ): HeadersInit {
   return {
@@ -409,11 +417,7 @@ function buildInvitationUrl(appUrl: string, rawToken: string): string {
   return url.toString()
 }
 
-function localizedRoleLabel(role: string): string {
-  return switchRoleLabel(role)
-}
-
-function switchRoleLabel(role: string): string {
+function bilingualRoleLabel(role: string): string {
   switch (role) {
     case 'admin':
       return 'Admin / مسؤول'
@@ -426,7 +430,7 @@ function switchRoleLabel(role: string): string {
     case 'driver':
       return 'Driver / سائق'
     default:
-      return role
+      return 'Member / عضو'
   }
 }
 
