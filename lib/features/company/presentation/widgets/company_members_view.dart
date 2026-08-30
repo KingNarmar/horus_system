@@ -157,7 +157,7 @@ class CompanyMembersView extends StatelessWidget {
                 children: [
                   Icon(_actionIcon(action), size: AppSizes.iconSm),
                   const SizedBox(width: AppSpacing.sm),
-                  Text(_actionLabel(context, action)),
+                  Flexible(child: Text(_actionLabel(context, action))),
                 ],
               ),
             ),
@@ -241,7 +241,7 @@ class CompanyMembersView extends StatelessWidget {
     };
   }
 
-  String _actionLabel(BuildContext context, _CompanyMemberAction action) {
+  String _actionLabel(BuildContext context, _CompanyMemberActionAction action) {
     final l10n = context.l10n;
     return switch (action) {
       _CompanyMemberAction.changeRole => l10n.companyMemberChangeRoleAction,
