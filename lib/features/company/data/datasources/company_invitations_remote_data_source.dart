@@ -1,32 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../domain/entities/company_role.dart';
 import '../constants/company_invitation_rpc.dart';
-import '../models/company_invitation_delivery_preparation_model.dart';
 import '../models/company_invitation_model.dart';
 import '../models/company_invitation_preview_model.dart';
 
 abstract class CompanyInvitationsRemoteDataSource {
   Future<List<CompanyInvitationModel>> getInvitations(String companyId);
-
-  Future<CompanyInvitationDeliveryPreparationModel> prepareInvitation({
-    required String companyId,
-    required String email,
-    required CompanyRole role,
-    required String postgresByteaTokenHash,
-  });
-
-  Future<CompanyInvitationDeliveryPreparationModel> prepareResend({
-    required String companyId,
-    required String invitationId,
-    required String postgresByteaTokenHash,
-  });
-
-  Future<void> confirmDelivery({
-    required String companyId,
-    required String invitationId,
-    required String deliveryAttemptId,
-  });
 
   Future<void> revokeInvitation({
     required String companyId,
@@ -56,64 +35,6 @@ class SupabaseCompanyInvitationsRemoteDataSource
     return _rows(response)
         .map(CompanyInvitationModel.fromRpcMap)
         .toList(growable: false);
-  }
-
-  @override
-  Future<CompanyInvitationDeliveryPreparationModel> prepareInvitation({
-    required String companyId,
-    required String email,
-    required CompanyRole role,
-    required String postgresByteaTokenHash,
-  }) async {
-    final response = await _client.rpc(
-      CompanyInvitationRpc.prepare,
-      params: {
-        CompanyInvitationRpc.companyIdParam: companyId,
-        CompanyInvitationRpc.emailParam: email,
-        CompanyInvitationRpc.roleParam: role.value,
-        CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash,
-      },
-    );
-
-    return CompanyInvitationDeliveryPreparationModel.fromRpcMap(
-      _singleRow(response),
-    );
-  }
-
-  @override
-  Future<CompanyInvitationDeliveryPreparationModel> prepareResend({
-    required String companyId,
-    required String invitationId,
-    required String postgresByteaTokenHash,
-  }) async {
-    final response = await _client.rpc(
-      CompanyInvitationRpc.prepareResend,
-      params: {
-        CompanyInvitationRpc.companyIdParam: companyId,
-        CompanyInvitationRpc.invitationIdParam: invitationId,
-        CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash,
-      },
-    );
-
-    return CompanyInvitationDeliveryPreparationModel.fromRpcMap(
-      _singleRow(response),
-    );
-  }
-
-  @override
-  Future<void> confirmDelivery({
-    required String companyId,
-    required String invitationId,
-    required String deliveryAttemptId,
-  }) async {
-    await _client.rpc(
-      CompanyInvitationRpc.confirmDelivery,
-      params: {
-        CompanyInvitationRpc.companyIdParam: companyId,
-        CompanyInvitationRpc.invitationIdParam: invitationId,
-        CompanyInvitationRpc.deliveryAttemptIdParam: deliveryAttemptId,
-      },
-    );
   }
 
   @override
