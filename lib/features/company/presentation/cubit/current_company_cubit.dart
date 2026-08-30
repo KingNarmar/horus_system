@@ -3,21 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
+import '../../domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../domain/usecases/select_current_company_usecase.dart';
 import 'current_company_state.dart';
 
 class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   final LoadCurrentCompanyContextUseCase _loadCurrentCompanyContextUseCase;
   final SelectCurrentCompanyUseCase _selectCurrentCompanyUseCase;
+  final RefreshSelectedCompanyContextUseCase
+  _refreshSelectedCompanyContextUseCase;
   final ClearCurrentCompanyContextUseCase _clearCurrentCompanyContextUseCase;
 
   CurrentCompanyCubit({
     required LoadCurrentCompanyContextUseCase loadCurrentCompanyContextUseCase,
     required SelectCurrentCompanyUseCase selectCurrentCompanyUseCase,
+    required RefreshSelectedCompanyContextUseCase
+    refreshSelectedCompanyContextUseCase,
     required ClearCurrentCompanyContextUseCase
     clearCurrentCompanyContextUseCase,
   }) : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
        _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
+       _refreshSelectedCompanyContextUseCase =
+           refreshSelectedCompanyContextUseCase,
        _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
        super(const CurrentCompanyInitial());
 
@@ -55,19 +62,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   Future<void> refreshAndSelectCompany(String companyId) async {
     emit(const CurrentCompanyLoading());
 
-    final refreshResult = await _loadCurrentCompanyContextUseCase(
-      const NoParams(),
+    final result = await _refreshSelectedCompanyContextUseCase(
+      RefreshSelectedCompanyContextParams(companyId: companyId),
     );
-    final refreshFailure = refreshResult.failureOrNull;
-    if (refreshFailure != null) {
-      emit(CurrentCompanyFailure(refreshFailure));
-      return;
-    }
 
-    final selectResult = await _selectCurrentCompanyUseCase(
-      SelectCurrentCompanyParams(companyId: companyId),
-    );
-    selectResult.when(
+    result.when(
       success: (context) => emit(CurrentCompanyLoaded(context)),
       failure: (failure) => emit(CurrentCompanyFailure(failure)),
     );
