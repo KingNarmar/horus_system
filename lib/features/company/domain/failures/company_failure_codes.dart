@@ -10,6 +10,12 @@ abstract final class CompanyFailureCodes {
       'validation_company_business_timezone_required';
   static const validationBusinessTimezoneInvalid =
       'validation_company_business_timezone_invalid';
+  static const validationInvitationIdRequired =
+      'validation_company_invitation_id_required';
+  static const validationInvitationTokenRequired =
+      'validation_company_invitation_token_required';
+  static const validationMembershipIdRequired =
+      'validation_company_membership_id_required';
   static const conflictBaseCurrencyLocked =
       'conflict_company_base_currency_locked';
   static const conflictRegionalSettingsNotConfigured =
