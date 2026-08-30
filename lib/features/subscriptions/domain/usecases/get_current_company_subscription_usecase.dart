@@ -30,10 +30,7 @@ final class GetCurrentCompanySubscriptionUseCase
     if (!SubscriptionsPermissionPolicy.canViewSubscriptions(context.role)) {
       return Future.value(
         const FailureResult<CompanySubscription?>(
-          PermissionFailure(
-            code: FailureCodes.permissionSubscriptionsView,
-            message: 'Subscription view is not allowed.',
-          ),
+          PermissionFailure(code: FailureCodes.permissionSubscriptionsView),
         ),
       );
     }
@@ -42,10 +39,7 @@ final class GetCurrentCompanySubscriptionUseCase
     if (companyId.isEmpty) {
       return Future.value(
         const FailureResult<CompanySubscription?>(
-          ValidationFailure(
-            code: FailureCodes.validationCompanyIdRequired,
-            message: 'Company id is required.',
-          ),
+          ValidationFailure(code: FailureCodes.validationCompanyIdRequired),
         ),
       );
     }
