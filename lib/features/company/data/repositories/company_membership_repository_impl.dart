@@ -4,15 +4,16 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/repositories/company_membership_repository.dart';
 import '../datasources/company_membership_remote_data_source.dart';
-import 'company_membership_failure_mapper.dart';
+import 'company_command_failure_mapper.dart';
 
 class CompanyMembershipRepositoryImpl implements CompanyMembershipRepository {
   final CompanyMembershipRemoteDataSource _remoteDataSource;
 
-  const CompanyMembershipRepositoryImpl({required CompanyMembershipRemoteDataSource remoteDataSource})
-    : _remoteDataSource = remoteDataSource;
+  const CompanyMembershipRepositoryImpl({
+    required CompanyMembershipRemoteDataSource remoteDataSource,
+  }) : _remoteDataSource = remoteDataSource;
 
-  static const _failureMapper = CompanyMembershipFailureMapper();
+  static const _failureMapper = CompanyCommandFailureMapper();
 
   @override
   Future<Result<void>> changeRole({
@@ -86,7 +87,7 @@ class CompanyMembershipRepositoryImpl implements CompanyMembershipRepository {
   Future<Result<void>> _guard(Future<void> Function() action) async {
     try {
       await action();
-      return const Success(null);
+      return const Success<void>(null);
     } on PostgrestException catch (error) {
       return FailureResult(_failureMapper.fromPostgrest(error));
     } catch (error) {
