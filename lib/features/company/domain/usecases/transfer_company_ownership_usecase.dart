@@ -39,9 +39,20 @@ class TransferCompanyOwnershipUseCase
       );
     }
 
+    final targetMembershipId = params.targetMembershipId.trim();
+    if (targetMembershipId.isEmpty) {
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(
+            code: CompanyFailureCodes.validationMembershipIdRequired,
+          ),
+        ),
+      );
+    }
+
     return _repository.transferOwnership(
       companyId: context.companyId,
-      targetMembershipId: params.targetMembershipId.trim(),
+      targetMembershipId: targetMembershipId,
       sourceNewRole: params.sourceNewRole,
     );
   }
