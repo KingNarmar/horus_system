@@ -33,10 +33,7 @@ extension CompanySubscriptionModelMapper on CompanySubscriptionModel {
     final parsedStatus = SubscriptionStatusX.tryParse(status);
     if (parsedStatus == null) {
       return const FailureResult<CompanySubscription>(
-        ServerFailure(
-          code: FailureCodes.subscriptionStatusInvalid,
-          message: 'Subscription status is not supported.',
-        ),
+        ServerFailure(code: FailureCodes.subscriptionStatusInvalid),
       );
     }
 
