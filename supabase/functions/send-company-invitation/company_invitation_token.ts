@@ -23,20 +23,3 @@ export function buildInvitationUrl(appUrl: string, rawToken: string): string {
   url.searchParams.set('token', rawToken)
   return url.toString()
 }
-
-export function bilingualRoleLabel(role: string): string {
-  switch (role) {
-    case 'admin':
-      return 'Admin / مسؤول'
-    case 'operations':
-      return 'Operations / العمليات'
-    case 'accountant':
-      return 'Accountant / المحاسب'
-    case 'viewer':
-      return 'Viewer / عرض فقط'
-    case 'driver':
-      return 'Driver / سائق'
-    default:
-      return 'Member / عضو'
-  }
-}
