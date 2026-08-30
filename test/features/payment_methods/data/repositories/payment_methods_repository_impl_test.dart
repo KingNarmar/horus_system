@@ -49,6 +49,26 @@ void main() {
       },
     );
 
+    test('model-to-entity failure stays inside repository boundary', () async {
+      final events = <String>[];
+      final dataSource = _FakePaymentMethodsRemoteDataSource(
+        events: events,
+        model: const _ThrowingPaymentMethodModel(),
+      );
+      final repository = _repository(
+        dataSource,
+        _FakeAuditLogRepository(events: events),
+      );
+
+      final result = await repository.getPaymentMethods(companyId: 'company-1');
+
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(dataSource.lastCompanyId, 'company-1');
+      expect(events, ['getAll']);
+    });
+
     test('add sequence remains mutation then audit then entity', () async {
       final events = <String>[];
       final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
@@ -111,6 +131,8 @@ void main() {
         );
 
         expect(result.dataOrNull?.isActive, isFalse);
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(dataSource.lastPaymentMethodId, 'method-1');
         expect(events, ['lookup', 'deactivate', 'audit']);
         final audit = auditRepository.logs.single;
         expect(audit.description, 'payment_method_deactivated');
@@ -137,6 +159,8 @@ void main() {
         );
 
         expect(result.dataOrNull?.isActive, isTrue);
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(dataSource.lastPaymentMethodId, 'method-1');
         expect(events, ['lookup', 'reactivate', 'audit']);
         final audit = auditRepository.logs.single;
         expect(audit.description, 'payment_method_reactivated');
@@ -164,21 +188,25 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<ConflictFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.conflictPaymentMethodDuplicateName,
+      );
+      expect(result.failureOrNull?.message, isNull);
       expect(events, ['add']);
       expect(auditRepository.logs, isEmpty);
     });
 
     test('audit failure after successful mutation is propagated', () async {
       final events = <String>[];
+      final auditFailure = ServerFailure(
+        code: FailureCodes.serverError,
+        message: 'audit failed',
+      );
       final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
       final auditRepository = _FakeAuditLogRepository(
         events: events,
-        result: const FailureResult<void>(
-          ServerFailure(
-            code: FailureCodes.serverError,
-            message: 'audit failed',
-          ),
-        ),
+        result: FailureResult<void>(auditFailure),
       );
       final repository = _repository(dataSource, auditRepository);
 
@@ -190,8 +218,7 @@ void main() {
         actorRole: 'owner',
       );
 
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.message, 'audit failed');
+      expect(result.failureOrNull, same(auditFailure));
       expect(events, ['add', 'audit']);
     });
 
@@ -214,6 +241,7 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionPaymentMethodsView,
       );
+      expect(result.failureOrNull?.message, isNull);
     });
 
     test('42501 uses management permission code for mutations', () async {
@@ -241,9 +269,10 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionPaymentMethodsManagement,
       );
+      expect(result.failureOrNull?.message, isNull);
     });
 
-    test('not-found Postgrest error keeps stable failure code', () async {
+    test('not-found Postgrest error keeps stable sanitized failure', () async {
       final events = <String>[];
       final dataSource = _FakePaymentMethodsRemoteDataSource(events: events)
         ..lookupError = const PostgrestException(
@@ -263,16 +292,21 @@ void main() {
 
       expect(result.failureOrNull, isA<NotFoundFailure>());
       expect(result.failureOrNull?.code, FailureCodes.paymentMethodNotFound);
+      expect(result.failureOrNull?.message, isNull);
+      expect(dataSource.lastCompanyId, 'company-1');
+      expect(dataSource.lastPaymentMethodId, 'missing');
       expect(events, ['lookup']);
     });
 
-    test('generic Postgrest and unexpected errors preserve mapping', () async {
+    test('generic Postgrest and unexpected errors are sanitized', () async {
       final postgrestEvents = <String>[];
       final postgrestDataSource =
           _FakePaymentMethodsRemoteDataSource(events: postgrestEvents)
             ..getAllError = const PostgrestException(
               message: 'database unavailable',
               code: 'PGRST500',
+              details: 'internal details',
+              hint: 'internal hint',
             );
       final postgrestRepository = _repository(
         postgrestDataSource,
@@ -284,12 +318,14 @@ void main() {
       );
       expect(serverResult.failureOrNull, isA<ServerFailure>());
       expect(serverResult.failureOrNull?.code, FailureCodes.serverError);
-      expect(serverResult.failureOrNull?.message, 'database unavailable');
+      expect(serverResult.failureOrNull?.message, isNull);
+      expect(postgrestDataSource.lastCompanyId, 'company-1');
+      expect(postgrestEvents, ['getAll']);
 
       final unexpectedEvents = <String>[];
       final unexpectedDataSource = _FakePaymentMethodsRemoteDataSource(
         events: unexpectedEvents,
-      )..getActiveError = StateError('unexpected');
+      )..getActiveError = StateError('unexpected runtime details');
       final unexpectedRepository = _repository(
         unexpectedDataSource,
         _FakeAuditLogRepository(events: unexpectedEvents),
@@ -298,10 +334,10 @@ void main() {
       final unexpectedResult = await unexpectedRepository
           .getActivePaymentMethods(companyId: 'company-1');
       expect(unexpectedResult.failureOrNull, isA<UnexpectedFailure>());
-      expect(
-        unexpectedResult.failureOrNull?.message,
-        StateError('unexpected').toString(),
-      );
+      expect(unexpectedResult.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(unexpectedResult.failureOrNull?.message, isNull);
+      expect(unexpectedDataSource.lastCompanyId, 'company-1');
+      expect(unexpectedEvents, ['getActive']);
     });
   });
 }
@@ -463,6 +499,20 @@ final class _FakeAuditLogRepository implements AuditLogRepository {
   }) async {
     return const Success<List<AuditLog>>([]);
   }
+}
+
+final class _ThrowingPaymentMethodModel extends PaymentMethodModel {
+  const _ThrowingPaymentMethodModel()
+    : super(
+        id: 'method-1',
+        companyId: 'company-1',
+        name: 'Cash',
+        code: 'other',
+        isActive: true,
+      );
+
+  @override
+  String get id => throw StateError('payment method mapping failed');
 }
 
 PaymentMethodModel _model({
