@@ -14,24 +14,16 @@ final class PaymentMethodRepositoryFailureMapper {
     return switch (error.code) {
       '23505' => const ConflictFailure(
         code: FailureCodes.conflictPaymentMethodDuplicateName,
-        message: 'A payment method with this name already exists.',
       ),
       'PGRST116' => const NotFoundFailure(
         code: FailureCodes.paymentMethodNotFound,
-        message: 'Payment method was not found.',
       ),
-      '42501' => PermissionFailure(
-        code: permissionCode,
-        message: 'Payment method access is not allowed.',
-      ),
-      _ => ServerFailure(
-        code: FailureCodes.serverError,
-        message: error.message,
-      ),
+      '42501' => PermissionFailure(code: permissionCode),
+      _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }
 
-  Failure fromUnexpected(Object error) {
-    return UnexpectedFailure(message: error.toString());
+  Failure fromUnexpected(Object _) {
+    return const UnexpectedFailure(code: FailureCodes.unexpectedError);
   }
 }
