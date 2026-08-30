@@ -4,6 +4,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
 import '../../domain/entities/current_company_context.dart';
 import '../../domain/policies/company_invitation_policy.dart';
@@ -200,7 +201,7 @@ class CompanyMembersView extends StatelessWidget {
         user.isActive &&
         currentUserId != null &&
         user.userId != currentUserId;
-    if (canManageOwnership && user.role.name != 'owner') {
+    if (canManageOwnership && user.role != CompanyRole.owner) {
       actions.add(_CompanyMemberAction.grantOwnership);
     }
     if (canManageOwnership) {
@@ -214,14 +215,19 @@ class CompanyMembersView extends StatelessWidget {
     switch (action) {
       case _CompanyMemberAction.changeRole:
         onChangeRole(user);
+        break;
       case _CompanyMemberAction.deactivate:
         onDeactivate(user);
+        break;
       case _CompanyMemberAction.reactivate:
         onReactivate(user);
+        break;
       case _CompanyMemberAction.grantOwnership:
         onGrantOwnership(user);
+        break;
       case _CompanyMemberAction.transferOwnership:
         onTransferOwnership(user);
+        break;
     }
   }
 
