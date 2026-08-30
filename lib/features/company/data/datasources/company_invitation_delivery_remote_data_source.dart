@@ -71,14 +71,15 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
       }
 
       throw CompanyInvitationDeliveryException(
-        _semanticCode(data) ?? CompanyFailureCodes.invitationDeliveryFailed,
+        _semanticCode(data) ??
+            CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
       );
     } on CompanyInvitationDeliveryException {
       rethrow;
     } on FunctionException catch (error) {
       throw CompanyInvitationDeliveryException(
         _semanticCode(error.details) ??
-            CompanyFailureCodes.invitationDeliveryFailed,
+            CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
       );
     }
   }
