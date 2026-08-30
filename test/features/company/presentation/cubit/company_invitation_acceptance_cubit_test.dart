@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation_preview.dart';
@@ -115,9 +116,7 @@ class _FakePendingInvitationRepository
   Future<Result<void>> clearToken() async {
     clearCalls += 1;
     if (failClear) {
-      return const FailureResult(
-        UnexpectedFailure(),
-      );
+      return const FailureResult(UnexpectedFailure());
     }
     token = null;
     return const Success(null);
