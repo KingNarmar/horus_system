@@ -18,6 +18,7 @@ import '../../features/company/domain/usecases/create_company_usecase.dart';
 import '../../features/company/domain/usecases/get_company_users_usecase.dart';
 import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
+import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
 import '../../features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
 import '../../features/company/presentation/cubit/company_invitations_cubit.dart';
@@ -89,6 +90,8 @@ abstract final class AppDependencies {
       selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
         companyContextRepository,
       ),
+      refreshSelectedCompanyContextUseCase:
+          RefreshSelectedCompanyContextUseCase(companyContextRepository),
       clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
         companyContextRepository,
       ),
@@ -135,7 +138,8 @@ abstract final class AppDependencies {
       ),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
-    final driverFinanceRepository = DriverFinanceDependencies.createRepository();
+    final driverFinanceRepository =
+        DriverFinanceDependencies.createRepository();
     final driverBalanceRepository =
         DriverFinanceDependencies.createBalanceRepository();
 
