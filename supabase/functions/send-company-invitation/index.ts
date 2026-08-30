@@ -102,6 +102,7 @@ Deno.serve(async (request: Request) => {
   const emailContent = buildCompanyInvitationEmail({
     companyName: companyNameResult.companyName,
     inviteUrl: buildInvitationUrl(environment.appUrl, rawToken),
+    invitationCode: rawToken,
     roleLabel: bilingualRoleLabel(preparation.invitation_role),
     expiresAt: preparation.expires_at,
   })
