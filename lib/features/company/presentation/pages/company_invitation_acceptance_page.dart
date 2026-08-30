@@ -87,7 +87,7 @@ class _CompanyInvitationAcceptancePageState
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      context.l10n.localizedCompanyErrorMessage(cleanupFailure),
+                      context.l10n.localizedErrorMessage(cleanupFailure),
                     ),
                   ),
                 );
@@ -148,7 +148,7 @@ class _CompanyInvitationAcceptancePageState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              context.l10n.localizedCompanyErrorMessage(state.failure),
+              context.l10n.localizedErrorMessage(state.failure),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
