@@ -5,7 +5,8 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/failure.dart';
-import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/app_localizations_extension.dart'
+    show AppLocalizationsX;
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../domain/entities/company_invitation.dart';
@@ -22,6 +23,7 @@ import '../cubit/company_users_cubit.dart';
 import '../cubit/company_users_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
+import '../extensions/company_failure_localization.dart';
 import '../helpers/company_users_action_dialogs.dart';
 import '../widgets/company_invitations_view.dart';
 import '../widgets/company_members_view.dart';
