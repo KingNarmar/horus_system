@@ -35,8 +35,12 @@ class CompanyInvitationAccepting extends CompanyInvitationAcceptanceState {
 
 class CompanyInvitationAccepted extends CompanyInvitationAcceptanceState {
   final String companyId;
+  final Failure? pendingTokenCleanupFailure;
 
-  const CompanyInvitationAccepted(this.companyId);
+  const CompanyInvitationAccepted(
+    this.companyId, {
+    this.pendingTokenCleanupFailure,
+  });
 }
 
 class CompanyInvitationAcceptanceFailure
