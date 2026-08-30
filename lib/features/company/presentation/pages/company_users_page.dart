@@ -22,10 +22,7 @@ import '../cubit/company_users_cubit.dart';
 import '../cubit/company_users_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
-import '../dialogs/change_company_member_role_dialog.dart';
-import '../dialogs/company_action_confirmation_dialog.dart';
-import '../dialogs/invite_company_user_dialog.dart';
-import '../dialogs/transfer_company_ownership_dialog.dart';
+import '../helpers/company_users_action_dialogs.dart';
 import '../widgets/company_invitations_view.dart';
 import '../widgets/company_members_view.dart';
 
@@ -96,10 +93,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     }
 
     final currentCompanyContext = currentCompanyState.context;
-    final canViewUsers = CompanyPermissionPolicy.canViewCompanyUsers(
+    if (!CompanyPermissionPolicy.canViewCompanyUsers(
       currentCompanyContext.role,
-    );
-    if (!canViewUsers) {
+    )) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.companyUsersTitle)),
         body: Center(child: Text(l10n.noPermissionManageUsers)),
@@ -273,13 +269,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         }
 
         if (state is CompanyInvitationsLoaded) {
-          return CompanyInvitationsView(
-            invitations: state.invitations,
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
             actionInProgress: false,
-            onResend: (invitation) =>
-                _resendInvitation(currentCompanyContext, invitation),
-            onRevoke: (invitation) =>
-                _revokeInvitation(currentCompanyContext, invitation),
           );
         }
 
@@ -288,13 +281,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             children: [
               const LinearProgressIndicator(),
               Expanded(
-                child: CompanyInvitationsView(
-                  invitations: state.invitations,
+                child: _invitationsView(
+                  currentCompanyContext,
+                  state.invitations,
                   actionInProgress: true,
-                  onResend: (invitation) =>
-                      _resendInvitation(currentCompanyContext, invitation),
-                  onRevoke: (invitation) =>
-                      _revokeInvitation(currentCompanyContext, invitation),
                 ),
               ),
             ],
@@ -303,13 +293,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
         if (state is CompanyInvitationsFailure) {
           if (state.invitations.isNotEmpty) {
-            return CompanyInvitationsView(
-              invitations: state.invitations,
+            return _invitationsView(
+              currentCompanyContext,
+              state.invitations,
               actionInProgress: false,
-              onResend: (invitation) =>
-                  _resendInvitation(currentCompanyContext, invitation),
-              onRevoke: (invitation) =>
-                  _revokeInvitation(currentCompanyContext, invitation),
             );
           }
 
@@ -326,15 +313,28 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     );
   }
 
+  Widget _invitationsView(
+    CurrentCompanyContext currentCompanyContext,
+    List<CompanyInvitation> invitations, {
+    required bool actionInProgress,
+  }) {
+    return CompanyInvitationsView(
+      invitations: invitations,
+      actionInProgress: actionInProgress,
+      onResend: (invitation) =>
+          _resendInvitation(currentCompanyContext, invitation),
+      onRevoke: (invitation) =>
+          _revokeInvitation(currentCompanyContext, invitation),
+    );
+  }
+
   Future<void> _invite(
     CurrentCompanyContext currentCompanyContext,
     List<CompanyRole> assignableRoles,
   ) async {
-    final input = await showDialog<InviteCompanyUserInput>(
-      context: context,
-      builder: (_) => InviteCompanyUserDialog(
-        assignableRoles: assignableRoles,
-      ),
+    final input = await CompanyUsersActionDialogs.showInvite(
+      context,
+      assignableRoles: assignableRoles,
     );
     if (!mounted || input == null) return;
 
@@ -349,14 +349,11 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyUser user,
   ) async {
-    final availableRoles = CompanyInvitationPolicy.assignableRoles(
-      currentCompanyContext.role,
-    );
-    final newRole = await showDialog<CompanyRole>(
-      context: context,
-      builder: (_) => ChangeCompanyMemberRoleDialog(
-        currentRole: user.role,
-        availableRoles: availableRoles,
+    final newRole = await CompanyUsersActionDialogs.showRoleChange(
+      context,
+      user: user,
+      availableRoles: CompanyInvitationPolicy.assignableRoles(
+        currentCompanyContext.role,
       ),
     );
     if (!mounted || newRole == null) return;
@@ -373,10 +370,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyUser user,
   ) async {
-    final confirmed = await _confirm(
-      title: context.l10n.companyMemberDeactivateTitle,
-      message: context.l10n.companyMemberDeactivateMessage(_memberName(user)),
-      confirmLabel: context.l10n.companyMemberDeactivateAction,
+    final confirmed = await CompanyUsersActionDialogs.confirmDeactivate(
+      context,
+      user: user,
     );
     if (!mounted || !confirmed) return;
 
@@ -391,10 +387,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyUser user,
   ) async {
-    final confirmed = await _confirm(
-      title: context.l10n.companyMemberReactivateTitle,
-      message: context.l10n.companyMemberReactivateMessage(_memberName(user)),
-      confirmLabel: context.l10n.companyMemberReactivateAction,
+    final confirmed = await CompanyUsersActionDialogs.confirmReactivate(
+      context,
+      user: user,
     );
     if (!mounted || !confirmed) return;
 
@@ -409,10 +404,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyUser user,
   ) async {
-    final confirmed = await _confirm(
-      title: context.l10n.companyOwnershipGrantTitle,
-      message: context.l10n.companyOwnershipGrantMessage(_memberName(user)),
-      confirmLabel: context.l10n.companyOwnershipGrantAction,
+    final confirmed = await CompanyUsersActionDialogs.confirmGrantOwnership(
+      context,
+      user: user,
     );
     if (!mounted || !confirmed) return;
 
@@ -426,13 +420,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyUser user,
   ) async {
-    final sourceRoles = CompanyInvitationPolicy.assignableRoles(
-      currentCompanyContext.role,
-    );
-    final sourceNewRole = await showDialog<CompanyRole>(
-      context: context,
-      builder: (_) => TransferCompanyOwnershipDialog(
-        sourceRoles: sourceRoles,
+    final sourceNewRole = await CompanyUsersActionDialogs.showOwnershipTransfer(
+      context,
+      sourceRoles: CompanyInvitationPolicy.assignableRoles(
+        currentCompanyContext.role,
       ),
     );
     if (!mounted || sourceNewRole == null) return;
@@ -448,10 +439,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyInvitation invitation,
   ) async {
-    final confirmed = await _confirm(
-      title: context.l10n.companyInvitationResendTitle,
-      message: context.l10n.companyInvitationResendMessage(invitation.email),
-      confirmLabel: context.l10n.companyInvitationResendAction,
+    final confirmed = await CompanyUsersActionDialogs.confirmResendInvitation(
+      context,
+      invitation: invitation,
     );
     if (!mounted || !confirmed) return;
 
@@ -465,10 +455,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     CurrentCompanyContext currentCompanyContext,
     CompanyInvitation invitation,
   ) async {
-    final confirmed = await _confirm(
-      title: context.l10n.companyInvitationRevokeTitle,
-      message: context.l10n.companyInvitationRevokeMessage(invitation.email),
-      confirmLabel: context.l10n.companyInvitationRevokeAction,
+    final confirmed = await CompanyUsersActionDialogs.confirmRevokeInvitation(
+      context,
+      invitation: invitation,
     );
     if (!mounted || !confirmed) return;
 
@@ -476,22 +465,6 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
       currentCompanyContext: currentCompanyContext,
       invitationId: invitation.id,
     );
-  }
-
-  Future<bool> _confirm({
-    required String title,
-    required String message,
-    required String confirmLabel,
-  }) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (_) => CompanyActionConfirmationDialog(
-        title: title,
-        message: message,
-        confirmLabel: confirmLabel,
-      ),
-    );
-    return result ?? false;
   }
 
   Future<void> _handleMemberActionSuccess(String companyId) async {
@@ -509,13 +482,6 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         currentCompanyContext: state.context,
       );
     }
-  }
-
-  String _memberName(CompanyUser user) {
-    final displayName = user.displayName?.trim();
-    return displayName == null || displayName.isEmpty
-        ? context.l10n.unknownUser
-        : displayName;
   }
 
   void _showFailure(Failure failure) {
