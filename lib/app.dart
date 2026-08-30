@@ -14,6 +14,9 @@ import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_radius.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
+import 'features/company/presentation/cubit/company_invitations_cubit.dart';
+import 'features/company/presentation/cubit/company_member_actions_cubit.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
 import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
@@ -44,6 +47,15 @@ class HorusApp extends StatelessWidget {
         ),
         BlocProvider<CompanyUsersCubit>(
           create: (_) => AppDependencies.createCompanyUsersCubit(),
+        ),
+        BlocProvider<CompanyInvitationsCubit>(
+          create: (_) => AppDependencies.createCompanyInvitationsCubit(),
+        ),
+        BlocProvider<CompanyMemberActionsCubit>(
+          create: (_) => AppDependencies.createCompanyMemberActionsCubit(),
+        ),
+        BlocProvider<CompanyInvitationAcceptanceCubit>(
+          create: (_) => AppDependencies.createCompanyInvitationAcceptanceCubit(),
         ),
         BlocProvider<CustomersCubit>(
           create: (_) => AppDependencies.createCustomersCubit(),
