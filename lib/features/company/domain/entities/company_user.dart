@@ -18,24 +18,4 @@ class CompanyUser {
     this.displayName,
     this.phone,
   });
-
-  String get title {
-    final normalizedDisplayName = displayName?.trim();
-
-    if (normalizedDisplayName != null && normalizedDisplayName.isNotEmpty) {
-      return normalizedDisplayName;
-    }
-
-    return 'Unknown User';
-  }
-
-  String get subtitle {
-    final normalizedPhone = phone?.trim();
-
-    if (normalizedPhone != null && normalizedPhone.isNotEmpty) {
-      return normalizedPhone;
-    }
-
-    return 'Profile details not set yet';
-  }
 }
