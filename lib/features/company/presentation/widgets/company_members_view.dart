@@ -241,7 +241,7 @@ class CompanyMembersView extends StatelessWidget {
     };
   }
 
-  String _actionLabel(BuildContext context, _CompanyMemberActionAction action) {
+  String _actionLabel(BuildContext context, _CompanyMemberAction action) {
     final l10n = context.l10n;
     return switch (action) {
       _CompanyMemberAction.changeRole => l10n.companyMemberChangeRoleAction,
