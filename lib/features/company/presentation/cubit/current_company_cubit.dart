@@ -52,6 +52,27 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     );
   }
 
+  Future<void> refreshAndSelectCompany(String companyId) async {
+    emit(const CurrentCompanyLoading());
+
+    final refreshResult = await _loadCurrentCompanyContextUseCase(
+      const NoParams(),
+    );
+    final refreshFailure = refreshResult.failureOrNull;
+    if (refreshFailure != null) {
+      emit(CurrentCompanyFailure(refreshFailure));
+      return;
+    }
+
+    final selectResult = await _selectCurrentCompanyUseCase(
+      SelectCurrentCompanyParams(companyId: companyId),
+    );
+    selectResult.when(
+      success: (context) => emit(CurrentCompanyLoaded(context)),
+      failure: (failure) => emit(CurrentCompanyFailure(failure)),
+    );
+  }
+
   Future<void> clearCurrentCompanyContext() async {
     final result = await _clearCurrentCompanyContextUseCase(const NoParams());
 
