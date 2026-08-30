@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -501,7 +502,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     if (!mounted) return;
 
     final state = currentCompanyCubit.state;
-    if (state is CurrentCompanyLoaded && state.context.companyId == companyId) {
+    if (state is CurrentCompanyLoaded &&
+        state.context.companyId == companyId &&
+        CompanyPermissionPolicy.canViewCompanyUsers(state.context.role)) {
       await context.read<CompanyUsersCubit>().loadCompanyUsers(
         currentCompanyContext: state.context,
       );
@@ -515,8 +518,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         : displayName;
   }
 
-  void _showFailure(Object failure) {
-    if (failure is! dynamic) return;
+  void _showFailure(Failure failure) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.localizedErrorMessage(failure))),
     );
