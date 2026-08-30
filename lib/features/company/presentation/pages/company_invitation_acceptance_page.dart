@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/app_localizations_extension.dart'
+    show AppLocalizationsX;
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -15,6 +16,7 @@ import '../cubit/company_invitation_acceptance_cubit.dart';
 import '../cubit/company_invitation_acceptance_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
+import '../extensions/company_failure_localization.dart';
 import '../extensions/company_role_localization.dart';
 
 class CompanyInvitationAcceptancePage extends StatefulWidget {
