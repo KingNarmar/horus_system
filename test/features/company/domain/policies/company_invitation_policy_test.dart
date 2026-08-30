@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/policies/company_invitation_policy.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('CompanyInvitationPolicy', () {
@@ -53,10 +53,7 @@ void main() {
         CompanyRole.driver,
       ]) {
         expect(CompanyInvitationPolicy.canViewInvitations(role), isFalse);
-        expect(
-          CompanyInvitationPolicy.assignableRoles(role),
-          isEmpty,
-        );
+        expect(CompanyInvitationPolicy.assignableRoles(role), isEmpty);
       }
     });
   });
