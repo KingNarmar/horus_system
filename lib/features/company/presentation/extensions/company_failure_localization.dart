@@ -16,10 +16,8 @@ extension CompanyFailureLocalizationX on AppLocalizations {
       CompanyFailureCodes.invitationInvalid => failureCompanyInvitationInvalid,
       CompanyFailureCodes.invitationEmailInvalid =>
         failureCompanyInvitationEmailInvalid,
-      CompanyFailureCodes.invitationExpired =>
-        failureCompanyInvitationExpired,
-      CompanyFailureCodes.invitationRevoked =>
-        failureCompanyInvitationRevoked,
+      CompanyFailureCodes.invitationExpired => failureCompanyInvitationExpired,
+      CompanyFailureCodes.invitationRevoked => failureCompanyInvitationRevoked,
       CompanyFailureCodes.invitationAlreadyAccepted =>
         failureCompanyInvitationAlreadyAccepted,
       CompanyFailureCodes.invitationAlreadyPending =>

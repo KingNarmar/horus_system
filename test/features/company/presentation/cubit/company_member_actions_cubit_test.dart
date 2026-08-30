@@ -60,46 +60,47 @@ void main() {
     );
   });
 
-  test('late response from an older company cannot overwrite newer scope', () async {
-    final repository = _FakeCompanyMembershipRepository();
-    final companyAResult = Completer<Result<void>>();
-    repository.deferredResults['company-a'] = companyAResult;
+  test(
+    'late response from an older company cannot overwrite newer scope',
+    () async {
+      final repository = _FakeCompanyMembershipRepository();
+      final companyAResult = Completer<Result<void>>();
+      repository.deferredResults['company-a'] = companyAResult;
 
-    final cubit = _buildCubit(repository);
-    addTearDown(cubit.close);
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
 
-    final companyAFuture = cubit.changeRole(
-      currentCompanyContext: _context('company-a'),
-      membershipId: 'member-a',
-      currentRole: CompanyRole.viewer,
-      newRole: CompanyRole.admin,
-    );
+      final companyAFuture = cubit.changeRole(
+        currentCompanyContext: _context('company-a'),
+        membershipId: 'member-a',
+        currentRole: CompanyRole.viewer,
+        newRole: CompanyRole.admin,
+      );
 
-    await Future<void>.delayed(Duration.zero);
-    expect(cubit.state.companyId, 'company-a');
-    expect(cubit.state, isA<CompanyMemberActionInProgress>());
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.companyId, 'company-a');
+      expect(cubit.state, isA<CompanyMemberActionInProgress>());
 
-    await cubit.changeRole(
-      currentCompanyContext: _context('company-b'),
-      membershipId: 'member-b',
-      currentRole: CompanyRole.viewer,
-      newRole: CompanyRole.admin,
-    );
+      await cubit.changeRole(
+        currentCompanyContext: _context('company-b'),
+        membershipId: 'member-b',
+        currentRole: CompanyRole.viewer,
+        newRole: CompanyRole.admin,
+      );
 
-    expect(cubit.state, isA<CompanyMemberActionSucceeded>());
-    expect(cubit.state.companyId, 'company-b');
+      expect(cubit.state, isA<CompanyMemberActionSucceeded>());
+      expect(cubit.state.companyId, 'company-b');
 
-    companyAResult.complete(const Success(null));
-    await companyAFuture;
+      companyAResult.complete(const Success(null));
+      await companyAFuture;
 
-    expect(cubit.state, isA<CompanyMemberActionSucceeded>());
-    expect(cubit.state.companyId, 'company-b');
-  });
+      expect(cubit.state, isA<CompanyMemberActionSucceeded>());
+      expect(cubit.state.companyId, 'company-b');
+    },
+  );
 }
 
-CompanyMemberActionsCubit _buildCubit(
-  CompanyMembershipRepository repository,
-) {
+CompanyMemberActionsCubit _buildCubit(CompanyMembershipRepository repository) {
   return CompanyMemberActionsCubit(
     changeRoleUseCase: ChangeCompanyMemberRoleUseCase(repository),
     deactivateUseCase: DeactivateCompanyMemberUseCase(repository),

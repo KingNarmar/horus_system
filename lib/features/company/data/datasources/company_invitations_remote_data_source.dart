@@ -32,9 +32,9 @@ class SupabaseCompanyInvitationsRemoteDataSource
       params: {CompanyInvitationRpc.companyIdParam: companyId},
     );
 
-    return _rows(response)
-        .map(CompanyInvitationModel.fromRpcMap)
-        .toList(growable: false);
+    return _rows(
+      response,
+    ).map(CompanyInvitationModel.fromRpcMap).toList(growable: false);
   }
 
   @override
@@ -57,9 +57,7 @@ class SupabaseCompanyInvitationsRemoteDataSource
   ) async {
     final response = await _client.rpc(
       CompanyInvitationRpc.preview,
-      params: {
-        CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash,
-      },
+      params: {CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash},
     );
 
     return CompanyInvitationPreviewModel.fromRpcMap(_singleRow(response));
@@ -69,9 +67,7 @@ class SupabaseCompanyInvitationsRemoteDataSource
   Future<String> acceptInvitation(String postgresByteaTokenHash) async {
     final response = await _client.rpc(
       CompanyInvitationRpc.accept,
-      params: {
-        CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash,
-      },
+      params: {CompanyInvitationRpc.tokenHashParam: postgresByteaTokenHash},
     );
 
     return _singleRow(response)[CompanyInvitationRpc.companyId] as String;

@@ -70,9 +70,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
     if (currentCompanyState is CurrentCompanyInitial ||
         currentCompanyState is CurrentCompanyLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (currentCompanyState is CurrentCompanyFailure) {
@@ -175,10 +173,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             actions: [
               if (canInvite && isWide)
                 TextButton.icon(
-                  onPressed: () => _invite(
-                    currentCompanyContext,
-                    assignableRoles,
-                  ),
+                  onPressed: () =>
+                      _invite(currentCompanyContext, assignableRoles),
                   icon: const Icon(AppIcons.userAdd),
                   label: Text(l10n.inviteButton),
                 ),
@@ -201,16 +197,13 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           body: TabBarView(
             children: [
               _membersTab(currentCompanyContext, currentUserId),
-              if (canViewInvitations)
-                _invitationsTab(currentCompanyContext),
+              if (canViewInvitations) _invitationsTab(currentCompanyContext),
             ],
           ),
           floatingActionButton: canInvite && !isWide
               ? FloatingActionButton.extended(
-                  onPressed: () => _invite(
-                    currentCompanyContext,
-                    assignableRoles,
-                  ),
+                  onPressed: () =>
+                      _invite(currentCompanyContext, assignableRoles),
                   icon: const Icon(AppIcons.userAdd),
                   label: Text(l10n.inviteButton),
                 )
@@ -494,8 +487,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

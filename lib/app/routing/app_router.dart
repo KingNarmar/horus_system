@@ -19,10 +19,8 @@ abstract final class AppRouter {
 
     return MaterialPageRoute<void>(
       settings: settings,
-      builder: (context) => _pageFor(
-        routeName,
-        invitationToken: invitationToken,
-      ),
+      builder: (context) =>
+          _pageFor(routeName, invitationToken: invitationToken),
     );
   }
 
@@ -31,10 +29,7 @@ abstract final class AppRouter {
     return path == null || path.isEmpty ? AppRoutes.root : path;
   }
 
-  static Widget _pageFor(
-    String routeName, {
-    String? invitationToken,
-  }) {
+  static Widget _pageFor(String routeName, {String? invitationToken}) {
     return switch (routeName) {
       AppRoutes.root => const AuthGate(),
       AppRoutes.login => const LoginPage(),

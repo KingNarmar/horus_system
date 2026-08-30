@@ -2034,4 +2034,315 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tripAuditFieldTrailerPlate => 'رقم المقطورة';
+
+  @override
+  String get companyMembersTab => 'الأعضاء';
+
+  @override
+  String get companyInvitationsTab => 'الدعوات';
+
+  @override
+  String get companyInvitationActionSucceeded => 'تم تحديث الدعوة بنجاح.';
+
+  @override
+  String get companyMemberActionSucceeded => 'تم تحديث عضو الشركة بنجاح.';
+
+  @override
+  String get companyMembersNameColumn => 'الاسم';
+
+  @override
+  String get companyMembersPhoneColumn => 'الهاتف';
+
+  @override
+  String get companyMembersRoleColumn => 'الدور';
+
+  @override
+  String get companyMembersStatusColumn => 'الحالة';
+
+  @override
+  String get companyMembersActionsColumn => 'الإجراءات';
+
+  @override
+  String get companyMemberChangeRoleAction => 'تغيير الدور';
+
+  @override
+  String get companyMemberDeactivateAction => 'تعطيل';
+
+  @override
+  String get companyMemberReactivateAction => 'إعادة التفعيل';
+
+  @override
+  String get companyOwnershipGrantAction => 'منح صلاحية المالك';
+
+  @override
+  String get companyOwnershipTransferAction => 'نقل الملكية';
+
+  @override
+  String get companyInviteDialogTitle => 'دعوة عضو إلى الشركة';
+
+  @override
+  String get companyInviteDialogDescription =>
+      'أرسل دعوة مرتبطة بهذه الشركة. يجب على المستلم تسجيل الدخول باستخدام البريد الإلكتروني المدعو قبل قبول الدعوة.';
+
+  @override
+  String get companyInviteEmailLabel => 'البريد الإلكتروني المدعو';
+
+  @override
+  String get companyInviteRoleLabel => 'الدور';
+
+  @override
+  String get companyInviteSendButton => 'إرسال الدعوة';
+
+  @override
+  String get companyMemberChangeRoleTitle => 'تغيير دور العضو';
+
+  @override
+  String get companyMemberChangeRoleDescription =>
+      'اختر الدور الذي سيستخدمه هذا العضو داخل الشركة الحالية.';
+
+  @override
+  String get companyMemberRoleLabel => 'الدور';
+
+  @override
+  String get companyMemberDeactivateTitle => 'تعطيل العضو';
+
+  @override
+  String companyMemberDeactivateMessage(String name) {
+    return 'هل تريد تعطيل $name؟ سيفقد الوصول إلى هذه الشركة حتى تتم إعادة تفعيله.';
+  }
+
+  @override
+  String get companyMemberReactivateTitle => 'إعادة تفعيل العضو';
+
+  @override
+  String companyMemberReactivateMessage(String name) {
+    return 'هل تريد إعادة تفعيل $name واستعادة وصوله إلى هذه الشركة؟';
+  }
+
+  @override
+  String get companyOwnershipGrantTitle => 'منح صلاحية المالك';
+
+  @override
+  String companyOwnershipGrantMessage(String name) {
+    return 'هل تريد منح $name صلاحية المالك؟ سيؤدي ذلك إلى إضافة مالك نشط آخر للشركة.';
+  }
+
+  @override
+  String get companyOwnershipTransferTitle => 'نقل الملكية';
+
+  @override
+  String get companyOwnershipTransferWarning =>
+      'سيصبح العضو المحدد مالكًا للشركة، وسيتغير دورك الحالي كمالك إلى الدور الذي تختاره أدناه. يتم تنفيذ العمليتين معًا بشكل ذري.';
+
+  @override
+  String get companyOwnershipSourceRoleLabel => 'دورك بعد نقل الملكية';
+
+  @override
+  String get companyOwnershipTransferButton => 'نقل الملكية';
+
+  @override
+  String get companyInvitationsEmpty => 'لا توجد دعوات للشركة.';
+
+  @override
+  String get companyInvitationsEmailColumn => 'البريد الإلكتروني';
+
+  @override
+  String get companyInvitationsRoleColumn => 'الدور';
+
+  @override
+  String get companyInvitationsStatusColumn => 'الحالة';
+
+  @override
+  String get companyInvitationsExpiresColumn => 'تاريخ الانتهاء';
+
+  @override
+  String get companyInvitationsLastSentColumn => 'آخر إرسال';
+
+  @override
+  String get companyInvitationsActionsColumn => 'الإجراءات';
+
+  @override
+  String companyInvitationLastSentLine(String date) {
+    return 'آخر إرسال: $date';
+  }
+
+  @override
+  String get companyInvitationNeverSent => 'لم تُرسل بعد';
+
+  @override
+  String get companyInvitationResendAction => 'إعادة الإرسال';
+
+  @override
+  String get companyInvitationResendTitle => 'إعادة إرسال الدعوة';
+
+  @override
+  String companyInvitationResendMessage(String email) {
+    return 'هل تريد إعادة إرسال الدعوة إلى $email؟ سيتوقف رمز الدعوة السابق عن العمل.';
+  }
+
+  @override
+  String get companyInvitationRevokeAction => 'إلغاء الدعوة';
+
+  @override
+  String get companyInvitationRevokeTitle => 'إلغاء الدعوة';
+
+  @override
+  String companyInvitationRevokeMessage(String email) {
+    return 'هل تريد إلغاء الدعوة المعلقة الخاصة بـ $email؟ سيتوقف رابط الدعوة عن العمل.';
+  }
+
+  @override
+  String get invitationTitle => 'دعوة الشركة';
+
+  @override
+  String get invitationStatusPending => 'قيد الانتظار';
+
+  @override
+  String get invitationStatusAccepted => 'مقبولة';
+
+  @override
+  String get invitationStatusExpired => 'منتهية الصلاحية';
+
+  @override
+  String get invitationStatusRevoked => 'ملغاة';
+
+  @override
+  String get invitationPreviewTitle => 'تفاصيل الدعوة';
+
+  @override
+  String invitationCompanyLine(String company) {
+    return 'الشركة: $company';
+  }
+
+  @override
+  String invitationEmailLine(String email) {
+    return 'البريد الإلكتروني: $email';
+  }
+
+  @override
+  String invitationRoleLine(String role) {
+    return 'الدور: $role';
+  }
+
+  @override
+  String invitationStatusLine(String status) {
+    return 'الحالة: $status';
+  }
+
+  @override
+  String invitationExpiresLine(String date) {
+    return 'تنتهي في: $date';
+  }
+
+  @override
+  String get invitationAcceptButton => 'قبول الدعوة';
+
+  @override
+  String get invitationManualCodeTitle => 'إدخال رمز الدعوة';
+
+  @override
+  String get invitationManualCodeDescription =>
+      'ألصق رمز الدعوة من رابط الدعوة إذا لم يُفتح الرابط تلقائيًا.';
+
+  @override
+  String get invitationCodeLabel => 'رمز الدعوة';
+
+  @override
+  String get invitationContinueButton => 'متابعة';
+
+  @override
+  String get failureCompanyAuthRequired =>
+      'سجّل الدخول لإكمال هذا الإجراء الخاص بالشركة.';
+
+  @override
+  String get failureCompanyInvitationIdRequired => 'معرّف الدعوة مطلوب.';
+
+  @override
+  String get failureCompanyInvitationTokenRequired => 'رمز الدعوة مطلوب.';
+
+  @override
+  String get failureCompanyMembershipIdRequired => 'معرّف عضوية الشركة مطلوب.';
+
+  @override
+  String get failureCompanyInvitationInvalid =>
+      'هذه الدعوة غير صالحة أو لم تعد متاحة.';
+
+  @override
+  String get failureCompanyInvitationEmailInvalid =>
+      'أدخل عنوان بريد إلكتروني صالحًا للدعوة.';
+
+  @override
+  String get failureCompanyInvitationExpired =>
+      'انتهت صلاحية هذه الدعوة. اطلب من مدير الشركة إرسال دعوة جديدة.';
+
+  @override
+  String get failureCompanyInvitationRevoked =>
+      'تم إلغاء هذه الدعوة ولم يعد من الممكن قبولها.';
+
+  @override
+  String get failureCompanyInvitationAlreadyAccepted =>
+      'تم قبول هذه الدعوة بالفعل.';
+
+  @override
+  String get failureCompanyInvitationAlreadyPending =>
+      'توجد بالفعل دعوة معلقة لهذا البريد الإلكتروني في هذه الشركة.';
+
+  @override
+  String get failureCompanyInvitationEmailMismatch =>
+      'سجّل الدخول باستخدام نفس البريد الإلكتروني الذي استلم هذه الدعوة.';
+
+  @override
+  String get failureCompanyInvitationEmailNotVerified =>
+      'أكّد بريدك الإلكتروني قبل قبول هذه الدعوة.';
+
+  @override
+  String get failureCompanyInvitationRoleNotAllowed =>
+      'لا يمكن تعيين هذا الدور من خلال دعوة الشركة.';
+
+  @override
+  String get failureCompanyInvitationPermissionDenied =>
+      'ليست لديك صلاحية لتنفيذ إجراء الدعوة هذا.';
+
+  @override
+  String get failureCompanyInvitationDeliveryFailed =>
+      'الدعوة ما زالت معلقة، لكن تعذر إرسال البريد الإلكتروني. يمكنك إعادة الإرسال.';
+
+  @override
+  String get failureCompanyInvitationDeliveryConfirmationUnknown =>
+      'تم إرسال البريد الإلكتروني، لكن تعذر تأكيد حالة التسليم. حدّث قائمة الدعوات قبل إعادة الإرسال.';
+
+  @override
+  String get failureCompanyInvitationDeliveryNotConfigured =>
+      'خدمة إرسال دعوات الشركة عبر البريد الإلكتروني غير مهيأة حاليًا.';
+
+  @override
+  String get failureCompanyMemberAlreadyActive =>
+      'هذا المستخدم عضو نشط بالفعل في الشركة.';
+
+  @override
+  String get failureCompanyMemberInactive =>
+      'هذا المستخدم عضو غير نشط بالفعل. أعد تفعيل العضوية الحالية بدلًا من إرسال دعوة.';
+
+  @override
+  String get failureCompanyMemberNotFound => 'تعذر العثور على عضو الشركة.';
+
+  @override
+  String get failureCompanyMemberRoleChangeNotAllowed =>
+      'لا يمكنك تغيير هذا العضو إلى الدور المحدد.';
+
+  @override
+  String get failureCompanyMemberStatusChangeNotAllowed =>
+      'لا يمكنك تغيير حالة تفعيل هذا العضو.';
+
+  @override
+  String get failureCompanyOwnershipCommandRequired =>
+      'يجب إدارة أدوار المالك من خلال إجراء الملكية المخصص.';
+
+  @override
+  String get failureCompanyOwnershipTransferNotAllowed =>
+      'ليست لديك صلاحية لتغيير ملكية الشركة.';
+
+  @override
+  String get failureCompanyLastOwnerRequired =>
+      'يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل.';
 }

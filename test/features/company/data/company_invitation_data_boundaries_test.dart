@@ -99,14 +99,17 @@ void main() {
     expect(entity.status, CompanyInvitationStatus.pending);
   });
 
-  test('CompanyInvitationTokenCodec hashes raw token as PostgreSQL bytea hex', () {
-    const codec = CompanyInvitationTokenCodec();
+  test(
+    'CompanyInvitationTokenCodec hashes raw token as PostgreSQL bytea hex',
+    () {
+      const codec = CompanyInvitationTokenCodec();
 
-    expect(
-      codec.hashForPostgres('token-value'),
-      r'\xe6c02a5742ea9d4de588eb9b9de7bed43dc17011552186bed3e98b2c5958ff4a',
-    );
-  });
+      expect(
+        codec.hashForPostgres('token-value'),
+        r'\xe6c02a5742ea9d4de588eb9b9de7bed43dc17011552186bed3e98b2c5958ff4a',
+      );
+    },
+  );
 
   group('CompanyCommandFailureMapper', () {
     const mapper = CompanyCommandFailureMapper();

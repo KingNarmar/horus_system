@@ -151,7 +151,8 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-class _FakeCompanyInvitationsRepository implements CompanyInvitationsRepository {
+class _FakeCompanyInvitationsRepository
+    implements CompanyInvitationsRepository {
   int sendCalls = 0;
   int resendCalls = 0;
   int revokeCalls = 0;
@@ -170,7 +171,9 @@ class _FakeCompanyInvitationsRepository implements CompanyInvitationsRepository 
   }
 
   @override
-  Future<Result<List<CompanyInvitation>>> getInvitations(String companyId) async {
+  Future<Result<List<CompanyInvitation>>> getInvitations(
+    String companyId,
+  ) async {
     return const Success(<CompanyInvitation>[]);
   }
 

@@ -58,7 +58,9 @@ void main() {
       expect(find.text('Member One'), findsOneWidget);
     });
 
-    testWidgets('owner sees role, status and ownership actions', (tester) async {
+    testWidgets('owner sees role, status and ownership actions', (
+      tester,
+    ) async {
       await _setSurface(tester, const Size(390, 844));
       await tester.pumpWidget(
         _localizedApp(
@@ -113,9 +115,7 @@ void main() {
       await tester.pumpWidget(
         _localizedApp(
           CompanyMembersView(
-            users: [
-              _user(role: CompanyRole.viewer, isActive: false),
-            ],
+            users: [_user(role: CompanyRole.viewer, isActive: false)],
             currentCompanyContext: _context(CompanyRole.admin),
             currentUserId: 'actor-user',
             actionInProgress: false,
@@ -231,10 +231,7 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-CompanyUser _user({
-  required CompanyRole role,
-  bool isActive = true,
-}) {
+CompanyUser _user({required CompanyRole role, bool isActive = true}) {
   return CompanyUser(
     id: 'membership-1',
     companyId: 'company-1',

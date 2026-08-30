@@ -171,7 +171,8 @@ class CompanyMembersView extends StatelessWidget {
     final actions = <_CompanyMemberAction>[];
 
     final assignableRoles = CompanyInvitationPolicy.assignableRoles(actorRole);
-    final canChangeRole = user.isActive &&
+    final canChangeRole =
+        user.isActive &&
         assignableRoles.any(
           (newRole) => CompanyMembershipManagementPolicy.canChangeRole(
             actorRole: actorRole,

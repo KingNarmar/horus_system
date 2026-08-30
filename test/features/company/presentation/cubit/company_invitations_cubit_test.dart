@@ -18,37 +18,46 @@ import 'package:horus_system/features/company/presentation/cubit/company_invitat
 import 'package:horus_system/features/company/presentation/cubit/company_invitations_state.dart';
 
 void main() {
-  test('late result from old company cannot replace newly selected scope', () async {
-    final repository = _FakeInvitationsRepository.withDeferredLoads();
-    final cubit = _buildCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'late result from old company cannot replace newly selected scope',
+    () async {
+      final repository = _FakeInvitationsRepository.withDeferredLoads();
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
 
-    final loadA = cubit.load(_context('company-a'));
-    await Future<void>.delayed(Duration.zero);
-    final loadB = cubit.load(_context('company-b'));
+      final loadA = cubit.load(_context('company-a'));
+      await Future<void>.delayed(Duration.zero);
+      final loadB = cubit.load(_context('company-b'));
 
-    repository.completeLoad(
-      'company-b',
-      Success([_invitation('invitation-b', 'company-b')]),
-    );
-    await loadB;
+      repository.completeLoad(
+        'company-b',
+        Success([_invitation('invitation-b', 'company-b')]),
+      );
+      await loadB;
 
-    var state = cubit.state;
-    expect(state, isA<CompanyInvitationsLoaded>());
-    expect(state.companyId, 'company-b');
-    expect((state as CompanyInvitationsLoaded).invitations.single.id, 'invitation-b');
+      var state = cubit.state;
+      expect(state, isA<CompanyInvitationsLoaded>());
+      expect(state.companyId, 'company-b');
+      expect(
+        (state as CompanyInvitationsLoaded).invitations.single.id,
+        'invitation-b',
+      );
 
-    repository.completeLoad(
-      'company-a',
-      Success([_invitation('invitation-a', 'company-a')]),
-    );
-    await loadA;
+      repository.completeLoad(
+        'company-a',
+        Success([_invitation('invitation-a', 'company-a')]),
+      );
+      await loadA;
 
-    state = cubit.state;
-    expect(state, isA<CompanyInvitationsLoaded>());
-    expect(state.companyId, 'company-b');
-    expect((state as CompanyInvitationsLoaded).invitations.single.id, 'invitation-b');
-  });
+      state = cubit.state;
+      expect(state, isA<CompanyInvitationsLoaded>());
+      expect(state.companyId, 'company-b');
+      expect(
+        (state as CompanyInvitationsLoaded).invitations.single.id,
+        'invitation-b',
+      );
+    },
+  );
 
   test('command failure preserves previously loaded invitations', () async {
     final invitation = _invitation('invitation-1', 'company-a');
@@ -75,9 +84,7 @@ void main() {
 
   test('successful send reloads invitations for the same scope', () async {
     final repository = _FakeInvitationsRepository(
-      loadResults: {
-        'company-a': const Success(<CompanyInvitation>[]),
-      },
+      loadResults: {'company-a': const Success(<CompanyInvitation>[])},
     );
     final cubit = _buildCubit(repository);
     addTearDown(cubit.close);
@@ -152,10 +159,7 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
       _deferredLoads = {},
       resendResult = const Success(null);
 
-  void completeLoad(
-    String companyId,
-    Result<List<CompanyInvitation>> result,
-  ) {
+  void completeLoad(String companyId, Result<List<CompanyInvitation>> result) {
     _deferredLoads[companyId]?.complete(result);
   }
 

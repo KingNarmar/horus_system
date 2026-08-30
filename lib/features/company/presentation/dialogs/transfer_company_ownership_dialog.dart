@@ -9,10 +9,7 @@ import '../extensions/company_role_localization.dart';
 class TransferCompanyOwnershipDialog extends StatefulWidget {
   final List<CompanyRole> sourceRoles;
 
-  const TransferCompanyOwnershipDialog({
-    required this.sourceRoles,
-    super.key,
-  });
+  const TransferCompanyOwnershipDialog({required this.sourceRoles, super.key});
 
   @override
   State<TransferCompanyOwnershipDialog> createState() =>

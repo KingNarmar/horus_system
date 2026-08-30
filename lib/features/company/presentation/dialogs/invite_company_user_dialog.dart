@@ -16,10 +16,7 @@ class InviteCompanyUserInput {
 class InviteCompanyUserDialog extends StatefulWidget {
   final List<CompanyRole> assignableRoles;
 
-  const InviteCompanyUserDialog({
-    required this.assignableRoles,
-    super.key,
-  });
+  const InviteCompanyUserDialog({required this.assignableRoles, super.key});
 
   @override
   State<InviteCompanyUserDialog> createState() =>
@@ -51,10 +48,7 @@ class _InviteCompanyUserDialogState extends State<InviteCompanyUserDialog> {
     if (role == null) return;
 
     Navigator.of(context).pop(
-      InviteCompanyUserInput(
-        email: _emailController.text.trim(),
-        role: role,
-      ),
+      InviteCompanyUserInput(email: _emailController.text.trim(), role: role),
     );
   }
 

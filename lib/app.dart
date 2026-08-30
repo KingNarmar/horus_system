@@ -55,7 +55,8 @@ class HorusApp extends StatelessWidget {
           create: (_) => AppDependencies.createCompanyMemberActionsCubit(),
         ),
         BlocProvider<CompanyInvitationAcceptanceCubit>(
-          create: (_) => AppDependencies.createCompanyInvitationAcceptanceCubit(),
+          create: (_) =>
+              AppDependencies.createCompanyInvitationAcceptanceCubit(),
         ),
         BlocProvider<CustomersCubit>(
           create: (_) => AppDependencies.createCustomersCubit(),

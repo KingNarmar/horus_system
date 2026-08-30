@@ -16,9 +16,7 @@ abstract final class CompanyUsersActionDialogs {
   }) {
     return showDialog<InviteCompanyUserInput>(
       context: context,
-      builder: (_) => InviteCompanyUserDialog(
-        assignableRoles: assignableRoles,
-      ),
+      builder: (_) => InviteCompanyUserDialog(assignableRoles: assignableRoles),
     );
   }
 
@@ -42,9 +40,7 @@ abstract final class CompanyUsersActionDialogs {
   }) {
     return showDialog<CompanyRole>(
       context: context,
-      builder: (_) => TransferCompanyOwnershipDialog(
-        sourceRoles: sourceRoles,
-      ),
+      builder: (_) => TransferCompanyOwnershipDialog(sourceRoles: sourceRoles),
     );
   }
 

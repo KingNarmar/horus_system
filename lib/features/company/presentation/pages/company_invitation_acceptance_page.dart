@@ -78,8 +78,10 @@ class _CompanyInvitationAcceptancePageState
             }
           },
         ),
-        BlocListener<CompanyInvitationAcceptanceCubit,
-            CompanyInvitationAcceptanceState>(
+        BlocListener<
+          CompanyInvitationAcceptanceCubit,
+          CompanyInvitationAcceptanceState
+        >(
           listener: (context, state) {
             if (state is CompanyInvitationAccepted) {
               final cleanupFailure = state.pendingTokenCleanupFailure;
@@ -105,8 +107,10 @@ class _CompanyInvitationAcceptancePageState
             );
           }
 
-          return BlocBuilder<CompanyInvitationAcceptanceCubit,
-              CompanyInvitationAcceptanceState>(
+          return BlocBuilder<
+            CompanyInvitationAcceptanceCubit,
+            CompanyInvitationAcceptanceState
+          >(
             builder: (context, state) {
               if (state is CompanyInvitationAwaitingAuthentication &&
                   authState is! AuthAuthenticated) {
@@ -163,10 +167,7 @@ class _CompanyInvitationAcceptancePageState
 
     return _responsiveContent(
       context,
-      _TokenEntry(
-        controller: _tokenController,
-        onSubmit: _submitManualToken,
-      ),
+      _TokenEntry(controller: _tokenController, onSubmit: _submitManualToken),
     );
   }
 
@@ -255,7 +256,8 @@ class _CompanyInvitationAcceptancePageState
   }
 
   void _submitManualToken() {
-    final isAuthenticated = context.read<AuthCubit>().state is AuthAuthenticated;
+    final isAuthenticated =
+        context.read<AuthCubit>().state is AuthAuthenticated;
     context.read<CompanyInvitationAcceptanceCubit>().captureToken(
       token: _tokenController.text,
       isAuthenticated: isAuthenticated,
@@ -269,10 +271,9 @@ class _CompanyInvitationAcceptancePageState
 
     final state = currentCompanyCubit.state;
     if (state is CurrentCompanyLoaded && state.context.companyId == companyId) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.appShell,
-        (route) => false,
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.appShell, (route) => false);
     }
   }
 }

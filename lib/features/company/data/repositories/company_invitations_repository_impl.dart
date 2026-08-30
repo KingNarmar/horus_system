@@ -28,9 +28,9 @@ class CompanyInvitationsRepositoryImpl implements CompanyInvitationsRepository {
   @override
   Future<Result<List<CompanyInvitation>>> getInvitations(String companyId) {
     return _guard(
-      () async => (await _remoteDataSource.getInvitations(companyId))
-          .map((model) => model.toEntity())
-          .toList(growable: false),
+      () async => (await _remoteDataSource.getInvitations(
+        companyId,
+      )).map((model) => model.toEntity()).toList(growable: false),
     );
   }
 

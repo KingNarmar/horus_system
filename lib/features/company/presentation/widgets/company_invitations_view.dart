@@ -63,9 +63,7 @@ class CompanyInvitationsView extends StatelessWidget {
                   cells: [
                     DataCell(Text(invitation.email)),
                     DataCell(Text(invitation.role.localizedLabel(context))),
-                    DataCell(
-                      Text(invitation.status.localizedLabel(context)),
-                    ),
+                    DataCell(Text(invitation.status.localizedLabel(context))),
                     DataCell(Text(_date(context, invitation.expiresAt))),
                     DataCell(Text(_lastSent(context, invitation))),
                     DataCell(_actions(context, invitation)),
@@ -159,9 +157,7 @@ class CompanyInvitationsView extends StatelessWidget {
             children: [
               const Icon(AppIcons.resend, size: AppSizes.iconSm),
               const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(context.l10n.companyInvitationResendAction),
-              ),
+              Flexible(child: Text(context.l10n.companyInvitationResendAction)),
             ],
           ),
         ),
@@ -171,9 +167,7 @@ class CompanyInvitationsView extends StatelessWidget {
             children: [
               const Icon(AppIcons.deactivate, size: AppSizes.iconSm),
               const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(context.l10n.companyInvitationRevokeAction),
-              ),
+              Flexible(child: Text(context.l10n.companyInvitationRevokeAction)),
             ],
           ),
         ),

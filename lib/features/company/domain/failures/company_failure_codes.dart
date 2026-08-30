@@ -33,12 +33,10 @@ abstract final class CompanyFailureCodes {
   static const invitationEmailMismatch = 'company_invitation_email_mismatch';
   static const invitationEmailNotVerified =
       'company_invitation_email_not_verified';
-  static const invitationRoleNotAllowed =
-      'company_invitation_role_not_allowed';
+  static const invitationRoleNotAllowed = 'company_invitation_role_not_allowed';
   static const invitationPermissionDenied =
       'company_invitation_permission_denied';
-  static const invitationDeliveryFailed =
-      'company_invitation_delivery_failed';
+  static const invitationDeliveryFailed = 'company_invitation_delivery_failed';
   static const invitationDeliveryConfirmationUnknown =
       'company_invitation_delivery_confirmation_unknown';
   static const invitationDeliveryNotConfigured =
@@ -51,8 +49,7 @@ abstract final class CompanyFailureCodes {
       'company_member_role_change_not_allowed';
   static const memberStatusChangeNotAllowed =
       'company_member_status_change_not_allowed';
-  static const ownershipCommandRequired =
-      'company_ownership_command_required';
+  static const ownershipCommandRequired = 'company_ownership_command_required';
   static const ownershipTransferNotAllowed =
       'company_ownership_transfer_not_allowed';
   static const lastOwnerRequired = 'company_last_owner_required';

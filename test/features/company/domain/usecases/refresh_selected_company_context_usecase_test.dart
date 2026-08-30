@@ -9,18 +9,21 @@ import 'package:horus_system/features/company/domain/usecases/refresh_selected_c
 import 'package:test/test.dart';
 
 void main() {
-  test('reloads authoritative contexts before selecting requested company', () async {
-    final repository = _FakeCompanyContextRepository();
-    final useCase = RefreshSelectedCompanyContextUseCase(repository);
+  test(
+    'reloads authoritative contexts before selecting requested company',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final useCase = RefreshSelectedCompanyContextUseCase(repository);
 
-    final result = await useCase(
-      const RefreshSelectedCompanyContextParams(companyId: ' company-2 '),
-    );
+      final result = await useCase(
+        const RefreshSelectedCompanyContextParams(companyId: ' company-2 '),
+      );
 
-    expect(result.isSuccess, isTrue);
-    expect(result.dataOrNull?.companyId, 'company-2');
-    expect(repository.operations, ['load', 'select:company-2']);
-  });
+      expect(result.isSuccess, isTrue);
+      expect(result.dataOrNull?.companyId, 'company-2');
+      expect(repository.operations, ['load', 'select:company-2']);
+    },
+  );
 
   test('does not select when authoritative reload fails', () async {
     final repository = _FakeCompanyContextRepository(

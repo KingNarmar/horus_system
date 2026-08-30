@@ -35,9 +35,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     emit(CompanyInvitationsLoading(companyId: companyId));
 
     final result = await _getInvitationsUseCase(
-      GetCompanyInvitationsParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      GetCompanyInvitationsParams(currentCompanyContext: currentCompanyContext),
     );
 
     if (_scopeCompanyId != companyId) return;

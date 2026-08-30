@@ -25,9 +25,7 @@ class RefreshSelectedCompanyContextUseCase
     final companyId = params.companyId.trim();
     if (companyId.isEmpty) {
       return const FailureResult(
-        ValidationFailure(
-          code: FailureCodes.validationCompanyContextRequired,
-        ),
+        ValidationFailure(code: FailureCodes.validationCompanyContextRequired),
       );
     }
 

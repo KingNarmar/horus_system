@@ -82,9 +82,7 @@ void main() {
 
     test('only owner can manage ownership', () {
       expect(
-        CompanyMembershipManagementPolicy.canManageOwnership(
-          CompanyRole.owner,
-        ),
+        CompanyMembershipManagementPolicy.canManageOwnership(CompanyRole.owner),
         isTrue,
       );
       for (final role in const [

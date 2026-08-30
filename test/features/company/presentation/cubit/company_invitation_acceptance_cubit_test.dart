@@ -22,10 +22,7 @@ void main() {
     final cubit = _buildCubit(pendingRepository, invitationsRepository);
     addTearDown(cubit.close);
 
-    await cubit.captureToken(
-      token: '  raw-token  ',
-      isAuthenticated: false,
-    );
+    await cubit.captureToken(token: '  raw-token  ', isAuthenticated: false);
 
     expect(pendingRepository.token, 'raw-token');
     expect(cubit.state, isA<CompanyInvitationAwaitingAuthentication>());
@@ -51,46 +48,52 @@ void main() {
     );
   });
 
-  test('accept is explicit and clears pending token after DB success', () async {
-    final pendingRepository = _FakePendingInvitationRepository()
-      ..token = 'pending-token';
-    final invitationsRepository = _FakeInvitationsRepository();
-    final cubit = _buildCubit(pendingRepository, invitationsRepository);
-    addTearDown(cubit.close);
+  test(
+    'accept is explicit and clears pending token after DB success',
+    () async {
+      final pendingRepository = _FakePendingInvitationRepository()
+        ..token = 'pending-token';
+      final invitationsRepository = _FakeInvitationsRepository();
+      final cubit = _buildCubit(pendingRepository, invitationsRepository);
+      addTearDown(cubit.close);
 
-    await cubit.restore(isAuthenticated: true);
-    expect(invitationsRepository.acceptCalls, 0);
+      await cubit.restore(isAuthenticated: true);
+      expect(invitationsRepository.acceptCalls, 0);
 
-    await cubit.accept();
+      await cubit.accept();
 
-    expect(invitationsRepository.acceptCalls, 1);
-    expect(pendingRepository.clearCalls, 1);
-    expect(pendingRepository.token, isNull);
-    final state = cubit.state;
-    expect(state, isA<CompanyInvitationAccepted>());
-    final accepted = state as CompanyInvitationAccepted;
-    expect(accepted.companyId, 'company-1');
-    expect(accepted.pendingTokenCleanupFailure, isNull);
-  });
+      expect(invitationsRepository.acceptCalls, 1);
+      expect(pendingRepository.clearCalls, 1);
+      expect(pendingRepository.token, isNull);
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationAccepted>());
+      final accepted = state as CompanyInvitationAccepted;
+      expect(accepted.companyId, 'company-1');
+      expect(accepted.pendingTokenCleanupFailure, isNull);
+    },
+  );
 
-  test('accepted DB result carries non-blocking secure cleanup failure', () async {
-    final pendingRepository = _FakePendingInvitationRepository()
-      ..token = 'pending-token'
-      ..failClear = true;
-    final invitationsRepository = _FakeInvitationsRepository();
-    final cubit = _buildCubit(pendingRepository, invitationsRepository);
-    addTearDown(cubit.close);
+  test(
+    'accepted DB result carries non-blocking secure cleanup failure',
+    () async {
+      final pendingRepository = _FakePendingInvitationRepository()
+        ..token = 'pending-token'
+        ..failClear = true;
+      final invitationsRepository = _FakeInvitationsRepository();
+      final cubit = _buildCubit(pendingRepository, invitationsRepository);
+      addTearDown(cubit.close);
 
-    await cubit.restore(isAuthenticated: true);
-    await cubit.accept();
+      await cubit.restore(isAuthenticated: true);
+      await cubit.accept();
 
-    expect(invitationsRepository.acceptCalls, 1);
-    final state = cubit.state;
-    expect(state, isA<CompanyInvitationAccepted>());
-    final accepted = state as CompanyInvitationAccepted;
-    expect(accepted.companyId, 'company-1');
-    expect(accepted.pendingTokenCleanupFailure, isA<UnexpectedFailure>());
-  });
+      expect(invitationsRepository.acceptCalls, 1);
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationAccepted>());
+      final accepted = state as CompanyInvitationAccepted;
+      expect(accepted.companyId, 'company-1');
+      expect(accepted.pendingTokenCleanupFailure, isA<UnexpectedFailure>());
+    },
+  );
 }
 
 CompanyInvitationAcceptanceCubit _buildCubit(
@@ -151,7 +154,9 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
   }
 
   @override
-  Future<Result<List<CompanyInvitation>>> getInvitations(String companyId) async {
+  Future<Result<List<CompanyInvitation>>> getInvitations(
+    String companyId,
+  ) async {
     return const Success(<CompanyInvitation>[]);
   }
 

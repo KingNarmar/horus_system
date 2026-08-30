@@ -44,9 +44,7 @@ class SendCompanyInvitationUseCase
     )) {
       return Future.value(
         const FailureResult(
-          PermissionFailure(
-            code: CompanyFailureCodes.invitationRoleNotAllowed,
-          ),
+          PermissionFailure(code: CompanyFailureCodes.invitationRoleNotAllowed),
         ),
       );
     }

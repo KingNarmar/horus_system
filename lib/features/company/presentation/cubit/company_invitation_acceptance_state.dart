@@ -15,13 +15,11 @@ class CompanyInvitationAwaitingAuthentication
   const CompanyInvitationAwaitingAuthentication();
 }
 
-class CompanyInvitationPreviewLoading
-    extends CompanyInvitationAcceptanceState {
+class CompanyInvitationPreviewLoading extends CompanyInvitationAcceptanceState {
   const CompanyInvitationPreviewLoading();
 }
 
-class CompanyInvitationPreviewReady
-    extends CompanyInvitationAcceptanceState {
+class CompanyInvitationPreviewReady extends CompanyInvitationAcceptanceState {
   final CompanyInvitationPreview preview;
 
   const CompanyInvitationPreviewReady(this.preview);

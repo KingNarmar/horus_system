@@ -2056,4 +2056,320 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripAuditFieldTrailerPlate => 'Trailer plate';
+
+  @override
+  String get companyMembersTab => 'Members';
+
+  @override
+  String get companyInvitationsTab => 'Invitations';
+
+  @override
+  String get companyInvitationActionSucceeded =>
+      'Invitation updated successfully.';
+
+  @override
+  String get companyMemberActionSucceeded =>
+      'Company member updated successfully.';
+
+  @override
+  String get companyMembersNameColumn => 'Name';
+
+  @override
+  String get companyMembersPhoneColumn => 'Phone';
+
+  @override
+  String get companyMembersRoleColumn => 'Role';
+
+  @override
+  String get companyMembersStatusColumn => 'Status';
+
+  @override
+  String get companyMembersActionsColumn => 'Actions';
+
+  @override
+  String get companyMemberChangeRoleAction => 'Change role';
+
+  @override
+  String get companyMemberDeactivateAction => 'Deactivate';
+
+  @override
+  String get companyMemberReactivateAction => 'Reactivate';
+
+  @override
+  String get companyOwnershipGrantAction => 'Grant ownership';
+
+  @override
+  String get companyOwnershipTransferAction => 'Transfer ownership';
+
+  @override
+  String get companyInviteDialogTitle => 'Invite company member';
+
+  @override
+  String get companyInviteDialogDescription =>
+      'Send a company-scoped invitation. The recipient must sign in with the invited email address before accepting.';
+
+  @override
+  String get companyInviteEmailLabel => 'Invited email';
+
+  @override
+  String get companyInviteRoleLabel => 'Role';
+
+  @override
+  String get companyInviteSendButton => 'Send invitation';
+
+  @override
+  String get companyMemberChangeRoleTitle => 'Change member role';
+
+  @override
+  String get companyMemberChangeRoleDescription =>
+      'Select the role this member should use in the current company.';
+
+  @override
+  String get companyMemberRoleLabel => 'Role';
+
+  @override
+  String get companyMemberDeactivateTitle => 'Deactivate member';
+
+  @override
+  String companyMemberDeactivateMessage(String name) {
+    return 'Deactivate $name? They will lose access to this company until reactivated.';
+  }
+
+  @override
+  String get companyMemberReactivateTitle => 'Reactivate member';
+
+  @override
+  String companyMemberReactivateMessage(String name) {
+    return 'Reactivate $name and restore access to this company?';
+  }
+
+  @override
+  String get companyOwnershipGrantTitle => 'Grant ownership';
+
+  @override
+  String companyOwnershipGrantMessage(String name) {
+    return 'Grant Owner access to $name? This adds another active owner.';
+  }
+
+  @override
+  String get companyOwnershipTransferTitle => 'Transfer ownership';
+
+  @override
+  String get companyOwnershipTransferWarning =>
+      'The selected member becomes an Owner and your current Owner role changes to the role selected below. This is applied atomically.';
+
+  @override
+  String get companyOwnershipSourceRoleLabel => 'Your role after transfer';
+
+  @override
+  String get companyOwnershipTransferButton => 'Transfer ownership';
+
+  @override
+  String get companyInvitationsEmpty => 'No company invitations found.';
+
+  @override
+  String get companyInvitationsEmailColumn => 'Email';
+
+  @override
+  String get companyInvitationsRoleColumn => 'Role';
+
+  @override
+  String get companyInvitationsStatusColumn => 'Status';
+
+  @override
+  String get companyInvitationsExpiresColumn => 'Expires';
+
+  @override
+  String get companyInvitationsLastSentColumn => 'Last sent';
+
+  @override
+  String get companyInvitationsActionsColumn => 'Actions';
+
+  @override
+  String companyInvitationLastSentLine(String date) {
+    return 'Last sent: $date';
+  }
+
+  @override
+  String get companyInvitationNeverSent => 'Not sent yet';
+
+  @override
+  String get companyInvitationResendAction => 'Resend';
+
+  @override
+  String get companyInvitationResendTitle => 'Resend invitation';
+
+  @override
+  String companyInvitationResendMessage(String email) {
+    return 'Resend the invitation to $email? The previous invitation token will stop working.';
+  }
+
+  @override
+  String get companyInvitationRevokeAction => 'Revoke';
+
+  @override
+  String get companyInvitationRevokeTitle => 'Revoke invitation';
+
+  @override
+  String companyInvitationRevokeMessage(String email) {
+    return 'Revoke the pending invitation for $email? The invitation link will stop working.';
+  }
+
+  @override
+  String get invitationTitle => 'Company invitation';
+
+  @override
+  String get invitationStatusPending => 'Pending';
+
+  @override
+  String get invitationStatusAccepted => 'Accepted';
+
+  @override
+  String get invitationStatusExpired => 'Expired';
+
+  @override
+  String get invitationStatusRevoked => 'Revoked';
+
+  @override
+  String get invitationPreviewTitle => 'Invitation details';
+
+  @override
+  String invitationCompanyLine(String company) {
+    return 'Company: $company';
+  }
+
+  @override
+  String invitationEmailLine(String email) {
+    return 'Email: $email';
+  }
+
+  @override
+  String invitationRoleLine(String role) {
+    return 'Role: $role';
+  }
+
+  @override
+  String invitationStatusLine(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String invitationExpiresLine(String date) {
+    return 'Expires: $date';
+  }
+
+  @override
+  String get invitationAcceptButton => 'Accept invitation';
+
+  @override
+  String get invitationManualCodeTitle => 'Enter invitation code';
+
+  @override
+  String get invitationManualCodeDescription =>
+      'Paste the invitation token from the invitation link if the link did not open automatically.';
+
+  @override
+  String get invitationCodeLabel => 'Invitation code';
+
+  @override
+  String get invitationContinueButton => 'Continue';
+
+  @override
+  String get failureCompanyAuthRequired =>
+      'Sign in to complete this company action.';
+
+  @override
+  String get failureCompanyInvitationIdRequired => 'Invitation id is required.';
+
+  @override
+  String get failureCompanyInvitationTokenRequired =>
+      'Invitation code is required.';
+
+  @override
+  String get failureCompanyMembershipIdRequired =>
+      'Company membership id is required.';
+
+  @override
+  String get failureCompanyInvitationInvalid =>
+      'This invitation is invalid or is no longer available.';
+
+  @override
+  String get failureCompanyInvitationEmailInvalid =>
+      'Enter a valid email address for the invitation.';
+
+  @override
+  String get failureCompanyInvitationExpired =>
+      'This invitation has expired. Ask a company manager to send a new invitation.';
+
+  @override
+  String get failureCompanyInvitationRevoked =>
+      'This invitation was revoked and can no longer be accepted.';
+
+  @override
+  String get failureCompanyInvitationAlreadyAccepted =>
+      'This invitation has already been accepted.';
+
+  @override
+  String get failureCompanyInvitationAlreadyPending =>
+      'A pending invitation already exists for this email in the company.';
+
+  @override
+  String get failureCompanyInvitationEmailMismatch =>
+      'Sign in with the same email address that received this invitation.';
+
+  @override
+  String get failureCompanyInvitationEmailNotVerified =>
+      'Confirm your email address before accepting this invitation.';
+
+  @override
+  String get failureCompanyInvitationRoleNotAllowed =>
+      'This role cannot be assigned through a company invitation.';
+
+  @override
+  String get failureCompanyInvitationPermissionDenied =>
+      'You do not have permission to perform this invitation action.';
+
+  @override
+  String get failureCompanyInvitationDeliveryFailed =>
+      'The invitation is pending, but the email could not be sent. You can resend it.';
+
+  @override
+  String get failureCompanyInvitationDeliveryConfirmationUnknown =>
+      'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.';
+
+  @override
+  String get failureCompanyInvitationDeliveryNotConfigured =>
+      'Company invitation email delivery is not configured yet.';
+
+  @override
+  String get failureCompanyMemberAlreadyActive =>
+      'This user is already an active member of the company.';
+
+  @override
+  String get failureCompanyMemberInactive =>
+      'This user is already an inactive member. Reactivate the existing membership instead of sending an invitation.';
+
+  @override
+  String get failureCompanyMemberNotFound =>
+      'The company member could not be found.';
+
+  @override
+  String get failureCompanyMemberRoleChangeNotAllowed =>
+      'You cannot change this member to the selected role.';
+
+  @override
+  String get failureCompanyMemberStatusChangeNotAllowed =>
+      'You cannot change this member\'s active status.';
+
+  @override
+  String get failureCompanyOwnershipCommandRequired =>
+      'Owner roles must be managed through the dedicated ownership action.';
+
+  @override
+  String get failureCompanyOwnershipTransferNotAllowed =>
+      'You do not have permission to change company ownership.';
+
+  @override
+  String get failureCompanyLastOwnerRequired =>
+      'The company must keep at least one active Owner.';
 }

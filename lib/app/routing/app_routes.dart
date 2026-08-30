@@ -23,11 +23,7 @@ abstract final class AppRoutes {
   static const String reports = '/app/reports';
   static const String settings = '/app/settings';
 
-  static const Set<String> publicRoutes = {
-    login,
-    register,
-    companyInvitation,
-  };
+  static const Set<String> publicRoutes = {login, register, companyInvitation};
 
   static const Set<String> authenticatedRoutes = {companyOnboarding};
 

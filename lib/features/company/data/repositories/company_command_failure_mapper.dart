@@ -27,8 +27,10 @@ final class CompanyCommandFailureMapper {
       CompanyFailureCodes.invitationRoleNotAllowed => const PermissionFailure(
         code: CompanyFailureCodes.invitationRoleNotAllowed,
       ),
-      'company_invitation_token_invalid' || CompanyFailureCodes.invitationInvalid =>
-        const NotFoundFailure(code: CompanyFailureCodes.invitationInvalid),
+      'company_invitation_token_invalid' ||
+      CompanyFailureCodes.invitationInvalid => const NotFoundFailure(
+        code: CompanyFailureCodes.invitationInvalid,
+      ),
       CompanyFailureCodes.invitationExpired => const ConflictFailure(
         code: CompanyFailureCodes.invitationExpired,
       ),
@@ -54,9 +56,10 @@ final class CompanyCommandFailureMapper {
       'company_invitation_delivery_confirmation_invalid' => const ServerFailure(
         code: CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
       ),
-      CompanyFailureCodes.invitationDeliveryNotConfigured => const ServerFailure(
-        code: CompanyFailureCodes.invitationDeliveryNotConfigured,
-      ),
+      CompanyFailureCodes.invitationDeliveryNotConfigured =>
+        const ServerFailure(
+          code: CompanyFailureCodes.invitationDeliveryNotConfigured,
+        ),
       CompanyFailureCodes.memberAlreadyActive => const ConflictFailure(
         code: CompanyFailureCodes.memberAlreadyActive,
       ),
@@ -69,15 +72,17 @@ final class CompanyCommandFailureMapper {
       CompanyFailureCodes.memberRoleChangeNotAllowed => const PermissionFailure(
         code: CompanyFailureCodes.memberRoleChangeNotAllowed,
       ),
-      CompanyFailureCodes.memberStatusChangeNotAllowed => const PermissionFailure(
-        code: CompanyFailureCodes.memberStatusChangeNotAllowed,
-      ),
+      CompanyFailureCodes.memberStatusChangeNotAllowed =>
+        const PermissionFailure(
+          code: CompanyFailureCodes.memberStatusChangeNotAllowed,
+        ),
       CompanyFailureCodes.ownershipCommandRequired => const PermissionFailure(
         code: CompanyFailureCodes.ownershipCommandRequired,
       ),
-      CompanyFailureCodes.ownershipTransferNotAllowed => const PermissionFailure(
-        code: CompanyFailureCodes.ownershipTransferNotAllowed,
-      ),
+      CompanyFailureCodes.ownershipTransferNotAllowed =>
+        const PermissionFailure(
+          code: CompanyFailureCodes.ownershipTransferNotAllowed,
+        ),
       CompanyFailureCodes.lastOwnerRequired => const ConflictFailure(
         code: CompanyFailureCodes.lastOwnerRequired,
       ),

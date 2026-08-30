@@ -151,22 +151,25 @@ void main() {
       expect(repository.grantOwnershipCalls, 0);
     });
 
-    test('owner cannot transfer ownership while remaining owner through this command', () async {
-      final repository = _FakeCompanyMembershipRepository();
-      final result = await TransferCompanyOwnershipUseCase(repository)(
-        TransferCompanyOwnershipParams(
-          currentCompanyContext: _context(CompanyRole.owner),
-          targetMembershipId: 'membership-2',
-          sourceNewRole: CompanyRole.owner,
-        ),
-      );
+    test(
+      'owner cannot transfer ownership while remaining owner through this command',
+      () async {
+        final repository = _FakeCompanyMembershipRepository();
+        final result = await TransferCompanyOwnershipUseCase(repository)(
+          TransferCompanyOwnershipParams(
+            currentCompanyContext: _context(CompanyRole.owner),
+            targetMembershipId: 'membership-2',
+            sourceNewRole: CompanyRole.owner,
+          ),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.ownershipTransferNotAllowed,
-      );
-      expect(repository.transferOwnershipCalls, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.ownershipTransferNotAllowed,
+        );
+        expect(repository.transferOwnershipCalls, 0);
+      },
+    );
   });
 
   test('owner role change delegates normalized membership id', () async {
