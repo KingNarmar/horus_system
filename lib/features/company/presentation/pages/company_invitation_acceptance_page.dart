@@ -82,6 +82,16 @@ class _CompanyInvitationAcceptancePageState
             CompanyInvitationAcceptanceState>(
           listener: (context, state) {
             if (state is CompanyInvitationAccepted) {
+              final cleanupFailure = state.pendingTokenCleanupFailure;
+              if (cleanupFailure != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      context.l10n.localizedCompanyErrorMessage(cleanupFailure),
+                    ),
+                  ),
+                );
+              }
               _openAcceptedCompany(state.companyId);
             }
           },
@@ -138,7 +148,7 @@ class _CompanyInvitationAcceptancePageState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              context.l10n.localizedErrorMessage(state.failure),
+              context.l10n.localizedCompanyErrorMessage(state.failure),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
