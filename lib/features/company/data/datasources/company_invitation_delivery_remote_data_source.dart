@@ -1,9 +1,18 @@
-import '../models/company_invitation_delivery_preparation_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../domain/entities/company_role.dart';
+import '../../domain/failures/company_failure_codes.dart';
 
 abstract class CompanyInvitationDeliveryRemoteDataSource {
-  Future<void> send({
-    required CompanyInvitationDeliveryPreparationModel preparation,
-    required String rawToken,
+  Future<void> sendInvitation({
+    required String companyId,
+    required String email,
+    required CompanyRole role,
+  });
+
+  Future<void> resendInvitation({
+    required String companyId,
+    required String invitationId,
   });
 }
 
@@ -11,4 +20,55 @@ class CompanyInvitationDeliveryException implements Exception {
   final String code;
 
   const CompanyInvitationDeliveryException(this.code);
+}
+
+class SupabaseCompanyInvitationDeliveryRemoteDataSource
+    implements CompanyInvitationDeliveryRemoteDataSource {
+  static const _functionName = 'send-company-invitation';
+  static const _sendAction = 'send';
+  static const _resendAction = 'resend';
+
+  final SupabaseClient _client;
+
+  const SupabaseCompanyInvitationDeliveryRemoteDataSource(this._client);
+
+  @override
+  Future<void> sendInvitation({
+    required String companyId,
+    required String email,
+    required CompanyRole role,
+  }) {
+    return _invoke({
+      'action': _sendAction,
+      'company_id': companyId,
+      'email': email,
+      'role': role.value,
+    });
+  }
+
+  @override
+  Future<void> resendInvitation({
+    required String companyId,
+    required String invitationId,
+  }) {
+    return _invoke({
+      'action': _resendAction,
+      'company_id': companyId,
+      'invitation_id': invitationId,
+    });
+  }
+
+  Future<void> _invoke(Map<String, dynamic> body) async {
+    final response = await _client.functions.invoke(_functionName, body: body);
+    final data = response.data;
+
+    if (data is Map && data['ok'] == true) {
+      return;
+    }
+
+    final code = data is Map ? data['code'] as String? : null;
+    throw CompanyInvitationDeliveryException(
+      code ?? CompanyFailureCodes.invitationDeliveryFailed,
+    );
+  }
 }
