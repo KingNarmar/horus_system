@@ -1,3 +1,4 @@
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/subscriptions/data/mappers/subscription_mapper.dart';
 import 'package:horus_system/features/subscriptions/data/models/company_subscription_model.dart';
@@ -22,10 +23,12 @@ void main() {
     expect(entity?.plan.code, 'basic');
   });
 
-  test('company subscription mapper rejects unknown status', () {
+  test('company subscription mapper rejects unknown status safely', () {
     final result = _subscriptionModel(status: 'paused').toEntityResult();
 
+    expect(result.failureOrNull, isA<ServerFailure>());
     expect(result.failureOrNull?.code, FailureCodes.subscriptionStatusInvalid);
+    expect(result.failureOrNull?.message, isNull);
   });
 }
 
