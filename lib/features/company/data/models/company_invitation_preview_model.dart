@@ -29,7 +29,7 @@ class CompanyInvitationPreviewModel {
       companyId: map[CompanyInvitationRpc.companyId] as String,
       companyName: map[CompanyInvitationRpc.companyName] as String,
       email: map[CompanyInvitationRpc.emailNormalized] as String,
-      role: CompanyRoleModelMapper.fromDatabaseValue(
+      role: CompanyRoleModelMapper.fromRequiredDatabaseValue(
         map[CompanyInvitationRpc.invitationRole] as String?,
       ),
       statusValue: map[CompanyInvitationRpc.effectiveStatus] as String,
