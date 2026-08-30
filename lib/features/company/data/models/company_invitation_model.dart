@@ -36,7 +36,7 @@ class CompanyInvitationModel {
       id: map[CompanyInvitationRpc.invitationId] as String,
       companyId: map[CompanyInvitationRpc.companyId] as String,
       email: map[CompanyInvitationRpc.emailNormalized] as String,
-      role: CompanyRoleModelMapper.fromDatabaseValue(
+      role: CompanyRoleModelMapper.fromRequiredDatabaseValue(
         map[CompanyInvitationRpc.invitationRole] as String?,
       ),
       statusValue: map[CompanyInvitationRpc.effectiveStatus] as String,
