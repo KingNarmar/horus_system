@@ -39,7 +39,9 @@ class RevokeCompanyInvitationUseCase
     if (invitationId.isEmpty) {
       return Future.value(
         const FailureResult(
-          ValidationFailure(code: CompanyFailureCodes.invitationInvalid),
+          ValidationFailure(
+            code: CompanyFailureCodes.validationInvitationIdRequired,
+          ),
         ),
       );
     }
