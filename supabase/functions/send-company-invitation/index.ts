@@ -4,7 +4,6 @@ import {
   createCompanyInvitationEmailSender,
 } from './company_invitation_email_sender.ts'
 import {
-  bilingualRoleLabel,
   buildInvitationUrl,
   generateRawToken,
   hashTokenForPostgres,
@@ -103,7 +102,7 @@ Deno.serve(async (request: Request) => {
     companyName: companyNameResult.companyName,
     inviteUrl: buildInvitationUrl(environment.appUrl, rawToken),
     invitationCode: rawToken,
-    roleLabel: bilingualRoleLabel(preparation.invitation_role),
+    role: preparation.invitation_role,
     expiresAt: preparation.expires_at,
   })
 
