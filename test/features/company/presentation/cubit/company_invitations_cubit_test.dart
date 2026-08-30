@@ -1,0 +1,206 @@
+import 'dart:async';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/utils/result.dart';
+import 'package:horus_system/features/company/domain/entities/company.dart';
+import 'package:horus_system/features/company/domain/entities/company_invitation.dart';
+import 'package:horus_system/features/company/domain/entities/company_invitation_preview.dart';
+import 'package:horus_system/features/company/domain/entities/company_invitation_status.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
+import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/repositories/company_invitations_repository.dart';
+import 'package:horus_system/features/company/domain/usecases/get_company_invitations_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/resend_company_invitation_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/revoke_company_invitation_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/send_company_invitation_usecase.dart';
+import 'package:horus_system/features/company/presentation/cubit/company_invitations_cubit.dart';
+import 'package:horus_system/features/company/presentation/cubit/company_invitations_state.dart';
+
+void main() {
+  test('late result from old company cannot replace newly selected scope', () async {
+    final repository = _FakeInvitationsRepository.withDeferredLoads();
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+
+    final loadA = cubit.load(_context('company-a'));
+    await Future<void>.delayed(Duration.zero);
+    final loadB = cubit.load(_context('company-b'));
+
+    repository.completeLoad(
+      'company-b',
+      Success([_invitation('invitation-b', 'company-b')]),
+    );
+    await loadB;
+
+    var state = cubit.state;
+    expect(state, isA<CompanyInvitationsLoaded>());
+    expect(state.companyId, 'company-b');
+    expect((state as CompanyInvitationsLoaded).invitations.single.id, 'invitation-b');
+
+    repository.completeLoad(
+      'company-a',
+      Success([_invitation('invitation-a', 'company-a')]),
+    );
+    await loadA;
+
+    state = cubit.state;
+    expect(state, isA<CompanyInvitationsLoaded>());
+    expect(state.companyId, 'company-b');
+    expect((state as CompanyInvitationsLoaded).invitations.single.id, 'invitation-b');
+  });
+
+  test('command failure preserves previously loaded invitations', () async {
+    final invitation = _invitation('invitation-1', 'company-a');
+    final repository = _FakeInvitationsRepository(
+      loadResults: {
+        'company-a': Success([invitation]),
+      },
+      resendResult: const FailureResult(UnexpectedFailure()),
+    );
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+    final context = _context('company-a');
+
+    await cubit.load(context);
+    await cubit.resend(
+      currentCompanyContext: context,
+      invitationId: invitation.id,
+    );
+
+    final state = cubit.state;
+    expect(state, isA<CompanyInvitationsFailure>());
+    expect((state as CompanyInvitationsFailure).invitations, [invitation]);
+  });
+
+  test('successful send reloads invitations for the same scope', () async {
+    final repository = _FakeInvitationsRepository(
+      loadResults: {
+        'company-a': const Success(<CompanyInvitation>[]),
+      },
+    );
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+    final context = _context('company-a');
+
+    await cubit.load(context);
+    repository.loadResults['company-a'] = Success([
+      _invitation('invitation-1', 'company-a'),
+    ]);
+
+    await cubit.send(
+      currentCompanyContext: context,
+      email: 'user@example.com',
+      role: CompanyRole.viewer,
+    );
+
+    final state = cubit.state;
+    expect(state, isA<CompanyInvitationsLoaded>());
+    expect((state as CompanyInvitationsLoaded).invitations.length, 1);
+    expect(repository.sendCalls, 1);
+    expect(repository.loadCalls['company-a'], 2);
+  });
+}
+
+CompanyInvitationsCubit _buildCubit(CompanyInvitationsRepository repository) {
+  return CompanyInvitationsCubit(
+    getInvitationsUseCase: GetCompanyInvitationsUseCase(repository),
+    sendInvitationUseCase: SendCompanyInvitationUseCase(repository),
+    resendInvitationUseCase: ResendCompanyInvitationUseCase(repository),
+    revokeInvitationUseCase: RevokeCompanyInvitationUseCase(repository),
+  );
+}
+
+CurrentCompanyContext _context(String companyId) {
+  return CurrentCompanyContext(
+    company: Company(id: companyId, name: companyId),
+    role: CompanyRole.owner,
+  );
+}
+
+CompanyInvitation _invitation(String id, String companyId) {
+  return CompanyInvitation(
+    id: id,
+    companyId: companyId,
+    email: '$id@example.com',
+    role: CompanyRole.viewer,
+    status: CompanyInvitationStatus.pending,
+    expiresAt: DateTime.utc(2026, 9, 1),
+    lastSentAt: null,
+    sendCount: 0,
+    createdAt: DateTime.utc(2026, 8, 30),
+    acceptedAt: null,
+    revokedAt: null,
+  );
+}
+
+class _FakeInvitationsRepository implements CompanyInvitationsRepository {
+  final Map<String, Result<List<CompanyInvitation>>> loadResults;
+  final Map<String, Completer<Result<List<CompanyInvitation>>>> _deferredLoads;
+  Result<void> resendResult;
+  int sendCalls = 0;
+  final Map<String, int> loadCalls = {};
+
+  _FakeInvitationsRepository({
+    Map<String, Result<List<CompanyInvitation>>>? loadResults,
+    this.resendResult = const Success(null),
+  }) : loadResults = loadResults ?? {},
+       _deferredLoads = {};
+
+  _FakeInvitationsRepository.withDeferredLoads()
+    : loadResults = {},
+      _deferredLoads = {},
+      resendResult = const Success(null);
+
+  void completeLoad(
+    String companyId,
+    Result<List<CompanyInvitation>> result,
+  ) {
+    _deferredLoads[companyId]?.complete(result);
+  }
+
+  @override
+  Future<Result<String>> acceptInvitation(String token) async {
+    return const Success('company-a');
+  }
+
+  @override
+  Future<Result<List<CompanyInvitation>>> getInvitations(String companyId) {
+    loadCalls[companyId] = (loadCalls[companyId] ?? 0) + 1;
+    if (loadResults.containsKey(companyId)) {
+      return Future.value(loadResults[companyId]!);
+    }
+    return (_deferredLoads[companyId] ??=
+            Completer<Result<List<CompanyInvitation>>>())
+        .future;
+  }
+
+  @override
+  Future<Result<CompanyInvitationPreview>> getInvitationPreview(
+    String token,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> resendInvitation({
+    required String companyId,
+    required String invitationId,
+  }) async => resendResult;
+
+  @override
+  Future<Result<void>> revokeInvitation({
+    required String companyId,
+    required String invitationId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> sendInvitation({
+    required String companyId,
+    required String email,
+    required CompanyRole role,
+  }) async {
+    sendCalls += 1;
+    return const Success(null);
+  }
+}
