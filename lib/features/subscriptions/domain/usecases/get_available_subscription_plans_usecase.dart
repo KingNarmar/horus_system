@@ -31,10 +31,7 @@ final class GetAvailableSubscriptionPlansUseCase
     )) {
       return Future.value(
         const FailureResult<List<SubscriptionPlan>>(
-          PermissionFailure(
-            code: FailureCodes.permissionSubscriptionsView,
-            message: 'Subscription view is not allowed.',
-          ),
+          PermissionFailure(code: FailureCodes.permissionSubscriptionsView),
         ),
       );
     }

@@ -41,6 +41,7 @@ void main() {
       result.failureOrNull?.code,
       FailureCodes.permissionSubscriptionsView,
     );
+    expect(result.failureOrNull?.message, isNull);
     expect(repository.availablePlansCalls, 0);
   });
 
@@ -78,6 +79,7 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.validationCompanyIdRequired,
       );
+      expect(result.failureOrNull?.message, isNull);
       expect(repository.currentSubscriptionCompanyIds, isEmpty);
     },
   );
@@ -102,6 +104,7 @@ void main() {
         result.failureOrNull?.code,
         FailureCodes.permissionSubscriptionsView,
       );
+      expect(result.failureOrNull?.message, isNull);
       expect(repository.currentSubscriptionCompanyIds, isEmpty);
     },
   );

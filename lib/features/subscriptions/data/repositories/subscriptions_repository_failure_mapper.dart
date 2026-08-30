@@ -11,16 +11,12 @@ final class SubscriptionsRepositoryFailureMapper {
     return switch (error.code) {
       '42501' => const PermissionFailure(
         code: FailureCodes.permissionSubscriptionsView,
-        message: 'Subscription view is not allowed.',
       ),
-      _ => ServerFailure(
-        code: FailureCodes.serverError,
-        message: error.message,
-      ),
+      _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }
 
-  Failure fromUnexpected(Object error) {
-    return UnexpectedFailure(message: error.toString());
+  Failure fromUnexpected(Object _) {
+    return const UnexpectedFailure(code: FailureCodes.unexpectedError);
   }
 }
