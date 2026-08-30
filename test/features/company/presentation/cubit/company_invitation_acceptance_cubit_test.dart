@@ -68,10 +68,12 @@ void main() {
     expect(pendingRepository.token, isNull);
     final state = cubit.state;
     expect(state, isA<CompanyInvitationAccepted>());
-    expect((state as CompanyInvitationAccepted).companyId, 'company-1');
+    final accepted = state as CompanyInvitationAccepted;
+    expect(accepted.companyId, 'company-1');
+    expect(accepted.pendingTokenCleanupFailure, isNull);
   });
 
-  test('accepted DB result remains success even if secure cleanup fails', () async {
+  test('accepted DB result carries non-blocking secure cleanup failure', () async {
     final pendingRepository = _FakePendingInvitationRepository()
       ..token = 'pending-token'
       ..failClear = true;
@@ -83,7 +85,11 @@ void main() {
     await cubit.accept();
 
     expect(invitationsRepository.acceptCalls, 1);
-    expect(cubit.state, isA<CompanyInvitationAccepted>());
+    final state = cubit.state;
+    expect(state, isA<CompanyInvitationAccepted>());
+    final accepted = state as CompanyInvitationAccepted;
+    expect(accepted.companyId, 'company-1');
+    expect(accepted.pendingTokenCleanupFailure, isA<UnexpectedFailure>());
   });
 }
 
