@@ -4,7 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/failures/company_failure_codes.dart';
 
 extension CompanyFailureLocalizationX on AppLocalizations {
-  String localizedCompanyErrorMessage(Failure failure) {
+  String localizedErrorMessage(Failure failure) {
     return switch (failure.code) {
       CompanyFailureCodes.authRequired => failureCompanyAuthRequired,
       CompanyFailureCodes.validationInvitationIdRequired =>
@@ -52,7 +52,7 @@ extension CompanyFailureLocalizationX on AppLocalizations {
         failureCompanyOwnershipTransferNotAllowed,
       CompanyFailureCodes.lastOwnerRequired => failureCompanyLastOwnerRequired,
       CompanyFailureCodes.notFound => failureCompanyNotAvailable,
-      _ => localizedErrorMessage(failure),
+      _ => CommonErrorLocalizationsX(this).localizedErrorMessage(failure),
     };
   }
 }
