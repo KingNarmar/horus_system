@@ -26,6 +26,7 @@ import '../cubit/current_company_state.dart';
 import '../extensions/company_failure_localization.dart';
 import '../helpers/company_users_action_dialogs.dart';
 import '../widgets/company_invitations_view.dart';
+import '../widgets/company_load_failure_view.dart';
 import '../widgets/company_members_view.dart';
 
 class CompanyUsersPage extends StatefulWidget {
@@ -230,7 +231,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         }
 
         if (state is CompanyUsersFailure) {
-          return _LoadFailureView(
+          return CompanyLoadFailureView(
             message: context.l10n.localizedErrorMessage(state.failure),
             onRetry: () => context.read<CompanyUsersCubit>().loadCompanyUsers(
               currentCompanyContext: currentCompanyContext,
@@ -302,7 +303,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             );
           }
 
-          return _LoadFailureView(
+          return CompanyLoadFailureView(
             message: context.l10n.localizedErrorMessage(state.failure),
             onRetry: () => context.read<CompanyInvitationsCubit>().load(
               currentCompanyContext,
@@ -495,34 +496,6 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
-    );
-  }
-}
-
-class _LoadFailureView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _LoadFailureView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(AppIcons.resend),
-              label: Text(context.l10n.retryButton),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
