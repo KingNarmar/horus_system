@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/constants/app_icons.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation.dart';
 import 'package:horus_system/features/company/domain/entities/company_invitation_status.dart';
@@ -75,7 +76,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(PopupMenuButton).first);
+      await tester.tap(find.byIcon(AppIcons.moreActions));
       await tester.pumpAndSettle();
 
       expect(find.text('Change role'), findsOneWidget);
@@ -102,7 +103,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(PopupMenuButton), findsNothing);
+      expect(find.byIcon(AppIcons.moreActions), findsNothing);
     });
 
     testWidgets('inactive lower-role member exposes reactivate to admin', (
@@ -127,7 +128,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(PopupMenuButton).first);
+      await tester.tap(find.byIcon(AppIcons.moreActions));
       await tester.pumpAndSettle();
 
       expect(find.text('Reactivate'), findsOneWidget);
@@ -176,8 +177,8 @@ void main() {
         ),
       );
 
-      expect(find.byType(PopupMenuButton), findsOneWidget);
-      await tester.tap(find.byType(PopupMenuButton));
+      expect(find.byIcon(AppIcons.moreActions), findsOneWidget);
+      await tester.tap(find.byIcon(AppIcons.moreActions));
       await tester.pumpAndSettle();
 
       expect(find.text('Resend'), findsOneWidget);
@@ -198,7 +199,7 @@ void main() {
         ),
       );
 
-      expect(find.text('قيد الانتظار'), findsOneWidget);
+      expect(find.textContaining('قيد الانتظار'), findsOneWidget);
       final element = tester.element(find.text('user@example.com'));
       expect(Directionality.of(element), TextDirection.rtl);
     });
