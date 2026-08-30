@@ -334,7 +334,10 @@ void main() {
       final unexpectedResult = await unexpectedRepository
           .getActivePaymentMethods(companyId: 'company-1');
       expect(unexpectedResult.failureOrNull, isA<UnexpectedFailure>());
-      expect(unexpectedResult.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(
+        unexpectedResult.failureOrNull?.code,
+        FailureCodes.unexpectedError,
+      );
       expect(unexpectedResult.failureOrNull?.message, isNull);
       expect(unexpectedDataSource.lastCompanyId, 'company-1');
       expect(unexpectedEvents, ['getActive']);
