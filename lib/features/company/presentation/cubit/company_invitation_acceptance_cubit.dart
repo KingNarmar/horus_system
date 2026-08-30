@@ -114,10 +114,17 @@ class CompanyInvitationAcceptanceCubit
 
     await result.when(
       success: (companyId) async {
-        await _clearPendingUseCase(const NoParams());
+        final cleanupResult = await _clearPendingUseCase(const NoParams());
+        final cleanupFailure = cleanupResult.failureOrNull;
+
         _rawToken = null;
         _preview = null;
-        emit(CompanyInvitationAccepted(companyId));
+        emit(
+          CompanyInvitationAccepted(
+            companyId,
+            pendingTokenCleanupFailure: cleanupFailure,
+          ),
+        );
       },
       failure: (failure) async =>
           emit(CompanyInvitationAcceptanceFailure(failure)),
