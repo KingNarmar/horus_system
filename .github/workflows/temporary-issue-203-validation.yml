@@ -25,12 +25,8 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Show formatter diff
-        shell: bash
-        run: |
-          dart format lib/features/company/presentation/cubit/company_invitations_cubit.dart test/features/company/presentation/cubit/company_invitations_cubit_test.dart
-          git diff -- lib/features/company/presentation/cubit/company_invitations_cubit.dart test/features/company/presentation/cubit/company_invitations_cubit_test.dart
-          test -z "$(git status --short -- lib/features/company/presentation/cubit/company_invitations_cubit.dart test/features/company/presentation/cubit/company_invitations_cubit_test.dart)"
+      - name: Format check
+        run: dart format --set-exit-if-changed lib test
 
       - name: Analyze
         run: flutter analyze
