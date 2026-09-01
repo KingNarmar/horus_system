@@ -71,9 +71,8 @@ void main() {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: CompanyRequiredRouteGuard(
-              builder: (_) => const SizedBox(
-                key: Key('company-required-content'),
-              ),
+              builder: (_) =>
+                  const SizedBox(key: Key('company-required-content')),
             ),
           ),
         ),
