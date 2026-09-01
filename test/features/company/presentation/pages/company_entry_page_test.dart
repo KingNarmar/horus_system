@@ -49,12 +49,10 @@ Widget _testApp({Locale locale = const Locale('en')}) {
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     routes: {
-      AppRoutes.companyCreation: (_) => const Scaffold(
-        body: Text('creation-route'),
-      ),
-      AppRoutes.companyInvitation: (_) => const Scaffold(
-        body: Text('invitation-route'),
-      ),
+      AppRoutes.companyCreation: (_) =>
+          const Scaffold(body: Text('creation-route')),
+      AppRoutes.companyInvitation: (_) =>
+          const Scaffold(body: Text('invitation-route')),
     },
     home: const CompanyEntryPage(),
   );
