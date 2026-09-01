@@ -5,8 +5,8 @@ import '../../features/app_shell/presentation/pages/app_shell_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/company/presentation/pages/company_creation_page.dart';
 import '../../features/company/presentation/pages/company_invitation_acceptance_page.dart';
-import '../../features/company/presentation/pages/company_onboarding_page.dart';
 import '../../features/company/presentation/pages/company_users_page.dart';
 import 'app_route_guards.dart';
 import 'app_routes.dart';
@@ -37,8 +37,8 @@ abstract final class AppRouter {
       AppRoutes.companyInvitation => CompanyInvitationAcceptancePage(
         initialToken: invitationToken,
       ),
-      AppRoutes.companyOnboarding => const AuthenticatedRouteGuard(
-        child: CompanyOnboardingPage(),
+      AppRoutes.companyCreation => const AuthenticatedRouteGuard(
+        child: CompanyCreationPage(),
       ),
       AppRoutes.companyUsers => CompanyRequiredRouteGuard(
         builder: (_) => const CompanyUsersPage(),
