@@ -1,3 +1,4 @@
+import { formatInvitationExpiry } from './invitation_email_expiry_formatter.ts'
 import {
   invitationEmailArabic,
   invitationEmailEnglish,
@@ -28,6 +29,8 @@ export function buildCompanyInvitationEmail(
 
   const englishRole = invitationEmailEnglish.roleLabel(role)
   const arabicRole = invitationEmailArabic.roleLabel(role)
+  const englishExpiresAt = formatInvitationExpiry(expiresAt, 'en')
+  const arabicExpiresAt = formatInvitationExpiry(expiresAt, 'ar')
   const subject = `${invitationEmailEnglish.subject} | ${invitationEmailArabic.subject}`
 
   const text = [
@@ -36,14 +39,14 @@ export function buildCompanyInvitationEmail(
     `${invitationEmailEnglish.linkLabel}: ${inviteUrl}`,
     `${invitationEmailEnglish.codeLabel}: ${invitationCode}`,
     invitationEmailEnglish.manualCodeInstruction,
-    invitationEmailEnglish.expires(expiresAt),
+    invitationEmailEnglish.expires(englishExpiresAt),
     '',
     invitationEmailArabic.invited(companyName, arabicRole),
     invitationEmailArabic.authInstruction,
     `${invitationEmailArabic.linkLabel}: ${inviteUrl}`,
     `${invitationEmailArabic.codeLabel}: ${invitationCode}`,
     invitationEmailArabic.manualCodeInstruction,
-    invitationEmailArabic.expires(expiresAt),
+    invitationEmailArabic.expires(arabicExpiresAt),
   ].join('\n')
 
   const html = `
@@ -57,7 +60,7 @@ export function buildCompanyInvitationEmail(
       <p><a href="${escapeHtml(inviteUrl)}">${escapeHtml(invitationEmailEnglish.linkLabel)}</a></p>
       <p><strong>${escapeHtml(invitationEmailEnglish.codeLabel)}:</strong> <code>${escapeHtml(invitationCode)}</code></p>
       <p>${escapeHtml(invitationEmailEnglish.manualCodeInstruction)}</p>
-      <p>${escapeHtml(invitationEmailEnglish.expires(expiresAt))}</p>
+      <p>${escapeHtml(invitationEmailEnglish.expires(englishExpiresAt))}</p>
     </section>
     <hr />
     <section dir="rtl" lang="ar">
@@ -67,7 +70,7 @@ export function buildCompanyInvitationEmail(
       <p><a href="${escapeHtml(inviteUrl)}">${escapeHtml(invitationEmailArabic.linkLabel)}</a></p>
       <p><strong>${escapeHtml(invitationEmailArabic.codeLabel)}:</strong> <code dir="ltr">${escapeHtml(invitationCode)}</code></p>
       <p>${escapeHtml(invitationEmailArabic.manualCodeInstruction)}</p>
-      <p>${escapeHtml(invitationEmailArabic.expires(expiresAt))}</p>
+      <p>${escapeHtml(invitationEmailArabic.expires(arabicExpiresAt))}</p>
     </section>
   </body>
 </html>`
