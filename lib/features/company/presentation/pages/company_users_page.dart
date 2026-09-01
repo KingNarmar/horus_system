@@ -154,14 +154,13 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
               if (current.companyId != currentCompanyContext.companyId) {
                 return false;
               }
-              return current is CompanyInvitationsFailure ||
-                  (previous is CompanyInvitationsCommandInProgress &&
-                      current is CompanyInvitationsLoaded);
+              return current is CompanyInvitationsCommandFailure ||
+                  current is CompanyInvitationsCommandSucceeded;
             },
             listener: (context, state) {
-              if (state is CompanyInvitationsFailure) {
+              if (state is CompanyInvitationsCommandFailure) {
                 _showFailure(state.failure);
-              } else if (state is CompanyInvitationsLoaded) {
+              } else if (state is CompanyInvitationsCommandSucceeded) {
                 _showSuccess(context.l10n.companyInvitationActionSucceeded);
               }
             },
@@ -287,15 +286,23 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           );
         }
 
-        if (state is CompanyInvitationsFailure) {
-          if (state.invitations.isNotEmpty) {
-            return _invitationsView(
-              currentCompanyContext,
-              state.invitations,
-              actionInProgress: false,
-            );
-          }
+        if (state is CompanyInvitationsCommandSucceeded) {
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
+            actionInProgress: false,
+          );
+        }
 
+        if (state is CompanyInvitationsCommandFailure) {
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
+            actionInProgress: false,
+          );
+        }
+
+        if (state is CompanyInvitationsLoadFailure) {
           return CompanyLoadFailureView(
             message: context.l10n.localizedErrorMessage(state.failure),
             onRetry: () => context.read<CompanyInvitationsCubit>().load(
