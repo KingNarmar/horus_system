@@ -2,15 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/app_localizations_extension.dart'
+    show AppLocalizationsX;
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../domain/entities/company_invitation.dart';
+import '../../domain/entities/company_role.dart';
 import '../../domain/entities/company_user.dart';
+import '../../domain/entities/current_company_context.dart';
+import '../../domain/policies/company_invitation_policy.dart';
 import '../../domain/policies/company_permission_policy.dart';
+import '../cubit/company_invitations_cubit.dart';
+import '../cubit/company_invitations_state.dart';
+import '../cubit/company_member_actions_cubit.dart';
+import '../cubit/company_member_actions_state.dart';
 import '../cubit/company_users_cubit.dart';
 import '../cubit/company_users_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
-import '../extensions/company_role_localization.dart';
+import '../extensions/company_failure_localization.dart';
+import '../helpers/company_users_action_dialogs.dart';
+import '../widgets/company_invitations_view.dart';
+import '../widgets/company_load_failure_view.dart';
+import '../widgets/company_members_view.dart';
 
 class CompanyUsersPage extends StatefulWidget {
   const CompanyUsersPage({super.key});
@@ -20,22 +37,29 @@ class CompanyUsersPage extends StatefulWidget {
 }
 
 class _CompanyUsersPageState extends State<CompanyUsersPage> {
-  bool _didLoad = false;
+  String? _loadedCompanyId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final state = context.read<CurrentCompanyCubit>().state;
+    if (state is CurrentCompanyLoaded) {
+      _loadCompanyData(state.context);
+    }
+  }
 
-    if (_didLoad) return;
+  void _loadCompanyData(CurrentCompanyContext currentCompanyContext) {
+    if (_loadedCompanyId == currentCompanyContext.companyId) return;
+    _loadedCompanyId = currentCompanyContext.companyId;
 
-    _didLoad = true;
+    context.read<CompanyUsersCubit>().loadCompanyUsers(
+      currentCompanyContext: currentCompanyContext,
+    );
 
-    final currentCompanyState = context.read<CurrentCompanyCubit>().state;
-
-    if (currentCompanyState is CurrentCompanyLoaded) {
-      context.read<CompanyUsersCubit>().loadCompanyUsers(
-        currentCompanyContext: currentCompanyState.context,
-      );
+    if (CompanyInvitationPolicy.canViewInvitations(
+      currentCompanyContext.role,
+    )) {
+      context.read<CompanyInvitationsCubit>().load(currentCompanyContext);
     }
   }
 
@@ -44,6 +68,25 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     final l10n = context.l10n;
     final currentCompanyState = context.watch<CurrentCompanyCubit>().state;
 
+    if (currentCompanyState is CurrentCompanyInitial ||
+        currentCompanyState is CurrentCompanyLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (currentCompanyState is CurrentCompanyFailure) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Text(
+              l10n.localizedErrorMessage(currentCompanyState.failure),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     if (currentCompanyState is! CurrentCompanyLoaded) {
       return Scaffold(
         body: Center(child: Text(l10n.currentCompanyContextRequired)),
@@ -51,145 +94,408 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     }
 
     final currentCompanyContext = currentCompanyState.context;
-    final permissions = CompanyPermissionPolicy.permissionsFor(
+    if (!CompanyPermissionPolicy.canViewCompanyUsers(
+      currentCompanyContext.role,
+    )) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.companyUsersTitle)),
+        body: Center(child: Text(l10n.noPermissionManageUsers)),
+      );
+    }
+
+    final canViewInvitations = CompanyInvitationPolicy.canViewInvitations(
       currentCompanyContext.role,
     );
+    final assignableRoles = CompanyInvitationPolicy.assignableRoles(
+      currentCompanyContext.role,
+    );
+    final canInvite = assignableRoles.isNotEmpty;
+    final isWide =
+        MediaQuery.sizeOf(context).width >= AppSizes.dataTableBreakpoint;
+    final authState = context.watch<AuthCubit>().state;
+    final currentUserId = authState is AuthAuthenticated
+        ? authState.user.id
+        : null;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.companyUsersTitle),
-        actions: [
-          if (permissions.canInviteCompanyUsers)
-            TextButton.icon(
-              onPressed: () => _showInvitePlaceholder(context),
-              icon: const Icon(AppIcons.userAdd),
-              label: Text(l10n.inviteButton),
-            ),
-          const SizedBox(width: AppSpacing.sm),
+    return DefaultTabController(
+      length: canViewInvitations ? 2 : 1,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<CurrentCompanyCubit, CurrentCompanyState>(
+            listenWhen: (previous, current) {
+              final previousId = previous is CurrentCompanyLoaded
+                  ? previous.context.companyId
+                  : null;
+              final currentId = current is CurrentCompanyLoaded
+                  ? current.context.companyId
+                  : null;
+              return currentId != null && currentId != previousId;
+            },
+            listener: (context, state) {
+              if (state is CurrentCompanyLoaded) {
+                _loadedCompanyId = null;
+                _loadCompanyData(state.context);
+              }
+            },
+          ),
+          BlocListener<CompanyMemberActionsCubit, CompanyMemberActionsState>(
+            listener: (context, state) {
+              if (state.companyId != currentCompanyContext.companyId) return;
+
+              if (state is CompanyMemberActionFailed) {
+                _showFailure(state.failure);
+              } else if (state is CompanyMemberActionSucceeded) {
+                _handleMemberActionSuccess(currentCompanyContext.companyId);
+              }
+            },
+          ),
+          BlocListener<CompanyInvitationsCubit, CompanyInvitationsState>(
+            listenWhen: (previous, current) {
+              if (current.companyId != currentCompanyContext.companyId) {
+                return false;
+              }
+              return current is CompanyInvitationsCommandFailure ||
+                  current is CompanyInvitationsCommandSucceeded;
+            },
+            listener: (context, state) {
+              if (state is CompanyInvitationsCommandFailure) {
+                _showFailure(state.failure);
+              } else if (state is CompanyInvitationsCommandSucceeded) {
+                _showSuccess(context.l10n.companyInvitationActionSucceeded);
+              }
+            },
+          ),
         ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.companyUsersTitle),
+            actions: [
+              if (canInvite && isWide)
+                TextButton.icon(
+                  onPressed: () =>
+                      _invite(currentCompanyContext, assignableRoles),
+                  icon: const Icon(AppIcons.userAdd),
+                  label: Text(l10n.inviteButton),
+                ),
+              const SizedBox(width: AppSpacing.sm),
+            ],
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  icon: const Icon(AppIcons.userAdmin),
+                  text: l10n.companyMembersTab,
+                ),
+                if (canViewInvitations)
+                  Tab(
+                    icon: const Icon(AppIcons.invitations),
+                    text: l10n.companyInvitationsTab,
+                  ),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              _membersTab(currentCompanyContext, currentUserId),
+              if (canViewInvitations) _invitationsTab(currentCompanyContext),
+            ],
+          ),
+          floatingActionButton: canInvite && !isWide
+              ? FloatingActionButton.extended(
+                  onPressed: () =>
+                      _invite(currentCompanyContext, assignableRoles),
+                  icon: const Icon(AppIcons.userAdd),
+                  label: Text(l10n.inviteButton),
+                )
+              : null,
+        ),
       ),
-      body: BlocBuilder<CompanyUsersCubit, CompanyUsersState>(
-        builder: (context, state) {
-          if (state is CompanyUsersInitial || state is CompanyUsersLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    );
+  }
 
-          if (state is CompanyUsersFailure) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(
-                  l10n.localizedErrorMessage(state.failure),
-                  textAlign: TextAlign.center,
+  Widget _membersTab(
+    CurrentCompanyContext currentCompanyContext,
+    String? currentUserId,
+  ) {
+    return BlocBuilder<CompanyUsersCubit, CompanyUsersState>(
+      builder: (context, state) {
+        if (state is CompanyUsersInitial || state is CompanyUsersLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is CompanyUsersFailure) {
+          return CompanyLoadFailureView(
+            message: context.l10n.localizedErrorMessage(state.failure),
+            onRetry: () => context.read<CompanyUsersCubit>().loadCompanyUsers(
+              currentCompanyContext: currentCompanyContext,
+            ),
+          );
+        }
+
+        if (state is CompanyUsersLoaded) {
+          final actionInProgress =
+              context.watch<CompanyMemberActionsCubit>().state
+                  is CompanyMemberActionInProgress;
+          return CompanyMembersView(
+            users: state.users,
+            currentCompanyContext: currentCompanyContext,
+            currentUserId: currentUserId,
+            actionInProgress: actionInProgress,
+            onChangeRole: (user) => _changeRole(currentCompanyContext, user),
+            onDeactivate: (user) => _deactivate(currentCompanyContext, user),
+            onReactivate: (user) => _reactivate(currentCompanyContext, user),
+            onGrantOwnership: (user) =>
+                _grantOwnership(currentCompanyContext, user),
+            onTransferOwnership: (user) =>
+                _transferOwnership(currentCompanyContext, user),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _invitationsTab(CurrentCompanyContext currentCompanyContext) {
+    return BlocBuilder<CompanyInvitationsCubit, CompanyInvitationsState>(
+      builder: (context, state) {
+        if (state is CompanyInvitationsInitial ||
+            state is CompanyInvitationsLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is CompanyInvitationsLoaded) {
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
+            actionInProgress: false,
+          );
+        }
+
+        if (state is CompanyInvitationsCommandInProgress) {
+          return Column(
+            children: [
+              const LinearProgressIndicator(),
+              Expanded(
+                child: _invitationsView(
+                  currentCompanyContext,
+                  state.invitations,
+                  actionInProgress: true,
                 ),
               ),
-            );
-          }
+            ],
+          );
+        }
 
-          if (state is CompanyUsersLoaded) {
-            if (state.users.isEmpty) {
-              return Center(child: Text(l10n.noCompanyUsersFound));
-            }
+        if (state is CompanyInvitationsCommandSucceeded) {
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
+            actionInProgress: false,
+          );
+        }
 
-            return _CompanyUsersList(
-              users: state.users,
-              canChangeCompanyUserRole: permissions.canChangeCompanyUserRole,
-            );
-          }
+        if (state is CompanyInvitationsCommandFailure) {
+          return _invitationsView(
+            currentCompanyContext,
+            state.invitations,
+            actionInProgress: false,
+          );
+        }
 
-          return const SizedBox.shrink();
-        },
-      ),
-      floatingActionButton: permissions.canInviteCompanyUsers
-          ? FloatingActionButton.extended(
-              onPressed: () => _showInvitePlaceholder(context),
-              icon: const Icon(AppIcons.userAdd),
-              label: Text(l10n.inviteButton),
-            )
-          : null,
+        if (state is CompanyInvitationsLoadFailure) {
+          return CompanyLoadFailureView(
+            message: context.l10n.localizedErrorMessage(state.failure),
+            onRetry: () => context.read<CompanyInvitationsCubit>().load(
+              currentCompanyContext,
+            ),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 
-  void _showInvitePlaceholder(BuildContext context) {
+  Widget _invitationsView(
+    CurrentCompanyContext currentCompanyContext,
+    List<CompanyInvitation> invitations, {
+    required bool actionInProgress,
+  }) {
+    return CompanyInvitationsView(
+      invitations: invitations,
+      actionInProgress: actionInProgress,
+      onResend: (invitation) =>
+          _resendInvitation(currentCompanyContext, invitation),
+      onRevoke: (invitation) =>
+          _revokeInvitation(currentCompanyContext, invitation),
+    );
+  }
+
+  Future<void> _invite(
+    CurrentCompanyContext currentCompanyContext,
+    List<CompanyRole> assignableRoles,
+  ) async {
+    final input = await CompanyUsersActionDialogs.showInvite(
+      context,
+      assignableRoles: assignableRoles,
+    );
+    if (!mounted || input == null) return;
+
+    await context.read<CompanyInvitationsCubit>().send(
+      currentCompanyContext: currentCompanyContext,
+      email: input.email,
+      role: input.role,
+    );
+  }
+
+  Future<void> _changeRole(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyUser user,
+  ) async {
+    final newRole = await CompanyUsersActionDialogs.showRoleChange(
+      context,
+      user: user,
+      availableRoles: CompanyInvitationPolicy.assignableRoles(
+        currentCompanyContext.role,
+      ),
+    );
+    if (!mounted || newRole == null) return;
+
+    await context.read<CompanyMemberActionsCubit>().changeRole(
+      currentCompanyContext: currentCompanyContext,
+      membershipId: user.id,
+      currentRole: user.role,
+      newRole: newRole,
+    );
+  }
+
+  Future<void> _deactivate(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyUser user,
+  ) async {
+    final confirmed = await CompanyUsersActionDialogs.confirmDeactivate(
+      context,
+      user: user,
+    );
+    if (!mounted || !confirmed) return;
+
+    await context.read<CompanyMemberActionsCubit>().deactivate(
+      currentCompanyContext: currentCompanyContext,
+      membershipId: user.id,
+      targetRole: user.role,
+    );
+  }
+
+  Future<void> _reactivate(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyUser user,
+  ) async {
+    final confirmed = await CompanyUsersActionDialogs.confirmReactivate(
+      context,
+      user: user,
+    );
+    if (!mounted || !confirmed) return;
+
+    await context.read<CompanyMemberActionsCubit>().reactivate(
+      currentCompanyContext: currentCompanyContext,
+      membershipId: user.id,
+      targetRole: user.role,
+    );
+  }
+
+  Future<void> _grantOwnership(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyUser user,
+  ) async {
+    final confirmed = await CompanyUsersActionDialogs.confirmGrantOwnership(
+      context,
+      user: user,
+    );
+    if (!mounted || !confirmed) return;
+
+    await context.read<CompanyMemberActionsCubit>().grantOwnership(
+      currentCompanyContext: currentCompanyContext,
+      membershipId: user.id,
+    );
+  }
+
+  Future<void> _transferOwnership(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyUser user,
+  ) async {
+    final sourceNewRole = await CompanyUsersActionDialogs.showOwnershipTransfer(
+      context,
+      sourceRoles: CompanyInvitationPolicy.assignableRoles(
+        currentCompanyContext.role,
+      ),
+    );
+    if (!mounted || sourceNewRole == null) return;
+
+    await context.read<CompanyMemberActionsCubit>().transferOwnership(
+      currentCompanyContext: currentCompanyContext,
+      targetMembershipId: user.id,
+      sourceNewRole: sourceNewRole,
+    );
+  }
+
+  Future<void> _resendInvitation(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyInvitation invitation,
+  ) async {
+    final confirmed = await CompanyUsersActionDialogs.confirmResendInvitation(
+      context,
+      invitation: invitation,
+    );
+    if (!mounted || !confirmed) return;
+
+    await context.read<CompanyInvitationsCubit>().resend(
+      currentCompanyContext: currentCompanyContext,
+      invitationId: invitation.id,
+    );
+  }
+
+  Future<void> _revokeInvitation(
+    CurrentCompanyContext currentCompanyContext,
+    CompanyInvitation invitation,
+  ) async {
+    final confirmed = await CompanyUsersActionDialogs.confirmRevokeInvitation(
+      context,
+      invitation: invitation,
+    );
+    if (!mounted || !confirmed) return;
+
+    await context.read<CompanyInvitationsCubit>().revoke(
+      currentCompanyContext: currentCompanyContext,
+      invitationId: invitation.id,
+    );
+  }
+
+  Future<void> _handleMemberActionSuccess(String companyId) async {
+    _showSuccess(context.l10n.companyMemberActionSucceeded);
+
+    final currentCompanyCubit = context.read<CurrentCompanyCubit>();
+    await currentCompanyCubit.refreshAndSelectCompany(companyId);
+    if (!mounted) return;
+
+    final state = currentCompanyCubit.state;
+    if (state is CurrentCompanyLoaded &&
+        state.context.companyId == companyId &&
+        CompanyPermissionPolicy.canViewCompanyUsers(state.context.role)) {
+      await context.read<CompanyUsersCubit>().loadCompanyUsers(
+        currentCompanyContext: state.context,
+      );
+    }
+  }
+
+  void _showFailure(Failure failure) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.localizedErrorMessage(failure))),
+    );
+  }
+
+  void _showSuccess(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.inviteFlowComingSoon)));
-  }
-}
-
-class _CompanyUsersList extends StatelessWidget {
-  final List<CompanyUser> users;
-  final bool canChangeCompanyUserRole;
-
-  const _CompanyUsersList({
-    required this.users,
-    required this.canChangeCompanyUserRole,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemBuilder: (context, index) {
-        final user = users[index];
-
-        return _CompanyUserTile(
-          user: user,
-          canChangeCompanyUserRole: canChangeCompanyUserRole,
-        );
-      },
-      separatorBuilder: (context, index) =>
-          const SizedBox(height: AppSpacing.sm),
-      itemCount: users.length,
-    );
-  }
-}
-
-class _CompanyUserTile extends StatelessWidget {
-  final CompanyUser user;
-  final bool canChangeCompanyUserRole;
-
-  const _CompanyUserTile({
-    required this.user,
-    required this.canChangeCompanyUserRole,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = context.l10n;
-    final statusText = user.isActive ? l10n.activeStatus : l10n.inactiveStatus;
-    final roleLabel = user.role.localizedLabel(context);
-    final roleInitial = roleLabel.substring(0, 1);
-
-    final titleText =
-        (user.displayName != null && user.displayName!.trim().isNotEmpty)
-        ? user.displayName!.trim()
-        : l10n.unknownUser;
-
-    final subtitleText = (user.phone != null && user.phone!.trim().isNotEmpty)
-        ? user.phone!.trim()
-        : l10n.profileDetailsNotSetYet;
-
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(child: Text(roleInitial)),
-        title: Text(titleText),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: AppSpacing.xs),
-            Text(subtitleText),
-            Text(l10n.roleLine(roleLabel)),
-            Text(l10n.statusLine(statusText)),
-            if (user.displayName == null || user.displayName!.trim().isEmpty)
-              Text(l10n.incompleteProfileMessage, style: textTheme.bodySmall),
-          ],
-        ),
-        trailing: canChangeCompanyUserRole
-            ? const Icon(AppIcons.userAdmin)
-            : null,
-      ),
-    );
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

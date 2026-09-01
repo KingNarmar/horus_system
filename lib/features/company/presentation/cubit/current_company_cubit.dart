@@ -3,21 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
+import '../../domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../domain/usecases/select_current_company_usecase.dart';
 import 'current_company_state.dart';
 
 class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   final LoadCurrentCompanyContextUseCase _loadCurrentCompanyContextUseCase;
   final SelectCurrentCompanyUseCase _selectCurrentCompanyUseCase;
+  final RefreshSelectedCompanyContextUseCase
+  _refreshSelectedCompanyContextUseCase;
   final ClearCurrentCompanyContextUseCase _clearCurrentCompanyContextUseCase;
 
   CurrentCompanyCubit({
     required LoadCurrentCompanyContextUseCase loadCurrentCompanyContextUseCase,
     required SelectCurrentCompanyUseCase selectCurrentCompanyUseCase,
+    required RefreshSelectedCompanyContextUseCase
+    refreshSelectedCompanyContextUseCase,
     required ClearCurrentCompanyContextUseCase
     clearCurrentCompanyContextUseCase,
   }) : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
        _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
+       _refreshSelectedCompanyContextUseCase =
+           refreshSelectedCompanyContextUseCase,
        _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
        super(const CurrentCompanyInitial());
 
@@ -44,6 +51,17 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
 
     final result = await _selectCurrentCompanyUseCase(
       SelectCurrentCompanyParams(companyId: companyId),
+    );
+
+    result.when(
+      success: (context) => emit(CurrentCompanyLoaded(context)),
+      failure: (failure) => emit(CurrentCompanyFailure(failure)),
+    );
+  }
+
+  Future<void> refreshAndSelectCompany(String companyId) async {
+    final result = await _refreshSelectedCompanyContextUseCase(
+      RefreshSelectedCompanyContextParams(companyId: companyId),
     );
 
     result.when(

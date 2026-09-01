@@ -3865,6 +3865,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trailer plate'**
   String get tripAuditFieldTrailerPlate;
+
+  /// No description provided for @companyMembersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get companyMembersTab;
+
+  /// No description provided for @companyInvitationsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations'**
+  String get companyInvitationsTab;
+
+  /// No description provided for @companyInvitationActionSucceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation updated successfully.'**
+  String get companyInvitationActionSucceeded;
+
+  /// No description provided for @companyMemberActionSucceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Company member updated successfully.'**
+  String get companyMemberActionSucceeded;
+
+  /// No description provided for @companyMembersNameColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get companyMembersNameColumn;
+
+  /// No description provided for @companyMembersPhoneColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get companyMembersPhoneColumn;
+
+  /// No description provided for @companyMembersRoleColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get companyMembersRoleColumn;
+
+  /// No description provided for @companyMembersStatusColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get companyMembersStatusColumn;
+
+  /// No description provided for @companyMembersActionsColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get companyMembersActionsColumn;
+
+  /// No description provided for @companyMemberChangeRoleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Change role'**
+  String get companyMemberChangeRoleAction;
+
+  /// No description provided for @companyMemberDeactivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get companyMemberDeactivateAction;
+
+  /// No description provided for @companyMemberReactivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get companyMemberReactivateAction;
+
+  /// No description provided for @companyOwnershipGrantAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant ownership'**
+  String get companyOwnershipGrantAction;
+
+  /// No description provided for @companyOwnershipTransferAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get companyOwnershipTransferAction;
+
+  /// No description provided for @companyInviteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite company member'**
+  String get companyInviteDialogTitle;
+
+  /// No description provided for @companyInviteDialogDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a company-scoped invitation. The recipient must sign in with the invited email address before accepting.'**
+  String get companyInviteDialogDescription;
+
+  /// No description provided for @companyInviteEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited email'**
+  String get companyInviteEmailLabel;
+
+  /// No description provided for @companyInviteRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get companyInviteRoleLabel;
+
+  /// No description provided for @companyInviteSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invitation'**
+  String get companyInviteSendButton;
+
+  /// No description provided for @companyMemberChangeRoleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change member role'**
+  String get companyMemberChangeRoleTitle;
+
+  /// No description provided for @companyMemberChangeRoleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the role this member should use in the current company.'**
+  String get companyMemberChangeRoleDescription;
+
+  /// No description provided for @companyMemberRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get companyMemberRoleLabel;
+
+  /// No description provided for @companyMemberDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate member'**
+  String get companyMemberDeactivateTitle;
+
+  /// No description provided for @companyMemberDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}? They will lose access to this company until reactivated.'**
+  String companyMemberDeactivateMessage(String name);
+
+  /// No description provided for @companyMemberReactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate member'**
+  String get companyMemberReactivateTitle;
+
+  /// No description provided for @companyMemberReactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate {name} and restore access to this company?'**
+  String companyMemberReactivateMessage(String name);
+
+  /// No description provided for @companyOwnershipGrantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant ownership'**
+  String get companyOwnershipGrantTitle;
+
+  /// No description provided for @companyOwnershipGrantMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Owner access to {name}? This adds another active owner.'**
+  String companyOwnershipGrantMessage(String name);
+
+  /// No description provided for @companyOwnershipTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get companyOwnershipTransferTitle;
+
+  /// No description provided for @companyOwnershipTransferWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected member becomes an Owner and your current Owner role changes to the role selected below. This is applied atomically.'**
+  String get companyOwnershipTransferWarning;
+
+  /// No description provided for @companyOwnershipSourceRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your role after transfer'**
+  String get companyOwnershipSourceRoleLabel;
+
+  /// No description provided for @companyOwnershipTransferButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get companyOwnershipTransferButton;
+
+  /// No description provided for @companyInvitationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No company invitations found.'**
+  String get companyInvitationsEmpty;
+
+  /// No description provided for @companyInvitationsEmailColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get companyInvitationsEmailColumn;
+
+  /// No description provided for @companyInvitationsRoleColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get companyInvitationsRoleColumn;
+
+  /// No description provided for @companyInvitationsStatusColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get companyInvitationsStatusColumn;
+
+  /// No description provided for @companyInvitationsExpiresColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get companyInvitationsExpiresColumn;
+
+  /// No description provided for @companyInvitationsLastSentColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sent'**
+  String get companyInvitationsLastSentColumn;
+
+  /// No description provided for @companyInvitationsActionsColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get companyInvitationsActionsColumn;
+
+  /// No description provided for @companyInvitationLastSentLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sent: {date}'**
+  String companyInvitationLastSentLine(String date);
+
+  /// No description provided for @companyInvitationNeverSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent yet'**
+  String get companyInvitationNeverSent;
+
+  /// No description provided for @companyInvitationResendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get companyInvitationResendAction;
+
+  /// No description provided for @companyInvitationResendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend invitation'**
+  String get companyInvitationResendTitle;
+
+  /// No description provided for @companyInvitationResendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend the invitation to {email}? The previous invitation token will stop working.'**
+  String companyInvitationResendMessage(String email);
+
+  /// No description provided for @companyInvitationRevokeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get companyInvitationRevokeAction;
+
+  /// No description provided for @companyInvitationRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke invitation'**
+  String get companyInvitationRevokeTitle;
+
+  /// No description provided for @companyInvitationRevokeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke the pending invitation for {email}? The invitation link will stop working.'**
+  String companyInvitationRevokeMessage(String email);
+
+  /// No description provided for @invitationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company invitation'**
+  String get invitationTitle;
+
+  /// No description provided for @invitationStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get invitationStatusPending;
+
+  /// No description provided for @invitationStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get invitationStatusAccepted;
+
+  /// No description provided for @invitationStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get invitationStatusExpired;
+
+  /// No description provided for @invitationStatusRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get invitationStatusRevoked;
+
+  /// No description provided for @invitationPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation details'**
+  String get invitationPreviewTitle;
+
+  /// No description provided for @invitationCompanyLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Company: {company}'**
+  String invitationCompanyLine(String company);
+
+  /// No description provided for @invitationEmailLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Email: {email}'**
+  String invitationEmailLine(String email);
+
+  /// No description provided for @invitationRoleLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Role: {role}'**
+  String invitationRoleLine(String role);
+
+  /// No description provided for @invitationStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String invitationStatusLine(String status);
+
+  /// No description provided for @invitationExpiresLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires: {date}'**
+  String invitationExpiresLine(String date);
+
+  /// No description provided for @invitationAcceptButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept invitation'**
+  String get invitationAcceptButton;
+
+  /// No description provided for @invitationManualCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter invitation code'**
+  String get invitationManualCodeTitle;
+
+  /// No description provided for @invitationManualCodeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the invitation token from the invitation link if the link did not open automatically.'**
+  String get invitationManualCodeDescription;
+
+  /// No description provided for @invitationCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation code'**
+  String get invitationCodeLabel;
+
+  /// No description provided for @invitationContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get invitationContinueButton;
+
+  /// No description provided for @failureCompanyAuthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to complete this company action.'**
+  String get failureCompanyAuthRequired;
+
+  /// No description provided for @failureCompanyInvitationIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation id is required.'**
+  String get failureCompanyInvitationIdRequired;
+
+  /// No description provided for @failureCompanyInvitationTokenRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation code is required.'**
+  String get failureCompanyInvitationTokenRequired;
+
+  /// No description provided for @failureCompanyMembershipIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Company membership id is required.'**
+  String get failureCompanyMembershipIdRequired;
+
+  /// No description provided for @failureCompanyInvitationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation is invalid or is no longer available.'**
+  String get failureCompanyInvitationInvalid;
+
+  /// No description provided for @failureCompanyInvitationEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address for the invitation.'**
+  String get failureCompanyInvitationEmailInvalid;
+
+  /// No description provided for @failureCompanyInvitationExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation has expired. Ask a company manager to send a new invitation.'**
+  String get failureCompanyInvitationExpired;
+
+  /// No description provided for @failureCompanyInvitationRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation was revoked and can no longer be accepted.'**
+  String get failureCompanyInvitationRevoked;
+
+  /// No description provided for @failureCompanyInvitationAlreadyAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation has already been accepted.'**
+  String get failureCompanyInvitationAlreadyAccepted;
+
+  /// No description provided for @failureCompanyInvitationAlreadyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'A pending invitation already exists for this email in the company.'**
+  String get failureCompanyInvitationAlreadyPending;
+
+  /// No description provided for @failureCompanyInvitationEmailMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the same email address that received this invitation.'**
+  String get failureCompanyInvitationEmailMismatch;
+
+  /// No description provided for @failureCompanyInvitationEmailNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email address before accepting this invitation.'**
+  String get failureCompanyInvitationEmailNotVerified;
+
+  /// No description provided for @failureCompanyInvitationRoleNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This role cannot be assigned through a company invitation.'**
+  String get failureCompanyInvitationRoleNotAllowed;
+
+  /// No description provided for @failureCompanyInvitationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to perform this invitation action.'**
+  String get failureCompanyInvitationPermissionDenied;
+
+  /// No description provided for @failureCompanyInvitationDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The invitation is pending, but the email could not be sent. You can resend it.'**
+  String get failureCompanyInvitationDeliveryFailed;
+
+  /// No description provided for @failureCompanyInvitationDeliveryConfirmationUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.'**
+  String get failureCompanyInvitationDeliveryConfirmationUnknown;
+
+  /// No description provided for @failureCompanyInvitationDeliveryNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Company invitation email delivery is not configured yet.'**
+  String get failureCompanyInvitationDeliveryNotConfigured;
+
+  /// No description provided for @failureCompanyMemberAlreadyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'This user is already an active member of the company.'**
+  String get failureCompanyMemberAlreadyActive;
+
+  /// No description provided for @failureCompanyMemberInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'This user is already an inactive member. Reactivate the existing membership instead of sending an invitation.'**
+  String get failureCompanyMemberInactive;
+
+  /// No description provided for @failureCompanyMemberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The company member could not be found.'**
+  String get failureCompanyMemberNotFound;
+
+  /// No description provided for @failureCompanyMemberRoleChangeNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot change this member to the selected role.'**
+  String get failureCompanyMemberRoleChangeNotAllowed;
+
+  /// No description provided for @failureCompanyMemberStatusChangeNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot change this member\'s active status.'**
+  String get failureCompanyMemberStatusChangeNotAllowed;
+
+  /// No description provided for @failureCompanyOwnershipCommandRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner roles must be managed through the dedicated ownership action.'**
+  String get failureCompanyOwnershipCommandRequired;
+
+  /// No description provided for @failureCompanyOwnershipTransferNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to change company ownership.'**
+  String get failureCompanyOwnershipTransferNotAllowed;
+
+  /// No description provided for @failureCompanyLastOwnerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The company must keep at least one active Owner.'**
+  String get failureCompanyLastOwnerRequired;
 }
 
 class _AppLocalizationsDelegate

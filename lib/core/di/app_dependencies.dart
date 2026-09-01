@@ -12,12 +12,17 @@ import '../../features/company/data/datasources/company_users_remote_data_source
 import '../../features/company/data/repositories/company_context_repository_impl.dart';
 import '../../features/company/data/repositories/company_repository_impl.dart';
 import '../../features/company/data/repositories/company_users_repository_impl.dart';
+import '../../features/company/di/company_dependencies.dart';
 import '../../features/company/domain/usecases/clear_current_company_context_usecase.dart';
 import '../../features/company/domain/usecases/create_company_usecase.dart';
 import '../../features/company/domain/usecases/get_company_users_usecase.dart';
 import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
+import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
+import '../../features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
+import '../../features/company/presentation/cubit/company_invitations_cubit.dart';
+import '../../features/company/presentation/cubit/company_member_actions_cubit.dart';
 import '../../features/company/presentation/cubit/company_onboarding_cubit.dart';
 import '../../features/company/presentation/cubit/company_users_cubit.dart';
 import '../../features/company/presentation/cubit/current_company_cubit.dart';
@@ -26,13 +31,13 @@ import '../../features/customers/presentation/cubit/customers_cubit.dart';
 import '../../features/driver_finance/di/driver_finance_dependencies.dart';
 import '../../features/driver_finance/domain/usecases/driver_finance_usecases.dart';
 import '../../features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
-import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
 import '../../features/drivers/data/datasources/driver_images_remote_data_source.dart';
+import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
 import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
 import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/deactivate_driver_usecase.dart';
-import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
 import '../../features/drivers/domain/usecases/get_driver_image_urls_usecase.dart';
+import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
 import '../../features/drivers/domain/usecases/reactivate_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
@@ -85,6 +90,8 @@ abstract final class AppDependencies {
       selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
         companyContextRepository,
       ),
+      refreshSelectedCompanyContextUseCase:
+          RefreshSelectedCompanyContextUseCase(companyContextRepository),
       clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
         companyContextRepository,
       ),
@@ -101,6 +108,19 @@ abstract final class AppDependencies {
     return CompanyUsersCubit(
       getCompanyUsersUseCase: GetCompanyUsersUseCase(companyUsersRepository),
     );
+  }
+
+  static CompanyInvitationsCubit createCompanyInvitationsCubit() {
+    return CompanyDependencies.createInvitationsCubit();
+  }
+
+  static CompanyMemberActionsCubit createCompanyMemberActionsCubit() {
+    return CompanyDependencies.createMemberActionsCubit();
+  }
+
+  static CompanyInvitationAcceptanceCubit
+  createCompanyInvitationAcceptanceCubit() {
+    return CompanyDependencies.createInvitationAcceptanceCubit();
   }
 
   static CustomersCubit createCustomersCubit() {

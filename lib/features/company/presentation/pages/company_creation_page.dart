@@ -10,14 +10,14 @@ import '../cubit/company_onboarding_state.dart';
 import '../cubit/current_company_cubit.dart';
 import '../widgets/company_logout_button.dart';
 
-class CompanyOnboardingPage extends StatefulWidget {
-  const CompanyOnboardingPage({super.key});
+class CompanyCreationPage extends StatefulWidget {
+  const CompanyCreationPage({super.key});
 
   @override
-  State<CompanyOnboardingPage> createState() => _CompanyOnboardingPageState();
+  State<CompanyCreationPage> createState() => _CompanyCreationPageState();
 }
 
-class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
+class _CompanyCreationPageState extends State<CompanyCreationPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _businessTypeController = TextEditingController();
@@ -71,7 +71,7 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
           return _CompanyLoadedView(companyName: state.activeCompany.name);
         }
 
-        return _CompanyOnboardingForm(
+        return _CompanyCreationForm(
           formKey: _formKey,
           nameController: _nameController,
           businessTypeController: _businessTypeController,
@@ -101,7 +101,7 @@ class _CompanyOnboardingPageState extends State<CompanyOnboardingPage> {
   }
 }
 
-class _CompanyOnboardingForm extends StatelessWidget {
+class _CompanyCreationForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
   final TextEditingController businessTypeController;
@@ -111,7 +111,7 @@ class _CompanyOnboardingForm extends StatelessWidget {
   final TextEditingController cityController;
   final VoidCallback onSubmit;
 
-  const _CompanyOnboardingForm({
+  const _CompanyCreationForm({
     required this.formKey,
     required this.nameController,
     required this.businessTypeController,
@@ -136,7 +136,7 @@ class _CompanyOnboardingForm extends StatelessWidget {
       ),
       body: SafeArea(
         child: ResponsiveLayout(
-          mobile: _CompanyOnboardingFormBody(
+          mobile: _CompanyCreationFormBody(
             maxWidth: AppSizes.mobileMaxContentWidth,
             horizontalPadding: AppSpacing.lg,
             formKey: formKey,
@@ -148,7 +148,7 @@ class _CompanyOnboardingForm extends StatelessWidget {
             cityController: cityController,
             onSubmit: onSubmit,
           ),
-          tablet: _CompanyOnboardingFormBody(
+          tablet: _CompanyCreationFormBody(
             maxWidth: AppSizes.tabletMaxContentWidth,
             horizontalPadding: AppSpacing.xl,
             formKey: formKey,
@@ -160,7 +160,7 @@ class _CompanyOnboardingForm extends StatelessWidget {
             cityController: cityController,
             onSubmit: onSubmit,
           ),
-          desktop: _CompanyOnboardingFormBody(
+          desktop: _CompanyCreationFormBody(
             maxWidth: AppSizes.desktopMaxContentWidth,
             horizontalPadding: AppSpacing.xxl,
             formKey: formKey,
@@ -178,7 +178,7 @@ class _CompanyOnboardingForm extends StatelessWidget {
   }
 }
 
-class _CompanyOnboardingFormBody extends StatelessWidget {
+class _CompanyCreationFormBody extends StatelessWidget {
   final double maxWidth;
   final double horizontalPadding;
   final GlobalKey<FormState> formKey;
@@ -190,7 +190,7 @@ class _CompanyOnboardingFormBody extends StatelessWidget {
   final TextEditingController cityController;
   final VoidCallback onSubmit;
 
-  const _CompanyOnboardingFormBody({
+  const _CompanyCreationFormBody({
     required this.maxWidth,
     required this.horizontalPadding,
     required this.formKey,

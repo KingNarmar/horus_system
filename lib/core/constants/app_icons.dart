@@ -31,12 +31,15 @@ abstract final class AppIcons {
   static const IconData fleet = Icons.local_shipping_outlined;
   static const IconData fleetSelected = Icons.local_shipping;
   static const IconData invitationSent = Icons.mark_email_read_outlined;
+  static const IconData invitations = Icons.mail_outline;
   static const IconData invoices = Icons.request_quote_outlined;
   static const IconData invoicesSelected = Icons.request_quote;
   static const IconData image = Icons.image_outlined;
   static const IconData language = Icons.translate_outlined;
   static const IconData login = Icons.login_outlined;
   static const IconData logout = Icons.logout_outlined;
+  static const IconData moreActions = Icons.more_vert;
+  static const IconData ownership = Icons.shield_outlined;
   static const IconData password = Icons.lock_outline;
   static const IconData payments = Icons.payments_outlined;
   static const IconData paymentsSelected = Icons.payments;
@@ -44,6 +47,7 @@ abstract final class AppIcons {
   static const IconData reactivate = Icons.check_circle_outline;
   static const IconData reports = Icons.bar_chart_outlined;
   static const IconData reportsSelected = Icons.bar_chart;
+  static const IconData resend = Icons.refresh;
   static const IconData routes = Icons.alt_route_outlined;
   static const IconData routesSelected = Icons.alt_route;
   static const IconData search = Icons.search;
@@ -51,6 +55,7 @@ abstract final class AppIcons {
   static const IconData settingsSelected = Icons.settings;
   static const IconData statusUpdate = Icons.published_with_changes_outlined;
   static const IconData subscriptions = Icons.workspace_premium_outlined;
+  static const IconData transfer = Icons.swap_horiz;
   static const IconData trips = Icons.route_outlined;
   static const IconData tripsSelected = Icons.route;
   static const IconData user = Icons.person_outline;

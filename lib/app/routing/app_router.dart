@@ -5,26 +5,40 @@ import '../../features/app_shell/presentation/pages/app_shell_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/company/presentation/pages/company_onboarding_page.dart';
+import '../../features/company/presentation/pages/company_creation_page.dart';
+import '../../features/company/presentation/pages/company_invitation_acceptance_page.dart';
 import '../../features/company/presentation/pages/company_users_page.dart';
 import 'app_route_guards.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    final routeUri = Uri.tryParse(settings.name ?? AppRoutes.root);
+    final routeName = _routePath(routeUri);
+    final invitationToken = routeUri?.queryParameters['token'];
+
     return MaterialPageRoute<void>(
       settings: settings,
-      builder: (context) => _pageFor(settings.name ?? AppRoutes.root),
+      builder: (context) =>
+          _pageFor(routeName, invitationToken: invitationToken),
     );
   }
 
-  static Widget _pageFor(String routeName) {
+  static String _routePath(Uri? routeUri) {
+    final path = routeUri?.path.trim();
+    return path == null || path.isEmpty ? AppRoutes.root : path;
+  }
+
+  static Widget _pageFor(String routeName, {String? invitationToken}) {
     return switch (routeName) {
       AppRoutes.root => const AuthGate(),
       AppRoutes.login => const LoginPage(),
       AppRoutes.register => const RegisterPage(),
-      AppRoutes.companyOnboarding => const AuthenticatedRouteGuard(
-        child: CompanyOnboardingPage(),
+      AppRoutes.companyInvitation => CompanyInvitationAcceptancePage(
+        initialToken: invitationToken,
+      ),
+      AppRoutes.companyCreation => const AuthenticatedRouteGuard(
+        child: CompanyCreationPage(),
       ),
       AppRoutes.companyUsers => CompanyRequiredRouteGuard(
         builder: (_) => const CompanyUsersPage(),

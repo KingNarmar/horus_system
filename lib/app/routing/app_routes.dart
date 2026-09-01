@@ -4,8 +4,9 @@ abstract final class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
 
-  static const String companyOnboarding = '/company/onboarding';
+  static const String companyCreation = '/company/create';
   static const String companyUsers = '/company/users';
+  static const String companyInvitation = '/company/invitation';
 
   static const String appShell = '/app';
   static const String dashboard = '/app/dashboard';
@@ -22,9 +23,9 @@ abstract final class AppRoutes {
   static const String reports = '/app/reports';
   static const String settings = '/app/settings';
 
-  static const Set<String> publicRoutes = {login, register};
+  static const Set<String> publicRoutes = {login, register, companyInvitation};
 
-  static const Set<String> authenticatedRoutes = {companyOnboarding};
+  static const Set<String> authenticatedRoutes = {companyCreation};
 
   static const Set<String> companyRequiredRoutes = {
     appShell,
