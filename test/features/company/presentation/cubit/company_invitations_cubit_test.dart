@@ -9,6 +9,7 @@ import 'package:horus_system/features/company/domain/entities/company_invitation
 import 'package:horus_system/features/company/domain/entities/company_invitation_status.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/company/domain/repositories/company_invitations_repository.dart';
 import 'package:horus_system/features/company/domain/usecases/get_company_invitations_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/resend_company_invitation_usecase.dart';
@@ -59,6 +60,20 @@ void main() {
     },
   );
 
+  test('initial list failure is represented as load failure', () async {
+    final repository = _FakeInvitationsRepository(
+      loadResults: {
+        'company-a': const FailureResult(UnexpectedFailure()),
+      },
+    );
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.load(_context('company-a'));
+
+    expect(cubit.state, isA<CompanyInvitationsLoadFailure>());
+  });
+
   test('command failure preserves previously loaded invitations', () async {
     final invitation = _invitation('invitation-1', 'company-a');
     final repository = _FakeInvitationsRepository(
@@ -78,17 +93,84 @@ void main() {
     );
 
     final state = cubit.state;
-    expect(state, isA<CompanyInvitationsFailure>());
-    expect((state as CompanyInvitationsFailure).invitations, [invitation]);
+    expect(state, isA<CompanyInvitationsCommandFailure>());
+    expect(
+      (state as CompanyInvitationsCommandFailure).invitations,
+      [invitation],
+    );
   });
 
-  test('successful send reloads invitations for the same scope', () async {
+  test(
+    'send failure after successful empty load stays a command failure',
+    () async {
+      final repository = _FakeInvitationsRepository(
+        loadResults: {'company-a': const Success(<CompanyInvitation>[])},
+        sendResult: const FailureResult(
+          ServerFailure(
+            code: CompanyFailureCodes.invitationDeliveryNotConfigured,
+          ),
+        ),
+      );
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
+      final context = _context('company-a');
+
+      await cubit.load(context);
+      await cubit.send(
+        currentCompanyContext: context,
+        email: 'user@example.com',
+        role: CompanyRole.viewer,
+      );
+
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationsCommandFailure>());
+      final failureState = state as CompanyInvitationsCommandFailure;
+      expect(failureState.invitations, isEmpty);
+      expect(
+        failureState.failure.code,
+        CompanyFailureCodes.invitationDeliveryNotConfigured,
+      );
+    },
+  );
+
+  test('failed resend does not prevent a later revoke command', () async {
+    final invitation = _invitation('invitation-1', 'company-a');
+    final repository = _FakeInvitationsRepository(
+      loadResults: {
+        'company-a': Success([invitation]),
+      },
+      resendResult: const FailureResult(UnexpectedFailure()),
+    );
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+    final context = _context('company-a');
+
+    await cubit.load(context);
+    await cubit.resend(
+      currentCompanyContext: context,
+      invitationId: invitation.id,
+    );
+    expect(cubit.state, isA<CompanyInvitationsCommandFailure>());
+
+    await cubit.revoke(
+      currentCompanyContext: context,
+      invitationId: invitation.id,
+    );
+
+    expect(repository.revokeCalls, 1);
+    expect(cubit.state, isA<CompanyInvitationsLoaded>());
+  });
+
+  test('successful send emits command success and reloads same scope', () async {
     final repository = _FakeInvitationsRepository(
       loadResults: {'company-a': const Success(<CompanyInvitation>[])},
     );
     final cubit = _buildCubit(repository);
     addTearDown(cubit.close);
     final context = _context('company-a');
+    final emittedStates = <CompanyInvitationsState>[];
+    final subscription = cubit.stream.listen(emittedStates.add);
+    addTearDown(subscription.cancel);
 
     await cubit.load(context);
     repository.loadResults['company-a'] = Success([
@@ -101,6 +183,10 @@ void main() {
       role: CompanyRole.viewer,
     );
 
+    expect(
+      emittedStates.whereType<CompanyInvitationsCommandSucceeded>(),
+      hasLength(1),
+    );
     final state = cubit.state;
     expect(state, isA<CompanyInvitationsLoaded>());
     expect((state as CompanyInvitationsLoaded).invitations.length, 1);
@@ -144,20 +230,27 @@ CompanyInvitation _invitation(String id, String companyId) {
 class _FakeInvitationsRepository implements CompanyInvitationsRepository {
   final Map<String, Result<List<CompanyInvitation>>> loadResults;
   final Map<String, Completer<Result<List<CompanyInvitation>>>> _deferredLoads;
+  Result<void> sendResult;
   Result<void> resendResult;
+  Result<void> revokeResult;
   int sendCalls = 0;
+  int revokeCalls = 0;
   final Map<String, int> loadCalls = {};
 
   _FakeInvitationsRepository({
     Map<String, Result<List<CompanyInvitation>>>? loadResults,
+    this.sendResult = const Success(null),
     this.resendResult = const Success(null),
+    this.revokeResult = const Success(null),
   }) : loadResults = loadResults ?? {},
        _deferredLoads = {};
 
   _FakeInvitationsRepository.withDeferredLoads()
     : loadResults = {},
       _deferredLoads = {},
-      resendResult = const Success(null);
+      sendResult = const Success(null),
+      resendResult = const Success(null),
+      revokeResult = const Success(null);
 
   void completeLoad(String companyId, Result<List<CompanyInvitation>> result) {
     _deferredLoads[companyId]?.complete(result);
@@ -196,7 +289,10 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
   Future<Result<void>> revokeInvitation({
     required String companyId,
     required String invitationId,
-  }) async => const Success(null);
+  }) async {
+    revokeCalls += 1;
+    return revokeResult;
+  }
 
   @override
   Future<Result<void>> sendInvitation({
@@ -205,6 +301,6 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
     required CompanyRole role,
   }) async {
     sendCalls += 1;
-    return const Success(null);
+    return sendResult;
   }
 }
