@@ -232,7 +232,6 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
   final Map<String, Completer<Result<List<CompanyInvitation>>>> _deferredLoads;
   Result<void> sendResult;
   Result<void> resendResult;
-  Result<void> revokeResult;
   int sendCalls = 0;
   int revokeCalls = 0;
   final Map<String, int> loadCalls = {};
@@ -241,7 +240,6 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
     Map<String, Result<List<CompanyInvitation>>>? loadResults,
     this.sendResult = const Success(null),
     this.resendResult = const Success(null),
-    this.revokeResult = const Success(null),
   }) : loadResults = loadResults ?? {},
        _deferredLoads = {};
 
@@ -249,8 +247,7 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
     : loadResults = {},
       _deferredLoads = {},
       sendResult = const Success(null),
-      resendResult = const Success(null),
-      revokeResult = const Success(null);
+      resendResult = const Success(null);
 
   void completeLoad(String companyId, Result<List<CompanyInvitation>> result) {
     _deferredLoads[companyId]?.complete(result);
@@ -291,7 +288,7 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
     required String invitationId,
   }) async {
     revokeCalls += 1;
-    return revokeResult;
+    return const Success(null);
   }
 
   @override
