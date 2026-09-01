@@ -6,7 +6,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../app_shell/presentation/pages/app_shell_page.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
-import 'company_onboarding_page.dart';
+import 'company_entry_page.dart';
 
 class CurrentCompanyGate extends StatefulWidget {
   const CurrentCompanyGate({super.key});
@@ -35,7 +35,7 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
         }
 
         if (state is CurrentCompanyEmpty) {
-          return const CompanyOnboardingPage();
+          return const CompanyEntryPage();
         }
 
         if (state is CurrentCompanyLoaded) {
@@ -56,7 +56,7 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate> {
           );
         }
 
-        return const CompanyOnboardingPage();
+        return const CompanyEntryPage();
       },
     );
   }
