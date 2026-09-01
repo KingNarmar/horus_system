@@ -1,8 +1,8 @@
 import {
   CompanyInvitationDeliveryFailedError,
   CompanyInvitationDeliveryNotConfiguredError,
-  createCompanyInvitationEmailSender,
 } from './company_invitation_email_sender.ts'
+import { createCompanyInvitationEmailSender } from './company_invitation_email_sender_factory.ts'
 import {
   buildInvitationUrl,
   generateRawToken,
