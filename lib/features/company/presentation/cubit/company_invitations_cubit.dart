@@ -65,11 +65,8 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
 
     await result.when(
       success: (_) => _handleCommandSuccess(currentCompanyContext, invitations),
-      failure: (failure) => _handleCommandFailure(
-        currentCompanyContext,
-        failure,
-        invitations,
-      ),
+      failure: (failure) =>
+          _handleCommandFailure(currentCompanyContext, failure, invitations),
     );
   }
 
@@ -122,11 +119,8 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
 
     await result.when(
       success: (_) => _handleCommandSuccess(context, invitations),
-      failure: (failure) => _handleCommandFailure(
-        context,
-        failure,
-        invitations,
-      ),
+      failure: (failure) =>
+          _handleCommandFailure(context, failure, invitations),
     );
   }
 
