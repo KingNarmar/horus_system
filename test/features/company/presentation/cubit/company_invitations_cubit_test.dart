@@ -167,25 +167,28 @@ void main() {
       final cubit = _buildCubit(repository);
       addTearDown(cubit.close);
       final context = _context('company-a');
-      final emittedStates = <CompanyInvitationsState>[];
-      final subscription = cubit.stream.listen(emittedStates.add);
-      addTearDown(subscription.cancel);
 
       await cubit.load(context);
       repository.loadResults['company-a'] = Success([
         _invitation('invitation-1', 'company-a'),
       ]);
 
+      final stateSequence = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<CompanyInvitationsCommandInProgress>(),
+          isA<CompanyInvitationsCommandSucceeded>(),
+          isA<CompanyInvitationsLoaded>(),
+        ]),
+      );
+
       await cubit.send(
         currentCompanyContext: context,
         email: 'user@example.com',
         role: CompanyRole.viewer,
       );
+      await stateSequence;
 
-      expect(
-        emittedStates.whereType<CompanyInvitationsCommandSucceeded>(),
-        hasLength(1),
-      );
       final state = cubit.state;
       expect(state, isA<CompanyInvitationsLoaded>());
       expect((state as CompanyInvitationsLoaded).invitations.length, 1);
