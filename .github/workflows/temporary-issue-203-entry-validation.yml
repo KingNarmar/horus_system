@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  validate-flutter:
+  formatter-preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,17 +25,7 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Format check
-        run: dart format --set-exit-if-changed lib test
-
-      - name: Prepare CI environment file
-        run: touch .env
-
-      - name: Analyze full project for errors
-        run: flutter analyze --no-fatal-warnings
-
-      - name: Analyze company feature strictly
-        run: flutter analyze lib/features/company test/features/company
-
-      - name: Test
-        run: flutter test
+      - name: Print formatter diff
+        run: |
+          dart format test/features/company/presentation/pages/company_entry_page_test.dart
+          git diff -- test/features/company/presentation/pages/company_entry_page_test.dart
