@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/company_invitation.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/entities/current_company_context.dart';
+import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/get_company_invitations_usecase.dart';
 import '../../domain/usecases/resend_company_invitation_usecase.dart';
 import '../../domain/usecases/revoke_company_invitation_usecase.dart';
@@ -63,12 +65,10 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
 
     await result.when(
       success: (_) => _handleCommandSuccess(currentCompanyContext, invitations),
-      failure: (failure) async => emit(
-        CompanyInvitationsCommandFailure(
-          companyId: companyId,
-          failure: failure,
-          invitations: invitations,
-        ),
+      failure: (failure) => _handleCommandFailure(
+        currentCompanyContext,
+        failure,
+        invitations,
       ),
     );
   }
@@ -122,12 +122,10 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
 
     await result.when(
       success: (_) => _handleCommandSuccess(context, invitations),
-      failure: (failure) async => emit(
-        CompanyInvitationsCommandFailure(
-          companyId: companyId,
-          failure: failure,
-          invitations: invitations,
-        ),
+      failure: (failure) => _handleCommandFailure(
+        context,
+        failure,
+        invitations,
       ),
     );
   }
@@ -146,6 +144,46 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
       ),
     );
     await _loadInvitations(context);
+  }
+
+  Future<void> _handleCommandFailure(
+    CurrentCompanyContext context,
+    Failure failure,
+    List<CompanyInvitation> invitations,
+  ) async {
+    final companyId = context.companyId;
+    if (_scopeCompanyId != companyId) return;
+
+    emit(
+      CompanyInvitationsCommandFailure(
+        companyId: companyId,
+        failure: failure,
+        invitations: invitations,
+      ),
+    );
+
+    if (!_requiresAuthoritativeRefresh(failure.code)) return;
+
+    final refreshResult = await _getInvitationsUseCase(
+      GetCompanyInvitationsParams(currentCompanyContext: context),
+    );
+    if (_scopeCompanyId != companyId) return;
+
+    refreshResult.when(
+      success: (refreshedInvitations) => emit(
+        CompanyInvitationsLoaded(
+          companyId: companyId,
+          invitations: refreshedInvitations,
+        ),
+      ),
+      failure: (_) {},
+    );
+  }
+
+  bool _requiresAuthoritativeRefresh(String failureCode) {
+    return failureCode == CompanyFailureCodes.invitationDeliveryFailed ||
+        failureCode ==
+            CompanyFailureCodes.invitationDeliveryConfirmationUnknown;
   }
 
   Future<void> _loadInvitations(CurrentCompanyContext context) async {
