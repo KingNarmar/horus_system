@@ -62,9 +62,7 @@ void main() {
 
   test('initial list failure is represented as load failure', () async {
     final repository = _FakeInvitationsRepository(
-      loadResults: {
-        'company-a': const FailureResult(UnexpectedFailure()),
-      },
+      loadResults: {'company-a': const FailureResult(UnexpectedFailure())},
     );
     final cubit = _buildCubit(repository);
     addTearDown(cubit.close);
@@ -94,10 +92,9 @@ void main() {
 
     final state = cubit.state;
     expect(state, isA<CompanyInvitationsCommandFailure>());
-    expect(
-      (state as CompanyInvitationsCommandFailure).invitations,
-      [invitation],
-    );
+    expect((state as CompanyInvitationsCommandFailure).invitations, [
+      invitation,
+    ]);
   });
 
   test(
@@ -161,38 +158,41 @@ void main() {
     expect(cubit.state, isA<CompanyInvitationsLoaded>());
   });
 
-  test('successful send emits command success and reloads same scope', () async {
-    final repository = _FakeInvitationsRepository(
-      loadResults: {'company-a': const Success(<CompanyInvitation>[])},
-    );
-    final cubit = _buildCubit(repository);
-    addTearDown(cubit.close);
-    final context = _context('company-a');
-    final emittedStates = <CompanyInvitationsState>[];
-    final subscription = cubit.stream.listen(emittedStates.add);
-    addTearDown(subscription.cancel);
+  test(
+    'successful send emits command success and reloads same scope',
+    () async {
+      final repository = _FakeInvitationsRepository(
+        loadResults: {'company-a': const Success(<CompanyInvitation>[])},
+      );
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
+      final context = _context('company-a');
+      final emittedStates = <CompanyInvitationsState>[];
+      final subscription = cubit.stream.listen(emittedStates.add);
+      addTearDown(subscription.cancel);
 
-    await cubit.load(context);
-    repository.loadResults['company-a'] = Success([
-      _invitation('invitation-1', 'company-a'),
-    ]);
+      await cubit.load(context);
+      repository.loadResults['company-a'] = Success([
+        _invitation('invitation-1', 'company-a'),
+      ]);
 
-    await cubit.send(
-      currentCompanyContext: context,
-      email: 'user@example.com',
-      role: CompanyRole.viewer,
-    );
+      await cubit.send(
+        currentCompanyContext: context,
+        email: 'user@example.com',
+        role: CompanyRole.viewer,
+      );
 
-    expect(
-      emittedStates.whereType<CompanyInvitationsCommandSucceeded>(),
-      hasLength(1),
-    );
-    final state = cubit.state;
-    expect(state, isA<CompanyInvitationsLoaded>());
-    expect((state as CompanyInvitationsLoaded).invitations.length, 1);
-    expect(repository.sendCalls, 1);
-    expect(repository.loadCalls['company-a'], 2);
-  });
+      expect(
+        emittedStates.whereType<CompanyInvitationsCommandSucceeded>(),
+        hasLength(1),
+      );
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationsLoaded>());
+      expect((state as CompanyInvitationsLoaded).invitations.length, 1);
+      expect(repository.sendCalls, 1);
+      expect(repository.loadCalls['company-a'], 2);
+    },
+  );
 }
 
 CompanyInvitationsCubit _buildCubit(CompanyInvitationsRepository repository) {
