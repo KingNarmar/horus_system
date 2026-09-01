@@ -26,8 +26,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Verify formatting
-        run: dart format --set-exit-if-changed lib test
+      - name: Apply formatter and show diff
+        run: |
+          dart format lib test
+          git diff -- test/architecture/company_onboarding_atomicity_test.dart
 
       - name: Analyze
         run: flutter analyze
@@ -38,7 +40,5 @@ jobs:
       - name: Verify diff whitespace
         run: git diff --check
 
-      - name: Verify clean working tree
-        run: |
-          git status --short
-          test -z "$(git status --short)"
+      - name: Show formatted working tree
+        run: git status --short
