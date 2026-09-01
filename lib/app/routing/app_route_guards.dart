@@ -9,7 +9,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/company/domain/entities/current_company_context.dart';
 import '../../features/company/presentation/cubit/current_company_cubit.dart';
 import '../../features/company/presentation/cubit/current_company_state.dart';
-import '../../features/company/presentation/pages/company_onboarding_page.dart';
+import '../../features/company/presentation/pages/company_entry_page.dart';
 
 class AuthenticatedRouteGuard extends StatelessWidget {
   final Widget child;
@@ -93,7 +93,7 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
         }
 
         if (state is CurrentCompanyEmpty) {
-          return const CompanyOnboardingPage();
+          return const CompanyEntryPage();
         }
 
         if (state is CurrentCompanyFailure) {
@@ -110,7 +110,7 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
           );
         }
 
-        return const CompanyOnboardingPage();
+        return const CompanyEntryPage();
       },
     );
   }
