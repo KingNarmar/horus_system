@@ -71,7 +71,8 @@ class _CompanyContextRouteGuardState extends State<_CompanyContextRouteGuard> {
 
     final currentState = context.read<CurrentCompanyCubit>().state;
 
-    if (currentState is CurrentCompanyInitial) {
+    if (currentState is CurrentCompanyInitial ||
+        currentState is CurrentCompanyEmpty) {
       context.read<CurrentCompanyCubit>().loadCurrentCompanyContext();
     }
   }
