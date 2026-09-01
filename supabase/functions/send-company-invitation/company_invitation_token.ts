@@ -19,7 +19,7 @@ export async function hashTokenForPostgres(rawToken: string): Promise<string> {
 }
 
 export function buildInvitationUrl(appUrl: string, rawToken: string): string {
-  const url = new URL('/company/invitation', appUrl)
+  const url = new URL('/horus/invitation', appUrl)
   url.searchParams.set('token', rawToken)
   return url.toString()
 }

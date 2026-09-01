@@ -15,10 +15,12 @@ Server-side delivery adapter for Issue #203 company invitations.
 
 The Supabase runtime supplies `SUPABASE_URL` and a publishable/anon key. Configure:
 
-- `HORUS_INVITATION_APP_URL` — public application origin used to build `/company/invitation?token=...` links.
+- `HORUS_INVITATION_APP_URL` — public website origin used to build `/horus/invitation?token=...` handoff links.
 - `HORUS_INVITATION_EMAIL_WEBHOOK_URL` — HTTPS email transport webhook endpoint.
 - `HORUS_INVITATION_EMAIL_WEBHOOK_KEY` — bearer credential for that server-to-server webhook.
 - `HORUS_INVITATION_EMAIL_FROM` — verified sender identity accepted by the transport.
+
+For the current King Narmar deployment, `HORUS_INVITATION_APP_URL` should be `https://kingnarmar.com`. The public handoff page only presents the invitation token and instructions; invitation authorization and acceptance remain inside H.O.R.U.S System.
 
 If the transport settings are missing, the function fails closed with `company_invitation_delivery_not_configured` before preparing a database invitation.
 

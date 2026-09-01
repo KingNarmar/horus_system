@@ -23,11 +23,12 @@ Deno.test('hashes invitation token as 32-byte PostgreSQL bytea hex', async () =>
   )
 })
 
-Deno.test('builds invitation URL without trusting role or company parameters', () => {
-  const url = buildInvitationUrl('https://app.example.com/base', 'raw-token')
+Deno.test('builds public invitation handoff URL with token only', () => {
+  const url = buildInvitationUrl('https://kingnarmar.com/base', 'raw-token')
   const parsed = new URL(url)
 
-  assert(parsed.pathname === '/company/invitation', 'Expected invitation path')
+  assert(parsed.origin === 'https://kingnarmar.com', 'Expected public app origin')
+  assert(parsed.pathname === '/horus/invitation', 'Expected invitation handoff path')
   assert(parsed.searchParams.get('token') === 'raw-token', 'Expected token query')
   assert(parsed.searchParams.size === 1, 'Expected token to be the only authority')
 })
