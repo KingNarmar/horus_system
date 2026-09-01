@@ -34,7 +34,7 @@ DECLARE
   v_actor_user_id uuid := auth.uid();
   v_company public.companies%ROWTYPE;
   v_membership public.company_users%ROWTYPE;
-  v_name text := pg_catalog.nullif(pg_catalog.btrim(p_name), '');
+  v_name text := NULLIF(pg_catalog.btrim(p_name), '');
 BEGIN
   IF v_actor_user_id IS NULL THEN
     RAISE EXCEPTION USING
@@ -60,11 +60,11 @@ BEGIN
   )
   VALUES (
     v_name,
-    pg_catalog.nullif(pg_catalog.btrim(p_business_type), ''),
-    pg_catalog.nullif(pg_catalog.btrim(p_phone), ''),
-    pg_catalog.nullif(pg_catalog.btrim(p_email), ''),
-    pg_catalog.nullif(pg_catalog.btrim(p_country), ''),
-    pg_catalog.nullif(pg_catalog.btrim(p_city), ''),
+    NULLIF(pg_catalog.btrim(p_business_type), ''),
+    NULLIF(pg_catalog.btrim(p_phone), ''),
+    NULLIF(pg_catalog.btrim(p_email), ''),
+    NULLIF(pg_catalog.btrim(p_country), ''),
+    NULLIF(pg_catalog.btrim(p_city), ''),
     v_actor_user_id,
     v_actor_user_id
   )
