@@ -14,14 +14,11 @@ jobs:
         with:
           channel: stable
       - run: flutter pub get
-      - name: Format and show diff
-        run: |
-          dart format lib test
-          git diff -- test/app/routing/app_route_guards_test.dart
-      - run: flutter analyze --no-fatal-warnings
-      - run: flutter analyze lib/features/company lib/app/routing test/features/company test/app/routing
       - run: |
           if [ ! -f .env ]; then
             printf 'SUPABASE_URL=https://example.supabase.co\nSUPABASE_ANON_KEY=example-anon-key\n' > .env
           fi
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze --no-fatal-warnings
+      - run: flutter analyze lib/features/company lib/app/routing test/features/company test/app/routing
       - run: flutter test
