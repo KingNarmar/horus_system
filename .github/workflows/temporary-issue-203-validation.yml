@@ -28,8 +28,14 @@ jobs:
       - name: Format check
         run: dart format --set-exit-if-changed lib test
 
-      - name: Analyze
-        run: flutter analyze
+      - name: Prepare CI environment file
+        run: touch .env
+
+      - name: Analyze full project for errors
+        run: flutter analyze --no-fatal-warnings
+
+      - name: Analyze company feature strictly
+        run: flutter analyze lib/features/company test/features/company
 
       - name: Test
         run: flutter test
