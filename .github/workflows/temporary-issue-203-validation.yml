@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  formatter-preview:
+  validate-flutter:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +25,38 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Print formatter diff
-        run: |
-          dart format lib/features/company/presentation/cubit/company_invitations_cubit.dart
-          git diff -- lib/features/company/presentation/cubit/company_invitations_cubit.dart
+      - name: Format check
+        run: dart format --set-exit-if-changed lib test
+
+      - name: Prepare CI environment file
+        run: touch .env
+
+      - name: Analyze full project for errors
+        run: flutter analyze --no-fatal-warnings
+
+      - name: Analyze company feature strictly
+        run: flutter analyze lib/features/company test/features/company
+
+      - name: Test
+        run: flutter test
+
+  validate-edge-function:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Invitation email sender tests
+        run: deno test supabase/functions/send-company-invitation/company_invitation_email_sender_test.ts
+
+      - name: Invitation token tests
+        run: deno test supabase/functions/send-company-invitation/company_invitation_token_test.ts
+
+      - name: Invitation email template tests
+        run: deno test supabase/functions/send-company-invitation/invitation_email_template_test.ts
