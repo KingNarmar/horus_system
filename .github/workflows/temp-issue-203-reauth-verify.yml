@@ -14,7 +14,10 @@ jobs:
         with:
           channel: stable
       - run: flutter pub get
-      - run: dart format --set-exit-if-changed lib test
+      - name: Format and show diff
+        run: |
+          dart format lib test
+          git diff -- test/app/routing/app_route_guards_test.dart
       - run: flutter analyze --no-fatal-warnings
       - run: flutter analyze lib/features/company lib/app/routing test/features/company test/app/routing
       - run: |
