@@ -24,6 +24,15 @@ class CompanyInvitationsLoaded extends CompanyInvitationsState {
   });
 }
 
+class CompanyInvitationsLoadFailure extends CompanyInvitationsState {
+  final Failure failure;
+
+  const CompanyInvitationsLoadFailure({
+    required super.companyId,
+    required this.failure,
+  });
+}
+
 class CompanyInvitationsCommandInProgress extends CompanyInvitationsState {
   final List<CompanyInvitation> invitations;
 
@@ -33,11 +42,20 @@ class CompanyInvitationsCommandInProgress extends CompanyInvitationsState {
   });
 }
 
-class CompanyInvitationsFailure extends CompanyInvitationsState {
+class CompanyInvitationsCommandSucceeded extends CompanyInvitationsState {
+  final List<CompanyInvitation> invitations;
+
+  const CompanyInvitationsCommandSucceeded({
+    required super.companyId,
+    required this.invitations,
+  });
+}
+
+class CompanyInvitationsCommandFailure extends CompanyInvitationsState {
   final Failure failure;
   final List<CompanyInvitation> invitations;
 
-  const CompanyInvitationsFailure({
+  const CompanyInvitationsCommandFailure({
     required super.companyId,
     required this.failure,
     required this.invitations,
