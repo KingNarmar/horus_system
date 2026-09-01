@@ -29,7 +29,8 @@ void main() {
     expect(
       dataSource,
       isNot(contains('Random.secure')),
-      reason: 'The database must generate the company id for atomic onboarding.',
+      reason:
+          'The database must generate the company id for atomic onboarding.',
     );
   });
 }
