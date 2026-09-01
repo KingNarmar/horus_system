@@ -62,10 +62,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     if (_scopeCompanyId != companyId) return;
 
     await result.when(
-      success: (_) => _handleCommandSuccess(
-        currentCompanyContext,
-        invitations,
-      ),
+      success: (_) => _handleCommandSuccess(currentCompanyContext, invitations),
       failure: (failure) async => emit(
         CompanyInvitationsCommandFailure(
           companyId: companyId,
@@ -167,10 +164,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
         ),
       ),
       failure: (failure) => emit(
-        CompanyInvitationsLoadFailure(
-          companyId: companyId,
-          failure: failure,
-        ),
+        CompanyInvitationsLoadFailure(companyId: companyId, failure: failure),
       ),
     );
   }
