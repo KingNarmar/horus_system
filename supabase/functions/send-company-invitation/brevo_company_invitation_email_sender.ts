@@ -13,6 +13,7 @@ type BrevoCompanyInvitationEmailSenderConfig = {
 }
 
 type FetchClient = typeof fetch
+type DeliveryStatusLogger = (status: number) => void
 
 export class BrevoCompanyInvitationEmailSender
   implements CompanyInvitationEmailSender {
@@ -21,6 +22,7 @@ export class BrevoCompanyInvitationEmailSender
   constructor(
     private readonly config: BrevoCompanyInvitationEmailSenderConfig,
     private readonly fetchClient: FetchClient = fetch,
+    private readonly deliveryStatusLogger: DeliveryStatusLogger = logDeliveryStatus,
   ) {}
 
   async send(message: CompanyInvitationEmailMessage): Promise<void> {
@@ -53,7 +55,12 @@ export class BrevoCompanyInvitationEmailSender
     }
 
     if (!response.ok) {
+      this.deliveryStatusLogger(response.status)
       throw new CompanyInvitationDeliveryFailedError()
     }
   }
+}
+
+function logDeliveryStatus(status: number): void {
+  console.error(`Brevo invitation delivery failed with status ${status}`)
 }
