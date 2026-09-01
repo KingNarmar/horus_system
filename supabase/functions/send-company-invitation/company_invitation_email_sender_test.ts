@@ -94,6 +94,7 @@ Deno.test('maps Brevo non-success responses to typed delivery failure', async ()
       fromName: 'H.O.R.U.S System',
     },
     async () => new Response('provider failure', { status: 400 }),
+    () => {},
   )
 
   const error = await assertRejects(
@@ -105,6 +106,26 @@ Deno.test('maps Brevo non-success responses to typed delivery failure', async ()
     'Expected stable sanitized failure code',
   )
   assert(!error.message.includes('secret-api-key'), 'Must not expose provider credential')
+})
+
+Deno.test('reports only Brevo response status for provider diagnostics', async () => {
+  const statuses: number[] = []
+  const sender = new BrevoCompanyInvitationEmailSender(
+    {
+      apiKey: 'secret-api-key',
+      fromEmail: 'horus@example.com',
+      fromName: 'H.O.R.U.S System',
+    },
+    async () => new Response('sensitive provider body', { status: 401 }),
+    (status) => statuses.push(status),
+  )
+
+  await assertRejects(
+    () => sender.send(testMessage()),
+    CompanyInvitationDeliveryFailedError,
+  )
+
+  assertDeepEquals(statuses, [401])
 })
 
 Deno.test('maps Brevo network failures to typed delivery failure', async () => {
