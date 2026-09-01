@@ -127,6 +127,85 @@ void main() {
         failureState.failure.code,
         CompanyFailureCodes.invitationDeliveryNotConfigured,
       );
+      expect(repository.loadCalls['company-a'], 1);
+    },
+  );
+
+  test(
+    'delivery failure emits command failure then refreshes authoritative list',
+    () async {
+      final refreshedInvitation = _invitation('invitation-1', 'company-a');
+      final repository = _FakeInvitationsRepository(
+        loadResults: {'company-a': const Success(<CompanyInvitation>[])},
+        sendResult: const FailureResult(
+          ServerFailure(code: CompanyFailureCodes.invitationDeliveryFailed),
+        ),
+      );
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
+      final context = _context('company-a');
+
+      await cubit.load(context);
+      repository.loadResults['company-a'] = Success([refreshedInvitation]);
+
+      final stateSequence = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<CompanyInvitationsCommandInProgress>(),
+          isA<CompanyInvitationsCommandFailure>(),
+          isA<CompanyInvitationsLoaded>(),
+        ]),
+      );
+
+      await cubit.send(
+        currentCompanyContext: context,
+        email: 'user@example.com',
+        role: CompanyRole.viewer,
+      );
+      await stateSequence;
+
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationsLoaded>());
+      expect((state as CompanyInvitationsLoaded).invitations, [
+        refreshedInvitation,
+      ]);
+      expect(repository.loadCalls['company-a'], 2);
+    },
+  );
+
+  test(
+    'failed refresh after delivery confirmation ambiguity preserves command failure',
+    () async {
+      final repository = _FakeInvitationsRepository(
+        loadResults: {'company-a': const Success(<CompanyInvitation>[])},
+        sendResult: const FailureResult(
+          ServerFailure(
+            code: CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+          ),
+        ),
+      );
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
+      final context = _context('company-a');
+
+      await cubit.load(context);
+      repository.loadResults['company-a'] = const FailureResult(
+        UnexpectedFailure(),
+      );
+
+      await cubit.send(
+        currentCompanyContext: context,
+        email: 'user@example.com',
+        role: CompanyRole.viewer,
+      );
+
+      final state = cubit.state;
+      expect(state, isA<CompanyInvitationsCommandFailure>());
+      expect(
+        (state as CompanyInvitationsCommandFailure).failure.code,
+        CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+      );
+      expect(repository.loadCalls['company-a'], 2);
     },
   );
 
