@@ -1,9 +1,11 @@
 export type InvitationEmailLocaleCopy = {
   subject: string
-  heading: string
-  invited: (companyName: string, roleLabel: string) => string
+  brandName: string
+  brandTagline: string
+  sectionLabel: string
+  heroTitle: (companyName: string) => string
+  invited: (roleLabel: string) => string
   authInstruction: string
-  detailsTitle: string
   companyLabel: string
   roleDetailLabel: string
   expiresLabel: string
@@ -11,7 +13,7 @@ export type InvitationEmailLocaleCopy = {
   codeLabel: string
   manualCodeInstruction: string
   securityNote: string
-  expires: (expiresAt: string) => string
+  footerReason: string
   roleLabel: (role: string) => string
 }
 
@@ -33,42 +35,44 @@ const arabicRoleLabels: Record<string, string> = {
 
 export const invitationEmailEnglish: InvitationEmailLocaleCopy = {
   subject: 'H.O.R.U.S System — Company invitation',
-  heading: 'You are invited to H.O.R.U.S System',
-  invited: (companyName, roleLabel) =>
-    `You have been invited to join ${companyName} with the role ${roleLabel}.`,
+  brandName: 'H.O.R.U.S System',
+  brandTagline: 'Heavy Operations & Route Unified System',
+  sectionLabel: 'Company invitation',
+  heroTitle: (companyName) => `Join ${companyName}`,
+  invited: (roleLabel) => `You were invited with the role ${roleLabel}.`,
   authInstruction:
     'Sign in or create an account using the invited email address, then review and explicitly accept the invitation.',
-  detailsTitle: 'Invitation details',
   companyLabel: 'Company',
   roleDetailLabel: 'Role',
   expiresLabel: 'Expires',
   linkLabel: 'Review invitation',
   codeLabel: 'Invitation code',
   manualCodeInstruction:
-    'If the button does not open H.O.R.U.S System, open the invitation screen manually and paste the invitation code.',
+    'If the button does not open H.O.R.U.S System, open the invitation screen manually and paste this code.',
   securityNote:
     'Keep this invitation code private. H.O.R.U.S System verifies the signed-in email before the invitation can be accepted.',
-  expires: (expiresAt) => `Expires: ${expiresAt}`,
+  footerReason: 'You received this email because a company invited you to H.O.R.U.S System.',
   roleLabel: (role) => englishRoleLabels[role] ?? 'Member',
 }
 
 export const invitationEmailArabic: InvitationEmailLocaleCopy = {
   subject: 'دعوة للانضمام إلى الشركة',
-  heading: 'لديك دعوة للانضمام إلى H.O.R.U.S System',
-  invited: (companyName, roleLabel) =>
-    `تمت دعوتك للانضمام إلى ${companyName} بصلاحية ${roleLabel}.`,
+  brandName: 'H.O.R.U.S System',
+  brandTagline: 'نظام موحّد لإدارة عمليات النقل الثقيل والمسارات',
+  sectionLabel: 'دعوة للانضمام إلى شركة',
+  heroTitle: (companyName) => `انضم إلى ${companyName}`,
+  invited: (roleLabel) => `تمت دعوتك بصلاحية ${roleLabel}.`,
   authInstruction:
     'سجّل الدخول أو أنشئ حسابًا باستخدام البريد الإلكتروني المدعو، ثم راجع الدعوة واقبلها بشكل صريح.',
-  detailsTitle: 'تفاصيل الدعوة',
   companyLabel: 'الشركة',
   roleDetailLabel: 'الصلاحية',
   expiresLabel: 'تنتهي في',
   linkLabel: 'مراجعة الدعوة',
   codeLabel: 'رمز الدعوة',
   manualCodeInstruction:
-    'إذا لم يفتح الزر H.O.R.U.S System، افتح شاشة الدعوة يدويًا والصق رمز الدعوة.',
+    'إذا لم يفتح الزر H.O.R.U.S System، افتح شاشة الدعوة يدويًا والصق هذا الرمز.',
   securityNote:
     'احتفظ برمز الدعوة بشكل خاص. يتحقق H.O.R.U.S System من البريد الإلكتروني للحساب المسجل قبل السماح بقبول الدعوة.',
-  expires: (expiresAt) => `تنتهي صلاحية الدعوة: ${expiresAt}`,
+  footerReason: 'وصلتك هذه الرسالة لأن إحدى الشركات دعتك للانضمام إلى H.O.R.U.S System.',
   roleLabel: (role) => arabicRoleLabels[role] ?? 'عضو',
 }
