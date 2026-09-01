@@ -33,28 +33,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     final companyId = currentCompanyContext.companyId;
     _scopeCompanyId = companyId;
     emit(CompanyInvitationsLoading(companyId: companyId));
-
-    final result = await _getInvitationsUseCase(
-      GetCompanyInvitationsParams(currentCompanyContext: currentCompanyContext),
-    );
-
-    if (_scopeCompanyId != companyId) return;
-
-    result.when(
-      success: (invitations) => emit(
-        CompanyInvitationsLoaded(
-          companyId: companyId,
-          invitations: invitations,
-        ),
-      ),
-      failure: (failure) => emit(
-        CompanyInvitationsFailure(
-          companyId: companyId,
-          failure: failure,
-          invitations: const [],
-        ),
-      ),
-    );
+    await _loadInvitations(currentCompanyContext);
   }
 
   Future<void> send({
@@ -83,9 +62,12 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     if (_scopeCompanyId != companyId) return;
 
     await result.when(
-      success: (_) => load(currentCompanyContext),
+      success: (_) => _handleCommandSuccess(
+        currentCompanyContext,
+        invitations,
+      ),
       failure: (failure) async => emit(
-        CompanyInvitationsFailure(
+        CompanyInvitationsCommandFailure(
           companyId: companyId,
           failure: failure,
           invitations: invitations,
@@ -142,12 +124,52 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     if (_scopeCompanyId != companyId) return;
 
     await result.when(
-      success: (_) => load(context),
+      success: (_) => _handleCommandSuccess(context, invitations),
       failure: (failure) async => emit(
-        CompanyInvitationsFailure(
+        CompanyInvitationsCommandFailure(
           companyId: companyId,
           failure: failure,
           invitations: invitations,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleCommandSuccess(
+    CurrentCompanyContext context,
+    List<CompanyInvitation> invitations,
+  ) async {
+    final companyId = context.companyId;
+    if (_scopeCompanyId != companyId) return;
+
+    emit(
+      CompanyInvitationsCommandSucceeded(
+        companyId: companyId,
+        invitations: invitations,
+      ),
+    );
+    await _loadInvitations(context);
+  }
+
+  Future<void> _loadInvitations(CurrentCompanyContext context) async {
+    final companyId = context.companyId;
+    final result = await _getInvitationsUseCase(
+      GetCompanyInvitationsParams(currentCompanyContext: context),
+    );
+
+    if (_scopeCompanyId != companyId) return;
+
+    result.when(
+      success: (invitations) => emit(
+        CompanyInvitationsLoaded(
+          companyId: companyId,
+          invitations: invitations,
+        ),
+      ),
+      failure: (failure) => emit(
+        CompanyInvitationsLoadFailure(
+          companyId: companyId,
+          failure: failure,
         ),
       ),
     );
@@ -160,7 +182,12 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     if (current is CompanyInvitationsCommandInProgress) {
       return current.invitations;
     }
-    if (current is CompanyInvitationsFailure) return current.invitations;
+    if (current is CompanyInvitationsCommandSucceeded) {
+      return current.invitations;
+    }
+    if (current is CompanyInvitationsCommandFailure) {
+      return current.invitations;
+    }
     return const [];
   }
 }
