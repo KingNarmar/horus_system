@@ -3,7 +3,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../../expenses/domain/entities/expense_type_option.dart';
+import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
@@ -39,7 +39,7 @@ class TripsLoaded extends TripsState {
   final List<AuditLog> selectedTripActivity;
   final List<TripStatusHistory> selectedTripStatusHistory;
   final List<TripExpense> selectedTripExpenses;
-  final List<ExpenseTypeOption> expenseTypes;
+  final List<ExpenseType> expenseTypes;
   final bool isDetailsLoading;
   final bool isActivityLoading;
   final bool isStatusHistoryLoading;
@@ -70,7 +70,7 @@ class TripsLoaded extends TripsState {
     this.selectedTripActivity = const <AuditLog>[],
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
     this.selectedTripExpenses = const <TripExpense>[],
-    this.expenseTypes = const <ExpenseTypeOption>[],
+    this.expenseTypes = const <ExpenseType>[],
     this.isDetailsLoading = false,
     this.isActivityLoading = false,
     this.isStatusHistoryLoading = false,
@@ -87,17 +87,13 @@ class TripsLoaded extends TripsState {
     this.formLookupsFailure,
   });
 
-  bool isStatusChanging(String id) {
-    return statusChangingTripIds.contains(id);
-  }
+  bool isStatusChanging(String id) => statusChangingTripIds.contains(id);
 
   List<TripEntity> get trips {
     final query = searchQuery.trim().toLowerCase();
-
     return allTrips.where((trip) {
       if (!statusFilter.matches(trip.status)) return false;
       if (query.isEmpty) return true;
-
       return [
         trip.displayName,
         trip.loadingOrderNumber,
@@ -112,9 +108,7 @@ class TripsLoaded extends TripsState {
         trip.freightPrice?.toString(),
         trip.totalExpenses?.toString(),
         trip.notes,
-      ].whereType<String>().any((value) {
-        return value.toLowerCase().contains(query);
-      });
+      ].whereType<String>().any((value) => value.toLowerCase().contains(query));
     }).toList();
   }
 
@@ -132,7 +126,7 @@ class TripsLoaded extends TripsState {
     List<AuditLog>? selectedTripActivity,
     List<TripStatusHistory>? selectedTripStatusHistory,
     List<TripExpense>? selectedTripExpenses,
-    List<ExpenseTypeOption>? expenseTypes,
+    List<ExpenseType>? expenseTypes,
     bool? isDetailsLoading,
     bool? isActivityLoading,
     bool? isStatusHistoryLoading,
@@ -153,17 +147,13 @@ class TripsLoaded extends TripsState {
       allTrips: allTrips ?? this.allTrips,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
-      canViewTripFinancials:
-          canViewTripFinancials ?? this.canViewTripFinancials,
-      canManageTripExpenses:
-          canManageTripExpenses ?? this.canManageTripExpenses,
+      canViewTripFinancials: canViewTripFinancials ?? this.canViewTripFinancials,
+      canManageTripExpenses: canManageTripExpenses ?? this.canManageTripExpenses,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
-      statusChangingTripIds:
-          statusChangingTripIds ?? this.statusChangingTripIds,
-      selectedTrip: selectedTrip == _notSet
-          ? this.selectedTrip
-          : selectedTrip as TripEntity?,
+      statusChangingTripIds: statusChangingTripIds ?? this.statusChangingTripIds,
+      selectedTrip:
+          selectedTrip == _notSet ? this.selectedTrip : selectedTrip as TripEntity?,
       selectedTripNetProfit: selectedTripNetProfit == _notSet
           ? this.selectedTripNetProfit
           : selectedTripNetProfit as double?,
@@ -177,12 +167,10 @@ class TripsLoaded extends TripsState {
       isStatusHistoryLoading:
           isStatusHistoryLoading ?? this.isStatusHistoryLoading,
       isExpensesLoading: isExpensesLoading ?? this.isExpensesLoading,
-      isExpenseTypesLoading:
-          isExpenseTypesLoading ?? this.isExpenseTypesLoading,
+      isExpenseTypesLoading: isExpenseTypesLoading ?? this.isExpenseTypesLoading,
       isTripExpenseSaving: isTripExpenseSaving ?? this.isTripExpenseSaving,
-      detailsFailure: detailsFailure == _notSet
-          ? this.detailsFailure
-          : detailsFailure as Failure?,
+      detailsFailure:
+          detailsFailure == _notSet ? this.detailsFailure : detailsFailure as Failure?,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
@@ -195,9 +183,8 @@ class TripsLoaded extends TripsState {
       expenseTypesFailure: expenseTypesFailure == _notSet
           ? this.expenseTypesFailure
           : expenseTypesFailure as Failure?,
-      formLookups: formLookups == _notSet
-          ? this.formLookups
-          : formLookups as TripFormLookups?,
+      formLookups:
+          formLookups == _notSet ? this.formLookups : formLookups as TripFormLookups?,
       isFormLookupsLoading: isFormLookupsLoading ?? this.isFormLookupsLoading,
       formLookupsFailure: formLookupsFailure == _notSet
           ? this.formLookupsFailure

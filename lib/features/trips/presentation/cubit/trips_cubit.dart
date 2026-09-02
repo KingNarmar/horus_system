@@ -5,6 +5,7 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../expense_types/domain/usecases/get_active_expense_types_usecase.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../../../expenses/domain/policies/trip_expenses_permission_policy.dart';
@@ -39,7 +40,7 @@ class TripsCubit extends Cubit<TripsState>
   final CalculateTripNetProfitUseCase calculateTripNetProfitUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
   final GetTripExpensesUseCase getTripExpensesUseCase;
-  final GetExpenseTypesUseCase getExpenseTypesUseCase;
+  final GetActiveExpenseTypesUseCase getActiveExpenseTypesUseCase;
   final AddTripExpenseUseCase addTripExpenseUseCase;
   final UpdateTripExpenseUseCase updateTripExpenseUseCase;
 
@@ -56,7 +57,7 @@ class TripsCubit extends Cubit<TripsState>
     required this.calculateTripNetProfitUseCase,
     required this.getTripAuditLogsUseCase,
     required this.getTripExpensesUseCase,
-    required this.getExpenseTypesUseCase,
+    required this.getActiveExpenseTypesUseCase,
     required this.addTripExpenseUseCase,
     required this.updateTripExpenseUseCase,
   }) : super(const TripsInitial());
@@ -108,9 +109,7 @@ class TripsCubit extends Cubit<TripsState>
     _mapLoaded((state) {
       return state.copyWith(
         allTrips: _upsertTripInList(state.allTrips, trip),
-        selectedTrip: state.selectedTrip?.id == trip.id
-            ? trip
-            : state.selectedTrip,
+        selectedTrip: state.selectedTrip?.id == trip.id ? trip : state.selectedTrip,
       );
     });
   }
@@ -123,32 +122,24 @@ class TripsCubit extends Cubit<TripsState>
   void _setTripStatusChanging(String id, bool isRunning) {
     _mapLoaded((state) {
       final ids = {...state.statusChangingTripIds};
-
       if (isRunning) {
         ids.add(id);
       } else {
         ids.remove(id);
       }
-
       return state.copyWith(statusChangingTripIds: ids);
     });
   }
 
   void _mapLoaded(TripsLoaded Function(TripsLoaded state) mapper) {
     final current = state;
-    if (current is TripsLoaded) {
-      emit(mapper(current));
-    }
+    if (current is TripsLoaded) emit(mapper(current));
   }
 }
 
 List<TripEntity> _upsertTripInList(List<TripEntity> trips, TripEntity next) {
   final index = trips.indexWhere((trip) => trip.id == next.id);
-
-  if (index == -1) {
-    return [next, ...trips];
-  }
-
+  if (index == -1) return [next, ...trips];
   final updated = [...trips];
   updated[index] = next;
   return updated;

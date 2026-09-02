@@ -5,7 +5,6 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../entities/expense_type_option.dart';
 import '../entities/trip_expense.dart';
 import '../entities/trip_expense_paid_by.dart';
 import '../entities/trip_expense_write_data.dart';
@@ -20,12 +19,6 @@ class GetTripExpensesParams {
     required this.currentCompanyContext,
     required this.tripId,
   });
-}
-
-class GetExpenseTypesParams {
-  final CurrentCompanyContext currentCompanyContext;
-
-  const GetExpenseTypesParams({required this.currentCompanyContext});
 }
 
 class AddTripExpenseParams {
@@ -111,31 +104,6 @@ class GetTripExpensesUseCase
       companyId: context.companyId,
       tripId: tripId,
     );
-  }
-}
-
-class GetExpenseTypesUseCase
-    implements UseCase<List<ExpenseTypeOption>, GetExpenseTypesParams> {
-  final TripExpensesRepository _repository;
-
-  const GetExpenseTypesUseCase(this._repository);
-
-  @override
-  Future<Result<List<ExpenseTypeOption>>> call(GetExpenseTypesParams params) {
-    final context = params.currentCompanyContext;
-
-    if (!TripExpensesPermissionPolicy.canViewTripExpenses(context.role)) {
-      return Future.value(
-        const FailureResult<List<ExpenseTypeOption>>(
-          PermissionFailure(
-            code: FailureCodes.permissionTripExpensesView,
-            message: 'Trip expenses access is not allowed.',
-          ),
-        ),
-      );
-    }
-
-    return _repository.getExpenseTypes(companyId: context.companyId);
   }
 }
 

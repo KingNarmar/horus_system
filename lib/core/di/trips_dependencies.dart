@@ -1,4 +1,5 @@
 import '../../features/audit/di/audit_dependencies.dart';
+import '../../features/expense_types/di/expense_types_dependencies.dart';
 import '../../features/expenses/data/datasources/trip_expenses_remote_data_source.dart';
 import '../../features/expenses/data/repositories/trip_expense_repo_impl.dart';
 import '../../features/expenses/domain/usecases/trip_expenses_usecases.dart';
@@ -19,9 +20,7 @@ abstract final class TripsDependencies {
       createAuditLogUseCase: createAuditLogUseCase,
     );
 
-    final expensesRemoteDataSource = SupabaseTripExpensesRemoteDataSource(
-      client,
-    );
+    final expensesRemoteDataSource = SupabaseTripExpensesRemoteDataSource(client);
     final expensesRepository = TripExpensesRepositoryImpl(
       remoteDataSource: expensesRemoteDataSource,
       createAuditLogUseCase: createAuditLogUseCase,
@@ -38,7 +37,8 @@ abstract final class TripsDependencies {
       calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getTripExpensesUseCase: GetTripExpensesUseCase(expensesRepository),
-      getExpenseTypesUseCase: GetExpenseTypesUseCase(expensesRepository),
+      getActiveExpenseTypesUseCase:
+          ExpenseTypesDependencies.createGetActiveExpenseTypesUseCase(),
       addTripExpenseUseCase: AddTripExpenseUseCase(expensesRepository),
       updateTripExpenseUseCase: UpdateTripExpenseUseCase(expensesRepository),
     );

@@ -14,9 +14,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final owner = this as TripsCubit;
     final context = owner._currentCompanyContext;
     final current = state;
-    if (context == null ||
-        current is! TripsLoaded ||
-        current.isTripExpenseSaving) {
+    if (context == null || current is! TripsLoaded || current.isTripExpenseSaving) {
       return;
     }
 
@@ -82,23 +80,19 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     if (latestState is! TripsLoaded) return;
 
     result.when(
-      success: (expenses) {
-        emit(
-          latestState.copyWith(
-            selectedTripExpenses: expenses,
-            isExpensesLoading: false,
-            expensesFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isExpensesLoading: false,
-            expensesFailure: failure,
-          ),
-        );
-      },
+      success: (expenses) => emit(
+        latestState.copyWith(
+          selectedTripExpenses: expenses,
+          isExpensesLoading: false,
+          expensesFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isExpensesLoading: false,
+          expensesFailure: failure,
+        ),
+      ),
     );
   }
 
@@ -106,17 +100,14 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final owner = this as TripsCubit;
     final current = state;
     if (current is! TripsLoaded || current.isExpenseTypesLoading) return;
-    if (current.expenseTypes.isNotEmpty &&
-        current.expenseTypesFailure == null) {
+    if (current.expenseTypes.isNotEmpty && current.expenseTypesFailure == null) {
       return;
     }
 
-    emit(
-      current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
-    );
+    emit(current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null));
 
-    final result = await owner.getExpenseTypesUseCase(
-      GetExpenseTypesParams(
+    final result = await owner.getActiveExpenseTypesUseCase(
+      GetActiveExpenseTypesParams(
         currentCompanyContext: current.currentCompanyContext,
       ),
     );
@@ -125,23 +116,19 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     if (latestState is! TripsLoaded) return;
 
     result.when(
-      success: (types) {
-        emit(
-          latestState.copyWith(
-            expenseTypes: types,
-            isExpenseTypesLoading: false,
-            expenseTypesFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isExpenseTypesLoading: false,
-            expenseTypesFailure: failure,
-          ),
-        );
-      },
+      success: (types) => emit(
+        latestState.copyWith(
+          expenseTypes: types,
+          isExpenseTypesLoading: false,
+          expenseTypesFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isExpenseTypesLoading: false,
+          expenseTypesFailure: failure,
+        ),
+      ),
     );
   }
 }

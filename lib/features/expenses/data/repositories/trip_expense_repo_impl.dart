@@ -2,7 +2,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
-import '../../domain/entities/expense_type_option.dart';
 import '../../domain/entities/trip_expense.dart';
 import '../../domain/entities/trip_expense_write_data.dart';
 import '../../domain/repositories/trip_expenses_repository.dart';
@@ -41,18 +40,6 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
   }
 
   @override
-  Future<Result<List<ExpenseTypeOption>>> getExpenseTypes({
-    required String companyId,
-  }) {
-    return _guard(() async {
-      final types = await remoteDataSource.getExpenseTypes(
-        companyId: companyId,
-      );
-      return Success(types);
-    });
-  }
-
-  @override
   Future<Result<TripExpense>> addTripExpense({
     required TripExpenseWriteData data,
     required String actorRole,
@@ -70,10 +57,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripTotalExpenses: total,
         actorRole: actorRole,
       );
-
-      if (auditFailure != null) {
-        return FailureResult<TripExpense>(auditFailure);
-      }
+      if (auditFailure != null) return FailureResult<TripExpense>(auditFailure);
       return Success(model.toEntity());
     });
   }
@@ -90,10 +74,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripId: data.tripId,
         id: id,
       );
-      final model = await remoteDataSource.updateTripExpense(
-        id: id,
-        data: data,
-      );
+      final model = await remoteDataSource.updateTripExpense(id: id, data: data);
       final total = await remoteDataSource.getTripTotalExpenses(
         companyId: data.companyId,
         tripId: data.tripId,
@@ -106,10 +87,7 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripTotalExpenses: total,
         actorRole: actorRole,
       );
-
-      if (auditFailure != null) {
-        return FailureResult<TripExpense>(auditFailure);
-      }
+      if (auditFailure != null) return FailureResult<TripExpense>(auditFailure);
       return Success(model.toEntity());
     });
   }

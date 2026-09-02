@@ -18,15 +18,13 @@ abstract final class TripExpenseDbFields {
       '${DbCommonFields.id}, ${DbCommonFields.companyId}, $tripId, '
       '$expenseTypeId, $expenseName, $amount, $paidBy, $expenseDate, $notes, '
       '${DbCommonFields.createdAt}, ${DbCommonFields.updatedAt}, '
-      '${TripExpenseTypeLookupDbFields.tableName}!'
-      'trip_expenses_company_type_fk(${TripExpenseTypeLookupDbFields.name})';
+      '${TripExpenseTypeRelationDbFields.relationName}!'
+      'trip_expenses_company_type_fk(${TripExpenseTypeRelationDbFields.name})';
 }
 
-abstract final class TripExpenseTypeLookupDbFields {
-  static const tableName = 'expense_types';
+abstract final class TripExpenseTypeRelationDbFields {
+  static const relationName = 'expense_types';
   static const name = 'name';
-
-  static const lookupColumns = '${DbCommonFields.id}, $name';
 }
 
 abstract final class TripExpenseLinkedTripDbFields {
