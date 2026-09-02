@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - feature/192-android-release-foundation
+    paths-ignore:
+      - .github/diagnostics/**
+
+permissions:
+  contents: write
 
 jobs:
   verify-native-compatibility:
@@ -122,63 +127,67 @@ jobs:
           java -jar /tmp/bundletool.jar dump config --bundle="$AAB" > /tmp/bundle-config.txt
           grep -q 'PAGE_ALIGNMENT_16K' /tmp/bundle-config.txt
 
-      - name: Verify native ELF LOAD segments use 16 KB alignment
+      - name: Inspect native ELF LOAD alignment
         run: |
           AAB=build/app/outputs/bundle/release/app-release.aab
           rm -rf /tmp/horus-native
-          mkdir -p /tmp/horus-native
+          mkdir -p /tmp/horus-native .github/diagnostics
           unzip -q "$AAB" 'base/lib/*/*.so' -d /tmp/horus-native
 
           READELF=$(find "$ANDROID_SDK_ROOT/ndk" -type f -path '*/toolchains/llvm/prebuilt/*/bin/llvm-readelf' | head -1 || true)
           if [ -z "$READELF" ] || [ ! -x "$READELF" ]; then
-            echo "Unable to locate Android NDK llvm-readelf after the release build."
-            find "$ANDROID_SDK_ROOT/ndk" -maxdepth 5 -type f -name 'llvm-readelf' -print || true
-            exit 1
-          fi
-          echo "Using readelf: $READELF"
-
-          python3 - "$READELF" /tmp/horus-native <<'PY'
+            echo "Unable to locate Android NDK llvm-readelf after the release build." > .github/diagnostics/issue-192-elf-report.txt
+            touch /tmp/elf-failed
+          else
+            python3 - "$READELF" /tmp/horus-native .github/diagnostics/issue-192-elf-report.txt <<'PY'
           import pathlib
           import subprocess
           import sys
 
           readelf = sys.argv[1]
           root = pathlib.Path(sys.argv[2])
+          report_path = pathlib.Path(sys.argv[3])
           targets = [
               path
               for path in root.rglob("*.so")
               if any(abi in path.parts for abi in ("arm64-v8a", "x86_64"))
           ]
-          if not targets:
-              raise SystemExit("No arm64-v8a/x86_64 native libraries found for ELF verification.")
 
+          lines = ["Flutter 3.44.7 native ELF LOAD alignment report", ""]
           failures = []
+          if not targets:
+              failures.append("No arm64-v8a/x86_64 native libraries found for ELF verification.")
           for path in sorted(targets):
               output = subprocess.check_output([readelf, "-lW", str(path)], text=True)
               alignments = []
               for line in output.splitlines():
                   parts = line.split()
                   if parts and parts[0] == "LOAD":
-                      try:
-                          alignments.append(int(parts[-1], 0))
-                      except ValueError as exc:
-                          raise SystemExit(f"Unable to parse LOAD alignment for {path}: {line}") from exc
+                      alignments.append(int(parts[-1], 0))
+              relative = path.relative_to(root)
               if not alignments:
-                  failures.append(f"{path}: no LOAD segments found")
+                  lines.append(f"{relative}: no LOAD segments found")
+                  failures.append(f"{relative}: no LOAD segments found")
                   continue
               minimum = min(alignments)
-              print(f"{path}: LOAD alignments={[hex(value) for value in alignments]}")
+              rendered = ", ".join(hex(value) for value in alignments)
+              status = "PASS" if minimum >= 0x4000 else "FAIL"
+              lines.append(f"{relative}: {status}; LOAD alignments=[{rendered}]; minimum={hex(minimum)}")
               if minimum < 0x4000:
-                  failures.append(f"{path}: minimum LOAD alignment {hex(minimum)} is below 0x4000")
+                  failures.append(f"{relative}: minimum LOAD alignment {hex(minimum)} is below 0x4000")
 
+          lines.extend(["", "Failures:"])
+          lines.extend(failures or ["None"])
+          report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
           if failures:
-              print("16 KB ELF alignment failures:")
-              print("\n".join(failures))
-              raise SystemExit(1)
-          print(f"Verified 16 KB ELF LOAD alignment for {len(targets)} 64-bit shared libraries.")
+              pathlib.Path("/tmp/elf-failed").touch()
           PY
+          fi
+          cat .github/diagnostics/issue-192-elf-report.txt
 
       - name: Verify generated APK ZIP alignment for 16 KB pages
+        id: zip_alignment
+        continue-on-error: true
         run: |
           AAB=build/app/outputs/bundle/release/app-release.aab
           rm -f /tmp/horus.apks /tmp/horus-universal.apk
@@ -193,6 +202,29 @@ jobs:
           unzip -p /tmp/horus.apks universal.apk > /tmp/horus-universal.apk
           test -s /tmp/horus-universal.apk
           "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" -v -c -P 16 4 /tmp/horus-universal.apk
+
+      - name: Record native compatibility diagnostic
+        if: always()
+        run: |
+          {
+            echo
+            echo "ZIP alignment result: ${{ steps.zip_alignment.outcome }}"
+          } >> .github/diagnostics/issue-192-elf-report.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/diagnostics/issue-192-elf-report.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: record Issue 192 native compatibility diagnostic"
+            git push origin HEAD:feature/192-android-release-foundation
+          fi
+
+      - name: Enforce native compatibility gate
+        run: |
+          if [ -f /tmp/elf-failed ]; then
+            echo "ELF 16 KB alignment verification failed."
+            exit 1
+          fi
+          test "${{ steps.zip_alignment.outcome }}" = "success"
 
       - name: Verify repository diff whitespace
         run: git diff --check
