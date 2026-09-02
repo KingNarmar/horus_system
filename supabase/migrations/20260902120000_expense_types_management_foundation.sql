@@ -37,7 +37,14 @@ create policy expense_types_insert_accounting
   for insert
   to authenticated
   with check (
-    private.has_company_role(company_id, array['owner', 'admin', 'accountant'])
+    private.has_company_role(
+      company_id,
+      array[
+        'owner'::public.company_role,
+        'admin'::public.company_role,
+        'accountant'::public.company_role
+      ]
+    )
   );
 
 drop policy if exists expense_types_update_accounting on public.expense_types;
@@ -46,10 +53,24 @@ create policy expense_types_update_accounting
   for update
   to authenticated
   using (
-    private.has_company_role(company_id, array['owner', 'admin', 'accountant'])
+    private.has_company_role(
+      company_id,
+      array[
+        'owner'::public.company_role,
+        'admin'::public.company_role,
+        'accountant'::public.company_role
+      ]
+    )
   )
   with check (
-    private.has_company_role(company_id, array['owner', 'admin', 'accountant'])
+    private.has_company_role(
+      company_id,
+      array[
+        'owner'::public.company_role,
+        'admin'::public.company_role,
+        'accountant'::public.company_role
+      ]
+    )
   );
 
 revoke all on table public.expense_types from public;
