@@ -5,12 +5,34 @@ import 'package:test/test.dart';
 void main() {
   group('ExpenseTypesPermissionPolicy', () {
     test('management is limited to owner, admin, and accountant', () {
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.owner), isTrue);
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.admin), isTrue);
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.accountant), isTrue);
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.operations), isFalse);
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.viewer), isFalse);
-      expect(ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.driver), isFalse);
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.owner),
+        isTrue,
+      );
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.admin),
+        isTrue,
+      );
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(
+          CompanyRole.accountant,
+        ),
+        isTrue,
+      );
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(
+          CompanyRole.operations,
+        ),
+        isFalse,
+      );
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.viewer),
+        isFalse,
+      );
+      expect(
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.driver),
+        isFalse,
+      );
     });
 
     test('active lookup is available to company app roles except driver', () {
@@ -28,7 +50,9 @@ void main() {
         );
       }
       expect(
-        ExpenseTypesPermissionPolicy.canViewActiveExpenseTypes(CompanyRole.driver),
+        ExpenseTypesPermissionPolicy.canViewActiveExpenseTypes(
+          CompanyRole.driver,
+        ),
         isFalse,
       );
     });

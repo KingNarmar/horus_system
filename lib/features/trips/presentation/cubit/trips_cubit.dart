@@ -109,7 +109,9 @@ class TripsCubit extends Cubit<TripsState>
     _mapLoaded((state) {
       return state.copyWith(
         allTrips: _upsertTripInList(state.allTrips, trip),
-        selectedTrip: state.selectedTrip?.id == trip.id ? trip : state.selectedTrip,
+        selectedTrip: state.selectedTrip?.id == trip.id
+            ? trip
+            : state.selectedTrip,
       );
     });
   }

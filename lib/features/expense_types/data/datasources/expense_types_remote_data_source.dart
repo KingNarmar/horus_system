@@ -170,7 +170,9 @@ class SupabaseExpenseTypesRemoteDataSource
     List<Map<String, dynamic>> response,
   ) {
     return response
-        .map((item) => ExpenseTypeModel.fromMap(Map<String, dynamic>.from(item)))
+        .map(
+          (item) => ExpenseTypeModel.fromMap(Map<String, dynamic>.from(item)),
+        )
         .toList();
   }
 }

@@ -14,7 +14,9 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final owner = this as TripsCubit;
     final context = owner._currentCompanyContext;
     final current = state;
-    if (context == null || current is! TripsLoaded || current.isTripExpenseSaving) {
+    if (context == null ||
+        current is! TripsLoaded ||
+        current.isTripExpenseSaving) {
       return;
     }
 
@@ -100,11 +102,14 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final owner = this as TripsCubit;
     final current = state;
     if (current is! TripsLoaded || current.isExpenseTypesLoading) return;
-    if (current.expenseTypes.isNotEmpty && current.expenseTypesFailure == null) {
+    if (current.expenseTypes.isNotEmpty &&
+        current.expenseTypesFailure == null) {
       return;
     }
 
-    emit(current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null));
+    emit(
+      current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
+    );
 
     final result = await owner.getActiveExpenseTypesUseCase(
       GetActiveExpenseTypesParams(

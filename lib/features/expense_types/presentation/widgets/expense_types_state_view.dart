@@ -200,7 +200,9 @@ class _TypesTable extends StatelessWidget {
                 cells: [
                   DataCell(Text(type.name)),
                   DataCell(
-                    Chip(label: Text(type.isActive ? l10n.active : l10n.inactive)),
+                    Chip(
+                      label: Text(type.isActive ? l10n.active : l10n.inactive),
+                    ),
                   ),
                   if (state.canManageExpenseTypes)
                     DataCell(

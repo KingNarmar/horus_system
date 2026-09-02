@@ -20,7 +20,9 @@ abstract final class TripsDependencies {
       createAuditLogUseCase: createAuditLogUseCase,
     );
 
-    final expensesRemoteDataSource = SupabaseTripExpensesRemoteDataSource(client);
+    final expensesRemoteDataSource = SupabaseTripExpensesRemoteDataSource(
+      client,
+    );
     final expensesRepository = TripExpensesRepositoryImpl(
       remoteDataSource: expensesRemoteDataSource,
       createAuditLogUseCase: createAuditLogUseCase,

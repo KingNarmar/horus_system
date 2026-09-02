@@ -147,13 +147,17 @@ class TripsLoaded extends TripsState {
       allTrips: allTrips ?? this.allTrips,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
-      canViewTripFinancials: canViewTripFinancials ?? this.canViewTripFinancials,
-      canManageTripExpenses: canManageTripExpenses ?? this.canManageTripExpenses,
+      canViewTripFinancials:
+          canViewTripFinancials ?? this.canViewTripFinancials,
+      canManageTripExpenses:
+          canManageTripExpenses ?? this.canManageTripExpenses,
       searchQuery: searchQuery ?? this.searchQuery,
       statusFilter: statusFilter ?? this.statusFilter,
-      statusChangingTripIds: statusChangingTripIds ?? this.statusChangingTripIds,
-      selectedTrip:
-          selectedTrip == _notSet ? this.selectedTrip : selectedTrip as TripEntity?,
+      statusChangingTripIds:
+          statusChangingTripIds ?? this.statusChangingTripIds,
+      selectedTrip: selectedTrip == _notSet
+          ? this.selectedTrip
+          : selectedTrip as TripEntity?,
       selectedTripNetProfit: selectedTripNetProfit == _notSet
           ? this.selectedTripNetProfit
           : selectedTripNetProfit as double?,
@@ -167,10 +171,12 @@ class TripsLoaded extends TripsState {
       isStatusHistoryLoading:
           isStatusHistoryLoading ?? this.isStatusHistoryLoading,
       isExpensesLoading: isExpensesLoading ?? this.isExpensesLoading,
-      isExpenseTypesLoading: isExpenseTypesLoading ?? this.isExpenseTypesLoading,
+      isExpenseTypesLoading:
+          isExpenseTypesLoading ?? this.isExpenseTypesLoading,
       isTripExpenseSaving: isTripExpenseSaving ?? this.isTripExpenseSaving,
-      detailsFailure:
-          detailsFailure == _notSet ? this.detailsFailure : detailsFailure as Failure?,
+      detailsFailure: detailsFailure == _notSet
+          ? this.detailsFailure
+          : detailsFailure as Failure?,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
@@ -183,8 +189,9 @@ class TripsLoaded extends TripsState {
       expenseTypesFailure: expenseTypesFailure == _notSet
           ? this.expenseTypesFailure
           : expenseTypesFailure as Failure?,
-      formLookups:
-          formLookups == _notSet ? this.formLookups : formLookups as TripFormLookups?,
+      formLookups: formLookups == _notSet
+          ? this.formLookups
+          : formLookups as TripFormLookups?,
       isFormLookupsLoading: isFormLookupsLoading ?? this.isFormLookupsLoading,
       formLookupsFailure: formLookupsFailure == _notSet
           ? this.formLookupsFailure

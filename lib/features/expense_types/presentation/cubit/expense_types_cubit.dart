@@ -123,9 +123,8 @@ class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
   }
 
   Future<bool> _submitMutation({
-    required Future<Result<ExpenseType>> Function(
-      CurrentCompanyContext context,
-    ) execute,
+    required Future<Result<ExpenseType>> Function(CurrentCompanyContext context)
+    execute,
     required ExpenseTypeMutation mutation,
   }) async {
     final context = _currentCompanyContext;
@@ -174,9 +173,8 @@ class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
 
   Future<bool> _statusMutation({
     required ExpenseType expenseType,
-    required Future<Result<ExpenseType>> Function(
-      CurrentCompanyContext context,
-    ) execute,
+    required Future<Result<ExpenseType>> Function(CurrentCompanyContext context)
+    execute,
     required ExpenseTypeMutation mutation,
   }) async {
     final context = _currentCompanyContext;

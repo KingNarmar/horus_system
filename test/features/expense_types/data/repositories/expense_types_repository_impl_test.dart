@@ -29,7 +29,9 @@ void main() {
 
     test('creates then audits only after successful mutation', () async {
       final operations = <String>[];
-      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+      );
       final auditRepository = _FakeAuditRepository(operations: operations);
       final repository = _repository(dataSource, auditRepository);
 
@@ -47,7 +49,9 @@ void main() {
 
     test('propagates audit failure after successful create mutation', () async {
       final operations = <String>[];
-      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+      );
       final auditRepository = _FakeAuditRepository(
         operations: operations,
         failure: const ValidationFailure(code: FailureCodes.serverError),
@@ -66,7 +70,9 @@ void main() {
 
     test('update snapshots old values before mutation and audit', () async {
       final operations = <String>[];
-      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+      );
       final auditRepository = _FakeAuditRepository(operations: operations);
       final repository = _repository(dataSource, auditRepository);
 
@@ -110,48 +116,62 @@ void main() {
       expect(auditRepository.lastData, isNull);
     });
 
-    test('deactivate snapshots state, mutates, then audits lifecycle', () async {
-      final operations = <String>[];
-      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
-      final auditRepository = _FakeAuditRepository(operations: operations);
-      final repository = _repository(dataSource, auditRepository);
+    test(
+      'deactivate snapshots state, mutates, then audits lifecycle',
+      () async {
+        final operations = <String>[];
+        final dataSource = _FakeExpenseTypesRemoteDataSource(
+          operations: operations,
+        );
+        final auditRepository = _FakeAuditRepository(operations: operations);
+        final repository = _repository(dataSource, auditRepository);
 
-      final result = await repository.deactivateExpenseType(
-        companyId: _companyId,
-        expenseTypeId: _typeId,
-        actorRole: 'owner',
-      );
+        final result = await repository.deactivateExpenseType(
+          companyId: _companyId,
+          expenseTypeId: _typeId,
+          actorRole: 'owner',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.isActive, isFalse);
-      expect(operations, ['get_by_id', 'deactivate', 'audit']);
-      expect(auditRepository.lastData?.description, 'expense_type_deactivated');
-      expect(auditRepository.lastData?.oldValues?['is_active'], isTrue);
-      expect(auditRepository.lastData?.newValues?['is_active'], isFalse);
-    });
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.isActive, isFalse);
+        expect(operations, ['get_by_id', 'deactivate', 'audit']);
+        expect(
+          auditRepository.lastData?.description,
+          'expense_type_deactivated',
+        );
+        expect(auditRepository.lastData?.oldValues?['is_active'], isTrue);
+        expect(auditRepository.lastData?.newValues?['is_active'], isFalse);
+      },
+    );
 
-    test('reactivate snapshots state, mutates, then audits lifecycle', () async {
-      final operations = <String>[];
-      final dataSource = _FakeExpenseTypesRemoteDataSource(
-        operations: operations,
-        snapshotModel: _model(isActive: false),
-      );
-      final auditRepository = _FakeAuditRepository(operations: operations);
-      final repository = _repository(dataSource, auditRepository);
+    test(
+      'reactivate snapshots state, mutates, then audits lifecycle',
+      () async {
+        final operations = <String>[];
+        final dataSource = _FakeExpenseTypesRemoteDataSource(
+          operations: operations,
+          snapshotModel: _model(isActive: false),
+        );
+        final auditRepository = _FakeAuditRepository(operations: operations);
+        final repository = _repository(dataSource, auditRepository);
 
-      final result = await repository.reactivateExpenseType(
-        companyId: _companyId,
-        expenseTypeId: _typeId,
-        actorRole: 'accountant',
-      );
+        final result = await repository.reactivateExpenseType(
+          companyId: _companyId,
+          expenseTypeId: _typeId,
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.isActive, isTrue);
-      expect(operations, ['get_by_id', 'reactivate', 'audit']);
-      expect(auditRepository.lastData?.description, 'expense_type_reactivated');
-      expect(auditRepository.lastData?.oldValues?['is_active'], isFalse);
-      expect(auditRepository.lastData?.newValues?['is_active'], isTrue);
-    });
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.isActive, isTrue);
+        expect(operations, ['get_by_id', 'reactivate', 'audit']);
+        expect(
+          auditRepository.lastData?.description,
+          'expense_type_reactivated',
+        );
+        expect(auditRepository.lastData?.oldValues?['is_active'], isFalse);
+        expect(auditRepository.lastData?.newValues?['is_active'], isTrue);
+      },
+    );
 
     test('does not audit when create mutation fails', () async {
       final operations = <String>[];
@@ -221,7 +241,8 @@ ExpenseTypeModel _model({String name = 'Fuel', bool isActive = true}) {
   );
 }
 
-class _FakeExpenseTypesRemoteDataSource implements ExpenseTypesRemoteDataSource {
+class _FakeExpenseTypesRemoteDataSource
+    implements ExpenseTypesRemoteDataSource {
   final List<String>? operations;
   final Object? addError;
   final Object? getByIdError;

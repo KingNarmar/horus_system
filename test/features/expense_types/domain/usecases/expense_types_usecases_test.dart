@@ -58,24 +58,30 @@ void main() {
       );
 
       expect(result, isA<FailureResult<List<ExpenseType>>>());
-      expect(result.failureOrNull?.code, FailureCodes.validationCompanyIdRequired);
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationCompanyIdRequired,
+      );
       expect(repository.lastGetCompanyId, isNull);
     });
 
-    test('active lookup allows operations and preserves tenant scope', () async {
-      final repository = _FakeExpenseTypesRepository();
-      final result = await GetActiveExpenseTypesUseCase(repository)(
-        GetActiveExpenseTypesParams(
-          currentCompanyContext: _context(
-            CompanyRole.operations,
-            companyId: ' company-2 ',
+    test(
+      'active lookup allows operations and preserves tenant scope',
+      () async {
+        final repository = _FakeExpenseTypesRepository();
+        final result = await GetActiveExpenseTypesUseCase(repository)(
+          GetActiveExpenseTypesParams(
+            currentCompanyContext: _context(
+              CompanyRole.operations,
+              companyId: ' company-2 ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result, isA<Success<List<ExpenseType>>>());
-      expect(repository.lastActiveCompanyId, 'company-2');
-    });
+        expect(result, isA<Success<List<ExpenseType>>>());
+        expect(repository.lastActiveCompanyId, 'company-2');
+      },
+    );
 
     test('active lookup rejects driver role before repository', () async {
       final repository = _FakeExpenseTypesRepository();
@@ -86,7 +92,10 @@ void main() {
       );
 
       expect(result, isA<FailureResult<List<ExpenseType>>>());
-      expect(result.failureOrNull?.code, FailureCodes.permissionExpenseTypesView);
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionExpenseTypesView,
+      );
       expect(repository.lastActiveCompanyId, isNull);
     });
   });
@@ -124,22 +133,25 @@ void main() {
       expect(repository.lastWriteData, isNull);
     });
 
-    test('add rejects non-management role before validation or mutation', () async {
-      final repository = _FakeExpenseTypesRepository();
-      final result = await AddExpenseTypeUseCase(repository)(
-        AddExpenseTypeParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
-          name: 'Fuel',
-        ),
-      );
+    test(
+      'add rejects non-management role before validation or mutation',
+      () async {
+        final repository = _FakeExpenseTypesRepository();
+        final result = await AddExpenseTypeUseCase(repository)(
+          AddExpenseTypeParams(
+            currentCompanyContext: _context(CompanyRole.viewer),
+            name: 'Fuel',
+          ),
+        );
 
-      expect(result, isA<FailureResult<ExpenseType>>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.permissionExpenseTypesManagement,
-      );
-      expect(repository.lastWriteData, isNull);
-    });
+        expect(result, isA<FailureResult<ExpenseType>>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.permissionExpenseTypesManagement,
+        );
+        expect(repository.lastWriteData, isNull);
+      },
+    );
 
     test('update trims id and name before repository mutation', () async {
       final repository = _FakeExpenseTypesRepository();

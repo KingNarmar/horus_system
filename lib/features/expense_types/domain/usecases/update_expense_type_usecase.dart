@@ -33,7 +33,9 @@ class UpdateExpenseTypeUseCase
     if (!ExpenseTypesPermissionPolicy.canManageExpenseTypes(context.role)) {
       return Future.value(
         const FailureResult<ExpenseType>(
-          PermissionFailure(code: FailureCodes.permissionExpenseTypesManagement),
+          PermissionFailure(
+            code: FailureCodes.permissionExpenseTypesManagement,
+          ),
         ),
       );
     }
@@ -51,7 +53,9 @@ class UpdateExpenseTypeUseCase
     if (name.isEmpty) {
       return Future.value(
         const FailureResult<ExpenseType>(
-          ValidationFailure(code: FailureCodes.validationExpenseTypeNameRequired),
+          ValidationFailure(
+            code: FailureCodes.validationExpenseTypeNameRequired,
+          ),
         ),
       );
     }

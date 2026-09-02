@@ -30,7 +30,9 @@ class ExpenseTypesRepositoryImpl implements ExpenseTypesRepository {
     required String companyId,
   }) {
     return _guard(() async {
-      final models = await remoteDataSource.getExpenseTypes(companyId: companyId);
+      final models = await remoteDataSource.getExpenseTypes(
+        companyId: companyId,
+      );
       return Success(models.map((model) => model.toEntity()).toList());
     }, permissionCode: FailureCodes.permissionExpenseTypesManagement);
   }

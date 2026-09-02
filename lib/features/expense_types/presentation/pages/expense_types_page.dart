@@ -36,7 +36,8 @@ class _ExpenseTypesPageState extends State<ExpenseTypesPage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentCompanyContext.companyId !=
             widget.currentCompanyContext.companyId ||
-        oldWidget.currentCompanyContext.role != widget.currentCompanyContext.role) {
+        oldWidget.currentCompanyContext.role !=
+            widget.currentCompanyContext.role) {
       context.read<ExpenseTypesCubit>().loadExpenseTypes(
         widget.currentCompanyContext,
       );
@@ -65,7 +66,9 @@ class _ExpenseTypesPageState extends State<ExpenseTypesPage> {
       confirmLabel: l10n.deactivate,
     );
     if (confirmed && mounted) {
-      await context.read<ExpenseTypesCubit>().deactivateExpenseType(expenseType);
+      await context.read<ExpenseTypesCubit>().deactivateExpenseType(
+        expenseType,
+      );
     }
   }
 
@@ -77,7 +80,9 @@ class _ExpenseTypesPageState extends State<ExpenseTypesPage> {
       confirmLabel: l10n.reactivate,
     );
     if (confirmed && mounted) {
-      await context.read<ExpenseTypesCubit>().reactivateExpenseType(expenseType);
+      await context.read<ExpenseTypesCubit>().reactivateExpenseType(
+        expenseType,
+      );
     }
   }
 
@@ -152,7 +157,8 @@ class _ExpenseTypesPageState extends State<ExpenseTypesPage> {
             const SizedBox(height: AppSpacing.lg),
             ExpenseTypesStateView(
               state: state,
-              onRetry: () => cubit.loadExpenseTypes(widget.currentCompanyContext),
+              onRetry: () =>
+                  cubit.loadExpenseTypes(widget.currentCompanyContext),
               onStatusFilterChanged: cubit.setStatusFilter,
               onEdit: (type) => _openForm(expenseType: type),
               onDeactivate: _deactivate,
@@ -224,10 +230,9 @@ class _HeaderText extends StatelessWidget {
       children: [
         Text(
           l10n.title,
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(l10n.description),

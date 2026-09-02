@@ -55,7 +55,9 @@ class _ExpenseTypeFormDialogState extends State<ExpenseTypeFormDialog> {
     return AlertDialog(
       title: Text(widget.expenseType == null ? l10n.addType : l10n.editType),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: Form(
           key: _formKey,
           child: TextFormField(

@@ -25,7 +25,9 @@ class GetExpenseTypesUseCase
     if (!ExpenseTypesPermissionPolicy.canManageExpenseTypes(context.role)) {
       return Future.value(
         const FailureResult<List<ExpenseType>>(
-          PermissionFailure(code: FailureCodes.permissionExpenseTypesManagement),
+          PermissionFailure(
+            code: FailureCodes.permissionExpenseTypesManagement,
+          ),
         ),
       );
     }

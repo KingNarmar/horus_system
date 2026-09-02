@@ -74,7 +74,10 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
         tripId: data.tripId,
         id: id,
       );
-      final model = await remoteDataSource.updateTripExpense(id: id, data: data);
+      final model = await remoteDataSource.updateTripExpense(
+        id: id,
+        data: data,
+      );
       final total = await remoteDataSource.getTripTotalExpenses(
         companyId: data.companyId,
         tripId: data.tripId,
