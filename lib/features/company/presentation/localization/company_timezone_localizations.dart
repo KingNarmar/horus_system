@@ -16,6 +16,7 @@ final class CompanyTimezoneLocalizations {
   String get title => _value('title');
   String get description => _value('description');
   String get label => _value('label');
+  String get hint => _value('hint');
   String get required => _value('required');
   String get invalid => _value('invalid');
   String get loading => _value('loading');
@@ -38,6 +39,7 @@ final class CompanyTimezoneLocalizations {
     'description':
         'Used to determine the company business date and future date-based operational reporting.',
     'label': 'Timezone',
+    'hint': 'Select the company business timezone',
     'required': 'Business timezone is required.',
     'invalid': 'Select a valid business timezone.',
     'loading': 'Loading timezones...',
@@ -59,6 +61,7 @@ final class CompanyTimezoneLocalizations {
     'description':
         'تُستخدم لتحديد تاريخ عمل الشركة ولدعم التقارير التشغيلية المعتمدة على التاريخ لاحقًا.',
     'label': 'المنطقة الزمنية',
+    'hint': 'اختر المنطقة الزمنية الخاصة بعمل الشركة',
     'required': 'المنطقة الزمنية للشركة مطلوبة.',
     'invalid': 'اختر منطقة زمنية صحيحة.',
     'loading': 'جاري تحميل المناطق الزمنية...',
