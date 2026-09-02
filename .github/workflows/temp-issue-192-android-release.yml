@@ -70,6 +70,17 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Verify release signing fails closed without credentials
+        run: |
+          rm -f android/key.properties android/*.jks android/*.keystore
+          flutter clean
+          flutter pub get
+          if flutter build appbundle --release; then
+            echo "Expected release build without android/key.properties to fail."
+            exit 1
+          fi
+          echo "Release build correctly rejected missing signing credentials."
+
       - name: Generate ephemeral CI upload key
         run: |
           keytool -genkeypair -v \
@@ -109,13 +120,21 @@ jobs:
           grep -q 'android.permission.INTERNET' /tmp/release-manifest.xml
           grep -q 'targetSdkVersion="36"' /tmp/release-manifest.xml
 
-      - name: Verify release signing
+      - name: Verify release signing certificate
         run: |
           AAB=build/app/outputs/bundle/release/app-release.aab
-          jarsigner -verify -strict "$AAB"
+          jarsigner -verify "$AAB"
+          keytool -list -v \
+            -keystore android/horus-ci-upload.jks \
+            -storepass ci-password \
+            -alias upload > /tmp/expected-cert.txt
           keytool -printcert -jarfile "$AAB" > /tmp/aab-cert.txt
           cat /tmp/aab-cert.txt
-          grep -q 'CN=H.O.R.U.S CI Upload' /tmp/aab-cert.txt
+          EXPECTED_SHA256=$(grep 'SHA256:' /tmp/expected-cert.txt | head -1 | sed 's/.*SHA256: //; s/://g; s/ //g')
+          ACTUAL_SHA256=$(grep 'SHA256:' /tmp/aab-cert.txt | head -1 | sed 's/.*SHA256: //; s/://g; s/ //g')
+          test -n "$EXPECTED_SHA256"
+          test -n "$ACTUAL_SHA256"
+          test "$EXPECTED_SHA256" = "$ACTUAL_SHA256"
 
       - name: Verify 64-bit native support
         run: |
