@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../expenses/domain/entities/expense_type_option.dart';
+import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import '../helpers/trip_formatters.dart';
@@ -11,7 +12,7 @@ import '../localization/trips_localizations_x.dart';
 class TripExpenseFormDialog extends StatefulWidget {
   final String title;
   final TripExpense? expense;
-  final List<ExpenseTypeOption> expenseTypes;
+  final List<ExpenseType> expenseTypes;
   final Object? expenseTypesFailure;
   final Future<void> Function(TripExpenseFormData data) onSubmit;
 
@@ -72,7 +73,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
-        width: 420,
+        width: AppSizes.formDialogMaxWidth,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -236,9 +237,9 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     return null;
   }
 
-  ExpenseTypeOption? _selectedType() => _findType(_expenseTypeId);
+  ExpenseType? _selectedType() => _findType(_expenseTypeId);
 
-  ExpenseTypeOption? _findType(String? id) {
+  ExpenseType? _findType(String? id) {
     if (id == null) return null;
     for (final type in widget.expenseTypes) {
       if (type.id == id) return type;
