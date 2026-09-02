@@ -419,6 +419,7 @@ class _CompanyTimezoneField extends StatelessWidget {
       isExpanded: true,
       decoration: InputDecoration(
         labelText: l10n.label,
+        hintText: l10n.hint,
         border: const OutlineInputBorder(),
       ),
       items: options
