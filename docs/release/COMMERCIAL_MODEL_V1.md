@@ -132,7 +132,7 @@ These issues are intentionally deferred behind the higher-priority release-readi
 
 The developer account and payout configuration are operational concerns separate from H.O.R.U.S Domain entitlements.
 
-Before the first real paid customer transaction is accepted, Mina must confirm and complete the business/trade licensing, banking/payout, tax/VAT, identity, and merchant requirements applicable at that time.
+Before the first real paid customer transaction is accepted, the project owner must confirm and complete the business/trade licensing, banking/payout, tax/VAT, identity, and merchant requirements applicable at that time.
 
 The commercial launch must not rely on collecting paid customer revenue first and obtaining required licensing afterward.
 
