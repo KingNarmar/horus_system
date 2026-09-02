@@ -116,6 +116,18 @@ The paid release must not be enabled until focused implementation work covers at
 
 Billing work must be split into focused PR-sized issues rather than implemented as one large cross-layer change.
 
+## Tracked Follow-Up Issues
+
+The approved dependencies are tracked explicitly as:
+
+- #207 — Finalize production subscription plans, pricing, and trial policy.
+- #208 — Implement Android Google Play Billing purchase and restore flows.
+- #209 — Implement server-side Play verification and company entitlement synchronization.
+- #32 — Implement plan limit checks foundation after the production plan contract is approved.
+- #210 — Verify commercial licensing, payout, and tax readiness before paid launch.
+
+These issues are intentionally deferred behind the higher-priority release-readiness work, but all required paid-launch blockers must be completed before paid public monetization is enabled.
+
 ## Commercial and Licensing Gate
 
 The developer account and payout configuration are operational concerns separate from H.O.R.U.S Domain entitlements.
