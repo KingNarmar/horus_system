@@ -35,6 +35,10 @@ class FailureCodes {
       'permission_trip_expenses_management';
   static const String permissionTripExpensesView =
       'permission_trip_expenses_view';
+  static const String permissionExpenseTypesManagement =
+      'permission_expense_types_management';
+  static const String permissionExpenseTypesView =
+      'permission_expense_types_view';
   static const String permissionDriverFinanceManagement =
       'permission_driver_finance_management';
   static const String permissionDriverFinanceView =
@@ -117,6 +121,10 @@ class FailureCodes {
       'validation_trip_expense_name_required';
   static const String validationTripExpenseAmountPositive =
       'validation_trip_expense_amount_positive';
+  static const String validationExpenseTypeIdRequired =
+      'validation_expense_type_id_required';
+  static const String validationExpenseTypeNameRequired =
+      'validation_expense_type_name_required';
   static const String validationDriverFinanceAmountPositive =
       'validation_driver_finance_amount_positive';
   static const String validationCompanyExpenseIdRequired =
@@ -181,6 +189,7 @@ class FailureCodes {
 
   // Not found
   static const String invoiceTripNotFound = 'invoice_trip_not_found';
+  static const String expenseTypeNotFound = 'expense_type_not_found';
   static const String paymentMethodNotFound = 'payment_method_not_found';
 
   // Conflicts
@@ -210,6 +219,8 @@ class FailureCodes {
       'conflict_invoice_trip_snapshot_changed';
   static const String conflictInvoiceTotalsMismatch =
       'conflict_invoice_totals_mismatch';
+  static const String conflictExpenseTypeDuplicateName =
+      'conflict_expense_type_duplicate_name';
   static const String conflictPaymentMethodDuplicateName =
       'conflict_payment_method_duplicate_name';
 
