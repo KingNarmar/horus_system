@@ -176,7 +176,7 @@ class _CompanyTimezoneSettingsCardState
                     .read<CompanyTimezoneCubit>()
                     .updateBusinessTimezone(
                       currentCompanyContext: widget.currentCompanyContext,
-                      businessTimezone: selectedValue,
+                      businessTimezone: selectedValue!,
                     )
               : null,
           child: Text(isSaving ? l10n.saving : l10n.save),
