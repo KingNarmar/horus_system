@@ -8,12 +8,12 @@ import 'package:test/test.dart';
 
 void main() {
   group('Trip Expenses database constants', () {
-    test('preserve table, lookup, linked-trip, and select identifiers', () {
+    test('preserve table, relation, linked-trip, and select identifiers', () {
       expect(TripExpenseDbFields.tableName, 'trip_expenses');
-      expect(TripExpenseTypeLookupDbFields.tableName, 'expense_types');
+      expect(TripExpenseTypeRelationDbFields.relationName, 'expense_types');
+      expect(TripExpenseTypeRelationDbFields.name, 'name');
       expect(TripExpenseLinkedTripDbFields.tableName, 'trips');
       expect(TripExpenseLinkedTripDbFields.totalExpenses, 'total_expenses');
-      expect(TripExpenseTypeLookupDbFields.lookupColumns, 'id, name');
       expect(
         TripExpenseDbFields.allColumns,
         contains('expense_types!trip_expenses_company_type_fk(name)'),

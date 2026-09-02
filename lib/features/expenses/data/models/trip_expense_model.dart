@@ -46,11 +46,11 @@ class TripExpenseModel {
           map[TripExpenseDbFields.expenseTypeNameAlias] as String? ??
           _nestedString(
             map[TripExpenseDbFields.expenseTypeRelationKey],
-            TripExpenseTypeLookupDbFields.name,
+            TripExpenseTypeRelationDbFields.name,
           ) ??
           _nestedString(
-            map[TripExpenseTypeLookupDbFields.tableName],
-            TripExpenseTypeLookupDbFields.name,
+            map[TripExpenseTypeRelationDbFields.relationName],
+            TripExpenseTypeRelationDbFields.name,
           ),
       createdAt: _toDateTime(map[DbCommonFields.createdAt]),
       updatedAt: _toDateTime(map[DbCommonFields.updatedAt]),

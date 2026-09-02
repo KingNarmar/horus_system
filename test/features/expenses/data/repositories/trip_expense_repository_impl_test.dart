@@ -11,7 +11,6 @@ import 'package:horus_system/features/audit/domain/usecases/create_audit_log_use
 import 'package:horus_system/features/expenses/data/datasources/trip_expenses_remote_data_source.dart';
 import 'package:horus_system/features/expenses/data/models/trip_expense_model.dart';
 import 'package:horus_system/features/expenses/data/repositories/trip_expense_repo_impl.dart';
-import 'package:horus_system/features/expenses/domain/entities/expense_type_option.dart';
 import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
 import 'package:horus_system/features/expenses/domain/entities/trip_expense_write_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
@@ -298,16 +297,6 @@ void main() {
       expect(remoteDataSource.lastListTripId, _tripId);
     });
 
-    test('forwards company scope when loading expense types', () async {
-      final remoteDataSource = _FakeTripExpensesRemoteDataSource();
-      final repository = _repository(remoteDataSource);
-
-      final result = await repository.getExpenseTypes(companyId: _companyId);
-
-      expect(result, isA<Success>());
-      expect(remoteDataSource.lastExpenseTypesCompanyId, _companyId);
-    });
-
     test('sanitizes model mapping failures inside repository guard', () async {
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         listModels: [_ThrowingTripExpenseModel()],
@@ -400,7 +389,6 @@ class _FakeTripExpensesRemoteDataSource
   final List<TripExpenseModel>? listModels;
   String? lastListCompanyId;
   String? lastListTripId;
-  String? lastExpenseTypesCompanyId;
   String? lastTotalReadCompanyId;
   String? lastTotalReadTripId;
 
@@ -423,15 +411,6 @@ class _FakeTripExpensesRemoteDataSource
     lastListTripId = tripId;
     if (listError != null) throw listError!;
     return listModels ?? [_expenseModel()];
-  }
-
-  @override
-  Future<List<ExpenseTypeOption>> getExpenseTypes({
-    required String companyId,
-  }) async {
-    operations?.add('get_expense_types');
-    lastExpenseTypesCompanyId = companyId;
-    return const [];
   }
 
   @override

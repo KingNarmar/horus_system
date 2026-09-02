@@ -82,23 +82,19 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     if (latestState is! TripsLoaded) return;
 
     result.when(
-      success: (expenses) {
-        emit(
-          latestState.copyWith(
-            selectedTripExpenses: expenses,
-            isExpensesLoading: false,
-            expensesFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isExpensesLoading: false,
-            expensesFailure: failure,
-          ),
-        );
-      },
+      success: (expenses) => emit(
+        latestState.copyWith(
+          selectedTripExpenses: expenses,
+          isExpensesLoading: false,
+          expensesFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isExpensesLoading: false,
+          expensesFailure: failure,
+        ),
+      ),
     );
   }
 
@@ -115,8 +111,8 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
     );
 
-    final result = await owner.getExpenseTypesUseCase(
-      GetExpenseTypesParams(
+    final result = await owner.getActiveExpenseTypesUseCase(
+      GetActiveExpenseTypesParams(
         currentCompanyContext: current.currentCompanyContext,
       ),
     );
@@ -125,23 +121,19 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     if (latestState is! TripsLoaded) return;
 
     result.when(
-      success: (types) {
-        emit(
-          latestState.copyWith(
-            expenseTypes: types,
-            isExpenseTypesLoading: false,
-            expenseTypesFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isExpenseTypesLoading: false,
-            expenseTypesFailure: failure,
-          ),
-        );
-      },
+      success: (types) => emit(
+        latestState.copyWith(
+          expenseTypes: types,
+          isExpenseTypesLoading: false,
+          expenseTypesFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(
+        latestState.copyWith(
+          isExpenseTypesLoading: false,
+          expenseTypesFailure: failure,
+        ),
+      ),
     );
   }
 }
