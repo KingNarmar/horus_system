@@ -7,16 +7,19 @@ import '../data/datasources/company_invitation_delivery_remote_data_source.dart'
 import '../data/datasources/company_invitations_remote_data_source.dart';
 import '../data/datasources/company_membership_remote_data_source.dart';
 import '../data/datasources/company_regional_settings_remote_data_source.dart';
+import '../data/datasources/company_timezone_remote_data_source.dart';
 import '../data/datasources/pending_company_invitation_local_data_source.dart';
 import '../data/repositories/company_invitations_repository_impl.dart';
 import '../data/repositories/company_membership_repository_impl.dart';
 import '../data/repositories/company_regional_settings_repository_impl.dart';
+import '../data/repositories/company_timezone_repository_impl.dart';
 import '../data/repositories/pending_company_invitation_repository_impl.dart';
 import '../data/services/company_business_date_provider_impl.dart';
 import '../data/services/company_invitation_token_codec.dart';
 import '../domain/repositories/company_invitations_repository.dart';
 import '../domain/repositories/company_membership_repository.dart';
 import '../domain/repositories/company_regional_settings_repository.dart';
+import '../domain/repositories/company_timezone_repository.dart';
 import '../domain/repositories/pending_company_invitation_repository.dart';
 import '../domain/usecases/accept_company_invitation_usecase.dart';
 import '../domain/usecases/change_company_member_role_usecase.dart';
@@ -24,6 +27,7 @@ import '../domain/usecases/clear_pending_company_invitation_usecase.dart';
 import '../domain/usecases/deactivate_company_member_usecase.dart';
 import '../domain/usecases/get_company_invitation_preview_usecase.dart';
 import '../domain/usecases/get_company_invitations_usecase.dart';
+import '../domain/usecases/get_company_timezone_options_usecase.dart';
 import '../domain/usecases/get_pending_company_invitation_usecase.dart';
 import '../domain/usecases/grant_company_ownership_usecase.dart';
 import '../domain/usecases/reactivate_company_member_usecase.dart';
@@ -32,10 +36,12 @@ import '../domain/usecases/revoke_company_invitation_usecase.dart';
 import '../domain/usecases/send_company_invitation_usecase.dart';
 import '../domain/usecases/store_pending_company_invitation_usecase.dart';
 import '../domain/usecases/transfer_company_ownership_usecase.dart';
+import '../domain/usecases/update_company_business_timezone_usecase.dart';
 import '../domain/usecases/update_company_regional_settings_usecase.dart';
 import '../presentation/cubit/company_invitation_acceptance_cubit.dart';
 import '../presentation/cubit/company_invitations_cubit.dart';
 import '../presentation/cubit/company_member_actions_cubit.dart';
+import '../presentation/cubit/company_timezone_cubit.dart';
 
 abstract final class CompanyDependencies {
   static CompanyRegionalSettingsRepository createRegionalSettingsRepository() {
@@ -43,6 +49,20 @@ abstract final class CompanyDependencies {
       SupabaseCompanyRegionalSettingsRemoteDataSource(
         SupabaseClientProvider.client,
       ),
+    );
+  }
+
+  static CompanyTimezoneRepository createTimezoneRepository() {
+    return CompanyTimezoneRepositoryImpl(
+      SupabaseCompanyTimezoneRemoteDataSource(SupabaseClientProvider.client),
+    );
+  }
+
+  static CompanyTimezoneCubit createTimezoneCubit() {
+    final repository = createTimezoneRepository();
+    return CompanyTimezoneCubit(
+      getOptionsUseCase: GetCompanyTimezoneOptionsUseCase(repository),
+      updateTimezoneUseCase: UpdateCompanyBusinessTimezoneUseCase(repository),
     );
   }
 

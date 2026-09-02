@@ -4,6 +4,7 @@ import 'package:horus_system/features/company/data/datasources/company_remote_da
 import 'package:horus_system/features/company/data/models/company_model.dart';
 import 'package:horus_system/features/company/data/repositories/company_repository_impl.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
+import 'package:horus_system/features/company/domain/value_objects/company_timezone.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
 
@@ -32,6 +33,7 @@ void main() {
 
         final result = await repository.createCompany(
           name: 'Horus Transport',
+          businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
           businessType: 'Heavy Transport',
           phone: '+971500000000',
           email: 'ops@example.com',
@@ -41,6 +43,7 @@ void main() {
 
         expect(result.failureOrNull, isNull);
         expect(dataSource.createName, 'Horus Transport');
+        expect(dataSource.createBusinessTimezone, 'Asia/Dubai');
         expect(dataSource.createBusinessType, 'Heavy Transport');
         expect(dataSource.createPhone, '+971500000000');
         expect(dataSource.createEmail, 'ops@example.com');
@@ -89,7 +92,10 @@ void main() {
         ),
       );
 
-      final result = await repository.createCompany(name: 'Company');
+      final result = await repository.createCompany(
+        name: 'Company',
+        businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
+      );
 
       expect(result.failureOrNull, isA<AuthFailure>());
       expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
@@ -122,7 +128,10 @@ void main() {
         ),
       );
 
-      final result = await repository.createCompany(name: 'Company');
+      final result = await repository.createCompany(
+        name: 'Company',
+        businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
+      );
 
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.message, isNull);
@@ -150,6 +159,7 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
   final Object? listError;
 
   String? createName;
+  String? createBusinessTimezone;
   String? createBusinessType;
   String? createPhone;
   String? createEmail;
@@ -168,6 +178,7 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
   @override
   Future<CompanyModel> createCompany({
     required String name,
+    required String businessTimezone,
     String? businessType,
     String? phone,
     String? email,
@@ -175,6 +186,7 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
     String? city,
   }) async {
     createName = name;
+    createBusinessTimezone = businessTimezone;
     createBusinessType = businessType;
     createPhone = phone;
     createEmail = email;

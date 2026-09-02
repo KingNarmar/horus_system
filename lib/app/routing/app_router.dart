@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/app_shell/presentation/models/app_shell_destination.dart';
 import '../../features/app_shell/presentation/pages/app_shell_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/company/di/company_dependencies.dart';
+import '../../features/company/presentation/cubit/company_timezone_cubit.dart';
 import '../../features/company/presentation/pages/company_creation_page.dart';
 import '../../features/company/presentation/pages/company_invitation_acceptance_page.dart';
 import '../../features/company/presentation/pages/company_users_page.dart';
@@ -37,8 +40,11 @@ abstract final class AppRouter {
       AppRoutes.companyInvitation => CompanyInvitationAcceptancePage(
         initialToken: invitationToken,
       ),
-      AppRoutes.companyCreation => const AuthenticatedRouteGuard(
-        child: CompanyCreationPage(),
+      AppRoutes.companyCreation => AuthenticatedRouteGuard(
+        child: BlocProvider<CompanyTimezoneCubit>(
+          create: (_) => CompanyDependencies.createTimezoneCubit()..loadOptions(),
+          child: const CompanyCreationPage(),
+        ),
       ),
       AppRoutes.companyUsers => CompanyRequiredRouteGuard(
         builder: (_) => const CompanyUsersPage(),

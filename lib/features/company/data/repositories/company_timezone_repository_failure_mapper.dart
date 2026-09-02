@@ -7,8 +7,8 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../constants/company_rpc_error_codes.dart';
 
-final class CompanyRepositoryFailureMapper {
-  const CompanyRepositoryFailureMapper();
+final class CompanyTimezoneRepositoryFailureMapper {
+  const CompanyTimezoneRepositoryFailureMapper();
 
   Failure fromAuthException(AuthException _) {
     return const AuthFailure(code: CompanyFailureCodes.authRequired);
@@ -16,16 +16,23 @@ final class CompanyRepositoryFailureMapper {
 
   Failure fromPostgrest(PostgrestException error) {
     return switch (error.code) {
-      CompanyRpcErrorCodes.onboardingAuthRequired =>
+      CompanyRpcErrorCodes.timezoneCatalogAuthRequired =>
         const AuthFailure(code: CompanyFailureCodes.authRequired),
-      CompanyRpcErrorCodes.onboardingCompanyNameRequired =>
-        const ValidationFailure(code: FailureCodes.validationCompanyNameRequired),
-      CompanyRpcErrorCodes.onboardingBusinessTimezoneInvalid =>
-        const ValidationFailure(
-          code: CompanyFailureCodes.validationBusinessTimezoneInvalid,
+      CompanyRpcErrorCodes.settingsPermissionDenied || '42501' =>
+        const PermissionFailure(
+          code: CompanyFailureCodes.permissionSettingsManagement,
         ),
+      CompanyRpcErrorCodes.businessTimezoneInvalid => const ValidationFailure(
+        code: CompanyFailureCodes.validationBusinessTimezoneInvalid,
+      ),
+      CompanyRpcErrorCodes.companyNotFound =>
+        const NotFoundFailure(code: CompanyFailureCodes.notFound),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
+  }
+
+  Failure fromFormatException(FormatException _) {
+    return const ServerFailure(code: FailureCodes.serverError);
   }
 
   Failure fromUnexpected(Object _) {

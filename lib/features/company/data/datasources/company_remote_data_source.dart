@@ -8,6 +8,7 @@ import '../models/company_model.dart';
 abstract class CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
     required String name,
+    required String businessTimezone,
     String? businessType,
     String? phone,
     String? email,
@@ -26,6 +27,7 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   @override
   Future<CompanyModel> createCompany({
     required String name,
+    required String businessTimezone,
     String? businessType,
     String? phone,
     String? email,
@@ -37,6 +39,7 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
           CompanyRpcConstants.createCompany,
           params: {
             CompanyRpcConstants.companyName: name,
+            CompanyRpcConstants.businessTimezone: businessTimezone,
             CompanyRpcConstants.businessType: businessType,
             CompanyRpcConstants.phone: phone,
             CompanyRpcConstants.email: email,
