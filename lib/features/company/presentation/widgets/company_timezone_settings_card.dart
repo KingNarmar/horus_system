@@ -49,12 +49,13 @@ class _CompanyTimezoneSettingsCardState
     final canManage = widget.currentCompanyContext.canManageCompany;
 
     return BlocConsumer<CompanyTimezoneCubit, CompanyTimezoneState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is CompanyTimezoneSaved) {
           _selectedTimezone = state.company.businessTimezone;
-          context.read<CurrentCompanyCubit>().refreshAndSelectCompany(
+          await context.read<CurrentCompanyCubit>().refreshAndSelectCompany(
             widget.currentCompanyContext.companyId,
           );
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(l10n.saved)),
           );
