@@ -27,6 +27,10 @@ import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
 import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import '../../../driver_settlements/presentation/pages/driver_settlements_page.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
+import '../../../expense_types/di/expense_types_dependencies.dart';
+import '../../../expense_types/domain/policies/expense_types_permission_policy.dart';
+import '../../../expense_types/presentation/cubit/expense_types_cubit.dart';
+import '../../../expense_types/presentation/pages/expense_types_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
 import '../../../invoices/di/invoices_dependencies.dart';
@@ -138,6 +142,9 @@ class AppShellContent extends StatelessWidget {
           BlocProvider<PaymentMethodsCubit>(
             create: (_) => PaymentMethodsDependencies.createCubit(),
           ),
+          BlocProvider<ExpenseTypesCubit>(
+            create: (_) => ExpenseTypesDependencies.createCubit(),
+          ),
         ],
         child: _SettingsContent(contextData: contextData),
       ),
@@ -180,6 +187,9 @@ class _SettingsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canManageExpenseTypes =
+        ExpenseTypesPermissionPolicy.canManageExpenseTypes(contextData.role);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -188,6 +198,10 @@ class _SettingsContent extends StatelessWidget {
         SubscriptionsPage(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         PaymentMethodsPage(currentCompanyContext: contextData),
+        if (canManageExpenseTypes) ...[
+          const SizedBox(height: AppSpacing.xl),
+          ExpenseTypesPage(currentCompanyContext: contextData),
+        ],
       ],
     );
   }
