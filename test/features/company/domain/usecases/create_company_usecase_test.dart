@@ -94,5 +94,6 @@ final class _FakeCompanyRepository implements CompanyRepository {
   }
 
   @override
-  Future<Result<List<Company>>> getMyCompanies() async => const Success([]);
+  Future<Result<List<Company>>> getMyCompanies() async =>
+      const Success<List<Company>>(<Company>[]);
 }

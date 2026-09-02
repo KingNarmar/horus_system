@@ -97,7 +97,7 @@ final class _FakeCompanyTimezoneRepository implements CompanyTimezoneRepository 
 
   @override
   Future<Result<List<CompanyTimezone>>> getTimezoneOptions() async =>
-      const Success([]);
+      const Success<List<CompanyTimezone>>(<CompanyTimezone>[]);
 
   @override
   Future<Result<Company>> updateBusinessTimezone({
