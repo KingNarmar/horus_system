@@ -1,4 +1,5 @@
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -44,6 +45,25 @@ void main() {
       expect(auditRepository.lastData?.companyId, _companyId);
     });
 
+    test('propagates audit failure after successful create mutation', () async {
+      final operations = <String>[];
+      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
+      final auditRepository = _FakeAuditRepository(
+        operations: operations,
+        failure: const ValidationFailure(code: FailureCodes.serverError),
+      );
+      final repository = _repository(dataSource, auditRepository);
+
+      final result = await repository.addExpenseType(
+        data: const ExpenseTypeWriteData(companyId: _companyId, name: 'Fuel'),
+        actorRole: 'accountant',
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(operations, ['add', 'audit']);
+    });
+
     test('update snapshots old values before mutation and audit', () async {
       final operations = <String>[];
       final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
@@ -65,7 +85,75 @@ void main() {
       expect(auditRepository.lastData?.newValues?['name'], 'Road fees');
     });
 
-    test('does not audit when mutation fails', () async {
+    test('snapshot failure stops update before mutation and audit', () async {
+      final operations = <String>[];
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+        getByIdError: StateError('snapshot detail'),
+      );
+      final auditRepository = _FakeAuditRepository(operations: operations);
+      final repository = _repository(dataSource, auditRepository);
+
+      final result = await repository.updateExpenseType(
+        expenseTypeId: _typeId,
+        data: const ExpenseTypeWriteData(
+          companyId: _companyId,
+          name: 'Road fees',
+        ),
+        actorRole: 'admin',
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+      expect(operations, ['get_by_id']);
+      expect(auditRepository.lastData, isNull);
+    });
+
+    test('deactivate snapshots state, mutates, then audits lifecycle', () async {
+      final operations = <String>[];
+      final dataSource = _FakeExpenseTypesRemoteDataSource(operations: operations);
+      final auditRepository = _FakeAuditRepository(operations: operations);
+      final repository = _repository(dataSource, auditRepository);
+
+      final result = await repository.deactivateExpenseType(
+        companyId: _companyId,
+        expenseTypeId: _typeId,
+        actorRole: 'owner',
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.isActive, isFalse);
+      expect(operations, ['get_by_id', 'deactivate', 'audit']);
+      expect(auditRepository.lastData?.description, 'expense_type_deactivated');
+      expect(auditRepository.lastData?.oldValues?['is_active'], isTrue);
+      expect(auditRepository.lastData?.newValues?['is_active'], isFalse);
+    });
+
+    test('reactivate snapshots state, mutates, then audits lifecycle', () async {
+      final operations = <String>[];
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+        snapshotModel: _model(isActive: false),
+      );
+      final auditRepository = _FakeAuditRepository(operations: operations);
+      final repository = _repository(dataSource, auditRepository);
+
+      final result = await repository.reactivateExpenseType(
+        companyId: _companyId,
+        expenseTypeId: _typeId,
+        actorRole: 'accountant',
+      );
+
+      expect(result, isA<Success>());
+      expect(result.dataOrNull?.isActive, isTrue);
+      expect(operations, ['get_by_id', 'reactivate', 'audit']);
+      expect(auditRepository.lastData?.description, 'expense_type_reactivated');
+      expect(auditRepository.lastData?.oldValues?['is_active'], isFalse);
+      expect(auditRepository.lastData?.newValues?['is_active'], isTrue);
+    });
+
+    test('does not audit when create mutation fails', () async {
       final operations = <String>[];
       final dataSource = _FakeExpenseTypesRemoteDataSource(
         operations: operations,
@@ -83,6 +171,27 @@ void main() {
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(operations, ['add']);
+      expect(auditRepository.lastData, isNull);
+    });
+
+    test('does not audit when deactivate mutation fails', () async {
+      final operations = <String>[];
+      final dataSource = _FakeExpenseTypesRemoteDataSource(
+        operations: operations,
+        deactivateError: StateError('internal'),
+      );
+      final auditRepository = _FakeAuditRepository(operations: operations);
+      final repository = _repository(dataSource, auditRepository);
+
+      final result = await repository.deactivateExpenseType(
+        companyId: _companyId,
+        expenseTypeId: _typeId,
+        actorRole: 'admin',
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(operations, ['get_by_id', 'deactivate']);
       expect(auditRepository.lastData, isNull);
     });
   });
@@ -115,19 +224,32 @@ ExpenseTypeModel _model({String name = 'Fuel', bool isActive = true}) {
 class _FakeExpenseTypesRemoteDataSource implements ExpenseTypesRemoteDataSource {
   final List<String>? operations;
   final Object? addError;
+  final Object? getByIdError;
+  final Object? deactivateError;
+  final ExpenseTypeModel? snapshotModel;
   String? lastListCompanyId;
   String? lastActiveCompanyId;
 
-  _FakeExpenseTypesRemoteDataSource({this.operations, this.addError});
+  _FakeExpenseTypesRemoteDataSource({
+    this.operations,
+    this.addError,
+    this.getByIdError,
+    this.deactivateError,
+    this.snapshotModel,
+  });
 
   @override
-  Future<List<ExpenseTypeModel>> getExpenseTypes({required String companyId}) async {
+  Future<List<ExpenseTypeModel>> getExpenseTypes({
+    required String companyId,
+  }) async {
     lastListCompanyId = companyId;
     return [_model()];
   }
 
   @override
-  Future<List<ExpenseTypeModel>> getActiveExpenseTypes({required String companyId}) async {
+  Future<List<ExpenseTypeModel>> getActiveExpenseTypes({
+    required String companyId,
+  }) async {
     lastActiveCompanyId = companyId;
     return [_model()];
   }
@@ -138,11 +260,14 @@ class _FakeExpenseTypesRemoteDataSource implements ExpenseTypesRemoteDataSource 
     required String expenseTypeId,
   }) async {
     operations?.add('get_by_id');
-    return _model();
+    if (getByIdError != null) throw getByIdError!;
+    return snapshotModel ?? _model();
   }
 
   @override
-  Future<ExpenseTypeModel> addExpenseType({required ExpenseTypeWriteData data}) async {
+  Future<ExpenseTypeModel> addExpenseType({
+    required ExpenseTypeWriteData data,
+  }) async {
     operations?.add('add');
     if (addError != null) throw addError!;
     return _model(name: data.name);
@@ -163,6 +288,7 @@ class _FakeExpenseTypesRemoteDataSource implements ExpenseTypesRemoteDataSource 
     required String expenseTypeId,
   }) async {
     operations?.add('deactivate');
+    if (deactivateError != null) throw deactivateError!;
     return _model(isActive: false);
   }
 
@@ -178,13 +304,15 @@ class _FakeExpenseTypesRemoteDataSource implements ExpenseTypesRemoteDataSource 
 
 class _FakeAuditRepository implements AuditLogRepository {
   final List<String>? operations;
+  final Failure? failure;
   AuditLogWriteData? lastData;
 
-  _FakeAuditRepository({this.operations});
+  _FakeAuditRepository({this.operations, this.failure});
 
   @override
   Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
     operations?.add('audit');
+    if (failure != null) return FailureResult<void>(failure!);
     lastData = data;
     return const Success<void>(null);
   }
