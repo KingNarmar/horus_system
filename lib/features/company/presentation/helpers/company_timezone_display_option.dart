@@ -19,9 +19,8 @@ final class CompanyTimezoneDisplayOption {
 
   String get value => timezone.value;
 
-  String get displayLabel => localizedName == value
-      ? value
-      : '$localizedName ($value)';
+  String get displayLabel =>
+      localizedName == value ? value : '$localizedName ($value)';
 
   bool matches(String rawQuery) {
     final query = rawQuery.trim().toLowerCase();

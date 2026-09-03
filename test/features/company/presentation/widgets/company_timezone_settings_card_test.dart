@@ -15,66 +15,68 @@ import 'package:horus_system/features/company/presentation/widgets/company_timez
 import 'package:horus_system/features/company/presentation/widgets/company_timezone_settings_card.dart';
 
 void main() {
-  testWidgets('owner sees searchable timezone editor and localized current value', (
-    tester,
-  ) async {
-    final cubit = _buildCubit();
-    addTearDown(cubit.close);
-    await cubit.loadOptions();
-    final timezone = CompanyTimezone.tryParse('Asia/Dubai')!;
-    final display = CompanyTimezoneDisplayResolver.resolve(
-      timezone,
-      const Locale('en'),
-    ).displayLabel;
+  testWidgets(
+    'owner sees searchable timezone editor and localized current value',
+    (tester) async {
+      final cubit = _buildCubit();
+      addTearDown(cubit.close);
+      await cubit.loadOptions();
+      final timezone = CompanyTimezone.tryParse('Asia/Dubai')!;
+      final display = CompanyTimezoneDisplayResolver.resolve(
+        timezone,
+        const Locale('en'),
+      ).displayLabel;
 
-    await tester.pumpWidget(
-      BlocProvider<CompanyTimezoneCubit>.value(
-        value: cubit,
-        child: MaterialApp(
-          home: Scaffold(
-            body: CompanyTimezoneSettingsCard(
-              currentCompanyContext: _context(CompanyRole.owner),
+      await tester.pumpWidget(
+        BlocProvider<CompanyTimezoneCubit>.value(
+          value: cubit,
+          child: MaterialApp(
+            home: Scaffold(
+              body: CompanyTimezoneSettingsCard(
+                currentCompanyContext: _context(CompanyRole.owner),
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    expect(find.text('Business timezone'), findsOneWidget);
-    expect(find.text('Current timezone: $display'), findsOneWidget);
-    expect(find.byType(CompanyTimezoneSelector), findsOneWidget);
-    expect(find.text('Save timezone'), findsOneWidget);
-  });
+      expect(find.text('Business timezone'), findsOneWidget);
+      expect(find.text('Current timezone: $display'), findsOneWidget);
+      expect(find.byType(CompanyTimezoneSelector), findsOneWidget);
+      expect(find.text('Save timezone'), findsOneWidget);
+    },
+  );
 
-  testWidgets('viewer sees localized current timezone without management controls', (
-    tester,
-  ) async {
-    final cubit = _buildCubit();
-    addTearDown(cubit.close);
-    final timezone = CompanyTimezone.tryParse('Asia/Dubai')!;
-    final display = CompanyTimezoneDisplayResolver.resolve(
-      timezone,
-      const Locale('en'),
-    ).displayLabel;
+  testWidgets(
+    'viewer sees localized current timezone without management controls',
+    (tester) async {
+      final cubit = _buildCubit();
+      addTearDown(cubit.close);
+      final timezone = CompanyTimezone.tryParse('Asia/Dubai')!;
+      final display = CompanyTimezoneDisplayResolver.resolve(
+        timezone,
+        const Locale('en'),
+      ).displayLabel;
 
-    await tester.pumpWidget(
-      BlocProvider<CompanyTimezoneCubit>.value(
-        value: cubit,
-        child: MaterialApp(
-          home: Scaffold(
-            body: CompanyTimezoneSettingsCard(
-              currentCompanyContext: _context(CompanyRole.viewer),
+      await tester.pumpWidget(
+        BlocProvider<CompanyTimezoneCubit>.value(
+          value: cubit,
+          child: MaterialApp(
+            home: Scaffold(
+              body: CompanyTimezoneSettingsCard(
+                currentCompanyContext: _context(CompanyRole.viewer),
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    expect(find.text('Business timezone'), findsOneWidget);
-    expect(find.text('Current timezone: $display'), findsOneWidget);
-    expect(find.byType(CompanyTimezoneSelector), findsNothing);
-    expect(find.text('Save timezone'), findsNothing);
-  });
+      expect(find.text('Business timezone'), findsOneWidget);
+      expect(find.text('Current timezone: $display'), findsOneWidget);
+      expect(find.byType(CompanyTimezoneSelector), findsNothing);
+      expect(find.text('Save timezone'), findsNothing);
+    },
+  );
 }
 
 CompanyTimezoneCubit _buildCubit() {

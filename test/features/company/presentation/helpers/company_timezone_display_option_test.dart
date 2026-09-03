@@ -7,25 +7,25 @@ void main() {
   group('CompanyTimezoneDisplayResolver', () {
     final dubai = CompanyTimezone.tryParse('Asia/Dubai')!;
 
-    test('uses CLDR localized city names while preserving canonical IANA ID', () {
-      final english = CompanyTimezoneDisplayResolver.resolve(
-        dubai,
-        const Locale('en'),
-      );
-      final arabic = CompanyTimezoneDisplayResolver.resolve(
-        dubai,
-        const Locale('ar'),
-      );
+    test(
+      'uses CLDR localized city names while preserving canonical IANA ID',
+      () {
+        final english = CompanyTimezoneDisplayResolver.resolve(
+          dubai,
+          const Locale('en'),
+        );
+        final arabic = CompanyTimezoneDisplayResolver.resolve(
+          dubai,
+          const Locale('ar'),
+        );
 
-      expect(english.value, 'Asia/Dubai');
-      expect(arabic.value, 'Asia/Dubai');
-      expect(english.localizedName, isNotEmpty);
-      expect(
-        arabic.localizedName,
-        contains(RegExp(r'[\u0600-\u06FF]')),
-      );
-      expect(arabic.displayLabel, contains('Asia/Dubai'));
-    });
+        expect(english.value, 'Asia/Dubai');
+        expect(arabic.value, 'Asia/Dubai');
+        expect(english.localizedName, isNotEmpty);
+        expect(arabic.localizedName, contains(RegExp(r'[\u0600-\u06FF]')));
+        expect(arabic.displayLabel, contains('Asia/Dubai'));
+      },
+    );
 
     test('matches Arabic, English, and canonical IANA search terms', () {
       final arabic = CompanyTimezoneDisplayResolver.resolve(
