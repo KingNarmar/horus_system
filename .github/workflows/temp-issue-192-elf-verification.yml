@@ -1,0 +1,230 @@
+name: Temporary Issue 192 Native Compatibility Verification
+
+on:
+  push:
+    branches:
+      - feature/192-android-release-foundation
+    paths-ignore:
+      - .github/diagnostics/**
+
+permissions:
+  contents: write
+
+jobs:
+  verify-native-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.7"
+          channel: stable
+          cache: false
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36 and build tools
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Create CI-only application config
+        run: |
+          cat > .env <<'EOF'
+          SUPABASE_URL=https://example.supabase.co
+          SUPABASE_PUBLISHABLE_KEY=sb_publishable_ci_placeholder
+          EOF
+          printf 'flutter.sdk=%s\n' "$FLUTTER_ROOT" > android/local.properties
+
+      - name: Resolve Flutter dependencies
+        run: flutter pub get
+
+      - name: Verify Dart formatting
+        run: dart format --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Verify release signing fails closed without credentials
+        run: |
+          rm -f android/key.properties android/*.jks android/*.keystore
+          flutter clean
+          flutter pub get
+          if flutter build appbundle --release; then
+            echo "Expected release build without android/key.properties to fail."
+            exit 1
+          fi
+          echo "Release build correctly rejected missing signing credentials."
+
+      - name: Generate ephemeral CI upload key
+        run: |
+          keytool -genkeypair -v \
+            -keystore android/horus-ci-upload.jks \
+            -storepass ci-password \
+            -keypass ci-password \
+            -alias upload \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=H.O.R.U.S CI Upload, OU=CI, O=King Narmer, C=AE"
+          cat > android/key.properties <<'EOF'
+          storePassword=ci-password
+          keyPassword=ci-password
+          keyAlias=upload
+          storeFile=../horus-ci-upload.jks
+          EOF
+
+      - name: Clean and build signed release AAB
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build appbundle --release
+
+      - name: Download bundletool
+        run: |
+          curl -L --fail --silent --show-error \
+            -o /tmp/bundletool.jar \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+
+      - name: Verify release identity, signing, ABI, and bundle alignment
+        run: |
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          java -jar /tmp/bundletool.jar dump manifest --bundle="$AAB" --module=base > /tmp/release-manifest.xml
+          grep -q 'package="com.kingnarmar.horus"' /tmp/release-manifest.xml
+          grep -q 'android.permission.INTERNET' /tmp/release-manifest.xml
+          grep -q 'targetSdkVersion="36"' /tmp/release-manifest.xml
+
+          jarsigner -verify "$AAB"
+          keytool -list -v \
+            -keystore android/horus-ci-upload.jks \
+            -storepass ci-password \
+            -alias upload > /tmp/expected-cert.txt
+          keytool -printcert -jarfile "$AAB" > /tmp/aab-cert.txt
+          EXPECTED_SHA256=$(grep 'SHA256:' /tmp/expected-cert.txt | head -1 | sed 's/.*SHA256: //; s/://g; s/ //g')
+          ACTUAL_SHA256=$(grep 'SHA256:' /tmp/aab-cert.txt | head -1 | sed 's/.*SHA256: //; s/://g; s/ //g')
+          test -n "$EXPECTED_SHA256"
+          test -n "$ACTUAL_SHA256"
+          test "$EXPECTED_SHA256" = "$ACTUAL_SHA256"
+
+          unzip -l "$AAB" > /tmp/aab-files.txt
+          grep -q 'base/lib/arm64-v8a/' /tmp/aab-files.txt
+
+          java -jar /tmp/bundletool.jar dump config --bundle="$AAB" > /tmp/bundle-config.txt
+          grep -q 'PAGE_ALIGNMENT_16K' /tmp/bundle-config.txt
+
+      - name: Inspect native ELF LOAD alignment
+        run: |
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          rm -rf /tmp/horus-native
+          mkdir -p /tmp/horus-native .github/diagnostics
+          unzip -q "$AAB" 'base/lib/*/*.so' -d /tmp/horus-native
+
+          READELF=$(find "$ANDROID_SDK_ROOT/ndk" -type f -path '*/toolchains/llvm/prebuilt/*/bin/llvm-readelf' | head -1 || true)
+          if [ -z "$READELF" ] || [ ! -x "$READELF" ]; then
+            echo "Unable to locate Android NDK llvm-readelf after the release build." > .github/diagnostics/issue-192-elf-report.txt
+            touch /tmp/elf-failed
+          else
+            python3 - "$READELF" /tmp/horus-native .github/diagnostics/issue-192-elf-report.txt <<'PY'
+          import pathlib
+          import subprocess
+          import sys
+
+          readelf = sys.argv[1]
+          root = pathlib.Path(sys.argv[2])
+          report_path = pathlib.Path(sys.argv[3])
+          targets = [
+              path
+              for path in root.rglob("*.so")
+              if any(abi in path.parts for abi in ("arm64-v8a", "x86_64"))
+          ]
+
+          lines = ["Flutter 3.44.7 native ELF LOAD alignment report", ""]
+          failures = []
+          if not targets:
+              failures.append("No arm64-v8a/x86_64 native libraries found for ELF verification.")
+          for path in sorted(targets):
+              output = subprocess.check_output([readelf, "-lW", str(path)], text=True)
+              alignments = []
+              for line in output.splitlines():
+                  parts = line.split()
+                  if parts and parts[0] == "LOAD":
+                      alignments.append(int(parts[-1], 0))
+              relative = path.relative_to(root)
+              if not alignments:
+                  lines.append(f"{relative}: no LOAD segments found")
+                  failures.append(f"{relative}: no LOAD segments found")
+                  continue
+              minimum = min(alignments)
+              rendered = ", ".join(hex(value) for value in alignments)
+              status = "PASS" if minimum >= 0x4000 else "FAIL"
+              lines.append(f"{relative}: {status}; LOAD alignments=[{rendered}]; minimum={hex(minimum)}")
+              if minimum < 0x4000:
+                  failures.append(f"{relative}: minimum LOAD alignment {hex(minimum)} is below 0x4000")
+
+          lines.extend(["", "Failures:"])
+          lines.extend(failures or ["None"])
+          report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          if failures:
+              pathlib.Path("/tmp/elf-failed").touch()
+          PY
+          fi
+          cat .github/diagnostics/issue-192-elf-report.txt
+
+      - name: Verify generated APK ZIP alignment for 16 KB pages
+        id: zip_alignment
+        continue-on-error: true
+        run: |
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          rm -f /tmp/horus.apks /tmp/horus-universal.apk
+          java -jar /tmp/bundletool.jar build-apks \
+            --bundle="$AAB" \
+            --output=/tmp/horus.apks \
+            --mode=universal \
+            --ks=android/horus-ci-upload.jks \
+            --ks-key-alias=upload \
+            --ks-pass=pass:ci-password \
+            --key-pass=pass:ci-password
+          unzip -p /tmp/horus.apks universal.apk > /tmp/horus-universal.apk
+          test -s /tmp/horus-universal.apk
+          "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" -v -c -P 16 4 /tmp/horus-universal.apk
+
+      - name: Record native compatibility diagnostic
+        if: always()
+        run: |
+          {
+            echo
+            echo "ZIP alignment result: ${{ steps.zip_alignment.outcome }}"
+          } >> .github/diagnostics/issue-192-elf-report.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/diagnostics/issue-192-elf-report.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: record Issue 192 native compatibility diagnostic"
+            git push origin HEAD:feature/192-android-release-foundation
+          fi
+
+      - name: Enforce native compatibility gate
+        run: |
+          if [ -f /tmp/elf-failed ]; then
+            echo "ELF 16 KB alignment verification failed."
+            exit 1
+          fi
+          test "${{ steps.zip_alignment.outcome }}" = "success"
+
+      - name: Verify repository diff whitespace
+        run: git diff --check

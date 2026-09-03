@@ -1,0 +1,3 @@
+Unable to locate Android NDK llvm-readelf after the release build.
+
+ZIP alignment result: success
