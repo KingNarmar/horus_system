@@ -194,7 +194,7 @@ class _CompanyTimezonePickerDialogState
                   ? Center(child: Text(l10n.noResults))
                   : ListView.separated(
                       itemCount: filteredOptions.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final option = filteredOptions[index];
                         return ListTile(
