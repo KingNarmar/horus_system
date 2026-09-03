@@ -67,9 +67,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               companyTimezoneFailureMessage(state.failure, timezoneL10n),
             _ => l10n.localizedErrorMessage(state.failure),
           };
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         }
       },
       builder: (context, state) {
@@ -408,9 +408,8 @@ class _CompanyTimezoneField extends StatelessWidget {
     }
 
     final options = state.options;
-    final effectiveValue = options.any(
-      (option) => option.value == selectedTimezone,
-    )
+    final effectiveValue =
+        options.any((option) => option.value == selectedTimezone)
         ? selectedTimezone
         : null;
 

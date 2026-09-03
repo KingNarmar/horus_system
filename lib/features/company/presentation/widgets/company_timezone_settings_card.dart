@@ -35,8 +35,10 @@ class _CompanyTimezoneSettingsCardState
   @override
   void didUpdateWidget(covariant CompanyTimezoneSettingsCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final previousTimezone = oldWidget.currentCompanyContext.company.businessTimezone;
-    final currentTimezone = widget.currentCompanyContext.company.businessTimezone;
+    final previousTimezone =
+        oldWidget.currentCompanyContext.company.businessTimezone;
+    final currentTimezone =
+        widget.currentCompanyContext.company.businessTimezone;
     if (previousTimezone != currentTimezone) {
       _selectedTimezone = currentTimezone;
     }
@@ -56,9 +58,9 @@ class _CompanyTimezoneSettingsCardState
             widget.currentCompanyContext.companyId,
           );
           if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.saved)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.saved)));
           return;
         }
 
@@ -89,9 +91,7 @@ class _CompanyTimezoneSettingsCardState
                 const SizedBox(height: AppSpacing.sm),
                 Text(l10n.description),
                 const SizedBox(height: AppSpacing.md),
-                Text(
-                  l10n.currentValue(currentTimezone ?? l10n.notConfigured),
-                ),
+                Text(l10n.currentValue(currentTimezone ?? l10n.notConfigured)),
                 if (canManage) ...[
                   const SizedBox(height: AppSpacing.lg),
                   _buildEditor(context, state, currentTimezone),
@@ -131,8 +131,7 @@ class _CompanyTimezoneSettingsCardState
           Text(companyTimezoneFailureMessage(state.failure, l10n)),
           const SizedBox(height: AppSpacing.md),
           OutlinedButton(
-            onPressed: () =>
-                context.read<CompanyTimezoneCubit>().loadOptions(),
+            onPressed: () => context.read<CompanyTimezoneCubit>().loadOptions(),
             child: Text(l10n.retry),
           ),
         ],
@@ -141,9 +140,8 @@ class _CompanyTimezoneSettingsCardState
 
     final options = state.options;
     final isSaving = state is CompanyTimezoneSaving;
-    final selectedValue = options.any(
-      (option) => option.value == _selectedTimezone,
-    )
+    final selectedValue =
+        options.any((option) => option.value == _selectedTimezone)
         ? _selectedTimezone
         : null;
     final hasChange = selectedValue != null && selectedValue != currentTimezone;
@@ -174,9 +172,8 @@ class _CompanyTimezoneSettingsCardState
         const SizedBox(height: AppSpacing.md),
         FilledButton(
           onPressed: !isSaving && hasChange
-              ? () => context
-                    .read<CompanyTimezoneCubit>()
-                    .updateBusinessTimezone(
+              ? () =>
+                    context.read<CompanyTimezoneCubit>().updateBusinessTimezone(
                       currentCompanyContext: widget.currentCompanyContext,
                       businessTimezone: selectedValue,
                     )

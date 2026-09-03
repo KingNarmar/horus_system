@@ -42,12 +42,10 @@ final class CompanyTimezoneCubit extends Cubit<CompanyTimezoneState> {
     );
 
     result.when(
-      success: (company) => emit(
-        CompanyTimezoneSaved(options: options, company: company),
-      ),
-      failure: (failure) => emit(
-        CompanyTimezoneFailure(failure: failure, options: options),
-      ),
+      success: (company) =>
+          emit(CompanyTimezoneSaved(options: options, company: company)),
+      failure: (failure) =>
+          emit(CompanyTimezoneFailure(failure: failure, options: options)),
     );
   }
 }

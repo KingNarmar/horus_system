@@ -8,59 +8,68 @@ import 'package:test/test.dart';
 
 void main() {
   group('CreateCompanyUseCase timezone support', () {
-    test('normalizes company and timezone values before repository call', () async {
-      final repository = _FakeCompanyRepository();
-      final useCase = CreateCompanyUseCase(repository);
+    test(
+      'normalizes company and timezone values before repository call',
+      () async {
+        final repository = _FakeCompanyRepository();
+        final useCase = CreateCompanyUseCase(repository);
 
-      final result = await useCase(
-        const CreateCompanyParams(
-          name: '  Horus Transport  ',
-          businessTimezone: '  Asia/Dubai  ',
-          businessType: '  Heavy Transport  ',
-        ),
-      );
+        final result = await useCase(
+          const CreateCompanyParams(
+            name: '  Horus Transport  ',
+            businessTimezone: '  Asia/Dubai  ',
+            businessType: '  Heavy Transport  ',
+          ),
+        );
 
-      expect(result.failureOrNull, isNull);
-      expect(repository.lastName, 'Horus Transport');
-      expect(repository.lastTimezone?.value, 'Asia/Dubai');
-      expect(repository.lastBusinessType, 'Heavy Transport');
-    });
+        expect(result.failureOrNull, isNull);
+        expect(repository.lastName, 'Horus Transport');
+        expect(repository.lastTimezone?.value, 'Asia/Dubai');
+        expect(repository.lastBusinessType, 'Heavy Transport');
+      },
+    );
 
-    test('rejects a missing business timezone before repository access', () async {
-      final repository = _FakeCompanyRepository();
-      final useCase = CreateCompanyUseCase(repository);
+    test(
+      'rejects a missing business timezone before repository access',
+      () async {
+        final repository = _FakeCompanyRepository();
+        final useCase = CreateCompanyUseCase(repository);
 
-      final result = await useCase(
-        const CreateCompanyParams(
-          name: 'Horus Transport',
-          businessTimezone: '   ',
-        ),
-      );
+        final result = await useCase(
+          const CreateCompanyParams(
+            name: 'Horus Transport',
+            businessTimezone: '   ',
+          ),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.validationBusinessTimezoneRequired,
-      );
-      expect(repository.createCallCount, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.validationBusinessTimezoneRequired,
+        );
+        expect(repository.createCallCount, 0);
+      },
+    );
 
-    test('rejects a malformed business timezone before repository access', () async {
-      final repository = _FakeCompanyRepository();
-      final useCase = CreateCompanyUseCase(repository);
+    test(
+      'rejects a malformed business timezone before repository access',
+      () async {
+        final repository = _FakeCompanyRepository();
+        final useCase = CreateCompanyUseCase(repository);
 
-      final result = await useCase(
-        const CreateCompanyParams(
-          name: 'Horus Transport',
-          businessTimezone: 'Asia /Dubai',
-        ),
-      );
+        final result = await useCase(
+          const CreateCompanyParams(
+            name: 'Horus Transport',
+            businessTimezone: 'Asia /Dubai',
+          ),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.validationBusinessTimezoneInvalid,
-      );
-      expect(repository.createCallCount, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.validationBusinessTimezoneInvalid,
+        );
+        expect(repository.createCallCount, 0);
+      },
+    );
   });
 }
 

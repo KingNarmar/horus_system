@@ -25,16 +25,18 @@ final class SupabaseCompanyTimezoneRemoteDataSource
       throw const FormatException('Invalid timezone catalog response.');
     }
 
-    return response.map((item) {
-      if (item is! Map) {
-        throw const FormatException('Invalid timezone option response.');
-      }
-      final value = item['name'];
-      if (value is! String) {
-        throw const FormatException('Invalid timezone option value.');
-      }
-      return value;
-    }).toList(growable: false);
+    return response
+        .map((item) {
+          if (item is! Map) {
+            throw const FormatException('Invalid timezone option response.');
+          }
+          final value = item['name'];
+          if (value is! String) {
+            throw const FormatException('Invalid timezone option value.');
+          }
+          return value;
+        })
+        .toList(growable: false);
   }
 
   @override

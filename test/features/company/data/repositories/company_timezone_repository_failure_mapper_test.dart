@@ -35,10 +35,7 @@ void main() {
       );
 
       expect(failure, isA<PermissionFailure>());
-      expect(
-        failure.code,
-        CompanyFailureCodes.permissionSettingsManagement,
-      );
+      expect(failure.code, CompanyFailureCodes.permissionSettingsManagement);
       expect(failure.message, isNull);
     });
 

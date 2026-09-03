@@ -48,7 +48,8 @@ final class CompanyTimezoneLocalizations {
     'saving': 'Saving...',
     'retry': 'Retry',
     'saved': 'Business timezone updated.',
-    'permissionFailure': 'Only an Owner or Admin can change the business timezone.',
+    'permissionFailure':
+        'Only an Owner or Admin can change the business timezone.',
     'notFoundFailure': 'The current company could not be found.',
     'authFailure': 'Sign in again to complete this company action.',
     'genericFailure': 'The business timezone action could not be completed.',

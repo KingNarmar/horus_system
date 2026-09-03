@@ -20,13 +20,15 @@ final class CompanyTimezoneRepositoryImpl implements CompanyTimezoneRepository {
   Future<Result<List<CompanyTimezone>>> getTimezoneOptions() {
     return _guard(() async {
       final rawOptions = await _remoteDataSource.getTimezoneOptions();
-      return rawOptions.map((rawOption) {
-        final option = CompanyTimezone.tryParse(rawOption);
-        if (option == null) {
-          throw const FormatException('Invalid timezone option.');
-        }
-        return option;
-      }).toList(growable: false);
+      return rawOptions
+          .map((rawOption) {
+            final option = CompanyTimezone.tryParse(rawOption);
+            if (option == null) {
+              throw const FormatException('Invalid timezone option.');
+            }
+            return option;
+          })
+          .toList(growable: false);
     });
   }
 

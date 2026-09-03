@@ -20,10 +20,10 @@ void main() {
       final result = await repository.getTimezoneOptions();
 
       expect(result.failureOrNull, isNull);
-      expect(
-        result.dataOrNull?.map((option) => option.value).toList(),
-        ['Asia/Dubai', 'Europe/London'],
-      );
+      expect(result.dataOrNull?.map((option) => option.value).toList(), [
+        'Asia/Dubai',
+        'Europe/London',
+      ]);
     });
 
     test('sanitizes malformed catalog data as a server failure', () async {
@@ -40,26 +40,29 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('update forwards company scope and maps the returned company', () async {
-      final dataSource = _FakeCompanyTimezoneRemoteDataSource(
-        updateModel: const CompanyModel(
-          id: 'company-1',
-          name: 'Horus Transport',
-          businessTimezone: 'Europe/London',
-        ),
-      );
-      final repository = CompanyTimezoneRepositoryImpl(dataSource);
+    test(
+      'update forwards company scope and maps the returned company',
+      () async {
+        final dataSource = _FakeCompanyTimezoneRemoteDataSource(
+          updateModel: const CompanyModel(
+            id: 'company-1',
+            name: 'Horus Transport',
+            businessTimezone: 'Europe/London',
+          ),
+        );
+        final repository = CompanyTimezoneRepositoryImpl(dataSource);
 
-      final result = await repository.updateBusinessTimezone(
-        companyId: 'company-1',
-        businessTimezone: CompanyTimezone.tryParse('Europe/London')!,
-      );
+        final result = await repository.updateBusinessTimezone(
+          companyId: 'company-1',
+          businessTimezone: CompanyTimezone.tryParse('Europe/London')!,
+        );
 
-      expect(result.failureOrNull, isNull);
-      expect(dataSource.lastCompanyId, 'company-1');
-      expect(dataSource.lastTimezone, 'Europe/London');
-      expect(result.dataOrNull?.businessTimezone, 'Europe/London');
-    });
+        expect(result.failureOrNull, isNull);
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(dataSource.lastTimezone, 'Europe/London');
+        expect(result.dataOrNull?.businessTimezone, 'Europe/London');
+      },
+    );
 
     test('maps database permission denial to typed settings failure', () async {
       final repository = CompanyTimezoneRepositoryImpl(
@@ -101,12 +104,13 @@ final class _FakeCompanyTimezoneRemoteDataSource
     this.options = const [],
     CompanyModel? updateModel,
     this.updateError,
-  }) : updateModel = updateModel ??
-            const CompanyModel(
-              id: 'company-1',
-              name: 'Horus Transport',
-              businessTimezone: 'Asia/Dubai',
-            );
+  }) : updateModel =
+           updateModel ??
+           const CompanyModel(
+             id: 'company-1',
+             name: 'Horus Transport',
+             businessTimezone: 'Asia/Dubai',
+           );
 
   @override
   Future<List<String>> getTimezoneOptions() async => options;

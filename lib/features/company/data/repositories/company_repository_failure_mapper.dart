@@ -16,10 +16,13 @@ final class CompanyRepositoryFailureMapper {
 
   Failure fromPostgrest(PostgrestException error) {
     return switch (error.code) {
-      CompanyRpcErrorCodes.onboardingAuthRequired =>
-        const AuthFailure(code: CompanyFailureCodes.authRequired),
+      CompanyRpcErrorCodes.onboardingAuthRequired => const AuthFailure(
+        code: CompanyFailureCodes.authRequired,
+      ),
       CompanyRpcErrorCodes.onboardingCompanyNameRequired =>
-        const ValidationFailure(code: FailureCodes.validationCompanyNameRequired),
+        const ValidationFailure(
+          code: FailureCodes.validationCompanyNameRequired,
+        ),
       CompanyRpcErrorCodes.onboardingBusinessTimezoneInvalid =>
         const ValidationFailure(
           code: CompanyFailureCodes.validationBusinessTimezoneInvalid,

@@ -16,17 +16,19 @@ final class CompanyTimezoneRepositoryFailureMapper {
 
   Failure fromPostgrest(PostgrestException error) {
     return switch (error.code) {
-      CompanyRpcErrorCodes.timezoneCatalogAuthRequired =>
-        const AuthFailure(code: CompanyFailureCodes.authRequired),
-      CompanyRpcErrorCodes.settingsPermissionDenied || '42501' =>
-        const PermissionFailure(
-          code: CompanyFailureCodes.permissionSettingsManagement,
-        ),
+      CompanyRpcErrorCodes.timezoneCatalogAuthRequired => const AuthFailure(
+        code: CompanyFailureCodes.authRequired,
+      ),
+      CompanyRpcErrorCodes.settingsPermissionDenied ||
+      '42501' => const PermissionFailure(
+        code: CompanyFailureCodes.permissionSettingsManagement,
+      ),
       CompanyRpcErrorCodes.businessTimezoneInvalid => const ValidationFailure(
         code: CompanyFailureCodes.validationBusinessTimezoneInvalid,
       ),
-      CompanyRpcErrorCodes.companyNotFound =>
-        const NotFoundFailure(code: CompanyFailureCodes.notFound),
+      CompanyRpcErrorCodes.companyNotFound => const NotFoundFailure(
+        code: CompanyFailureCodes.notFound,
+      ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

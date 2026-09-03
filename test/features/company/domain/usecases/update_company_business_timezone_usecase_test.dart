@@ -10,21 +10,24 @@ import 'package:test/test.dart';
 
 void main() {
   group('UpdateCompanyBusinessTimezoneUseCase', () {
-    test('owner can update a normalized timezone within current company scope', () async {
-      final repository = _FakeCompanyTimezoneRepository();
-      final useCase = UpdateCompanyBusinessTimezoneUseCase(repository);
+    test(
+      'owner can update a normalized timezone within current company scope',
+      () async {
+        final repository = _FakeCompanyTimezoneRepository();
+        final useCase = UpdateCompanyBusinessTimezoneUseCase(repository);
 
-      final result = await useCase(
-        UpdateCompanyBusinessTimezoneParams(
-          currentCompanyContext: _context(CompanyRole.owner),
-          businessTimezone: '  Europe/London  ',
-        ),
-      );
+        final result = await useCase(
+          UpdateCompanyBusinessTimezoneParams(
+            currentCompanyContext: _context(CompanyRole.owner),
+            businessTimezone: '  Europe/London  ',
+          ),
+        );
 
-      expect(result.failureOrNull, isNull);
-      expect(repository.lastCompanyId, 'company-1');
-      expect(repository.lastTimezone?.value, 'Europe/London');
-    });
+        expect(result.failureOrNull, isNull);
+        expect(repository.lastCompanyId, 'company-1');
+        expect(repository.lastTimezone?.value, 'Europe/London');
+      },
+    );
 
     test('admin can update the timezone', () async {
       final repository = _FakeCompanyTimezoneRepository();
@@ -90,7 +93,8 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-final class _FakeCompanyTimezoneRepository implements CompanyTimezoneRepository {
+final class _FakeCompanyTimezoneRepository
+    implements CompanyTimezoneRepository {
   int updateCallCount = 0;
   String? lastCompanyId;
   CompanyTimezone? lastTimezone;

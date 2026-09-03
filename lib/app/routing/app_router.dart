@@ -42,7 +42,8 @@ abstract final class AppRouter {
       ),
       AppRoutes.companyCreation => AuthenticatedRouteGuard(
         child: BlocProvider<CompanyTimezoneCubit>(
-          create: (_) => CompanyDependencies.createTimezoneCubit()..loadOptions(),
+          create: (_) =>
+              CompanyDependencies.createTimezoneCubit()..loadOptions(),
           child: const CompanyCreationPage(),
         ),
       ),

@@ -27,17 +27,11 @@ final class CompanyTimezoneSaving extends CompanyTimezoneState {
 final class CompanyTimezoneSaved extends CompanyTimezoneState {
   final Company company;
 
-  const CompanyTimezoneSaved({
-    required super.options,
-    required this.company,
-  });
+  const CompanyTimezoneSaved({required super.options, required this.company});
 }
 
 final class CompanyTimezoneFailure extends CompanyTimezoneState {
   final Failure failure;
 
-  const CompanyTimezoneFailure({
-    required this.failure,
-    super.options,
-  });
+  const CompanyTimezoneFailure({required this.failure, super.options});
 }

@@ -20,10 +20,10 @@ void main() {
     await cubit.loadOptions();
 
     expect(cubit.state, isA<CompanyTimezoneReady>());
-    expect(
-      cubit.state.options.map((option) => option.value).toList(),
-      ['Asia/Dubai', 'Europe/London'],
-    );
+    expect(cubit.state.options.map((option) => option.value).toList(), [
+      'Asia/Dubai',
+      'Europe/London',
+    ]);
   });
 
   test('owner update keeps company scope and exposes saved company', () async {
@@ -84,16 +84,17 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-final class _FakeCompanyTimezoneRepository implements CompanyTimezoneRepository {
+final class _FakeCompanyTimezoneRepository
+    implements CompanyTimezoneRepository {
   int updateCallCount = 0;
   String? lastCompanyId;
   CompanyTimezone? lastTimezone;
 
   @override
   Future<Result<List<CompanyTimezone>>> getTimezoneOptions() async => Success([
-        CompanyTimezone.tryParse('Asia/Dubai')!,
-        CompanyTimezone.tryParse('Europe/London')!,
-      ]);
+    CompanyTimezone.tryParse('Asia/Dubai')!,
+    CompanyTimezone.tryParse('Europe/London')!,
+  ]);
 
   @override
   Future<Result<Company>> updateBusinessTimezone({

@@ -82,12 +82,13 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-final class _FakeCompanyTimezoneRepository implements CompanyTimezoneRepository {
+final class _FakeCompanyTimezoneRepository
+    implements CompanyTimezoneRepository {
   @override
   Future<Result<List<CompanyTimezone>>> getTimezoneOptions() async => Success([
-        CompanyTimezone.tryParse('Asia/Dubai')!,
-        CompanyTimezone.tryParse('Europe/London')!,
-      ]);
+    CompanyTimezone.tryParse('Asia/Dubai')!,
+    CompanyTimezone.tryParse('Europe/London')!,
+  ]);
 
   @override
   Future<Result<Company>> updateBusinessTimezone({
