@@ -46,20 +46,25 @@ void main() {
       expect(find.text('اختيار المنطقة الزمنية'), findsOneWidget);
 
       final searchField = find.byType(TextField);
+      final londonResult = find.descendant(
+        of: find.byType(ListTile),
+        matching: find.text(arabicLondon.localizedName),
+      );
+
       await tester.enterText(searchField, 'London');
       await tester.pump();
-      expect(find.text(arabicLondon.localizedName), findsOneWidget);
+      expect(londonResult, findsOneWidget);
       expect(find.text('Europe/London'), findsOneWidget);
 
       await tester.enterText(searchField, arabicLondon.localizedName);
       await tester.pump();
-      expect(find.text(arabicLondon.localizedName), findsOneWidget);
+      expect(londonResult, findsOneWidget);
 
       await tester.enterText(searchField, 'Europe/London');
       await tester.pump();
-      expect(find.text(arabicLondon.localizedName), findsOneWidget);
+      expect(londonResult, findsOneWidget);
 
-      await tester.tap(find.text(arabicLondon.localizedName));
+      await tester.tap(londonResult);
       await tester.pumpAndSettle();
 
       expect(selectedValue, 'Europe/London');
