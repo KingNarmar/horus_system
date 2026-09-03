@@ -15,7 +15,7 @@ dependencies:
     sdk: flutter
 
   intl: any
-  common_locale_data: ^2.3.0
+  common_locale_data: ^2.2.1
 
   crypto: ^3.0.7
   cupertino_icons: ^1.0.8
