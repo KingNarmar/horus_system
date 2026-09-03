@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  common_locale_data:
+    dependency: "direct main"
+    description:
+      name: common_locale_data
+      sha256: "7b77ad328d7e2a9793d413697a3377115aa5f1d790ef5189a88f246bde7eedce"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   convert:
     dependency: transitive
     description:
