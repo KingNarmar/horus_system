@@ -3,11 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/current_company_context.dart';
+import '../../domain/value_objects/company_timezone.dart';
 import '../cubit/company_timezone_cubit.dart';
 import '../cubit/company_timezone_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../helpers/company_timezone_display_option.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
+import 'company_timezone_selector.dart';
 
 class CompanyTimezoneSettingsCard extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
@@ -75,6 +78,10 @@ class _CompanyTimezoneSettingsCardState
       builder: (context, state) {
         final currentTimezone =
             widget.currentCompanyContext.company.businessTimezone;
+        final currentTimezoneLabel = _currentTimezoneLabel(
+          context,
+          currentTimezone,
+        );
 
         return Card(
           child: Padding(
@@ -91,7 +98,7 @@ class _CompanyTimezoneSettingsCardState
                 const SizedBox(height: AppSpacing.sm),
                 Text(l10n.description),
                 const SizedBox(height: AppSpacing.md),
-                Text(l10n.currentValue(currentTimezone ?? l10n.notConfigured)),
+                Text(l10n.currentValue(currentTimezoneLabel)),
                 if (canManage) ...[
                   const SizedBox(height: AppSpacing.lg),
                   _buildEditor(context, state, currentTimezone),
@@ -149,25 +156,11 @@ class _CompanyTimezoneSettingsCardState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButtonFormField<String>(
-          initialValue: selectedValue,
-          isExpanded: true,
-          decoration: InputDecoration(
-            labelText: l10n.label,
-            hintText: l10n.hint,
-            border: const OutlineInputBorder(),
-          ),
-          items: options
-              .map(
-                (option) => DropdownMenuItem<String>(
-                  value: option.value,
-                  child: Text(option.value),
-                ),
-              )
-              .toList(growable: false),
-          onChanged: isSaving
-              ? null
-              : (value) => setState(() => _selectedTimezone = value),
+        CompanyTimezoneSelector(
+          options: options,
+          selectedValue: selectedValue,
+          enabled: !isSaving,
+          onChanged: (value) => setState(() => _selectedTimezone = value),
         ),
         const SizedBox(height: AppSpacing.md),
         FilledButton(
@@ -182,5 +175,18 @@ class _CompanyTimezoneSettingsCardState
         ),
       ],
     );
+  }
+
+  String _currentTimezoneLabel(BuildContext context, String? timezoneValue) {
+    final l10n = context.companyTimezoneL10n;
+    if (timezoneValue == null) return l10n.notConfigured;
+
+    final timezone = CompanyTimezone.tryParse(timezoneValue);
+    if (timezone == null) return timezoneValue;
+
+    return CompanyTimezoneDisplayResolver.resolve(
+      timezone,
+      Localizations.localeOf(context),
+    ).displayLabel;
   }
 }

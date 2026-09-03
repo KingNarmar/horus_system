@@ -14,6 +14,7 @@ import '../cubit/current_company_cubit.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
 import '../widgets/company_logout_button.dart';
+import '../widgets/company_timezone_selector.dart';
 
 class CompanyCreationPage extends StatefulWidget {
   const CompanyCreationPage({super.key});
@@ -413,22 +414,9 @@ class _CompanyTimezoneField extends StatelessWidget {
         ? selectedTimezone
         : null;
 
-    return DropdownButtonFormField<String>(
-      initialValue: effectiveValue,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: l10n.label,
-        hintText: l10n.hint,
-        border: const OutlineInputBorder(),
-      ),
-      items: options
-          .map(
-            (option) => DropdownMenuItem<String>(
-              value: option.value,
-              child: Text(option.value),
-            ),
-          )
-          .toList(growable: false),
+    return CompanyTimezoneSelector(
+      options: options,
+      selectedValue: effectiveValue,
       onChanged: onChanged,
       validator: (value) => value == null ? l10n.required : null,
     );

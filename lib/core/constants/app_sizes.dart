@@ -14,6 +14,7 @@ abstract final class AppSizes {
   static const double dataTableBreakpoint = 760;
   static const double detailsDialogMaxWidth = 760;
   static const double formDialogMaxWidth = 520;
+  static const double selectionDialogMaxHeight = 560;
   static const double detailsStackBreakpoint = 420;
   static const double detailsLabelWidth = 190;
 

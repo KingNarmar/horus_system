@@ -17,6 +17,11 @@ final class CompanyTimezoneLocalizations {
   String get description => _value('description');
   String get label => _value('label');
   String get hint => _value('hint');
+  String get pickerTitle => _value('pickerTitle');
+  String get searchLabel => _value('searchLabel');
+  String get searchHint => _value('searchHint');
+  String get clearSearch => _value('clearSearch');
+  String get noResults => _value('noResults');
   String get required => _value('required');
   String get invalid => _value('invalid');
   String get loading => _value('loading');
@@ -40,6 +45,11 @@ final class CompanyTimezoneLocalizations {
         'Used to determine the company business date and future date-based operational reporting.',
     'label': 'Timezone',
     'hint': 'Select the company business timezone',
+    'pickerTitle': 'Select timezone',
+    'searchLabel': 'Search timezones',
+    'searchHint': 'Search by city or IANA ID',
+    'clearSearch': 'Clear timezone search',
+    'noResults': 'No matching timezones found.',
     'required': 'Business timezone is required.',
     'invalid': 'Select a valid business timezone.',
     'loading': 'Loading timezones...',
@@ -63,6 +73,11 @@ final class CompanyTimezoneLocalizations {
         'تُستخدم لتحديد تاريخ عمل الشركة ولدعم التقارير التشغيلية المعتمدة على التاريخ لاحقًا.',
     'label': 'المنطقة الزمنية',
     'hint': 'اختر المنطقة الزمنية الخاصة بعمل الشركة',
+    'pickerTitle': 'اختيار المنطقة الزمنية',
+    'searchLabel': 'البحث في المناطق الزمنية',
+    'searchHint': 'ابحث باسم المدينة أو معرّف IANA',
+    'clearSearch': 'مسح بحث المناطق الزمنية',
+    'noResults': 'لم يتم العثور على منطقة زمنية مطابقة.',
     'required': 'المنطقة الزمنية للشركة مطلوبة.',
     'invalid': 'اختر منطقة زمنية صحيحة.',
     'loading': 'جاري تحميل المناطق الزمنية...',
