@@ -10,9 +10,12 @@ import '../../../../core/di/routes_dependencies.dart';
 import '../../../../core/di/trips_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../../company/di/company_dependencies.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
+import '../../../company/presentation/cubit/company_timezone_cubit.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
+import '../../../company/presentation/widgets/company_timezone_settings_card.dart';
 import '../../../company_expenses/di/company_expenses_dependencies.dart';
 import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
 import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
@@ -145,6 +148,15 @@ class AppShellContent extends StatelessWidget {
           BlocProvider<ExpenseTypesCubit>(
             create: (_) => ExpenseTypesDependencies.createCubit(),
           ),
+          BlocProvider<CompanyTimezoneCubit>(
+            create: (_) {
+              final cubit = CompanyDependencies.createTimezoneCubit();
+              if (contextData.canManageCompany) {
+                cubit.loadOptions();
+              }
+              return cubit;
+            },
+          ),
         ],
         child: _SettingsContent(contextData: contextData),
       ),
@@ -194,6 +206,8 @@ class _SettingsContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SettingsCard(contextData: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        CompanyTimezoneSettingsCard(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         SubscriptionsPage(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),

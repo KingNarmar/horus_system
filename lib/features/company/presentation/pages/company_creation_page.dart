@@ -5,10 +5,16 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../domain/failures/company_failure_codes.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
+import '../cubit/company_timezone_cubit.dart';
+import '../cubit/company_timezone_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../helpers/company_timezone_failure_message.dart';
+import '../localization/company_timezone_localizations.dart';
 import '../widgets/company_logout_button.dart';
+import '../widgets/company_timezone_selector.dart';
 
 class CompanyCreationPage extends StatefulWidget {
   const CompanyCreationPage({super.key});
@@ -25,6 +31,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   final _emailController = TextEditingController();
   final _countryController = TextEditingController();
   final _cityController = TextEditingController();
+  String? _selectedTimezone;
 
   @override
   void initState() {
@@ -46,6 +53,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final timezoneL10n = context.companyTimezoneL10n;
 
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
       listener: (context, state) {
@@ -54,9 +62,15 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         }
 
         if (state is CompanyOnboardingFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
-          );
+          final message = switch (state.failure.code) {
+            CompanyFailureCodes.validationBusinessTimezoneRequired ||
+            CompanyFailureCodes.validationBusinessTimezoneInvalid =>
+              companyTimezoneFailureMessage(state.failure, timezoneL10n),
+            _ => l10n.localizedErrorMessage(state.failure),
+          };
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         }
       },
       builder: (context, state) {
@@ -71,15 +85,26 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
           return _CompanyLoadedView(companyName: state.activeCompany.name);
         }
 
-        return _CompanyCreationForm(
-          formKey: _formKey,
-          nameController: _nameController,
-          businessTypeController: _businessTypeController,
-          phoneController: _phoneController,
-          emailController: _emailController,
-          countryController: _countryController,
-          cityController: _cityController,
-          onSubmit: _submit,
+        return BlocBuilder<CompanyTimezoneCubit, CompanyTimezoneState>(
+          builder: (context, timezoneState) {
+            return _CompanyCreationForm(
+              formKey: _formKey,
+              nameController: _nameController,
+              businessTypeController: _businessTypeController,
+              phoneController: _phoneController,
+              emailController: _emailController,
+              countryController: _countryController,
+              cityController: _cityController,
+              timezoneState: timezoneState,
+              selectedTimezone: _selectedTimezone,
+              onTimezoneChanged: (value) {
+                setState(() => _selectedTimezone = value);
+              },
+              onRetryTimezones: () =>
+                  context.read<CompanyTimezoneCubit>().loadOptions(),
+              onSubmit: _submit,
+            );
+          },
         );
       },
     );
@@ -90,8 +115,12 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
       return;
     }
 
+    final selectedTimezone = _selectedTimezone;
+    if (selectedTimezone == null) return;
+
     context.read<CompanyOnboardingCubit>().createCompany(
       name: _nameController.text,
+      businessTimezone: selectedTimezone,
       businessType: _businessTypeController.text,
       phone: _phoneController.text,
       email: _emailController.text,
@@ -109,6 +138,10 @@ class _CompanyCreationForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController countryController;
   final TextEditingController cityController;
+  final CompanyTimezoneState timezoneState;
+  final String? selectedTimezone;
+  final ValueChanged<String?> onTimezoneChanged;
+  final VoidCallback onRetryTimezones;
   final VoidCallback onSubmit;
 
   const _CompanyCreationForm({
@@ -119,6 +152,10 @@ class _CompanyCreationForm extends StatelessWidget {
     required this.emailController,
     required this.countryController,
     required this.cityController,
+    required this.timezoneState,
+    required this.selectedTimezone,
+    required this.onTimezoneChanged,
+    required this.onRetryTimezones,
     required this.onSubmit,
   });
 
@@ -146,6 +183,10 @@ class _CompanyCreationForm extends StatelessWidget {
             emailController: emailController,
             countryController: countryController,
             cityController: cityController,
+            timezoneState: timezoneState,
+            selectedTimezone: selectedTimezone,
+            onTimezoneChanged: onTimezoneChanged,
+            onRetryTimezones: onRetryTimezones,
             onSubmit: onSubmit,
           ),
           tablet: _CompanyCreationFormBody(
@@ -158,6 +199,10 @@ class _CompanyCreationForm extends StatelessWidget {
             emailController: emailController,
             countryController: countryController,
             cityController: cityController,
+            timezoneState: timezoneState,
+            selectedTimezone: selectedTimezone,
+            onTimezoneChanged: onTimezoneChanged,
+            onRetryTimezones: onRetryTimezones,
             onSubmit: onSubmit,
           ),
           desktop: _CompanyCreationFormBody(
@@ -170,6 +215,10 @@ class _CompanyCreationForm extends StatelessWidget {
             emailController: emailController,
             countryController: countryController,
             cityController: cityController,
+            timezoneState: timezoneState,
+            selectedTimezone: selectedTimezone,
+            onTimezoneChanged: onTimezoneChanged,
+            onRetryTimezones: onRetryTimezones,
             onSubmit: onSubmit,
           ),
         ),
@@ -188,6 +237,10 @@ class _CompanyCreationFormBody extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController countryController;
   final TextEditingController cityController;
+  final CompanyTimezoneState timezoneState;
+  final String? selectedTimezone;
+  final ValueChanged<String?> onTimezoneChanged;
+  final VoidCallback onRetryTimezones;
   final VoidCallback onSubmit;
 
   const _CompanyCreationFormBody({
@@ -200,6 +253,10 @@ class _CompanyCreationFormBody extends StatelessWidget {
     required this.emailController,
     required this.countryController,
     required this.cityController,
+    required this.timezoneState,
+    required this.selectedTimezone,
+    required this.onTimezoneChanged,
+    required this.onRetryTimezones,
     required this.onSubmit,
   });
 
@@ -245,9 +302,15 @@ class _CompanyCreationFormBody extends StatelessWidget {
                     if (value == null || value.trim().isEmpty) {
                       return l10n.companyNameRequired;
                     }
-
                     return null;
                   },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _CompanyTimezoneField(
+                  state: timezoneState,
+                  selectedTimezone: selectedTimezone,
+                  onChanged: onTimezoneChanged,
+                  onRetry: onRetryTimezones,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
@@ -291,7 +354,7 @@ class _CompanyCreationFormBody extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 FilledButton(
-                  onPressed: onSubmit,
+                  onPressed: timezoneState.options.isNotEmpty ? onSubmit : null,
                   child: Text(l10n.createCompanyButton),
                 ),
               ],
@@ -299,6 +362,63 @@ class _CompanyCreationFormBody extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CompanyTimezoneField extends StatelessWidget {
+  final CompanyTimezoneState state;
+  final String? selectedTimezone;
+  final ValueChanged<String?> onChanged;
+  final VoidCallback onRetry;
+
+  const _CompanyTimezoneField({
+    required this.state,
+    required this.selectedTimezone,
+    required this.onChanged,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.companyTimezoneL10n;
+
+    if (state is CompanyTimezoneInitial || state is CompanyTimezoneLoading) {
+      return Row(
+        children: [
+          const SizedBox.square(
+            dimension: AppSpacing.xl,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(child: Text(l10n.loading)),
+        ],
+      );
+    }
+
+    if (state is CompanyTimezoneFailure && state.options.isEmpty) {
+      final failure = (state as CompanyTimezoneFailure).failure;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(companyTimezoneFailureMessage(failure, l10n)),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),
+        ],
+      );
+    }
+
+    final options = state.options;
+    final effectiveValue =
+        options.any((option) => option.value == selectedTimezone)
+        ? selectedTimezone
+        : null;
+
+    return CompanyTimezoneSelector(
+      options: options,
+      selectedValue: effectiveValue,
+      onChanged: onChanged,
+      validator: (value) => value == null ? l10n.required : null,
     );
   }
 }

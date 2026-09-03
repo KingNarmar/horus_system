@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/company.dart';
 import '../../domain/repositories/company_repository.dart';
+import '../../domain/value_objects/company_timezone.dart';
 import '../datasources/company_remote_data_source.dart';
 import '../mappers/company_mapper.dart';
 import 'company_repository_failure_mapper.dart';
@@ -18,6 +19,7 @@ class CompanyRepositoryImpl implements CompanyRepository {
   @override
   Future<Result<Company>> createCompany({
     required String name,
+    required CompanyTimezone businessTimezone,
     String? businessType,
     String? phone,
     String? email,
@@ -27,6 +29,7 @@ class CompanyRepositoryImpl implements CompanyRepository {
     return _guard(
       () async => (await _remoteDataSource.createCompany(
         name: name,
+        businessTimezone: businessTimezone.value,
         businessType: businessType,
         phone: phone,
         email: email,

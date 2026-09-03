@@ -1,5 +1,6 @@
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/features/company/data/constants/company_rpc_error_codes.dart';
 import 'package:horus_system/features/company/data/repositories/company_repository_failure_mapper.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,6 +17,24 @@ void main() {
 
       expect(failure, isA<AuthFailure>());
       expect(failure.code, CompanyFailureCodes.authRequired);
+      expect(failure.message, isNull);
+    });
+
+    test('maps onboarding timezone rejection to typed validation failure', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'company_business_timezone_invalid',
+          code: CompanyRpcErrorCodes.onboardingBusinessTimezoneInvalid,
+          details: 'private database details',
+          hint: 'internal database hint',
+        ),
+      );
+
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        failure.code,
+        CompanyFailureCodes.validationBusinessTimezoneInvalid,
+      );
       expect(failure.message, isNull);
     });
 

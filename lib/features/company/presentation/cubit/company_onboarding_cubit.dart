@@ -41,6 +41,7 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
 
   Future<void> createCompany({
     required String name,
+    required String businessTimezone,
     String? businessType,
     String? phone,
     String? email,
@@ -52,6 +53,7 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
     final result = await _createCompanyUseCase(
       CreateCompanyParams(
         name: name,
+        businessTimezone: businessTimezone,
         businessType: businessType,
         phone: phone,
         email: email,
