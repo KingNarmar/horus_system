@@ -92,7 +92,6 @@ final class _FakeCompanyTimezoneRemoteDataSource
     implements CompanyTimezoneRemoteDataSource {
   final List<String> options;
   final CompanyModel updateModel;
-  final Object? optionsError;
   final Object? updateError;
 
   String? lastCompanyId;
@@ -101,7 +100,6 @@ final class _FakeCompanyTimezoneRemoteDataSource
   _FakeCompanyTimezoneRemoteDataSource({
     this.options = const [],
     CompanyModel? updateModel,
-    this.optionsError,
     this.updateError,
   }) : updateModel = updateModel ??
             const CompanyModel(
@@ -111,11 +109,7 @@ final class _FakeCompanyTimezoneRemoteDataSource
             );
 
   @override
-  Future<List<String>> getTimezoneOptions() async {
-    final error = optionsError;
-    if (error != null) throw error;
-    return options;
-  }
+  Future<List<String>> getTimezoneOptions() async => options;
 
   @override
   Future<CompanyModel> updateBusinessTimezone({
