@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../invoices/domain/entities/invoice.dart';
@@ -17,6 +19,8 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
   final GetPaymentsUseCase getPaymentsUseCase;
   final GetInvoicesUseCase getInvoicesUseCase;
   final GetPaymentMethodsUseCase getPaymentMethodsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
@@ -25,6 +29,7 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     required this.getPaymentsUseCase,
     required this.getInvoicesUseCase,
     required this.getPaymentMethodsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const PaymentsInitial());
 
   Future<void> loadPayments(CurrentCompanyContext currentCompanyContext) async {
@@ -66,11 +71,29 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     final payments = (paymentsResult as Success<List<Payment>>).data;
     final invoices = (invoicesResult as Success<List<Invoice>>).data;
     final methods = (methodsResult as Success<List<PaymentMethod>>).data;
+    final timestampsResult = await convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: {
+          for (final payment in payments) payment.id: payment.createdAt,
+        },
+      ),
+    );
+    if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
+    if (timestampsResult
+        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      emit(PaymentsFailure(timestampsResult.failure));
+      return;
+    }
 
     emit(
       PaymentsLoaded(
         currentCompanyContext: currentCompanyContext,
         allPayments: List.unmodifiable(payments),
+        createdAtByPaymentId: Map.unmodifiable(
+          timestampsResult.dataOrNull ??
+              const <String, BusinessLocalDateTime>{},
+        ),
         invoices: List.unmodifiable(invoices),
         paymentMethods: List.unmodifiable(methods),
         canRegisterPayments: PaymentsPermissionPolicy.canRegisterPayments(
