@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -43,6 +45,8 @@ class DriversCubit extends Cubit<DriversState>
   final DeactivateDriverUseCase deactivateDriverUseCase;
   final ReactivateDriverUseCase reactivateDriverUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
   final GetDriverMovementsUseCase getDriverMovementsUseCase;
   final GetDriverTripOptionsUseCase getDriverTripOptionsUseCase;
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
@@ -60,6 +64,7 @@ class DriversCubit extends Cubit<DriversState>
     required this.deactivateDriverUseCase,
     required this.reactivateDriverUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
     required this.getDriverMovementsUseCase,
     required this.getDriverTripOptionsUseCase,
     required this.addDriverAdvanceUseCase,
@@ -101,6 +106,18 @@ class DriversCubit extends Cubit<DriversState>
         ),
       ),
       failure: (failure) => emit(DriversFailure(failure)),
+    );
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
+    CurrentCompanyContext currentCompanyContext,
+    Map<String, DateTime> instantsByKey,
+  ) {
+    return convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: instantsByKey,
+      ),
     );
   }
 }
