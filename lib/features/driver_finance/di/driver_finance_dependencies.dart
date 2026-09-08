@@ -40,7 +40,8 @@ abstract final class DriverFinanceDependencies {
   }) {
     return GetCurrentCanonicalDriverBalanceUseCase(
       getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
-      getCanonicalDriverBalanceUseCase: createGetCanonicalDriverBalanceUseCase(),
+      getCanonicalDriverBalanceUseCase:
+          createGetCanonicalDriverBalanceUseCase(),
     );
   }
 }

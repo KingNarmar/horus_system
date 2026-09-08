@@ -102,7 +102,8 @@ class _DriversPageState extends State<DriversPage> {
     required DriverFinancialMovementType movementType,
   }) async {
     final cubit = context.read<DriversCubit>();
-    final initialMovementDate = await cubit.getCurrentDriverFinanceBusinessDate();
+    final initialMovementDate = await cubit
+        .getCurrentDriverFinanceBusinessDate();
     if (!mounted || initialMovementDate == null) return;
 
     await showDialog<void>(

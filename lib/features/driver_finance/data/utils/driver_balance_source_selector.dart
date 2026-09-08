@@ -45,23 +45,25 @@ class DriverBalanceSourceSelector {
 
     final selected = byId.values.toList();
     selected.sort((left, right) {
-      final effectiveComparison = DbDate.decode(
-        left[effectiveDateField],
-        field: effectiveDateField,
-      ).compareTo(
-        DbDate.decode(right[effectiveDateField], field: effectiveDateField),
-      );
+      final effectiveComparison =
+          DbDate.decode(
+            left[effectiveDateField],
+            field: effectiveDateField,
+          ).compareTo(
+            DbDate.decode(right[effectiveDateField], field: effectiveDateField),
+          );
       if (effectiveComparison != 0) return effectiveComparison;
 
-      final createdComparison = DbTimestamp.decode(
-        left[DbCommonFields.createdAt],
-        field: DbCommonFields.createdAt,
-      ).compareTo(
-        DbTimestamp.decode(
-          right[DbCommonFields.createdAt],
-          field: DbCommonFields.createdAt,
-        ),
-      );
+      final createdComparison =
+          DbTimestamp.decode(
+            left[DbCommonFields.createdAt],
+            field: DbCommonFields.createdAt,
+          ).compareTo(
+            DbTimestamp.decode(
+              right[DbCommonFields.createdAt],
+              field: DbCommonFields.createdAt,
+            ),
+          );
       if (createdComparison != 0) return createdComparison;
 
       return (left[DbCommonFields.id] as String).compareTo(

@@ -98,7 +98,8 @@ class GetCurrentCanonicalDriverBalanceUseCase
       return FailureResult(businessDateResult.failure);
     }
 
-    final currentBusinessDate = (businessDateResult as Success<BusinessDate>).data;
+    final currentBusinessDate =
+        (businessDateResult as Success<BusinessDate>).data;
     return _getCanonicalDriverBalanceUseCase(
       GetCanonicalDriverBalanceParams(
         currentCompanyContext: params.currentCompanyContext,

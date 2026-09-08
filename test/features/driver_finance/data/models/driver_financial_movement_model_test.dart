@@ -20,10 +20,7 @@ void main() {
       });
 
       expect(model.type, DriverFinancialMovementType.advance);
-      expect(
-        model.movementDate,
-        BusinessDate(year: 2026, month: 8, day: 23),
-      );
+      expect(model.movementDate, BusinessDate(year: 2026, month: 8, day: 23));
       expect(model.createdAt, DateTime.utc(2026, 8, 23, 9));
       expect(model.createdAt?.isUtc, isTrue);
       expect(model.updatedAt, DateTime.utc(2026, 8, 23, 10));

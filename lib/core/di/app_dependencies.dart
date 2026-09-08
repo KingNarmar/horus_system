@@ -140,7 +140,8 @@ abstract final class AppDependencies {
       ),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
-    final driverFinanceRepository = DriverFinanceDependencies.createRepository();
+    final driverFinanceRepository =
+        DriverFinanceDependencies.createRepository();
     final getCompanyBusinessDateUseCase = GetCompanyBusinessDateUseCase(
       CompanyDependencies.createBusinessDateProvider(),
     );

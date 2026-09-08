@@ -42,7 +42,10 @@ void main() {
       expect(repository.lastCompanyId, _companyId);
       expect(repository.lastDriverId, _driverId);
       expect(repository.lastBeforeExclusive, beforeExclusive);
-      expect(repository.lastCheckpointBeforeExclusive, checkpointBeforeExclusive);
+      expect(
+        repository.lastCheckpointBeforeExclusive,
+        checkpointBeforeExclusive,
+      );
     });
 
     test('preserves post-checkpoint financial effects', () async {
@@ -112,61 +115,71 @@ void main() {
   });
 
   group('GetCurrentCanonicalDriverBalanceUseCase', () {
-    test('uses trusted company date and exclusive next business date', () async {
-      final provider = _FakeCompanyBusinessDateProvider(
-        Success(BusinessDate(year: 2026, month: 9, day: 8)),
-      );
-      final repository = _FakeDriverBalanceRepository(
-        balance: _balance(closingBalance: -5600),
-      );
-      final useCase = GetCurrentCanonicalDriverBalanceUseCase(
-        getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(provider),
-        getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
-          repository,
-        ),
-      );
+    test(
+      'uses trusted company date and exclusive next business date',
+      () async {
+        final provider = _FakeCompanyBusinessDateProvider(
+          Success(BusinessDate(year: 2026, month: 9, day: 8)),
+        );
+        final repository = _FakeDriverBalanceRepository(
+          balance: _balance(closingBalance: -5600),
+        );
+        final useCase = GetCurrentCanonicalDriverBalanceUseCase(
+          getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+            provider,
+          ),
+          getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+            repository,
+          ),
+        );
 
-      final result = await useCase(
-        GetCurrentCanonicalDriverBalanceParams(
-          currentCompanyContext: _context(CompanyRole.accountant),
-          driverId: _driverId,
-        ),
-      );
+        final result = await useCase(
+          GetCurrentCanonicalDriverBalanceParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+          ),
+        );
 
-      expect(result, isA<Success<DriverBalance>>());
-      expect(provider.calls, 1);
-      expect(provider.lastCompanyId, _companyId);
-      expect(
-        repository.lastBeforeExclusive,
-        BusinessDate(year: 2026, month: 9, day: 9),
-      );
-      expect(repository.lastCheckpointBeforeExclusive, isNull);
-    });
+        expect(result, isA<Success<DriverBalance>>());
+        expect(provider.calls, 1);
+        expect(provider.lastCompanyId, _companyId);
+        expect(
+          repository.lastBeforeExclusive,
+          BusinessDate(year: 2026, month: 9, day: 9),
+        );
+        expect(repository.lastCheckpointBeforeExclusive, isNull);
+      },
+    );
 
-    test('does not query balance when trusted business-date lookup fails', () async {
-      const failure = ServerFailure(code: FailureCodes.serverError);
-      final provider = _FakeCompanyBusinessDateProvider(
-        const FailureResult<BusinessDate>(failure),
-      );
-      final repository = _FakeDriverBalanceRepository();
-      final useCase = GetCurrentCanonicalDriverBalanceUseCase(
-        getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(provider),
-        getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
-          repository,
-        ),
-      );
+    test(
+      'does not query balance when trusted business-date lookup fails',
+      () async {
+        const failure = ServerFailure(code: FailureCodes.serverError);
+        final provider = _FakeCompanyBusinessDateProvider(
+          const FailureResult<BusinessDate>(failure),
+        );
+        final repository = _FakeDriverBalanceRepository();
+        final useCase = GetCurrentCanonicalDriverBalanceUseCase(
+          getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+            provider,
+          ),
+          getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+            repository,
+          ),
+        );
 
-      final result = await useCase(
-        GetCurrentCanonicalDriverBalanceParams(
-          currentCompanyContext: _context(CompanyRole.accountant),
-          driverId: _driverId,
-        ),
-      );
+        final result = await useCase(
+          GetCurrentCanonicalDriverBalanceParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+          ),
+        );
 
-      expect(result, isA<FailureResult<DriverBalance>>());
-      expect(result.failureOrNull, same(failure));
-      expect(repository.balanceCalls, 0);
-    });
+        expect(result, isA<FailureResult<DriverBalance>>());
+        expect(result.failureOrNull, same(failure));
+        expect(repository.balanceCalls, 0);
+      },
+    );
   });
 }
 
@@ -241,7 +254,9 @@ class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
   _FakeCompanyBusinessDateProvider(this.result);
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     calls++;
     lastCompanyId = companyId;
     return result;

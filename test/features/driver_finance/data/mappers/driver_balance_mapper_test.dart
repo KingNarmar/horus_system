@@ -27,7 +27,10 @@ void main() {
         balance.checkpoint?.periodEnd,
         BusinessDate(year: 2026, month: 8, day: 31),
       );
-      expect(balance.checkpoint?.snapshotCreatedAt, DateTime.utc(2026, 9, 1, 8));
+      expect(
+        balance.checkpoint?.snapshotCreatedAt,
+        DateTime.utc(2026, 9, 1, 8),
+      );
       expect(balance.checkpoint?.snapshotCreatedAt.isUtc, isTrue);
       expect(balance.openingBalance, -5600);
       expect(balance.netBalance, -5600);

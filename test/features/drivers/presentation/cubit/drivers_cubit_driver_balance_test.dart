@@ -399,7 +399,9 @@ class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
   _FakeCompanyBusinessDateProvider(this.businessDate);
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     lastCompanyId = companyId;
     return Success(businessDate);
   }
