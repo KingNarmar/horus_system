@@ -1,3 +1,4 @@
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
@@ -82,8 +83,8 @@ final class DriverSettlementRepositoryAuditWriter {
             'settlement_id': model.id,
             'driver_id': model.driverId,
             'status': model.status.value,
-            'period_start': model.periodStart.toIso8601String(),
-            'period_end': model.periodEnd.toIso8601String(),
+            'period_start': DbDate.encode(model.periodStart),
+            'period_end': DbDate.encode(model.periodEnd),
             'closing_driver_balance': model.closingDriverBalance,
             'net_salary_payable': model.netSalaryPayable,
           },
