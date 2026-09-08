@@ -99,6 +99,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.permissionCompanyExpensesManagement =>
         failurePermissionCompanyExpensesManagement,
       FailureCodes.validationTripIdRequired => failureValidationTripIdRequired,
+      FailureCodes.validationTripBusinessLocalDateTimeInvalid =>
+        tripDateTimeInvalid,
       FailureCodes.validationTripExpenseIdRequired =>
         failureValidationTripExpenseIdRequired,
       FailureCodes.validationTripExpenseTypeRequired =>

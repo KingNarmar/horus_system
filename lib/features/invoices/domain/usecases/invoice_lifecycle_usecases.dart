@@ -1,4 +1,5 @@
 import '../../../../core/domain/services/company_business_date_provider.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -43,8 +44,8 @@ final class IssueInvoiceUseCase
       );
     }
 
-    final issueDate = InvoiceDate.fromDateTime(params.issueDate);
-    final dueDate = InvoiceDate.fromDateTime(params.dueDate);
+    final issueDate = InvoiceDate.fromBusinessDate(params.issueDate);
+    final dueDate = InvoiceDate.fromBusinessDate(params.dueDate);
     if (dueDate.isBefore(issueDate)) {
       return const FailureResult<Invoice>(
         ValidationFailure(
@@ -56,12 +57,12 @@ final class IssueInvoiceUseCase
     final businessDateResult = await _businessDateProvider.getBusinessDate(
       companyId: context.companyId,
     );
-    if (businessDateResult is FailureResult<DateTime>) {
+    if (businessDateResult is FailureResult<BusinessDate>) {
       return FailureResult<Invoice>(businessDateResult.failure);
     }
 
-    final businessDate = InvoiceDate.fromDateTime(
-      (businessDateResult as Success<DateTime>).data,
+    final businessDate = InvoiceDate.fromBusinessDate(
+      (businessDateResult as Success<BusinessDate>).data,
     );
     if (issueDate.isAfter(businessDate)) {
       return const FailureResult<Invoice>(

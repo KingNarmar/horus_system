@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
-import 'trip_details_helpers.dart';
 import 'trip_details_shared_widgets.dart';
 
 class TripBasicInfoSection extends StatelessWidget {
@@ -13,10 +13,12 @@ class TripBasicInfoSection extends StatelessWidget {
   static const double _twoColumnsBreakpoint = 300;
 
   final TripEntity trip;
+  final TripBusinessLocalTimestamps? businessLocalTimestamps;
   final double? calculatedAmount;
 
   const TripBasicInfoSection({
     required this.trip,
+    this.businessLocalTimestamps,
     this.calculatedAmount,
     super.key,
   });
@@ -121,22 +123,34 @@ class TripBasicInfoSection extends StatelessWidget {
 
     addOptional(
       l10n.tripScheduledLoadingAtLabel,
-      formatTripDateTime(trip.scheduledLoadingAt, l10n.tripEmptyValue),
+      TripFormatters.businessLocalDateTime(
+        businessLocalTimestamps?.scheduledLoadingAt,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addOptional(
       l10n.tripScheduledDeliveryAtLabel,
-      formatTripDateTime(trip.scheduledDeliveryAt, l10n.tripEmptyValue),
+      TripFormatters.businessLocalDateTime(
+        businessLocalTimestamps?.scheduledDeliveryAt,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addOptional(
       l10n.tripActualLoadingAtLabel,
-      formatTripDateTime(trip.actualLoadingAt, l10n.tripEmptyValue),
+      TripFormatters.businessLocalDateTime(
+        businessLocalTimestamps?.actualLoadingAt,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addOptional(
       l10n.tripActualDeliveryAtLabel,
-      formatTripDateTime(trip.actualDeliveryAt, l10n.tripEmptyValue),
+      TripFormatters.businessLocalDateTime(
+        businessLocalTimestamps?.actualDeliveryAt,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addOptional(

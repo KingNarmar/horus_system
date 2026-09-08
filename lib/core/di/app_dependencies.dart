@@ -30,7 +30,6 @@ import '../../features/customers/di/customers_dependencies.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
 import '../../features/driver_finance/di/driver_finance_dependencies.dart';
 import '../../features/driver_finance/domain/usecases/driver_finance_usecases.dart';
-import '../../features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../../features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
 import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
@@ -43,7 +42,10 @@ import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
 import '../context/current_company_provider.dart';
 import '../context/in_memory_current_company_provider.dart';
+import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
+import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../usecases/get_company_business_date_usecase.dart';
 
 abstract final class AppDependencies {
   static final CurrentCompanyProvider _currentCompanyProvider =
@@ -140,8 +142,10 @@ abstract final class AppDependencies {
     );
     final driverFinanceRepository =
         DriverFinanceDependencies.createRepository();
-    final driverBalanceRepository =
-        DriverFinanceDependencies.createBalanceRepository();
+    final getCompanyBusinessDateUseCase = GetCompanyBusinessDateUseCase(
+      CompanyDependencies.createBusinessDateProvider(),
+    );
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(driversRepository),
@@ -151,6 +155,11 @@ abstract final class AppDependencies {
       deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
       reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
       getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            businessTimeZoneConverter,
+          ),
+      getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
       getDriverMovementsUseCase: GetDriverMovementsUseCase(
         driverFinanceRepository,
       ),
@@ -162,9 +171,10 @@ abstract final class AppDependencies {
       addDriverCashReturnUseCase: AddDriverCashReturnUseCase(
         driverFinanceRepository,
       ),
-      getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
-        driverBalanceRepository,
-      ),
+      getCurrentCanonicalDriverBalanceUseCase:
+          DriverFinanceDependencies.createGetCurrentCanonicalDriverBalanceUseCase(
+            getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
+          ),
     );
   }
 }

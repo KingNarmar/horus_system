@@ -10,7 +10,6 @@ import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
-import 'trip_details_helpers.dart';
 import 'trip_details_shared_widgets.dart';
 import 'trip_expense_form_dialog.dart';
 
@@ -184,7 +183,10 @@ class _TripExpenseTile extends StatelessWidget {
               children: [
                 Text(expenseName),
                 Text(
-                  formatTripDateTime(expense.expenseDate, l10n.tripEmptyValue),
+                  TripFormatters.businessDate(
+                    expense.expenseDate,
+                    l10n.tripEmptyValue,
+                  ),
                 ),
                 Text(l10n.tripExpensePaidByValueLabel(expense.paidBy)),
                 if (localizedTypeName != l10n.tripEmptyValue)

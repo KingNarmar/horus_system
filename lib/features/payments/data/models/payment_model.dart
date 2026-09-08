@@ -1,4 +1,7 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/payments_db_constants.dart';
 
 final class PaymentModel {
@@ -7,7 +10,7 @@ final class PaymentModel {
   final String invoiceId;
   final String customerId;
   final String paymentMethodId;
-  final DateTime paymentDate;
+  final BusinessDate paymentDate;
   final int amountMinorUnits;
   final String currencyCode;
   final String? referenceNumber;
@@ -49,9 +52,9 @@ final class PaymentModel {
         map[PaymentsDbConstants.paymentMethodId],
         PaymentsDbConstants.paymentMethodId,
       ),
-      paymentDate: _requiredDate(
+      paymentDate: DbDate.decode(
         map[PaymentsDbConstants.paymentDate],
-        PaymentsDbConstants.paymentDate,
+        field: PaymentsDbConstants.paymentDate,
       ),
       amountMinorUnits: _requiredInt(
         map[PaymentsDbConstants.amountMinorUnits],
@@ -66,9 +69,9 @@ final class PaymentModel {
       ),
       notes: _optionalString(map[PaymentsDbConstants.notes]),
       createdBy: _optionalString(map[PaymentsDbConstants.createdBy]),
-      createdAt: _requiredDateTime(
+      createdAt: DbTimestamp.decode(
         map[DbCommonFields.createdAt],
-        DbCommonFields.createdAt,
+        field: DbCommonFields.createdAt,
       ),
     );
   }
@@ -92,20 +95,4 @@ int _requiredInt(Object? value, String field) {
   if (value is int) return value;
   if (value is num && value == value.truncate()) return value.toInt();
   throw FormatException('Invalid payment integer field: $field.');
-}
-
-DateTime _requiredDate(Object? value, String field) {
-  final raw = _requiredString(value, field);
-  final parsed = DateTime.tryParse(raw);
-  if (parsed == null) throw FormatException('Invalid payment date: $field.');
-  return DateTime(parsed.year, parsed.month, parsed.day);
-}
-
-DateTime _requiredDateTime(Object? value, String field) {
-  final raw = _requiredString(value, field);
-  final parsed = DateTime.tryParse(raw);
-  if (parsed == null) {
-    throw FormatException('Invalid payment timestamp: $field.');
-  }
-  return parsed;
 }

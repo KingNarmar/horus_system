@@ -135,7 +135,7 @@ class CustomerDetailsDialog extends StatelessWidget {
                         ? l10n.customerNotAvailable
                         : CustomerDateTimeFormatter.format(
                             context,
-                            createdLog.createdAt,
+                            state?.activityTimestampFor(createdLog.id),
                           ),
                   ),
                   CustomerDetailRow(
@@ -152,7 +152,7 @@ class CustomerDetailsDialog extends StatelessWidget {
                         ? l10n.customerNotAvailable
                         : CustomerDateTimeFormatter.format(
                             context,
-                            latestLog.createdAt,
+                            state?.activityTimestampFor(latestLog.id),
                           ),
                   ),
                 ],
@@ -181,7 +181,10 @@ class CustomerDetailsDialog extends StatelessWidget {
                     Text(l10n.customerNoActivityFound)
                   else
                     ...activity.map(
-                      (log) => CustomerActivityTimelineItem(log: log),
+                      (log) => CustomerActivityTimelineItem(
+                        log: log,
+                        createdAt: state?.activityTimestampFor(log.id),
+                      ),
                     ),
                 ],
               ),

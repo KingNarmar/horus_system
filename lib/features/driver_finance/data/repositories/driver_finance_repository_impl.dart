@@ -44,11 +44,13 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
   Future<Result<List<DriverFinanceTripOption>>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   }) {
     return _guard(() async {
       final models = await remoteDataSource.getDriverTripOptions(
         companyId: companyId,
         driverId: driverId,
+        timeZoneId: timeZoneId,
       );
       return Success(models.map((model) => model.toEntity()).toList());
     });

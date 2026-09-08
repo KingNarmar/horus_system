@@ -1,3 +1,5 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class CompanyExpenseWriteData {
   final String companyId;
   final String categoryId;
@@ -6,7 +8,7 @@ class CompanyExpenseWriteData {
   final String? trailerId;
   final String? tripId;
   final double amount;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? referenceNumber;
   final String? notes;
 

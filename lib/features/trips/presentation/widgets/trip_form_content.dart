@@ -148,10 +148,10 @@ extension _TripFormDialogContent on _TripFormDialogState {
                   return l10n.tripDateTimeInvalid;
                 }
 
-                final loading = _parseDateTime(
+                final loading = _parseBusinessLocalDateTime(
                   _scheduledLoadingController.text,
                 );
-                final delivery = _parseDateTime(
+                final delivery = _parseBusinessLocalDateTime(
                   _scheduledDeliveryController.text,
                 );
 

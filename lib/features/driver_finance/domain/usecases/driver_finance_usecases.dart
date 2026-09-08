@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -35,7 +36,7 @@ class AddDriverAdvanceParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
   final double amount;
-  final DateTime movementDate;
+  final BusinessDate movementDate;
   final String? notes;
 
   const AddDriverAdvanceParams({
@@ -52,7 +53,7 @@ class AddDriverChargeParams {
   final String driverId;
   final String? tripId;
   final double amount;
-  final DateTime movementDate;
+  final BusinessDate movementDate;
   final String? notes;
 
   const AddDriverChargeParams({
@@ -69,7 +70,7 @@ class AddDriverCashReturnParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
   final double amount;
-  final DateTime movementDate;
+  final BusinessDate movementDate;
   final String? notes;
 
   const AddDriverCashReturnParams({
@@ -129,6 +130,7 @@ class GetDriverTripOptionsUseCase
     return _repository.getDriverTripOptions(
       companyId: params.currentCompanyContext.companyId,
       driverId: (driverId as Success<String>).data,
+      timeZoneId: params.currentCompanyContext.company.businessTimezone ?? '',
     );
   }
 }
@@ -205,7 +207,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   required String? tripId,
   required DriverFinancialMovementType type,
   required double amount,
-  required DateTime movementDate,
+  required BusinessDate movementDate,
   required String? notes,
 }) {
   final failure = _validateWritableMovement(

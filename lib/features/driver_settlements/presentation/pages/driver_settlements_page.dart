@@ -45,6 +45,7 @@ class _DriverSettlementsPageState extends State<DriverSettlementsPage> {
         value: cubit,
         child: DriverSettlementFormDialog(
           driverOptions: state.activeDriverOptions,
+          businessDate: state.businessDate,
         ),
       ),
     );

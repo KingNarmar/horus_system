@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -36,12 +37,16 @@ void main() {
         result.dataOrNull?.single.type,
         DriverFinancialMovementType.advance,
       );
+      expect(
+        result.dataOrNull?.single.movementDate,
+        BusinessDate(year: 2026, month: 8, day: 23),
+      );
       expect(dataSource.movementReadCalls, 1);
       expect(dataSource.lastMovementCompanyId, _companyId);
       expect(dataSource.lastMovementDriverId, _driverId);
     });
 
-    test('loads trip options with exact company and driver scope', () async {
+    test('loads trip options with exact tenant and timezone scope', () async {
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         tripOptions: const [
           DriverFinanceTripOptionModel(id: _tripId, label: 'Trip 1'),
@@ -52,6 +57,7 @@ void main() {
       final result = await repository.getDriverTripOptions(
         companyId: _companyId,
         driverId: _driverId,
+        timeZoneId: _timeZoneId,
       );
 
       expect(result, isA<Success>());
@@ -60,6 +66,7 @@ void main() {
       expect(dataSource.tripOptionReadCalls, 1);
       expect(dataSource.lastTripOptionCompanyId, _companyId);
       expect(dataSource.lastTripOptionDriverId, _driverId);
+      expect(dataSource.lastTripOptionTimeZoneId, _timeZoneId);
     });
 
     test('sanitizes movement read Postgrest failure and keeps scope', () async {
@@ -130,6 +137,10 @@ void main() {
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
       expect(auditRepository.logs.single.metadata?['movement_id'], _movementId);
+      expect(
+        auditRepository.logs.single.newValues?['movement_date'],
+        '2026-08-23',
+      );
     });
 
     test('does not write audit when movement persistence fails', () async {
@@ -220,7 +231,7 @@ void main() {
       },
     );
 
-    test('sanitizes unexpected read failures', () async {
+    test('sanitizes unexpected trip-option read failures', () async {
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         tripOptionReadError: Exception('read failed'),
       );
@@ -229,6 +240,7 @@ void main() {
       final result = await repository.getDriverTripOptions(
         companyId: _companyId,
         driverId: _driverId,
+        timeZoneId: _timeZoneId,
       );
 
       expect(result, isA<FailureResult>());
@@ -237,6 +249,7 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
       expect(dataSource.lastTripOptionCompanyId, _companyId);
       expect(dataSource.lastTripOptionDriverId, _driverId);
+      expect(dataSource.lastTripOptionTimeZoneId, _timeZoneId);
     });
   });
 }
@@ -245,6 +258,7 @@ const _companyId = 'company-1';
 const _driverId = 'driver-1';
 const _tripId = 'trip-1';
 const _movementId = 'movement-1';
+const _timeZoneId = 'Africa/Tripoli';
 
 DriverFinanceRepositoryImpl _repository(
   DriverFinanceRemoteDataSource dataSource,
@@ -263,7 +277,7 @@ DriverFinancialMovementModel _movementModel() {
     tripId: _tripId,
     type: DriverFinancialMovementType.advance,
     amount: 125.5,
-    movementDate: DateTime.utc(2026, 8, 23),
+    movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
     createdAt: DateTime.utc(2026, 8, 23, 9),
     updatedAt: DateTime.utc(2026, 8, 23, 10),
@@ -277,7 +291,7 @@ DriverFinancialMovementWriteData _writeData() {
     tripId: _tripId,
     type: DriverFinancialMovementType.advance,
     amount: 125.5,
-    movementDate: DateTime.utc(2026, 8, 23),
+    movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
   );
 }
@@ -291,7 +305,7 @@ final class _ThrowingMovementModel extends DriverFinancialMovementModel {
         tripId: _tripId,
         type: DriverFinancialMovementType.advance,
         amount: 125.5,
-        movementDate: DateTime.utc(2026, 8, 23),
+        movementDate: BusinessDate(year: 2026, month: 8, day: 23),
       );
 
   @override
@@ -315,6 +329,7 @@ class _FakeDriverFinanceRemoteDataSource
   String? lastMovementDriverId;
   String? lastTripOptionCompanyId;
   String? lastTripOptionDriverId;
+  String? lastTripOptionTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
 
   _FakeDriverFinanceRemoteDataSource({
@@ -343,10 +358,12 @@ class _FakeDriverFinanceRemoteDataSource
   Future<List<DriverFinanceTripOptionModel>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   }) async {
     tripOptionReadCalls++;
     lastTripOptionCompanyId = companyId;
     lastTripOptionDriverId = driverId;
+    lastTripOptionTimeZoneId = timeZoneId;
     if (tripOptionReadError != null) throw tripOptionReadError!;
     return tripOptions;
   }

@@ -1,3 +1,5 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -23,6 +25,7 @@ class CompanyExpensesLoading extends CompanyExpensesState {
 
 class CompanyExpensesLoaded extends CompanyExpensesState {
   final CurrentCompanyContext currentCompanyContext;
+  final BusinessDate currentBusinessDate;
   final List<CompanyExpenseCategory> categories;
   final List<CompanyExpense> allExpenses;
   final CompanyExpenseFormLookups formLookups;
@@ -32,11 +35,14 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   final String? pendingActionExpenseId;
   final CompanyExpense? selectedExpense;
   final List<AuditLog> selectedExpenseActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedExpenseActivityBusinessTimesById;
   final bool isActivityLoading;
   final Failure? activityFailure;
 
   const CompanyExpensesLoaded({
     required this.currentCompanyContext,
+    required this.currentBusinessDate,
     required this.categories,
     required this.allExpenses,
     required this.canManageCompanyExpenses,
@@ -46,9 +52,15 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     this.pendingActionExpenseId,
     this.selectedExpense,
     this.selectedExpenseActivity = const [],
+    this.selectedExpenseActivityBusinessTimesById =
+        const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
   });
+
+  BusinessLocalDateTime? activityBusinessTimeFor(String logId) {
+    return selectedExpenseActivityBusinessTimesById[logId];
+  }
 
   List<CompanyExpense> get expenses {
     return filteredExpenses(
@@ -144,6 +156,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   }
 
   CompanyExpensesLoaded copyWith({
+    BusinessDate? currentBusinessDate,
     List<CompanyExpenseCategory>? categories,
     List<CompanyExpense>? allExpenses,
     CompanyExpenseFormLookups? formLookups,
@@ -153,11 +166,14 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     Object? pendingActionExpenseId = _notSet,
     Object? selectedExpense = _notSet,
     List<AuditLog>? selectedExpenseActivity,
+    Map<String, BusinessLocalDateTime>?
+    selectedExpenseActivityBusinessTimesById,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
   }) {
     return CompanyExpensesLoaded(
       currentCompanyContext: currentCompanyContext,
+      currentBusinessDate: currentBusinessDate ?? this.currentBusinessDate,
       categories: categories ?? this.categories,
       allExpenses: allExpenses ?? this.allExpenses,
       formLookups: formLookups ?? this.formLookups,
@@ -173,6 +189,9 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
           : selectedExpense as CompanyExpense?,
       selectedExpenseActivity:
           selectedExpenseActivity ?? this.selectedExpenseActivity,
+      selectedExpenseActivityBusinessTimesById:
+          selectedExpenseActivityBusinessTimesById ??
+          this.selectedExpenseActivityBusinessTimesById,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure

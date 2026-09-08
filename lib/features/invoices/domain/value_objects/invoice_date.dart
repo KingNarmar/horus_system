@@ -1,12 +1,12 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 final class InvoiceDate implements Comparable<InvoiceDate> {
-  final DateTime value;
+  final BusinessDate value;
 
-  InvoiceDate._(this.value);
+  const InvoiceDate._(this.value);
 
-  factory InvoiceDate.fromDateTime(DateTime dateTime) {
-    return InvoiceDate._(
-      DateTime.utc(dateTime.year, dateTime.month, dateTime.day),
-    );
+  factory InvoiceDate.fromBusinessDate(BusinessDate date) {
+    return InvoiceDate._(date);
   }
 
   bool isAfter(InvoiceDate other) => value.isAfter(other.value);

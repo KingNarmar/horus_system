@@ -3,21 +3,23 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../constants/invoice_presentation_constants.dart';
 import '../helpers/invoice_formatters.dart';
 import '../localization/invoices_localizations.dart';
 
 final class InvoiceIssueDates {
-  final DateTime issueDate;
-  final DateTime dueDate;
+  final BusinessDate issueDate;
+  final BusinessDate dueDate;
 
   const InvoiceIssueDates({required this.issueDate, required this.dueDate});
 }
 
 final class InvoiceIssueForm extends StatefulWidget {
   final DateTime initialDate;
-  final DateTime? issueDate;
-  final DateTime? dueDate;
+  final BusinessDate? issueDate;
+  final BusinessDate? dueDate;
   final bool isSubmitting;
   final String? failureMessage;
   final VoidCallback onBack;
@@ -42,8 +44,8 @@ final class _InvoiceIssueFormState extends State<InvoiceIssueForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _issueDateController;
   late final TextEditingController _dueDateController;
-  DateTime? _issueDate;
-  DateTime? _dueDate;
+  BusinessDate? _issueDate;
+  BusinessDate? _dueDate;
 
   @override
   void initState() {
@@ -148,20 +150,23 @@ final class _InvoiceIssueFormState extends State<InvoiceIssueForm> {
     final now = DateTime.now();
     final selected = await showDatePicker(
       context: context,
-      initialDate: current ?? widget.initialDate,
+      initialDate: current == null
+          ? widget.initialDate
+          : BusinessDateDateTimeAdapter.toDateTime(current),
       firstDate: DateTime(InvoicePresentationConstants.minimumSelectableYear),
       lastDate: DateTime(
         now.year + InvoicePresentationConstants.maximumSelectableYearOffset,
       ),
     );
     if (selected == null || !mounted) return;
+    final businessDate = BusinessDateDateTimeAdapter.fromDateTime(selected);
     setState(() {
       if (isIssueDate) {
-        _issueDate = selected;
-        _issueDateController.text = formatInvoiceInputDate(selected);
+        _issueDate = businessDate;
+        _issueDateController.text = formatInvoiceInputDate(businessDate);
       } else {
-        _dueDate = selected;
-        _dueDateController.text = formatInvoiceInputDate(selected);
+        _dueDate = businessDate;
+        _dueDateController.text = formatInvoiceInputDate(businessDate);
       }
     });
   }

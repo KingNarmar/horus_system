@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -27,6 +28,8 @@ class CustomersLoaded extends CustomersState {
   final String? pendingActionCustomerId;
   final Customer? selectedCustomer;
   final List<AuditLog> selectedCustomerActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedCustomerActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
 
@@ -39,6 +42,7 @@ class CustomersLoaded extends CustomersState {
     this.pendingActionCustomerId,
     this.selectedCustomer,
     this.selectedCustomerActivity = const [],
+    this.selectedCustomerActivityTimestampsByLogId = const {},
     this.isActivityLoading = false,
     this.activityFailure,
   });
@@ -65,6 +69,9 @@ class CustomersLoaded extends CustomersState {
     }).toList();
   }
 
+  BusinessLocalDateTime? activityTimestampFor(String logId) =>
+      selectedCustomerActivityTimestampsByLogId[logId];
+
   CustomersLoaded copyWith({
     List<Customer>? allCustomers,
     bool? canManageCustomers,
@@ -73,6 +80,8 @@ class CustomersLoaded extends CustomersState {
     Object? pendingActionCustomerId = _notSet,
     Object? selectedCustomer = _notSet,
     List<AuditLog>? selectedCustomerActivity,
+    Map<String, BusinessLocalDateTime>?
+    selectedCustomerActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
   }) {
@@ -90,6 +99,9 @@ class CustomersLoaded extends CustomersState {
           : selectedCustomer as Customer?,
       selectedCustomerActivity:
           selectedCustomerActivity ?? this.selectedCustomerActivity,
+      selectedCustomerActivityTimestampsByLogId:
+          selectedCustomerActivityTimestampsByLogId ??
+          this.selectedCustomerActivityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure

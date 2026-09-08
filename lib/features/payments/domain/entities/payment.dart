@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 
 final class Payment {
@@ -6,7 +7,7 @@ final class Payment {
   final String invoiceId;
   final String customerId;
   final String paymentMethodId;
-  final DateTime paymentDate;
+  final BusinessDate paymentDate;
   final Money amount;
   final String? referenceNumber;
   final String? notes;

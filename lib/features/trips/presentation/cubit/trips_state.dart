@@ -1,10 +1,12 @@
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
+import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status_filter.dart';
@@ -27,6 +29,12 @@ class TripsLoading extends TripsState {
 class TripsLoaded extends TripsState {
   final CurrentCompanyContext currentCompanyContext;
   final List<TripEntity> allTrips;
+  final Map<String, TripBusinessLocalTimestamps>
+  businessLocalTimestampsByTripId;
+  final Map<String, BusinessLocalDateTime>
+  selectedTripActivityBusinessTimesById;
+  final Map<String, BusinessLocalDateTime>
+  selectedTripStatusHistoryBusinessTimesById;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -62,6 +70,12 @@ class TripsLoaded extends TripsState {
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
     required this.canManageTripExpenses,
+    this.businessLocalTimestampsByTripId =
+        const <String, TripBusinessLocalTimestamps>{},
+    this.selectedTripActivityBusinessTimesById =
+        const <String, BusinessLocalDateTime>{},
+    this.selectedTripStatusHistoryBusinessTimesById =
+        const <String, BusinessLocalDateTime>{},
     this.searchQuery = '',
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
@@ -89,6 +103,18 @@ class TripsLoaded extends TripsState {
 
   bool isStatusChanging(String id) => statusChangingTripIds.contains(id);
 
+  TripBusinessLocalTimestamps? businessLocalTimestampsFor(String tripId) {
+    return businessLocalTimestampsByTripId[tripId];
+  }
+
+  BusinessLocalDateTime? activityBusinessTimeFor(String logId) {
+    return selectedTripActivityBusinessTimesById[logId];
+  }
+
+  BusinessLocalDateTime? statusHistoryBusinessTimeFor(String historyId) {
+    return selectedTripStatusHistoryBusinessTimesById[historyId];
+  }
+
   List<TripEntity> get trips {
     final query = searchQuery.trim().toLowerCase();
     return allTrips.where((trip) {
@@ -114,6 +140,10 @@ class TripsLoaded extends TripsState {
 
   TripsLoaded copyWith({
     List<TripEntity>? allTrips,
+    Map<String, TripBusinessLocalTimestamps>? businessLocalTimestampsByTripId,
+    Map<String, BusinessLocalDateTime>? selectedTripActivityBusinessTimesById,
+    Map<String, BusinessLocalDateTime>?
+    selectedTripStatusHistoryBusinessTimesById,
     bool? canManageTrips,
     bool? canUpdateTripStatus,
     bool? canViewTripFinancials,
@@ -145,6 +175,15 @@ class TripsLoaded extends TripsState {
     return TripsLoaded(
       currentCompanyContext: currentCompanyContext,
       allTrips: allTrips ?? this.allTrips,
+      businessLocalTimestampsByTripId:
+          businessLocalTimestampsByTripId ??
+          this.businessLocalTimestampsByTripId,
+      selectedTripActivityBusinessTimesById:
+          selectedTripActivityBusinessTimesById ??
+          this.selectedTripActivityBusinessTimesById,
+      selectedTripStatusHistoryBusinessTimesById:
+          selectedTripStatusHistoryBusinessTimesById ??
+          this.selectedTripStatusHistoryBusinessTimesById,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
       canViewTripFinancials:

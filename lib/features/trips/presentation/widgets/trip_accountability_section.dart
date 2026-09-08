@@ -38,7 +38,10 @@ class TripAccountabilitySection extends StatelessWidget {
         ),
         TripDetailRow(
           label: l10n.tripCreatedAt,
-          value: formatTripDateTime(created?.createdAt, l10n.tripEmptyValue),
+          value: formatTripDateTime(
+            created == null ? null : state!.activityBusinessTimeFor(created.id),
+            l10n.tripEmptyValue,
+          ),
         ),
         TripDetailRow(
           label: l10n.tripLastActivityBy,
@@ -50,7 +53,10 @@ class TripAccountabilitySection extends StatelessWidget {
         ),
         TripDetailRow(
           label: l10n.tripLastActivityAt,
-          value: formatTripDateTime(latest?.createdAt, l10n.tripEmptyValue),
+          value: formatTripDateTime(
+            latest == null ? null : state!.activityBusinessTimeFor(latest.id),
+            l10n.tripEmptyValue,
+          ),
         ),
       ],
     );

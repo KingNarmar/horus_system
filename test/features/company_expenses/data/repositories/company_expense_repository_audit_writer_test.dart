@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -113,7 +114,7 @@ CompanyExpenseModel _expenseModel({
     trailerId: _trailerId,
     tripId: _tripId,
     amount: amount,
-    expenseDate: DateTime.utc(2026, 8, 19),
+    expenseDate: BusinessDate(year: 2026, month: 8, day: 19),
     referenceNumber: 'REF-1',
     notes: 'note',
     isVoided: isVoided,

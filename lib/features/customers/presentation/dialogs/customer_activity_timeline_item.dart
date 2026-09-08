@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -12,8 +13,13 @@ import '../localization/customers_localizations_x.dart';
 
 class CustomerActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final BusinessLocalDateTime? createdAt;
 
-  const CustomerActivityTimelineItem({required this.log, super.key});
+  const CustomerActivityTimelineItem({
+    required this.log,
+    required this.createdAt,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +70,7 @@ class CustomerActivityTimelineItem extends StatelessWidget {
                   l10n.auditTimelineHeader(
                     actorName,
                     l10n.customerAuditRoleLabel(log.actorRole),
-                    CustomerDateTimeFormatter.format(context, log.createdAt),
+                    CustomerDateTimeFormatter.format(context, createdAt),
                   ),
                 ),
                 if (changes.isNotEmpty) ...[

@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/invoices_db_fields.dart';
 import '../utils/invoice_data_parser.dart';
 
@@ -9,7 +10,7 @@ final class InvoiceTripLineModel {
   final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final DateTime? serviceDate;
+  final BusinessDate? serviceDate;
   final double? quantityTons;
   final int amountMinorUnits;
   final String currencyCode;

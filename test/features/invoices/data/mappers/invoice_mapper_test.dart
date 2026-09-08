@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/invoices/data/mappers/invoice_mapper.dart';
 import 'package:horus_system/features/invoices/data/models/invoice_customer_snapshot_model.dart';
 import 'package:horus_system/features/invoices/data/models/invoice_model.dart';
@@ -29,8 +30,14 @@ void main() {
       expect(invoice.totals.taxRate.basisPoints, 500);
       expect(invoice.totals.taxAmount.minorUnits, 475);
       expect(invoice.totals.grandTotal.minorUnits, 9975);
-      expect(invoice.issueDate?.value, DateTime.utc(2026, 8, 5));
-      expect(invoice.dueDate?.value, DateTime.utc(2026, 9, 4));
+      expect(
+        invoice.issueDate?.value,
+        BusinessDate(year: 2026, month: 8, day: 5),
+      );
+      expect(
+        invoice.dueDate?.value,
+        BusinessDate(year: 2026, month: 9, day: 4),
+      );
     });
 
     test('rejects a customer snapshot from another tenant', () {
@@ -72,6 +79,21 @@ void main() {
         () => InvoiceModel.fromMap(map).toEntity(),
         throwsA(isA<FormatException>()),
       );
+    });
+
+    test('rejects invalid invoice status persistence value', () {
+      final map = _invoiceMap()..['status'] = 'not_a_status';
+
+      expect(
+        () => InvoiceModel.fromMap(map).toEntity(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('rejects malformed invoice date persistence value', () {
+      final map = _invoiceMap()..['issue_date'] = '2026-08-05T00:00:00.000Z';
+
+      expect(() => InvoiceModel.fromMap(map), throwsA(isA<FormatException>()));
     });
   });
 }

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
@@ -100,6 +101,11 @@ class _DriversPageState extends State<DriversPage> {
     required Driver driver,
     required DriverFinancialMovementType movementType,
   }) async {
+    final cubit = context.read<DriversCubit>();
+    final initialMovementDate = await cubit
+        .getCurrentDriverFinanceBusinessDate();
+    if (!mounted || initialMovementDate == null) return;
+
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<DriversCubit, DriversState>(
@@ -107,13 +113,14 @@ class _DriversPageState extends State<DriversPage> {
           final loaded = state is DriversLoaded ? state : null;
           return DriverFinancialMovementFormDialog(
             movementType: movementType,
+            initialMovementDate: initialMovementDate,
             tripOptions: loaded?.selectedDriverTripOptions ?? const [],
             isTripOptionsLoading: loaded?.isTripOptionsLoading ?? false,
             tripOptionsFailure: loaded?.tripOptionsFailure,
             onSubmit:
                 ({
                   required double amount,
-                  required DateTime movementDate,
+                  required BusinessDate movementDate,
                   String? tripId,
                   String? notes,
                 }) async {

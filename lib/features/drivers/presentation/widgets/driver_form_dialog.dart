@@ -3,8 +3,10 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
@@ -21,7 +23,7 @@ class DriverFormData {
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final DriverImageUploadSet? imageUploads;
   final String? notes;
 
@@ -54,7 +56,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   late final TextEditingController _licenseNumberController;
   late final TextEditingController _licenseExpiryController;
   late final TextEditingController _notesController;
-  DateTime? _selectedLicenseExpiryDate;
+  BusinessDate? _selectedLicenseExpiryDate;
   final _imagePicker = ImagePicker();
   SelectedDriverImage? _profileImage;
   SelectedDriverImage? _licenseFrontImage;
@@ -174,26 +176,28 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   }
 
   Future<void> _pickLicenseExpiryDate() async {
-    final today = driverFormDateOnlyValue(DateTime.now());
-    final currentSelection = _selectedLicenseExpiryDate == null
-        ? null
-        : driverFormDateOnlyValue(_selectedLicenseExpiryDate!);
-    final initialDate =
+    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    final currentSelection = _selectedLicenseExpiryDate;
+    final initialBusinessDate =
         currentSelection == null || currentSelection.isBefore(today)
         ? today
         : currentSelection;
+    final todayDateTime = BusinessDateDateTimeAdapter.toDateTime(today);
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate,
-      firstDate: driverLicenseExpiryFirstDate(today),
-      lastDate: driverLicenseExpiryLastDate(today),
+      initialDate: BusinessDateDateTimeAdapter.toDateTime(initialBusinessDate),
+      firstDate: driverLicenseExpiryFirstDate(todayDateTime),
+      lastDate: driverLicenseExpiryLastDate(todayDateTime),
     );
 
     if (pickedDate == null || !mounted) return;
 
+    final pickedBusinessDate = BusinessDateDateTimeAdapter.fromDateTime(
+      pickedDate,
+    );
     setState(() {
-      _selectedLicenseExpiryDate = driverFormDateOnlyValue(pickedDate);
-      _licenseExpiryController.text = driverFormDateOnly(pickedDate);
+      _selectedLicenseExpiryDate = pickedBusinessDate;
+      _licenseExpiryController.text = driverFormDateOnly(pickedBusinessDate);
     });
   }
 
@@ -210,9 +214,8 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   bool get _isLicenseExpiryDateValid {
     final selectedDate = _selectedLicenseExpiryDate;
     if (selectedDate == null) return true;
-    return !driverFormDateOnlyValue(
-      selectedDate,
-    ).isBefore(driverFormDateOnlyValue(DateTime.now()));
+    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    return !selectedDate.isBefore(today);
   }
 
   String? _optional(String value) {

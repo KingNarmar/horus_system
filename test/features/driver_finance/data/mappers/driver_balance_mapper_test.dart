@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/driver_finance/data/mappers/driver_balance_mapper.dart';
 import 'package:test/test.dart';
 
@@ -22,6 +23,15 @@ void main() {
           .toEntity();
 
       expect(balance.checkpoint?.settlementId, 'settlement-1');
+      expect(
+        balance.checkpoint?.periodEnd,
+        BusinessDate(year: 2026, month: 8, day: 31),
+      );
+      expect(
+        balance.checkpoint?.snapshotCreatedAt,
+        DateTime.utc(2026, 9, 1, 8),
+      );
+      expect(balance.checkpoint?.snapshotCreatedAt.isUtc, isTrue);
       expect(balance.openingBalance, -5600);
       expect(balance.netBalance, -5600);
     });
@@ -81,6 +91,42 @@ void main() {
           driverId: 'driver-1',
           checkpointRow: const {
             'settlement_id': 'settlement-1',
+            'closing_driver_balance': -5600,
+          },
+          movementRows: const [],
+          tripExpenseRows: const [],
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('rejects non-date-only checkpoint period end', () {
+      expect(
+        () => mapper.map(
+          companyId: 'company-1',
+          driverId: 'driver-1',
+          checkpointRow: const {
+            'settlement_id': 'settlement-1',
+            'period_end': '2026-08-31T00:00:00Z',
+            'snapshot_created_at': '2026-09-01T08:00:00Z',
+            'closing_driver_balance': -5600,
+          },
+          movementRows: const [],
+          tripExpenseRows: const [],
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('rejects checkpoint snapshot without trusted timestamp offset', () {
+      expect(
+        () => mapper.map(
+          companyId: 'company-1',
+          driverId: 'driver-1',
+          checkpointRow: const {
+            'settlement_id': 'settlement-1',
+            'period_end': '2026-08-31',
+            'snapshot_created_at': '2026-09-01T08:00:00',
             'closing_driver_balance': -5600,
           },
           movementRows: const [],

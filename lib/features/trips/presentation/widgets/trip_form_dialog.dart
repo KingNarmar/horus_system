@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_lookup_option.dart';
@@ -24,10 +26,10 @@ class TripFormData {
   final String? waybillNumber;
   final double? quantityTons;
   final double? freightPrice;
-  final DateTime? scheduledLoadingAt;
-  final DateTime? scheduledDeliveryAt;
-  final DateTime? actualLoadingAt;
-  final DateTime? actualDeliveryAt;
+  final BusinessLocalDateTime? scheduledLoadingAt;
+  final BusinessLocalDateTime? scheduledDeliveryAt;
+  final BusinessLocalDateTime? actualLoadingAt;
+  final BusinessLocalDateTime? actualDeliveryAt;
   final String? notes;
 
   const TripFormData({
@@ -51,6 +53,7 @@ class TripFormData {
 class TripFormDialog extends StatefulWidget {
   final String title;
   final TripEntity? trip;
+  final TripBusinessLocalTimestamps? initialBusinessLocalTimestamps;
   final TripFormLookups? lookups;
   final bool isLookupsLoading;
   final Failure? lookupsFailure;
@@ -60,6 +63,7 @@ class TripFormDialog extends StatefulWidget {
     required this.title,
     required this.onSubmit,
     this.trip,
+    this.initialBusinessLocalTimestamps,
     this.lookups,
     this.isLookupsLoading = false,
     this.lookupsFailure,
@@ -95,6 +99,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
     super.initState();
 
     final trip = widget.trip;
+    final initialTimestamps = widget.initialBusinessLocalTimestamps;
 
     _customerId = trip?.customerId;
     _routeId = trip?.routeId;
@@ -113,16 +118,24 @@ class _TripFormDialogState extends State<TripFormDialog> {
       text: _formatDouble(trip?.freightPrice),
     );
     _scheduledLoadingController = TextEditingController(
-      text: _formatDateTimeForInput(trip?.scheduledLoadingAt),
+      text: _formatBusinessLocalDateTimeForInput(
+        initialTimestamps?.scheduledLoadingAt,
+      ),
     );
     _scheduledDeliveryController = TextEditingController(
-      text: _formatDateTimeForInput(trip?.scheduledDeliveryAt),
+      text: _formatBusinessLocalDateTimeForInput(
+        initialTimestamps?.scheduledDeliveryAt,
+      ),
     );
     _actualLoadingController = TextEditingController(
-      text: _formatDateTimeForInput(trip?.actualLoadingAt),
+      text: _formatBusinessLocalDateTimeForInput(
+        initialTimestamps?.actualLoadingAt,
+      ),
     );
     _actualDeliveryController = TextEditingController(
-      text: _formatDateTimeForInput(trip?.actualDeliveryAt),
+      text: _formatBusinessLocalDateTimeForInput(
+        initialTimestamps?.actualDeliveryAt,
+      ),
     );
     _notesController = TextEditingController(text: trip?.notes ?? '');
   }

@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
 import '../../../../core/domain/services/company_business_date_provider.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
@@ -16,7 +17,9 @@ final class CompanyBusinessDateProviderImpl
   const CompanyBusinessDateProviderImpl(this._remoteDataSource);
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     try {
       final model = await _remoteDataSource.getBusinessDate(
         companyId: companyId,

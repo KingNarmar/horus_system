@@ -1,6 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../constants/driver_settlements_db_fields.dart';
@@ -71,16 +73,22 @@ class DriverSettlementSourceSnapshotLoader {
   Future<List<Map<String, dynamic>>> _getDriverFinancialMovementRows({
     required String companyId,
     required String driverId,
-    required DateTime startInclusive,
-    required DateTime endInclusive,
+    required BusinessDate startInclusive,
+    required BusinessDate endInclusive,
   }) async {
     final rows = await client
         .from(DriverSettlementsDbTables.driverFinancialMovements)
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DriverSettlementsDbFields.driverId, driverId)
-        .gte(DriverSettlementsDbFields.movementDate, _dateOnly(startInclusive))
-        .lte(DriverSettlementsDbFields.movementDate, _dateOnly(endInclusive))
+        .gte(
+          DriverSettlementsDbFields.movementDate,
+          DbDate.encode(startInclusive),
+        )
+        .lte(
+          DriverSettlementsDbFields.movementDate,
+          DbDate.encode(endInclusive),
+        )
         .order(DriverSettlementsDbFields.movementDate)
         .order(DbCommonFields.createdAt)
         .order(DbCommonFields.id);
@@ -91,8 +99,8 @@ class DriverSettlementSourceSnapshotLoader {
   Future<List<Map<String, dynamic>>> _getDriverPaidTripExpenseRows({
     required String companyId,
     required String driverId,
-    required DateTime startInclusive,
-    required DateTime endInclusive,
+    required BusinessDate startInclusive,
+    required BusinessDate endInclusive,
   }) async {
     final tripIds = await _getDriverTripIds(
       companyId: companyId,
@@ -109,8 +117,11 @@ class DriverSettlementSourceSnapshotLoader {
           _paidByDriverAdvance,
           _paidByDriverCash,
         ])
-        .gte(DriverSettlementsDbFields.expenseDate, _dateOnly(startInclusive))
-        .lte(DriverSettlementsDbFields.expenseDate, _dateOnly(endInclusive))
+        .gte(
+          DriverSettlementsDbFields.expenseDate,
+          DbDate.encode(startInclusive),
+        )
+        .lte(DriverSettlementsDbFields.expenseDate, DbDate.encode(endInclusive))
         .order(DriverSettlementsDbFields.expenseDate)
         .order(DbCommonFields.createdAt)
         .order(DbCommonFields.id);
@@ -132,11 +143,5 @@ class DriverSettlementSourceSnapshotLoader {
         .map((row) => Map<String, dynamic>.from(row)[DbCommonFields.id])
         .whereType<String>()
         .toList(growable: false);
-  }
-
-  String _dateOnly(DateTime value) {
-    return '${value.year.toString().padLeft(4, '0')}-'
-        '${value.month.toString().padLeft(2, '0')}-'
-        '${value.day.toString().padLeft(2, '0')}';
   }
 }

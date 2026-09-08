@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
@@ -10,13 +11,14 @@ import '../../domain/entities/driver_financial_movement_type.dart';
 typedef DriverFinancialMovementSubmit =
     Future<void> Function({
       required double amount,
-      required DateTime movementDate,
+      required BusinessDate movementDate,
       String? tripId,
       String? notes,
     });
 
 class DriverFinancialMovementFormDialog extends StatefulWidget {
   final DriverFinancialMovementType movementType;
+  final BusinessDate initialMovementDate;
   final List<DriverFinanceTripOption> tripOptions;
   final bool isTripOptionsLoading;
   final Object? tripOptionsFailure;
@@ -24,6 +26,7 @@ class DriverFinancialMovementFormDialog extends StatefulWidget {
 
   const DriverFinancialMovementFormDialog({
     required this.movementType,
+    required this.initialMovementDate,
     required this.tripOptions,
     required this.isTripOptionsLoading,
     required this.tripOptionsFailure,
@@ -41,8 +44,20 @@ class _DriverFinancialMovementFormDialogState
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
   String _selectedTripId = '';
-  DateTime _movementDate = DateTime.now();
+  late BusinessDate _movementDate;
+  late DateTime _lastPickerDate;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _movementDate = widget.initialMovementDate;
+    _lastPickerDate = DateTime(
+      widget.initialMovementDate.year + 1,
+      widget.initialMovementDate.month,
+      widget.initialMovementDate.day,
+    );
+  }
 
   @override
   void dispose() {
@@ -187,13 +202,19 @@ class _DriverFinancialMovementFormDialogState
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _movementDate,
+      initialDate: _pickerDate(_movementDate),
       firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: _lastPickerDate,
     );
 
     if (picked != null) {
-      setState(() => _movementDate = picked);
+      setState(
+        () => _movementDate = BusinessDate(
+          year: picked.year,
+          month: picked.month,
+          day: picked.day,
+        ),
+      );
     }
   }
 
@@ -226,7 +247,12 @@ String? _optional(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-String _dateOnly(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+DateTime _pickerDate(BusinessDate value) {
+  return DateTime(value.year, value.month, value.day);
+}
+
+String _dateOnly(BusinessDate value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }

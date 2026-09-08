@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice.dart';
@@ -117,7 +118,7 @@ Payment _payment({
     invoiceId: invoiceId,
     customerId: 'customer-1',
     paymentMethodId: 'method-1',
-    paymentDate: DateTime.utc(2026, 8, 10),
+    paymentDate: BusinessDate(year: 2026, month: 8, day: 10),
     amount: Money(minorUnits: amountMinorUnits, currency: paymentCurrency),
     createdAt: DateTime.utc(2026, 8, 10),
   );

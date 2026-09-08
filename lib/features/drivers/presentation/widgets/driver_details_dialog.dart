@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
@@ -190,7 +193,11 @@ class DriverDetailsDialog extends StatelessWidget {
                     label: l10n.createdAt,
                     value: createdLog == null
                         ? l10n.notAvailable
-                        : _formatDateTime(context, createdLog.createdAt),
+                        : _formatBusinessLocalDateTime(
+                            context,
+                            state?.activityTimestampFor(createdLog.id),
+                            l10n.notAvailable,
+                          ),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.lastActivityBy,
@@ -204,7 +211,11 @@ class DriverDetailsDialog extends StatelessWidget {
                     label: l10n.lastActivityAt,
                     value: latestLog == null
                         ? l10n.notAvailable
-                        : _formatDateTime(context, latestLog.createdAt),
+                        : _formatBusinessLocalDateTime(
+                            context,
+                            state?.activityTimestampFor(latestLog.id),
+                            l10n.notAvailable,
+                          ),
                   ),
                 ],
               ),
@@ -222,6 +233,7 @@ class DriverDetailsDialog extends StatelessWidget {
                     ...activity.map(
                       (log) => DriverActivityTimelineItem(
                         log: log,
+                        createdAt: state?.activityTimestampFor(log.id),
                         tripOptions: tripOptions,
                       ),
                     ),
@@ -257,13 +269,19 @@ class DriverDetailsDialog extends StatelessWidget {
   }
 }
 
-String _formatDateTime(BuildContext context, DateTime value) {
+String _formatBusinessLocalDateTime(
+  BuildContext context,
+  BusinessLocalDateTime? value,
+  String fallback,
+) {
+  if (value == null) return fallback;
   final material = MaterialLocalizations.of(context);
-  final local = value.toLocal();
-  return '${material.formatShortDate(local)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  final carrier = BusinessLocalDateTimeDateTimeAdapter.toDateTime(value);
+  return '${material.formatShortDate(carrier)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(carrier))}';
 }
 
-String _dateOnly(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+String _dateOnly(BusinessDate value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }

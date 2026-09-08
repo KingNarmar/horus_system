@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -191,20 +192,20 @@ class _DetailsContent extends StatelessWidget {
               label: strings.status,
               value: context.driverSettlementStatusLabel(settlement.status),
             ),
-            if (settlement.createdAt != null)
+            if (state.selectedSettlementCreatedAt != null)
               _DateTimeLine(
                 label: strings.createdAt,
-                value: settlement.createdAt!,
+                value: state.selectedSettlementCreatedAt!,
               ),
-            if (settlement.finalizedAt != null)
+            if (state.selectedSettlementFinalizedAt != null)
               _DateTimeLine(
                 label: strings.finalizedAt,
-                value: settlement.finalizedAt!,
+                value: state.selectedSettlementFinalizedAt!,
               ),
-            if (settlement.voidedAt != null)
+            if (state.selectedSettlementVoidedAt != null)
               _DateTimeLine(
                 label: strings.voidedAt,
-                value: settlement.voidedAt!,
+                value: state.selectedSettlementVoidedAt!,
               ),
             if (settlement.voidReason != null)
               AdaptiveDetailRow(
@@ -254,7 +255,7 @@ class _DetailsContent extends StatelessWidget {
 
 class _DateTimeLine extends StatelessWidget {
   final String label;
-  final DateTime value;
+  final BusinessLocalDateTime value;
 
   const _DateTimeLine({required this.label, required this.value});
 
@@ -295,7 +296,12 @@ class _SettlementActivityContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: state.selectedSettlementActivity
-          .map((log) => _AuditLogCard(log: log))
+          .map(
+            (log) => _AuditLogCard(
+              log: log,
+              createdAt: state.activityTimestampFor(log.id),
+            ),
+          )
           .toList(growable: false),
     );
   }
@@ -303,8 +309,9 @@ class _SettlementActivityContent extends StatelessWidget {
 
 class _AuditLogCard extends StatelessWidget {
   final AuditLog log;
+  final BusinessLocalDateTime? createdAt;
 
-  const _AuditLogCard({required this.log});
+  const _AuditLogCard({required this.log, required this.createdAt});
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +319,9 @@ class _AuditLogCard extends StatelessWidget {
     final localeName = Localizations.localeOf(context).toLanguageTag();
     final actor =
         log.actorDisplayName ?? log.actorEmail ?? context.l10n.unknownUser;
+    final timestamp = createdAt == null
+        ? strings.unavailableValue
+        : formatDriverSettlementDateTime(createdAt!, localeName);
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -321,7 +331,7 @@ class _AuditLogCard extends StatelessWidget {
           strings.auditHeader(
             actor,
             context.localizedAuditRole(log.actorRole),
-            formatDriverSettlementDateTime(log.createdAt, localeName),
+            timestamp,
           ),
         ),
       ),

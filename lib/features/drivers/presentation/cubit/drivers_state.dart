@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -35,6 +36,8 @@ class DriversLoaded extends DriversState {
   final bool isImageUrlsLoading;
   final Failure? imageUrlsFailure;
   final List<AuditLog> selectedDriverActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedDriverActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
   final List<DriverFinancialMovement> selectedDriverFinancialMovements;
@@ -59,6 +62,8 @@ class DriversLoaded extends DriversState {
     this.isImageUrlsLoading = false,
     this.imageUrlsFailure,
     this.selectedDriverActivity = const [],
+    this.selectedDriverActivityTimestampsByLogId =
+        const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
     this.selectedDriverFinancialMovements = const [],
@@ -70,6 +75,10 @@ class DriversLoaded extends DriversState {
     this.isSavingFinancialMovement = false,
     this.financialMovementsFailure,
   });
+
+  BusinessLocalDateTime? activityTimestampFor(String logId) {
+    return selectedDriverActivityTimestampsByLogId[logId];
+  }
 
   List<Driver> get drivers {
     final normalizedQuery = searchQuery.trim().toLowerCase();
@@ -102,6 +111,7 @@ class DriversLoaded extends DriversState {
     bool? isImageUrlsLoading,
     Object? imageUrlsFailure = _notSet,
     List<AuditLog>? selectedDriverActivity,
+    Map<String, BusinessLocalDateTime>? selectedDriverActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     List<DriverFinancialMovement>? selectedDriverFinancialMovements,
@@ -135,6 +145,9 @@ class DriversLoaded extends DriversState {
           : imageUrlsFailure as Failure?,
       selectedDriverActivity:
           selectedDriverActivity ?? this.selectedDriverActivity,
+      selectedDriverActivityTimestampsByLogId:
+          selectedDriverActivityTimestampsByLogId ??
+          this.selectedDriverActivityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure

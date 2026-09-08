@@ -8,7 +8,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     required String expenseName,
     required double amount,
     required TripExpensePaidBy paidBy,
-    required DateTime expenseDate,
+    required BusinessDate expenseDate,
     String? notes,
   }) async {
     final owner = this as TripsCubit;

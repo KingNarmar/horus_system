@@ -1,6 +1,9 @@
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -32,6 +35,8 @@ import 'package:horus_system/features/driver_settlements/presentation/widgets/dr
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_void_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlements_state_view.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
+
+import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('Driver Settlements widgets', () {
@@ -197,8 +202,9 @@ void main() {
         locale: const Locale('en'),
         child: BlocProvider.value(
           value: cubit,
-          child: const DriverSettlementFormDialog(
-            driverOptions: [_activeDriver],
+          child: DriverSettlementFormDialog(
+            driverOptions: const [_activeDriver],
+            businessDate: _date(2026, 7, 31),
           ),
         ),
       );
@@ -239,13 +245,17 @@ const _activeDriver = DriverSettlementDriverOption(
   isActive: true,
 );
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 final _settlement = DriverSettlement(
   id: 'settlement-1',
   companyId: 'company-1',
   driverId: 'driver-1',
   period: DriverSettlementPeriod(
-    start: DateTime(2026, 7, 1),
-    end: DateTime(2026, 7, 31),
+    start: _date(2026, 7, 1),
+    end: _date(2026, 7, 31),
   ),
   calculation: const DriverSettlementCalculationResult(
     openingDriverBalance: -5600,
@@ -268,8 +278,8 @@ final _longSettlement = DriverSettlement(
   companyId: 'company-1',
   driverId: 'driver-1',
   period: DriverSettlementPeriod(
-    start: DateTime(2026, 7, 1),
-    end: DateTime(2026, 7, 31),
+    start: _date(2026, 7, 1),
+    end: _date(2026, 7, 31),
   ),
   calculation: const DriverSettlementCalculationResult(
     openingDriverBalance: -5600,
@@ -293,7 +303,7 @@ final _longSettlement = DriverSettlement(
       settlementId: 'settlement-1',
       sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
       sourceId: 'movement-$index',
-      sourceDate: DateTime(2026, 7, index + 1),
+      sourceDate: _date(2026, 7, index + 1),
       direction: index.isEven
           ? DriverSettlementItemDirection.driverToCompany
           : DriverSettlementItemDirection.companyToDriver,
@@ -309,6 +319,7 @@ DriverSettlementsLoaded _loadedState({
 }) {
   return DriverSettlementsLoaded(
     currentCompanyContext: _companyContext,
+    businessDate: _date(2026, 7, 31),
     allSettlements: [selectedSettlement],
     driverOptions: const [_activeDriver],
     canManageDriverSettlements: true,
@@ -318,9 +329,16 @@ DriverSettlementsLoaded _loadedState({
 
 DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
   return DriverSettlementsCubit(
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(
+          FakeBusinessTimeZoneConverter(),
+        ),
     getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
     getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
       repository,
+    ),
+    getBusinessDateUseCase: GetDriverSettlementBusinessDateUseCase(
+      _FixedBusinessDateProvider(_date(2026, 7, 31)),
     ),
     getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
       repository,
@@ -360,6 +378,19 @@ Future<void> _pumpLocalized(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
+  final BusinessDate date;
+
+  _FixedBusinessDateProvider(this.date);
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(date);
+  }
 }
 
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {

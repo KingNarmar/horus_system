@@ -1,3 +1,6 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_status.dart';
 import '../constants/driver_settlements_db_fields.dart';
 import 'driver_settlement_item_model.dart';
@@ -6,8 +9,8 @@ class DriverSettlementModel {
   final String id;
   final String companyId;
   final String driverId;
-  final DateTime periodStart;
-  final DateTime periodEnd;
+  final BusinessDate periodStart;
+  final BusinessDate periodEnd;
   final double openingDriverBalance;
   final double advancesTotal;
   final double driverPaidTripExpensesTotal;
@@ -71,8 +74,14 @@ class DriverSettlementModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       driverId: map[DriverSettlementsDbFields.driverId] as String,
-      periodStart: _requiredDate(map[DriverSettlementsDbFields.periodStart]),
-      periodEnd: _requiredDate(map[DriverSettlementsDbFields.periodEnd]),
+      periodStart: DbDate.decode(
+        map[DriverSettlementsDbFields.periodStart],
+        field: DriverSettlementsDbFields.periodStart,
+      ),
+      periodEnd: DbDate.decode(
+        map[DriverSettlementsDbFields.periodEnd],
+        field: DriverSettlementsDbFields.periodEnd,
+      ),
       openingDriverBalance: _amountFrom(
         map[DriverSettlementsDbFields.openingDriverBalance],
       ),
@@ -106,15 +115,27 @@ class DriverSettlementModel {
         map[DriverSettlementsDbFields.status].toString(),
       ),
       notes: map[DriverSettlementsDbFields.notes] as String?,
-      finalizedAt: _dateTimeFrom(map[DriverSettlementsDbFields.finalizedAt]),
+      finalizedAt: DbTimestamp.decodeNullable(
+        map[DriverSettlementsDbFields.finalizedAt],
+        field: DriverSettlementsDbFields.finalizedAt,
+      ),
       finalizedBy: map[DriverSettlementsDbFields.finalizedBy] as String?,
-      voidedAt: _dateTimeFrom(map[DriverSettlementsDbFields.voidedAt]),
+      voidedAt: DbTimestamp.decodeNullable(
+        map[DriverSettlementsDbFields.voidedAt],
+        field: DriverSettlementsDbFields.voidedAt,
+      ),
       voidedBy: map[DriverSettlementsDbFields.voidedBy] as String?,
       voidReason: map[DriverSettlementsDbFields.voidReason] as String?,
       createdBy: map[DriverSettlementsDbFields.createdBy] as String?,
       updatedBy: map[DriverSettlementsDbFields.updatedBy] as String?,
-      createdAt: _dateTimeFrom(map['created_at']),
-      updatedAt: _dateTimeFrom(map['updated_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map['updated_at'],
+        field: 'updated_at',
+      ),
       items: items,
     );
   }
@@ -123,14 +144,4 @@ class DriverSettlementModel {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime _requiredDate(Object? value) {
-  return DateTime.tryParse(value.toString()) ??
-      DateTime.fromMillisecondsSinceEpoch(0);
-}
-
-DateTime? _dateTimeFrom(Object? value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }

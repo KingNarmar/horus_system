@@ -1,4 +1,8 @@
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -11,17 +15,24 @@ import 'package:test/test.dart';
 
 void main() {
   group('GetCanonicalDriverBalanceUseCase', () {
-    test('uses latest finalized checkpoint for the current balance', () async {
+    test('forwards exact business-date boundaries', () async {
       final repository = _FakeDriverBalanceRepository(
         balance: _balance(closingBalance: -5600),
       );
       final useCase = GetCanonicalDriverBalanceUseCase(repository);
+      final beforeExclusive = BusinessDate(year: 2026, month: 7, day: 23);
+      final checkpointBeforeExclusive = BusinessDate(
+        year: 2026,
+        month: 9,
+        day: 1,
+      );
 
       final result = await useCase(
         GetCanonicalDriverBalanceParams(
           currentCompanyContext: _context(CompanyRole.accountant),
           driverId: '  $_driverId  ',
-          beforeExclusive: DateTime(2026, 7, 23, 15),
+          beforeExclusive: beforeExclusive,
+          checkpointBeforeExclusive: checkpointBeforeExclusive,
         ),
       );
 
@@ -30,27 +41,11 @@ void main() {
       expect(repository.balanceCalls, 1);
       expect(repository.lastCompanyId, _companyId);
       expect(repository.lastDriverId, _driverId);
-      expect(repository.lastBeforeExclusive, DateTime(2026, 7, 23));
-      expect(repository.lastCheckpointBeforeExclusive, isNull);
-    });
-
-    test('normalizes a bounded settlement checkpoint date', () async {
-      final repository = _FakeDriverBalanceRepository(
-        balance: _balance(closingBalance: -5600),
+      expect(repository.lastBeforeExclusive, beforeExclusive);
+      expect(
+        repository.lastCheckpointBeforeExclusive,
+        checkpointBeforeExclusive,
       );
-      final useCase = GetCanonicalDriverBalanceUseCase(repository);
-
-      await useCase(
-        GetCanonicalDriverBalanceParams(
-          currentCompanyContext: _context(CompanyRole.owner),
-          driverId: _driverId,
-          beforeExclusive: DateTime(2026, 9, 1, 18),
-          checkpointBeforeExclusive: DateTime(2026, 9, 1, 9),
-        ),
-      );
-
-      expect(repository.lastBeforeExclusive, DateTime(2026, 9, 1));
-      expect(repository.lastCheckpointBeforeExclusive, DateTime(2026, 9, 1));
     });
 
     test('preserves post-checkpoint financial effects', () async {
@@ -71,7 +66,7 @@ void main() {
         GetCanonicalDriverBalanceParams(
           currentCompanyContext: _context(CompanyRole.owner),
           driverId: _driverId,
-          beforeExclusive: DateTime(2026, 9, 3),
+          beforeExclusive: BusinessDate(year: 2026, month: 9, day: 3),
         ),
       );
 
@@ -86,7 +81,7 @@ void main() {
         GetCanonicalDriverBalanceParams(
           currentCompanyContext: _context(CompanyRole.driver),
           driverId: _driverId,
-          beforeExclusive: DateTime(2026, 9, 2),
+          beforeExclusive: BusinessDate(year: 2026, month: 9, day: 2),
         ),
       );
 
@@ -106,7 +101,7 @@ void main() {
         GetCanonicalDriverBalanceParams(
           currentCompanyContext: _context(CompanyRole.viewer),
           driverId: '  ',
-          beforeExclusive: DateTime(2026, 9, 2),
+          beforeExclusive: BusinessDate(year: 2026, month: 9, day: 2),
         ),
       );
 
@@ -117,6 +112,74 @@ void main() {
       );
       expect(repository.balanceCalls, 0);
     });
+  });
+
+  group('GetCurrentCanonicalDriverBalanceUseCase', () {
+    test(
+      'uses trusted company date and exclusive next business date',
+      () async {
+        final provider = _FakeCompanyBusinessDateProvider(
+          Success(BusinessDate(year: 2026, month: 9, day: 8)),
+        );
+        final repository = _FakeDriverBalanceRepository(
+          balance: _balance(closingBalance: -5600),
+        );
+        final useCase = GetCurrentCanonicalDriverBalanceUseCase(
+          getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+            provider,
+          ),
+          getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+            repository,
+          ),
+        );
+
+        final result = await useCase(
+          GetCurrentCanonicalDriverBalanceParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+          ),
+        );
+
+        expect(result, isA<Success<DriverBalance>>());
+        expect(provider.calls, 1);
+        expect(provider.lastCompanyId, _companyId);
+        expect(
+          repository.lastBeforeExclusive,
+          BusinessDate(year: 2026, month: 9, day: 9),
+        );
+        expect(repository.lastCheckpointBeforeExclusive, isNull);
+      },
+    );
+
+    test(
+      'does not query balance when trusted business-date lookup fails',
+      () async {
+        const failure = ServerFailure(code: FailureCodes.serverError);
+        final provider = _FakeCompanyBusinessDateProvider(
+          const FailureResult<BusinessDate>(failure),
+        );
+        final repository = _FakeDriverBalanceRepository();
+        final useCase = GetCurrentCanonicalDriverBalanceUseCase(
+          getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+            provider,
+          ),
+          getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+            repository,
+          ),
+        );
+
+        final result = await useCase(
+          GetCurrentCanonicalDriverBalanceParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: _driverId,
+          ),
+        );
+
+        expect(result, isA<FailureResult<DriverBalance>>());
+        expect(result.failureOrNull, same(failure));
+        expect(repository.balanceCalls, 0);
+      },
+    );
   });
 }
 
@@ -133,7 +196,7 @@ CurrentCompanyContext _context(CompanyRole role) {
 DriverBalanceCheckpoint _checkpoint(double closingBalance) {
   return DriverBalanceCheckpoint(
     settlementId: 'settlement-1',
-    periodEnd: DateTime(2026, 8, 31),
+    periodEnd: BusinessDate(year: 2026, month: 8, day: 31),
     snapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
     closingBalance: closingBalance,
   );
@@ -154,8 +217,8 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
   int balanceCalls = 0;
   String? lastCompanyId;
   String? lastDriverId;
-  DateTime? lastBeforeExclusive;
-  DateTime? lastCheckpointBeforeExclusive;
+  BusinessDate? lastBeforeExclusive;
+  BusinessDate? lastCheckpointBeforeExclusive;
 
   _FakeDriverBalanceRepository({DriverBalance? balance})
     : balance =
@@ -171,8 +234,8 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
   Future<Result<DriverBalance>> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   }) async {
     balanceCalls++;
     lastCompanyId = companyId;
@@ -180,5 +243,22 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
     lastBeforeExclusive = beforeExclusive;
     lastCheckpointBeforeExclusive = checkpointBeforeExclusive;
     return Success(balance);
+  }
+}
+
+class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
+  final Result<BusinessDate> result;
+  int calls = 0;
+  String? lastCompanyId;
+
+  _FakeCompanyBusinessDateProvider(this.result);
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    calls++;
+    lastCompanyId = companyId;
+    return result;
   }
 }

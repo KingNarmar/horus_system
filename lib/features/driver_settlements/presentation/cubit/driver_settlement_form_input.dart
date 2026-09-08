@@ -1,10 +1,11 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/usecases/driver_settlement_usecases.dart';
 
 class DriverSettlementFormInput {
   final String driverId;
-  final DateTime periodStart;
-  final DateTime periodEnd;
+  final BusinessDate periodStart;
+  final BusinessDate periodEnd;
   final double grossSalary;
   final double salaryDeductionsTotal;
   final double balanceDeductionApplied;

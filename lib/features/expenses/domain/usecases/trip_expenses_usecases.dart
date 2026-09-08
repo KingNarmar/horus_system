@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -28,7 +29,7 @@ class AddTripExpenseParams {
   final String expenseName;
   final double amount;
   final TripExpensePaidBy paidBy;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? notes;
 
   const AddTripExpenseParams({
@@ -51,7 +52,7 @@ class UpdateTripExpenseParams {
   final String expenseName;
   final double amount;
   final TripExpensePaidBy paidBy;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? notes;
 
   const UpdateTripExpenseParams({

@@ -185,8 +185,8 @@ void main() {
 
     test('uses exact period-bounded canonical balance as opening', () async {
       final period = DriverSettlementPeriod(
-        start: DateTime(2026, 9),
-        end: DateTime(2026, 9, 30),
+        start: testBusinessDate(2026, 9, 1),
+        end: testBusinessDate(2026, 9, 30),
       );
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         snapshot: const DriverSettlementSourceSnapshot(advancesTotal: 250),
@@ -211,8 +211,14 @@ void main() {
       expect(balanceRepository.balanceCalls, 1);
       expect(balanceRepository.lastCompanyId, testCompanyId);
       expect(balanceRepository.lastDriverId, testDriverId);
-      expect(balanceRepository.lastBeforeExclusive, period.start);
-      expect(balanceRepository.lastCheckpointBeforeExclusive, period.start);
+      expect(
+        balanceRepository.lastBeforeExclusive,
+        testBusinessDate(2026, 9, 1),
+      );
+      expect(
+        balanceRepository.lastCheckpointBeforeExclusive,
+        testBusinessDate(2026, 9, 1),
+      );
       expect(remoteDataSource.snapshotCalls, 1);
       expect(remoteDataSource.lastSnapshotCompanyId, testCompanyId);
       expect(remoteDataSource.lastSnapshotDriverId, testDriverId);

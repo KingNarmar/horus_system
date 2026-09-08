@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 
 class GetDriverSettlementsParams {
@@ -22,11 +23,19 @@ class GetDriverSettlementDetailsParams {
   });
 }
 
+class GetDriverSettlementBusinessDateParams {
+  final CurrentCompanyContext currentCompanyContext;
+
+  const GetDriverSettlementBusinessDateParams({
+    required this.currentCompanyContext,
+  });
+}
+
 class DriverSettlementCalculationParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
-  final DateTime periodStart;
-  final DateTime periodEnd;
+  final BusinessDate periodStart;
+  final BusinessDate periodEnd;
   final double grossSalary;
   final double salaryDeductionsTotal;
   final double balanceDeductionApplied;

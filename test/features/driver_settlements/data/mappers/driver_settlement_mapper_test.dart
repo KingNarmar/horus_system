@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/driver_settlements/data/mappers/driver_settlement_mapper.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_item_model.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
@@ -34,7 +35,7 @@ void main() {
         expect(entity.id, _settlementId);
         expect(entity.companyId, _companyId);
         expect(entity.driverId, _driverId);
-        expect(entity.period.start, DateTime(2026, 7));
+        expect(entity.period.start, _date(2026, 7, 1));
         expect(entity.calculation.closingDriverBalance, 125);
         expect(entity.status, DriverSettlementStatus.draft);
         expect(entity.items, hasLength(1));
@@ -47,8 +48,8 @@ void main() {
         companyId: _companyId,
         driverId: _driverId,
         period: DriverSettlementPeriod(
-          start: DateTime(2026, 7),
-          end: DateTime(2026, 7, 31),
+          start: _date(2026, 7, 1),
+          end: _date(2026, 7, 31),
         ),
         calculation: const DriverSettlementCalculationResult(
           openingDriverBalance: 10,
@@ -82,7 +83,7 @@ void main() {
         companyId: _companyId,
         sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
         sourceId: 'movement-1',
-        sourceDate: DateTime(2026, 7, 10),
+        sourceDate: _date(2026, 7, 10),
         direction: DriverSettlementItemDirection.driverToCompany,
         amount: 200,
         labelKey: 'driver_settlement_item_advance',
@@ -106,6 +107,10 @@ const _companyId = 'company-1';
 const _driverId = 'driver-1';
 const _settlementId = 'settlement-1';
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 DriverSettlementModel _settlementModel({
   List<DriverSettlementItemModel> items = const [],
 }) {
@@ -113,8 +118,8 @@ DriverSettlementModel _settlementModel({
     id: _settlementId,
     companyId: _companyId,
     driverId: _driverId,
-    periodStart: DateTime(2026, 7),
-    periodEnd: DateTime(2026, 7, 31),
+    periodStart: _date(2026, 7, 1),
+    periodEnd: _date(2026, 7, 31),
     openingDriverBalance: 10,
     advancesTotal: 200,
     driverPaidTripExpensesTotal: 50,

@@ -1,6 +1,8 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class DriverBalanceCheckpoint {
   final String settlementId;
-  final DateTime periodEnd;
+  final BusinessDate periodEnd;
   final DateTime snapshotCreatedAt;
   final double closingBalance;
 

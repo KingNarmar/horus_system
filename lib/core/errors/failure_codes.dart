@@ -111,6 +111,8 @@ class FailureCodes {
       'validation_trip_expenses_negative';
   static const String validationTripDeliveryBeforeLoading =
       'validation_trip_delivery_before_loading';
+  static const String validationTripBusinessLocalDateTimeInvalid =
+      'validation_trip_business_local_date_time_invalid';
   static const String validationTripStatusTransitionInvalid =
       'validation_trip_status_transition_invalid';
   static const String validationTripExpenseIdRequired =

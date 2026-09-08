@@ -1,4 +1,5 @@
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -61,7 +62,7 @@ void main() {
         final fixture = _Fixture();
 
         final result = await fixture.useCase(
-          _params(fixture.context, paymentDate: DateTime.utc(2026, 8, 11)),
+          _params(fixture.context, paymentDate: _date(2026, 8, 11)),
         );
 
         expect(
@@ -165,10 +166,14 @@ void main() {
   });
 }
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 RegisterPaymentParams _params(
   CurrentCompanyContext context, {
   String amountText = '100.00',
-  DateTime? paymentDate,
+  BusinessDate? paymentDate,
   String? referenceNumber,
   String? notes,
 }) {
@@ -176,7 +181,7 @@ RegisterPaymentParams _params(
     currentCompanyContext: context,
     invoiceId: 'invoice-1',
     paymentMethodId: 'method-1',
-    paymentDate: paymentDate ?? DateTime.utc(2026, 8, 10),
+    paymentDate: paymentDate ?? _date(2026, 8, 10),
     amountText: amountText,
     referenceNumber: referenceNumber,
     notes: notes,
@@ -222,8 +227,8 @@ Invoice _invoice({
       taxAmount: zero,
       grandTotal: total,
     ),
-    issueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 8, 10)),
-    dueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 8, 31)),
+    issueDate: InvoiceDate.fromBusinessDate(_date(2026, 8, 10)),
+    dueDate: InvoiceDate.fromBusinessDate(_date(2026, 8, 31)),
     createdAt: DateTime.utc(2026, 8, 10),
     updatedAt: DateTime.utc(2026, 8, 10),
   );
@@ -240,7 +245,7 @@ Payment _payment({
     invoiceId: invoiceId,
     customerId: 'customer-1',
     paymentMethodId: 'method-1',
-    paymentDate: DateTime.utc(2026, 8, 10),
+    paymentDate: _date(2026, 8, 10),
     amount: Money(minorUnits: amountMinorUnits, currency: currency),
     createdAt: DateTime.utc(2026, 8, 10),
   );
@@ -275,7 +280,7 @@ final class _Fixture {
         ),
       ],
     );
-    businessDate = _FixedBusinessDateProvider(DateTime.utc(2026, 8, 10));
+    businessDate = _FixedBusinessDateProvider(_date(2026, 8, 10));
     useCase = RegisterPaymentUseCase(
       paymentsRepository: payments,
       invoicesRepository: invoices,
@@ -286,15 +291,17 @@ final class _Fixture {
 }
 
 final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
-  final DateTime value;
+  final BusinessDate value;
   String? lastCompanyId;
 
   _FixedBusinessDateProvider(this.value);
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     lastCompanyId = companyId;
-    return Success<DateTime>(value);
+    return Success<BusinessDate>(value);
   }
 }
 
@@ -333,7 +340,7 @@ final class _FakePaymentsRepository implements PaymentsRepository {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,

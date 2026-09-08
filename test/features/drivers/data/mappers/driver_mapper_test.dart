@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/drivers/data/mappers/driver_mapper.dart';
 import 'package:horus_system/features/drivers/data/models/driver_model.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_write_data.dart';
@@ -35,7 +36,7 @@ void main() {
       final data = DriverWriteData(
         companyId: 'company-1',
         fullName: 'Driver',
-        licenseExpiryDate: DateTime(2026, 8, 18),
+        licenseExpiryDate: BusinessDate(year: 2026, month: 8, day: 18),
         profileImagePath: 'profile-path',
         licenseImagePath: 'license-front-path',
         licenseBackImagePath: 'license-back-path',

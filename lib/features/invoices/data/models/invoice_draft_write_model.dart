@@ -1,3 +1,5 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/invoices_rpc_constants.dart';
 
 final class InvoiceDraftWriteModel {
@@ -6,8 +8,8 @@ final class InvoiceDraftWriteModel {
   final List<String> tripIds;
   final int discountMinorUnits;
   final int taxRateBasisPoints;
-  final DateTime? issueDate;
-  final DateTime? dueDate;
+  final BusinessDate? issueDate;
+  final BusinessDate? dueDate;
   final String? notes;
 
   InvoiceDraftWriteModel({
@@ -28,8 +30,8 @@ final class InvoiceDraftWriteModel {
       InvoicesRpcConstants.tripIds: tripIds,
       InvoicesRpcConstants.discountMinorUnits: discountMinorUnits,
       InvoicesRpcConstants.taxRateBasisPoints: taxRateBasisPoints,
-      InvoicesRpcConstants.issueDate: _dateValue(issueDate),
-      InvoicesRpcConstants.dueDate: _dateValue(dueDate),
+      InvoicesRpcConstants.issueDate: DbDate.encodeNullable(issueDate),
+      InvoicesRpcConstants.dueDate: DbDate.encodeNullable(dueDate),
       InvoicesRpcConstants.notes: notes,
     };
   }
@@ -37,10 +39,4 @@ final class InvoiceDraftWriteModel {
   Map<String, dynamic> updateParams({required String invoiceId}) {
     return {InvoicesRpcConstants.invoiceId: invoiceId, ...createParams()};
   }
-}
-
-String? _dateValue(DateTime? value) {
-  if (value == null) return null;
-  final normalized = DateTime.utc(value.year, value.month, value.day);
-  return normalized.toIso8601String().substring(0, 10);
 }

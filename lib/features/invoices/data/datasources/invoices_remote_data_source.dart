@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../domain/value_objects/invoice_date.dart';
 import '../constants/invoices_db_fields.dart';
 import '../constants/invoices_db_selects.dart';
@@ -170,8 +171,8 @@ final class SupabaseInvoicesRemoteDataSource
       params: {
         InvoicesRpcConstants.companyId: companyId,
         InvoicesRpcConstants.invoiceId: invoiceId,
-        InvoicesRpcConstants.issueDate: _dateValue(issueDate),
-        InvoicesRpcConstants.dueDate: _dateValue(dueDate),
+        InvoicesRpcConstants.issueDate: DbDate.encode(issueDate.value),
+        InvoicesRpcConstants.dueDate: DbDate.encode(dueDate.value),
       },
     );
     final issuedInvoiceId = InvoiceDataParser.requiredString(
@@ -204,8 +205,4 @@ final class SupabaseInvoicesRemoteDataSource
       invoiceId: cancelledInvoiceId,
     );
   }
-}
-
-String _dateValue(InvoiceDate date) {
-  return date.value.toIso8601String().substring(0, 10);
 }

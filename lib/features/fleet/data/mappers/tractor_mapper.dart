@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/tractor_head_write_data.dart';
@@ -28,9 +29,9 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
     return {
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,
@@ -40,9 +41,9 @@ extension TractorHeadWriteDataMapper on TractorHeadWriteData {
   Map<String, dynamic> toUpdateMap() {
     return {
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status.value,
       TractorHeadDbFields.notes: notes,

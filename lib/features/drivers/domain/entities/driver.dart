@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'driver_status.dart';
 
 class Driver {
@@ -7,7 +8,7 @@ class Driver {
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String? profileImagePath;
   final String? licenseImagePath;
   final String? licenseBackImagePath;

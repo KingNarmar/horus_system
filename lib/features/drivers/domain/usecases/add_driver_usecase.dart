@@ -1,4 +1,5 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -17,7 +18,7 @@ class AddDriverParams {
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final DriverImageUploadSet? imageUploads;
   final String? notes;
 

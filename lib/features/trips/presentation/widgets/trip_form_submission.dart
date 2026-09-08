@@ -22,10 +22,18 @@ extension _TripFormSubmission on _TripFormDialogState {
         waybillNumber: _optional(_waybillController.text),
         quantityTons: _parseDouble(_quantityController.text),
         freightPrice: _parseDouble(_freightPriceController.text),
-        scheduledLoadingAt: _parseDateTime(_scheduledLoadingController.text),
-        scheduledDeliveryAt: _parseDateTime(_scheduledDeliveryController.text),
-        actualLoadingAt: _parseDateTime(_actualLoadingController.text),
-        actualDeliveryAt: _parseDateTime(_actualDeliveryController.text),
+        scheduledLoadingAt: _parseBusinessLocalDateTime(
+          _scheduledLoadingController.text,
+        ),
+        scheduledDeliveryAt: _parseBusinessLocalDateTime(
+          _scheduledDeliveryController.text,
+        ),
+        actualLoadingAt: _parseBusinessLocalDateTime(
+          _actualLoadingController.text,
+        ),
+        actualDeliveryAt: _parseBusinessLocalDateTime(
+          _actualDeliveryController.text,
+        ),
         notes: _optional(_notesController.text),
       ),
     );

@@ -1,3 +1,7 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class DriverModel {
   final String id;
   final String companyId;
@@ -5,7 +9,7 @@ class DriverModel {
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String? profileImagePath;
   final String? licenseImagePath;
   final String? licenseBackImagePath;
@@ -43,7 +47,10 @@ class DriverModel {
       phone: map['phone'] as String?,
       nationalId: map['national_id'] as String?,
       licenseNumber: map['license_number'] as String?,
-      licenseExpiryDate: _toDateTime(map['license_expiry_date']),
+      licenseExpiryDate: DbDate.decodeNullable(
+        map['license_expiry_date'],
+        field: 'license_expiry_date',
+      ),
       profileImagePath: map['profile_image_path'] as String?,
       licenseImagePath: map['license_image_path'] as String?,
       licenseBackImagePath: map['license_back_image_path'] as String?,
@@ -51,13 +58,14 @@ class DriverModel {
       nationalIdBackImagePath: map['national_id_back_image_path'] as String?,
       notes: map['notes'] as String?,
       isActive: map['is_active'] as bool? ?? true,
-      createdAt: _toDateTime(map['created_at']),
-      updatedAt: _toDateTime(map['updated_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map['updated_at'],
+        field: 'updated_at',
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 }

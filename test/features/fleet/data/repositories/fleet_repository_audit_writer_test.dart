@@ -1,4 +1,5 @@
 import 'package:horus_system/core/data/constants/db_common_fields.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -221,7 +222,7 @@ TractorHeadModel _tractorModel({
     plateNumber: plateNumber,
     status: 'available',
     isActive: isActive,
-    licenseExpiryDate: DateTime.utc(2027, 1, 1),
+    licenseExpiryDate: BusinessDate(year: 2027, month: 1, day: 1),
     expectedFuelConsumption: 30.5,
     notes: 'Tractor notes',
     createdAt: DateTime.utc(2026, 8, 1),
@@ -239,7 +240,7 @@ TrailerModel _trailerModel({
     plateNumber: plateNumber,
     status: 'available',
     isActive: isActive,
-    licenseExpiryDate: DateTime.utc(2027, 1, 1),
+    licenseExpiryDate: BusinessDate(year: 2027, month: 1, day: 1),
     technicalNotes: 'Trailer notes',
     createdAt: DateTime.utc(2026, 8, 1),
     updatedAt: DateTime.utc(2026, 8, 2),

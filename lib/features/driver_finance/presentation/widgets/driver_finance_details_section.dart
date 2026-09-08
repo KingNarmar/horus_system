@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/widgets/adaptive_detail_row.dart';
@@ -143,9 +144,10 @@ String? _tripLabel(String? tripId, List<DriverFinanceTripOption> tripOptions) {
   return normalizedTripId;
 }
 
-String _dateOnly(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+String _dateOnly(BusinessDate value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _money(double value) => value.toStringAsFixed(2);

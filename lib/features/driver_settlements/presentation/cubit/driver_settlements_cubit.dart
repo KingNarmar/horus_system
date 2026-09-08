@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -15,16 +18,23 @@ import 'driver_settlements_state.dart';
 
 part 'driver_settlements_filter_actions.dart';
 
+const _settlementCreatedAtKey = 'settlement_created_at';
+const _settlementFinalizedAtKey = 'settlement_finalized_at';
+const _settlementVoidedAtKey = 'settlement_voided_at';
+
 class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     with DriverSettlementsFilterActions {
   final GetDriverSettlementsUseCase getDriverSettlementsUseCase;
   final GetDriverSettlementDriverOptionsUseCase getDriverOptionsUseCase;
+  final GetDriverSettlementBusinessDateUseCase getBusinessDateUseCase;
   final GetDriverSettlementDetailsUseCase getDriverSettlementDetailsUseCase;
   final CalculateDriverSettlementPreviewUseCase calculatePreviewUseCase;
   final CreateDriverSettlementDraftUseCase createDraftUseCase;
   final FinalizeDriverSettlementUseCase finalizeSettlementUseCase;
   final VoidDriverSettlementUseCase voidSettlementUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
   int _previewGeneration = 0;
@@ -35,12 +45,14 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
   DriverSettlementsCubit({
     required this.getDriverSettlementsUseCase,
     required this.getDriverOptionsUseCase,
+    required this.getBusinessDateUseCase,
     required this.getDriverSettlementDetailsUseCase,
     required this.calculatePreviewUseCase,
     required this.createDraftUseCase,
     required this.finalizeSettlementUseCase,
     required this.voidSettlementUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const DriverSettlementsInitial());
 
   Future<void> loadDriverSettlements(
@@ -62,6 +74,16 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         : false;
 
     emit(const DriverSettlementsLoading());
+
+    final businessDateResult = await getBusinessDateUseCase(
+      GetDriverSettlementBusinessDateParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (businessDateResult is FailureResult<BusinessDate>) {
+      emit(DriverSettlementsFailure(businessDateResult.failure));
+      return;
+    }
 
     final optionsResult = await getDriverOptionsUseCase(
       GetDriverSettlementDriverOptionsParams(
@@ -87,6 +109,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     emit(
       DriverSettlementsLoaded(
         currentCompanyContext: currentCompanyContext,
+        businessDate: (businessDateResult as Success<BusinessDate>).data,
         allSettlements: settlementsResult.dataOrNull ?? const [],
         driverOptions: optionsResult.dataOrNull ?? const [],
         canManageDriverSettlements:
@@ -210,9 +233,14 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     emit(
       currentState.copyWith(
         selectedSettlement: settlement,
+        selectedSettlementCreatedAt: null,
+        selectedSettlementFinalizedAt: null,
+        selectedSettlementVoidedAt: null,
         isDetailsLoading: true,
         detailsFailure: null,
         selectedSettlementActivity: const [],
+        selectedSettlementActivityTimestampsByLogId:
+            const <String, BusinessLocalDateTime>{},
         isActivityLoading: true,
         activityFailure: null,
         mutationFailure: null,
@@ -245,11 +273,35 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     }
 
     final details = detailsResult.dataOrNull ?? settlement;
+    final timestampsResult = await _projectSettlementTimestamps(
+      context,
+      details,
+    );
+    final projectedState = state;
+    if (projectedState is! DriverSettlementsLoaded ||
+        projectedState.selectedSettlement?.id != settlement.id) {
+      return;
+    }
+    if (timestampsResult is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      emit(
+        _upsertSettlement(projectedState, details).copyWith(
+          selectedSettlement: details,
+          isDetailsLoading: false,
+          detailsFailure: timestampsResult.failure,
+          isActivityLoading: false,
+        ),
+      );
+      return;
+    }
+
     emit(
-      _upsertSettlement(detailsState, details).copyWith(
-        selectedSettlement: details,
-        isDetailsLoading: false,
-        detailsFailure: null,
+      _applySettlementTimestamps(
+        _upsertSettlement(projectedState, details).copyWith(
+          selectedSettlement: details,
+          isDetailsLoading: false,
+          detailsFailure: null,
+        ),
+        timestampsResult.dataOrNull ?? const <String, BusinessLocalDateTime>{},
       ),
     );
 
@@ -326,9 +378,14 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
       emit(
         currentState.copyWith(
           selectedSettlement: null,
+          selectedSettlementCreatedAt: null,
+          selectedSettlementFinalizedAt: null,
+          selectedSettlementVoidedAt: null,
           isDetailsLoading: false,
           detailsFailure: null,
           selectedSettlementActivity: const [],
+          selectedSettlementActivityTimestampsByLogId:
+              const <String, BusinessLocalDateTime>{},
           isActivityLoading: false,
           activityFailure: null,
           mutationFailure: null,
@@ -364,28 +421,92 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
       return;
     }
 
-    result.when(
-      success: (logs) {
-        final settlementLogs = logs
-            .where((log) {
-              return log.metadata?['settlement_id']?.toString() ==
-                  settlement.id;
-            })
-            .toList(growable: false);
-        emit(
-          latestState.copyWith(
-            selectedSettlementActivity: settlementLogs,
-            isActivityLoading: false,
-            activityFailure: null,
-          ),
-        );
-      },
-      failure: (failure) => emit(
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(
         latestState.copyWith(
           isActivityLoading: false,
           activityFailure: failure,
         ),
+      );
+      return;
+    }
+
+    final settlementLogs = (result.dataOrNull ?? const [])
+        .where((log) {
+          return log.metadata?['settlement_id']?.toString() == settlement.id;
+        })
+        .toList(growable: false);
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in settlementLogs) log.id: log.createdAt,
+    });
+
+    final projectedState = state;
+    if (projectedState is! DriverSettlementsLoaded ||
+        projectedState.selectedSettlement?.id != settlement.id) {
+      return;
+    }
+    final timestampFailure = timestampsResult.failureOrNull;
+    if (timestampFailure != null) {
+      emit(
+        projectedState.copyWith(
+          selectedSettlementActivity: const [],
+          selectedSettlementActivityTimestampsByLogId:
+              const <String, BusinessLocalDateTime>{},
+          isActivityLoading: false,
+          activityFailure: timestampFailure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      projectedState.copyWith(
+        selectedSettlementActivity: settlementLogs,
+        selectedSettlementActivityTimestampsByLogId:
+            timestampsResult.dataOrNull ??
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
       ),
+    );
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>>
+  _projectSettlementTimestamps(
+    CurrentCompanyContext currentCompanyContext,
+    DriverSettlement settlement,
+  ) {
+    return _convertCompanyInstants(currentCompanyContext, <String, DateTime>{
+      if (settlement.createdAt != null)
+        _settlementCreatedAtKey: settlement.createdAt!,
+      if (settlement.finalizedAt != null)
+        _settlementFinalizedAtKey: settlement.finalizedAt!,
+      if (settlement.voidedAt != null)
+        _settlementVoidedAtKey: settlement.voidedAt!,
+    });
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
+    CurrentCompanyContext currentCompanyContext,
+    Map<String, DateTime> instantsByKey,
+  ) {
+    return convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: instantsByKey,
+      ),
+    );
+  }
+
+  DriverSettlementsLoaded _applySettlementTimestamps(
+    DriverSettlementsLoaded currentState,
+    Map<String, BusinessLocalDateTime> timestamps,
+  ) {
+    return currentState.copyWith(
+      selectedSettlementCreatedAt: timestamps[_settlementCreatedAtKey],
+      selectedSettlementFinalizedAt: timestamps[_settlementFinalizedAtKey],
+      selectedSettlementVoidedAt: timestamps[_settlementVoidedAtKey],
     );
   }
 
@@ -412,11 +533,41 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
 
     final settlement = result.dataOrNull;
     if (settlement == null) return false;
-    final updatedState = _upsertSettlement(latestState, settlement).copyWith(
+    final context = _currentCompanyContext;
+    if (context == null) return false;
+
+    final timestampsResult = await _projectSettlementTimestamps(
+      context,
+      settlement,
+    );
+    final currentState = state;
+    if (currentState is! DriverSettlementsLoaded ||
+        currentState.pendingActionSettlementId != settlementId) {
+      return false;
+    }
+
+    final baseState = _upsertSettlement(currentState, settlement).copyWith(
       selectedSettlement: settlement,
       pendingActionSettlementId: null,
       mutationFailure: null,
       feedback: feedback,
+    );
+    final timestampFailure = timestampsResult.failureOrNull;
+    if (timestampFailure != null) {
+      emit(
+        baseState.copyWith(
+          selectedSettlementCreatedAt: null,
+          selectedSettlementFinalizedAt: null,
+          selectedSettlementVoidedAt: null,
+          detailsFailure: timestampFailure,
+        ),
+      );
+      return true;
+    }
+
+    final updatedState = _applySettlementTimestamps(
+      baseState.copyWith(detailsFailure: null),
+      timestampsResult.dataOrNull ?? const <String, BusinessLocalDateTime>{},
     );
     emit(updatedState);
     await _loadSettlementActivity(settlement);

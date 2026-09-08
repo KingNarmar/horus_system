@@ -12,15 +12,31 @@ mixin TripsMutationActions on Cubit<TripsState> {
     String? waybillNumber,
     double? quantityTons,
     double? freightPrice,
-    DateTime? scheduledLoadingAt,
-    DateTime? scheduledDeliveryAt,
-    DateTime? actualLoadingAt,
-    DateTime? actualDeliveryAt,
+    BusinessLocalDateTime? scheduledLoadingAt,
+    BusinessLocalDateTime? scheduledDeliveryAt,
+    BusinessLocalDateTime? actualLoadingAt,
+    BusinessLocalDateTime? actualDeliveryAt,
     String? notes,
   }) async {
     final owner = this as TripsCubit;
     final context = owner._currentCompanyContext;
     if (context == null) return;
+
+    final timestampsResult = await owner
+        .resolveTripBusinessLocalTimestampsUseCase(
+          ResolveTripBusinessLocalTimestampsParams(
+            currentCompanyContext: context,
+            scheduledLoadingAt: scheduledLoadingAt,
+            scheduledDeliveryAt: scheduledDeliveryAt,
+            actualLoadingAt: actualLoadingAt,
+            actualDeliveryAt: actualDeliveryAt,
+          ),
+        );
+    if (timestampsResult is FailureResult<TripTimestampInstants>) {
+      emit(TripsFailure(timestampsResult.failure));
+      return;
+    }
+    final timestamps = timestampsResult.dataOrNull!;
 
     final result = trip == null
         ? await owner.createTripUseCase(
@@ -35,10 +51,10 @@ mixin TripsMutationActions on Cubit<TripsState> {
               waybillNumber: waybillNumber,
               quantityTons: quantityTons,
               freightPrice: freightPrice,
-              scheduledLoadingAt: scheduledLoadingAt,
-              scheduledDeliveryAt: scheduledDeliveryAt,
-              actualLoadingAt: actualLoadingAt,
-              actualDeliveryAt: actualDeliveryAt,
+              scheduledLoadingAt: timestamps.scheduledLoadingAt,
+              scheduledDeliveryAt: timestamps.scheduledDeliveryAt,
+              actualLoadingAt: timestamps.actualLoadingAt,
+              actualDeliveryAt: timestamps.actualDeliveryAt,
               notes: notes,
             ),
           )
@@ -55,17 +71,27 @@ mixin TripsMutationActions on Cubit<TripsState> {
               waybillNumber: waybillNumber,
               quantityTons: quantityTons,
               freightPrice: freightPrice,
-              scheduledLoadingAt: scheduledLoadingAt,
-              scheduledDeliveryAt: scheduledDeliveryAt,
-              actualLoadingAt: actualLoadingAt,
-              actualDeliveryAt: actualDeliveryAt,
+              scheduledLoadingAt: timestamps.scheduledLoadingAt,
+              scheduledDeliveryAt: timestamps.scheduledDeliveryAt,
+              actualLoadingAt: timestamps.actualLoadingAt,
+              actualDeliveryAt: timestamps.actualDeliveryAt,
               notes: notes,
             ),
           );
 
-    result.when(
-      success: owner._upsertTrip,
-      failure: (failure) => emit(TripsFailure(failure)),
+    if (result is FailureResult<TripEntity>) {
+      emit(TripsFailure(result.failure));
+      return;
+    }
+
+    owner._upsertTrip(
+      (result as Success<TripEntity>).data,
+      businessLocalTimestamps: TripBusinessLocalTimestamps(
+        scheduledLoadingAt: scheduledLoadingAt,
+        scheduledDeliveryAt: scheduledDeliveryAt,
+        actualLoadingAt: actualLoadingAt,
+        actualDeliveryAt: actualDeliveryAt,
+      ),
     );
   }
 

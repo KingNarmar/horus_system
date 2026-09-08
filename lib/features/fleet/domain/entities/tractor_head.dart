@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'vehicle_status.dart';
 
 class TractorHead {
@@ -6,7 +7,7 @@ class TractorHead {
   final String plateNumber;
   final VehicleStatus status;
   final bool isActive;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
   final DateTime? createdAt;

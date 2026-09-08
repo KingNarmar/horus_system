@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/driver_settlement_driver_option.dart';
 import '../constants/driver_settlement_presentation_constants.dart';
 import '../cubit/driver_settlement_form_input.dart';
@@ -16,8 +18,13 @@ import 'driver_settlement_preview_section.dart';
 
 class DriverSettlementFormDialog extends StatefulWidget {
   final List<DriverSettlementDriverOption> driverOptions;
+  final BusinessDate businessDate;
 
-  const DriverSettlementFormDialog({required this.driverOptions, super.key});
+  const DriverSettlementFormDialog({
+    required this.driverOptions,
+    required this.businessDate,
+    super.key,
+  });
 
   @override
   State<DriverSettlementFormDialog> createState() =>
@@ -40,9 +47,12 @@ class _DriverSettlementFormDialogState
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _periodStart = DateTime(now.year, now.month);
-    _periodEnd = DateTime(now.year, now.month + 1, 0);
+    _periodStart = BusinessDateDateTimeAdapter.toDateTime(
+      widget.businessDate.startOfMonth,
+    );
+    _periodEnd = BusinessDateDateTimeAdapter.toDateTime(
+      widget.businessDate.endOfMonth,
+    );
     context.read<DriverSettlementsCubit>().invalidatePreview();
   }
 
@@ -75,7 +85,6 @@ class _DriverSettlementFormDialogState
   }
 
   Future<DateTime?> _pickDate(DateTime initialDate) {
-    final now = DateTime.now();
     return showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -83,7 +92,8 @@ class _DriverSettlementFormDialogState
         DriverSettlementPresentationConstants.datePickerFirstYear,
       ),
       lastDate: DateTime(
-        now.year + DriverSettlementPresentationConstants.datePickerFutureYears,
+        widget.businessDate.year +
+            DriverSettlementPresentationConstants.datePickerFutureYears,
         12,
         31,
       ),
@@ -124,8 +134,8 @@ class _DriverSettlementFormDialogState
   DriverSettlementFormInput _input() {
     return DriverSettlementFormInput(
       driverId: _selectedDriverId!,
-      periodStart: _periodStart,
-      periodEnd: _periodEnd,
+      periodStart: BusinessDateDateTimeAdapter.fromDateTime(_periodStart),
+      periodEnd: BusinessDateDateTimeAdapter.fromDateTime(_periodEnd),
       grossSalary: _amount(_grossSalaryController),
       salaryDeductionsTotal: _amount(_salaryDeductionsController),
       balanceDeductionApplied: _amount(_balanceDeductionController),
@@ -225,7 +235,9 @@ class _DriverSettlementFormDialogState
                           key: const ValueKey('driverSettlementPeriodStart'),
                           label: strings.periodStart,
                           value: formatDriverSettlementDate(
-                            _periodStart,
+                            BusinessDateDateTimeAdapter.fromDateTime(
+                              _periodStart,
+                            ),
                             localeName,
                           ),
                           onTap: isBusy ? null : _pickPeriodStart,
@@ -234,7 +246,9 @@ class _DriverSettlementFormDialogState
                           key: const ValueKey('driverSettlementPeriodEnd'),
                           label: strings.periodEnd,
                           value: formatDriverSettlementDate(
-                            _periodEnd,
+                            BusinessDateDateTimeAdapter.fromDateTime(
+                              _periodEnd,
+                            ),
                             localeName,
                           ),
                           onTap: isBusy ? null : _pickPeriodEnd,

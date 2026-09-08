@@ -13,9 +13,7 @@ extension _DriverFormSubmission on _DriverFormDialogState {
         phone: _optional(_phoneController.text),
         nationalId: _optional(_nationalIdController.text),
         licenseNumber: _optional(_licenseNumberController.text),
-        licenseExpiryDate: _selectedLicenseExpiryDate == null
-            ? null
-            : driverFormDateOnlyValue(_selectedLicenseExpiryDate!),
+        licenseExpiryDate: _selectedLicenseExpiryDate,
         imageUploads: DriverImageUploadSet(
           profileImage: _profileImage?.file,
           licenseFrontImage: _licenseFrontImage?.file,

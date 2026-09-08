@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -24,6 +27,8 @@ import 'package:horus_system/features/driver_settlements/presentation/cubit/driv
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_state.dart';
 
+import '../../../../helpers/fake_business_time_zone_converter.dart';
+
 void main() {
   late _FakeDriverSettlementsRepository repository;
   late DriverSettlementsCubit cubit;
@@ -31,9 +36,16 @@ void main() {
   setUp(() {
     repository = _FakeDriverSettlementsRepository();
     cubit = DriverSettlementsCubit(
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            FakeBusinessTimeZoneConverter(),
+          ),
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,
+      ),
+      getBusinessDateUseCase: GetDriverSettlementBusinessDateUseCase(
+        _FixedBusinessDateProvider(_date(2026, 7, 31)),
       ),
       getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
         repository,
@@ -60,6 +72,7 @@ void main() {
     final state = cubit.state as DriverSettlementsLoaded;
     expect(state.allSettlements, hasLength(1));
     expect(state.driverOptions, hasLength(2));
+    expect(state.businessDate, _date(2026, 7, 31));
     expect(state.canManageDriverSettlements, isTrue);
   });
 
@@ -127,11 +140,15 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.accountant,
 );
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 DriverSettlementFormInput _formInput({double salaryDeductionsTotal = 0}) {
   return DriverSettlementFormInput(
     driverId: 'driver-active',
-    periodStart: DateTime(2026, 7, 1),
-    periodEnd: DateTime(2026, 7, 31),
+    periodStart: _date(2026, 7, 1),
+    periodEnd: _date(2026, 7, 31),
     grossSalary: 1000,
     salaryDeductionsTotal: salaryDeductionsTotal,
     balanceDeductionApplied: 0,
@@ -148,8 +165,8 @@ DriverSettlement _settlement({
     companyId: 'company-1',
     driverId: 'driver-active',
     period: DriverSettlementPeriod(
-      start: DateTime(2026, 7, 1),
-      end: DateTime(2026, 7, 31),
+      start: _date(2026, 7, 1),
+      end: _date(2026, 7, 31),
     ),
     calculation: const DriverSettlementCalculationResult(
       openingDriverBalance: 0,
@@ -166,6 +183,19 @@ DriverSettlement _settlement({
     ),
     status: status,
   );
+}
+
+class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
+  final BusinessDate date;
+
+  _FixedBusinessDateProvider(this.date);
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(date);
+  }
 }
 
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {

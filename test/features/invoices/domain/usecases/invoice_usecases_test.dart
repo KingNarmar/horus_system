@@ -1,4 +1,5 @@
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
@@ -116,7 +117,7 @@ void main() {
     test('future issue dates are rejected against company date', () async {
       final repository = _FakeInvoicesRepository();
       final businessDateProvider = _FixedBusinessDateProvider(
-        DateTime.utc(2026, 8, 5),
+        _date(2026, 8, 5),
       );
       final result =
           await IssueInvoiceUseCase(
@@ -126,8 +127,8 @@ void main() {
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.owner),
               invoiceId: 'invoice-1',
-              issueDate: DateTime.utc(2026, 8, 6),
-              dueDate: DateTime.utc(2026, 9, 5),
+              issueDate: _date(2026, 8, 6),
+              dueDate: _date(2026, 9, 5),
             ),
           );
 
@@ -142,7 +143,7 @@ void main() {
     test('missing company settings stop invoice issuance', () async {
       final repository = _FakeInvoicesRepository();
       final businessDateProvider = _FixedBusinessDateProvider.withResult(
-        const FailureResult<DateTime>(
+        const FailureResult<BusinessDate>(
           ConflictFailure(
             code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
           ),
@@ -156,8 +157,8 @@ void main() {
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),
               invoiceId: 'invoice-1',
-              issueDate: DateTime.utc(2026, 8, 5),
-              dueDate: DateTime.utc(2026, 9, 4),
+              issueDate: _date(2026, 8, 5),
+              dueDate: _date(2026, 9, 4),
             ),
           );
 
@@ -172,7 +173,7 @@ void main() {
     test('draft invoice can be issued with company and actor scope', () async {
       final repository = _FakeInvoicesRepository();
       final businessDateProvider = _FixedBusinessDateProvider(
-        DateTime.utc(2026, 8, 5),
+        _date(2026, 8, 5),
       );
       final result =
           await IssueInvoiceUseCase(
@@ -182,8 +183,8 @@ void main() {
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),
               invoiceId: 'invoice-1',
-              issueDate: DateTime.utc(2026, 8, 5),
-              dueDate: DateTime.utc(2026, 9, 4),
+              issueDate: _date(2026, 8, 5),
+              dueDate: _date(2026, 9, 4),
             ),
           );
 
@@ -200,15 +201,13 @@ void main() {
       final result =
           await IssueInvoiceUseCase(
             repository,
-            businessDateProvider: _FixedBusinessDateProvider(
-              DateTime.utc(2026, 8, 5),
-            ),
+            businessDateProvider: _FixedBusinessDateProvider(_date(2026, 8, 5)),
           )(
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),
               invoiceId: 'invoice-1',
-              issueDate: DateTime.utc(2026, 8, 5),
-              dueDate: DateTime.utc(2026, 9, 4),
+              issueDate: _date(2026, 8, 5),
+              dueDate: _date(2026, 9, 4),
             ),
           );
 
@@ -219,6 +218,10 @@ void main() {
       expect(repository.issueCalls, 0);
     });
   });
+}
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
 }
 
 CurrentCompanyContext _context(CompanyRole role) {
@@ -259,15 +262,17 @@ Invoice _invoice({InvoiceStatus status = InvoiceStatus.draft}) {
 }
 
 final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
-  final Result<DateTime> _result;
+  final Result<BusinessDate> _result;
   String? lastCompanyId;
 
-  _FixedBusinessDateProvider(DateTime date) : _result = Success(date);
+  _FixedBusinessDateProvider(BusinessDate date) : _result = Success(date);
 
   _FixedBusinessDateProvider.withResult(this._result);
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     lastCompanyId = companyId;
     return _result;
   }

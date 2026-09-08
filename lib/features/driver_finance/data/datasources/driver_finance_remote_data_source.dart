@@ -1,6 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/services/business_time_zone_converter.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_financial_movement_write_data.dart';
 import '../constants/driver_finance_db_fields.dart';
 import '../mappers/driver_financial_movement_mapper.dart';
@@ -39,6 +43,7 @@ abstract class DriverFinanceRemoteDataSource {
   Future<List<DriverFinanceTripOptionModel>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   });
 
   Future<DriverFinancialMovementModel> addDriverMovement({
@@ -49,8 +54,12 @@ abstract class DriverFinanceRemoteDataSource {
 class SupabaseDriverFinanceRemoteDataSource
     implements DriverFinanceRemoteDataSource {
   final SupabaseClient client;
+  final BusinessTimeZoneConverter businessTimeZoneConverter;
 
-  const SupabaseDriverFinanceRemoteDataSource(this.client);
+  const SupabaseDriverFinanceRemoteDataSource(
+    this.client, {
+    required this.businessTimeZoneConverter,
+  });
 
   @override
   Future<List<DriverFinancialMovementModel>> getDriverMovements({
@@ -78,6 +87,7 @@ class SupabaseDriverFinanceRemoteDataSource
   Future<List<DriverFinanceTripOptionModel>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   }) async {
     final rows = await client
         .from(DriverFinanceDbTables.trips)
@@ -91,7 +101,7 @@ class SupabaseDriverFinanceRemoteDataSource
       final map = Map<String, dynamic>.from(row);
       return DriverFinanceTripOptionModel(
         id: map[DbCommonFields.id] as String,
-        label: _buildTripLabel(map),
+        label: _buildTripLabel(map, timeZoneId),
       );
     }).toList();
   }
@@ -109,7 +119,7 @@ class SupabaseDriverFinanceRemoteDataSource
     return DriverFinancialMovementModel.fromMap(Map<String, dynamic>.from(row));
   }
 
-  String _buildTripLabel(Map<String, dynamic> map) {
+  String _buildTripLabel(Map<String, dynamic> map, String timeZoneId) {
     final loadingOrder = _optional(map['loading_order_number']);
     final waybill = _optional(map['waybill_number']);
     final tripNumber = loadingOrder ?? waybill;
@@ -118,9 +128,10 @@ class SupabaseDriverFinanceRemoteDataSource
     final loading = _nestedValue(map, 'routes', 'loading_location');
     final unloading = _nestedValue(map, 'routes', 'unloading_location');
     final route = _joinNonEmpty([loading, unloading], ' -> ');
-    final date = _dateOnly(
+    final date = _businessDate(
       _optional(map['actual_loading_at']) ??
           _optional(map['scheduled_loading_at']),
+      timeZoneId,
     );
 
     final label = _joinNonEmpty([tripNumber, customer, route, date], ' - ');
@@ -151,11 +162,19 @@ class SupabaseDriverFinanceRemoteDataSource
     return text;
   }
 
-  String? _dateOnly(String? value) {
+  String? _businessDate(String? value, String timeZoneId) {
     if (value == null) return null;
-    final parsed = DateTime.tryParse(value);
-    if (parsed == null) return null;
-    final local = parsed.toLocal();
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+    final instant = DbTimestamp.decode(value, field: 'trip_loading_at');
+    final projection = businessTimeZoneConverter.toBusinessLocalDateTime(
+      instant: instant,
+      timeZoneId: timeZoneId,
+    );
+    final local = projection.dataOrNull;
+    if (local == null) {
+      throw const FormatException('Unable to project trip loading timestamp.');
+    }
+    return DbDate.encode(
+      BusinessDate(year: local.year, month: local.month, day: local.day),
+    );
   }
 }

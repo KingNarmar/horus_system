@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -11,11 +14,15 @@ import '../../domain/usecases/invoice_params.dart';
 import '../../domain/usecases/invoice_query_usecases.dart';
 import 'invoice_details_state.dart';
 
+const _invoiceCreatedAtKey = 'invoice_created_at';
+
 final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
   final GetInvoiceDetailsUseCase getInvoiceDetailsUseCase;
   final IssueInvoiceUseCase issueInvoiceUseCase;
   final CancelInvoiceUseCase cancelInvoiceUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadGeneration = 0;
@@ -25,6 +32,7 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
     required this.issueInvoiceUseCase,
     required this.cancelInvoiceUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const InvoiceDetailsInitial());
 
   Future<void> loadInvoiceDetails({
@@ -52,10 +60,24 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
 
     final invoice = result.dataOrNull;
     if (invoice == null) return;
+    final createdAtResult = await _projectInvoiceCreatedAt(
+      currentCompanyContext,
+      invoice,
+    );
+    if (!_isCurrentRequest(generation, currentCompanyContext.companyId)) {
+      return;
+    }
+    if (createdAtResult is FailureResult<BusinessLocalDateTime>) {
+      emit(InvoiceDetailsFailure(createdAtResult.failure));
+      return;
+    }
+
     emit(
       InvoiceDetailsLoaded(
         currentCompanyContext: currentCompanyContext,
         invoice: invoice,
+        invoiceCreatedAt:
+            (createdAtResult as Success<BusinessLocalDateTime>).data,
         isActivityLoading: true,
       ),
     );
@@ -73,8 +95,8 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
   }
 
   Future<bool> issueInvoice({
-    required DateTime issueDate,
-    required DateTime dueDate,
+    required BusinessDate issueDate,
+    required BusinessDate dueDate,
   }) async {
     final currentState = state;
     final context = _currentCompanyContext;
@@ -182,19 +204,76 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       return;
     }
 
-    result.when(
-      success: (logs) => emit(
-        latestState.copyWith(
-          activity: logs,
-          isActivityLoading: false,
-          activityFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(
         latestState.copyWith(
           isActivityLoading: false,
           activityFailure: failure,
         ),
+      );
+      return;
+    }
+
+    final logs = result.dataOrNull ?? const [];
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in logs) log.id: log.createdAt,
+    });
+
+    final projectedState = state;
+    if (!_isCurrentRequest(generation, context.companyId) ||
+        projectedState is! InvoiceDetailsLoaded ||
+        projectedState.invoice.id != invoice.id) {
+      return;
+    }
+
+    final timestampFailure = timestampsResult.failureOrNull;
+    if (timestampFailure != null) {
+      emit(
+        projectedState.copyWith(
+          activity: const [],
+          activityTimestampsByLogId: const <String, BusinessLocalDateTime>{},
+          isActivityLoading: false,
+          activityFailure: timestampFailure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      projectedState.copyWith(
+        activity: logs,
+        activityTimestampsByLogId:
+            timestampsResult.dataOrNull ??
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
+      ),
+    );
+  }
+
+  Future<Result<BusinessLocalDateTime>> _projectInvoiceCreatedAt(
+    CurrentCompanyContext currentCompanyContext,
+    Invoice invoice,
+  ) async {
+    final result = await _convertCompanyInstants(currentCompanyContext, {
+      _invoiceCreatedAtKey: invoice.createdAt,
+    });
+    if (result is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      return FailureResult(result.failure);
+    }
+    final value = result.dataOrNull![_invoiceCreatedAtKey]!;
+    return Success<BusinessLocalDateTime>(value);
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
+    CurrentCompanyContext currentCompanyContext,
+    Map<String, DateTime> instantsByKey,
+  ) {
+    return convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: instantsByKey,
       ),
     );
   }
@@ -231,9 +310,25 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       return false;
     }
 
+    final context = _currentCompanyContext;
+    if (context == null) return false;
+    final createdAtResult = await _projectInvoiceCreatedAt(context, invoice);
+    if (!_isCurrentRequest(generation, companyId)) return false;
+    if (createdAtResult is FailureResult<BusinessLocalDateTime>) {
+      emit(
+        latestState.copyWith(
+          pendingAction: null,
+          mutationFailure: createdAtResult.failure,
+        ),
+      );
+      return false;
+    }
+
     emit(
       latestState.copyWith(
         invoice: invoice,
+        invoiceCreatedAt:
+            (createdAtResult as Success<BusinessLocalDateTime>).data,
         pendingAction: null,
         mutationFailure: null,
         feedback: feedback,

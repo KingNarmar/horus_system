@@ -1,6 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/driver_finance_db_fields.dart';
 import '../mappers/driver_balance_mapper.dart';
 import '../models/driver_balance_model.dart';
@@ -33,8 +36,8 @@ abstract class CanonicalDriverBalanceRemoteDataSource {
   Future<DriverBalanceModel> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   });
 }
 
@@ -54,8 +57,8 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
   Future<DriverBalanceModel> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   }) async {
     final checkpointRow = await _getBalanceCheckpoint(
       companyId: companyId,
@@ -87,7 +90,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
   Future<Map<String, dynamic>?> _getBalanceCheckpoint({
     required String companyId,
     required String driverId,
-    required DateTime? checkpointBeforeExclusive,
+    required BusinessDate? checkpointBeforeExclusive,
   }) async {
     final response = await client.rpc(
       DriverFinanceDbFunctions.getBalanceCheckpoint,
@@ -97,7 +100,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         DriverFinanceDbFields.parameterBeforeExclusive:
             checkpointBeforeExclusive == null
             ? null
-            : _dateOnly(checkpointBeforeExclusive),
+            : DbDate.encode(checkpointBeforeExclusive),
       },
     );
 
@@ -113,10 +116,10 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
   Future<List<Map<String, dynamic>>> _getMovementRows({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
+    required BusinessDate beforeExclusive,
     required Map<String, dynamic>? checkpointRow,
   }) async {
-    final before = _dateOnly(beforeExclusive);
+    final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await client
           .from(DriverFinanceDbTables.driverFinancialMovements)
@@ -134,11 +137,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       );
     }
 
-    final checkpointPeriodEnd = _requiredDate(
+    final checkpointPeriodEnd = DbDate.decode(
       checkpointRow[DriverFinanceDbFields.checkpointPeriodEnd],
+      field: DriverFinanceDbFields.checkpointPeriodEnd,
     );
-    final snapshotCreatedAt = _requiredDate(
+    final snapshotCreatedAt = DbTimestamp.decode(
       checkpointRow[DriverFinanceDbFields.checkpointSnapshotCreatedAt],
+      field: DriverFinanceDbFields.checkpointSnapshotCreatedAt,
     );
 
     final effectiveRows = await client
@@ -146,7 +151,10 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DriverFinanceDbFields.driverId, driverId)
-        .gt(DriverFinanceDbFields.movementDate, _dateOnly(checkpointPeriodEnd))
+        .gt(
+          DriverFinanceDbFields.movementDate,
+          DbDate.encode(checkpointPeriodEnd),
+        )
         .lt(DriverFinanceDbFields.movementDate, before)
         .order(DriverFinanceDbFields.movementDate)
         .order(DbCommonFields.createdAt)
@@ -157,10 +165,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
         .eq(DriverFinanceDbFields.driverId, driverId)
-        .gt(
-          DbCommonFields.createdAt,
-          snapshotCreatedAt.toUtc().toIso8601String(),
-        )
+        .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
         .lt(DriverFinanceDbFields.movementDate, before)
         .order(DriverFinanceDbFields.movementDate)
         .order(DbCommonFields.createdAt)
@@ -178,7 +183,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
   Future<List<Map<String, dynamic>>> _getTripExpenseRows({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
+    required BusinessDate beforeExclusive,
     required Map<String, dynamic>? checkpointRow,
   }) async {
     final tripIds = await _getDriverTripIds(
@@ -187,7 +192,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
     if (tripIds.isEmpty) return const [];
 
-    final before = _dateOnly(beforeExclusive);
+    final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await client
           .from(DriverFinanceDbTables.tripExpenses)
@@ -209,11 +214,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       );
     }
 
-    final checkpointPeriodEnd = _requiredDate(
+    final checkpointPeriodEnd = DbDate.decode(
       checkpointRow[DriverFinanceDbFields.checkpointPeriodEnd],
+      field: DriverFinanceDbFields.checkpointPeriodEnd,
     );
-    final snapshotCreatedAt = _requiredDate(
+    final snapshotCreatedAt = DbTimestamp.decode(
       checkpointRow[DriverFinanceDbFields.checkpointSnapshotCreatedAt],
+      field: DriverFinanceDbFields.checkpointSnapshotCreatedAt,
     );
 
     final effectiveRows = await client
@@ -225,7 +232,10 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
           DriverFinanceDbValues.paidByDriverAdvance,
           DriverFinanceDbValues.paidByDriverCash,
         ])
-        .gt(DriverFinanceDbFields.expenseDate, _dateOnly(checkpointPeriodEnd))
+        .gt(
+          DriverFinanceDbFields.expenseDate,
+          DbDate.encode(checkpointPeriodEnd),
+        )
         .lt(DriverFinanceDbFields.expenseDate, before)
         .order(DriverFinanceDbFields.expenseDate)
         .order(DbCommonFields.createdAt)
@@ -240,10 +250,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
           DriverFinanceDbValues.paidByDriverAdvance,
           DriverFinanceDbValues.paidByDriverCash,
         ])
-        .gt(
-          DbCommonFields.createdAt,
-          snapshotCreatedAt.toUtc().toIso8601String(),
-        )
+        .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
         .lt(DriverFinanceDbFields.expenseDate, before)
         .order(DriverFinanceDbFields.expenseDate)
         .order(DbCommonFields.createdAt)
@@ -276,17 +283,5 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
 
   List<Map<String, dynamic>> _maps(Iterable<dynamic> rows) {
     return rows.map((row) => Map<String, dynamic>.from(row as Map)).toList();
-  }
-
-  DateTime _requiredDate(Object? value) {
-    final parsed = DateTime.tryParse(value?.toString() ?? '');
-    if (parsed == null) throw FormatException('Invalid date value: $value');
-    return parsed;
-  }
-
-  String _dateOnly(DateTime value) {
-    return '${value.year.toString().padLeft(4, '0')}-'
-        '${value.month.toString().padLeft(2, '0')}-'
-        '${value.day.toString().padLeft(2, '0')}';
   }
 }

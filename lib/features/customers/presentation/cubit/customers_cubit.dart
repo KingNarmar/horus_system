@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
@@ -23,6 +24,11 @@ class CustomersCubit extends Cubit<CustomersState> {
   final ReactivateCustomerUseCase reactivateCustomerUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
 
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
+  int _activityRequestId = 0;
+  int _loadRequestId = 0;
+
   CurrentCompanyContext? _currentCompanyContext;
 
   CustomersCubit({
@@ -32,12 +38,15 @@ class CustomersCubit extends Cubit<CustomersState> {
     required this.deactivateCustomerUseCase,
     required this.reactivateCustomerUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const CustomersInitial());
 
   Future<void> loadCustomers(
     CurrentCompanyContext currentCompanyContext,
   ) async {
     _currentCompanyContext = currentCompanyContext;
+    final loadRequestId = ++_loadRequestId;
+    ++_activityRequestId;
     final previousState = state;
     final previousSearchQuery = previousState is CustomersLoaded
         ? previousState.searchQuery
@@ -51,6 +60,8 @@ class CustomersCubit extends Cubit<CustomersState> {
     final result = await getCustomersUseCase(
       GetCustomersParams(currentCompanyContext: currentCompanyContext),
     );
+
+    if (isClosed || loadRequestId != _loadRequestId) return;
 
     result.when(
       success: (customers) => emit(
@@ -83,60 +94,86 @@ class CustomersCubit extends Cubit<CustomersState> {
   }
 
   Future<void> loadCustomerActivity(Customer customer) async {
-    final currentCompanyContext = _currentCompanyContext;
-    final currentState = state;
-    if (currentCompanyContext == null || currentState is! CustomersLoaded) {
-      return;
-    }
-
+    final current = state;
+    if (isClosed || current is! CustomersLoaded) return;
+    final context = current.currentCompanyContext;
+    if (customer.companyId != context.companyId) return;
+    final requestId = ++_activityRequestId;
     emit(
-      currentState.copyWith(
+      current.copyWith(
         selectedCustomer: customer,
         selectedCustomerActivity: const [],
+        selectedCustomerActivityTimestampsByLogId: const {},
         isActivityLoading: true,
         activityFailure: null,
       ),
     );
-
     final result = await getEntityAuditLogsUseCase(
       GetEntityAuditLogsParams(
-        companyId: currentCompanyContext.companyId,
+        companyId: context.companyId,
         module: AuditModule.customers,
         entityType: AuditEntityType.customer,
         entityId: customer.id,
       ),
     );
-
-    final latestState = state;
-    if (latestState is! CustomersLoaded ||
-        latestState.selectedCustomer?.id != customer.id) {
-      return;
-    }
-
-    result.when(
-      success: (activity) => emit(
-        latestState.copyWith(
-          selectedCustomerActivity: activity,
-          isActivityLoading: false,
-          activityFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
+    if (!_isCurrentActivity(requestId, context.companyId, customer.id)) return;
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(
+        (state as CustomersLoaded).copyWith(
           isActivityLoading: false,
           activityFailure: failure,
         ),
+      );
+      return;
+    }
+    final activity = result.dataOrNull!;
+    final projected = await convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: context.company.businessTimezone ?? '',
+        instantsByKey: {for (final log in activity) log.id: log.createdAt},
+      ),
+    );
+    if (!_isCurrentActivity(requestId, context.companyId, customer.id)) return;
+    final latest = state as CustomersLoaded;
+    final projectionFailure = projected.failureOrNull;
+    if (projectionFailure != null) {
+      emit(
+        latest.copyWith(
+          isActivityLoading: false,
+          activityFailure: projectionFailure,
+        ),
+      );
+      return;
+    }
+    emit(
+      latest.copyWith(
+        selectedCustomerActivity: activity,
+        selectedCustomerActivityTimestampsByLogId: projected.dataOrNull!,
+        isActivityLoading: false,
+        activityFailure: null,
       ),
     );
   }
 
+  bool _isCurrentActivity(int requestId, String companyId, String entityId) {
+    final current = state;
+    return !isClosed &&
+        requestId == _activityRequestId &&
+        current is CustomersLoaded &&
+        current.currentCompanyContext.companyId == companyId &&
+        current.selectedCustomer?.id == entityId;
+  }
+
   void clearCustomerActivity() {
+    ++_activityRequestId;
     final currentState = state;
     if (currentState is CustomersLoaded) {
       emit(
         currentState.copyWith(
           selectedCustomer: null,
           selectedCustomerActivity: const [],
+          selectedCustomerActivityTimestampsByLogId: const {},
           isActivityLoading: false,
           activityFailure: null,
         ),

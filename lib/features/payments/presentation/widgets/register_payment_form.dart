@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/payable_invoice.dart';
 import '../constants/payments_presentation_constants.dart';
 import '../cubit/register_payment_cubit.dart';
@@ -29,7 +31,7 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
 
   String? _invoiceId;
   String? _paymentMethodId;
-  late DateTime _paymentDate;
+  late BusinessDate _paymentDate;
 
   @override
   void initState() {
@@ -41,7 +43,7 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
     _paymentMethodId = state.paymentMethods.isEmpty
         ? null
         : state.paymentMethods.first.id;
-    _paymentDate = _dateOnly(state.businessDate);
+    _paymentDate = state.businessDate;
   }
 
   @override
@@ -65,13 +67,16 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
     final issueDate = _selectedInvoice?.invoice.issueDate?.value;
     if (issueDate == null) return;
 
-    final firstDate = _dateOnly(issueDate);
-    final lastDate = _dateOnly(widget.state.businessDate);
-    final initialDate = _paymentDate.isBefore(firstDate)
+    final firstDate = BusinessDateDateTimeAdapter.toDateTime(issueDate);
+    final lastDate = BusinessDateDateTimeAdapter.toDateTime(
+      widget.state.businessDate,
+    );
+    final currentDate = BusinessDateDateTimeAdapter.toDateTime(_paymentDate);
+    final initialDate = currentDate.isBefore(firstDate)
         ? firstDate
-        : _paymentDate.isAfter(lastDate)
+        : currentDate.isAfter(lastDate)
         ? lastDate
-        : _paymentDate;
+        : currentDate;
 
     final picked = await showDatePicker(
       context: context,
@@ -80,7 +85,9 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
       lastDate: lastDate,
     );
     if (picked == null || !mounted) return;
-    setState(() => _paymentDate = _dateOnly(picked));
+    setState(() {
+      _paymentDate = BusinessDateDateTimeAdapter.fromDateTime(picked);
+    });
   }
 
   Future<void> _submit() async {
@@ -155,8 +162,8 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                         final issueDate =
                             _selectedInvoice?.invoice.issueDate?.value;
                         if (issueDate != null &&
-                            _paymentDate.isBefore(_dateOnly(issueDate))) {
-                          _paymentDate = _dateOnly(issueDate);
+                            _paymentDate.isBefore(issueDate)) {
+                          _paymentDate = issueDate;
                         }
                       });
                     },
@@ -283,8 +290,4 @@ final class _EmptyRegistration extends StatelessWidget {
 String? _optional(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
-}
-
-DateTime _dateOnly(DateTime value) {
-  return DateTime(value.year, value.month, value.day);
 }

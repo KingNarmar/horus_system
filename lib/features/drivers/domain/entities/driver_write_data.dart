@@ -1,10 +1,12 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class DriverWriteData {
   final String companyId;
   final String fullName;
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String? profileImagePath;
   final String? licenseImagePath;
   final String? licenseBackImagePath;

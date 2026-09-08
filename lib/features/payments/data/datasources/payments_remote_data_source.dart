@@ -1,6 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../constants/payments_db_constants.dart';
 import '../models/payment_model.dart';
@@ -17,7 +19,7 @@ abstract interface class PaymentsRemoteDataSource {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
@@ -65,7 +67,7 @@ final class SupabasePaymentsRemoteDataSource
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
@@ -76,7 +78,7 @@ final class SupabasePaymentsRemoteDataSource
         PaymentsDbConstants.companyIdParam: companyId,
         PaymentsDbConstants.invoiceIdParam: invoiceId,
         PaymentsDbConstants.paymentMethodIdParam: paymentMethodId,
-        PaymentsDbConstants.paymentDateParam: _dateValue(paymentDate),
+        PaymentsDbConstants.paymentDateParam: DbDate.encode(paymentDate),
         PaymentsDbConstants.amountMinorUnitsParam: amount.minorUnits,
         PaymentsDbConstants.currencyCodeParam: amount.currency.value,
         PaymentsDbConstants.referenceNumberParam: referenceNumber,
@@ -96,11 +98,4 @@ Map<String, dynamic> _singleMap(Object? response) {
     return Map<String, dynamic>.from(response.single as Map);
   }
   throw const FormatException('Invalid register payment response.');
-}
-
-String _dateValue(DateTime value) {
-  final year = value.year.toString().padLeft(4, '0');
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '$year-$month-$day';
 }

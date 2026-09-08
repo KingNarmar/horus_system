@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -93,6 +94,7 @@ CompanyExpensesLoaded _loadedState({
       company: Company(id: _companyId, name: 'Test Company'),
       role: CompanyRole.accountant,
     ),
+    currentBusinessDate: BusinessDate(year: 2026, month: 7, day: 3),
     categories: const [
       CompanyExpenseCategory(
         id: 'category-tires',
@@ -154,7 +156,7 @@ CompanyExpense _expense({
     driverId: driverId,
     tractorHeadId: tractorHeadId,
     amount: amount,
-    expenseDate: DateTime(2026, 7, 3),
+    expenseDate: BusinessDate(year: 2026, month: 7, day: 3),
     referenceNumber: referenceNumber,
     isVoided: isVoided,
   );

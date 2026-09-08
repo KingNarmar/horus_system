@@ -1,9 +1,10 @@
 part of 'fleet_asset_cards.dart';
 
-String _dateOnlyOrEmpty(BuildContext context, DateTime? value) {
+String _dateOnlyOrEmpty(BuildContext context, BusinessDate? value) {
   if (value == null) return context.l10n.emptyValue;
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _numberText(double value) {

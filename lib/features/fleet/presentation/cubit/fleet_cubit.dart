@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -23,6 +26,8 @@ class FleetCubit extends Cubit<FleetState> {
   final DeactivateTrailerUseCase deactivateTrailerUseCase;
   final ReactivateTrailerUseCase reactivateTrailerUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
   CurrentCompanyContext? _currentCompanyContext;
 
   FleetCubit({
@@ -36,6 +41,7 @@ class FleetCubit extends Cubit<FleetState> {
     required this.deactivateTrailerUseCase,
     required this.reactivateTrailerUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
@@ -101,6 +107,8 @@ class FleetCubit extends Cubit<FleetState> {
       current.copyWith(
         selectedAssetId: assetId,
         selectedAssetActivity: const [],
+        selectedAssetActivityTimestampsByLogId:
+            const <String, BusinessLocalDateTime>{},
         isActivityLoading: true,
         activityFailure: null,
       ),
@@ -115,16 +123,57 @@ class FleetCubit extends Cubit<FleetState> {
     );
     final latest = state;
     if (latest is! FleetLoaded || latest.selectedAssetId != assetId) return;
-    result.when(
-      success: (activity) => emit(
-        latest.copyWith(
-          selectedAssetActivity: activity,
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(latest.copyWith(isActivityLoading: false, activityFailure: failure));
+      return;
+    }
+
+    final activity = result.dataOrNull ?? const [];
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in activity) log.id: log.createdAt,
+    });
+    final projectedState = state;
+    if (projectedState is! FleetLoaded ||
+        projectedState.selectedAssetId != assetId) {
+      return;
+    }
+
+    final timestampFailure = timestampsResult.failureOrNull;
+    if (timestampFailure != null) {
+      emit(
+        projectedState.copyWith(
+          selectedAssetActivity: const [],
+          selectedAssetActivityTimestampsByLogId:
+              const <String, BusinessLocalDateTime>{},
           isActivityLoading: false,
-          activityFailure: null,
+          activityFailure: timestampFailure,
         ),
+      );
+      return;
+    }
+
+    emit(
+      projectedState.copyWith(
+        selectedAssetActivity: activity,
+        selectedAssetActivityTimestampsByLogId:
+            timestampsResult.dataOrNull ??
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
       ),
-      failure: (failure) => emit(
-        latest.copyWith(isActivityLoading: false, activityFailure: failure),
+    );
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
+    CurrentCompanyContext currentCompanyContext,
+    Map<String, DateTime> instantsByKey,
+  ) {
+    return convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: instantsByKey,
       ),
     );
   }
@@ -133,6 +182,8 @@ class FleetCubit extends Cubit<FleetState> {
     (s) => s.copyWith(
       selectedAssetId: null,
       selectedAssetActivity: const [],
+      selectedAssetActivityTimestampsByLogId:
+          const <String, BusinessLocalDateTime>{},
       isActivityLoading: false,
       activityFailure: null,
     ),
@@ -142,7 +193,7 @@ class FleetCubit extends Cubit<FleetState> {
     TractorHead? tractorHead,
     required String plateNumber,
     required VehicleStatus status,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     double? expectedFuelConsumption,
     String? notes,
   }) async {
@@ -169,7 +220,7 @@ class FleetCubit extends Cubit<FleetState> {
     TrailerEntity? trailer,
     required String plateNumber,
     required VehicleStatus status,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     String? technicalNotes,
   }) async {
     final context = _currentCompanyContext;

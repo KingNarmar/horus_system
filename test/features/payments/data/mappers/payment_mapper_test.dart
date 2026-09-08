@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/payments/data/mappers/payment_mapper.dart';
 import 'package:horus_system/features/payments/data/models/payment_model.dart';
 import 'package:test/test.dart';
@@ -10,7 +11,7 @@ void main() {
       invoiceId: 'invoice-1',
       customerId: 'customer-1',
       paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
+      paymentDate: BusinessDate(year: 2026, month: 8, day: 10),
       amountMinorUnits: 40000,
       currencyCode: 'AED',
       referenceNumber: 'REF-1',
@@ -29,7 +30,7 @@ void main() {
       invoiceId: 'invoice-1',
       customerId: 'customer-1',
       paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
+      paymentDate: BusinessDate(year: 2026, month: 8, day: 10),
       amountMinorUnits: 0,
       currencyCode: 'AED',
       createdAt: DateTime.utc(2026, 8, 10),

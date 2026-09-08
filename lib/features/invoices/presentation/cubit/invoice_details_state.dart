@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -26,7 +27,9 @@ final class InvoiceDetailsLoading extends InvoiceDetailsState {
 final class InvoiceDetailsLoaded extends InvoiceDetailsState {
   final CurrentCompanyContext currentCompanyContext;
   final Invoice invoice;
+  final BusinessLocalDateTime invoiceCreatedAt;
   final List<AuditLog> activity;
+  final Map<String, BusinessLocalDateTime> activityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
   final InvoiceDetailsAction? pendingAction;
@@ -36,13 +39,19 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
   const InvoiceDetailsLoaded({
     required this.currentCompanyContext,
     required this.invoice,
+    required this.invoiceCreatedAt,
     this.activity = const [],
+    this.activityTimestampsByLogId = const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
     this.pendingAction,
     this.mutationFailure,
     this.feedback,
   });
+
+  BusinessLocalDateTime? activityTimestampFor(String logId) {
+    return activityTimestampsByLogId[logId];
+  }
 
   bool get canEdit {
     return InvoicesPermissionPolicy.canManageInvoiceDrafts(
@@ -69,7 +78,9 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
 
   InvoiceDetailsLoaded copyWith({
     Invoice? invoice,
+    BusinessLocalDateTime? invoiceCreatedAt,
     List<AuditLog>? activity,
+    Map<String, BusinessLocalDateTime>? activityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? pendingAction = _notSet,
@@ -79,7 +90,10 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
     return InvoiceDetailsLoaded(
       currentCompanyContext: currentCompanyContext,
       invoice: invoice ?? this.invoice,
+      invoiceCreatedAt: invoiceCreatedAt ?? this.invoiceCreatedAt,
       activity: activity ?? this.activity,
+      activityTimestampsByLogId:
+          activityTimestampsByLogId ?? this.activityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure

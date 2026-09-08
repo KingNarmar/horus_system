@@ -49,6 +49,9 @@ class _TripsPageState extends State<TripsPage> {
               return TripFormDialog(
                 title: trip == null ? l10n.addTripTitle : l10n.editTripTitle,
                 trip: trip,
+                initialBusinessLocalTimestamps: trip == null
+                    ? null
+                    : loaded?.businessLocalTimestampsFor(trip.id),
                 lookups: loaded?.formLookups,
                 isLookupsLoading: loaded?.isFormLookupsLoading ?? true,
                 lookupsFailure: loaded?.formLookupsFailure,

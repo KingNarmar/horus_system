@@ -1,5 +1,9 @@
 part of 'trip_form_dialog.dart';
 
+final RegExp _businessLocalDateTimePattern = RegExp(
+  r'^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$',
+);
+
 String? _validSelectedValue(String? value, List<TripLookupOption> options) {
   if (value == null || value.trim().isEmpty) return null;
 
@@ -37,14 +41,22 @@ bool _dateTimeValid(String value) {
   final text = value.trim();
   if (text.isEmpty) return true;
 
-  return _parseDateTime(text) != null;
+  return _parseBusinessLocalDateTime(text) != null;
 }
 
-DateTime? _parseDateTime(String value) {
+BusinessLocalDateTime? _parseBusinessLocalDateTime(String value) {
   final text = value.trim();
   if (text.isEmpty) return null;
+  final match = _businessLocalDateTimePattern.firstMatch(text);
+  if (match == null) return null;
 
-  return DateTime.tryParse(text);
+  return BusinessLocalDateTime.tryCreate(
+    year: int.parse(match.group(1)!),
+    month: int.parse(match.group(2)!),
+    day: int.parse(match.group(3)!),
+    hour: int.parse(match.group(4)!),
+    minute: int.parse(match.group(5)!),
+  );
 }
 
 String _formatDouble(double? value) {
@@ -54,15 +66,14 @@ String _formatDouble(double? value) {
   return text.endsWith('.0') ? text.substring(0, text.length - 2) : text;
 }
 
-String _formatDateTimeForInput(DateTime? value) {
+String _formatBusinessLocalDateTimeForInput(BusinessLocalDateTime? value) {
   if (value == null) return '';
 
-  final local = value.toLocal();
-  final year = local.year.toString().padLeft(4, '0');
-  final month = local.month.toString().padLeft(2, '0');
-  final day = local.day.toString().padLeft(2, '0');
-  final hour = local.hour.toString().padLeft(2, '0');
-  final minute = local.minute.toString().padLeft(2, '0');
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
 
   return '$year-$month-$day $hour:$minute';
 }

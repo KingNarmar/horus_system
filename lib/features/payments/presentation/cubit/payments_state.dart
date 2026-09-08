@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../invoices/domain/entities/invoice.dart';
@@ -25,6 +26,7 @@ final class PaymentsFailure extends PaymentsState {
 final class PaymentsLoaded extends PaymentsState {
   final CurrentCompanyContext currentCompanyContext;
   final List<Payment> allPayments;
+  final Map<String, BusinessLocalDateTime> createdAtByPaymentId;
   final List<Invoice> invoices;
   final List<PaymentMethod> paymentMethods;
   final bool canRegisterPayments;
@@ -33,11 +35,16 @@ final class PaymentsLoaded extends PaymentsState {
   const PaymentsLoaded({
     required this.currentCompanyContext,
     required this.allPayments,
+    required this.createdAtByPaymentId,
     required this.invoices,
     required this.paymentMethods,
     required this.canRegisterPayments,
     this.searchQuery = '',
   });
+
+  BusinessLocalDateTime? createdAtFor(Payment payment) {
+    return createdAtByPaymentId[payment.id];
+  }
 
   List<Payment> get visiblePayments {
     final query = searchQuery.trim().toLowerCase();
@@ -81,6 +88,7 @@ final class PaymentsLoaded extends PaymentsState {
     return PaymentsLoaded(
       currentCompanyContext: currentCompanyContext,
       allPayments: allPayments,
+      createdAtByPaymentId: createdAtByPaymentId,
       invoices: invoices,
       paymentMethods: paymentMethods,
       canRegisterPayments: canRegisterPayments,

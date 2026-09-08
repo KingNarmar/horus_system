@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 
 final class GetInvoicesParams {
@@ -32,8 +33,8 @@ final class InvoiceDraftInput {
   final String currencyCode;
   final int discountMinorUnits;
   final int taxRateBasisPoints;
-  final DateTime? issueDate;
-  final DateTime? dueDate;
+  final BusinessDate? issueDate;
+  final BusinessDate? dueDate;
   final String? notes;
 
   InvoiceDraftInput({
@@ -83,8 +84,8 @@ final class UpdateInvoiceDraftParams {
 final class IssueInvoiceParams {
   final CurrentCompanyContext currentCompanyContext;
   final String invoiceId;
-  final DateTime issueDate;
-  final DateTime dueDate;
+  final BusinessDate issueDate;
+  final BusinessDate dueDate;
 
   const IssueInvoiceParams({
     required this.currentCompanyContext,

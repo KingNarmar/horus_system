@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../payment_methods/domain/entities/payment_method.dart';
@@ -58,7 +59,7 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
       ),
     );
     if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
-    if (businessDateResult is FailureResult<DateTime>) {
+    if (businessDateResult is FailureResult<BusinessDate>) {
       emit(RegisterPaymentFailure(businessDateResult.failure));
       return;
     }
@@ -68,7 +69,7 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
         currentCompanyContext: currentCompanyContext,
         payableInvoices: (invoicesResult as Success<List<PayableInvoice>>).data,
         paymentMethods: (methodsResult as Success<List<PaymentMethod>>).data,
-        businessDate: (businessDateResult as Success<DateTime>).data,
+        businessDate: (businessDateResult as Success<BusinessDate>).data,
       ),
     );
   }
@@ -81,7 +82,7 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
   Future<bool> submit({
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required String amountText,
     String? referenceNumber,
     String? notes,

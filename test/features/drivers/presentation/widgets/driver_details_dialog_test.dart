@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -135,7 +136,7 @@ final _driver = Driver(
   phone: _phone,
   nationalId: '84514850',
   licenseNumber: '181218451',
-  licenseExpiryDate: DateTime(2026, 6, 29),
+  licenseExpiryDate: BusinessDate(year: 2026, month: 6, day: 29),
   status: DriverStatus.active,
 );
 
@@ -167,7 +168,7 @@ final _state = DriversLoaded(
     driverId: _driverId,
     checkpoint: DriverBalanceCheckpoint(
       settlementId: 'settlement-1',
-      periodEnd: DateTime(2026, 8, 31),
+      periodEnd: BusinessDate(year: 2026, month: 8, day: 31),
       snapshotCreatedAt: DateTime.utc(2026, 7, 15, 4, 59),
       closingBalance: -5600,
     ),
@@ -181,7 +182,7 @@ final _state = DriversLoaded(
       driverId: _driverId,
       type: DriverFinancialMovementType.advance,
       amount: 5000,
-      movementDate: DateTime(2026, 6, 29),
+      movementDate: BusinessDate(year: 2026, month: 6, day: 29),
     ),
   ],
 );

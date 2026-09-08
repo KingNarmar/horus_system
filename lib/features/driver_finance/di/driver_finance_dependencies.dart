@@ -1,4 +1,6 @@
+import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../audit/di/audit_dependencies.dart';
 import '../data/datasources/canonical_driver_balance_remote_data_source.dart';
 import '../data/datasources/driver_finance_remote_data_source.dart';
@@ -13,6 +15,7 @@ abstract final class DriverFinanceDependencies {
     return DriverFinanceRepositoryImpl(
       remoteDataSource: SupabaseDriverFinanceRemoteDataSource(
         SupabaseClientProvider.client,
+        businessTimeZoneConverter: const TimezoneBusinessTimeZoneConverter(),
       ),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
@@ -29,5 +32,16 @@ abstract final class DriverFinanceDependencies {
   static GetCanonicalDriverBalanceUseCase
   createGetCanonicalDriverBalanceUseCase() {
     return GetCanonicalDriverBalanceUseCase(createBalanceRepository());
+  }
+
+  static GetCurrentCanonicalDriverBalanceUseCase
+  createGetCurrentCanonicalDriverBalanceUseCase({
+    required GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase,
+  }) {
+    return GetCurrentCanonicalDriverBalanceUseCase(
+      getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
+      getCanonicalDriverBalanceUseCase:
+          createGetCanonicalDriverBalanceUseCase(),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../constants/tractor_head_db_fields.dart';
 import '../constants/trailer_db_fields.dart';
 import '../models/tractor_head_model.dart';
@@ -10,9 +11,9 @@ extension TractorHeadAuditMapper on TractorHeadModel {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
       TractorHeadDbFields.plateNumber: plateNumber,
-      TractorHeadDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TractorHeadDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TractorHeadDbFields.expectedFuelConsumption: expectedFuelConsumption,
       TractorHeadDbFields.status: status,
       TractorHeadDbFields.notes: notes,
@@ -29,9 +30,9 @@ extension TrailerAuditMapper on TrailerModel {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TrailerDbFields.status: status,
       TrailerDbFields.technicalNotes: technicalNotes,
       DbCommonFields.isActive: isActive,

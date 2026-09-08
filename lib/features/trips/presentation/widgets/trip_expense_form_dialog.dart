@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
@@ -30,6 +32,8 @@ class TripExpenseFormDialog extends StatefulWidget {
 }
 
 class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
+  static final RegExp _datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _amountController;
@@ -49,9 +53,10 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     _amountController = TextEditingController(
       text: expense == null ? '' : TripFormatters.number(expense.amount, ''),
     );
-    _dateController = TextEditingController(
-      text: _dateOnly(expense?.expenseDate ?? DateTime.now()),
-    );
+    final initialDate =
+        expense?.expenseDate ??
+        BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    _dateController = TextEditingController(text: _dateOnly(initialDate));
     _notesController = TextEditingController(text: expense?.notes ?? '');
   }
 
@@ -247,16 +252,21 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     return null;
   }
 
-  DateTime? _parseDate(String? value) {
+  BusinessDate? _parseDate(String? value) {
     final text = value?.trim();
-    if (text == null || text.isEmpty) return null;
-    return DateTime.tryParse(text);
+    if (text == null || !_datePattern.hasMatch(text)) return null;
+    final parts = text.split('-');
+    return BusinessDate.tryCreate(
+      year: int.parse(parts[0]),
+      month: int.parse(parts[1]),
+      day: int.parse(parts[2]),
+    );
   }
 
-  String _dateOnly(DateTime value) {
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    return '${value.year}-$month-$day';
+  String _dateOnly(BusinessDate value) {
+    return '${value.year.toString().padLeft(4, '0')}-'
+        '${value.month.toString().padLeft(2, '0')}-'
+        '${value.day.toString().padLeft(2, '0')}';
   }
 }
 
@@ -270,7 +280,7 @@ class TripExpenseFormData {
   final String expenseName;
   final double amount;
   final TripExpensePaidBy paidBy;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? notes;
 
   const TripExpenseFormData({

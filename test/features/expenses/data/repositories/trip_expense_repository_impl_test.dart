@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -334,6 +335,10 @@ TripExpensesRepositoryImpl _repository(
   );
 }
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 TripExpenseWriteData _writeData({double amount = 125.5}) {
   return TripExpenseWriteData(
     companyId: _companyId,
@@ -342,7 +347,7 @@ TripExpenseWriteData _writeData({double amount = 125.5}) {
     expenseName: 'Fuel',
     amount: amount,
     paidBy: TripExpensePaidBy.company,
-    expenseDate: DateTime.utc(2026, 8, 22),
+    expenseDate: _date(2026, 8, 22),
     notes: 'note',
   );
 }
@@ -356,7 +361,7 @@ TripExpenseModel _expenseModel({double amount = 100}) {
     expenseName: 'Fuel',
     amount: amount,
     paidBy: 'company',
-    expenseDate: DateTime.utc(2026, 8, 22),
+    expenseDate: _date(2026, 8, 22),
     notes: 'note',
     expenseTypeName: 'Fuel',
   );
@@ -372,7 +377,7 @@ class _ThrowingTripExpenseModel extends TripExpenseModel {
         expenseName: 'ignored',
         amount: 1,
         paidBy: 'company',
-        expenseDate: DateTime.utc(2026, 8, 22),
+        expenseDate: BusinessDate(year: 2026, month: 8, day: 22),
       );
 
   @override
