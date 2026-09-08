@@ -121,6 +121,7 @@ final class _PaymentsCards extends StatelessWidget {
           .map((payment) {
             final invoice = state.invoiceFor(payment);
             final method = state.paymentMethodFor(payment);
+            final createdAt = state.createdAtFor(payment);
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: Card(
@@ -168,10 +169,9 @@ final class _PaymentsCards extends StatelessWidget {
                         _DetailRow(label: strings.notes, value: payment.notes!),
                       _DetailRow(
                         label: strings.createdAt,
-                        value: formatPaymentDateTime(
-                          payment.createdAt,
-                          localeName,
-                        ),
+                        value: createdAt == null
+                            ? strings.unavailableValue
+                            : formatPaymentDateTime(createdAt, localeName),
                       ),
                     ],
                   ),
