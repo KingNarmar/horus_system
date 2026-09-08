@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -135,7 +136,7 @@ final _driver = Driver(
   phone: _phone,
   nationalId: '84514850',
   licenseNumber: '181218451',
-  licenseExpiryDate: DateTime(2026, 6, 29),
+  licenseExpiryDate: BusinessDate(year: 2026, month: 6, day: 29),
   status: DriverStatus.active,
 );
 
