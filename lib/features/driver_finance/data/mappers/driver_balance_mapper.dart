@@ -1,3 +1,5 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_balance_checkpoint.dart';
@@ -66,13 +68,15 @@ class DriverBalanceSourceMapper {
             ),
       checkpointPeriodEnd: checkpointRow == null
           ? null
-          : _requiredDate(
+          : DbDate.decode(
               checkpointRow[DriverFinanceDbFields.checkpointPeriodEnd],
+              field: DriverFinanceDbFields.checkpointPeriodEnd,
             ),
       checkpointSnapshotCreatedAt: checkpointRow == null
           ? null
-          : _requiredDate(
+          : DbTimestamp.decode(
               checkpointRow[DriverFinanceDbFields.checkpointSnapshotCreatedAt],
+              field: DriverFinanceDbFields.checkpointSnapshotCreatedAt,
             ),
       checkpointClosingBalance: checkpointRow == null
           ? 0
@@ -111,12 +115,6 @@ class DriverBalanceSourceMapper {
       throw const FormatException('Checkpoint settlement id is required.');
     }
     return text;
-  }
-
-  DateTime _requiredDate(Object? value) {
-    final parsed = DateTime.tryParse(value?.toString() ?? '');
-    if (parsed == null) throw FormatException('Invalid date value: $value');
-    return parsed;
   }
 }
 

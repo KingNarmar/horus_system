@@ -1,4 +1,7 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 
 class DriverBalanceSourceSelector {
   const DriverBalanceSourceSelector();
@@ -6,8 +9,8 @@ class DriverBalanceSourceSelector {
   List<Map<String, dynamic>> select({
     required Iterable<Map<String, dynamic>> rows,
     required String effectiveDateField,
-    required DateTime beforeExclusive,
-    DateTime? checkpointPeriodEnd,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointPeriodEnd,
     DateTime? checkpointSnapshotCreatedAt,
   }) {
     if ((checkpointPeriodEnd == null) !=
@@ -24,28 +27,41 @@ class DriverBalanceSourceSelector {
         throw const FormatException('Financial source id is required.');
       }
 
-      final effectiveDate = _requiredDate(row[effectiveDateField]);
+      final effectiveDate = DbDate.decode(
+        row[effectiveDateField],
+        field: effectiveDateField,
+      );
       if (!effectiveDate.isBefore(beforeExclusive)) continue;
 
       final isEligible =
           checkpointPeriodEnd == null ||
           effectiveDate.isAfter(checkpointPeriodEnd) ||
-          _requiredDate(
+          DbTimestamp.decode(
             row[DbCommonFields.createdAt],
+            field: DbCommonFields.createdAt,
           ).isAfter(checkpointSnapshotCreatedAt!);
       if (isEligible) byId[id] = row;
     }
 
     final selected = byId.values.toList();
     selected.sort((left, right) {
-      final effectiveComparison = _requiredDate(
+      final effectiveComparison = DbDate.decode(
         left[effectiveDateField],
-      ).compareTo(_requiredDate(right[effectiveDateField]));
+        field: effectiveDateField,
+      ).compareTo(
+        DbDate.decode(right[effectiveDateField], field: effectiveDateField),
+      );
       if (effectiveComparison != 0) return effectiveComparison;
 
-      final createdComparison = _requiredDate(
+      final createdComparison = DbTimestamp.decode(
         left[DbCommonFields.createdAt],
-      ).compareTo(_requiredDate(right[DbCommonFields.createdAt]));
+        field: DbCommonFields.createdAt,
+      ).compareTo(
+        DbTimestamp.decode(
+          right[DbCommonFields.createdAt],
+          field: DbCommonFields.createdAt,
+        ),
+      );
       if (createdComparison != 0) return createdComparison;
 
       return (left[DbCommonFields.id] as String).compareTo(
@@ -53,11 +69,5 @@ class DriverBalanceSourceSelector {
       );
     });
     return selected;
-  }
-
-  DateTime _requiredDate(Object? value) {
-    final parsed = DateTime.tryParse(value?.toString() ?? '');
-    if (parsed == null) throw FormatException('Invalid date value: $value');
-    return parsed;
   }
 }

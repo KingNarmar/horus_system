@@ -1,5 +1,7 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -10,8 +12,8 @@ import '../repositories/driver_balance_repository.dart';
 class GetCanonicalDriverBalanceParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
-  final DateTime beforeExclusive;
-  final DateTime? checkpointBeforeExclusive;
+  final BusinessDate beforeExclusive;
+  final BusinessDate? checkpointBeforeExclusive;
 
   const GetCanonicalDriverBalanceParams({
     required this.currentCompanyContext,
@@ -53,20 +55,56 @@ class GetCanonicalDriverBalanceUseCase
       );
     }
 
-    final beforeExclusive = _dateOnly(params.beforeExclusive);
-    final checkpointBeforeExclusive = params.checkpointBeforeExclusive == null
-        ? null
-        : _dateOnly(params.checkpointBeforeExclusive!);
-
     return _repository.getCanonicalDriverBalance(
       companyId: context.companyId,
       driverId: driverId,
-      beforeExclusive: beforeExclusive,
-      checkpointBeforeExclusive: checkpointBeforeExclusive,
+      beforeExclusive: params.beforeExclusive,
+      checkpointBeforeExclusive: params.checkpointBeforeExclusive,
     );
   }
+}
 
-  DateTime _dateOnly(DateTime value) {
-    return DateTime(value.year, value.month, value.day);
+class GetCurrentCanonicalDriverBalanceParams {
+  final CurrentCompanyContext currentCompanyContext;
+  final String driverId;
+
+  const GetCurrentCanonicalDriverBalanceParams({
+    required this.currentCompanyContext,
+    required this.driverId,
+  });
+}
+
+class GetCurrentCanonicalDriverBalanceUseCase
+    implements UseCase<DriverBalance, GetCurrentCanonicalDriverBalanceParams> {
+  final GetCompanyBusinessDateUseCase _getCompanyBusinessDateUseCase;
+  final GetCanonicalDriverBalanceUseCase _getCanonicalDriverBalanceUseCase;
+
+  const GetCurrentCanonicalDriverBalanceUseCase({
+    required GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase,
+    required GetCanonicalDriverBalanceUseCase getCanonicalDriverBalanceUseCase,
+  }) : _getCompanyBusinessDateUseCase = getCompanyBusinessDateUseCase,
+       _getCanonicalDriverBalanceUseCase = getCanonicalDriverBalanceUseCase;
+
+  @override
+  Future<Result<DriverBalance>> call(
+    GetCurrentCanonicalDriverBalanceParams params,
+  ) async {
+    final businessDateResult = await _getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(
+        companyId: params.currentCompanyContext.companyId,
+      ),
+    );
+    if (businessDateResult is FailureResult<BusinessDate>) {
+      return FailureResult(businessDateResult.failure);
+    }
+
+    final currentBusinessDate = (businessDateResult as Success<BusinessDate>).data;
+    return _getCanonicalDriverBalanceUseCase(
+      GetCanonicalDriverBalanceParams(
+        currentCompanyContext: params.currentCompanyContext,
+        driverId: params.driverId,
+        beforeExclusive: currentBusinessDate.nextDay,
+      ),
+    );
   }
 }

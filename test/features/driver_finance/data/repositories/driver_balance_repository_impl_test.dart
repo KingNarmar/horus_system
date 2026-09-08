@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -9,15 +10,19 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverBalanceRepositoryImpl', () {
-    test('maps and forwards independent balance boundaries', () async {
+    test('maps and forwards independent business-date boundaries', () async {
       final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
         balanceModel: _balanceModel(),
       );
       final repository = DriverBalanceRepositoryImpl(
         remoteDataSource: remoteDataSource,
       );
-      final beforeExclusive = DateTime(2026, 7, 23);
-      final checkpointBeforeExclusive = DateTime(2026, 9, 1);
+      final beforeExclusive = BusinessDate(year: 2026, month: 7, day: 23);
+      final checkpointBeforeExclusive = BusinessDate(
+        year: 2026,
+        month: 9,
+        day: 1,
+      );
 
       final result = await repository.getCanonicalDriverBalance(
         companyId: _companyId,
@@ -40,8 +45,12 @@ void main() {
     });
 
     test('sanitizes 42501 to Driver Finance view permission failure', () async {
-      final beforeExclusive = DateTime(2026, 7, 23);
-      final checkpointBeforeExclusive = DateTime(2026, 9, 1);
+      final beforeExclusive = BusinessDate(year: 2026, month: 7, day: 23);
+      final checkpointBeforeExclusive = BusinessDate(
+        year: 2026,
+        month: 9,
+        day: 1,
+      );
       final remoteDataSource = _FakeCanonicalBalanceRemoteDataSource(
         error: const PostgrestException(
           message: 'permission denied',
@@ -94,7 +103,7 @@ void main() {
       final result = await repository.getCanonicalDriverBalance(
         companyId: _companyId,
         driverId: _driverId,
-        beforeExclusive: DateTime(2026, 7, 23),
+        beforeExclusive: BusinessDate(year: 2026, month: 7, day: 23),
       );
 
       expect(result, isA<FailureResult>());
@@ -114,7 +123,7 @@ void main() {
       final result = await repository.getCanonicalDriverBalance(
         companyId: _companyId,
         driverId: _driverId,
-        beforeExclusive: DateTime(2026, 7, 23),
+        beforeExclusive: BusinessDate(year: 2026, month: 7, day: 23),
       );
 
       expect(result, isA<FailureResult>());
@@ -134,7 +143,7 @@ void main() {
       final result = await repository.getCanonicalDriverBalance(
         companyId: _companyId,
         driverId: _driverId,
-        beforeExclusive: DateTime(2026, 7, 23),
+        beforeExclusive: BusinessDate(year: 2026, month: 7, day: 23),
       );
 
       expect(result, isA<FailureResult>());
@@ -154,7 +163,7 @@ DriverBalanceModel _balanceModel() {
     companyId: _companyId,
     driverId: _driverId,
     checkpointSettlementId: 'settlement-1',
-    checkpointPeriodEnd: DateTime(2026, 8, 31),
+    checkpointPeriodEnd: BusinessDate(year: 2026, month: 8, day: 31),
     checkpointSnapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
     checkpointClosingBalance: -5600,
     totalAdvances: 100,
@@ -184,8 +193,8 @@ class _FakeCanonicalBalanceRemoteDataSource
   int balanceCalls = 0;
   String? lastCompanyId;
   String? lastDriverId;
-  DateTime? lastBeforeExclusive;
-  DateTime? lastCheckpointBeforeExclusive;
+  BusinessDate? lastBeforeExclusive;
+  BusinessDate? lastCheckpointBeforeExclusive;
 
   _FakeCanonicalBalanceRemoteDataSource({this.balanceModel, this.error});
 
@@ -193,8 +202,8 @@ class _FakeCanonicalBalanceRemoteDataSource
   Future<DriverBalanceModel> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   }) async {
     balanceCalls++;
     lastCompanyId = companyId;

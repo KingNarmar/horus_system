@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'driver_financial_movement_type.dart';
 
 class DriverFinancialMovementWriteData {
@@ -6,7 +7,7 @@ class DriverFinancialMovementWriteData {
   final String? tripId;
   final DriverFinancialMovementType type;
   final double amount;
-  final DateTime movementDate;
+  final BusinessDate movementDate;
   final String? notes;
 
   const DriverFinancialMovementWriteData({

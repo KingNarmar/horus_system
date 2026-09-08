@@ -1,3 +1,6 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_financial_movement_type.dart';
 
 class DriverFinancialMovementModel {
@@ -7,7 +10,7 @@ class DriverFinancialMovementModel {
   final String? tripId;
   final DriverFinancialMovementType type;
   final double amount;
-  final DateTime movementDate;
+  final BusinessDate movementDate;
   final String? notes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -35,16 +38,17 @@ class DriverFinancialMovementModel {
         map['movement_type'] as String,
       ),
       amount: _toDouble(map['amount']),
-      movementDate: _toDateTime(map['movement_date']) ?? DateTime.now(),
+      movementDate: DbDate.decode(map['movement_date'], field: 'movement_date'),
       notes: map['notes'] as String?,
-      createdAt: _toDateTime(map['created_at']),
-      updatedAt: _toDateTime(map['updated_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map['updated_at'],
+        field: 'updated_at',
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 
   static double _toDouble(Object? value) {

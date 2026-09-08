@@ -1,8 +1,10 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class DriverBalanceModel {
   final String companyId;
   final String driverId;
   final String? checkpointSettlementId;
-  final DateTime? checkpointPeriodEnd;
+  final BusinessDate? checkpointPeriodEnd;
   final DateTime? checkpointSnapshotCreatedAt;
   final double checkpointClosingBalance;
   final double totalAdvances;

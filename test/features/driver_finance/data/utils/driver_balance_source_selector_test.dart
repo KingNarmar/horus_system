@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/driver_finance/data/utils/driver_balance_source_selector.dart';
 import 'package:test/test.dart';
 
@@ -30,8 +31,8 @@ void main() {
           ),
         ],
         effectiveDateField: 'movement_date',
-        beforeExclusive: DateTime(2026, 10),
-        checkpointPeriodEnd: DateTime(2026, 8, 31),
+        beforeExclusive: BusinessDate(year: 2026, month: 10, day: 1),
+        checkpointPeriodEnd: BusinessDate(year: 2026, month: 8, day: 31),
         checkpointSnapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
       );
 
@@ -64,7 +65,7 @@ void main() {
           ),
         ],
         effectiveDateField: 'movement_date',
-        beforeExclusive: DateTime(2026, 10),
+        beforeExclusive: BusinessDate(year: 2026, month: 10, day: 1),
       );
 
       expect(selected.map((row) => row['id']), [
@@ -74,7 +75,7 @@ void main() {
       ]);
     });
 
-    test('starts from all in-range sources when no checkpoint exists', () {
+    test('keeps the upper business-date boundary exclusive', () {
       final selected = selector.select(
         rows: [
           _row(
@@ -89,10 +90,27 @@ void main() {
           ),
         ],
         effectiveDateField: 'movement_date',
-        beforeExclusive: DateTime(2026, 10),
+        beforeExclusive: BusinessDate(year: 2026, month: 10, day: 1),
       );
 
       expect(selected.map((row) => row['id']), ['first']);
+    });
+
+    test('rejects non-date-only effective values', () {
+      expect(
+        () => selector.select(
+          rows: [
+            _row(
+              id: 'invalid',
+              effectiveDate: '2026-09-02T00:00:00Z',
+              createdAt: '2026-09-02T08:00:00Z',
+            ),
+          ],
+          effectiveDateField: 'movement_date',
+          beforeExclusive: BusinessDate(year: 2026, month: 10, day: 1),
+        ),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

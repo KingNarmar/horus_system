@@ -168,7 +168,7 @@ final _state = DriversLoaded(
     driverId: _driverId,
     checkpoint: DriverBalanceCheckpoint(
       settlementId: 'settlement-1',
-      periodEnd: DateTime(2026, 8, 31),
+      periodEnd: BusinessDate(year: 2026, month: 8, day: 31),
       snapshotCreatedAt: DateTime.utc(2026, 7, 15, 4, 59),
       closingBalance: -5600,
     ),
@@ -182,7 +182,7 @@ final _state = DriversLoaded(
       driverId: _driverId,
       type: DriverFinancialMovementType.advance,
       amount: 5000,
-      movementDate: DateTime(2026, 6, 29),
+      movementDate: BusinessDate(year: 2026, month: 6, day: 29),
     ),
   ],
 );

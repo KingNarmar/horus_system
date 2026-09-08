@@ -12,6 +12,7 @@ abstract class DriverFinanceRepository {
   Future<Result<List<DriverFinanceTripOption>>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   });
 
   Future<Result<DriverFinancialMovement>> addDriverMovement({

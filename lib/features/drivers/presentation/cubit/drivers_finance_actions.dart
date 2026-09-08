@@ -52,10 +52,30 @@ mixin DriversFinanceActions on Cubit<DriversState> {
     }
   }
 
+  Future<BusinessDate?> getCurrentDriverFinanceBusinessDate() async {
+    final owner = this as DriversCubit;
+    final context = owner._currentCompanyContext;
+    final currentState = state;
+    if (context == null || currentState is! DriversLoaded) return null;
+
+    final result = await owner.getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(companyId: context.companyId),
+    );
+    if (result is Success<BusinessDate>) return result.data;
+
+    if (result is FailureResult<BusinessDate>) {
+      final latestState = state;
+      if (latestState is DriversLoaded) {
+        emit(latestState.copyWith(financialMovementsFailure: result.failure));
+      }
+    }
+    return null;
+  }
+
   Future<void> addDriverAdvance({
     required Driver driver,
     required double amount,
-    required DateTime movementDate,
+    required BusinessDate movementDate,
     String? notes,
   }) {
     final owner = this as DriversCubit;
@@ -79,7 +99,7 @@ mixin DriversFinanceActions on Cubit<DriversState> {
   Future<void> addDriverCharge({
     required Driver driver,
     required double amount,
-    required DateTime movementDate,
+    required BusinessDate movementDate,
     String? tripId,
     String? notes,
   }) {
@@ -105,7 +125,7 @@ mixin DriversFinanceActions on Cubit<DriversState> {
   Future<void> addDriverCashReturn({
     required Driver driver,
     required double amount,
-    required DateTime movementDate,
+    required BusinessDate movementDate,
     String? notes,
   }) {
     final owner = this as DriversCubit;
@@ -187,11 +207,10 @@ mixin DriversFinanceActions on Cubit<DriversState> {
     bool isSaving = false,
   }) async {
     final owner = this as DriversCubit;
-    final balanceResult = await owner.getCanonicalDriverBalanceUseCase(
-      GetCanonicalDriverBalanceParams(
+    final balanceResult = await owner.getCurrentCanonicalDriverBalanceUseCase(
+      GetCurrentCanonicalDriverBalanceParams(
         currentCompanyContext: state.currentCompanyContext,
         driverId: driver.id,
-        beforeExclusive: _tomorrowDate(),
       ),
     );
 
@@ -221,10 +240,5 @@ mixin DriversFinanceActions on Cubit<DriversState> {
         ),
       ),
     );
-  }
-
-  DateTime _tomorrowDate() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day + 1);
   }
 }

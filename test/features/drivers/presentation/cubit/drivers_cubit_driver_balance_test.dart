@@ -1,6 +1,9 @@
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -42,7 +45,7 @@ import '../../../../helpers/fake_business_time_zone_converter.dart';
 void main() {
   group('DriversCubit canonical driver balance', () {
     test(
-      'uses canonical balance instead of recalculating movement history',
+      'uses canonical balance with trusted current business-date boundary',
       () async {
         final balanceRepository = _FakeDriverBalanceRepository([
           _balance(-5600),
@@ -50,9 +53,13 @@ void main() {
         final financeRepository = _FakeDriverFinanceRepository(
           movements: [_advance(id: 'historical-advance', amount: 6500)],
         );
+        final businessDateProvider = _FakeCompanyBusinessDateProvider(
+          BusinessDate(year: 2026, month: 7, day: 22),
+        );
         final cubit = _createCubit(
           financeRepository: financeRepository,
           balanceRepository: balanceRepository,
+          businessDateProvider: businessDateProvider,
         );
         addTearDown(cubit.close);
 
@@ -65,6 +72,11 @@ void main() {
         expect(financeRepository.getMovementsCalls, 1);
         expect(balanceRepository.calls, 1);
         expect(balanceRepository.checkpointBoundaries.single, isNull);
+        expect(
+          balanceRepository.beforeExclusiveBoundaries.single,
+          BusinessDate(year: 2026, month: 7, day: 23),
+        );
+        expect(businessDateProvider.lastCompanyId, _companyId);
       },
     );
 
@@ -88,7 +100,7 @@ void main() {
       await cubit.addDriverAdvance(
         driver: _driver,
         amount: 100,
-        movementDate: DateTime(2026, 7, 22),
+        movementDate: BusinessDate(year: 2026, month: 7, day: 22),
       );
 
       final state = cubit.state as DriversLoaded;
@@ -97,6 +109,43 @@ void main() {
       expect(financeRepository.addMovementCalls, 1);
       expect(balanceRepository.calls, 2);
       expect(balanceRepository.checkpointBoundaries, everyElement(isNull));
+      expect(
+        balanceRepository.beforeExclusiveBoundaries,
+        everyElement(BusinessDate(year: 2026, month: 7, day: 23)),
+      );
+    });
+
+    test('returns trusted company business date for movement form', () async {
+      final businessDate = BusinessDate(year: 2026, month: 9, day: 8);
+      final provider = _FakeCompanyBusinessDateProvider(businessDate);
+      final cubit = _createCubit(
+        financeRepository: _FakeDriverFinanceRepository(movements: const []),
+        balanceRepository: _FakeDriverBalanceRepository([]),
+        businessDateProvider: provider,
+      );
+      addTearDown(cubit.close);
+
+      await cubit.loadDrivers(_context);
+      final result = await cubit.getCurrentDriverFinanceBusinessDate();
+
+      expect(result, businessDate);
+      expect(provider.lastCompanyId, _companyId);
+    });
+
+    test('forwards company timezone for trip-option projection', () async {
+      final financeRepository = _FakeDriverFinanceRepository(
+        movements: const [],
+      );
+      final cubit = _createCubit(
+        financeRepository: financeRepository,
+        balanceRepository: _FakeDriverBalanceRepository([]),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.loadDrivers(_context);
+      await cubit.loadDriverTripOptions(_driver);
+
+      expect(financeRepository.lastTripOptionsTimeZoneId, _timeZoneId);
     });
 
     test('keeps loaded state when driver update fails', () async {
@@ -126,14 +175,23 @@ void main() {
 
 const _companyId = 'company-1';
 const _driverId = 'driver-1';
+const _timeZoneId = 'Africa/Tripoli';
 
 const _context = CurrentCompanyContext(
-  company: Company(id: _companyId, name: 'Company'),
+  company: Company(
+    id: _companyId,
+    name: 'Company',
+    businessTimezone: _timeZoneId,
+  ),
   role: CompanyRole.accountant,
 );
 
 const _ownerContext = CurrentCompanyContext(
-  company: Company(id: _companyId, name: 'Company'),
+  company: Company(
+    id: _companyId,
+    name: 'Company',
+    businessTimezone: _timeZoneId,
+  ),
   role: CompanyRole.owner,
 );
 
@@ -148,8 +206,19 @@ DriversCubit _createCubit({
   _FakeDriversRepository? driversRepository,
   required _FakeDriverFinanceRepository financeRepository,
   required _FakeDriverBalanceRepository balanceRepository,
+  _FakeCompanyBusinessDateProvider? businessDateProvider,
 }) {
   final repository = driversRepository ?? _FakeDriversRepository();
+  final provider =
+      businessDateProvider ??
+      _FakeCompanyBusinessDateProvider(
+        BusinessDate(year: 2026, month: 7, day: 22),
+      );
+  final getCompanyBusinessDateUseCase = GetCompanyBusinessDateUseCase(provider);
+  final getCanonicalDriverBalanceUseCase = GetCanonicalDriverBalanceUseCase(
+    balanceRepository,
+  );
+
   return DriversCubit(
     getDriversUseCase: GetDriversUseCase(repository),
     getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(repository),
@@ -164,14 +233,17 @@ DriversCubit _createCubit({
         const ConvertInstantsToBusinessLocalDateTimesUseCase(
           FakeBusinessTimeZoneConverter(),
         ),
+    getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
     getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
     getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(financeRepository),
     addDriverAdvanceUseCase: AddDriverAdvanceUseCase(financeRepository),
     addDriverChargeUseCase: AddDriverChargeUseCase(financeRepository),
     addDriverCashReturnUseCase: AddDriverCashReturnUseCase(financeRepository),
-    getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
-      balanceRepository,
-    ),
+    getCurrentCanonicalDriverBalanceUseCase:
+        GetCurrentCanonicalDriverBalanceUseCase(
+          getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
+          getCanonicalDriverBalanceUseCase: getCanonicalDriverBalanceUseCase,
+        ),
   );
 }
 
@@ -181,7 +253,7 @@ DriverBalance _balance(double closingBalance) {
     driverId: _driverId,
     checkpoint: DriverBalanceCheckpoint(
       settlementId: 'settlement-1',
-      periodEnd: DateTime(2026, 8, 31),
+      periodEnd: BusinessDate(year: 2026, month: 8, day: 31),
       snapshotCreatedAt: DateTime.utc(2026, 7, 15, 4, 59),
       closingBalance: closingBalance,
     ),
@@ -197,7 +269,7 @@ DriverFinancialMovement _advance({required String id, required double amount}) {
     driverId: _driverId,
     type: DriverFinancialMovementType.advance,
     amount: amount,
-    movementDate: DateTime(2026, 7, 1),
+    movementDate: BusinessDate(year: 2026, month: 7, day: 1),
   );
 }
 
@@ -263,6 +335,7 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final DriverFinancialMovement? addedMovement;
   int getMovementsCalls = 0;
   int addMovementCalls = 0;
+  String? lastTripOptionsTimeZoneId;
 
   _FakeDriverFinanceRepository({required this.movements, this.addedMovement});
 
@@ -279,7 +352,9 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   Future<Result<List<DriverFinanceTripOption>>> getDriverTripOptions({
     required String companyId,
     required String driverId,
+    required String timeZoneId,
   }) async {
+    lastTripOptionsTimeZoneId = timeZoneId;
     return const Success<List<DriverFinanceTripOption>>([]);
   }
 
@@ -297,7 +372,8 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
 
 class _FakeDriverBalanceRepository implements DriverBalanceRepository {
   final List<DriverBalance> balances;
-  final List<DateTime?> checkpointBoundaries = [];
+  final List<BusinessDate> beforeExclusiveBoundaries = [];
+  final List<BusinessDate?> checkpointBoundaries = [];
   int calls = 0;
 
   _FakeDriverBalanceRepository(this.balances);
@@ -306,12 +382,26 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
   Future<Result<DriverBalance>> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   }) async {
+    beforeExclusiveBoundaries.add(beforeExclusive);
     checkpointBoundaries.add(checkpointBeforeExclusive);
     final index = calls++;
     return Success<DriverBalance>(balances[index]);
+  }
+}
+
+class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
+  final BusinessDate businessDate;
+  String? lastCompanyId;
+
+  _FakeCompanyBusinessDateProvider(this.businessDate);
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+    lastCompanyId = companyId;
+    return Success(businessDate);
   }
 }
 

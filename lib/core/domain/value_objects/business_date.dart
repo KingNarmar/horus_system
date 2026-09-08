@@ -41,6 +41,20 @@ final class BusinessDate implements Comparable<BusinessDate> {
     day: _daysInMonth(year: year, month: month),
   );
 
+  BusinessDate get nextDay {
+    final lastDay = _daysInMonth(year: year, month: month);
+    if (day < lastDay) {
+      return BusinessDate._(year: year, month: month, day: day + 1);
+    }
+    if (month < 12) {
+      return BusinessDate._(year: year, month: month + 1, day: 1);
+    }
+    if (year == 9999) {
+      throw StateError('Business date cannot advance beyond year 9999.');
+    }
+    return BusinessDate._(year: year + 1, month: 1, day: 1);
+  }
+
   bool isBefore(BusinessDate other) => compareTo(other) < 0;
 
   bool isAfter(BusinessDate other) => compareTo(other) > 0;

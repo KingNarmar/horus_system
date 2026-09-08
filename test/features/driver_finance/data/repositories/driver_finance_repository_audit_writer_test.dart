@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -15,7 +16,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverFinanceRepositoryAuditWriter', () {
-    test('preserves movement-added audit contract', () async {
+    test('preserves canonical movement-added audit contract', () async {
       final repository = _CapturingAuditLogRepository();
       final writer = DriverFinanceRepositoryAuditWriter(
         CreateAuditLogUseCase(repository),
@@ -43,6 +44,9 @@ void main() {
       expect(data.newValues?['trip_id'], _tripId);
       expect(data.newValues?['movement_type'], 'driver_charge');
       expect(data.newValues?['amount'], 125.5);
+      expect(data.newValues?['movement_date'], '2026-08-23');
+      expect(data.newValues?['created_at'], '2026-08-23T09:00:00.000Z');
+      expect(data.newValues?['updated_at'], '2026-08-23T10:00:00.000Z');
       expect(data.metadata?['audit_event'], 'driver_finance_movement_added');
       expect(data.metadata?['movement_id'], _movementId);
       expect(data.metadata?['movement_type'], 'driver_charge');
@@ -88,7 +92,7 @@ DriverFinancialMovementModel _movementModel() {
     tripId: _tripId,
     type: DriverFinancialMovementType.driverCharge,
     amount: 125.5,
-    movementDate: DateTime.utc(2026, 8, 23),
+    movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
     createdAt: DateTime.utc(2026, 8, 23, 9),
     updatedAt: DateTime.utc(2026, 8, 23, 10),

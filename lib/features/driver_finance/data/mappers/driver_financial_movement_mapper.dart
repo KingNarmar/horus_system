@@ -1,6 +1,7 @@
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_type.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/driver_financial_movement.dart';
 import '../../domain/entities/driver_financial_movement_write_data.dart';
@@ -30,10 +31,10 @@ extension DriverFinancialMovementModelMapper on DriverFinancialMovementModel {
       'trip_id': tripId,
       'movement_type': type.value,
       'amount': amount,
-      'movement_date': _dateOnly(movementDate),
+      'movement_date': DbDate.encode(movementDate),
       'notes': notes,
-      DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
-      DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
+      DbCommonFields.createdAt: DbTimestamp.encodeNullable(createdAt),
+      DbCommonFields.updatedAt: DbTimestamp.encodeNullable(updatedAt),
     };
   }
 }
@@ -47,7 +48,7 @@ extension DriverFinancialMovementWriteDataMapper
       'trip_id': tripId,
       'movement_type': type.value,
       'amount': amount,
-      'movement_date': _dateOnly(movementDate),
+      'movement_date': DbDate.encode(movementDate),
       'notes': notes,
     };
   }
@@ -57,16 +58,8 @@ extension DriverFinancialMovementWriteDataMapper
       'trip_id': tripId,
       'movement_type': type.value,
       'amount': amount,
-      'movement_date': _dateOnly(movementDate),
+      'movement_date': DbDate.encode(movementDate),
       'notes': notes,
-      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
-}
-
-String _dateOnly(DateTime value) {
-  final utc = value.toUtc();
-  return '${utc.year.toString().padLeft(4, '0')}-'
-      '${utc.month.toString().padLeft(2, '0')}-'
-      '${utc.day.toString().padLeft(2, '0')}';
 }

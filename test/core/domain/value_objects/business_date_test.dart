@@ -43,5 +43,31 @@ void main() {
       expect(first.isBefore(later), isTrue);
       expect(later.isAfter(first), isTrue);
     });
+
+    test('advances to the next business date without timezone semantics', () {
+      expect(
+        BusinessDate(year: 2026, month: 9, day: 8).nextDay,
+        BusinessDate(year: 2026, month: 9, day: 9),
+      );
+      expect(
+        BusinessDate(year: 2026, month: 9, day: 30).nextDay,
+        BusinessDate(year: 2026, month: 10, day: 1),
+      );
+      expect(
+        BusinessDate(year: 2026, month: 12, day: 31).nextDay,
+        BusinessDate(year: 2027, month: 1, day: 1),
+      );
+      expect(
+        BusinessDate(year: 2024, month: 2, day: 28).nextDay,
+        BusinessDate(year: 2024, month: 2, day: 29),
+      );
+    });
+
+    test('does not advance beyond the supported calendar range', () {
+      expect(
+        () => BusinessDate(year: 9999, month: 12, day: 31).nextDay,
+        throwsStateError,
+      );
+    });
   });
 }
