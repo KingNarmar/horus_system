@@ -13,6 +13,8 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
       currentState.copyWith(
         selectedDriver: driver,
         selectedDriverActivity: const [],
+        selectedDriverActivityTimestampsByLogId:
+            const <String, BusinessLocalDateTime>{},
         isActivityLoading: true,
         activityFailure: null,
       ),
@@ -33,19 +35,51 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
       return;
     }
 
-    result.when(
-      success: (activity) => emit(
-        latestState.copyWith(
-          selectedDriverActivity: activity,
-          isActivityLoading: false,
-          activityFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(
         latestState.copyWith(
           isActivityLoading: false,
           activityFailure: failure,
         ),
+      );
+      return;
+    }
+
+    final activity = result.dataOrNull ?? const [];
+    final timestampsResult = await owner._convertCompanyInstants(
+      context,
+      {for (final log in activity) log.id: log.createdAt},
+    );
+
+    final projectedState = state;
+    if (projectedState is! DriversLoaded ||
+        projectedState.selectedDriver?.id != driver.id) {
+      return;
+    }
+
+    final timestampFailure = timestampsResult.failureOrNull;
+    if (timestampFailure != null) {
+      emit(
+        projectedState.copyWith(
+          selectedDriverActivity: const [],
+          selectedDriverActivityTimestampsByLogId:
+              const <String, BusinessLocalDateTime>{},
+          isActivityLoading: false,
+          activityFailure: timestampFailure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      projectedState.copyWith(
+        selectedDriverActivity: activity,
+        selectedDriverActivityTimestampsByLogId:
+            timestampsResult.dataOrNull ??
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
       ),
     );
   }
@@ -153,6 +187,8 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
           isImageUrlsLoading: false,
           imageUrlsFailure: null,
           selectedDriverActivity: const [],
+          selectedDriverActivityTimestampsByLogId:
+              const <String, BusinessLocalDateTime>{},
           isActivityLoading: false,
           activityFailure: null,
           selectedDriverFinancialMovements: const [],
