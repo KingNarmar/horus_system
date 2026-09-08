@@ -84,7 +84,10 @@ void main() {
     test('rejects invalid invoice status persistence value', () {
       final map = _invoiceMap()..['status'] = 'not_a_status';
 
-      expect(() => InvoiceModel.fromMap(map), throwsA(isA<FormatException>()));
+      expect(
+        () => InvoiceModel.fromMap(map).toEntity(),
+        throwsA(isA<FormatException>()),
+      );
     });
 
     test('rejects malformed invoice date persistence value', () {
