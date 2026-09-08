@@ -1,3 +1,5 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
 import '../../domain/entities/driver_settlement_item_source_type.dart';
 import '../constants/driver_settlements_db_fields.dart';
@@ -8,7 +10,7 @@ class DriverSettlementItemModel {
   final String settlementId;
   final DriverSettlementItemSourceType sourceType;
   final String? sourceId;
-  final DateTime? sourceDate;
+  final BusinessDate? sourceDate;
   final DriverSettlementItemDirection direction;
   final double amount;
   final String labelKey;
@@ -40,7 +42,10 @@ class DriverSettlementItemModel {
         map[DriverSettlementsDbFields.sourceType].toString(),
       ),
       sourceId: map[DriverSettlementsDbFields.sourceId] as String?,
-      sourceDate: _dateFrom(map[DriverSettlementsDbFields.sourceDate]),
+      sourceDate: DbDate.decodeNullable(
+        map[DriverSettlementsDbFields.sourceDate],
+        field: DriverSettlementsDbFields.sourceDate,
+      ),
       direction: DriverSettlementItemDirection.fromValue(
         map[DriverSettlementsDbFields.direction].toString(),
       ),
@@ -62,11 +67,6 @@ Map<String, Object?> _metadataFrom(Object? value) {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime? _dateFrom(Object? value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }
 
 DateTime? _dateTimeFrom(Object? value) {

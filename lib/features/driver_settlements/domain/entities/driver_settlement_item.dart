@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'driver_settlement_item_direction.dart';
 import 'driver_settlement_item_source_type.dart';
 
@@ -7,7 +8,7 @@ class DriverSettlementItem {
   final String? settlementId;
   final DriverSettlementItemSourceType sourceType;
   final String? sourceId;
-  final DateTime? sourceDate;
+  final BusinessDate? sourceDate;
   final DriverSettlementItemDirection direction;
   final double amount;
   final String labelKey;

@@ -1,3 +1,5 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_status.dart';
 import '../constants/driver_settlements_db_fields.dart';
 import 'driver_settlement_item_model.dart';
@@ -6,8 +8,8 @@ class DriverSettlementModel {
   final String id;
   final String companyId;
   final String driverId;
-  final DateTime periodStart;
-  final DateTime periodEnd;
+  final BusinessDate periodStart;
+  final BusinessDate periodEnd;
   final double openingDriverBalance;
   final double advancesTotal;
   final double driverPaidTripExpensesTotal;
@@ -71,8 +73,14 @@ class DriverSettlementModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       driverId: map[DriverSettlementsDbFields.driverId] as String,
-      periodStart: _requiredDate(map[DriverSettlementsDbFields.periodStart]),
-      periodEnd: _requiredDate(map[DriverSettlementsDbFields.periodEnd]),
+      periodStart: DbDate.decode(
+        map[DriverSettlementsDbFields.periodStart],
+        field: DriverSettlementsDbFields.periodStart,
+      ),
+      periodEnd: DbDate.decode(
+        map[DriverSettlementsDbFields.periodEnd],
+        field: DriverSettlementsDbFields.periodEnd,
+      ),
       openingDriverBalance: _amountFrom(
         map[DriverSettlementsDbFields.openingDriverBalance],
       ),
@@ -123,11 +131,6 @@ class DriverSettlementModel {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime _requiredDate(Object? value) {
-  return DateTime.tryParse(value.toString()) ??
-      DateTime.fromMillisecondsSinceEpoch(0);
 }
 
 DateTime? _dateTimeFrom(Object? value) {

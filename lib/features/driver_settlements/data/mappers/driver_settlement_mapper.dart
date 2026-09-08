@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/driver_settlement.dart';
 import '../../domain/entities/driver_settlement_calculation_result.dart';
@@ -50,8 +51,8 @@ extension DriverSettlementModelMapper on DriverSettlementModel {
       DbCommonFields.id: id,
       DbCommonFields.companyId: companyId,
       DriverSettlementsDbFields.driverId: driverId,
-      DriverSettlementsDbFields.periodStart: _dateOnly(periodStart),
-      DriverSettlementsDbFields.periodEnd: _dateOnly(periodEnd),
+      DriverSettlementsDbFields.periodStart: DbDate.encode(periodStart),
+      DriverSettlementsDbFields.periodEnd: DbDate.encode(periodEnd),
       DriverSettlementsDbFields.openingDriverBalance: openingDriverBalance,
       DriverSettlementsDbFields.advancesTotal: advancesTotal,
       DriverSettlementsDbFields.driverPaidTripExpensesTotal:
@@ -108,8 +109,8 @@ extension DriverSettlementDraftWriteDataMapper
     return {
       DbCommonFields.companyId: companyId,
       DriverSettlementsDbFields.driverId: driverId,
-      DriverSettlementsDbFields.periodStart: _dateOnly(period.start),
-      DriverSettlementsDbFields.periodEnd: _dateOnly(period.end),
+      DriverSettlementsDbFields.periodStart: DbDate.encode(period.start),
+      DriverSettlementsDbFields.periodEnd: DbDate.encode(period.end),
       DriverSettlementsDbFields.openingDriverBalance:
           calculation.openingDriverBalance,
       DriverSettlementsDbFields.advancesTotal: calculation.advancesTotal,
@@ -141,9 +142,7 @@ extension DriverSettlementItemMapper on DriverSettlementItem {
       DriverSettlementsDbFields.settlementId: settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
-      DriverSettlementsDbFields.sourceDate: sourceDate == null
-          ? null
-          : _dateOnly(sourceDate!),
+      DriverSettlementsDbFields.sourceDate: DbDate.encodeNullable(sourceDate),
       DriverSettlementsDbFields.direction: direction.value,
       DriverSettlementsDbFields.amount: amount,
       DriverSettlementsDbFields.labelKey: labelKey,
@@ -176,10 +175,4 @@ extension DriverSettlementVoidDataMapper on DriverSettlementVoidData {
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
-}
-
-String _dateOnly(DateTime value) {
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
 }

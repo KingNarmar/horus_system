@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../../domain/entities/driver_settlement_item.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
@@ -98,7 +99,10 @@ class DriverSettlementSourceSnapshotMapper {
           companyId: companyId,
           sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
           sourceId: row[DbCommonFields.id] as String?,
-          sourceDate: _dateFrom(row[DriverSettlementsDbFields.movementDate]),
+          sourceDate: DbDate.decodeNullable(
+            row[DriverSettlementsDbFields.movementDate],
+            field: DriverSettlementsDbFields.movementDate,
+          ),
           direction: semantics.direction,
           amount: amount,
           labelKey: semantics.labelKey,
@@ -145,7 +149,10 @@ class DriverSettlementSourceSnapshotMapper {
           companyId: companyId,
           sourceType: DriverSettlementItemSourceType.tripExpense,
           sourceId: row[DbCommonFields.id] as String?,
-          sourceDate: _dateFrom(row[DriverSettlementsDbFields.expenseDate]),
+          sourceDate: DbDate.decodeNullable(
+            row[DriverSettlementsDbFields.expenseDate],
+            field: DriverSettlementsDbFields.expenseDate,
+          ),
           direction: DriverSettlementItemDirection.companyToDriver,
           amount: amount,
           labelKey: _labelTripExpense,
@@ -176,11 +183,6 @@ class DriverSettlementSourceSnapshotMapper {
       throw FormatException('Invalid positive money amount: $value');
     }
     return amount;
-  }
-
-  DateTime? _dateFrom(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 }
 
