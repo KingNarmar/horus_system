@@ -156,7 +156,9 @@ class CompanyExpenseDetailsDialog extends StatelessWidget {
                         ? l10n.fleetNotAvailable
                         : _formatBusinessLocalDateTime(
                             context,
-                            currentState?.activityBusinessTimeFor(createdLog.id),
+                            currentState?.activityBusinessTimeFor(
+                              createdLog.id,
+                            ),
                             l10n.fleetNotAvailable,
                           ),
                   ),

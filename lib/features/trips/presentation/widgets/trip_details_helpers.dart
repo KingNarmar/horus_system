@@ -59,10 +59,7 @@ AuditLog? firstCreatedTripAuditLog(List<AuditLog> activity) {
   return null;
 }
 
-String formatTripDateTime(
-  BusinessLocalDateTime? value,
-  String emptyValue,
-) {
+String formatTripDateTime(BusinessLocalDateTime? value, String emptyValue) {
   if (value == null) return emptyValue;
 
   final year = value.year.toString().padLeft(4, '0');

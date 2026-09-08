@@ -196,8 +196,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       currentAfterConversion.copyWith(
         selectedTripStatusHistory: history,
         selectedTripStatusHistoryBusinessTimesById:
-            (businessTimesResult
-                    as Success<Map<String, BusinessLocalDateTime>>)
+            (businessTimesResult as Success<Map<String, BusinessLocalDateTime>>)
                 .data,
         isStatusHistoryLoading: false,
         statusHistoryFailure: null,
@@ -256,8 +255,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       currentAfterConversion.copyWith(
         selectedTripActivity: activity,
         selectedTripActivityBusinessTimesById:
-            (businessTimesResult
-                    as Success<Map<String, BusinessLocalDateTime>>)
+            (businessTimesResult as Success<Map<String, BusinessLocalDateTime>>)
                 .data,
         isActivityLoading: false,
         activityFailure: null,

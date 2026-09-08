@@ -200,8 +200,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       currentAfterConversion.copyWith(
         selectedExpenseActivity: logs,
         selectedExpenseActivityBusinessTimesById:
-            (businessTimesResult
-                    as Success<Map<String, BusinessLocalDateTime>>)
+            (businessTimesResult as Success<Map<String, BusinessLocalDateTime>>)
                 .data,
         isActivityLoading: false,
         activityFailure: null,

@@ -76,10 +76,7 @@ class TripStatusHistoryItem extends StatelessWidget {
               l10n.tripChangedByLine(
                 item.changedByName ?? l10n.tripUnknownUser,
                 l10n.tripAuditRoleLabel(item.changedByRole),
-                formatTripDateTime(
-                  businessLocalChangedAt,
-                  l10n.tripEmptyValue,
-                ),
+                formatTripDateTime(businessLocalChangedAt, l10n.tripEmptyValue),
               ),
             ),
             if (item.notes != null && item.notes!.trim().isNotEmpty) ...[
