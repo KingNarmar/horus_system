@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/invoices/data/mappers/invoice_mapper.dart';
 import 'package:horus_system/features/invoices/data/models/invoice_customer_snapshot_model.dart';
 import 'package:horus_system/features/invoices/data/models/invoice_model.dart';
@@ -29,8 +30,14 @@ void main() {
       expect(invoice.totals.taxRate.basisPoints, 500);
       expect(invoice.totals.taxAmount.minorUnits, 475);
       expect(invoice.totals.grandTotal.minorUnits, 9975);
-      expect(invoice.issueDate?.value, DateTime.utc(2026, 8, 5));
-      expect(invoice.dueDate?.value, DateTime.utc(2026, 9, 4));
+      expect(
+        invoice.issueDate?.value,
+        BusinessDate(year: 2026, month: 8, day: 5),
+      );
+      expect(
+        invoice.dueDate?.value,
+        BusinessDate(year: 2026, month: 9, day: 4),
+      );
     });
 
     test('rejects a customer snapshot from another tenant', () {
@@ -68,10 +75,21 @@ void main() {
       final lines = map['invoice_lines'] as List<Map<String, dynamic>>;
       lines.first['currency_code'] = 'USD';
 
-      expect(
-        () => InvoiceModel.fromMap(map).toEntity(),
-        throwsA(isA<FormatException>()),
-      );
+      final persisted = InvoiceModel.fromMap(map);
+
+      expect(persisted.toEntity, throwsA(isA<FormatException>()));
+    });
+
+    test('rejects invalid invoice status persistence value', () {
+      final map = _invoiceMap()..['status'] = 'not_a_status';
+
+      expect(() => InvoiceModel.fromMap(map), throwsA(isA<FormatException>()));
+    });
+
+    test('rejects malformed invoice date persistence value', () {
+      final map = _invoiceMap()..['issue_date'] = '2026-08-05T00:00:00.000Z';
+
+      expect(() => InvoiceModel.fromMap(map), throwsA(isA<FormatException>()));
     });
   });
 }
@@ -84,34 +102,22 @@ Map<String, dynamic> _invoiceMap() {
     'status': 'issued',
     'invoice_number': 'INV-2026-000001',
     'currency_code': 'AED',
-    'customer_name': 'Customer One',
-    'customer_tax_registration_number': 'TRN-1',
-    'customer_address': 'Address',
-    'customer_city': 'Dubai',
-    'customer_country': 'AE',
-    'subtotal_minor_units': 10000,
-    'discount_minor_units': 500,
-    'taxable_minor_units': 9500,
-    'tax_rate_basis_points': 500,
-    'tax_minor_units': 475,
-    'total_minor_units': 9975,
     'issue_date': '2026-08-05',
     'due_date': '2026-09-04',
-    'notes': 'Invoice note',
-    'cancellation_reason': null,
-    'created_at': '2026-08-05T10:00:00Z',
-    'updated_at': '2026-08-05T11:00:00Z',
-    'invoice_lines': <Map<String, dynamic>>[
+    'created_at': '2026-08-05T08:00:00.000Z',
+    'updated_at': '2026-08-05T09:00:00.000Z',
+    'customer': {
+      'company_id': 'company-1',
+      'customer_id': 'customer-1',
+      'name': 'Customer One',
+    },
+    'invoice_lines': [
       {
         'line_position': 2,
         'trip_id': 'trip-2',
         'trip_number': 'TRIP-2026-000002',
         'loading_location': 'Sharjah',
-        'unloading_location': 'Dubai',
-        'loading_order_number': 'LO-2',
-        'waybill_number': 'WB-2',
-        'service_date': '2026-08-02',
-        'quantity_tons': 10,
+        'unloading_location': 'Al Ain',
         'amount_minor_units': 4000,
         'currency_code': 'AED',
       },
@@ -121,13 +127,18 @@ Map<String, dynamic> _invoiceMap() {
         'trip_number': 'TRIP-2026-000001',
         'loading_location': 'Dubai',
         'unloading_location': 'Abu Dhabi',
-        'loading_order_number': 'LO-1',
-        'waybill_number': 'WB-1',
-        'service_date': '2026-08-01',
-        'quantity_tons': 20,
         'amount_minor_units': 6000,
         'currency_code': 'AED',
       },
     ],
+    'totals': {
+      'subtotal_minor_units': 10000,
+      'discount_minor_units': 500,
+      'taxable_minor_units': 9500,
+      'tax_rate_basis_points': 500,
+      'tax_minor_units': 475,
+      'total_minor_units': 9975,
+      'currency_code': 'AED',
+    },
   };
 }
