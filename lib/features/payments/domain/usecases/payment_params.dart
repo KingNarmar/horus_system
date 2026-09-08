@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 
 final class GetPaymentsParams {
@@ -22,7 +23,7 @@ final class RegisterPaymentParams {
   final CurrentCompanyContext currentCompanyContext;
   final String invoiceId;
   final String paymentMethodId;
-  final DateTime paymentDate;
+  final BusinessDate paymentDate;
   final String amountText;
   final String? referenceNumber;
   final String? notes;

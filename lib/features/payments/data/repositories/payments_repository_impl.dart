@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/payment.dart';
@@ -52,7 +53,7 @@ final class PaymentsRepositoryImpl implements PaymentsRepository {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,

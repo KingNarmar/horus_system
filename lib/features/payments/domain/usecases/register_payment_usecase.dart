@@ -1,4 +1,5 @@
 import '../../../../core/domain/services/company_business_date_provider.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -127,8 +128,8 @@ final class RegisterPaymentUseCase
       );
     }
 
-    final paymentDate = _dateOnly(params.paymentDate);
-    if (paymentDate.isBefore(_dateOnly(issueDate))) {
+    final paymentDate = params.paymentDate;
+    if (paymentDate.isBefore(issueDate)) {
       return const FailureResult<Payment>(
         ValidationFailure(
           code: PaymentFailureCodes.validationDateBeforeInvoice,
@@ -139,12 +140,10 @@ final class RegisterPaymentUseCase
     final businessDateResult = await _businessDateProvider.getBusinessDate(
       companyId: context.companyId,
     );
-    if (businessDateResult is FailureResult<DateTime>) {
+    if (businessDateResult is FailureResult<BusinessDate>) {
       return FailureResult<Payment>(businessDateResult.failure);
     }
-    final businessDate = _dateOnly(
-      (businessDateResult as Success<DateTime>).data,
-    );
+    final businessDate = (businessDateResult as Success<BusinessDate>).data;
     if (paymentDate.isAfter(businessDate)) {
       return const FailureResult<Payment>(
         ValidationFailure(code: PaymentFailureCodes.validationDateFuture),
@@ -221,8 +220,4 @@ String? _optional(String? value) {
   final normalized = value?.trim();
   if (normalized == null || normalized.isEmpty) return null;
   return normalized;
-}
-
-DateTime _dateOnly(DateTime value) {
-  return DateTime(value.year, value.month, value.day);
 }

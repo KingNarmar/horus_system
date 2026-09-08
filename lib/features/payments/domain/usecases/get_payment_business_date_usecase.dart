@@ -1,4 +1,5 @@
 import '../../../../core/domain/services/company_business_date_provider.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -9,17 +10,17 @@ import '../policies/payments_permission_policy.dart';
 import 'payment_params.dart';
 
 final class GetPaymentBusinessDateUseCase
-    implements UseCase<DateTime, GetPaymentBusinessDateParams> {
+    implements UseCase<BusinessDate, GetPaymentBusinessDateParams> {
   final CompanyBusinessDateProvider _businessDateProvider;
 
   const GetPaymentBusinessDateUseCase(this._businessDateProvider);
 
   @override
-  Future<Result<DateTime>> call(GetPaymentBusinessDateParams params) {
+  Future<Result<BusinessDate>> call(GetPaymentBusinessDateParams params) {
     final context = params.currentCompanyContext;
     if (!PaymentsPermissionPolicy.canRegisterPayments(context.role)) {
       return Future.value(
-        const FailureResult<DateTime>(
+        const FailureResult<BusinessDate>(
           PermissionFailure(code: PaymentFailureCodes.permissionManage),
         ),
       );
@@ -34,7 +35,7 @@ final class GetPaymentBusinessDateUseCase
         fractionDigits < 0 ||
         fractionDigits > 4) {
       return Future.value(
-        const FailureResult<DateTime>(
+        const FailureResult<BusinessDate>(
           ConflictFailure(
             code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
           ),

@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../payment_methods/domain/entities/payment_method.dart';
@@ -28,7 +29,7 @@ final class RegisterPaymentReady extends RegisterPaymentState {
   final CurrentCompanyContext currentCompanyContext;
   final List<PayableInvoice> payableInvoices;
   final List<PaymentMethod> paymentMethods;
-  final DateTime businessDate;
+  final BusinessDate businessDate;
   final bool isSubmitting;
   final Failure? submissionFailure;
   final Payment? completedPayment;

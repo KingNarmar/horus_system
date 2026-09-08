@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/payment.dart';
@@ -14,7 +15,7 @@ abstract interface class PaymentsRepository {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
