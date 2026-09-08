@@ -1,7 +1,12 @@
 import 'package:intl/intl.dart';
 
-String formatDriverSettlementDate(DateTime date, String localeName) {
-  return DateFormat.yMMMd(localeName).format(date);
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
+
+String formatDriverSettlementDate(BusinessDate date, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
 String formatDriverSettlementDateTime(DateTime date, String localeName) {

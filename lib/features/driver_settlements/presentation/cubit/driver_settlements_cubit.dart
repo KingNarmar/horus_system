@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -19,6 +20,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     with DriverSettlementsFilterActions {
   final GetDriverSettlementsUseCase getDriverSettlementsUseCase;
   final GetDriverSettlementDriverOptionsUseCase getDriverOptionsUseCase;
+  final GetDriverSettlementBusinessDateUseCase getBusinessDateUseCase;
   final GetDriverSettlementDetailsUseCase getDriverSettlementDetailsUseCase;
   final CalculateDriverSettlementPreviewUseCase calculatePreviewUseCase;
   final CreateDriverSettlementDraftUseCase createDraftUseCase;
@@ -35,6 +37,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
   DriverSettlementsCubit({
     required this.getDriverSettlementsUseCase,
     required this.getDriverOptionsUseCase,
+    required this.getBusinessDateUseCase,
     required this.getDriverSettlementDetailsUseCase,
     required this.calculatePreviewUseCase,
     required this.createDraftUseCase,
@@ -63,6 +66,16 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
 
     emit(const DriverSettlementsLoading());
 
+    final businessDateResult = await getBusinessDateUseCase(
+      GetDriverSettlementBusinessDateParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (businessDateResult is FailureResult<BusinessDate>) {
+      emit(DriverSettlementsFailure(businessDateResult.failure));
+      return;
+    }
+
     final optionsResult = await getDriverOptionsUseCase(
       GetDriverSettlementDriverOptionsParams(
         currentCompanyContext: currentCompanyContext,
@@ -87,6 +100,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     emit(
       DriverSettlementsLoaded(
         currentCompanyContext: currentCompanyContext,
+        businessDate: (businessDateResult as Success<BusinessDate>).data,
         allSettlements: settlementsResult.dataOrNull ?? const [],
         driverOptions: optionsResult.dataOrNull ?? const [],
         canManageDriverSettlements:

@@ -32,6 +32,15 @@ final class BusinessDate implements Comparable<BusinessDate> {
     return BusinessDate._(year: year, month: month, day: day);
   }
 
+  BusinessDate get startOfMonth =>
+      BusinessDate._(year: year, month: month, day: 1);
+
+  BusinessDate get endOfMonth => BusinessDate._(
+    year: year,
+    month: month,
+    day: _daysInMonth(year: year, month: month),
+  );
+
   bool isBefore(BusinessDate other) => compareTo(other) < 0;
 
   bool isAfter(BusinessDate other) => compareTo(other) > 0;
@@ -70,13 +79,15 @@ final class BusinessDate implements Comparable<BusinessDate> {
     if (year < 1 || year > 9999 || month < 1 || month > 12 || day < 1) {
       return false;
     }
+    return day <= _daysInMonth(year: year, month: month);
+  }
 
-    final daysInMonth = switch (month) {
+  static int _daysInMonth({required int year, required int month}) {
+    return switch (month) {
       2 => _isLeapYear(year) ? 29 : 28,
       4 || 6 || 9 || 11 => 30,
       _ => 31,
     };
-    return day <= daysInMonth;
   }
 
   static bool _isLeapYear(int year) {

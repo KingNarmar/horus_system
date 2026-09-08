@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -25,6 +26,7 @@ class DriverSettlementsLoading extends DriverSettlementsState {
 
 class DriverSettlementsLoaded extends DriverSettlementsState {
   final CurrentCompanyContext currentCompanyContext;
+  final BusinessDate businessDate;
   final List<DriverSettlement> allSettlements;
   final List<DriverSettlementDriverOption> driverOptions;
   final bool canManageDriverSettlements;
@@ -48,6 +50,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
 
   const DriverSettlementsLoaded({
     required this.currentCompanyContext,
+    required this.businessDate,
     required this.allSettlements,
     required this.driverOptions,
     required this.canManageDriverSettlements,
@@ -103,8 +106,8 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
           final calculation = settlement.calculation;
           final searchTerms = <Object?>[
             driverLabel(settlement.driverId),
-            settlement.period.start.toIso8601String(),
-            settlement.period.end.toIso8601String(),
+            _businessDateSearchValue(settlement.period.start),
+            _businessDateSearchValue(settlement.period.end),
             settlement.status.value,
             ...(statusSearchTerms[settlement.status] ?? const <String>[]),
             settlement.notes,
@@ -150,6 +153,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
   }) {
     return DriverSettlementsLoaded(
       currentCompanyContext: currentCompanyContext,
+      businessDate: businessDate,
       allSettlements: allSettlements ?? this.allSettlements,
       driverOptions: driverOptions ?? this.driverOptions,
       canManageDriverSettlements:
@@ -200,4 +204,10 @@ class DriverSettlementsFailure extends DriverSettlementsState {
   final Failure failure;
 
   const DriverSettlementsFailure(this.failure);
+}
+
+String _businessDateSearchValue(BusinessDate value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
