@@ -184,7 +184,10 @@ class _TripExpenseTile extends StatelessWidget {
               children: [
                 Text(expenseName),
                 Text(
-                  formatTripDateTime(expense.expenseDate, l10n.tripEmptyValue),
+                  TripFormatters.businessDate(
+                    expense.expenseDate,
+                    l10n.tripEmptyValue,
+                  ),
                 ),
                 Text(l10n.tripExpensePaidByValueLabel(expense.paidBy)),
                 if (localizedTypeName != l10n.tripEmptyValue)
