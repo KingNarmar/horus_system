@@ -1,4 +1,5 @@
 import 'package:horus_system/core/data/constants/db_common_fields.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/expenses/data/constants/trip_expense_db_fields.dart';
 import 'package:horus_system/features/expenses/data/mappers/trip_expense_mapper.dart';
 import 'package:horus_system/features/expenses/data/models/trip_expense_model.dart';
@@ -45,15 +46,14 @@ void main() {
       expect(model.expenseName, 'Fuel');
       expect(model.amount, 125.75);
       expect(model.paidBy, 'driver_cash');
-      expect(model.expenseDate, DateTime.parse('2026-08-20'));
+      expect(model.expenseDate, _date(2026, 8, 20));
       expect(model.notes, 'diesel');
       expect(model.expenseTypeName, 'Fuel Type');
       expect(model.createdAt, DateTime.parse('2026-08-20T08:00:00.000Z'));
       expect(model.updatedAt, DateTime.parse('2026-08-20T09:00:00.000Z'));
     });
 
-    test('preserves nullable fields and existing default parsing behavior', () {
-      final before = DateTime.now();
+    test('preserves optional fields while requiring a canonical date', () {
       final model = TripExpenseModel.fromMap({
         'id': 'expense-2',
         'company_id': 'company-1',
@@ -62,19 +62,17 @@ void main() {
         'expense_name': null,
         'amount': null,
         'paid_by': null,
-        'expense_date': null,
+        'expense_date': '2026-08-20',
         'notes': null,
         'created_at': null,
         'updated_at': null,
       });
-      final after = DateTime.now();
 
       expect(model.expenseTypeId, isNull);
       expect(model.expenseName, '');
       expect(model.amount, 0.0);
       expect(model.paidBy, 'company');
-      expect(model.expenseDate.isBefore(before), isFalse);
-      expect(model.expenseDate.isAfter(after), isFalse);
+      expect(model.expenseDate, _date(2026, 8, 20));
       expect(model.notes, isNull);
       expect(model.expenseTypeName, isNull);
       expect(model.createdAt, isNull);
@@ -129,7 +127,7 @@ void main() {
     });
 
     test('maps model to Domain entity without changing values', () {
-      final expenseDate = DateTime.utc(2026, 8, 22);
+      final expenseDate = _date(2026, 8, 22);
       final createdAt = DateTime.utc(2026, 8, 22, 6);
       final model = TripExpenseModel(
         id: 'expense-6',
@@ -171,7 +169,7 @@ void main() {
         expenseName: 'Fuel',
         amount: 125.75,
         paidBy: 'company',
-        expenseDate: DateTime(2026, 8, 20, 18, 30),
+        expenseDate: _date(2026, 8, 20),
         notes: 'diesel',
         expenseTypeName: 'Fuel Type',
         createdAt: DateTime.utc(2026, 8, 20, 8),
@@ -202,7 +200,7 @@ void main() {
         expenseName: 'Fuel',
         amount: 150.5,
         paidBy: TripExpensePaidBy.driverCash,
-        expenseDate: DateTime(2026, 8, 21, 23, 30),
+        expenseDate: _date(2026, 8, 21),
         notes: 'note',
       );
 
@@ -226,7 +224,7 @@ void main() {
         expenseName: 'Other',
         amount: 75,
         paidBy: TripExpensePaidBy.other,
-        expenseDate: DateTime(2026, 8, 22, 9),
+        expenseDate: _date(2026, 8, 22),
         notes: null,
       );
 
@@ -245,4 +243,8 @@ void main() {
       expect(updatedAt?.isUtc, isTrue);
     });
   });
+}
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
 }
