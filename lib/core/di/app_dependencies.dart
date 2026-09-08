@@ -43,7 +43,9 @@ import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
 import '../context/current_company_provider.dart';
 import '../context/in_memory_current_company_provider.dart';
+import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
+import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 
 abstract final class AppDependencies {
   static final CurrentCompanyProvider _currentCompanyProvider =
@@ -142,6 +144,7 @@ abstract final class AppDependencies {
         DriverFinanceDependencies.createRepository();
     final driverBalanceRepository =
         DriverFinanceDependencies.createBalanceRepository();
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(driversRepository),
@@ -151,6 +154,10 @@ abstract final class AppDependencies {
       deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
       reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
       getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            businessTimeZoneConverter,
+          ),
       getDriverMovementsUseCase: GetDriverMovementsUseCase(
         driverFinanceRepository,
       ),
