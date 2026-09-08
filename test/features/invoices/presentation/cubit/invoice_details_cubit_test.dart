@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -79,8 +80,8 @@ void main() {
       );
 
       final issued = await cubit.issueInvoice(
-        issueDate: DateTime.utc(2026, 8, 6),
-        dueDate: DateTime.utc(2026, 8, 31),
+        issueDate: _date(2026, 8, 6),
+        dueDate: _date(2026, 8, 31),
       );
 
       final state = cubit.state as InvoiceDetailsLoaded;
@@ -137,6 +138,10 @@ void main() {
     expect(state.currentCompanyContext.companyId, 'company-b');
     expect(state.invoice.id, 'invoice-b');
   });
+}
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
 }
 
 CurrentCompanyContext _context({
@@ -225,8 +230,10 @@ final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
   const _FakeBusinessDateProvider();
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
-    return Success(DateTime.utc(2026, 8, 6));
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(_date(2026, 8, 6));
   }
 }
 
