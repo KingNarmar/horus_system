@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -19,10 +21,12 @@ const _driverFinanceMovementAddedEvent = 'driver_finance_movement_added';
 
 class DriverActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final BusinessLocalDateTime? createdAt;
   final List<DriverFinanceTripOption> tripOptions;
 
   const DriverActivityTimelineItem({
     required this.log,
+    required this.createdAt,
     required this.tripOptions,
     super.key,
   });
@@ -49,7 +53,11 @@ class DriverActivityTimelineItem extends StatelessWidget {
             l10n.auditTimelineHeader(
               _actorName(log, l10n),
               l10n.auditRoleDisplayLabel(log.actorRole),
-              _formatDateTime(context, log.createdAt),
+              _formatBusinessLocalDateTime(
+                context,
+                createdAt,
+                l10n.notAvailable,
+              ),
             ),
           ),
           if (financeSummary != null) ...[
@@ -230,8 +238,13 @@ class _DriverFinanceLogSummary {
   const _DriverFinanceLogSummary({required this.title, required this.details});
 }
 
-String _formatDateTime(BuildContext context, DateTime value) {
+String _formatBusinessLocalDateTime(
+  BuildContext context,
+  BusinessLocalDateTime? value,
+  String fallback,
+) {
+  if (value == null) return fallback;
   final material = MaterialLocalizations.of(context);
-  final local = value.toLocal();
-  return '${material.formatShortDate(local)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  final carrier = BusinessLocalDateTimeDateTimeAdapter.toDateTime(value);
+  return '${material.formatShortDate(carrier)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(carrier))}';
 }
