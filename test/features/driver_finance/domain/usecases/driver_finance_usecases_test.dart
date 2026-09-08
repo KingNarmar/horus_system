@@ -5,7 +5,6 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_finance_trip_option.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_type.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_write_data.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_finance_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/driver_finance_usecases.dart';

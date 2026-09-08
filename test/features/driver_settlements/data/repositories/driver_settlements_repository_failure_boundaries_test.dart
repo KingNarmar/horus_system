@@ -113,10 +113,13 @@ void main() {
         expect(result.failureOrNull, same(driverFinanceFailure));
         expect(balanceRepository.lastCompanyId, testCompanyId);
         expect(balanceRepository.lastDriverId, testDriverId);
-        expect(balanceRepository.lastBeforeExclusive, DateTime(2026, 9, 1));
+        expect(
+          balanceRepository.lastBeforeExclusive,
+          BusinessDate(year: 2026, month: 9, day: 1),
+        );
         expect(
           balanceRepository.lastCheckpointBeforeExclusive,
-          DateTime(2026, 9, 1),
+          BusinessDate(year: 2026, month: 9, day: 1),
         );
         expect(remoteDataSource.snapshotCalls, 0);
       },

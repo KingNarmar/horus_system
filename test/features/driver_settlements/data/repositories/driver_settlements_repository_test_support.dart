@@ -49,7 +49,7 @@ DriverBalance canonicalBalance(double closingBalance) {
     driverId: testDriverId,
     checkpoint: DriverBalanceCheckpoint(
       settlementId: 'checkpoint-1',
-      periodEnd: DateTime(2026, 8, 31),
+      periodEnd: testBusinessDate(2026, 8, 31),
       snapshotCreatedAt: DateTime.utc(2026, 9, 1, 8),
       closingBalance: closingBalance,
     ),
@@ -306,8 +306,8 @@ class FakeDriverBalanceRepository implements DriverBalanceRepository {
   int balanceCalls = 0;
   String? lastCompanyId;
   String? lastDriverId;
-  DateTime? lastBeforeExclusive;
-  DateTime? lastCheckpointBeforeExclusive;
+  BusinessDate? lastBeforeExclusive;
+  BusinessDate? lastCheckpointBeforeExclusive;
 
   FakeDriverBalanceRepository({this.result, this.error});
 
@@ -315,8 +315,8 @@ class FakeDriverBalanceRepository implements DriverBalanceRepository {
   Future<Result<DriverBalance>> getCanonicalDriverBalance({
     required String companyId,
     required String driverId,
-    required DateTime beforeExclusive,
-    DateTime? checkpointBeforeExclusive,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
   }) async {
     balanceCalls++;
     lastCompanyId = companyId;

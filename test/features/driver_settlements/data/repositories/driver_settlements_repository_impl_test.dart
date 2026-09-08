@@ -211,10 +211,13 @@ void main() {
       expect(balanceRepository.balanceCalls, 1);
       expect(balanceRepository.lastCompanyId, testCompanyId);
       expect(balanceRepository.lastDriverId, testDriverId);
-      expect(balanceRepository.lastBeforeExclusive, DateTime(2026, 9, 1));
+      expect(
+        balanceRepository.lastBeforeExclusive,
+        testBusinessDate(2026, 9, 1),
+      );
       expect(
         balanceRepository.lastCheckpointBeforeExclusive,
-        DateTime(2026, 9, 1),
+        testBusinessDate(2026, 9, 1),
       );
       expect(remoteDataSource.snapshotCalls, 1);
       expect(remoteDataSource.lastSnapshotCompanyId, testCompanyId);
