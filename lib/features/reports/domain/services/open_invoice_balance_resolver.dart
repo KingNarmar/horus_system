@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
@@ -67,7 +68,7 @@ final class OpenInvoiceBalanceResolver {
         invoiceId: payment.invoiceId,
         customerId: invoice.customerId,
         paymentMethodId: payment.paymentId,
-        paymentDate: payment.paymentDate,
+        paymentDate: _businessDateFromLegacyDate(payment.paymentDate),
         amount: payment.amount,
         createdAt: payment.createdAt,
       ),
@@ -86,4 +87,8 @@ final class OpenInvoiceBalanceResolver {
       ),
     );
   }
+}
+
+BusinessDate _businessDateFromLegacyDate(DateTime value) {
+  return BusinessDate(year: value.year, month: value.month, day: value.day);
 }
