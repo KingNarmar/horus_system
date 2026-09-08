@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -9,8 +10,8 @@ import 'package:horus_system/features/audit/domain/repositories/audit_log_reposi
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import 'package:horus_system/features/drivers/data/datasources/drivers_remote_data_source.dart';
-import 'package:horus_system/features/drivers/data/models/driver_model.dart';
 import 'package:horus_system/features/drivers/data/mappers/driver_mapper.dart';
+import 'package:horus_system/features/drivers/data/models/driver_model.dart';
 import 'package:horus_system/features/drivers/data/repositories/drivers_repository_impl.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_image_file.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_write_data.dart';
@@ -207,7 +208,7 @@ final _driverModel = DriverModel(
   phone: '+201000000000',
   nationalId: '123456789',
   licenseNumber: 'L-123',
-  licenseExpiryDate: DateTime(2027, 1, 1),
+  licenseExpiryDate: BusinessDate(year: 2027, month: 1, day: 1),
   profileImagePath: 'profile-path',
   licenseImagePath: 'license-front-path',
   licenseBackImagePath: 'license-back-path',
@@ -289,8 +290,7 @@ class _FakeDriversRemoteDataSource implements DriversRemoteDataSource {
   }
 }
 
-class _FakeDriverImagesRemoteDataSource
-    implements DriverImagesRemoteDataSource {
+class _FakeDriverImagesRemoteDataSource implements DriverImagesRemoteDataSource {
   final Object? signedUrlError;
 
   const _FakeDriverImagesRemoteDataSource({this.signedUrlError});
