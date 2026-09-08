@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -92,10 +93,7 @@ void main() {
           code: 'canonical_balance_unavailable',
           message: 'typed driver finance failure',
         );
-        final period = DriverSettlementPeriod(
-          start: DateTime(2026, 9),
-          end: DateTime(2026, 9, 30),
-        );
+        final period = _period();
         final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
         final balanceRepository = FakeDriverBalanceRepository(
           result: const FailureResult<DriverBalance>(driverFinanceFailure),
@@ -124,10 +122,7 @@ void main() {
     test(
       'sanitizes thrown balance repository exception and stops snapshot',
       () async {
-        final period = DriverSettlementPeriod(
-          start: DateTime(2026, 9),
-          end: DateTime(2026, 9, 30),
-        );
+        final period = _period();
         final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
         final balanceRepository = FakeDriverBalanceRepository(
           error: StateError('balance internal detail'),
@@ -160,10 +155,7 @@ void main() {
           details: 'sensitive snapshot details',
           hint: 'sensitive snapshot hint',
         );
-        final period = DriverSettlementPeriod(
-          start: DateTime(2026, 9),
-          end: DateTime(2026, 9, 30),
-        );
+        final period = _period();
         final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
           snapshotError: backendError,
         );
@@ -357,4 +349,11 @@ void main() {
       expect(auditRepository.logs, isEmpty);
     });
   });
+}
+
+DriverSettlementPeriod _period() {
+  return DriverSettlementPeriod(
+    start: BusinessDate(year: 2026, month: 9, day: 1),
+    end: BusinessDate(year: 2026, month: 9, day: 30),
+  );
 }
