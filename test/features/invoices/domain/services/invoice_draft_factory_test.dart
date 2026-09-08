@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -57,8 +58,8 @@ void main() {
       currencyCode: 'AED',
       discountMinorUnits: 1000,
       taxRateBasisPoints: 500,
-      issueDate: DateTime.utc(2026, 8, 5),
-      dueDate: DateTime.utc(2026, 9, 4),
+      issueDate: _date(2026, 8, 5),
+      dueDate: _date(2026, 9, 4),
     );
 
     expect(result, isA<Success<InvoiceDraftData>>());
@@ -144,8 +145,8 @@ void main() {
       currencyCode: 'AED',
       discountMinorUnits: 0,
       taxRateBasisPoints: 0,
-      issueDate: DateTime.utc(2026, 8, 5),
-      dueDate: DateTime.utc(2026, 8, 4),
+      issueDate: _date(2026, 8, 5),
+      dueDate: _date(2026, 8, 4),
     );
 
     expect(
@@ -153,4 +154,8 @@ void main() {
       FailureCodes.validationInvoiceDueDateBeforeIssue,
     );
   });
+}
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
 }
