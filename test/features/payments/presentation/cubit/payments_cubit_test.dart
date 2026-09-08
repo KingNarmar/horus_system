@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -143,7 +144,7 @@ final class _FakePaymentsRepository implements PaymentsRepository {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
