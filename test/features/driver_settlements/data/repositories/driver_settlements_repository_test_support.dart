@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -23,6 +24,10 @@ const testCompanyId = 'company-1';
 const testDriverId = 'driver-1';
 const testSettlementId = 'settlement-1';
 const testActorRole = 'accountant';
+
+BusinessDate testBusinessDate(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
 
 DriverSettlementsRepositoryImpl createDriverSettlementsRepository(
   FakeDriverSettlementsRemoteDataSource remoteDataSource, {
@@ -58,8 +63,8 @@ DriverSettlementDraftWriteData draftWriteData() {
     companyId: testCompanyId,
     driverId: testDriverId,
     period: DriverSettlementPeriod(
-      start: DateTime(2026, 7),
-      end: DateTime(2026, 7, 31),
+      start: testBusinessDate(2026, 7, 1),
+      end: testBusinessDate(2026, 7, 31),
     ),
     calculation: const DriverSettlementCalculationResult(
       openingDriverBalance: 0,
@@ -95,8 +100,8 @@ DriverSettlementModel settlementModel({
     id: testSettlementId,
     companyId: testCompanyId,
     driverId: testDriverId,
-    periodStart: DateTime(2026, 7),
-    periodEnd: DateTime(2026, 7, 31),
+    periodStart: testBusinessDate(2026, 7, 1),
+    periodEnd: testBusinessDate(2026, 7, 31),
     openingDriverBalance: 0,
     advancesTotal: 200,
     driverPaidTripExpensesTotal: 50,
@@ -118,8 +123,8 @@ class ThrowingDriverSettlementModel extends DriverSettlementModel {
         id: 'settlement-broken',
         companyId: testCompanyId,
         driverId: testDriverId,
-        periodStart: DateTime(2026, 7),
-        periodEnd: DateTime(2026, 7, 31),
+        periodStart: BusinessDate(year: 2026, month: 7, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 7, day: 31),
         openingDriverBalance: 0,
         advancesTotal: 0,
         driverPaidTripExpensesTotal: 0,
