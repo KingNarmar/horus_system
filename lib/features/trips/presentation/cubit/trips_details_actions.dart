@@ -11,7 +11,9 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         selectedTrip: trip,
         selectedTripNetProfit: null,
         selectedTripActivity: const [],
+        selectedTripActivityBusinessTimesById: const {},
         selectedTripStatusHistory: const [],
+        selectedTripStatusHistoryBusinessTimesById: const {},
         selectedTripExpenses: const [],
         isDetailsLoading: true,
         isActivityLoading: true,
@@ -39,7 +41,9 @@ mixin TripsDetailsActions on Cubit<TripsState> {
           selectedTrip: null,
           selectedTripNetProfit: null,
           selectedTripActivity: const [],
+          selectedTripActivityBusinessTimesById: const {},
           selectedTripStatusHistory: const [],
+          selectedTripStatusHistoryBusinessTimesById: const {},
           selectedTripExpenses: const [],
           isDetailsLoading: false,
           isActivityLoading: false,
@@ -159,24 +163,45 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     final latestState = state;
     if (latestState is! TripsLoaded) return;
 
-    result.when(
-      success: (history) {
-        emit(
-          latestState.copyWith(
-            selectedTripStatusHistory: history,
-            isStatusHistoryLoading: false,
-            statusHistoryFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isStatusHistoryLoading: false,
-            statusHistoryFailure: failure,
-          ),
-        );
-      },
+    if (result is FailureResult<List<TripStatusHistory>>) {
+      emit(
+        latestState.copyWith(
+          isStatusHistoryLoading: false,
+          statusHistoryFailure: result.failure,
+        ),
+      );
+      return;
+    }
+
+    final history = (result as Success<List<TripStatusHistory>>).data;
+    final businessTimesResult = await owner._convertCompanyInstants(
+      latestState.currentCompanyContext,
+      {for (final item in history) item.id: item.changedAt},
+    );
+    final currentAfterConversion = state;
+    if (currentAfterConversion is! TripsLoaded) return;
+
+    if (businessTimesResult
+        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      emit(
+        currentAfterConversion.copyWith(
+          isStatusHistoryLoading: false,
+          statusHistoryFailure: businessTimesResult.failure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      currentAfterConversion.copyWith(
+        selectedTripStatusHistory: history,
+        selectedTripStatusHistoryBusinessTimesById:
+            (businessTimesResult
+                    as Success<Map<String, BusinessLocalDateTime>>)
+                .data,
+        isStatusHistoryLoading: false,
+        statusHistoryFailure: null,
+      ),
     );
   }
 
@@ -186,7 +211,6 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     if (current is! TripsLoaded) return;
 
     emit(current.copyWith(isActivityLoading: true, activityFailure: null));
-
     final result = await owner.getTripAuditLogsUseCase(
       GetEntityAuditLogsParams(
         companyId: current.currentCompanyContext.companyId,
@@ -199,24 +223,45 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     final latestState = state;
     if (latestState is! TripsLoaded) return;
 
-    result.when(
-      success: (activity) {
-        emit(
-          latestState.copyWith(
-            selectedTripActivity: activity,
-            isActivityLoading: false,
-            activityFailure: null,
-          ),
-        );
-      },
-      failure: (failure) {
-        emit(
-          latestState.copyWith(
-            isActivityLoading: false,
-            activityFailure: failure,
-          ),
-        );
-      },
+    if (result is FailureResult<List<AuditLog>>) {
+      emit(
+        latestState.copyWith(
+          isActivityLoading: false,
+          activityFailure: result.failure,
+        ),
+      );
+      return;
+    }
+
+    final activity = (result as Success<List<AuditLog>>).data;
+    final businessTimesResult = await owner._convertCompanyInstants(
+      latestState.currentCompanyContext,
+      {for (final log in activity) log.id: log.createdAt},
+    );
+    final currentAfterConversion = state;
+    if (currentAfterConversion is! TripsLoaded) return;
+
+    if (businessTimesResult
+        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      emit(
+        currentAfterConversion.copyWith(
+          isActivityLoading: false,
+          activityFailure: businessTimesResult.failure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      currentAfterConversion.copyWith(
+        selectedTripActivity: activity,
+        selectedTripActivityBusinessTimesById:
+            (businessTimesResult
+                    as Success<Map<String, BusinessLocalDateTime>>)
+                .data,
+        isActivityLoading: false,
+        activityFailure: null,
+      ),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
@@ -33,7 +34,11 @@ class TripActivityTimelineSection extends StatelessWidget {
 
     return Column(
       children: [
-        for (final log in activity) TripActivityTimelineItem(log: log),
+        for (final log in activity)
+          TripActivityTimelineItem(
+            log: log,
+            businessLocalCreatedAt: state!.activityBusinessTimeFor(log.id),
+          ),
       ],
     );
   }
@@ -41,15 +46,23 @@ class TripActivityTimelineSection extends StatelessWidget {
 
 class TripActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final BusinessLocalDateTime? businessLocalCreatedAt;
 
-  const TripActivityTimelineItem({required this.log, super.key});
+  const TripActivityTimelineItem({
+    required this.log,
+    required this.businessLocalCreatedAt,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final actor = log.actorDisplayName ?? l10n.tripUnknownUser;
     final role = l10n.auditRoleDisplayLabel(log.actorRole);
-    final date = formatTripDateTime(log.createdAt, l10n.tripEmptyValue);
+    final date = formatTripDateTime(
+      businessLocalCreatedAt,
+      l10n.tripEmptyValue,
+    );
 
     return Card(
       child: Padding(

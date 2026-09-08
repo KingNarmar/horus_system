@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../cubit/trips_state.dart';
@@ -30,15 +31,28 @@ class TripStatusHistorySection extends StatelessWidget {
     }
 
     return Column(
-      children: [for (final item in history) TripStatusHistoryItem(item: item)],
+      children: [
+        for (final item in history)
+          TripStatusHistoryItem(
+            item: item,
+            businessLocalChangedAt: state!.statusHistoryBusinessTimeFor(
+              item.id,
+            ),
+          ),
+      ],
     );
   }
 }
 
 class TripStatusHistoryItem extends StatelessWidget {
   final TripStatusHistory item;
+  final BusinessLocalDateTime? businessLocalChangedAt;
 
-  const TripStatusHistoryItem({required this.item, super.key});
+  const TripStatusHistoryItem({
+    required this.item,
+    required this.businessLocalChangedAt,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +76,10 @@ class TripStatusHistoryItem extends StatelessWidget {
               l10n.tripChangedByLine(
                 item.changedByName ?? l10n.tripUnknownUser,
                 l10n.tripAuditRoleLabel(item.changedByRole),
-                formatTripDateTime(item.changedAt, l10n.tripEmptyValue),
+                formatTripDateTime(
+                  businessLocalChangedAt,
+                  l10n.tripEmptyValue,
+                ),
               ),
             ),
             if (item.notes != null && item.notes!.trim().isNotEmpty) ...[

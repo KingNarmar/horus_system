@@ -1,4 +1,6 @@
+import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../audit/di/audit_dependencies.dart';
 import '../../audit/domain/usecases/create_audit_log_usecase.dart';
@@ -28,6 +30,7 @@ abstract final class CompanyExpensesDependencies {
 
   static CompanyExpensesCubit createCubit() {
     final repository = createRepository();
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     return CompanyExpensesCubit(
       getBusinessDateUseCase: GetCompanyBusinessDateUseCase(
@@ -40,6 +43,10 @@ abstract final class CompanyExpensesDependencies {
       updateExpenseUseCase: createUpdateExpenseUseCase(repository),
       voidExpenseUseCase: createVoidExpenseUseCase(repository),
       getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            businessTimeZoneConverter,
+          ),
     );
   }
 

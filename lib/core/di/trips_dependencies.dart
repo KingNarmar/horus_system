@@ -9,6 +9,7 @@ import '../../features/trips/domain/usecases/trips_usecases.dart';
 import '../../features/trips/presentation/cubit/trips_cubit.dart';
 import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
+import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 
 abstract final class TripsDependencies {
   static TripsCubit createTripsCubit() {
@@ -45,6 +46,10 @@ abstract final class TripsDependencies {
           ),
       resolveTripBusinessLocalTimestampsUseCase:
           const ResolveTripBusinessLocalTimestampsUseCase(
+            businessTimeZoneConverter,
+          ),
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
             businessTimeZoneConverter,
           ),
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,

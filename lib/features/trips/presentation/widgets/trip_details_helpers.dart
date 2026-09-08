@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
@@ -58,15 +59,17 @@ AuditLog? firstCreatedTripAuditLog(List<AuditLog> activity) {
   return null;
 }
 
-String formatTripDateTime(DateTime? value, String emptyValue) {
+String formatTripDateTime(
+  BusinessLocalDateTime? value,
+  String emptyValue,
+) {
   if (value == null) return emptyValue;
 
-  final local = value.toLocal();
-  final year = local.year.toString().padLeft(4, '0');
-  final month = local.month.toString().padLeft(2, '0');
-  final day = local.day.toString().padLeft(2, '0');
-  final hour = local.hour.toString().padLeft(2, '0');
-  final minute = local.minute.toString().padLeft(2, '0');
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
 
   return '$year-$month-$day $hour:$minute';
 }

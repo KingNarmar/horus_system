@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -46,6 +47,8 @@ class TripsCubit extends Cubit<TripsState>
   getTripBusinessLocalTimestampsUseCase;
   final ResolveTripBusinessLocalTimestampsUseCase
   resolveTripBusinessLocalTimestampsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
   final GetTripExpensesUseCase getTripExpensesUseCase;
   final GetActiveExpenseTypesUseCase getActiveExpenseTypesUseCase;
@@ -65,6 +68,7 @@ class TripsCubit extends Cubit<TripsState>
     required this.calculateTripNetProfitUseCase,
     required this.getTripBusinessLocalTimestampsUseCase,
     required this.resolveTripBusinessLocalTimestampsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
     required this.getTripAuditLogsUseCase,
     required this.getTripExpensesUseCase,
     required this.getActiveExpenseTypesUseCase,
@@ -148,6 +152,18 @@ class TripsCubit extends Cubit<TripsState>
       values[trip.id] = (result as Success<TripBusinessLocalTimestamps>).data;
     }
     return Success(values);
+  }
+
+  Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
+    CurrentCompanyContext currentCompanyContext,
+    Map<String, DateTime> instantsByKey,
+  ) {
+    return convertInstantsToBusinessLocalDateTimesUseCase(
+      ConvertInstantsToBusinessLocalDateTimesParams(
+        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+        instantsByKey: instantsByKey,
+      ),
+    );
   }
 
   void _upsertTrip(

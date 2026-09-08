@@ -1,9 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
+import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
+import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -21,6 +25,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   final UpdateCompanyExpenseUseCase updateExpenseUseCase;
   final VoidCompanyExpenseUseCase voidExpenseUseCase;
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
+  final ConvertInstantsToBusinessLocalDateTimesUseCase
+  convertInstantsToBusinessLocalDateTimesUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -33,6 +39,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     required this.updateExpenseUseCase,
     required this.voidExpenseUseCase,
     required this.getEntityAuditLogsUseCase,
+    required this.convertInstantsToBusinessLocalDateTimesUseCase,
   }) : super(const CompanyExpensesInitial());
 
   Future<void> loadCompanyExpenses(
@@ -130,6 +137,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       currentState.copyWith(
         selectedExpense: expense,
         selectedExpenseActivity: const [],
+        selectedExpenseActivityBusinessTimesById: const {},
         isActivityLoading: true,
         activityFailure: null,
       ),
@@ -150,19 +158,53 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       return;
     }
 
-    result.when(
-      success: (logs) => emit(
-        latestState.copyWith(
-          selectedExpenseActivity: logs,
-          isActivityLoading: false,
-          activityFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
+    if (result is FailureResult<List<AuditLog>>) {
+      emit(
         latestState.copyWith(
           isActivityLoading: false,
-          activityFailure: failure,
+          activityFailure: result.failure,
         ),
+      );
+      return;
+    }
+
+    final logs = (result as Success<List<AuditLog>>).data;
+    final businessTimesResult =
+        await convertInstantsToBusinessLocalDateTimesUseCase(
+          ConvertInstantsToBusinessLocalDateTimesParams(
+            timeZoneId:
+                latestState.currentCompanyContext.company.businessTimezone ??
+                '',
+            instantsByKey: {for (final log in logs) log.id: log.createdAt},
+          ),
+        );
+
+    final currentAfterConversion = state;
+    if (currentAfterConversion is! CompanyExpensesLoaded ||
+        currentAfterConversion.selectedExpense?.id != expense.id) {
+      return;
+    }
+
+    if (businessTimesResult
+        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+      emit(
+        currentAfterConversion.copyWith(
+          isActivityLoading: false,
+          activityFailure: businessTimesResult.failure,
+        ),
+      );
+      return;
+    }
+
+    emit(
+      currentAfterConversion.copyWith(
+        selectedExpenseActivity: logs,
+        selectedExpenseActivityBusinessTimesById:
+            (businessTimesResult
+                    as Success<Map<String, BusinessLocalDateTime>>)
+                .data,
+        isActivityLoading: false,
+        activityFailure: null,
       ),
     );
   }
@@ -175,6 +217,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       currentState.copyWith(
         selectedExpense: null,
         selectedExpenseActivity: const [],
+        selectedExpenseActivityBusinessTimesById: const {},
         isActivityLoading: false,
         activityFailure: null,
       ),
