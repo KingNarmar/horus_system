@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -27,6 +28,8 @@ class RoutesLoaded extends RoutesState {
   final Set<String> activeStateChangingRouteIds;
   final RouteEntity? selectedRoute;
   final List<AuditLog> selectedRouteActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedRouteActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
 
@@ -39,6 +42,7 @@ class RoutesLoaded extends RoutesState {
     this.activeStateChangingRouteIds = const <String>{},
     this.selectedRoute,
     this.selectedRouteActivity = const <AuditLog>[],
+    this.selectedRouteActivityTimestampsByLogId = const {},
     this.isActivityLoading = false,
     this.activityFailure,
   });
@@ -67,6 +71,9 @@ class RoutesLoaded extends RoutesState {
     }).toList();
   }
 
+  BusinessLocalDateTime? activityTimestampFor(String logId) =>
+      selectedRouteActivityTimestampsByLogId[logId];
+
   RoutesLoaded copyWith({
     List<RouteEntity>? allRoutes,
     bool? canManageRoutes,
@@ -75,6 +82,7 @@ class RoutesLoaded extends RoutesState {
     Set<String>? activeStateChangingRouteIds,
     Object? selectedRoute = _notSet,
     List<AuditLog>? selectedRouteActivity,
+    Map<String, BusinessLocalDateTime>? selectedRouteActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
   }) {
@@ -91,6 +99,9 @@ class RoutesLoaded extends RoutesState {
           : selectedRoute as RouteEntity?,
       selectedRouteActivity:
           selectedRouteActivity ?? this.selectedRouteActivity,
+      selectedRouteActivityTimestampsByLogId:
+          selectedRouteActivityTimestampsByLogId ??
+          this.selectedRouteActivityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure

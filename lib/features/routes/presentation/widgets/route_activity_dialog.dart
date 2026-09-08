@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -122,7 +124,10 @@ class RouteDetailsDialog extends StatelessWidget {
                     label: l10n.routeCreatedAt,
                     value: createdLog == null
                         ? l10n.routeNotAvailable
-                        : _formatDateTime(context, createdLog.createdAt),
+                        : _formatDateTime(
+                            context,
+                            state?.activityTimestampFor(createdLog.id),
+                          ),
                   ),
                   _RouteDetailRow(
                     label: l10n.routeLastActivityBy,
@@ -136,7 +141,10 @@ class RouteDetailsDialog extends StatelessWidget {
                     label: l10n.routeLastActivityAt,
                     value: latestLog == null
                         ? l10n.routeNotAvailable
-                        : _formatDateTime(context, latestLog.createdAt),
+                        : _formatDateTime(
+                            context,
+                            state?.activityTimestampFor(latestLog.id),
+                          ),
                   ),
                 ],
               ),
@@ -164,7 +172,10 @@ class RouteDetailsDialog extends StatelessWidget {
                     Text(l10n.routeNoActivityFound)
                   else
                     ...activity.map(
-                      (log) => _RouteActivityTimelineItem(log: log),
+                      (log) => _RouteActivityTimelineItem(
+                        log: log,
+                        createdAt: state?.activityTimestampFor(log.id),
+                      ),
                     ),
                 ],
               ),
@@ -202,8 +213,12 @@ class RouteDetailsDialog extends StatelessWidget {
 
 class _RouteActivityTimelineItem extends StatelessWidget {
   final AuditLog log;
+  final BusinessLocalDateTime? createdAt;
 
-  const _RouteActivityTimelineItem({required this.log});
+  const _RouteActivityTimelineItem({
+    required this.log,
+    required this.createdAt,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +269,7 @@ class _RouteActivityTimelineItem extends StatelessWidget {
                   l10n.routeAuditTimelineHeader(
                     actorName,
                     l10n.routeAuditRoleLabel(log.actorRole),
-                    _formatDateTime(context, log.createdAt),
+                    _formatDateTime(context, createdAt),
                   ),
                 ),
                 if (changes.isNotEmpty) ...[
@@ -339,8 +354,9 @@ class _RouteDetailRow extends StatelessWidget {
   }
 }
 
-String _formatDateTime(BuildContext context, DateTime value) {
-  final localValue = value.toLocal();
+String _formatDateTime(BuildContext context, BusinessLocalDateTime? value) {
+  if (value == null) return context.l10n.routeEmptyValue;
+  final localValue = BusinessLocalDateTimeDateTimeAdapter.toDateTime(value);
   final materialLocalizations = MaterialLocalizations.of(context);
   final date = materialLocalizations.formatMediumDate(localValue);
   final time = TimeOfDay.fromDateTime(localValue).format(context);
