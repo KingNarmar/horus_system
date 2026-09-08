@@ -10,7 +10,6 @@ import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
 import '../helpers/trip_formatters.dart';
 import '../localization/trips_localizations_x.dart';
-import 'trip_details_helpers.dart';
 import 'trip_details_shared_widgets.dart';
 import 'trip_expense_form_dialog.dart';
 
