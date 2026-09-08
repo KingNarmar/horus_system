@@ -16,6 +16,7 @@ import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
+import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/policies/trips_permission_policy.dart';
 import '../../domain/usecases/trips_usecases.dart';
 import 'trips_state.dart';
