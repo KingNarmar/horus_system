@@ -5,6 +5,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../domain/entities/invoice.dart';
 import '../cubit/invoice_details_state.dart';
 import '../localization/invoice_failure_localizations_x.dart';
@@ -91,7 +92,9 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
         canClose: !currentState.isMutationPending,
         child: InvoiceIssueForm(
           initialDate: invoice.issueDate == null
-              ? invoice.createdAt
+              ? BusinessLocalDateTimeDateTimeAdapter.toDateTime(
+                  currentState.invoiceCreatedAt,
+                )
               : BusinessDateDateTimeAdapter.toDateTime(
                   invoice.issueDate!.value,
                 ),
