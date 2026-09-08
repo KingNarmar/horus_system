@@ -75,9 +75,10 @@ void main() {
       final lines = map['invoice_lines'] as List<Map<String, dynamic>>;
       lines.first['currency_code'] = 'USD';
 
-      final persisted = InvoiceModel.fromMap(map);
-
-      expect(persisted.toEntity, throwsA(isA<FormatException>()));
+      expect(
+        () => InvoiceModel.fromMap(map).toEntity(),
+        throwsA(isA<FormatException>()),
+      );
     });
 
     test('rejects invalid invoice status persistence value', () {
@@ -102,22 +103,34 @@ Map<String, dynamic> _invoiceMap() {
     'status': 'issued',
     'invoice_number': 'INV-2026-000001',
     'currency_code': 'AED',
+    'customer_name': 'Customer One',
+    'customer_tax_registration_number': 'TRN-1',
+    'customer_address': 'Address',
+    'customer_city': 'Dubai',
+    'customer_country': 'AE',
+    'subtotal_minor_units': 10000,
+    'discount_minor_units': 500,
+    'taxable_minor_units': 9500,
+    'tax_rate_basis_points': 500,
+    'tax_minor_units': 475,
+    'total_minor_units': 9975,
     'issue_date': '2026-08-05',
     'due_date': '2026-09-04',
-    'created_at': '2026-08-05T08:00:00.000Z',
-    'updated_at': '2026-08-05T09:00:00.000Z',
-    'customer': {
-      'company_id': 'company-1',
-      'customer_id': 'customer-1',
-      'name': 'Customer One',
-    },
-    'invoice_lines': [
+    'notes': 'Invoice note',
+    'cancellation_reason': null,
+    'created_at': '2026-08-05T10:00:00Z',
+    'updated_at': '2026-08-05T11:00:00Z',
+    'invoice_lines': <Map<String, dynamic>>[
       {
         'line_position': 2,
         'trip_id': 'trip-2',
         'trip_number': 'TRIP-2026-000002',
         'loading_location': 'Sharjah',
-        'unloading_location': 'Al Ain',
+        'unloading_location': 'Dubai',
+        'loading_order_number': 'LO-2',
+        'waybill_number': 'WB-2',
+        'service_date': '2026-08-02',
+        'quantity_tons': 10,
         'amount_minor_units': 4000,
         'currency_code': 'AED',
       },
@@ -127,18 +140,13 @@ Map<String, dynamic> _invoiceMap() {
         'trip_number': 'TRIP-2026-000001',
         'loading_location': 'Dubai',
         'unloading_location': 'Abu Dhabi',
+        'loading_order_number': 'LO-1',
+        'waybill_number': 'WB-1',
+        'service_date': '2026-08-01',
+        'quantity_tons': 20,
         'amount_minor_units': 6000,
         'currency_code': 'AED',
       },
     ],
-    'totals': {
-      'subtotal_minor_units': 10000,
-      'discount_minor_units': 500,
-      'taxable_minor_units': 9500,
-      'tax_rate_basis_points': 500,
-      'tax_minor_units': 475,
-      'total_minor_units': 9975,
-      'currency_code': 'AED',
-    },
   };
 }
