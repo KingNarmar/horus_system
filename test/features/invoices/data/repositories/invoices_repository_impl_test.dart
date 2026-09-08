@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
@@ -59,8 +60,12 @@ void main() {
       final result = await InvoicesRepositoryImpl(dataSource).issueInvoice(
         companyId: 'company-1',
         invoiceId: 'invoice-1',
-        issueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 8, 5)),
-        dueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 9, 4)),
+        issueDate: InvoiceDate.fromBusinessDate(
+          BusinessDate(year: 2026, month: 8, day: 5),
+        ),
+        dueDate: InvoiceDate.fromBusinessDate(
+          BusinessDate(year: 2026, month: 9, day: 4),
+        ),
         actorRole: 'admin',
       );
 
