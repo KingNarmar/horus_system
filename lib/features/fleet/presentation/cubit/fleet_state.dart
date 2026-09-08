@@ -100,8 +100,7 @@ class FleetLoaded extends FleetState {
     Set<String>? activeStateChangingAssetIds,
     Object? selectedAssetId = _notSet,
     List<AuditLog>? selectedAssetActivity,
-    Map<String, BusinessLocalDateTime>?
-    selectedAssetActivityTimestampsByLogId,
+    Map<String, BusinessLocalDateTime>? selectedAssetActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
   }) {

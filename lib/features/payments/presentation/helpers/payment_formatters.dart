@@ -11,11 +11,8 @@ String formatPaymentDate(BusinessDate date, String localeName) {
   ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
-String formatPaymentDateTime(
-  BusinessLocalDateTime date,
-  String localeName,
-) {
-  return DateFormat.yMMMd(localeName).add_jm().format(
-    BusinessLocalDateTimeDateTimeAdapter.toDateTime(date),
-  );
+String formatPaymentDateTime(BusinessLocalDateTime date, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).add_jm().format(BusinessLocalDateTimeDateTimeAdapter.toDateTime(date));
 }

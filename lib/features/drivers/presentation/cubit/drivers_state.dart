@@ -111,8 +111,7 @@ class DriversLoaded extends DriversState {
     bool? isImageUrlsLoading,
     Object? imageUrlsFailure = _notSet,
     List<AuditLog>? selectedDriverActivity,
-    Map<String, BusinessLocalDateTime>?
-    selectedDriverActivityTimestampsByLogId,
+    Map<String, BusinessLocalDateTime>? selectedDriverActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     List<DriverFinancialMovement>? selectedDriverFinancialMovements,

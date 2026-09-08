@@ -71,17 +71,17 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     final payments = (paymentsResult as Success<List<Payment>>).data;
     final invoices = (invoicesResult as Success<List<Invoice>>).data;
     final methods = (methodsResult as Success<List<PaymentMethod>>).data;
-    final timestampsResult = await convertInstantsToBusinessLocalDateTimesUseCase(
-      ConvertInstantsToBusinessLocalDateTimesParams(
-        timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
-        instantsByKey: {
-          for (final payment in payments) payment.id: payment.createdAt,
-        },
-      ),
-    );
+    final timestampsResult =
+        await convertInstantsToBusinessLocalDateTimesUseCase(
+          ConvertInstantsToBusinessLocalDateTimesParams(
+            timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
+            instantsByKey: {
+              for (final payment in payments) payment.id: payment.createdAt,
+            },
+          ),
+        );
     if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
-    if (timestampsResult
-        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+    if (timestampsResult is FailureResult<Map<String, BusinessLocalDateTime>>) {
       emit(PaymentsFailure(timestampsResult.failure));
       return;
     }

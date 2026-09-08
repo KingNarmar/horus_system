@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
@@ -26,6 +27,8 @@ import 'package:horus_system/features/driver_settlements/presentation/cubit/driv
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_state.dart';
 
+import '../../../../helpers/fake_business_time_zone_converter.dart';
+
 void main() {
   late _FakeDriverSettlementsRepository repository;
   late DriverSettlementsCubit cubit;
@@ -33,6 +36,10 @@ void main() {
   setUp(() {
     repository = _FakeDriverSettlementsRepository();
     cubit = DriverSettlementsCubit(
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            FakeBusinessTimeZoneConverter(),
+          ),
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -22,6 +23,8 @@ import 'package:horus_system/features/fleet/domain/usecases/fleet_usecases.dart'
 import 'package:horus_system/features/fleet/presentation/cubit/fleet_cubit.dart';
 import 'package:horus_system/features/fleet/presentation/cubit/fleet_state.dart';
 import 'package:test/test.dart';
+
+import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('FleetCubit', () {
@@ -234,6 +237,10 @@ FleetCubit _createCubit(
   CanManageFleetUseCase canManageFleetUseCase = const CanManageFleetUseCase(),
 }) {
   return FleetCubit(
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(
+          FakeBusinessTimeZoneConverter(),
+        ),
     getTractorHeadsUseCase: GetTractorHeadsUseCase(repository),
     getTrailersUseCase: GetTrailersUseCase(repository),
     canManageFleetUseCase: canManageFleetUseCase,

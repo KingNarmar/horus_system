@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
@@ -167,6 +168,13 @@ InvoiceDetailsLoaded _loadedState({String tripId = 'trip-1'}) {
   final line = InvoiceTripLine.fromBillableTrip(trip);
   final zero = Money(minorUnits: 0, currency: _currency);
   return InvoiceDetailsLoaded(
+    invoiceCreatedAt: BusinessLocalDateTime(
+      year: 2026,
+      month: 8,
+      day: 7,
+      hour: 4,
+      minute: 0,
+    ),
     currentCompanyContext: const CurrentCompanyContext(
       company: Company(
         id: 'company-1',

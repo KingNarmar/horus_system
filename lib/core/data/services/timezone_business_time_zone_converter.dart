@@ -92,6 +92,7 @@ final class TimezoneBusinessTimeZoneConverter
     _ensureTimeZoneDatabaseInitialized();
     final normalized = timeZoneId.trim();
     if (normalized.isEmpty) return null;
+    if (normalized == 'UTC') return tz.UTC;
 
     try {
       return tz.getLocation(normalized);

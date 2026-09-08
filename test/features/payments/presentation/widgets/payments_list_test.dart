@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
@@ -45,6 +46,15 @@ PaymentsLoaded _state() {
   final invoice = _invoice();
   final currency = CurrencyCode.tryParse('AED')!;
   return PaymentsLoaded(
+    createdAtByPaymentId: {
+      'payment-1': BusinessLocalDateTime(
+        year: 2026,
+        month: 8,
+        day: 10,
+        hour: 4,
+        minute: 0,
+      ),
+    },
     currentCompanyContext: CurrentCompanyContext(
       company: const Company(
         id: 'company-1',

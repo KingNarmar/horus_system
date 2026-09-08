@@ -216,10 +216,9 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
     }
 
     final logs = result.dataOrNull ?? const [];
-    final timestampsResult = await _convertCompanyInstants(
-      context,
-      {for (final log in logs) log.id: log.createdAt},
-    );
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in logs) log.id: log.createdAt,
+    });
 
     final projectedState = state;
     if (!_isCurrentRequest(generation, context.companyId) ||
@@ -233,8 +232,7 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       emit(
         projectedState.copyWith(
           activity: const [],
-          activityTimestampsByLogId:
-              const <String, BusinessLocalDateTime>{},
+          activityTimestampsByLogId: const <String, BusinessLocalDateTime>{},
           isActivityLoading: false,
           activityFailure: timestampFailure,
         ),
@@ -258,10 +256,9 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
     CurrentCompanyContext currentCompanyContext,
     Invoice invoice,
   ) async {
-    final result = await _convertCompanyInstants(
-      currentCompanyContext,
-      {_invoiceCreatedAtKey: invoice.createdAt},
-    );
+    final result = await _convertCompanyInstants(currentCompanyContext, {
+      _invoiceCreatedAtKey: invoice.createdAt,
+    });
     if (result is FailureResult<Map<String, BusinessLocalDateTime>>) {
       return FailureResult(result.failure);
     }

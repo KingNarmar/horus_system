@@ -320,7 +320,7 @@ class _AuditLogCard extends StatelessWidget {
     final actor =
         log.actorDisplayName ?? log.actorEmail ?? context.l10n.unknownUser;
     final timestamp = createdAt == null
-        ? context.l10n.notAvailable
+        ? strings.unavailableValue
         : formatDriverSettlementDateTime(createdAt!, localeName);
 
     return Card(

@@ -131,10 +131,9 @@ class FleetCubit extends Cubit<FleetState> {
     }
 
     final activity = result.dataOrNull ?? const [];
-    final timestampsResult = await _convertCompanyInstants(
-      context,
-      {for (final log in activity) log.id: log.createdAt},
-    );
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in activity) log.id: log.createdAt,
+    });
     final projectedState = state;
     if (projectedState is! FleetLoaded ||
         projectedState.selectedAssetId != assetId) {

@@ -15,9 +15,9 @@ String formatDriverSettlementDateTime(
   BusinessLocalDateTime date,
   String localeName,
 ) {
-  return DateFormat.yMMMd(localeName).add_jm().format(
-    BusinessLocalDateTimeDateTimeAdapter.toDateTime(date),
-  );
+  return DateFormat.yMMMd(
+    localeName,
+  ).add_jm().format(BusinessLocalDateTimeDateTimeAdapter.toDateTime(date));
 }
 
 String formatDriverSettlementAmount(double amount, String localeName) {

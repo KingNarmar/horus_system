@@ -1,3 +1,4 @@
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,6 +35,8 @@ import 'package:horus_system/features/driver_settlements/presentation/widgets/dr
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_void_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlements_state_view.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
+
+import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('Driver Settlements widgets', () {
@@ -326,6 +329,10 @@ DriverSettlementsLoaded _loadedState({
 
 DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
   return DriverSettlementsCubit(
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(
+          FakeBusinessTimeZoneConverter(),
+        ),
     getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
     getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
       repository,

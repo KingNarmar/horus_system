@@ -20,13 +20,10 @@ String formatInvoiceDate(
   ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
-String formatInvoiceDateTime(
-  BusinessLocalDateTime date,
-  String localeName,
-) {
-  return DateFormat.yMMMd(localeName).add_jm().format(
-    BusinessLocalDateTimeDateTimeAdapter.toDateTime(date),
-  );
+String formatInvoiceDateTime(BusinessLocalDateTime date, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).add_jm().format(BusinessLocalDateTimeDateTimeAdapter.toDateTime(date));
 }
 
 String formatInvoiceInputDate(BusinessDate? date) {

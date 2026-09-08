@@ -8,6 +8,15 @@ void main() {
   const converter = TimezoneBusinessTimeZoneConverter();
 
   group('TimezoneBusinessTimeZoneConverter', () {
+    test('resolves a UTC company wall clock without an offset', () {
+      final result = converter.toUtcInstant(
+        localDateTime: _local(2026, 9, 7, 0, 30),
+        timeZoneId: 'UTC',
+      );
+      expect(result.dataOrNull, DateTime.utc(2026, 9, 7, 0, 30));
+      expect(result.dataOrNull?.isUtc, isTrue);
+    });
+
     test('converts Dubai wall clock to the correct UTC instant', () {
       final result = converter.toUtcInstant(
         localDateTime: _local(2026, 9, 7, 0, 30),

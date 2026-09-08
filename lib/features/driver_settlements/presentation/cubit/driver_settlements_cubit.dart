@@ -282,8 +282,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         projectedState.selectedSettlement?.id != settlement.id) {
       return;
     }
-    if (timestampsResult
-        is FailureResult<Map<String, BusinessLocalDateTime>>) {
+    if (timestampsResult is FailureResult<Map<String, BusinessLocalDateTime>>) {
       emit(
         _upsertSettlement(projectedState, details).copyWith(
           selectedSettlement: details,
@@ -302,8 +301,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
           isDetailsLoading: false,
           detailsFailure: null,
         ),
-        timestampsResult.dataOrNull ??
-            const <String, BusinessLocalDateTime>{},
+        timestampsResult.dataOrNull ?? const <String, BusinessLocalDateTime>{},
       ),
     );
 
@@ -439,10 +437,9 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
           return log.metadata?['settlement_id']?.toString() == settlement.id;
         })
         .toList(growable: false);
-    final timestampsResult = await _convertCompanyInstants(
-      context,
-      {for (final log in settlementLogs) log.id: log.createdAt},
-    );
+    final timestampsResult = await _convertCompanyInstants(context, {
+      for (final log in settlementLogs) log.id: log.createdAt,
+    });
 
     final projectedState = state;
     if (projectedState is! DriverSettlementsLoaded ||
@@ -480,17 +477,14 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     CurrentCompanyContext currentCompanyContext,
     DriverSettlement settlement,
   ) {
-    return _convertCompanyInstants(
-      currentCompanyContext,
-      <String, DateTime>{
-        if (settlement.createdAt != null)
-          _settlementCreatedAtKey: settlement.createdAt!,
-        if (settlement.finalizedAt != null)
-          _settlementFinalizedAtKey: settlement.finalizedAt!,
-        if (settlement.voidedAt != null)
-          _settlementVoidedAtKey: settlement.voidedAt!,
-      },
-    );
+    return _convertCompanyInstants(currentCompanyContext, <String, DateTime>{
+      if (settlement.createdAt != null)
+        _settlementCreatedAtKey: settlement.createdAt!,
+      if (settlement.finalizedAt != null)
+        _settlementFinalizedAtKey: settlement.finalizedAt!,
+      if (settlement.voidedAt != null)
+        _settlementVoidedAtKey: settlement.voidedAt!,
+    });
   }
 
   Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(

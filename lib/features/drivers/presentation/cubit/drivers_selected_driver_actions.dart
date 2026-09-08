@@ -47,10 +47,9 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     }
 
     final activity = result.dataOrNull ?? const [];
-    final timestampsResult = await owner._convertCompanyInstants(
-      context,
-      {for (final log in activity) log.id: log.createdAt},
-    );
+    final timestampsResult = await owner._convertCompanyInstants(context, {
+      for (final log in activity) log.id: log.createdAt,
+    });
 
     final projectedState = state;
     if (projectedState is! DriversLoaded ||

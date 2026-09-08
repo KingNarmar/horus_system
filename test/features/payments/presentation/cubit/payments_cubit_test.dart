@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -23,6 +24,8 @@ import 'package:horus_system/features/payments/domain/usecases/payment_usecases.
 import 'package:horus_system/features/payments/presentation/cubit/payments_cubit.dart';
 import 'package:horus_system/features/payments/presentation/cubit/payments_state.dart';
 import 'package:test/test.dart';
+
+import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   test('accountant load exposes registration capability', () async {
@@ -94,6 +97,10 @@ PaymentsCubit _cubit(
   _FakePaymentMethodsRepository methods,
 ) {
   return PaymentsCubit(
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(
+          FakeBusinessTimeZoneConverter(),
+        ),
     getPaymentsUseCase: GetPaymentsUseCase(payments),
     getInvoicesUseCase: GetInvoicesUseCase(invoices),
     getPaymentMethodsUseCase: GetPaymentMethodsUseCase(methods),

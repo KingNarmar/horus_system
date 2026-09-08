@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -33,6 +35,8 @@ import 'package:horus_system/features/invoices/presentation/cubit/invoice_detail
 import 'package:horus_system/features/invoices/presentation/cubit/invoice_details_state.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
+import '../../../../helpers/fake_business_time_zone_converter.dart';
+
 void main() {
   late _FakeInvoicesRepository repository;
   late _FakeAuditLogRepository auditRepository;
@@ -42,6 +46,10 @@ void main() {
     repository = _FakeInvoicesRepository();
     auditRepository = _FakeAuditLogRepository();
     cubit = InvoiceDetailsCubit(
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            FakeBusinessTimeZoneConverter(offset: Duration(hours: 4)),
+          ),
       getInvoiceDetailsUseCase: GetInvoiceDetailsUseCase(repository),
       issueInvoiceUseCase: IssueInvoiceUseCase(
         repository,
@@ -66,6 +74,15 @@ void main() {
     final state = cubit.state as InvoiceDetailsLoaded;
     expect(state.invoice.id, 'invoice-1');
     expect(state.activity, hasLength(1));
+    final projected = BusinessLocalDateTime(
+      year: 2026,
+      month: 8,
+      day: 6,
+      hour: 4,
+      minute: 0,
+    );
+    expect(state.invoiceCreatedAt, projected);
+    expect(state.activityTimestampFor(state.activity.single.id), projected);
     expect(state.isActivityLoading, isFalse);
     expect(state.canIssue, isTrue);
   });
