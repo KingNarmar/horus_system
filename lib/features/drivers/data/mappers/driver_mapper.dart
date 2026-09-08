@@ -1,10 +1,11 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_status.dart';
 import '../../domain/entities/driver_write_data.dart';
-import '../models/driver_model.dart';
-import '../../../../core/data/constants/db_common_fields.dart';
-import '../../../../core/data/utils/db_timestamp.dart';
 import '../constants/driver_db_fields.dart';
+import '../models/driver_model.dart';
 
 extension DriverModelMapper on DriverModel {
   Driver toEntity() {
@@ -38,7 +39,7 @@ extension DriverAuditMapper on DriverModel {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,
@@ -60,7 +61,7 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,
@@ -76,7 +77,7 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: _dateOnly(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,
@@ -86,10 +87,4 @@ extension DriverWriteDataMapper on DriverWriteData {
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
-}
-
-String? _dateOnly(DateTime? value) {
-  if (value == null) return null;
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }

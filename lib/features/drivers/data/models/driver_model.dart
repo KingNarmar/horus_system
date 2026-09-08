@@ -1,3 +1,6 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class DriverModel {
   final String id;
   final String companyId;
@@ -5,7 +8,7 @@ class DriverModel {
   final String? phone;
   final String? nationalId;
   final String? licenseNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String? profileImagePath;
   final String? licenseImagePath;
   final String? licenseBackImagePath;
@@ -43,7 +46,10 @@ class DriverModel {
       phone: map['phone'] as String?,
       nationalId: map['national_id'] as String?,
       licenseNumber: map['license_number'] as String?,
-      licenseExpiryDate: _toDateTime(map['license_expiry_date']),
+      licenseExpiryDate: DbDate.decodeNullable(
+        map['license_expiry_date'],
+        field: 'license_expiry_date',
+      ),
       profileImagePath: map['profile_image_path'] as String?,
       licenseImagePath: map['license_image_path'] as String?,
       licenseBackImagePath: map['license_back_image_path'] as String?,

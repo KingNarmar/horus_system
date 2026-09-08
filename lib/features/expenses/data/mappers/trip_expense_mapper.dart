@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/trip_expense.dart';
 import '../../domain/entities/trip_expense_paid_by.dart';
@@ -33,7 +34,7 @@ extension TripExpenseModelMapper on TripExpenseModel {
       TripExpenseDbFields.expenseName: expenseName,
       TripExpenseDbFields.amount: amount,
       TripExpenseDbFields.paidBy: paidBy,
-      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
       TripExpenseDbFields.notes: notes,
       TripExpenseDbFields.expenseTypeNameAlias: expenseTypeName,
       DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
@@ -51,7 +52,7 @@ extension TripExpenseWriteDataMapper on TripExpenseWriteData {
       TripExpenseDbFields.expenseName: expenseName,
       TripExpenseDbFields.amount: amount,
       TripExpenseDbFields.paidBy: paidBy.value,
-      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
       TripExpenseDbFields.notes: notes,
     };
   }
@@ -62,15 +63,9 @@ extension TripExpenseWriteDataMapper on TripExpenseWriteData {
       TripExpenseDbFields.expenseName: expenseName,
       TripExpenseDbFields.amount: amount,
       TripExpenseDbFields.paidBy: paidBy.value,
-      TripExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+      TripExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
       TripExpenseDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
-}
-
-String _dateOnly(DateTime value) {
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
 }

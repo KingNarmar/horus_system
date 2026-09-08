@@ -1,4 +1,6 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/trip_expense_db_fields.dart';
 
 class TripExpenseModel {
@@ -9,7 +11,7 @@ class TripExpenseModel {
   final String expenseName;
   final double amount;
   final String paidBy;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? notes;
   final String? expenseTypeName;
   final DateTime? createdAt;
@@ -39,8 +41,10 @@ class TripExpenseModel {
       expenseName: map[TripExpenseDbFields.expenseName] as String? ?? '',
       amount: _toDouble(map[TripExpenseDbFields.amount]) ?? 0,
       paidBy: map[TripExpenseDbFields.paidBy] as String? ?? 'company',
-      expenseDate:
-          _toDateTime(map[TripExpenseDbFields.expenseDate]) ?? DateTime.now(),
+      expenseDate: DbDate.decode(
+        map[TripExpenseDbFields.expenseDate],
+        field: TripExpenseDbFields.expenseDate,
+      ),
       notes: map[TripExpenseDbFields.notes] as String?,
       expenseTypeName:
           map[TripExpenseDbFields.expenseTypeNameAlias] as String? ??

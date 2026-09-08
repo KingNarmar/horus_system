@@ -6,7 +6,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
     String? phone,
     String? nationalId,
     String? licenseNumber,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     DriverImageUploadSet? imageUploads,
     String? notes,
   }) async {
@@ -47,7 +47,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
     String? phone,
     String? nationalId,
     String? licenseNumber,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     DriverImageUploadSet? imageUploads,
     String? notes,
   }) async {

@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'trip_expense_paid_by.dart';
 
 class TripExpense {
@@ -8,7 +9,7 @@ class TripExpense {
   final String expenseName;
   final double amount;
   final TripExpensePaidBy paidBy;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? notes;
   final String? expenseTypeName;
   final DateTime? createdAt;
