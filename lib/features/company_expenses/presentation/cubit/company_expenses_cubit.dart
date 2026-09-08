@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
@@ -11,6 +13,7 @@ import '../../domain/usecases/company_expenses_usecases.dart';
 import 'company_expenses_state.dart';
 
 class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
+  final GetCompanyBusinessDateUseCase getBusinessDateUseCase;
   final GetCompanyExpenseCategoriesUseCase getCategoriesUseCase;
   final GetCompanyExpensesUseCase getExpensesUseCase;
   final GetCompanyExpenseFormLookupsUseCase getFormLookupsUseCase;
@@ -22,6 +25,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   CurrentCompanyContext? _currentCompanyContext;
 
   CompanyExpensesCubit({
+    required this.getBusinessDateUseCase,
     required this.getCategoriesUseCase,
     required this.getExpensesUseCase,
     required this.getFormLookupsUseCase,
@@ -45,45 +49,56 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
     emit(const CompanyExpensesLoading());
 
-    final categoriesResult = await getCategoriesUseCase(
-      GetCompanyExpenseCategoriesParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+    final businessDateResult = await getBusinessDateUseCase(
+      GetCompanyBusinessDateParams(companyId: currentCompanyContext.companyId),
     );
 
-    await categoriesResult.when(
-      success: (categories) async {
-        final lookupsResult = await getFormLookupsUseCase(
-          GetCompanyExpenseFormLookupsParams(
+    await businessDateResult.when(
+      success: (businessDate) async {
+        final categoriesResult = await getCategoriesUseCase(
+          GetCompanyExpenseCategoriesParams(
             currentCompanyContext: currentCompanyContext,
           ),
         );
 
-        await lookupsResult.when(
-          success: (formLookups) async {
-            final expensesResult = await getExpensesUseCase(
-              GetCompanyExpensesParams(
+        await categoriesResult.when(
+          success: (categories) async {
+            final lookupsResult = await getFormLookupsUseCase(
+              GetCompanyExpenseFormLookupsParams(
                 currentCompanyContext: currentCompanyContext,
-                includeVoided: previousIncludeVoided,
               ),
             );
 
-            expensesResult.when(
-              success: (expenses) => emit(
-                CompanyExpensesLoaded(
-                  currentCompanyContext: currentCompanyContext,
-                  categories: categories,
-                  allExpenses: expenses,
-                  formLookups: formLookups,
-                  searchQuery: previousSearchQuery,
-                  includeVoided: previousIncludeVoided,
-                  canManageCompanyExpenses:
-                      CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
-                        currentCompanyContext.role,
-                      ),
-                ),
-              ),
-              failure: (failure) => emit(CompanyExpensesFailure(failure)),
+            await lookupsResult.when(
+              success: (formLookups) async {
+                final expensesResult = await getExpensesUseCase(
+                  GetCompanyExpensesParams(
+                    currentCompanyContext: currentCompanyContext,
+                    includeVoided: previousIncludeVoided,
+                  ),
+                );
+
+                expensesResult.when(
+                  success: (expenses) => emit(
+                    CompanyExpensesLoaded(
+                      currentCompanyContext: currentCompanyContext,
+                      currentBusinessDate: businessDate,
+                      categories: categories,
+                      allExpenses: expenses,
+                      formLookups: formLookups,
+                      searchQuery: previousSearchQuery,
+                      includeVoided: previousIncludeVoided,
+                      canManageCompanyExpenses:
+                          CompanyExpensesPermissionPolicy
+                              .canManageCompanyExpenses(
+                                currentCompanyContext.role,
+                              ),
+                    ),
+                  ),
+                  failure: (failure) => emit(CompanyExpensesFailure(failure)),
+                );
+              },
+              failure: (failure) async => emit(CompanyExpensesFailure(failure)),
             );
           },
           failure: (failure) async => emit(CompanyExpensesFailure(failure)),
@@ -170,7 +185,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   Future<void> addExpense({
     required String categoryId,
     required double amount,
-    required DateTime expenseDate,
+    required BusinessDate expenseDate,
     String? driverId,
     String? tractorHeadId,
     String? trailerId,
@@ -206,7 +221,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     required CompanyExpense expense,
     required String categoryId,
     required double amount,
-    required DateTime expenseDate,
+    required BusinessDate expenseDate,
     String? driverId,
     String? tractorHeadId,
     String? trailerId,

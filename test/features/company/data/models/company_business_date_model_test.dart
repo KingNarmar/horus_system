@@ -1,17 +1,14 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/company/data/models/company_business_date_model.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('CompanyBusinessDateModel', () {
-    test(
-      'parses an exact PostgreSQL date without local timezone conversion',
-      () {
-        final model = CompanyBusinessDateModel.fromValue('2026-08-05');
+    test('parses an exact PostgreSQL date as a BusinessDate', () {
+      final model = CompanyBusinessDateModel.fromValue('2026-08-05');
 
-        expect(model.value, DateTime.utc(2026, 8, 5));
-        expect(model.value.isUtc, isTrue);
-      },
-    );
+      expect(model.value, BusinessDate(year: 2026, month: 8, day: 5));
+    });
 
     test('rejects timestamps and malformed dates', () {
       expect(

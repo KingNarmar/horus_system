@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
 import '../../domain/entities/company_expense_form_lookups.dart';
@@ -14,7 +16,7 @@ import '../localization/company_expense_category_localizations_x.dart';
 class CompanyExpenseFormData {
   final String categoryId;
   final double amount;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? driverId;
   final String? tractorHeadId;
   final String? trailerId;
@@ -38,12 +40,14 @@ class CompanyExpenseFormData {
 class CompanyExpenseFormDialog extends StatefulWidget {
   final List<CompanyExpenseCategory> categories;
   final CompanyExpenseFormLookups formLookups;
+  final BusinessDate initialBusinessDate;
   final CompanyExpense? expense;
   final Future<void> Function(CompanyExpenseFormData data) onSubmit;
 
   const CompanyExpenseFormDialog({
     required this.categories,
     required this.formLookups,
+    required this.initialBusinessDate,
     required this.onSubmit,
     this.expense,
     super.key,
@@ -64,7 +68,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
   String? _selectedTractorHeadId;
   String? _selectedTrailerId;
   String? _selectedTripId;
-  late DateTime _expenseDate;
+  late BusinessDate _expenseDate;
   bool _isSaving = false;
 
   @override
@@ -78,7 +82,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
     _selectedTractorHeadId = expense?.tractorHeadId;
     _selectedTrailerId = expense?.trailerId;
     _selectedTripId = expense?.tripId;
-    _expenseDate = expense?.expenseDate ?? DateTime.now();
+    _expenseDate = expense?.expenseDate ?? widget.initialBusinessDate;
     _amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     _referenceController.text = expense?.referenceNumber ?? '';
     _notesController.text = expense?.notes ?? '';
@@ -95,7 +99,7 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _expenseDate,
+      initialDate: BusinessDateDateTimeAdapter.toDateTime(_expenseDate),
       firstDate: DateTime(
         CompanyExpensePresentationConstants.expenseDatePickerFirstYear,
       ),
@@ -104,7 +108,9 @@ class _CompanyExpenseFormDialogState extends State<CompanyExpenseFormDialog> {
       ),
     );
     if (picked == null) return;
-    setState(() => _expenseDate = picked);
+    setState(
+      () => _expenseDate = BusinessDateDateTimeAdapter.fromDateTime(picked),
+    );
   }
 
   Future<void> _submit() async {

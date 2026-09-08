@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -48,7 +49,7 @@ class AddCompanyExpenseParams {
   final String? trailerId;
   final String? tripId;
   final double amount;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? referenceNumber;
   final String? notes;
 
@@ -75,7 +76,7 @@ class UpdateCompanyExpenseParams {
   final String? trailerId;
   final String? tripId;
   final double amount;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String? referenceNumber;
   final String? notes;
 
@@ -354,7 +355,7 @@ CompanyExpenseWriteData _writeData({
   required String? trailerId,
   required String? tripId,
   required double amount,
-  required DateTime expenseDate,
+  required BusinessDate expenseDate,
   required String? referenceNumber,
   required String? notes,
 }) {

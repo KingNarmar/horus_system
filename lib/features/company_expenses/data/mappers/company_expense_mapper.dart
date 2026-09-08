@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_void_data.dart';
@@ -36,7 +37,7 @@ extension CompanyExpenseModelMapper on CompanyExpenseModel {
     CompanyExpenseDbFields.trailerId: trailerId,
     CompanyExpenseDbFields.tripId: tripId,
     CompanyExpenseDbFields.amount: amount,
-    CompanyExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+    CompanyExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
     CompanyExpenseDbFields.referenceNumber: referenceNumber,
     CompanyExpenseDbFields.notes: notes,
     CompanyExpenseDbFields.isVoided: isVoided,
@@ -57,7 +58,7 @@ extension CompanyExpenseWriteDataMapper on CompanyExpenseWriteData {
     CompanyExpenseDbFields.trailerId: trailerId,
     CompanyExpenseDbFields.tripId: tripId,
     CompanyExpenseDbFields.amount: amount,
-    CompanyExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+    CompanyExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
     CompanyExpenseDbFields.referenceNumber: referenceNumber,
     CompanyExpenseDbFields.notes: notes,
   };
@@ -69,7 +70,7 @@ extension CompanyExpenseWriteDataMapper on CompanyExpenseWriteData {
     CompanyExpenseDbFields.trailerId: trailerId,
     CompanyExpenseDbFields.tripId: tripId,
     CompanyExpenseDbFields.amount: amount,
-    CompanyExpenseDbFields.expenseDate: _dateOnly(expenseDate),
+    CompanyExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
     CompanyExpenseDbFields.referenceNumber: referenceNumber,
     CompanyExpenseDbFields.notes: notes,
     DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
@@ -85,11 +86,4 @@ extension CompanyExpenseVoidDataMapper on CompanyExpenseVoidData {
     DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     DbCommonFields.updatedBy: actorUserId,
   };
-}
-
-String _dateOnly(DateTime value) {
-  final utc = value.toUtc();
-  return '${utc.year.toString().padLeft(4, '0')}-'
-      '${utc.month.toString().padLeft(2, '0')}-'
-      '${utc.day.toString().padLeft(2, '0')}';
 }

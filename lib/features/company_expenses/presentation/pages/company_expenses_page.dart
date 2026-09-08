@@ -39,6 +39,7 @@ class _CompanyExpensesPageState extends State<CompanyExpensesPage> {
       builder: (_) => CompanyExpenseFormDialog(
         categories: state.categories,
         formLookups: state.formLookups,
+        initialBusinessDate: state.currentBusinessDate,
         expense: expense,
         onSubmit: (data) {
           final cubit = context.read<CompanyExpensesCubit>();

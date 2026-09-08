@@ -1,4 +1,5 @@
 import 'package:horus_system/core/data/constants/db_common_fields.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/company_expenses/data/constants/company_expense_db_fields.dart';
 import 'package:horus_system/features/company_expenses/data/mappers/company_expense_mapper.dart';
 import 'package:horus_system/features/company_expenses/data/models/company_expense_category_model.dart';
@@ -57,7 +58,10 @@ void main() {
         expect(model.trailerId, isNull);
         expect(model.tripId, 'trip-1');
         expect(model.amount, 1250.75);
-        expect(model.expenseDate, DateTime.parse('2026-08-20'));
+        expect(
+          model.expenseDate,
+          BusinessDate(year: 2026, month: 8, day: 20),
+        );
         expect(model.referenceNumber, 'REF-10');
         expect(model.notes, isNull);
         expect(model.isVoided, isTrue);
@@ -68,6 +72,20 @@ void main() {
         expect(model.updatedAt, DateTime.parse('2026-08-21T08:30:00.000Z'));
       },
     );
+
+    test('rejects malformed or timestamp-shaped business dates', () {
+      expect(
+        () => CompanyExpenseModel.fromMap({
+          'id': 'expense-1',
+          'company_id': 'company-1',
+          'category_id': 'category-1',
+          'amount': 10,
+          'expense_date': '2026-08-20T00:00:00Z',
+          'is_voided': false,
+        }),
+        throwsFormatException,
+      );
+    });
 
     test('preserves nullable void fields for active expenses', () {
       final model = CompanyExpenseModel.fromMap({
@@ -93,7 +111,7 @@ void main() {
     });
 
     test('maps model to the Domain entity without changing values', () {
-      final expenseDate = DateTime.utc(2026, 8, 20);
+      final expenseDate = BusinessDate(year: 2026, month: 8, day: 20);
       final model = CompanyExpenseModel(
         id: 'expense-1',
         companyId: 'company-1',
@@ -141,13 +159,13 @@ void main() {
   });
 
   group('Company Expense mapper', () {
-    test('builds stable audit values', () {
+    test('builds stable audit values without timezone conversion', () {
       final model = CompanyExpenseModel(
         id: 'expense-1',
         companyId: 'company-1',
         categoryId: 'category-1',
         amount: 99.5,
-        expenseDate: DateTime.utc(2026, 8, 20, 14),
+        expenseDate: BusinessDate(year: 2026, month: 8, day: 20),
         isVoided: true,
         driverId: 'driver-1',
         tractorHeadId: 'tractor-1',
@@ -183,12 +201,12 @@ void main() {
       expect(values[DbCommonFields.updatedAt], '2026-08-21T08:00:00.000Z');
     });
 
-    test('builds the existing insert payload', () {
+    test('builds the existing insert payload with exact business date', () {
       final data = CompanyExpenseWriteData(
         companyId: 'company-1',
         categoryId: 'category-1',
         amount: 120,
-        expenseDate: DateTime.utc(2026, 8, 20, 18),
+        expenseDate: BusinessDate(year: 2026, month: 8, day: 20),
         driverId: 'driver-1',
         tractorHeadId: 'tractor-1',
         trailerId: 'trailer-1',
@@ -216,7 +234,7 @@ void main() {
         companyId: 'company-1',
         categoryId: 'category-2',
         amount: 80,
-        expenseDate: DateTime.utc(2026, 8, 22),
+        expenseDate: BusinessDate(year: 2026, month: 8, day: 22),
       );
 
       final map = data.toUpdateMap();

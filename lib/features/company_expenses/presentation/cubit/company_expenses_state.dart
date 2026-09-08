@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -23,6 +24,7 @@ class CompanyExpensesLoading extends CompanyExpensesState {
 
 class CompanyExpensesLoaded extends CompanyExpensesState {
   final CurrentCompanyContext currentCompanyContext;
+  final BusinessDate currentBusinessDate;
   final List<CompanyExpenseCategory> categories;
   final List<CompanyExpense> allExpenses;
   final CompanyExpenseFormLookups formLookups;
@@ -37,6 +39,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
 
   const CompanyExpensesLoaded({
     required this.currentCompanyContext,
+    required this.currentBusinessDate,
     required this.categories,
     required this.allExpenses,
     required this.canManageCompanyExpenses,
@@ -144,6 +147,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   }
 
   CompanyExpensesLoaded copyWith({
+    BusinessDate? currentBusinessDate,
     List<CompanyExpenseCategory>? categories,
     List<CompanyExpense>? allExpenses,
     CompanyExpenseFormLookups? formLookups,
@@ -158,6 +162,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   }) {
     return CompanyExpensesLoaded(
       currentCompanyContext: currentCompanyContext,
+      currentBusinessDate: currentBusinessDate ?? this.currentBusinessDate,
       categories: categories ?? this.categories,
       allExpenses: allExpenses ?? this.allExpenses,
       formLookups: formLookups ?? this.formLookups,
