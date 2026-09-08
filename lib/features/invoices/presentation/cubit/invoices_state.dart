@@ -4,6 +4,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice.dart';
 import '../../domain/entities/invoice_status.dart';
+import '../helpers/invoice_formatters.dart';
 
 const Object _notSet = Object();
 
@@ -69,8 +70,8 @@ final class InvoicesLoaded extends InvoicesState {
             invoice.customer.taxRegistrationNumber,
             invoice.status.value,
             ...(statusSearchTerms[invoice.status] ?? const <String>[]),
-            invoice.issueDate?.value.toIso8601String(),
-            invoice.dueDate?.value.toIso8601String(),
+            formatInvoiceInputDate(invoice.issueDate?.value),
+            formatInvoiceInputDate(invoice.dueDate?.value),
             invoice.currency.value,
             invoice.totals.grandTotal.minorUnits,
             invoice.notes,
