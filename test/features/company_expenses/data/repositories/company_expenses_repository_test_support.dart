@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -35,7 +36,7 @@ CompanyExpenseWriteData companyExpenseWriteData({double amount = 125.5}) {
     companyId: testCompanyId,
     categoryId: testCategoryId,
     amount: amount,
-    expenseDate: DateTime.utc(2026, 8, 19),
+    expenseDate: BusinessDate(year: 2026, month: 8, day: 19),
   );
 }
 
@@ -55,7 +56,7 @@ CompanyExpenseModel companyExpenseModel({
     companyId: testCompanyId,
     categoryId: testCategoryId,
     amount: amount,
-    expenseDate: DateTime.utc(2026, 8, 19),
+    expenseDate: BusinessDate(year: 2026, month: 8, day: 19),
     isVoided: isVoided,
     voidReason: voidReason,
   );
@@ -68,7 +69,7 @@ class ThrowingCompanyExpenseModel extends CompanyExpenseModel {
         companyId: testCompanyId,
         categoryId: testCategoryId,
         amount: 1,
-        expenseDate: DateTime.utc(2026, 8, 19),
+        expenseDate: BusinessDate(year: 2026, month: 8, day: 19),
         isVoided: false,
       );
 
