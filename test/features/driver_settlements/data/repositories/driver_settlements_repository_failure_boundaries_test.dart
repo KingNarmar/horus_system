@@ -36,7 +36,7 @@ void main() {
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
         expect(remoteDataSource.lastListCompanyId, testCompanyId);
-        expect(remoteDataSource.lastListDriverId, testDriverId);
+        expect(remoteDataSource.lastDriverId, testDriverId);
         expect(remoteDataSource.lastIncludeVoided, isTrue);
       },
     );
@@ -113,8 +113,11 @@ void main() {
         expect(result.failureOrNull, same(driverFinanceFailure));
         expect(balanceRepository.lastCompanyId, testCompanyId);
         expect(balanceRepository.lastDriverId, testDriverId);
-        expect(balanceRepository.lastBeforeExclusive, period.start);
-        expect(balanceRepository.lastCheckpointBeforeExclusive, period.start);
+        expect(balanceRepository.lastBeforeExclusive, DateTime(2026, 9, 1));
+        expect(
+          balanceRepository.lastCheckpointBeforeExclusive,
+          DateTime(2026, 9, 1),
+        );
         expect(remoteDataSource.snapshotCalls, 0);
       },
     );
