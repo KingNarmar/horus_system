@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -46,8 +47,8 @@ void main() {
         DriverSettlementCalculationParams(
           currentCompanyContext: _context(CompanyRole.owner),
           driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
+          periodStart: _date(2026, 7, 1),
+          periodEnd: _date(2026, 7, 31),
           grossSalary: 1000,
           salaryDeductionsTotal: 100,
           balanceDeductionApplied: 50,
@@ -79,8 +80,8 @@ void main() {
           DriverSettlementCalculationParams(
             currentCompanyContext: _context(CompanyRole.accountant),
             driverId: _driverId,
-            periodStart: DateTime(2026, 7),
-            periodEnd: DateTime(2026, 7, 31),
+            periodStart: _date(2026, 7, 1),
+            periodEnd: _date(2026, 7, 31),
           ),
         );
 
@@ -102,8 +103,8 @@ void main() {
         CreateDriverSettlementDraftParams(
           currentCompanyContext: _context(CompanyRole.accountant),
           driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
+          periodStart: _date(2026, 7, 1),
+          periodEnd: _date(2026, 7, 31),
         ),
       );
 
@@ -129,8 +130,8 @@ void main() {
         DriverSettlementCalculationParams(
           currentCompanyContext: _context(CompanyRole.accountant),
           driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
+          periodStart: _date(2026, 7, 1),
+          periodEnd: _date(2026, 7, 31),
           grossSalary: 500,
           balanceDeductionApplied: 150,
         ),
@@ -157,8 +158,8 @@ void main() {
         CreateDriverSettlementDraftParams(
           currentCompanyContext: _context(CompanyRole.accountant),
           driverId: _driverId,
-          periodStart: DateTime(2026, 7),
-          periodEnd: DateTime(2026, 7, 31),
+          periodStart: _date(2026, 7, 1),
+          periodEnd: _date(2026, 7, 31),
           grossSalary: 500,
           balanceDeductionApplied: 150,
         ),
@@ -198,8 +199,8 @@ void main() {
           CreateDriverSettlementDraftParams(
             currentCompanyContext: _context(CompanyRole.viewer),
             driverId: _driverId,
-            periodStart: DateTime(2026, 7),
-            periodEnd: DateTime(2026, 7, 31),
+            periodStart: _date(2026, 7, 1),
+            periodEnd: _date(2026, 7, 31),
           ),
         );
 
@@ -222,8 +223,8 @@ void main() {
         DriverSettlementCalculationParams(
           currentCompanyContext: _context(CompanyRole.accountant),
           driverId: _driverId,
-          periodStart: DateTime(2026, 8),
-          periodEnd: DateTime(2026, 7),
+          periodStart: _date(2026, 8, 1),
+          periodEnd: _date(2026, 7, 1),
         ),
       );
 
@@ -260,6 +261,10 @@ void main() {
 
 const _companyId = 'company-1';
 const _driverId = 'driver-1';
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
 
 CurrentCompanyContext _context(CompanyRole role) {
   return CurrentCompanyContext(
@@ -389,8 +394,8 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
       period:
           data?.period ??
           DriverSettlementPeriod(
-            start: DateTime(2026, 7),
-            end: DateTime(2026, 7, 31),
+            start: _date(2026, 7, 1),
+            end: _date(2026, 7, 31),
           ),
       calculation: calculation,
       status: status,
