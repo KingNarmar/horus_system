@@ -84,15 +84,14 @@ mixin TripsDetailsActions on Cubit<TripsState> {
 
     if (result is Success<TripEntity>) {
       final details = result.data;
-      final localTimestampsResult =
-          await owner.getTripBusinessLocalTimestampsUseCase(
+      final localTimestampsResult = await owner
+          .getTripBusinessLocalTimestampsUseCase(
             GetTripBusinessLocalTimestampsParams(
               currentCompanyContext: latestState.currentCompanyContext,
               trip: details,
             ),
           );
-      if (localTimestampsResult
-          is FailureResult<TripBusinessLocalTimestamps>) {
+      if (localTimestampsResult is FailureResult<TripBusinessLocalTimestamps>) {
         emit(
           latestState.copyWith(
             isDetailsLoading: false,
@@ -108,7 +107,8 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       final localTimestamps = {
         ...currentAfterCalculation.businessLocalTimestampsByTripId,
         details.id:
-            (localTimestampsResult as Success<TripBusinessLocalTimestamps>).data,
+            (localTimestampsResult as Success<TripBusinessLocalTimestamps>)
+                .data,
       };
 
       emit(

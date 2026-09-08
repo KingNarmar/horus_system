@@ -88,10 +88,7 @@ final class ResolveTripBusinessLocalTimestampsUseCase
     );
   }
 
-  Result<DateTime?> _toUtc(
-    BusinessLocalDateTime? value,
-    String timeZoneId,
-  ) {
+  Result<DateTime?> _toUtc(BusinessLocalDateTime? value, String timeZoneId) {
     if (value == null) return const Success<DateTime?>(null);
     final result = _converter.toUtcInstant(
       localDateTime: value,
@@ -163,10 +160,7 @@ final class GetTripBusinessLocalTimestampsUseCase
     );
   }
 
-  Result<BusinessLocalDateTime?> _toLocal(
-    DateTime? value,
-    String timeZoneId,
-  ) {
+  Result<BusinessLocalDateTime?> _toLocal(DateTime? value, String timeZoneId) {
     if (value == null) return const Success<BusinessLocalDateTime?>(null);
     final result = _converter.toBusinessLocalDateTime(
       instant: value,

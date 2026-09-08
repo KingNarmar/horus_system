@@ -155,9 +155,7 @@ class TripsCubit extends Cubit<TripsState>
     TripBusinessLocalTimestamps? businessLocalTimestamps,
   }) {
     _mapLoaded((state) {
-      final localTimestamps = {
-        ...state.businessLocalTimestampsByTripId,
-      };
+      final localTimestamps = {...state.businessLocalTimestampsByTripId};
       if (businessLocalTimestamps != null) {
         localTimestamps[trip.id] = businessLocalTimestamps;
       }

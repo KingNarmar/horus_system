@@ -123,10 +123,7 @@ final class TimezoneBusinessTimeZoneConverter
     return false;
   }
 
-  bool _sameWallClock(
-    DateTime value,
-    BusinessLocalDateTime localDateTime,
-  ) {
+  bool _sameWallClock(DateTime value, BusinessLocalDateTime localDateTime) {
     return value.year == localDateTime.year &&
         value.month == localDateTime.month &&
         value.day == localDateTime.day &&

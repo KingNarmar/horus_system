@@ -15,10 +15,7 @@ void main() {
         'created_at': '2026-09-07T01:00:00+04:00',
       });
 
-      expect(
-        model.scheduledLoadingAt,
-        DateTime.utc(2026, 9, 6, 20, 30),
-      );
+      expect(model.scheduledLoadingAt, DateTime.utc(2026, 9, 6, 20, 30));
       expect(model.scheduledLoadingAt?.isUtc, isTrue);
       expect(model.createdAt, DateTime.utc(2026, 9, 6, 21));
       expect(model.createdAt?.isUtc, isTrue);

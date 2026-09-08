@@ -54,32 +54,35 @@ void main() {
   });
 
   group('GetTripBusinessLocalTimestampsUseCase', () {
-    test('renders persisted instants in the current company timezone', () async {
-      final converter = _FakeBusinessTimeZoneConverter();
-      final useCase = GetTripBusinessLocalTimestampsUseCase(converter);
-      final trip = TripEntity(
-        id: 'trip-1',
-        companyId: 'company-1',
-        customerId: 'customer-1',
-        routeId: 'route-1',
-        status: TripStatus.created,
-        scheduledLoadingAt: DateTime.utc(2026, 9, 6, 20, 30),
-      );
+    test(
+      'renders persisted instants in the current company timezone',
+      () async {
+        final converter = _FakeBusinessTimeZoneConverter();
+        final useCase = GetTripBusinessLocalTimestampsUseCase(converter);
+        final trip = TripEntity(
+          id: 'trip-1',
+          companyId: 'company-1',
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          status: TripStatus.created,
+          scheduledLoadingAt: DateTime.utc(2026, 9, 6, 20, 30),
+        );
 
-      final result = await useCase(
-        GetTripBusinessLocalTimestampsParams(
-          currentCompanyContext: _context('Asia/Dubai'),
-          trip: trip,
-        ),
-      );
+        final result = await useCase(
+          GetTripBusinessLocalTimestampsParams(
+            currentCompanyContext: _context('Asia/Dubai'),
+            trip: trip,
+          ),
+        );
 
-      expect(result, isA<Success>());
-      expect(converter.lastTimeZoneId, 'Asia/Dubai');
-      expect(
-        result.dataOrNull?.scheduledLoadingAt,
-        _local(2026, 9, 7, 0, 30),
-      );
-    });
+        expect(result, isA<Success>());
+        expect(converter.lastTimeZoneId, 'Asia/Dubai');
+        expect(
+          result.dataOrNull?.scheduledLoadingAt,
+          _local(2026, 9, 7, 0, 30),
+        );
+      },
+    );
   });
 }
 

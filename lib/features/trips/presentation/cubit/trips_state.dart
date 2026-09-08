@@ -156,7 +156,8 @@ class TripsLoaded extends TripsState {
       currentCompanyContext: currentCompanyContext,
       allTrips: allTrips ?? this.allTrips,
       businessLocalTimestampsByTripId:
-          businessLocalTimestampsByTripId ?? this.businessLocalTimestampsByTripId,
+          businessLocalTimestampsByTripId ??
+          this.businessLocalTimestampsByTripId,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
       canViewTripFinancials:

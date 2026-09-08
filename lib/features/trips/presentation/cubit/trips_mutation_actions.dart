@@ -22,15 +22,16 @@ mixin TripsMutationActions on Cubit<TripsState> {
     final context = owner._currentCompanyContext;
     if (context == null) return;
 
-    final timestampsResult = await owner.resolveTripBusinessLocalTimestampsUseCase(
-      ResolveTripBusinessLocalTimestampsParams(
-        currentCompanyContext: context,
-        scheduledLoadingAt: scheduledLoadingAt,
-        scheduledDeliveryAt: scheduledDeliveryAt,
-        actualLoadingAt: actualLoadingAt,
-        actualDeliveryAt: actualDeliveryAt,
-      ),
-    );
+    final timestampsResult = await owner
+        .resolveTripBusinessLocalTimestampsUseCase(
+          ResolveTripBusinessLocalTimestampsParams(
+            currentCompanyContext: context,
+            scheduledLoadingAt: scheduledLoadingAt,
+            scheduledDeliveryAt: scheduledDeliveryAt,
+            actualLoadingAt: actualLoadingAt,
+            actualDeliveryAt: actualDeliveryAt,
+          ),
+        );
     if (timestampsResult is FailureResult<TripTimestampInstants>) {
       emit(TripsFailure(timestampsResult.failure));
       return;
