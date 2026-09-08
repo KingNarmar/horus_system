@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../../driver_finance/domain/entities/driver_balance.dart';
@@ -95,12 +96,13 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
     required DriverSettlementPeriod period,
   }) {
     return _guard(() async {
+      final periodStartForBalance = _legacyBalanceDate(period.start);
       final openingResult = await driverBalanceRepository
           .getCanonicalDriverBalance(
             companyId: companyId,
             driverId: driverId,
-            beforeExclusive: period.start,
-            checkpointBeforeExclusive: period.start,
+            beforeExclusive: periodStartForBalance,
+            checkpointBeforeExclusive: periodStartForBalance,
           );
       if (openingResult is FailureResult<DriverBalance>) {
         return FailureResult<DriverSettlementSourceSnapshot>(
@@ -197,4 +199,8 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
       return FailureResult(_failureMapper.fromUnexpected(error));
     }
   }
+}
+
+DateTime _legacyBalanceDate(BusinessDate value) {
+  return DateTime(value.year, value.month, value.day);
 }
