@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -40,8 +41,8 @@ void main() {
       expect(data.metadata?['settlement_id'], _settlementId);
       expect(data.metadata?['driver_id'], _driverId);
       expect(data.metadata?['status'], 'draft');
-      expect(data.metadata?['period_start'], '2026-07-01T00:00:00.000');
-      expect(data.metadata?['period_end'], '2026-07-31T00:00:00.000');
+      expect(data.metadata?['period_start'], '2026-07-01');
+      expect(data.metadata?['period_end'], '2026-07-31');
       expect(data.metadata?['closing_driver_balance'], 125);
       expect(data.metadata?['net_salary_payable'], 850);
     });
@@ -103,8 +104,8 @@ DriverSettlementModel _settlementModel({
     id: _settlementId,
     companyId: _companyId,
     driverId: _driverId,
-    periodStart: DateTime(2026, 7),
-    periodEnd: DateTime(2026, 7, 31),
+    periodStart: BusinessDate(year: 2026, month: 7, day: 1),
+    periodEnd: BusinessDate(year: 2026, month: 7, day: 31),
     openingDriverBalance: 0,
     advancesTotal: 200,
     driverPaidTripExpensesTotal: 50,
