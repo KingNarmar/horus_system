@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -33,6 +34,8 @@ class FleetLoaded extends FleetState {
   final Set<String> activeStateChangingAssetIds;
   final String? selectedAssetId;
   final List<AuditLog> selectedAssetActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedAssetActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
 
@@ -47,12 +50,18 @@ class FleetLoaded extends FleetState {
     this.activeStateChangingAssetIds = const <String>{},
     this.selectedAssetId,
     this.selectedAssetActivity = const [],
+    this.selectedAssetActivityTimestampsByLogId =
+        const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
   });
 
   bool isActiveStateChanging(String id) =>
       activeStateChangingAssetIds.contains(id);
+
+  BusinessLocalDateTime? activityTimestampFor(String logId) {
+    return selectedAssetActivityTimestampsByLogId[logId];
+  }
 
   List<TractorHead> get tractorHeads {
     final query = searchQuery.trim().toLowerCase();
@@ -91,6 +100,8 @@ class FleetLoaded extends FleetState {
     Set<String>? activeStateChangingAssetIds,
     Object? selectedAssetId = _notSet,
     List<AuditLog>? selectedAssetActivity,
+    Map<String, BusinessLocalDateTime>?
+    selectedAssetActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
   }) {
@@ -109,6 +120,9 @@ class FleetLoaded extends FleetState {
           : selectedAssetId as String?,
       selectedAssetActivity:
           selectedAssetActivity ?? this.selectedAssetActivity,
+      selectedAssetActivityTimestampsByLogId:
+          selectedAssetActivityTimestampsByLogId ??
+          this.selectedAssetActivityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
