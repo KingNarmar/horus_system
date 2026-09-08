@@ -36,7 +36,7 @@ void main() {
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
         expect(remoteDataSource.lastListCompanyId, testCompanyId);
-        expect(remoteDataSource.lastDriverId, testDriverId);
+        expect(remoteDataSource.lastListDriverId, testDriverId);
         expect(remoteDataSource.lastIncludeVoided, isTrue);
       },
     );
