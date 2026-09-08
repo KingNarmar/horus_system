@@ -1,4 +1,5 @@
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../domain/entities/trip_entity.dart';
 
 abstract final class TripFormatters {
@@ -25,6 +26,18 @@ abstract final class TripFormatters {
     return '${value.year.toString().padLeft(4, '0')}-'
         '${value.month.toString().padLeft(2, '0')}-'
         '${value.day.toString().padLeft(2, '0')}';
+  }
+
+  static String businessLocalDateTime(
+    BusinessLocalDateTime? value,
+    String emptyValue,
+  ) {
+    if (value == null) return emptyValue;
+    return '${value.year.toString().padLeft(4, '0')}-'
+        '${value.month.toString().padLeft(2, '0')}-'
+        '${value.day.toString().padLeft(2, '0')} '
+        '${value.hour.toString().padLeft(2, '0')}:'
+        '${value.minute.toString().padLeft(2, '0')}';
   }
 
   static String quantityTons(

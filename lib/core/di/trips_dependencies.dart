@@ -7,12 +7,14 @@ import '../../features/trips/data/datasources/trips_remote_data_source.dart';
 import '../../features/trips/data/repositories/trips_repository_impl.dart';
 import '../../features/trips/domain/usecases/trips_usecases.dart';
 import '../../features/trips/presentation/cubit/trips_cubit.dart';
+import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
 
 abstract final class TripsDependencies {
   static TripsCubit createTripsCubit() {
     final client = SupabaseClientProvider.client;
     final createAuditLogUseCase = AuditDependencies.createAuditLogUseCase;
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     final tripsRemoteDataSource = SupabaseTripsRemoteDataSource(client);
     final tripsRepository = TripsRepositoryImpl(
@@ -37,6 +39,14 @@ abstract final class TripsDependencies {
       updateTripStatusUseCase: UpdateTripStatusUseCase(tripsRepository),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
       calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
+      getTripBusinessLocalTimestampsUseCase:
+          const GetTripBusinessLocalTimestampsUseCase(
+            businessTimeZoneConverter,
+          ),
+      resolveTripBusinessLocalTimestampsUseCase:
+          const ResolveTripBusinessLocalTimestampsUseCase(
+            businessTimeZoneConverter,
+          ),
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getTripExpensesUseCase: GetTripExpensesUseCase(expensesRepository),
       getActiveExpenseTypesUseCase:

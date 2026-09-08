@@ -5,6 +5,7 @@ import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/trip_expense.dart';
+import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status_filter.dart';
@@ -27,6 +28,8 @@ class TripsLoading extends TripsState {
 class TripsLoaded extends TripsState {
   final CurrentCompanyContext currentCompanyContext;
   final List<TripEntity> allTrips;
+  final Map<String, TripBusinessLocalTimestamps>
+  businessLocalTimestampsByTripId;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -62,6 +65,8 @@ class TripsLoaded extends TripsState {
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
     required this.canManageTripExpenses,
+    this.businessLocalTimestampsByTripId =
+        const <String, TripBusinessLocalTimestamps>{},
     this.searchQuery = '',
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
@@ -89,6 +94,10 @@ class TripsLoaded extends TripsState {
 
   bool isStatusChanging(String id) => statusChangingTripIds.contains(id);
 
+  TripBusinessLocalTimestamps? businessLocalTimestampsFor(String tripId) {
+    return businessLocalTimestampsByTripId[tripId];
+  }
+
   List<TripEntity> get trips {
     final query = searchQuery.trim().toLowerCase();
     return allTrips.where((trip) {
@@ -114,6 +123,7 @@ class TripsLoaded extends TripsState {
 
   TripsLoaded copyWith({
     List<TripEntity>? allTrips,
+    Map<String, TripBusinessLocalTimestamps>? businessLocalTimestampsByTripId,
     bool? canManageTrips,
     bool? canUpdateTripStatus,
     bool? canViewTripFinancials,
@@ -145,6 +155,8 @@ class TripsLoaded extends TripsState {
     return TripsLoaded(
       currentCompanyContext: currentCompanyContext,
       allTrips: allTrips ?? this.allTrips,
+      businessLocalTimestampsByTripId:
+          businessLocalTimestampsByTripId ?? this.businessLocalTimestampsByTripId,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
       canViewTripFinancials:

@@ -84,14 +84,38 @@ mixin TripsDetailsActions on Cubit<TripsState> {
 
     if (result is Success<TripEntity>) {
       final details = result.data;
+      final localTimestampsResult =
+          await owner.getTripBusinessLocalTimestampsUseCase(
+            GetTripBusinessLocalTimestampsParams(
+              currentCompanyContext: latestState.currentCompanyContext,
+              trip: details,
+            ),
+          );
+      if (localTimestampsResult
+          is FailureResult<TripBusinessLocalTimestamps>) {
+        emit(
+          latestState.copyWith(
+            isDetailsLoading: false,
+            detailsFailure: localTimestampsResult.failure,
+          ),
+        );
+        return;
+      }
+
       final netProfit = await _calculateSelectedTripNetProfit(details);
       final currentAfterCalculation = state;
       if (currentAfterCalculation is! TripsLoaded) return;
+      final localTimestamps = {
+        ...currentAfterCalculation.businessLocalTimestampsByTripId,
+        details.id:
+            (localTimestampsResult as Success<TripBusinessLocalTimestamps>).data,
+      };
 
       emit(
         currentAfterCalculation.copyWith(
           selectedTrip: details,
           selectedTripNetProfit: netProfit,
+          businessLocalTimestampsByTripId: localTimestamps,
           isDetailsLoading: false,
           detailsFailure: null,
           allTrips: _upsertTripInList(

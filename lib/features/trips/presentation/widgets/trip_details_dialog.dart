@@ -27,6 +27,9 @@ class TripDetailsDialog extends StatelessWidget {
     final calculatedAmount = state?.selectedTrip?.id == detailsTrip.id
         ? state?.selectedTripNetProfit
         : null;
+    final businessLocalTimestamps = state?.businessLocalTimestampsFor(
+      detailsTrip.id,
+    );
 
     final dialogWidth = (mediaSize.width - AppSpacing.xxl)
         .clamp(320.0, 820.0)
@@ -94,6 +97,7 @@ class TripDetailsDialog extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     TripBasicInfoSection(
                       trip: detailsTrip,
+                      businessLocalTimestamps: businessLocalTimestamps,
                       calculatedAmount: calculatedAmount,
                     ),
                     const SizedBox(height: AppSpacing.lg),
