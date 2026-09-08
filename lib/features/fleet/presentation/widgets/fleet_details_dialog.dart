@@ -4,7 +4,9 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -120,7 +122,11 @@ class FleetDetailsDialog extends StatelessWidget {
                     label: l10n.fleetCreatedAt,
                     value: createdLog == null
                         ? l10n.fleetNotAvailable
-                        : _formatDateTime(context, createdLog.createdAt),
+                        : _formatBusinessLocalDateTime(
+                            context,
+                            state?.activityTimestampFor(createdLog.id),
+                            l10n.fleetNotAvailable,
+                          ),
                   ),
                   _DetailRow(
                     label: l10n.fleetLastActivityBy,
@@ -134,7 +140,11 @@ class FleetDetailsDialog extends StatelessWidget {
                     label: l10n.fleetLastActivityAt,
                     value: latestLog == null
                         ? l10n.fleetNotAvailable
-                        : _formatDateTime(context, latestLog.createdAt),
+                        : _formatBusinessLocalDateTime(
+                            context,
+                            state?.activityTimestampFor(latestLog.id),
+                            l10n.fleetNotAvailable,
+                          ),
                   ),
                 ],
               ),
@@ -161,7 +171,12 @@ class FleetDetailsDialog extends StatelessWidget {
                   else if (activity.isEmpty)
                     Text(l10n.fleetNoActivityFound)
                   else
-                    ...activity.map((log) => _TimelineItem(log: log)),
+                    ...activity.map(
+                      (log) => _TimelineItem(
+                        log: log,
+                        createdAt: state?.activityTimestampFor(log.id),
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -202,7 +217,10 @@ class _LoadingText extends StatelessWidget {
 
 class _TimelineItem extends StatelessWidget {
   final AuditLog log;
-  const _TimelineItem({required this.log});
+  final BusinessLocalDateTime? createdAt;
+
+  const _TimelineItem({required this.log, required this.createdAt});
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -248,7 +266,11 @@ class _TimelineItem extends StatelessWidget {
                   l10n.auditTimelineHeader(
                     actorName,
                     l10n.fleetAuditRoleLabel(log.actorRole),
-                    _formatDateTime(context, log.createdAt),
+                    _formatBusinessLocalDateTime(
+                      context,
+                      createdAt,
+                      l10n.fleetNotAvailable,
+                    ),
                   ),
                 ),
                 if (changes.isNotEmpty) ...[
@@ -325,10 +347,15 @@ class _DetailRow extends StatelessWidget {
   );
 }
 
-String _formatDateTime(BuildContext context, DateTime value) {
+String _formatBusinessLocalDateTime(
+  BuildContext context,
+  BusinessLocalDateTime? value,
+  String fallback,
+) {
+  if (value == null) return fallback;
   final material = MaterialLocalizations.of(context);
-  final local = value.toLocal();
-  return '${material.formatShortDate(local)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  final carrier = BusinessLocalDateTimeDateTimeAdapter.toDateTime(value);
+  return '${material.formatShortDate(carrier)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(carrier))}';
 }
 
 String _dateOnlyOrEmpty(BuildContext context, BusinessDate? value) {
