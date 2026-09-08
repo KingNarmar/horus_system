@@ -117,7 +117,10 @@ class DriverSettlementSourceSnapshotLoader {
           _paidByDriverAdvance,
           _paidByDriverCash,
         ])
-        .gte(DriverSettlementsDbFields.expenseDate, DbDate.encode(startInclusive))
+        .gte(
+          DriverSettlementsDbFields.expenseDate,
+          DbDate.encode(startInclusive),
+        )
         .lte(DriverSettlementsDbFields.expenseDate, DbDate.encode(endInclusive))
         .order(DriverSettlementsDbFields.expenseDate)
         .order(DbCommonFields.createdAt)

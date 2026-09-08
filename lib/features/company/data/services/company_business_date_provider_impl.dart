@@ -17,7 +17,9 @@ final class CompanyBusinessDateProviderImpl
   const CompanyBusinessDateProviderImpl(this._remoteDataSource);
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     try {
       final model = await _remoteDataSource.getBusinessDate(
         companyId: companyId,

@@ -58,10 +58,7 @@ void main() {
         expect(model.trailerId, isNull);
         expect(model.tripId, 'trip-1');
         expect(model.amount, 1250.75);
-        expect(
-          model.expenseDate,
-          BusinessDate(year: 2026, month: 8, day: 20),
-        );
+        expect(model.expenseDate, BusinessDate(year: 2026, month: 8, day: 20));
         expect(model.referenceNumber, 'REF-10');
         expect(model.notes, isNull);
         expect(model.isVoided, isTrue);

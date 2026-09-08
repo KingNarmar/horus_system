@@ -21,18 +21,14 @@ void main() {
     test('model preserves exact payment calendar date', () {
       final model = PaymentModel.fromMap(baseMap());
 
-      expect(
-        model.paymentDate,
-        BusinessDate(year: 2026, month: 9, day: 7),
-      );
+      expect(model.paymentDate, BusinessDate(year: 2026, month: 9, day: 7));
       expect(model.createdAt, DateTime.utc(2026, 9, 7, 8, 30));
     });
 
     test('model rejects timestamp-shaped payment date', () {
       expect(
-        () => PaymentModel.fromMap(
-          baseMap(paymentDate: '2026-09-07T00:00:00Z'),
-        ),
+        () =>
+            PaymentModel.fromMap(baseMap(paymentDate: '2026-09-07T00:00:00Z')),
         throwsFormatException,
       );
     });

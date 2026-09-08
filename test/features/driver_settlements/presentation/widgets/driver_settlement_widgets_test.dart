@@ -379,7 +379,9 @@ class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
   _FixedBusinessDateProvider(this.date);
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     return Success(date);
   }
 }

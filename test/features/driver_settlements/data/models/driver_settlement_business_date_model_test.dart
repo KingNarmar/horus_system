@@ -32,14 +32,8 @@ void main() {
     test('model preserves settlement period calendar dates', () {
       final model = DriverSettlementModel.fromMap(baseMap());
 
-      expect(
-        model.periodStart,
-        BusinessDate(year: 2026, month: 9, day: 1),
-      );
-      expect(
-        model.periodEnd,
-        BusinessDate(year: 2026, month: 9, day: 30),
-      );
+      expect(model.periodStart, BusinessDate(year: 2026, month: 9, day: 1));
+      expect(model.periodEnd, BusinessDate(year: 2026, month: 9, day: 30));
     });
 
     test('model rejects timestamp-shaped settlement period dates', () {

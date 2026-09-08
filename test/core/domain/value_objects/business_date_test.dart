@@ -27,18 +27,9 @@ void main() {
     });
 
     test('supports Gregorian leap-year rules', () {
-      expect(
-        BusinessDate.tryCreate(year: 2024, month: 2, day: 29),
-        isNotNull,
-      );
-      expect(
-        BusinessDate.tryCreate(year: 2100, month: 2, day: 29),
-        isNull,
-      );
-      expect(
-        BusinessDate.tryCreate(year: 2000, month: 2, day: 29),
-        isNotNull,
-      );
+      expect(BusinessDate.tryCreate(year: 2024, month: 2, day: 29), isNotNull);
+      expect(BusinessDate.tryCreate(year: 2100, month: 2, day: 29), isNull);
+      expect(BusinessDate.tryCreate(year: 2000, month: 2, day: 29), isNotNull);
     });
 
     test('compares dates without time or timezone semantics', () {

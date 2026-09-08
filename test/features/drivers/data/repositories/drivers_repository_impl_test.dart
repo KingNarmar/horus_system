@@ -290,7 +290,8 @@ class _FakeDriversRemoteDataSource implements DriversRemoteDataSource {
   }
 }
 
-class _FakeDriverImagesRemoteDataSource implements DriverImagesRemoteDataSource {
+class _FakeDriverImagesRemoteDataSource
+    implements DriverImagesRemoteDataSource {
   final Object? signedUrlError;
 
   const _FakeDriverImagesRemoteDataSource({this.signedUrlError});

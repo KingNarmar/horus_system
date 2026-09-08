@@ -274,7 +274,8 @@ Future<Result<TractorHead>> _changeTractorHeadStatus(
     required String companyId,
     required String id,
     required String actorRole,
-  }) action,
+  })
+  action,
 ) {
   final context = params.currentCompanyContext;
   if (!FleetPermissionPolicy.canManageFleet(context.role)) {
@@ -300,7 +301,8 @@ Future<Result<TrailerEntity>> _changeTrailerStatus(
     required String companyId,
     required String id,
     required String actorRole,
-  }) action,
+  })
+  action,
 ) {
   final context = params.currentCompanyContext;
   if (!FleetPermissionPolicy.canManageFleet(context.role)) {

@@ -71,9 +71,7 @@ extension InvoiceModelMapper on InvoiceModel {
       issueDate: issueDate == null
           ? null
           : InvoiceDate.fromBusinessDate(issueDate!),
-      dueDate: dueDate == null
-          ? null
-          : InvoiceDate.fromBusinessDate(dueDate!),
+      dueDate: dueDate == null ? null : InvoiceDate.fromBusinessDate(dueDate!),
       notes: notes,
       cancellationReason: cancellationReason,
       createdAt: createdAt,

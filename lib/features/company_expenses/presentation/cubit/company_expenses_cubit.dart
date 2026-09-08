@@ -89,10 +89,9 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
                       searchQuery: previousSearchQuery,
                       includeVoided: previousIncludeVoided,
                       canManageCompanyExpenses:
-                          CompanyExpensesPermissionPolicy
-                              .canManageCompanyExpenses(
-                                currentCompanyContext.role,
-                              ),
+                          CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
+                            currentCompanyContext.role,
+                          ),
                     ),
                   ),
                   failure: (failure) => emit(CompanyExpensesFailure(failure)),

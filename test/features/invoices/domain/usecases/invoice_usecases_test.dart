@@ -201,9 +201,7 @@ void main() {
       final result =
           await IssueInvoiceUseCase(
             repository,
-            businessDateProvider: _FixedBusinessDateProvider(
-              _date(2026, 8, 5),
-            ),
+            businessDateProvider: _FixedBusinessDateProvider(_date(2026, 8, 5)),
           )(
             IssueInvoiceParams(
               currentCompanyContext: _context(CompanyRole.admin),

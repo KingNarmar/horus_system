@@ -39,7 +39,9 @@ extension DriverAuditMapper on DriverModel {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,
@@ -61,7 +63,9 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,
@@ -77,7 +81,9 @@ extension DriverWriteDataMapper on DriverWriteData {
       DriverDbFields.phone: phone,
       DriverDbFields.nationalId: nationalId,
       DriverDbFields.licenseNumber: licenseNumber,
-      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(licenseExpiryDate),
+      DriverDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       DriverDbFields.profileImagePath: profileImagePath,
       DriverDbFields.licenseImagePath: licenseImagePath,
       DriverDbFields.licenseBackImagePath: licenseBackImagePath,

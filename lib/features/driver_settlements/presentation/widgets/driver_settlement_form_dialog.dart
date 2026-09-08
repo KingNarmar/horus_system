@@ -235,7 +235,9 @@ class _DriverSettlementFormDialogState
                           key: const ValueKey('driverSettlementPeriodStart'),
                           label: strings.periodStart,
                           value: formatDriverSettlementDate(
-                            BusinessDateDateTimeAdapter.fromDateTime(_periodStart),
+                            BusinessDateDateTimeAdapter.fromDateTime(
+                              _periodStart,
+                            ),
                             localeName,
                           ),
                           onTap: isBusy ? null : _pickPeriodStart,
@@ -244,7 +246,9 @@ class _DriverSettlementFormDialogState
                           key: const ValueKey('driverSettlementPeriodEnd'),
                           label: strings.periodEnd,
                           value: formatDriverSettlementDate(
-                            BusinessDateDateTimeAdapter.fromDateTime(_periodEnd),
+                            BusinessDateDateTimeAdapter.fromDateTime(
+                              _periodEnd,
+                            ),
                             localeName,
                           ),
                           onTap: isBusy ? null : _pickPeriodEnd,

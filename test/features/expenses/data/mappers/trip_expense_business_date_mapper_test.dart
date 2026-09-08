@@ -18,10 +18,7 @@ void main() {
         'expense_date': '2026-09-07',
       });
 
-      expect(
-        model.expenseDate,
-        BusinessDate(year: 2026, month: 9, day: 7),
-      );
+      expect(model.expenseDate, BusinessDate(year: 2026, month: 9, day: 7));
       expect(model.toEntity().expenseDate, model.expenseDate);
     });
 
