@@ -1,4 +1,6 @@
+import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../audit/di/audit_dependencies.dart';
 import '../../company/di/company_dependencies.dart';
 import '../../driver_finance/di/driver_finance_dependencies.dart';
@@ -23,6 +25,7 @@ abstract final class DriverSettlementsDependencies {
 
   static DriverSettlementsCubit createCubit() {
     final repository = createRepository();
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
     return DriverSettlementsCubit(
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
@@ -41,6 +44,10 @@ abstract final class DriverSettlementsDependencies {
       finalizeSettlementUseCase: FinalizeDriverSettlementUseCase(repository),
       voidSettlementUseCase: VoidDriverSettlementUseCase(repository),
       getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            businessTimeZoneConverter,
+          ),
     );
   }
 
