@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -69,6 +70,7 @@ DriverSettlementsLoaded _state({
       company: Company(id: 'company-1', name: 'Test Company'),
       role: CompanyRole.accountant,
     ),
+    businessDate: _date(2026, 6, 30),
     allSettlements: [
       _settlement(
         id: 'draft-1',
@@ -101,6 +103,10 @@ DriverSettlementsLoaded _state({
   );
 }
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 DriverSettlement _settlement({
   required String id,
   required String driverId,
@@ -111,8 +117,8 @@ DriverSettlement _settlement({
     companyId: 'company-1',
     driverId: driverId,
     period: DriverSettlementPeriod(
-      start: DateTime(2026, 6, 1),
-      end: DateTime(2026, 6, 30),
+      start: _date(2026, 6, 1),
+      end: _date(2026, 6, 30),
     ),
     calculation: const DriverSettlementCalculationResult(
       openingDriverBalance: 0,
