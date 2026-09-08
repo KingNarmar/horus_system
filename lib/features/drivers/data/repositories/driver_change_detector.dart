@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_write_data.dart';
 import '../models/driver_model.dart';
 
@@ -33,13 +34,7 @@ final class DriverChangeDetector {
     return normalized == null || normalized.isEmpty ? null : normalized;
   }
 
-  bool _dateChanged(DateTime? oldValue, DateTime? newValue) {
-    return _dateOnly(oldValue) != _dateOnly(newValue);
-  }
-
-  String? _dateOnly(DateTime? value) {
-    if (value == null) return null;
-    final local = value.toLocal();
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  bool _dateChanged(BusinessDate? oldValue, BusinessDate? newValue) {
+    return oldValue != newValue;
   }
 }
