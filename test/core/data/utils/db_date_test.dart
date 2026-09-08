@@ -10,6 +10,14 @@ void main() {
       expect(DbDate.encode(date), '2026-09-07');
     });
 
+    test('encodes nullable database dates without inventing a value', () {
+      expect(DbDate.encodeNullable(null), isNull);
+      expect(
+        DbDate.encodeNullable(BusinessDate(year: 2026, month: 12, day: 31)),
+        '2026-12-31',
+      );
+    });
+
     test('decodes strict PostgreSQL date text', () {
       final date = DbDate.decode('2026-09-07');
 
@@ -30,6 +38,17 @@ void main() {
       expect(
         DbDate.decodeNullable('2026-12-31'),
         BusinessDate(year: 2026, month: 12, day: 31),
+      );
+    });
+
+    test('accepts a field name without changing date semantics', () {
+      expect(
+        DbDate.decode('2026-09-07', field: 'expense_date'),
+        BusinessDate(year: 2026, month: 9, day: 7),
+      );
+      expect(
+        () => DbDate.decode('not-a-date', field: 'expense_date'),
+        throwsFormatException,
       );
     });
   });

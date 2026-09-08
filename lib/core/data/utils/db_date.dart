@@ -9,10 +9,14 @@ abstract final class DbDate {
         '${value.day.toString().padLeft(2, '0')}';
   }
 
-  static BusinessDate decode(Object? value) {
+  static String? encodeNullable(BusinessDate? value) {
+    return value == null ? null : encode(value);
+  }
+
+  static BusinessDate decode(Object? value, {String? field}) {
     final raw = value?.toString();
     if (raw == null || !_datePattern.hasMatch(raw)) {
-      throw const FormatException('Invalid database date.');
+      throw _invalidDate(field);
     }
 
     final parts = raw.split('-');
@@ -22,13 +26,20 @@ abstract final class DbDate {
       day: int.parse(parts[2]),
     );
     if (parsed == null) {
-      throw const FormatException('Invalid database date.');
+      throw _invalidDate(field);
     }
     return parsed;
   }
 
-  static BusinessDate? decodeNullable(Object? value) {
+  static BusinessDate? decodeNullable(Object? value, {String? field}) {
     if (value == null) return null;
-    return decode(value);
+    return decode(value, field: field);
+  }
+
+  static FormatException _invalidDate(String? field) {
+    if (field == null || field.trim().isEmpty) {
+      return const FormatException('Invalid database date.');
+    }
+    return FormatException('Invalid database date: $field.');
   }
 }
