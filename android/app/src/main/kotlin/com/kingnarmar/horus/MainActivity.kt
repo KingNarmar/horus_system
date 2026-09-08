@@ -1,4 +1,4 @@
-package com.example.horus_system
+package com.kingnarmar.horus
 
 import io.flutter.embedding.android.FlutterActivity
 
