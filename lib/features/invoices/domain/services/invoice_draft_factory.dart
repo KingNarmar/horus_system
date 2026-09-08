@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -25,8 +26,8 @@ final class InvoiceDraftFactory {
     required String currencyCode,
     required int discountMinorUnits,
     required int taxRateBasisPoints,
-    DateTime? issueDate,
-    DateTime? dueDate,
+    BusinessDate? issueDate,
+    BusinessDate? dueDate,
     String? notes,
   }) {
     if (requestedTripIds.isEmpty) {
@@ -95,10 +96,10 @@ final class InvoiceDraftFactory {
 
     final normalizedIssueDate = issueDate == null
         ? null
-        : InvoiceDate.fromDateTime(issueDate);
+        : InvoiceDate.fromBusinessDate(issueDate);
     final normalizedDueDate = dueDate == null
         ? null
-        : InvoiceDate.fromDateTime(dueDate);
+        : InvoiceDate.fromBusinessDate(dueDate);
 
     if (normalizedIssueDate != null &&
         normalizedDueDate != null &&

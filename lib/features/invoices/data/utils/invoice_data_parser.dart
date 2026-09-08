@@ -1,3 +1,6 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 abstract final class InvoiceDataParser {
   static String requiredString(Object? value, String field) {
     final parsed = optionalString(value);
@@ -31,26 +34,14 @@ abstract final class InvoiceDataParser {
     return parsed;
   }
 
-  static DateTime requiredDate(Object? value, String field) {
+  static BusinessDate requiredDate(Object? value, String field) {
     final parsed = optionalDate(value, field);
     if (parsed == null) throw FormatException('Invalid invoice field: $field.');
     return parsed;
   }
 
-  static DateTime? optionalDate(Object? value, String field) {
-    if (value == null) return null;
-    final raw = value.toString();
-    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(raw)) {
-      throw FormatException('Invalid invoice field: $field.');
-    }
-    final parts = raw.split('-').map(int.parse).toList(growable: false);
-    final parsed = DateTime.utc(parts[0], parts[1], parts[2]);
-    if (parsed.year != parts[0] ||
-        parsed.month != parts[1] ||
-        parsed.day != parts[2]) {
-      throw FormatException('Invalid invoice field: $field.');
-    }
-    return parsed;
+  static BusinessDate? optionalDate(Object? value, String field) {
+    return DbDate.decodeNullable(value, field: field);
   }
 
   static DateTime requiredDateTime(Object? value, String field) {

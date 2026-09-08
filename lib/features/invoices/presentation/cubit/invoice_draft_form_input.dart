@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice.dart';
@@ -9,8 +10,8 @@ final class InvoiceDraftFormInput {
   final String currencyCode;
   final int discountMinorUnits;
   final int taxRateBasisPoints;
-  final DateTime? issueDate;
-  final DateTime? dueDate;
+  final BusinessDate? issueDate;
+  final BusinessDate? dueDate;
   final String? notes;
 
   InvoiceDraftFormInput({
@@ -28,8 +29,8 @@ final class InvoiceDraftFormInput {
     BillableTrip trip, {
     int discountMinorUnits = 0,
     int taxRateBasisPoints = 0,
-    DateTime? issueDate,
-    DateTime? dueDate,
+    BusinessDate? issueDate,
+    BusinessDate? dueDate,
     String? notes,
   }) {
     return InvoiceDraftFormInput(

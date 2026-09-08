@@ -70,8 +70,10 @@ extension InvoiceModelMapper on InvoiceModel {
       totals: totalsEntity,
       issueDate: issueDate == null
           ? null
-          : InvoiceDate.fromDateTime(issueDate!),
-      dueDate: dueDate == null ? null : InvoiceDate.fromDateTime(dueDate!),
+          : InvoiceDate.fromBusinessDate(issueDate!),
+      dueDate: dueDate == null
+          ? null
+          : InvoiceDate.fromBusinessDate(dueDate!),
       notes: notes,
       cancellationReason: cancellationReason,
       createdAt: createdAt,

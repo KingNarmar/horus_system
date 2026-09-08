@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../trips/domain/entities/trip_status.dart';
 
@@ -14,7 +15,7 @@ final class BillableTrip {
   final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final DateTime? serviceDate;
+  final BusinessDate? serviceDate;
   final double? quantityTons;
 
   const BillableTrip({

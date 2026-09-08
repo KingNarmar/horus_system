@@ -1,22 +1,32 @@
 import 'package:intl/intl.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/money_formatter.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice_trip_line.dart';
 
-String formatInvoiceDate(DateTime? date, String localeName, String fallback) {
+String formatInvoiceDate(
+  BusinessDate? date,
+  String localeName,
+  String fallback,
+) {
   if (date == null) return fallback;
-  return DateFormat.yMMMd(localeName).format(date);
+  return DateFormat.yMMMd(
+    localeName,
+  ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
 String formatInvoiceDateTime(DateTime date, String localeName) {
   return DateFormat.yMMMd(localeName).add_jm().format(date.toLocal());
 }
 
-String formatInvoiceInputDate(DateTime? date) {
+String formatInvoiceInputDate(BusinessDate? date) {
   if (date == null) return '';
-  return DateFormat('yyyy-MM-dd').format(date);
+  return '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
 }
 
 String formatInvoiceMoney(

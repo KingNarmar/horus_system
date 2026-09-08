@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import 'billable_trip.dart';
 
@@ -8,7 +9,7 @@ final class InvoiceTripLine {
   final String? unloadingLocation;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final DateTime? serviceDate;
+  final BusinessDate? serviceDate;
   final double? quantityTons;
   final Money amount;
 
