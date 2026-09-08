@@ -1,6 +1,7 @@
-import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
@@ -35,6 +36,8 @@ import 'package:horus_system/features/drivers/domain/usecases/update_driver_usec
 import 'package:horus_system/features/drivers/presentation/cubit/drivers_cubit.dart';
 import 'package:horus_system/features/drivers/presentation/cubit/drivers_state.dart';
 import 'package:test/test.dart';
+
+import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('DriversCubit canonical driver balance', () {
@@ -157,6 +160,10 @@ DriversCubit _createCubit({
     getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
       _FakeAuditLogRepository(),
     ),
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(
+          FakeBusinessTimeZoneConverter(),
+        ),
     getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
     getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(financeRepository),
     addDriverAdvanceUseCase: AddDriverAdvanceUseCase(financeRepository),
