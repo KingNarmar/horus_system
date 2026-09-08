@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_date_constraints.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../localization/fleet_localizations_x.dart';
 
 class FleetFormData {
   final String plateNumber;
   final VehicleStatus status;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
 
@@ -26,7 +29,7 @@ class FleetFormDialog extends StatefulWidget {
   final String title;
   final String? initialPlateNumber;
   final VehicleStatus initialStatus;
-  final DateTime? initialLicenseExpiryDate;
+  final BusinessDate? initialLicenseExpiryDate;
   final double? initialExpectedFuelConsumption;
   final String? initialNotes;
   final String notesLabel;
@@ -65,7 +68,7 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   late final TextEditingController _rateController;
   late final TextEditingController _notesController;
   late VehicleStatus _status;
-  DateTime? _selectedDate;
+  BusinessDate? _selectedDate;
   bool _isSubmitting = false;
 
   @override
@@ -199,17 +202,28 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   }
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
+    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? now,
-      firstDate: DateTime(now.year - 5),
-      lastDate: DateTime(now.year + 20),
+      initialDate: BusinessDateDateTimeAdapter.toDateTime(
+        _selectedDate ?? today,
+      ),
+      firstDate: DateTime(
+        today.year - AppDateConstraints.fleetLicenseExpiryPastYears,
+        today.month,
+        today.day,
+      ),
+      lastDate: DateTime(
+        today.year + AppDateConstraints.fleetLicenseExpiryFutureYears,
+        today.month,
+        today.day,
+      ),
     );
     if (picked == null || !mounted) return;
+    final pickedBusinessDate = BusinessDateDateTimeAdapter.fromDateTime(picked);
     setState(() {
-      _selectedDate = DateTime(picked.year, picked.month, picked.day);
-      _dateController.text = _dateOnly(picked);
+      _selectedDate = pickedBusinessDate;
+      _dateController.text = _dateOnly(pickedBusinessDate);
     });
   }
 
@@ -242,9 +256,10 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   String? _optional(String value) => value.trim().isEmpty ? null : value.trim();
 }
 
-String _dateOnly(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+String _dateOnly(BusinessDate value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _formatDouble(double? value) {

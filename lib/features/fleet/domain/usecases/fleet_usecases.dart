@@ -1,6 +1,7 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -28,7 +29,7 @@ class SaveTractorHeadParams {
   final String? id;
   final String plateNumber;
   final VehicleStatus status;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
   const SaveTractorHeadParams({
@@ -47,7 +48,7 @@ class SaveTrailerParams {
   final String? id;
   final String plateNumber;
   final VehicleStatus status;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String? technicalNotes;
   const SaveTrailerParams({
     required this.currentCompanyContext,
@@ -273,8 +274,7 @@ Future<Result<TractorHead>> _changeTractorHeadStatus(
     required String companyId,
     required String id,
     required String actorRole,
-  })
-  action,
+  }) action,
 ) {
   final context = params.currentCompanyContext;
   if (!FleetPermissionPolicy.canManageFleet(context.role)) {
@@ -300,8 +300,7 @@ Future<Result<TrailerEntity>> _changeTrailerStatus(
     required String companyId,
     required String id,
     required String actorRole,
-  })
-  action,
+  }) action,
 ) {
   final context = params.currentCompanyContext;
   if (!FleetPermissionPolicy.canManageFleet(context.role)) {

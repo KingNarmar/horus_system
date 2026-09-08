@@ -1,8 +1,11 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class TractorHeadModel {
   final String id;
   final String companyId;
   final String plateNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String status;
   final String? notes;
@@ -28,7 +31,10 @@ class TractorHeadModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       plateNumber: map['plate_number'] as String,
-      licenseExpiryDate: _toDateTime(map['license_expiry_date']),
+      licenseExpiryDate: DbDate.decodeNullable(
+        map['license_expiry_date'],
+        field: 'license_expiry_date',
+      ),
       expectedFuelConsumption: _toDouble(map['expected_fuel_consumption']),
       status: map['status'] as String? ?? 'available',
       notes: map['notes'] as String?,

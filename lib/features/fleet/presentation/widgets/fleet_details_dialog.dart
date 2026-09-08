@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
@@ -17,7 +18,7 @@ class FleetDetailsDialog extends StatelessWidget {
   final String plateNumber;
   final VehicleStatus status;
   final bool isActive;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
   final String notesLabel;
@@ -330,10 +331,11 @@ String _formatDateTime(BuildContext context, DateTime value) {
   return '${material.formatShortDate(local)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
 }
 
-String _dateOnlyOrEmpty(BuildContext context, DateTime? value) {
+String _dateOnlyOrEmpty(BuildContext context, BusinessDate? value) {
   if (value == null) return context.l10n.emptyValue;
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _numberText(double value) {

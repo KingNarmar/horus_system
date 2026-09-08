@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -142,7 +143,7 @@ class FleetCubit extends Cubit<FleetState> {
     TractorHead? tractorHead,
     required String plateNumber,
     required VehicleStatus status,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     double? expectedFuelConsumption,
     String? notes,
   }) async {
@@ -169,7 +170,7 @@ class FleetCubit extends Cubit<FleetState> {
     TrailerEntity? trailer,
     required String plateNumber,
     required VehicleStatus status,
-    DateTime? licenseExpiryDate,
+    BusinessDate? licenseExpiryDate,
     String? technicalNotes,
   }) async {
     final context = _currentCompanyContext;

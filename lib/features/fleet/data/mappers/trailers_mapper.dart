@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/trailer_entity.dart';
 import '../../domain/entities/trailer_write_data.dart';
@@ -27,9 +28,9 @@ extension TrailerWriteDataMapper on TrailerWriteData {
     return {
       DbCommonFields.companyId: companyId,
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
     };
@@ -38,9 +39,9 @@ extension TrailerWriteDataMapper on TrailerWriteData {
   Map<String, dynamic> toUpdateMap() {
     return {
       TrailerDbFields.plateNumber: plateNumber,
-      TrailerDbFields.licenseExpiryDate: licenseExpiryDate
-          ?.toUtc()
-          .toIso8601String(),
+      TrailerDbFields.licenseExpiryDate: DbDate.encodeNullable(
+        licenseExpiryDate,
+      ),
       TrailerDbFields.status: status.value,
       TrailerDbFields.technicalNotes: technicalNotes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),

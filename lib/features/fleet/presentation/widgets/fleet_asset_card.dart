@@ -30,7 +30,7 @@ class _FleetAssetCard extends StatelessWidget {
   final String status;
   final bool isActive;
   final bool isActionLoading;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final double? expectedFuelConsumption;
   final String? notes;
   final bool canManageFleet;

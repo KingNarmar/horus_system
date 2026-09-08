@@ -1,8 +1,11 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 class TrailerModel {
   final String id;
   final String companyId;
   final String plateNumber;
-  final DateTime? licenseExpiryDate;
+  final BusinessDate? licenseExpiryDate;
   final String status;
   final String? technicalNotes;
   final bool isActive;
@@ -26,7 +29,10 @@ class TrailerModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       plateNumber: map['plate_number'] as String,
-      licenseExpiryDate: _toDateTime(map['license_expiry_date']),
+      licenseExpiryDate: DbDate.decodeNullable(
+        map['license_expiry_date'],
+        field: 'license_expiry_date',
+      ),
       status: map['status'] as String? ?? 'available',
       technicalNotes: map['technical_notes'] as String?,
       isActive: map['is_active'] as bool? ?? true,
