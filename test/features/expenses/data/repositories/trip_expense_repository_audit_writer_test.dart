@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -110,7 +111,7 @@ TripExpenseModel _expenseModel({double amount = 125.5}) {
     expenseName: 'Fuel',
     amount: amount,
     paidBy: 'driver_cash',
-    expenseDate: DateTime.utc(2026, 8, 22),
+    expenseDate: BusinessDate(year: 2026, month: 8, day: 22),
     notes: 'note',
     expenseTypeName: 'Fuel',
     createdAt: DateTime.utc(2026, 8, 22, 9),
