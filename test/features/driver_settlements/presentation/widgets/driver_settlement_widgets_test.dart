@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -197,8 +199,9 @@ void main() {
         locale: const Locale('en'),
         child: BlocProvider.value(
           value: cubit,
-          child: const DriverSettlementFormDialog(
-            driverOptions: [_activeDriver],
+          child: DriverSettlementFormDialog(
+            driverOptions: const [_activeDriver],
+            businessDate: _date(2026, 7, 31),
           ),
         ),
       );
@@ -239,13 +242,17 @@ const _activeDriver = DriverSettlementDriverOption(
   isActive: true,
 );
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 final _settlement = DriverSettlement(
   id: 'settlement-1',
   companyId: 'company-1',
   driverId: 'driver-1',
   period: DriverSettlementPeriod(
-    start: DateTime(2026, 7, 1),
-    end: DateTime(2026, 7, 31),
+    start: _date(2026, 7, 1),
+    end: _date(2026, 7, 31),
   ),
   calculation: const DriverSettlementCalculationResult(
     openingDriverBalance: -5600,
@@ -268,8 +275,8 @@ final _longSettlement = DriverSettlement(
   companyId: 'company-1',
   driverId: 'driver-1',
   period: DriverSettlementPeriod(
-    start: DateTime(2026, 7, 1),
-    end: DateTime(2026, 7, 31),
+    start: _date(2026, 7, 1),
+    end: _date(2026, 7, 31),
   ),
   calculation: const DriverSettlementCalculationResult(
     openingDriverBalance: -5600,
@@ -293,7 +300,7 @@ final _longSettlement = DriverSettlement(
       settlementId: 'settlement-1',
       sourceType: DriverSettlementItemSourceType.driverFinancialMovement,
       sourceId: 'movement-$index',
-      sourceDate: DateTime(2026, 7, index + 1),
+      sourceDate: _date(2026, 7, index + 1),
       direction: index.isEven
           ? DriverSettlementItemDirection.driverToCompany
           : DriverSettlementItemDirection.companyToDriver,
@@ -309,6 +316,7 @@ DriverSettlementsLoaded _loadedState({
 }) {
   return DriverSettlementsLoaded(
     currentCompanyContext: _companyContext,
+    businessDate: _date(2026, 7, 31),
     allSettlements: [selectedSettlement],
     driverOptions: const [_activeDriver],
     canManageDriverSettlements: true,
@@ -321,6 +329,9 @@ DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
     getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
     getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
       repository,
+    ),
+    getBusinessDateUseCase: GetDriverSettlementBusinessDateUseCase(
+      _FixedBusinessDateProvider(_date(2026, 7, 31)),
     ),
     getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
       repository,
@@ -360,6 +371,17 @@ Future<void> _pumpLocalized(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
+  final BusinessDate date;
+
+  _FixedBusinessDateProvider(this.date);
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+    return Success(date);
+  }
 }
 
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
