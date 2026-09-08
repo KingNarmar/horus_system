@@ -1,9 +1,11 @@
 import 'package:intl/intl.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/money_formatter.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice_trip_line.dart';
 
@@ -18,8 +20,13 @@ String formatInvoiceDate(
   ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
-String formatInvoiceDateTime(DateTime date, String localeName) {
-  return DateFormat.yMMMd(localeName).add_jm().format(date.toLocal());
+String formatInvoiceDateTime(
+  BusinessLocalDateTime date,
+  String localeName,
+) {
+  return DateFormat.yMMMd(localeName).add_jm().format(
+    BusinessLocalDateTimeDateTimeAdapter.toDateTime(date),
+  );
 }
 
 String formatInvoiceInputDate(BusinessDate? date) {
