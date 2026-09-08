@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
@@ -58,7 +59,7 @@ void main() {
         );
         final repository = PaymentsRepositoryImpl(dataSource);
         final currency = CurrencyCode.tryParse('AED')!;
-        final paymentDate = DateTime.utc(2026, 8, 10);
+        final paymentDate = _date(2026, 8, 10);
         final amount = Money(minorUnits: 40000, currency: currency);
 
         final result = await repository.registerPayment(
@@ -114,7 +115,7 @@ void main() {
         companyId: 'company-1',
         invoiceId: 'invoice-1',
         paymentMethodId: 'method-1',
-        paymentDate: DateTime.utc(2026, 8, 10),
+        paymentDate: _date(2026, 8, 10),
         amount: Money(minorUnits: 40000, currency: currency),
       );
 
@@ -136,7 +137,7 @@ void main() {
         companyId: 'company-1',
         invoiceId: 'invoice-1',
         paymentMethodId: 'method-1',
-        paymentDate: DateTime.utc(2026, 8, 10),
+        paymentDate: _date(2026, 8, 10),
         amount: Money(minorUnits: 120001, currency: currency),
       );
 
@@ -195,6 +196,10 @@ void main() {
   });
 }
 
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
+}
+
 PaymentModel _paymentModel({
   int amountMinorUnits = 40000,
   String currencyCode = 'AED',
@@ -205,7 +210,7 @@ PaymentModel _paymentModel({
     invoiceId: 'invoice-1',
     customerId: 'customer-1',
     paymentMethodId: 'method-1',
-    paymentDate: DateTime.utc(2026, 8, 10),
+    paymentDate: _date(2026, 8, 10),
     amountMinorUnits: amountMinorUnits,
     currencyCode: currencyCode,
     referenceNumber: 'REF-1',
@@ -222,7 +227,7 @@ final class _FakePaymentsRemoteDataSource implements PaymentsRemoteDataSource {
   String? lastCompanyId;
   String? lastInvoiceId;
   String? lastPaymentMethodId;
-  DateTime? lastPaymentDate;
+  BusinessDate? lastPaymentDate;
   Money? lastAmount;
   String? lastReferenceNumber;
   String? lastNotes;
@@ -258,7 +263,7 @@ final class _FakePaymentsRemoteDataSource implements PaymentsRemoteDataSource {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
