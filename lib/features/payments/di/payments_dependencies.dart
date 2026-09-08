@@ -1,4 +1,6 @@
+import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../company/di/company_dependencies.dart';
 import '../../invoices/di/invoices_dependencies.dart';
 import '../../invoices/domain/usecases/invoice_query_usecases.dart';
@@ -27,6 +29,7 @@ abstract final class PaymentsDependencies {
     final invoicesRepository = InvoicesDependencies.createRepository();
     final paymentMethodsRepository =
         PaymentMethodsDependencies.createRepository();
+    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     return PaymentsCubit(
       getPaymentsUseCase: GetPaymentsUseCase(paymentsRepository),
@@ -34,6 +37,10 @@ abstract final class PaymentsDependencies {
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(
         paymentMethodsRepository,
       ),
+      convertInstantsToBusinessLocalDateTimesUseCase:
+          const ConvertInstantsToBusinessLocalDateTimesUseCase(
+            businessTimeZoneConverter,
+          ),
     );
   }
 
