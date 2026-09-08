@@ -31,7 +31,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
         actualDeliveryAt: actualDeliveryAt,
       ),
     );
-    if (timestampsResult is FailureResult) {
+    if (timestampsResult is FailureResult<TripTimestampInstants>) {
       emit(TripsFailure(timestampsResult.failure));
       return;
     }
