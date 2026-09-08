@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -39,7 +40,7 @@ void main() {
     final state = fixture.cubit.state as RegisterPaymentReady;
     expect(state.payableInvoices.single.invoice.id, 'invoice-1');
     expect(state.paymentMethods.single.id, 'method-1');
-    expect(state.businessDate, DateTime.utc(2026, 8, 10));
+    expect(state.businessDate, _date(2026, 8, 10));
     await fixture.cubit.close();
   });
 
@@ -50,7 +51,7 @@ void main() {
     final succeeded = await fixture.cubit.submit(
       invoiceId: 'invoice-1',
       paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
+      paymentDate: _date(2026, 8, 10),
       amountText: '400.00',
       referenceNumber: 'REF-1',
     );
@@ -71,7 +72,7 @@ void main() {
     final succeeded = await fixture.cubit.submit(
       invoiceId: 'invoice-1',
       paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
+      paymentDate: _date(2026, 8, 10),
       amountText: '1200.01',
     );
 
@@ -94,7 +95,7 @@ void main() {
     final loadFuture = fixture.cubit.load(fixture.context);
     await businessDate.requested;
     await fixture.cubit.close();
-    businessDate.complete(DateTime.utc(2026, 8, 10));
+    businessDate.complete(_date(2026, 8, 10));
 
     await loadFuture;
     expect(fixture.cubit.isClosed, isTrue);
@@ -107,7 +108,7 @@ void main() {
     final submitFuture = fixture.cubit.submit(
       invoiceId: 'invoice-1',
       paymentMethodId: 'method-1',
-      paymentDate: DateTime.utc(2026, 8, 10),
+      paymentDate: _date(2026, 8, 10),
       amountText: '400.00',
     );
     await fixture.payments.registerRequested;
@@ -117,6 +118,10 @@ void main() {
     expect(await submitFuture, isFalse);
     expect(fixture.cubit.isClosed, isTrue);
   });
+}
+
+BusinessDate _date(int year, int month, int day) {
+  return BusinessDate(year: year, month: month, day: day);
 }
 
 final class _Fixture {
@@ -144,8 +149,7 @@ final class _Fixture {
     invoices = _FakeInvoicesRepository(_invoice());
     methods = _FakePaymentMethodsRepository();
     final businessDate =
-        businessDateProvider ??
-        _FixedBusinessDateProvider(DateTime.utc(2026, 8, 10));
+        businessDateProvider ?? _FixedBusinessDateProvider(_date(2026, 8, 10));
 
     cubit = RegisterPaymentCubit(
       getPayableInvoicesUseCase: GetPayableInvoicesUseCase(
@@ -189,37 +193,40 @@ Invoice _invoice() {
       taxAmount: zero,
       grandTotal: total,
     ),
-    issueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 8, 10)),
-    dueDate: InvoiceDate.fromDateTime(DateTime.utc(2026, 8, 31)),
+    issueDate: InvoiceDate.fromBusinessDate(_date(2026, 8, 10)),
+    dueDate: InvoiceDate.fromBusinessDate(_date(2026, 8, 31)),
     createdAt: DateTime.utc(2026, 8, 10),
     updatedAt: DateTime.utc(2026, 8, 10),
   );
 }
 
 final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
-  final DateTime date;
+  final BusinessDate date;
 
   const _FixedBusinessDateProvider(this.date);
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) async {
-    return Success<DateTime>(date);
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success<BusinessDate>(date);
   }
 }
 
 final class _DeferredBusinessDateProvider
     implements CompanyBusinessDateProvider {
   final Completer<void> _requested = Completer<void>();
-  final Completer<Result<DateTime>> _result = Completer<Result<DateTime>>();
+  final Completer<Result<BusinessDate>> _result =
+      Completer<Result<BusinessDate>>();
 
   Future<void> get requested => _requested.future;
 
-  void complete(DateTime value) {
-    _result.complete(Success<DateTime>(value));
+  void complete(BusinessDate value) {
+    _result.complete(Success<BusinessDate>(value));
   }
 
   @override
-  Future<Result<DateTime>> getBusinessDate({required String companyId}) {
+  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) {
     if (!_requested.isCompleted) _requested.complete();
     return _result.future;
   }
@@ -262,7 +269,7 @@ final class _FakePaymentsRepository implements PaymentsRepository {
     required String companyId,
     required String invoiceId,
     required String paymentMethodId,
-    required DateTime paymentDate,
+    required BusinessDate paymentDate,
     required Money amount,
     String? referenceNumber,
     String? notes,
