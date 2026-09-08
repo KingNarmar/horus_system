@@ -1,4 +1,5 @@
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 
 class DriverModel {
@@ -57,13 +58,14 @@ class DriverModel {
       nationalIdBackImagePath: map['national_id_back_image_path'] as String?,
       notes: map['notes'] as String?,
       isActive: map['is_active'] as bool? ?? true,
-      createdAt: _toDateTime(map['created_at']),
-      updatedAt: _toDateTime(map['updated_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map['updated_at'],
+        field: 'updated_at',
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 }

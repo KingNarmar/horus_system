@@ -18,8 +18,14 @@ final class TimezoneBusinessTimeZoneConverter
     required BusinessLocalDateTime localDateTime,
     required String timeZoneId,
   }) {
+    final location = _locationOrNull(timeZoneId);
+    if (location == null) {
+      return const FailureResult<DateTime>(
+        ServerFailure(code: FailureCodes.serverError),
+      );
+    }
+
     try {
-      final location = _location(timeZoneId);
       final candidate = tz.TZDateTime(
         location,
         localDateTime.year,
@@ -39,10 +45,6 @@ final class TimezoneBusinessTimeZoneConverter
       }
 
       return Success(candidate.toUtc());
-    } on tz.LocationNotFoundException {
-      return const FailureResult<DateTime>(
-        ServerFailure(code: FailureCodes.serverError),
-      );
     } catch (_) {
       return const FailureResult<DateTime>(UnexpectedFailure());
     }
@@ -59,8 +61,14 @@ final class TimezoneBusinessTimeZoneConverter
       );
     }
 
+    final location = _locationOrNull(timeZoneId);
+    if (location == null) {
+      return const FailureResult<BusinessLocalDateTime>(
+        ServerFailure(code: FailureCodes.serverError),
+      );
+    }
+
     try {
-      final location = _location(timeZoneId);
       final local = tz.TZDateTime.from(instant, location);
       final value = BusinessLocalDateTime.tryCreate(
         year: local.year,
@@ -75,22 +83,21 @@ final class TimezoneBusinessTimeZoneConverter
         );
       }
       return Success(value);
-    } on tz.LocationNotFoundException {
-      return const FailureResult<BusinessLocalDateTime>(
-        ServerFailure(code: FailureCodes.serverError),
-      );
     } catch (_) {
       return const FailureResult<BusinessLocalDateTime>(UnexpectedFailure());
     }
   }
 
-  tz.Location _location(String timeZoneId) {
+  tz.Location? _locationOrNull(String timeZoneId) {
     _ensureTimeZoneDatabaseInitialized();
     final normalized = timeZoneId.trim();
-    if (normalized.isEmpty) {
-      throw const tz.LocationNotFoundException('');
+    if (normalized.isEmpty) return null;
+
+    try {
+      return tz.getLocation(normalized);
+    } on tz.LocationNotFoundException {
+      return null;
     }
-    return tz.getLocation(normalized);
   }
 
   void _ensureTimeZoneDatabaseInitialized() {

@@ -1,5 +1,6 @@
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/company_expense_db_fields.dart';
 
@@ -56,21 +57,25 @@ class CompanyExpenseModel {
       referenceNumber: map[CompanyExpenseDbFields.referenceNumber] as String?,
       notes: map[CompanyExpenseDbFields.notes] as String?,
       isVoided: map[CompanyExpenseDbFields.isVoided] as bool? ?? false,
-      voidedAt: _optionalTimestamp(map[CompanyExpenseDbFields.voidedAt]),
+      voidedAt: DbTimestamp.decodeNullable(
+        map[CompanyExpenseDbFields.voidedAt],
+        field: CompanyExpenseDbFields.voidedAt,
+      ),
       voidedBy: map[CompanyExpenseDbFields.voidedBy] as String?,
       voidReason: map[CompanyExpenseDbFields.voidReason] as String?,
-      createdAt: _optionalTimestamp(map[DbCommonFields.createdAt]),
-      updatedAt: _optionalTimestamp(map[DbCommonFields.updatedAt]),
+      createdAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.createdAt],
+        field: DbCommonFields.createdAt,
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.updatedAt],
+        field: DbCommonFields.updatedAt,
+      ),
     );
   }
 
   static double _amountFrom(Object? value) {
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString()) ?? 0;
-  }
-
-  static DateTime? _optionalTimestamp(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 }

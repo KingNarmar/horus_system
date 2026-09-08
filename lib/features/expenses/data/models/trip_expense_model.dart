@@ -1,5 +1,6 @@
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/trip_expense_db_fields.dart';
 
@@ -56,14 +57,15 @@ class TripExpenseModel {
             map[TripExpenseTypeRelationDbFields.relationName],
             TripExpenseTypeRelationDbFields.name,
           ),
-      createdAt: _toDateTime(map[DbCommonFields.createdAt]),
-      updatedAt: _toDateTime(map[DbCommonFields.updatedAt]),
+      createdAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.createdAt],
+        field: DbCommonFields.createdAt,
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.updatedAt],
+        field: DbCommonFields.updatedAt,
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 
   static double? _toDouble(Object? value) {

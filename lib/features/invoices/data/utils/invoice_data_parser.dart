@@ -1,4 +1,5 @@
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 
 abstract final class InvoiceDataParser {
@@ -45,9 +46,7 @@ abstract final class InvoiceDataParser {
   }
 
   static DateTime requiredDateTime(Object? value, String field) {
-    final parsed = DateTime.tryParse(value?.toString() ?? '');
-    if (parsed == null) throw FormatException('Invalid invoice field: $field.');
-    return parsed.toUtc();
+    return DbTimestamp.decode(value, field: field);
   }
 
   static List<Map<String, dynamic>> mapList(Object? value, String field) {

@@ -1,4 +1,5 @@
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_status.dart';
 import '../constants/driver_settlements_db_fields.dart';
@@ -114,15 +115,27 @@ class DriverSettlementModel {
         map[DriverSettlementsDbFields.status].toString(),
       ),
       notes: map[DriverSettlementsDbFields.notes] as String?,
-      finalizedAt: _dateTimeFrom(map[DriverSettlementsDbFields.finalizedAt]),
+      finalizedAt: DbTimestamp.decodeNullable(
+        map[DriverSettlementsDbFields.finalizedAt],
+        field: DriverSettlementsDbFields.finalizedAt,
+      ),
       finalizedBy: map[DriverSettlementsDbFields.finalizedBy] as String?,
-      voidedAt: _dateTimeFrom(map[DriverSettlementsDbFields.voidedAt]),
+      voidedAt: DbTimestamp.decodeNullable(
+        map[DriverSettlementsDbFields.voidedAt],
+        field: DriverSettlementsDbFields.voidedAt,
+      ),
       voidedBy: map[DriverSettlementsDbFields.voidedBy] as String?,
       voidReason: map[DriverSettlementsDbFields.voidReason] as String?,
       createdBy: map[DriverSettlementsDbFields.createdBy] as String?,
       updatedBy: map[DriverSettlementsDbFields.updatedBy] as String?,
-      createdAt: _dateTimeFrom(map['created_at']),
-      updatedAt: _dateTimeFrom(map['updated_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map['updated_at'],
+        field: 'updated_at',
+      ),
       items: items,
     );
   }
@@ -131,9 +144,4 @@ class DriverSettlementModel {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime? _dateTimeFrom(Object? value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }

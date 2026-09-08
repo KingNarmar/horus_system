@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../constants/trip_db_fields.dart';
 
 class TripStatusHistoryModel {
@@ -38,14 +39,10 @@ class TripStatusHistoryModel {
       changedByName: map[TripStatusHistoryDbFields.changedByName] as String?,
       changedByRole: map[TripStatusHistoryDbFields.changedByRole] as String?,
       notes: map[TripStatusHistoryDbFields.notes] as String?,
-      changedAt:
-          _toDateTime(map[TripStatusHistoryDbFields.changedAt]) ??
-          DateTime.now(),
+      changedAt: DbTimestamp.decode(
+        map[TripStatusHistoryDbFields.changedAt],
+        field: TripStatusHistoryDbFields.changedAt,
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 }

@@ -1,4 +1,5 @@
 import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
 import '../../domain/entities/driver_settlement_item_source_type.dart';
@@ -53,7 +54,10 @@ class DriverSettlementItemModel {
       labelKey: map[DriverSettlementsDbFields.labelKey] as String,
       descriptionKey: map[DriverSettlementsDbFields.descriptionKey] as String?,
       metadata: _metadataFrom(map[DriverSettlementsDbFields.metadata]),
-      createdAt: _dateTimeFrom(map['created_at']),
+      createdAt: DbTimestamp.decodeNullable(
+        map['created_at'],
+        field: 'created_at',
+      ),
     );
   }
 }
@@ -67,9 +71,4 @@ Map<String, Object?> _metadataFrom(Object? value) {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime? _dateTimeFrom(Object? value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }

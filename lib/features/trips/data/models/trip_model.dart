@@ -1,4 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
 import '../constants/trip_db_fields.dart';
 
 class TripModel {
@@ -71,10 +72,22 @@ class TripModel {
       quantityTons: _toDouble(map[TripDbFields.quantityTons]),
       freightPrice: _toDouble(map[TripDbFields.freightPrice]),
       totalExpenses: _toDouble(map[TripDbFields.totalExpenses]),
-      scheduledLoadingAt: _toDateTime(map[TripDbFields.scheduledLoadingAt]),
-      scheduledDeliveryAt: _toDateTime(map[TripDbFields.scheduledDeliveryAt]),
-      actualLoadingAt: _toDateTime(map[TripDbFields.actualLoadingAt]),
-      actualDeliveryAt: _toDateTime(map[TripDbFields.actualDeliveryAt]),
+      scheduledLoadingAt: DbTimestamp.decodeNullable(
+        map[TripDbFields.scheduledLoadingAt],
+        field: TripDbFields.scheduledLoadingAt,
+      ),
+      scheduledDeliveryAt: DbTimestamp.decodeNullable(
+        map[TripDbFields.scheduledDeliveryAt],
+        field: TripDbFields.scheduledDeliveryAt,
+      ),
+      actualLoadingAt: DbTimestamp.decodeNullable(
+        map[TripDbFields.actualLoadingAt],
+        field: TripDbFields.actualLoadingAt,
+      ),
+      actualDeliveryAt: DbTimestamp.decodeNullable(
+        map[TripDbFields.actualDeliveryAt],
+        field: TripDbFields.actualDeliveryAt,
+      ),
       notes: map[TripDbFields.notes] as String?,
       customerName:
           map[TripDbFields.customerNameAlias] as String? ??
@@ -120,14 +133,15 @@ class TripModel {
             map[TripLookupDbFields.trailersTableName],
             TripLookupDbFields.plateNumber,
           ),
-      createdAt: _toDateTime(map[DbCommonFields.createdAt]),
-      updatedAt: _toDateTime(map[DbCommonFields.updatedAt]),
+      createdAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.createdAt],
+        field: DbCommonFields.createdAt,
+      ),
+      updatedAt: DbTimestamp.decodeNullable(
+        map[DbCommonFields.updatedAt],
+        field: DbCommonFields.updatedAt,
+      ),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
   }
 
   static double? _toDouble(Object? value) {
