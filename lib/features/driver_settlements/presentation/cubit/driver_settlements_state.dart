@@ -1,4 +1,5 @@
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -40,9 +41,14 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
   final Failure? previewFailure;
   final bool isCreatingDraft;
   final DriverSettlement? selectedSettlement;
+  final BusinessLocalDateTime? selectedSettlementCreatedAt;
+  final BusinessLocalDateTime? selectedSettlementFinalizedAt;
+  final BusinessLocalDateTime? selectedSettlementVoidedAt;
   final bool isDetailsLoading;
   final Failure? detailsFailure;
   final List<AuditLog> selectedSettlementActivity;
+  final Map<String, BusinessLocalDateTime>
+  selectedSettlementActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? mutationFailure;
@@ -64,9 +70,14 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     this.previewFailure,
     this.isCreatingDraft = false,
     this.selectedSettlement,
+    this.selectedSettlementCreatedAt,
+    this.selectedSettlementFinalizedAt,
+    this.selectedSettlementVoidedAt,
     this.isDetailsLoading = false,
     this.detailsFailure,
     this.selectedSettlementActivity = const [],
+    this.selectedSettlementActivityTimestampsByLogId =
+        const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
     this.mutationFailure,
@@ -81,6 +92,10 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
       if (option.id == driverId) return option.displayName;
     }
     return null;
+  }
+
+  BusinessLocalDateTime? activityTimestampFor(String logId) {
+    return selectedSettlementActivityTimestampsByLogId[logId];
   }
 
   List<DriverSettlement> get settlements => filteredSettlements();
@@ -143,9 +158,14 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     Object? previewFailure = _notSet,
     bool? isCreatingDraft,
     Object? selectedSettlement = _notSet,
+    Object? selectedSettlementCreatedAt = _notSet,
+    Object? selectedSettlementFinalizedAt = _notSet,
+    Object? selectedSettlementVoidedAt = _notSet,
     bool? isDetailsLoading,
     Object? detailsFailure = _notSet,
     List<AuditLog>? selectedSettlementActivity,
+    Map<String, BusinessLocalDateTime>?
+    selectedSettlementActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? mutationFailure = _notSet,
@@ -180,12 +200,24 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
       selectedSettlement: selectedSettlement == _notSet
           ? this.selectedSettlement
           : selectedSettlement as DriverSettlement?,
+      selectedSettlementCreatedAt: selectedSettlementCreatedAt == _notSet
+          ? this.selectedSettlementCreatedAt
+          : selectedSettlementCreatedAt as BusinessLocalDateTime?,
+      selectedSettlementFinalizedAt: selectedSettlementFinalizedAt == _notSet
+          ? this.selectedSettlementFinalizedAt
+          : selectedSettlementFinalizedAt as BusinessLocalDateTime?,
+      selectedSettlementVoidedAt: selectedSettlementVoidedAt == _notSet
+          ? this.selectedSettlementVoidedAt
+          : selectedSettlementVoidedAt as BusinessLocalDateTime?,
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
       detailsFailure: detailsFailure == _notSet
           ? this.detailsFailure
           : detailsFailure as Failure?,
       selectedSettlementActivity:
           selectedSettlementActivity ?? this.selectedSettlementActivity,
+      selectedSettlementActivityTimestampsByLogId:
+          selectedSettlementActivityTimestampsByLogId ??
+          this.selectedSettlementActivityTimestampsByLogId,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
