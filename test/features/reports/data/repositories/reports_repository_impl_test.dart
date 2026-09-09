@@ -157,11 +157,16 @@ void main() {
     test('keeps source mapping inside corrupt-data failure boundary', () async {
       final repository = ReportsRepositoryImpl(
         _FakeReportsRemoteDataSource(
-          operationalModel: _operationalModel(currencyCode: 'invalid'),
+          tripExpensesModel: TripExpensesReportSourceModel(
+            metadata: _metadata(currencyCode: 'invalid'),
+            precisionLossCount: 0,
+            negativeAmountCount: 0,
+            rows: const [],
+          ),
         ),
       );
 
-      final result = await repository.getOperationalTripSource(
+      final result = await repository.getTripExpensesSource(
         companyId: 'company-1',
         fromDate: null,
         toDate: null,
@@ -201,11 +206,8 @@ ReportSourceMetadataModel _metadata({String currencyCode = 'AED'}) {
   );
 }
 
-OperationalReportSourceModel _operationalModel({String currencyCode = 'AED'}) {
-  return OperationalReportSourceModel(
-    metadata: _metadata(currencyCode: currencyCode),
-    rows: const [],
-  );
+OperationalReportSourceModel _operationalModel() {
+  return OperationalReportSourceModel(metadata: _metadata(), rows: const []);
 }
 
 TripExpensesReportSourceModel _tripExpensesModel() {
