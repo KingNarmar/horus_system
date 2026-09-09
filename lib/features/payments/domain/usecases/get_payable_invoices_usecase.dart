@@ -1,6 +1,8 @@
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../../../invoices/domain/entities/invoice.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../../../invoices/domain/repositories/invoices_repository.dart';
@@ -36,6 +38,15 @@ final class GetPayableInvoicesUseCase
     if (!PaymentsPermissionPolicy.canViewPayments(context.role)) {
       return const FailureResult<List<PayableInvoice>>(
         PermissionFailure(code: PaymentFailureCodes.permissionView),
+      );
+    }
+
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+    if (!readiness.isReady) {
+      return const FailureResult<List<PayableInvoice>>(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        ),
       );
     }
 
