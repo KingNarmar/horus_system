@@ -11,6 +11,8 @@ String companyFinancialSettingsFailureMessage(
     CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid =>
       l10n.invalidFractionDigits,
     CompanyFailureCodes.conflictBaseCurrencyLocked => l10n.lockedFailure,
+    CompanyFailureCodes.conflictBaseCurrencyHistoryMismatch =>
+      l10n.historyMismatchFailure,
     CompanyFailureCodes.permissionSettingsManagement => l10n.permissionFailure,
     CompanyFailureCodes.notFound => l10n.notFoundFailure,
     CompanyFailureCodes.authRequired => l10n.authFailure,
