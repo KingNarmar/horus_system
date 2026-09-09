@@ -16,9 +16,12 @@ import '../models/trip_net_profit_report_source_model.dart';
 
 extension ReportSourceMetadataModelMapper on ReportSourceMetadataModel {
   ReportSourceMetadata toEntity() {
-    final currency = CurrencyCode.tryParse(baseCurrencyCode);
-    if (currency == null) {
-      throw const FormatException('Invalid report currency.');
+    CurrencyCode? currency;
+    if (baseCurrencyCode != null) {
+      currency = CurrencyCode.tryParse(baseCurrencyCode!);
+      if (currency == null) {
+        throw const FormatException('Invalid report currency.');
+      }
     }
     return ReportSourceMetadata(
       companyId: companyId,
@@ -68,6 +71,7 @@ extension OperationalReportSourceModelMapper on OperationalReportSourceModel {
 extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
   TripExpensesReportSource toEntity() {
     final reportMetadata = metadata.toEntity();
+    final currency = _requiredFinancialCurrency(reportMetadata);
     return TripExpensesReportSource(
       metadata: reportMetadata,
       precisionLossCount: precisionLossCount,
@@ -91,7 +95,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
               paidBy: _paidBy(row.paidBy),
               amount: Money(
                 minorUnits: row.amountMinorUnits,
-                currency: reportMetadata.currency,
+                currency: currency,
               ),
             );
           })
@@ -104,6 +108,7 @@ extension TripNetProfitReportSourceModelMapper
     on TripNetProfitReportSourceModel {
   TripNetProfitReportSource toEntity() {
     final reportMetadata = metadata.toEntity();
+    final currency = _requiredFinancialCurrency(reportMetadata);
     return TripNetProfitReportSource(
       metadata: reportMetadata,
       freightPrecisionLossCount: freightPrecisionLossCount,
@@ -131,7 +136,7 @@ extension TripNetProfitReportSourceModelMapper
               waybillNumber: trip.waybillNumber,
               freight: Money(
                 minorUnits: trip.freightMinorUnits,
-                currency: reportMetadata.currency,
+                currency: currency,
               ),
             );
           })
@@ -143,7 +148,7 @@ extension TripNetProfitReportSourceModelMapper
               tripId: expense.tripId,
               amount: Money(
                 minorUnits: expense.amountMinorUnits,
-                currency: reportMetadata.currency,
+                currency: currency,
               ),
             );
           })
@@ -155,6 +160,7 @@ extension TripNetProfitReportSourceModelMapper
 extension OpenInvoicesReportSourceModelMapper on OpenInvoicesReportSourceModel {
   OpenInvoicesReportSource toEntity() {
     final reportMetadata = metadata.toEntity();
+    _requiredFinancialCurrency(reportMetadata);
     return OpenInvoicesReportSource(
       metadata: reportMetadata,
       invoiceCurrencyMismatchCount: invoiceCurrencyMismatchCount,
@@ -205,6 +211,14 @@ extension OpenInvoicesReportSourceModelMapper on OpenInvoicesReportSourceModel {
           .toList(growable: false),
     );
   }
+}
+
+CurrencyCode _requiredFinancialCurrency(ReportSourceMetadata metadata) {
+  final currency = metadata.currency;
+  if (currency == null || metadata.baseCurrencyFractionDigits == null) {
+    throw const FormatException('Missing financial report currency metadata.');
+  }
+  return currency;
 }
 
 TripStatus _tripStatus(String raw) {
