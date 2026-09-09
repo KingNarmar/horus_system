@@ -30,6 +30,7 @@ final class CompanyFinancialSettingsLocalizations {
   String get invalidCurrency => _value('invalidCurrency');
   String get invalidFractionDigits => _value('invalidFractionDigits');
   String get lockedFailure => _value('lockedFailure');
+  String get historyMismatchFailure => _value('historyMismatchFailure');
   String get permissionFailure => _value('permissionFailure');
   String get notFoundFailure => _value('notFoundFailure');
   String get authFailure => _value('authFailure');
@@ -57,13 +58,15 @@ final class CompanyFinancialSettingsLocalizations {
     'lockNotice':
         'After currency-bound financial data exists, changing the base currency or precision is blocked to protect historical values.',
     'initialSetupNotice':
-        'For an existing company, the first configuration applies to its existing financial history.',
+        'For an existing company, the first configuration applies to its existing financial history. It must match any currency already recorded on historical invoices or payments.',
     'permissionNotice':
         'Only an Owner or Admin can change the financial configuration.',
     'invalidCurrency': 'Enter a valid 3-letter currency code.',
     'invalidFractionDigits': 'Select a valid number of fraction digits.',
     'lockedFailure':
         'The base currency cannot be changed because currency-bound financial data already exists.',
+    'historyMismatchFailure':
+        'The selected base currency conflicts with currency already recorded in historical financial data.',
     'permissionFailure':
         'Only an Owner or Admin can change the financial configuration.',
     'notFoundFailure': 'The current company could not be found.',
@@ -90,13 +93,15 @@ final class CompanyFinancialSettingsLocalizations {
     'lockNotice':
         'بعد وجود بيانات مالية مرتبطة بالعملة، يُمنع تغيير العملة الأساسية أو دقتها لحماية القيم التاريخية.',
     'initialSetupNotice':
-        'للشركة القائمة، أول إعداد للعملة سيطبق على تاريخها المالي الموجود.',
+        'للشركة القائمة، أول إعداد للعملة سيطبق على تاريخها المالي الموجود، ويجب أن يطابق أي عملة مسجلة بالفعل في الفواتير أو المدفوعات التاريخية.',
     'permissionNotice':
         'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
     'invalidCurrency': 'أدخل رمز عملة صحيحًا من 3 أحرف.',
     'invalidFractionDigits': 'اختر عددًا صحيحًا للخانات العشرية.',
     'lockedFailure':
         'لا يمكن تغيير العملة الأساسية لوجود بيانات مالية مرتبطة بها بالفعل.',
+    'historyMismatchFailure':
+        'العملة الأساسية المختارة تتعارض مع عملة مسجلة بالفعل في البيانات المالية التاريخية.',
     'permissionFailure':
         'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
     'notFoundFailure': 'تعذر العثور على الشركة الحالية.',
