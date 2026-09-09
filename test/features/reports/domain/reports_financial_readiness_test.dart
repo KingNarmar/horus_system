@@ -30,8 +30,8 @@ void main() {
 
     expect(result, isA<Success<OperationalTripReport>>());
     expect(repository.operationalCalls, 1);
-    expect(result.dataOrNull?.metadata.currency, isNull);
-    expect(result.dataOrNull?.metadata.baseCurrencyFractionDigits, isNull);
+    expect(result.dataOrNull?.metadata.companyId, 'company-1');
+    expect(result.dataOrNull?.metadata.businessTimezone, 'Asia/Dubai');
   });
 
   test(
@@ -80,10 +80,8 @@ final class _ReadinessReportsRepository implements ReportsRepository {
     operationalCalls++;
     return Success(
       OperationalTripReportSource(
-        metadata: ReportSourceMetadata(
+        metadata: OperationalReportSourceMetadata(
           companyId: companyId,
-          currency: null,
-          baseCurrencyFractionDigits: null,
           businessTimezone: 'Asia/Dubai',
           businessDate: DateTime(2026, 9, 9),
           fromDate: fromDate,
