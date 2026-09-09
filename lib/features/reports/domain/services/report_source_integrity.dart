@@ -14,11 +14,16 @@ abstract final class ReportSourceIntegrity {
     required DateTime? expectedFromDate,
     required DateTime? expectedToDate,
   }) {
-    if (metadata.companyId != expectedCompanyId ||
-        metadata.baseCurrencyFractionDigits != expectedFractionDigits ||
-        metadata.businessTimezone != expectedBusinessTimezone ||
-        !_sameDate(metadata.fromDate, expectedFromDate) ||
-        !_sameDate(metadata.toDate, expectedToDate)) {
+    final sharedFailure = validateOperationalMetadata(
+      metadata: metadata,
+      expectedCompanyId: expectedCompanyId,
+      expectedBusinessTimezone: expectedBusinessTimezone,
+      expectedFromDate: expectedFromDate,
+      expectedToDate: expectedToDate,
+    );
+    if (sharedFailure != null) return sharedFailure;
+
+    if (metadata.baseCurrencyFractionDigits != expectedFractionDigits) {
       return const ConflictFailure(
         code: ReportsFailureCodes.conflictSourceInvalid,
       );
@@ -27,6 +32,25 @@ abstract final class ReportSourceIntegrity {
     if (metadata.currency != expectedCurrency) {
       return const ConflictFailure(
         code: ReportsFailureCodes.conflictCurrencyMismatch,
+      );
+    }
+
+    return null;
+  }
+
+  static Failure? validateOperationalMetadata({
+    required ReportSourceMetadata metadata,
+    required String expectedCompanyId,
+    required String expectedBusinessTimezone,
+    required DateTime? expectedFromDate,
+    required DateTime? expectedToDate,
+  }) {
+    if (metadata.companyId != expectedCompanyId ||
+        metadata.businessTimezone != expectedBusinessTimezone ||
+        !_sameDate(metadata.fromDate, expectedFromDate) ||
+        !_sameDate(metadata.toDate, expectedToDate)) {
+      return const ConflictFailure(
+        code: ReportsFailureCodes.conflictSourceInvalid,
       );
     }
 
