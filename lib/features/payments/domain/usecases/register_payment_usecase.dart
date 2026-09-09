@@ -67,6 +67,16 @@ final class RegisterPaymentUseCase
       );
     }
 
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+    final configuration = readiness.configuration;
+    if (!readiness.isReady || configuration == null) {
+      return const FailureResult<Payment>(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        ),
+      );
+    }
+
     final invoiceResult = await _invoicesRepository.getInvoiceDetails(
       companyId: context.companyId,
       invoiceId: invoiceId,
@@ -83,15 +93,6 @@ final class RegisterPaymentUseCase
       );
     }
 
-    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
-    final configuration = readiness.configuration;
-    if (!readiness.isReady || configuration == null) {
-      return const FailureResult<Payment>(
-        ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
-        ),
-      );
-    }
     if (invoice.currency != configuration.baseCurrency) {
       return const FailureResult<Payment>(
         ValidationFailure(code: PaymentFailureCodes.validationCurrencyMismatch),
