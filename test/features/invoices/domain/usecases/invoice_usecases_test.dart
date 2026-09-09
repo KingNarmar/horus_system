@@ -39,6 +39,21 @@ void main() {
       expect(repository.getInvoicesCalls, 0);
     });
 
+    test('missing financial readiness blocks reads before repository access', () async {
+      final repository = _FakeInvoicesRepository();
+      final result = await GetInvoicesUseCase(repository)(
+        GetInvoicesParams(
+          currentCompanyContext: _contextWithoutCurrency(CompanyRole.viewer),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      );
+      expect(repository.getInvoicesCalls, 0);
+    });
+
     test('authorized reads are scoped to current company', () async {
       final repository = _FakeInvoicesRepository();
       await GetInvoicesUseCase(repository)(
@@ -50,6 +65,28 @@ void main() {
   });
 
   group('invoice draft use cases', () {
+    test('missing financial readiness blocks draft creation', () async {
+      final repository = _FakeInvoicesRepository();
+      final result = await CreateInvoiceFromTripUseCase(repository)(
+        CreateInvoiceFromTripParams(
+          currentCompanyContext: _contextWithoutCurrency(
+            CompanyRole.accountant,
+          ),
+          input: InvoiceDraftInput(
+            customerId: 'customer-1',
+            tripIds: ['trip-1'],
+            currencyCode: 'AED',
+          ),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      );
+      expect(repository.creationContextCalls, 0);
+    });
+
     test('single-trip creation recalculates from repository context', () async {
       final repository = _FakeInvoicesRepository();
       final result = await CreateInvoiceFromTripUseCase(repository)(
@@ -114,6 +151,31 @@ void main() {
   });
 
   group('invoice lifecycle use cases', () {
+    test('missing financial readiness stops invoice issuance immediately', () async {
+      final repository = _FakeInvoicesRepository();
+      final businessDateProvider = _FixedBusinessDateProvider(
+        _date(2026, 8, 5),
+      );
+      final result = await IssueInvoiceUseCase(
+        repository,
+        businessDateProvider: businessDateProvider,
+      )(
+        IssueInvoiceParams(
+          currentCompanyContext: _contextWithoutCurrency(CompanyRole.admin),
+          invoiceId: 'invoice-1',
+          issueDate: _date(2026, 8, 5),
+          dueDate: _date(2026, 9, 4),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      );
+      expect(businessDateProvider.lastCompanyId, isNull);
+      expect(repository.issueCalls, 0);
+    });
+
     test('future issue dates are rejected against company date', () async {
       final repository = _FakeInvoicesRepository();
       final businessDateProvider = _FixedBusinessDateProvider(
@@ -226,7 +288,24 @@ BusinessDate _date(int year, int month, int day) {
 
 CurrentCompanyContext _context(CompanyRole role) {
   return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Company'),
+    company: const Company(
+      id: 'company-1',
+      name: 'Company',
+      baseCurrencyCode: 'AED',
+      baseCurrencyFractionDigits: 2,
+      businessTimezone: 'Asia/Dubai',
+    ),
+    role: role,
+  );
+}
+
+CurrentCompanyContext _contextWithoutCurrency(CompanyRole role) {
+  return CurrentCompanyContext(
+    company: const Company(
+      id: 'company-1',
+      name: 'Company',
+      businessTimezone: 'Asia/Dubai',
+    ),
     role: role,
   );
 }
