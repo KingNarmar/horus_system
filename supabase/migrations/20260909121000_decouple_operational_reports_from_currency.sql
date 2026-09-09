@@ -186,8 +186,6 @@ BEGIN
     'company',
     pg_catalog.jsonb_build_object(
       'company_id', p_company_id,
-      'base_currency_code', NULL,
-      'base_currency_fraction_digits', NULL,
       'business_timezone', v_business_timezone,
       'business_date', v_business_date
     ),
