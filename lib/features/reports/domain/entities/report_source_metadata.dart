@@ -2,8 +2,8 @@ import '../../../../core/domain/value_objects/currency_code.dart';
 
 final class ReportSourceMetadata {
   final String companyId;
-  final CurrencyCode currency;
-  final int baseCurrencyFractionDigits;
+  final CurrencyCode? currency;
+  final int? baseCurrencyFractionDigits;
   final String businessTimezone;
   final DateTime businessDate;
   final DateTime? fromDate;
