@@ -15,18 +15,32 @@ import '../models/trip_expenses_report_source_model.dart';
 import '../models/trip_net_profit_report_source_model.dart';
 
 extension ReportSourceMetadataModelMapper on ReportSourceMetadataModel {
-  ReportSourceMetadata toEntity() {
-    CurrencyCode? currency;
-    if (baseCurrencyCode != null) {
-      currency = CurrencyCode.tryParse(baseCurrencyCode!);
-      if (currency == null) {
-        throw const FormatException('Invalid report currency.');
-      }
+  ReportSourceMetadata toFinancialEntity() {
+    final rawCurrency = baseCurrencyCode;
+    final fractionDigits = baseCurrencyFractionDigits;
+    if (rawCurrency == null || fractionDigits == null) {
+      throw const FormatException('Missing financial report metadata.');
     }
+
+    final currency = CurrencyCode.tryParse(rawCurrency);
+    if (currency == null) {
+      throw const FormatException('Invalid report currency.');
+    }
+
     return ReportSourceMetadata(
       companyId: companyId,
       currency: currency,
-      baseCurrencyFractionDigits: baseCurrencyFractionDigits,
+      baseCurrencyFractionDigits: fractionDigits,
+      businessTimezone: businessTimezone,
+      businessDate: businessDate,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
+  OperationalReportSourceMetadata toOperationalEntity() {
+    return OperationalReportSourceMetadata(
+      companyId: companyId,
       businessTimezone: businessTimezone,
       businessDate: businessDate,
       fromDate: fromDate,
@@ -38,7 +52,7 @@ extension ReportSourceMetadataModelMapper on ReportSourceMetadataModel {
 extension OperationalReportSourceModelMapper on OperationalReportSourceModel {
   OperationalTripReportSource toEntity() {
     return OperationalTripReportSource(
-      metadata: metadata.toEntity(),
+      metadata: metadata.toOperationalEntity(),
       rows: rows
           .map((row) {
             return OperationalTripReportRow(
@@ -70,8 +84,7 @@ extension OperationalReportSourceModelMapper on OperationalReportSourceModel {
 
 extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
   TripExpensesReportSource toEntity() {
-    final reportMetadata = metadata.toEntity();
-    final currency = _requiredFinancialCurrency(reportMetadata);
+    final reportMetadata = metadata.toFinancialEntity();
     return TripExpensesReportSource(
       metadata: reportMetadata,
       precisionLossCount: precisionLossCount,
@@ -95,7 +108,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
               paidBy: _paidBy(row.paidBy),
               amount: Money(
                 minorUnits: row.amountMinorUnits,
-                currency: currency,
+                currency: reportMetadata.currency,
               ),
             );
           })
@@ -107,8 +120,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
 extension TripNetProfitReportSourceModelMapper
     on TripNetProfitReportSourceModel {
   TripNetProfitReportSource toEntity() {
-    final reportMetadata = metadata.toEntity();
-    final currency = _requiredFinancialCurrency(reportMetadata);
+    final reportMetadata = metadata.toFinancialEntity();
     return TripNetProfitReportSource(
       metadata: reportMetadata,
       freightPrecisionLossCount: freightPrecisionLossCount,
@@ -136,7 +148,7 @@ extension TripNetProfitReportSourceModelMapper
               waybillNumber: trip.waybillNumber,
               freight: Money(
                 minorUnits: trip.freightMinorUnits,
-                currency: currency,
+                currency: reportMetadata.currency,
               ),
             );
           })
@@ -148,7 +160,7 @@ extension TripNetProfitReportSourceModelMapper
               tripId: expense.tripId,
               amount: Money(
                 minorUnits: expense.amountMinorUnits,
-                currency: currency,
+                currency: reportMetadata.currency,
               ),
             );
           })
@@ -159,8 +171,7 @@ extension TripNetProfitReportSourceModelMapper
 
 extension OpenInvoicesReportSourceModelMapper on OpenInvoicesReportSourceModel {
   OpenInvoicesReportSource toEntity() {
-    final reportMetadata = metadata.toEntity();
-    _requiredFinancialCurrency(reportMetadata);
+    final reportMetadata = metadata.toFinancialEntity();
     return OpenInvoicesReportSource(
       metadata: reportMetadata,
       invoiceCurrencyMismatchCount: invoiceCurrencyMismatchCount,
@@ -211,14 +222,6 @@ extension OpenInvoicesReportSourceModelMapper on OpenInvoicesReportSourceModel {
           .toList(growable: false),
     );
   }
-}
-
-CurrencyCode _requiredFinancialCurrency(ReportSourceMetadata metadata) {
-  final currency = metadata.currency;
-  if (currency == null || metadata.baseCurrencyFractionDigits == null) {
-    throw const FormatException('Missing financial report currency metadata.');
-  }
-  return currency;
 }
 
 TripStatus _tripStatus(String raw) {
