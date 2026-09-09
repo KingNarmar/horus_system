@@ -14,8 +14,11 @@ abstract final class ReportSourceIntegrity {
     required DateTime? expectedFromDate,
     required DateTime? expectedToDate,
   }) {
-    final sharedFailure = validateOperationalMetadata(
-      metadata: metadata,
+    final sharedFailure = _validateSharedMetadata(
+      companyId: metadata.companyId,
+      businessTimezone: metadata.businessTimezone,
+      fromDate: metadata.fromDate,
+      toDate: metadata.toDate,
       expectedCompanyId: expectedCompanyId,
       expectedBusinessTimezone: expectedBusinessTimezone,
       expectedFromDate: expectedFromDate,
@@ -39,26 +42,48 @@ abstract final class ReportSourceIntegrity {
   }
 
   static Failure? validateOperationalMetadata({
-    required ReportSourceMetadata metadata,
+    required OperationalReportSourceMetadata metadata,
     required String expectedCompanyId,
     required String expectedBusinessTimezone,
     required DateTime? expectedFromDate,
     required DateTime? expectedToDate,
   }) {
-    if (metadata.companyId != expectedCompanyId ||
-        metadata.businessTimezone != expectedBusinessTimezone ||
-        !_sameDate(metadata.fromDate, expectedFromDate) ||
-        !_sameDate(metadata.toDate, expectedToDate)) {
+    return _validateSharedMetadata(
+      companyId: metadata.companyId,
+      businessTimezone: metadata.businessTimezone,
+      fromDate: metadata.fromDate,
+      toDate: metadata.toDate,
+      expectedCompanyId: expectedCompanyId,
+      expectedBusinessTimezone: expectedBusinessTimezone,
+      expectedFromDate: expectedFromDate,
+      expectedToDate: expectedToDate,
+    );
+  }
+
+  static bool hasInvalidCounter(Iterable<int> counters) {
+    return counters.any((value) => value < 0);
+  }
+
+  static Failure? _validateSharedMetadata({
+    required String companyId,
+    required String businessTimezone,
+    required DateTime? fromDate,
+    required DateTime? toDate,
+    required String expectedCompanyId,
+    required String expectedBusinessTimezone,
+    required DateTime? expectedFromDate,
+    required DateTime? expectedToDate,
+  }) {
+    if (companyId != expectedCompanyId ||
+        businessTimezone != expectedBusinessTimezone ||
+        !_sameDate(fromDate, expectedFromDate) ||
+        !_sameDate(toDate, expectedToDate)) {
       return const ConflictFailure(
         code: ReportsFailureCodes.conflictSourceInvalid,
       );
     }
 
     return null;
-  }
-
-  static bool hasInvalidCounter(Iterable<int> counters) {
-    return counters.any((value) => value < 0);
   }
 
   static bool _sameDate(DateTime? left, DateTime? right) {
