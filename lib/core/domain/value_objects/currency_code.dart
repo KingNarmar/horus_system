@@ -1,5 +1,6 @@
 final class CurrencyCode {
-  static final RegExp _pattern = RegExp(r'^[A-Z]{3}$');
+  static const int length = 3;
+  static final RegExp _pattern = RegExp('^[A-Z]{$length}\$');
 
   final String value;
 
