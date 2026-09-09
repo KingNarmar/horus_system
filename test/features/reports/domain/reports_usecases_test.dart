@@ -28,7 +28,7 @@ void main() {
     () async {
       final repository = _FakeReportsRepository(
         operational: (companyId, from, to) => OperationalTripReportSource(
-          metadata: _metadata(companyId, from, to),
+          metadata: _operationalMetadata(companyId, from, to),
           rows: [
             _operationalRow(
               id: 'trip-1',
@@ -60,6 +60,36 @@ void main() {
       expect(report.groups, hasLength(2));
       expect(report.groups.last.entityId, isNull);
       expect(report.groups.last.rows.single.status, TripStatus.cancelled);
+    },
+  );
+
+  test(
+    'operational reports remain available when financial configuration is missing',
+    () async {
+      final repository = _FakeReportsRepository(
+        operational: (companyId, from, to) => OperationalTripReportSource(
+          metadata: _operationalMetadata(companyId, from, to),
+          rows: [
+            _operationalRow(
+              id: 'trip-1',
+              driverId: null,
+              driverName: null,
+            ),
+          ],
+        ),
+      );
+      final useCase = GetOperationalReportUseCase(repository: repository);
+
+      final result = await useCase(
+        OperationalReportParams(
+          currentCompanyContext: _contextWithoutCurrency(CompanyRole.viewer),
+          dimension: OperationalReportDimension.day,
+          dateRange: const ReportDateRange(),
+        ),
+      );
+
+      expect(result, isA<Success<OperationalTripReport>>());
+      expect(repository.operationalCalls, 1);
     },
   );
 
@@ -234,11 +264,36 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
+CurrentCompanyContext _contextWithoutCurrency(CompanyRole role) {
+  return CurrentCompanyContext(
+    company: const Company(
+      id: 'company-1',
+      name: 'Company',
+      businessTimezone: 'Asia/Dubai',
+    ),
+    role: role,
+  );
+}
+
 ReportSourceMetadata _metadata(String companyId, DateTime? from, DateTime? to) {
   return ReportSourceMetadata(
     companyId: companyId,
     currency: _currency,
     baseCurrencyFractionDigits: 2,
+    businessTimezone: 'Asia/Dubai',
+    businessDate: DateTime(2026, 8, 13),
+    fromDate: from,
+    toDate: to,
+  );
+}
+
+OperationalReportSourceMetadata _operationalMetadata(
+  String companyId,
+  DateTime? from,
+  DateTime? to,
+) {
+  return OperationalReportSourceMetadata(
+    companyId: companyId,
     businessTimezone: 'Asia/Dubai',
     businessDate: DateTime(2026, 8, 13),
     fromDate: from,
