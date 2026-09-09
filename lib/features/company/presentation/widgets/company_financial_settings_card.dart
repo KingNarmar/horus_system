@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../domain/entities/company_financial_configuration.dart';
 import '../../domain/entities/company_financial_readiness.dart';
 import '../../domain/entities/current_company_context.dart';
@@ -136,7 +137,7 @@ final class _CompanyFinancialSettingsCardState
                     controller: _currencyController,
                     enabled: !isSaving,
                     textCapitalization: TextCapitalization.characters,
-                    maxLength: 3,
+                    maxLength: CurrencyCode.length,
                     decoration: InputDecoration(
                       labelText: l10n.baseCurrencyLabel,
                       hintText: l10n.baseCurrencyHint,
