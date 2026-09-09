@@ -1,10 +1,10 @@
 import '../../../../core/domain/services/company_business_date_provider.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
-import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../../../invoices/domain/entities/invoice.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../../../invoices/domain/repositories/invoices_repository.dart';
@@ -83,21 +83,16 @@ final class RegisterPaymentUseCase
       );
     }
 
-    final fractionDigits = context.company.baseCurrencyFractionDigits;
-    final baseCurrency = CurrencyCode.tryParse(
-      context.company.baseCurrencyCode ?? '',
-    );
-    if (fractionDigits == null ||
-        fractionDigits < 0 ||
-        fractionDigits > 4 ||
-        baseCurrency == null) {
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+    final configuration = readiness.configuration;
+    if (!readiness.isReady || configuration == null) {
       return const FailureResult<Payment>(
         ConflictFailure(
           code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
         ),
       );
     }
-    if (invoice.currency != baseCurrency) {
+    if (invoice.currency != configuration.baseCurrency) {
       return const FailureResult<Payment>(
         ValidationFailure(code: PaymentFailureCodes.validationCurrencyMismatch),
       );
@@ -106,7 +101,7 @@ final class RegisterPaymentUseCase
     final amount = PaymentAmountParser.tryParse(
       rawValue: params.amountText,
       currency: invoice.currency,
-      fractionDigits: fractionDigits,
+      fractionDigits: configuration.fractionDigits,
     );
     if (amount == null) {
       return const FailureResult<Payment>(
