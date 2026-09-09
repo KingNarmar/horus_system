@@ -1,9 +1,12 @@
+import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../entities/invoice.dart';
 import '../entities/invoice_creation_context.dart';
 import '../entities/invoice_draft_data.dart';
@@ -168,6 +171,28 @@ Future<Result<Invoice>> _buildAndPersistDraft({
     );
   }
 
+  final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+  final configuration = readiness.configuration;
+  if (!readiness.isReady || configuration == null) {
+    return const FailureResult<Invoice>(
+      ConflictFailure(
+        code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      ),
+    );
+  }
+
+  final requestedCurrency = CurrencyCode.tryParse(input.currencyCode);
+  if (requestedCurrency == null) {
+    return const FailureResult<Invoice>(
+      ValidationFailure(code: FailureCodes.validationInvoiceCurrencyInvalid),
+    );
+  }
+  if (requestedCurrency != configuration.baseCurrency) {
+    return const FailureResult<Invoice>(
+      ValidationFailure(code: FailureCodes.validationInvoiceCurrencyMismatch),
+    );
+  }
+
   final contextResult = await repository.getCreationContext(
     companyId: context.companyId,
     tripIds: tripIds,
@@ -181,7 +206,7 @@ Future<Result<Invoice>> _buildAndPersistDraft({
     customerId: customerId,
     requestedTripIds: tripIds,
     context: (contextResult as Success<InvoiceCreationContext>).data,
-    currencyCode: input.currencyCode,
+    currencyCode: configuration.baseCurrency.value,
     discountMinorUnits: input.discountMinorUnits,
     taxRateBasisPoints: input.taxRateBasisPoints,
     issueDate: input.issueDate,
