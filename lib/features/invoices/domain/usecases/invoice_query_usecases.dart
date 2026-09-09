@@ -2,6 +2,8 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../entities/billable_trip.dart';
 import '../entities/invoice.dart';
 import '../policies/invoices_permission_policy.dart';
@@ -21,6 +23,16 @@ final class GetInvoicesUseCase
       return Future.value(
         const FailureResult<List<Invoice>>(
           PermissionFailure(code: FailureCodes.permissionInvoicesView),
+        ),
+      );
+    }
+
+    if (!CompanyFinancialReadinessPolicy.evaluate(context.company).isReady) {
+      return Future.value(
+        const FailureResult<List<Invoice>>(
+          ConflictFailure(
+            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          ),
         ),
       );
     }
@@ -55,6 +67,16 @@ final class GetInvoiceDetailsUseCase
       );
     }
 
+    if (!CompanyFinancialReadinessPolicy.evaluate(context.company).isReady) {
+      return Future.value(
+        const FailureResult<Invoice>(
+          ConflictFailure(
+            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          ),
+        ),
+      );
+    }
+
     return _repository.getInvoiceDetails(
       companyId: context.companyId,
       invoiceId: invoiceId,
@@ -75,6 +97,16 @@ final class GetBillableTripsUseCase
       return Future.value(
         const FailureResult<List<BillableTrip>>(
           PermissionFailure(code: FailureCodes.permissionInvoicesManagement),
+        ),
+      );
+    }
+
+    if (!CompanyFinancialReadinessPolicy.evaluate(context.company).isReady) {
+      return Future.value(
+        const FailureResult<List<BillableTrip>>(
+          ConflictFailure(
+            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          ),
         ),
       );
     }
