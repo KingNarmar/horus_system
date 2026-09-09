@@ -28,6 +28,9 @@ abstract final class CompanyRegionalSettingsFailureMapper {
       CompanyRpcErrorCodes.baseCurrencyLocked => const ConflictFailure(
         code: CompanyFailureCodes.conflictBaseCurrencyLocked,
       ),
+      CompanyRpcErrorCodes.baseCurrencyHistoryMismatch => const ConflictFailure(
+        code: CompanyFailureCodes.conflictBaseCurrencyHistoryMismatch,
+      ),
       CompanyRpcErrorCodes.regionalSettingsNotConfigured =>
         const ConflictFailure(
           code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,

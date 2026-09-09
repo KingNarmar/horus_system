@@ -19,3 +19,19 @@ final class ReportSourceMetadata {
     required this.toDate,
   });
 }
+
+final class OperationalReportSourceMetadata {
+  final String companyId;
+  final String businessTimezone;
+  final DateTime businessDate;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+
+  const OperationalReportSourceMetadata({
+    required this.companyId,
+    required this.businessTimezone,
+    required this.businessDate,
+    required this.fromDate,
+    required this.toDate,
+  });
+}

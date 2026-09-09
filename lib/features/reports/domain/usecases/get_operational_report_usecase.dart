@@ -38,7 +38,7 @@ final class GetOperationalReportUseCase
     );
     if (dateFailure != null) return FailureResult(dateFailure);
 
-    final request = ReportsContextValidator.tryBuild(
+    final request = ReportsContextValidator.tryBuildOperational(
       context: context,
       range: params.dateRange,
     );
@@ -54,11 +54,9 @@ final class GetOperationalReportUseCase
 
     return result.when(
       success: (source) {
-        final metadataFailure = ReportSourceIntegrity.validateMetadata(
+        final metadataFailure = ReportSourceIntegrity.validateOperationalMetadata(
           metadata: source.metadata,
           expectedCompanyId: request.companyId,
-          expectedCurrency: request.currency,
-          expectedFractionDigits: request.fractionDigits,
           expectedBusinessTimezone: request.businessTimezone,
           expectedFromDate: request.fromDate,
           expectedToDate: request.toDate,

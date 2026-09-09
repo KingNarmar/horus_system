@@ -3,12 +3,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../../core/domain/services/company_business_date_provider.dart';
 import '../data/datasources/company_business_date_remote_data_source.dart';
+import '../data/datasources/company_financial_settings_remote_data_source.dart';
 import '../data/datasources/company_invitation_delivery_remote_data_source.dart';
 import '../data/datasources/company_invitations_remote_data_source.dart';
 import '../data/datasources/company_membership_remote_data_source.dart';
 import '../data/datasources/company_regional_settings_remote_data_source.dart';
 import '../data/datasources/company_timezone_remote_data_source.dart';
 import '../data/datasources/pending_company_invitation_local_data_source.dart';
+import '../data/repositories/company_financial_settings_repository_impl.dart';
 import '../data/repositories/company_invitations_repository_impl.dart';
 import '../data/repositories/company_membership_repository_impl.dart';
 import '../data/repositories/company_regional_settings_repository_impl.dart';
@@ -16,6 +18,7 @@ import '../data/repositories/company_timezone_repository_impl.dart';
 import '../data/repositories/pending_company_invitation_repository_impl.dart';
 import '../data/services/company_business_date_provider_impl.dart';
 import '../data/services/company_invitation_token_codec.dart';
+import '../domain/repositories/company_financial_settings_repository.dart';
 import '../domain/repositories/company_invitations_repository.dart';
 import '../domain/repositories/company_membership_repository.dart';
 import '../domain/repositories/company_regional_settings_repository.dart';
@@ -37,7 +40,9 @@ import '../domain/usecases/send_company_invitation_usecase.dart';
 import '../domain/usecases/store_pending_company_invitation_usecase.dart';
 import '../domain/usecases/transfer_company_ownership_usecase.dart';
 import '../domain/usecases/update_company_business_timezone_usecase.dart';
+import '../domain/usecases/update_company_financial_configuration_usecase.dart';
 import '../domain/usecases/update_company_regional_settings_usecase.dart';
+import '../presentation/cubit/company_financial_settings_cubit.dart';
 import '../presentation/cubit/company_invitation_acceptance_cubit.dart';
 import '../presentation/cubit/company_invitations_cubit.dart';
 import '../presentation/cubit/company_member_actions_cubit.dart';
@@ -48,6 +53,22 @@ abstract final class CompanyDependencies {
     return CompanyRegionalSettingsRepositoryImpl(
       SupabaseCompanyRegionalSettingsRemoteDataSource(
         SupabaseClientProvider.client,
+      ),
+    );
+  }
+
+  static CompanyFinancialSettingsRepository createFinancialSettingsRepository() {
+    return CompanyFinancialSettingsRepositoryImpl(
+      SupabaseCompanyFinancialSettingsRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
+    );
+  }
+
+  static CompanyFinancialSettingsCubit createFinancialSettingsCubit() {
+    return CompanyFinancialSettingsCubit(
+      updateUseCase: UpdateCompanyFinancialConfigurationUseCase(
+        createFinancialSettingsRepository(),
       ),
     );
   }

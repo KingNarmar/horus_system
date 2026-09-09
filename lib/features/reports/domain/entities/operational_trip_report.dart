@@ -48,7 +48,7 @@ final class OperationalTripReportRow {
 }
 
 final class OperationalTripReportSource {
-  final ReportSourceMetadata metadata;
+  final OperationalReportSourceMetadata metadata;
   final List<OperationalTripReportRow> rows;
 
   OperationalTripReportSource({
@@ -74,7 +74,7 @@ final class OperationalTripReportGroup {
 }
 
 final class OperationalTripReport {
-  final ReportSourceMetadata metadata;
+  final OperationalReportSourceMetadata metadata;
   final OperationalReportDimension dimension;
   final List<OperationalTripReportGroup> groups;
 

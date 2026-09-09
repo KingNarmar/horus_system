@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -60,11 +59,9 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.owner,
 );
 
-ReportSourceMetadata _metadata(DateTime? from, DateTime? to) {
-  return ReportSourceMetadata(
+OperationalReportSourceMetadata _metadata(DateTime? from, DateTime? to) {
+  return OperationalReportSourceMetadata(
     companyId: 'company-1',
-    currency: CurrencyCode.tryParse('AED')!,
-    baseCurrencyFractionDigits: 2,
     businessTimezone: 'Asia/Dubai',
     businessDate: DateTime(2026, 8, 13),
     fromDate: from,

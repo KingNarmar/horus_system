@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/presentation/widgets/operational_report_view.dart';
@@ -82,10 +81,8 @@ OperationalTripReport _report() {
     quantityTons: null,
   );
   return OperationalTripReport(
-    metadata: ReportSourceMetadata(
+    metadata: OperationalReportSourceMetadata(
       companyId: 'company-1',
-      currency: CurrencyCode.tryParse('AED')!,
-      baseCurrencyFractionDigits: 2,
       businessTimezone: 'Asia/Dubai',
       businessDate: DateTime(2026, 8, 13),
       fromDate: null,

@@ -30,6 +30,13 @@ int requiredInt(Object? value, String field) {
   throw FormatException('Invalid reports integer: $field.');
 }
 
+int? optionalInt(Object? value, String field) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num && value == value.truncate()) return value.toInt();
+  throw FormatException('Invalid reports integer: $field.');
+}
+
 double? optionalDouble(Object? value, String field) {
   if (value == null) return null;
   if (value is num) return value.toDouble();

@@ -5,6 +5,8 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
+import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../entities/invoice.dart';
 import '../entities/invoice_creation_context.dart';
 import '../policies/invoice_lifecycle_policy.dart';
@@ -54,6 +56,16 @@ final class IssueInvoiceUseCase
       );
     }
 
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+    final configuration = readiness.configuration;
+    if (!readiness.isReady || configuration == null) {
+      return const FailureResult<Invoice>(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        ),
+      );
+    }
+
     final businessDateResult = await _businessDateProvider.getBusinessDate(
       companyId: context.companyId,
     );
@@ -79,6 +91,11 @@ final class IssueInvoiceUseCase
     }
 
     final invoice = (currentResult as Success<Invoice>).data;
+    if (invoice.currency != configuration.baseCurrency) {
+      return const FailureResult<Invoice>(
+        ValidationFailure(code: FailureCodes.validationInvoiceCurrencyMismatch),
+      );
+    }
     if (!InvoiceLifecyclePolicy.canIssue(invoice.status)) {
       return const FailureResult<Invoice>(
         ConflictFailure(
@@ -140,6 +157,14 @@ final class CancelInvoiceUseCase
       return const FailureResult<Invoice>(
         ValidationFailure(
           code: FailureCodes.validationInvoiceCancellationReasonRequired,
+        ),
+      );
+    }
+
+    if (!CompanyFinancialReadinessPolicy.evaluate(context.company).isReady) {
+      return const FailureResult<Invoice>(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
         ),
       );
     }

@@ -1,8 +1,9 @@
 import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
+import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/reports/data/mappers/report_source_mappers.dart';
 import 'package:horus_system/features/reports/data/models/open_invoices_report_source_model.dart';
+import 'package:horus_system/features/reports/data/models/operational_report_source_model.dart';
 import 'package:horus_system/features/reports/data/models/trip_expenses_report_source_model.dart';
-import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -37,6 +38,52 @@ void main() {
     expect(source.rows.single.amount.minorUnits, 2500);
     expect(source.rows.single.amount.currency.value, 'AED');
     expect(source.metadata.fromDate, DateTime(2026, 6, 26));
+  });
+
+  test('maps operational source without financial metadata', () {
+    final model = OperationalReportSourceModel.fromMap({
+      'company': _operationalCompany,
+      'period': {'from_date': null, 'to_date': null},
+      'rows': [
+        {
+          'trip_id': 'trip-1',
+          'trip_number': 'TR-1',
+          'operational_date': '2026-06-26',
+          'status': 'delivered',
+          'customer_id': 'customer-1',
+          'customer_name': 'Customer',
+          'driver_id': null,
+          'driver_name': null,
+          'tractor_head_id': null,
+          'tractor_head_plate_number': null,
+          'trailer_id': null,
+          'trailer_plate_number': null,
+          'route_id': 'route-1',
+          'loading_location': 'Dubai',
+          'unloading_location': 'Abu Dhabi',
+          'loading_order_number': null,
+          'waybill_number': null,
+          'cargo_type': null,
+          'quantity_tons': null,
+        },
+      ],
+    });
+
+    final source = model.toEntity();
+    expect(source.metadata.companyId, 'company-1');
+    expect(source.metadata.businessTimezone, 'Asia/Dubai');
+    expect(source.rows.single.tripId, 'trip-1');
+  });
+
+  test('financial source requires canonical currency metadata', () {
+    final model = TripExpensesReportSourceModel.fromMap({
+      'company': _operationalCompany,
+      'period': {'from_date': null, 'to_date': null},
+      'validation': {'precision_loss_count': 0, 'negative_amount_count': 0},
+      'rows': const [],
+    });
+
+    expect(model.toEntity, throwsFormatException);
   });
 
   test('maps paid invoice source without classifying it as open in Data', () {
@@ -116,6 +163,12 @@ const _company = {
   'company_id': 'company-1',
   'base_currency_code': 'AED',
   'base_currency_fraction_digits': 2,
+  'business_timezone': 'Asia/Dubai',
+  'business_date': '2026-08-13',
+};
+
+const _operationalCompany = {
+  'company_id': 'company-1',
   'business_timezone': 'Asia/Dubai',
   'business_date': '2026-08-13',
 };

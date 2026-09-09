@@ -2,8 +2,8 @@ import 'report_model_parsing.dart';
 
 final class ReportSourceMetadataModel {
   final String companyId;
-  final String baseCurrencyCode;
-  final int baseCurrencyFractionDigits;
+  final String? baseCurrencyCode;
+  final int? baseCurrencyFractionDigits;
   final String businessTimezone;
   final DateTime businessDate;
   final DateTime? fromDate;
@@ -24,11 +24,11 @@ final class ReportSourceMetadataModel {
     final period = requiredMap(root['period'], 'period');
     return ReportSourceMetadataModel(
       companyId: requiredString(company['company_id'], 'company_id'),
-      baseCurrencyCode: requiredString(
+      baseCurrencyCode: optionalString(
         company['base_currency_code'],
         'base_currency_code',
       ),
-      baseCurrencyFractionDigits: requiredInt(
+      baseCurrencyFractionDigits: optionalInt(
         company['base_currency_fraction_digits'],
         'base_currency_fraction_digits',
       ),

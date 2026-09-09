@@ -39,7 +39,7 @@ final class GetOpenInvoicesReportUseCase
     );
     if (dateFailure != null) return FailureResult(dateFailure);
 
-    final request = ReportsContextValidator.tryBuild(
+    final request = ReportsContextValidator.tryBuildFinancial(
       context: context,
       range: params.dateRange,
     );
