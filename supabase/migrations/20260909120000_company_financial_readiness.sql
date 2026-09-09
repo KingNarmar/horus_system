@@ -2,9 +2,10 @@
 -- Canonical company financial configuration and historical currency safety.
 --
 -- Existing companies may initialize their first base currency even when they
--- already contain historical monetary data. Once a base currency exists,
--- changing the currency code or fraction digits is blocked whenever any
--- currency-bound company data exists.
+-- already contain historical monetary data. If historical rows already carry
+-- an explicit currency code, the first configuration must match that history.
+-- Once a base currency exists, changing the currency code or fraction digits
+-- is blocked whenever any currency-bound company data exists.
 --
 -- Operational company use remains independent from financial readiness:
 -- base currency stays nullable until explicitly configured.
@@ -103,6 +104,52 @@ REVOKE ALL ON FUNCTION private.company_has_currency_bound_financial_data(uuid)
 REVOKE ALL ON FUNCTION private.company_has_currency_bound_financial_data(uuid)
   FROM authenticated;
 
+CREATE OR REPLACE FUNCTION private.company_has_conflicting_explicit_currency_data(
+  p_company_id uuid,
+  p_currency_code text
+)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  RETURN
+    EXISTS (
+      SELECT 1
+      FROM public.invoices AS row
+      WHERE row.company_id = p_company_id
+        AND row.currency_code IS DISTINCT FROM p_currency_code
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM public.invoice_lines AS row
+      WHERE row.company_id = p_company_id
+        AND row.currency_code IS DISTINCT FROM p_currency_code
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM public.payments AS row
+      WHERE row.company_id = p_company_id
+        AND row.currency_code IS DISTINCT FROM p_currency_code
+    );
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.company_has_conflicting_explicit_currency_data(
+  uuid,
+  text
+) FROM PUBLIC;
+REVOKE ALL ON FUNCTION private.company_has_conflicting_explicit_currency_data(
+  uuid,
+  text
+) FROM anon;
+REVOKE ALL ON FUNCTION private.company_has_conflicting_explicit_currency_data(
+  uuid,
+  text
+) FROM authenticated;
+
 CREATE OR REPLACE FUNCTION private.enforce_company_base_currency_lock()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -113,11 +160,25 @@ DECLARE
   v_had_configuration boolean :=
     OLD.base_currency_code IS NOT NULL
     AND OLD.base_currency_fraction_digits IS NOT NULL;
+  v_has_new_configuration boolean :=
+    NEW.base_currency_code IS NOT NULL
+    AND NEW.base_currency_fraction_digits IS NOT NULL;
   v_currency_changed boolean :=
     OLD.base_currency_code IS DISTINCT FROM NEW.base_currency_code
     OR OLD.base_currency_fraction_digits
       IS DISTINCT FROM NEW.base_currency_fraction_digits;
 BEGIN
+  IF NOT v_had_configuration
+     AND v_has_new_configuration
+     AND private.company_has_conflicting_explicit_currency_data(
+       OLD.id,
+       NEW.base_currency_code
+     ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P2608',
+      MESSAGE = 'company_base_currency_history_mismatch';
+  END IF;
+
   IF v_had_configuration
      AND v_currency_changed
      AND private.company_has_currency_bound_financial_data(OLD.id) THEN
@@ -264,5 +325,23 @@ GRANT EXECUTE ON FUNCTION public.update_company_financial_configuration(
   text,
   smallint
 ) TO authenticated;
+
+-- The former combined regional-settings command is no longer a canonical write
+-- boundary. Currency and timezone now have focused audited commands, so keep
+-- authenticated clients from bypassing either contract through the legacy RPC.
+REVOKE EXECUTE ON FUNCTION public.update_company_regional_settings(
+  uuid,
+  text,
+  smallint,
+  text
+) FROM authenticated;
+
+COMMENT ON FUNCTION public.update_company_regional_settings(
+  uuid,
+  text,
+  smallint,
+  text
+) IS
+  'Legacy combined regional-settings command. Authenticated execution is revoked; use the focused financial and timezone commands.';
 
 COMMIT;
