@@ -3,7 +3,9 @@ import 'package:flutter/widgets.dart';
 final class FinancialReadinessLocalizations {
   final String configurationRequired;
 
-  const FinancialReadinessLocalizations._({required this.configurationRequired});
+  const FinancialReadinessLocalizations._({
+    required this.configurationRequired,
+  });
 
   factory FinancialReadinessLocalizations.forLocale(Locale locale) {
     return locale.languageCode == 'ar' ? _arabic : _english;
