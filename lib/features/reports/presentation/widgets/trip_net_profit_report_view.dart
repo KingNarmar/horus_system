@@ -98,7 +98,16 @@ final class _ProfitTable extends StatelessWidget {
                 return DataRow(
                   cells: [
                     DataCell(
-                      Text(reportDisplayValue(trip.tripNumber, trip.tripId)),
+                      Text(
+                        reportTripDisplayValue(
+                          tripNumber: trip.tripNumber,
+                          loadingOrderNumber: trip.loadingOrderNumber,
+                          waybillNumber: trip.waybillNumber,
+                          loadingLocation: trip.loadingLocation,
+                          unloadingLocation: trip.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
+                      ),
                     ),
                     DataCell(
                       Text(formatReportDate(trip.operationalDate, localeName)),
@@ -143,7 +152,14 @@ final class _ProfitCards extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        reportDisplayValue(trip.tripNumber, trip.tripId),
+                        reportTripDisplayValue(
+                          tripNumber: trip.tripNumber,
+                          loadingOrderNumber: trip.loadingOrderNumber,
+                          waybillNumber: trip.waybillNumber,
+                          loadingLocation: trip.loadingLocation,
+                          unloadingLocation: trip.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
