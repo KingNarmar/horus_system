@@ -50,6 +50,32 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Arabic daily trip card keeps the full route value LTR', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    const route = 'Jebel Ali Port → Dubai South Logistics District';
+    await tester.pumpWidget(
+      _app(
+        report: _dailyReportWithoutTripReference(
+          loadingLocation: 'Jebel Ali Port',
+          unloadingLocation: 'Dubai South Logistics District',
+        ),
+        locale: const Locale('ar'),
+      ),
+    );
+
+    final routeFinder = find.text(route);
+    expect(routeFinder, findsOneWidget);
+    expect(
+      Directionality.of(tester.element(routeFinder)),
+      TextDirection.ltr,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('localizes unassigned group and status in Arabic RTL', (
     tester,
   ) async {
@@ -118,7 +144,10 @@ OperationalTripReport _report() {
   );
 }
 
-OperationalTripReport _dailyReportWithoutTripReference() {
+OperationalTripReport _dailyReportWithoutTripReference({
+  String loadingLocation = 'Dubai',
+  String unloadingLocation = 'Abu Dhabi',
+}) {
   final row = OperationalTripReportRow(
     tripId: '4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b',
     tripNumber: null,
@@ -133,8 +162,8 @@ OperationalTripReport _dailyReportWithoutTripReference() {
     trailerId: null,
     trailerPlateNumber: null,
     routeId: 'route-1',
-    loadingLocation: 'Dubai',
-    unloadingLocation: 'Abu Dhabi',
+    loadingLocation: loadingLocation,
+    unloadingLocation: unloadingLocation,
     loadingOrderNumber: null,
     waybillNumber: null,
     cargoType: null,
