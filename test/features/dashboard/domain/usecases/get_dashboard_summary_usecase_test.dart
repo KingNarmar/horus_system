@@ -66,7 +66,27 @@ void main() {
 
     expect(
       result.failureOrNull?.code,
-      CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+    );
+    expect(repository.lastCompanyId, isNull);
+  });
+
+  test('requires business timezone after financial readiness', () async {
+    final repository = _FakeDashboardRepository();
+    final useCase = GetDashboardSummaryUseCase(repository);
+
+    final result = await useCase(
+      GetDashboardSummaryParams(
+        currentCompanyContext: _context(
+          CompanyRole.owner,
+          businessTimezone: null,
+        ),
+      ),
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
     );
     expect(repository.lastCompanyId, isNull);
   });
