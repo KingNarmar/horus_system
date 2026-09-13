@@ -4,6 +4,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../entities/dashboard_source.dart';
 import '../entities/dashboard_summary.dart';
 import '../failures/dashboard_failure_codes.dart';
@@ -35,12 +36,12 @@ final class GetDashboardSummaryUseCase
     }
 
     final company = context.company;
-    final currencyCode = company.baseCurrencyCode;
-    final fractionDigits = company.baseCurrencyFractionDigits;
+    final financialReadiness = CompanyFinancialReadinessPolicy.evaluate(company);
+    final financialConfiguration = financialReadiness.configuration;
     final businessTimezone = company.businessTimezone;
 
-    if (currencyCode == null ||
-        fractionDigits == null ||
+    if (!financialReadiness.isReady ||
+        financialConfiguration == null ||
         businessTimezone == null) {
       return const FailureResult(
         ConflictFailure(
@@ -49,14 +50,8 @@ final class GetDashboardSummaryUseCase
       );
     }
 
-    final expectedCurrency = CurrencyCode.tryParse(currencyCode);
-    if (expectedCurrency == null || fractionDigits < 0 || fractionDigits > 4) {
-      return const FailureResult(
-        ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
-        ),
-      );
-    }
+    final expectedCurrency = financialConfiguration.baseCurrency;
+    final fractionDigits = financialConfiguration.fractionDigits;
 
     final result = await _repository.getDashboardSource(
       companyId: context.companyId,
