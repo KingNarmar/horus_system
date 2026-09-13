@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/business_timezone_localizations.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/reports_failure_codes.dart';
@@ -13,8 +14,11 @@ String reportsFailureMessage(BuildContext context, Failure failure) {
     ReportsFailureCodes.permissionFinancialView ||
     ReportsFailureCodes.permissionOpenInvoicesView => strings.permissionFailure,
     ReportsFailureCodes.validationDateRange => strings.invalidDateRangeFailure,
-    CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
+    CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
+    CompanyFailureCodes.conflictBusinessTimezoneNotConfigured ||
+    CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
+      context.businessTimezoneL10n.configurationRequired,
     CompanyFailureCodes.notFound => strings.companyNotFoundFailure,
     ReportsFailureCodes.conflictSourceInvalid => strings.sourceInvalidFailure,
     ReportsFailureCodes.conflictCurrencyMismatch =>
