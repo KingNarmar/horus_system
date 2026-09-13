@@ -26,15 +26,18 @@ void main() {
     expect(englishAed.matches(englishAed.arabicName), isTrue);
   });
 
-  test('preserves a valid selected code even when display data is unavailable', () {
-    final options = CompanyCurrencyDisplayResolver.resolveAll(
-      const Locale('en'),
-      includeCurrencyCode: 'ZZZ',
-    );
+  test(
+    'preserves a valid selected code even when display data is unavailable',
+    () {
+      final options = CompanyCurrencyDisplayResolver.resolveAll(
+        const Locale('en'),
+        includeCurrencyCode: 'ZZZ',
+      );
 
-    final preserved = options.singleWhere((option) => option.value == 'ZZZ');
+      final preserved = options.singleWhere((option) => option.value == 'ZZZ');
 
-    expect(preserved.localizedName, 'ZZZ');
-    expect(preserved.matches('zzz'), isTrue);
-  });
+      expect(preserved.localizedName, 'ZZZ');
+      expect(preserved.matches('zzz'), isTrue);
+    },
+  );
 }

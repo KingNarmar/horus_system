@@ -35,8 +35,7 @@ final class _CompanyFinancialSettingsCardState
   @override
   void initState() {
     super.initState();
-    _selectedCurrency =
-        widget.currentCompanyContext.company.baseCurrencyCode;
+    _selectedCurrency = widget.currentCompanyContext.company.baseCurrencyCode;
     _fractionDigits =
         widget.currentCompanyContext.company.baseCurrencyFractionDigits;
   }
