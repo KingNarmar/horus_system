@@ -36,9 +36,9 @@ final class CompanyFinancialSettingsLocalizations {
   String get authFailure => _value('authFailure');
   String get genericFailure => _value('genericFailure');
 
-  String currentValue(String currency, int digits) => _value('currentValue')
-      .replaceFirst('{currency}', currency)
-      .replaceFirst('{digits}', '$digits');
+  String currentValue(String currency, int digits) => _value(
+    'currentValue',
+  ).replaceFirst('{currency}', currency).replaceFirst('{digits}', '$digits');
 
   static const Map<String, String> _en = {
     'title': 'Financial configuration',
@@ -72,7 +72,8 @@ final class CompanyFinancialSettingsLocalizations {
     'notFoundFailure': 'The current company could not be found.',
     'authFailure': 'Sign in again to complete this company action.',
     'genericFailure': 'The financial configuration could not be updated.',
-    'currentValue': 'Current base currency: {currency} • {digits} fraction digits',
+    'currentValue':
+        'Current base currency: {currency} • {digits} fraction digits',
   };
 
   static const Map<String, String> _ar = {
@@ -80,10 +81,8 @@ final class CompanyFinancialSettingsLocalizations {
     'description':
         'تحدد العملة الأساسية للشركة ودقة المبالغ المستخدمة في الوحدات المالية.',
     'ready': 'الإعدادات المالية جاهزة.',
-    'configurationRequired':
-        'حدد العملة الأساسية قبل استخدام الوحدات المالية.',
-    'invalidConfiguration':
-        'الإعدادات المالية الحالية غير صحيحة ويجب تصحيحها.',
+    'configurationRequired': 'حدد العملة الأساسية قبل استخدام الوحدات المالية.',
+    'invalidConfiguration': 'الإعدادات المالية الحالية غير صحيحة ويجب تصحيحها.',
     'baseCurrencyLabel': 'رمز العملة الأساسية',
     'baseCurrencyHint': 'أدخل رمزًا من 3 أحرف، مثل AED',
     'fractionDigitsLabel': 'عدد الخانات العشرية',
@@ -94,20 +93,19 @@ final class CompanyFinancialSettingsLocalizations {
         'بعد وجود بيانات مالية مرتبطة بالعملة، يُمنع تغيير العملة الأساسية أو دقتها لحماية القيم التاريخية.',
     'initialSetupNotice':
         'للشركة القائمة، أول إعداد للعملة سيطبق على تاريخها المالي الموجود، ويجب أن يطابق أي عملة مسجلة بالفعل في الفواتير أو المدفوعات التاريخية.',
-    'permissionNotice':
-        'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
+    'permissionNotice': 'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
     'invalidCurrency': 'أدخل رمز عملة صحيحًا من 3 أحرف.',
     'invalidFractionDigits': 'اختر عددًا صحيحًا للخانات العشرية.',
     'lockedFailure':
         'لا يمكن تغيير العملة الأساسية لوجود بيانات مالية مرتبطة بها بالفعل.',
     'historyMismatchFailure':
         'العملة الأساسية المختارة تتعارض مع عملة مسجلة بالفعل في البيانات المالية التاريخية.',
-    'permissionFailure':
-        'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
+    'permissionFailure': 'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
     'notFoundFailure': 'تعذر العثور على الشركة الحالية.',
     'authFailure': 'سجل الدخول مرة أخرى لإكمال هذا الإجراء.',
     'genericFailure': 'تعذر تحديث الإعدادات المالية.',
-    'currentValue': 'العملة الأساسية الحالية: {currency} • {digits} خانات عشرية',
+    'currentValue':
+        'العملة الأساسية الحالية: {currency} • {digits} خانات عشرية',
   };
 }
 

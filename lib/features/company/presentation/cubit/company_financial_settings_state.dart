@@ -15,7 +15,8 @@ final class CompanyFinancialSettingsSaving
   const CompanyFinancialSettingsSaving();
 }
 
-final class CompanyFinancialSettingsSaved extends CompanyFinancialSettingsState {
+final class CompanyFinancialSettingsSaved
+    extends CompanyFinancialSettingsState {
   final Company company;
 
   const CompanyFinancialSettingsSaved(this.company);

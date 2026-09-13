@@ -54,13 +54,14 @@ final class GetOperationalReportUseCase
 
     return result.when(
       success: (source) {
-        final metadataFailure = ReportSourceIntegrity.validateOperationalMetadata(
-          metadata: source.metadata,
-          expectedCompanyId: request.companyId,
-          expectedBusinessTimezone: request.businessTimezone,
-          expectedFromDate: request.fromDate,
-          expectedToDate: request.toDate,
-        );
+        final metadataFailure =
+            ReportSourceIntegrity.validateOperationalMetadata(
+              metadata: source.metadata,
+              expectedCompanyId: request.companyId,
+              expectedBusinessTimezone: request.businessTimezone,
+              expectedFromDate: request.fromDate,
+              expectedToDate: request.toDate,
+            );
         if (metadataFailure != null) {
           return FailureResult<OperationalTripReport>(metadataFailure);
         }

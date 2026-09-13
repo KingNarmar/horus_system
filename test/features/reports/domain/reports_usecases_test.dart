@@ -70,11 +70,7 @@ void main() {
         operational: (companyId, from, to) => OperationalTripReportSource(
           metadata: _operationalMetadata(companyId, from, to),
           rows: [
-            _operationalRow(
-              id: 'trip-1',
-              driverId: null,
-              driverName: null,
-            ),
+            _operationalRow(id: 'trip-1', driverId: null, driverName: null),
           ],
         ),
       );

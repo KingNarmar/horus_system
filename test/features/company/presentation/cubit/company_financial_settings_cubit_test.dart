@@ -11,26 +11,29 @@ import 'package:horus_system/features/company/presentation/cubit/company_financi
 import 'package:horus_system/features/company/presentation/cubit/company_financial_settings_state.dart';
 
 void main() {
-  test('saves normalized financial configuration for the current company', () async {
-    final repository = _FakeFinancialSettingsRepository();
-    final cubit = CompanyFinancialSettingsCubit(
-      updateUseCase: UpdateCompanyFinancialConfigurationUseCase(repository),
-    );
-    addTearDown(cubit.close);
+  test(
+    'saves normalized financial configuration for the current company',
+    () async {
+      final repository = _FakeFinancialSettingsRepository();
+      final cubit = CompanyFinancialSettingsCubit(
+        updateUseCase: UpdateCompanyFinancialConfigurationUseCase(repository),
+      );
+      addTearDown(cubit.close);
 
-    await cubit.update(
-      currentCompanyContext: _context,
-      baseCurrencyCode: ' aed ',
-      baseCurrencyFractionDigits: 2,
-    );
+      await cubit.update(
+        currentCompanyContext: _context,
+        baseCurrencyCode: ' aed ',
+        baseCurrencyFractionDigits: 2,
+      );
 
-    expect(cubit.state, isA<CompanyFinancialSettingsSaved>());
-    expect(repository.companyId, 'company-1');
-    expect(repository.baseCurrencyCode, 'AED');
-    expect(repository.baseCurrencyFractionDigits, 2);
-    final saved = cubit.state as CompanyFinancialSettingsSaved;
-    expect(saved.company.baseCurrencyCode, 'AED');
-  });
+      expect(cubit.state, isA<CompanyFinancialSettingsSaved>());
+      expect(repository.companyId, 'company-1');
+      expect(repository.baseCurrencyCode, 'AED');
+      expect(repository.baseCurrencyFractionDigits, 2);
+      final saved = cubit.state as CompanyFinancialSettingsSaved;
+      expect(saved.company.baseCurrencyCode, 'AED');
+    },
+  );
 
   test('exposes typed failures from the domain boundary', () async {
     final repository = _FakeFinancialSettingsRepository(

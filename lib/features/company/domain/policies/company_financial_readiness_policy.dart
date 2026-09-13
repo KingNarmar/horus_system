@@ -7,7 +7,8 @@ abstract final class CompanyFinancialReadinessPolicy {
     final rawCurrency = company.baseCurrencyCode?.trim();
     final fractionDigits = company.baseCurrencyFractionDigits;
 
-    if ((rawCurrency == null || rawCurrency.isEmpty) && fractionDigits == null) {
+    if ((rawCurrency == null || rawCurrency.isEmpty) &&
+        fractionDigits == null) {
       return const CompanyFinancialReadiness.configurationRequired();
     }
 

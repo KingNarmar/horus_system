@@ -57,7 +57,8 @@ abstract final class CompanyDependencies {
     );
   }
 
-  static CompanyFinancialSettingsRepository createFinancialSettingsRepository() {
+  static CompanyFinancialSettingsRepository
+  createFinancialSettingsRepository() {
     return CompanyFinancialSettingsRepositoryImpl(
       SupabaseCompanyFinancialSettingsRemoteDataSource(
         SupabaseClientProvider.client,

@@ -11,9 +11,9 @@ void main() {
   group('UpdateCompanyFinancialConfigurationUseCase', () {
     test('rejects roles that cannot manage company settings', () async {
       final repository = _FakeCompanyFinancialSettingsRepository();
-      final result = await UpdateCompanyFinancialConfigurationUseCase(repository)(
-        _params(role: CompanyRole.accountant),
-      );
+      final result = await UpdateCompanyFinancialConfigurationUseCase(
+        repository,
+      )(_params(role: CompanyRole.accountant));
 
       expect(
         result.failureOrNull?.code,
@@ -24,9 +24,9 @@ void main() {
 
     test('rejects invalid currency codes', () async {
       final repository = _FakeCompanyFinancialSettingsRepository();
-      final result = await UpdateCompanyFinancialConfigurationUseCase(repository)(
-        _params(baseCurrencyCode: 'dirham'),
-      );
+      final result = await UpdateCompanyFinancialConfigurationUseCase(
+        repository,
+      )(_params(baseCurrencyCode: 'dirham'));
 
       expect(
         result.failureOrNull?.code,
@@ -37,9 +37,9 @@ void main() {
 
     test('rejects unsupported fraction digits', () async {
       final repository = _FakeCompanyFinancialSettingsRepository();
-      final result = await UpdateCompanyFinancialConfigurationUseCase(repository)(
-        _params(baseCurrencyFractionDigits: 5),
-      );
+      final result = await UpdateCompanyFinancialConfigurationUseCase(
+        repository,
+      )(_params(baseCurrencyFractionDigits: 5));
 
       expect(
         result.failureOrNull?.code,
@@ -50,9 +50,9 @@ void main() {
 
     test('normalizes currency and scopes update to current company', () async {
       final repository = _FakeCompanyFinancialSettingsRepository();
-      final result = await UpdateCompanyFinancialConfigurationUseCase(repository)(
-        _params(role: CompanyRole.admin, baseCurrencyCode: ' aed '),
-      );
+      final result = await UpdateCompanyFinancialConfigurationUseCase(
+        repository,
+      )(_params(role: CompanyRole.admin, baseCurrencyCode: ' aed '));
 
       expect(result, isA<Success<Company>>());
       expect(repository.calls, 1);

@@ -35,8 +35,14 @@ void main() {
         ),
       );
 
-      expect(partial.status, CompanyFinancialReadinessStatus.invalidConfiguration);
-      expect(invalid.status, CompanyFinancialReadinessStatus.invalidConfiguration);
+      expect(
+        partial.status,
+        CompanyFinancialReadinessStatus.invalidConfiguration,
+      );
+      expect(
+        invalid.status,
+        CompanyFinancialReadinessStatus.invalidConfiguration,
+      );
     });
 
     test('returns canonical currency and precision when ready', () {

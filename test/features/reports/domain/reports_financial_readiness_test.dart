@@ -16,23 +16,26 @@ import 'package:horus_system/features/reports/domain/usecases/report_params.dart
 import 'package:test/test.dart';
 
 void main() {
-  test('operational report works when base currency is not configured', () async {
-    final repository = _ReadinessReportsRepository();
-    final useCase = GetOperationalReportUseCase(repository: repository);
+  test(
+    'operational report works when base currency is not configured',
+    () async {
+      final repository = _ReadinessReportsRepository();
+      final useCase = GetOperationalReportUseCase(repository: repository);
 
-    final result = await useCase(
-      OperationalReportParams(
-        currentCompanyContext: _context(CompanyRole.viewer),
-        dimension: OperationalReportDimension.day,
-        dateRange: const ReportDateRange(),
-      ),
-    );
+      final result = await useCase(
+        OperationalReportParams(
+          currentCompanyContext: _context(CompanyRole.viewer),
+          dimension: OperationalReportDimension.day,
+          dateRange: const ReportDateRange(),
+        ),
+      );
 
-    expect(result, isA<Success<OperationalTripReport>>());
-    expect(repository.operationalCalls, 1);
-    expect(result.dataOrNull?.metadata.companyId, 'company-1');
-    expect(result.dataOrNull?.metadata.businessTimezone, 'Asia/Dubai');
-  });
+      expect(result, isA<Success<OperationalTripReport>>());
+      expect(repository.operationalCalls, 1);
+      expect(result.dataOrNull?.metadata.companyId, 'company-1');
+      expect(result.dataOrNull?.metadata.businessTimezone, 'Asia/Dubai');
+    },
+  );
 
   test(
     'financial report fails before repository access when currency is missing',

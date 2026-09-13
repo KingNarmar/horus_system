@@ -23,32 +23,36 @@ import 'package:test/test.dart';
 
 void main() {
   group('Payments financial readiness', () {
-    test('payment list fails before repository access when currency is missing', () async {
-      final payments = _TrackingPaymentsRepository();
-      final result = await GetPaymentsUseCase(payments)(
-        GetPaymentsParams(currentCompanyContext: _contextWithoutCurrency()),
-      );
+    test(
+      'payment list fails before repository access when currency is missing',
+      () async {
+        final payments = _TrackingPaymentsRepository();
+        final result = await GetPaymentsUseCase(payments)(
+          GetPaymentsParams(currentCompanyContext: _contextWithoutCurrency()),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
-      );
-      expect(payments.getPaymentsCalls, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        );
+        expect(payments.getPaymentsCalls, 0);
+      },
+    );
 
     test(
       'payable invoices fail before invoice or payment reads when currency is missing',
       () async {
         final invoices = _TrackingInvoicesRepository();
         final payments = _TrackingPaymentsRepository();
-        final result = await GetPayableInvoicesUseCase(
-          invoicesRepository: invoices,
-          paymentsRepository: payments,
-        )(
-          GetPayableInvoicesParams(
-            currentCompanyContext: _contextWithoutCurrency(),
-          ),
-        );
+        final result =
+            await GetPayableInvoicesUseCase(
+              invoicesRepository: invoices,
+              paymentsRepository: payments,
+            )(
+              GetPayableInvoicesParams(
+                currentCompanyContext: _contextWithoutCurrency(),
+              ),
+            );
 
         expect(
           result.failureOrNull?.code,
@@ -250,11 +254,14 @@ final class _TrackingPaymentMethodsRepository
   }) => throw UnimplementedError();
 }
 
-final class _TrackingBusinessDateProvider implements CompanyBusinessDateProvider {
+final class _TrackingBusinessDateProvider
+    implements CompanyBusinessDateProvider {
   int calls = 0;
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     calls++;
     return Success(BusinessDate(year: 2026, month: 9, day: 9));
   }

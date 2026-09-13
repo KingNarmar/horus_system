@@ -36,7 +36,9 @@ final class GetDashboardSummaryUseCase
     }
 
     final company = context.company;
-    final financialReadiness = CompanyFinancialReadinessPolicy.evaluate(company);
+    final financialReadiness = CompanyFinancialReadinessPolicy.evaluate(
+      company,
+    );
     final financialConfiguration = financialReadiness.configuration;
     final businessTimezone = company.businessTimezone;
 
