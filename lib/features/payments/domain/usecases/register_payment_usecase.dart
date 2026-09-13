@@ -72,7 +72,7 @@ final class RegisterPaymentUseCase
     if (!readiness.isReady || configuration == null) {
       return const FailureResult<Payment>(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       );
     }
