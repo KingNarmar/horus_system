@@ -37,7 +37,7 @@ class CompanyCurrencySelector extends StatelessWidget {
           isEmpty: selectedOption == null,
           decoration: InputDecoration(
             labelText: l10n.baseCurrencyLabel,
-            hintText: l10n.baseCurrencyHint,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
             border: const OutlineInputBorder(),
             suffixIcon: const Icon(AppIcons.search),
           ),
