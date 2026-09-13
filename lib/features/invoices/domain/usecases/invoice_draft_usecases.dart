@@ -176,7 +176,7 @@ Future<Result<Invoice>> _buildAndPersistDraft({
   if (!readiness.isReady || configuration == null) {
     return const FailureResult<Invoice>(
       ConflictFailure(
-        code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
       ),
     );
   }
