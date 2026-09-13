@@ -31,7 +31,7 @@ final class GetInvoicesUseCase
       return Future.value(
         const FailureResult<List<Invoice>>(
           ConflictFailure(
-            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+            code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
           ),
         ),
       );
@@ -71,7 +71,7 @@ final class GetInvoiceDetailsUseCase
       return Future.value(
         const FailureResult<Invoice>(
           ConflictFailure(
-            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+            code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
           ),
         ),
       );
@@ -105,7 +105,7 @@ final class GetBillableTripsUseCase
       return Future.value(
         const FailureResult<List<BillableTrip>>(
           ConflictFailure(
-            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+            code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
           ),
         ),
       );
