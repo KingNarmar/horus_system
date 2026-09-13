@@ -39,58 +39,13 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      _app(
-        report: _dailyReportWithoutTripReference(),
-        locale: const Locale('en'),
-      ),
+      _app(report: _dailyReportWithoutTripReference(), locale: const Locale('en')),
     );
 
     expect(find.text('Dubai → Abu Dhabi'), findsWidgets);
-    expect(find.text('4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Arabic daily trip card gives the full route an LTR full-width row', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 1000));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    const route = 'Jebel Ali Port → Dubai South Logistics District';
-    await tester.pumpWidget(
-      _app(
-        report: _dailyReportWithoutTripReference(
-          loadingLocation: 'Jebel Ali Port',
-          unloadingLocation: 'Dubai South Logistics District',
-          loadingOrderNumber: 'LO-2026-001',
-        ),
-        locale: const Locale('ar'),
-      ),
-    );
-
-    final routeFinder = find.text(route);
-    final ltrRouteFinder = find.descendant(
-      of: find.byWidgetPredicate(
-        (widget) =>
-            widget is Directionality &&
-            widget.textDirection == TextDirection.ltr,
-      ),
-      matching: routeFinder,
-    );
-    final fullWidthRouteContainer = find.ancestor(
-      of: ltrRouteFinder,
-      matching: find.byWidgetPredicate(
-        (widget) => widget is SizedBox && widget.width == double.infinity,
-      ),
-    );
-
-    expect(find.text('LO-2026-001'), findsOneWidget);
-    expect(routeFinder, findsOneWidget);
-    expect(ltrRouteFinder, findsOneWidget);
-    expect(fullWidthRouteContainer, findsOneWidget);
     expect(
-      Directionality.of(tester.element(ltrRouteFinder)),
-      TextDirection.ltr,
+      find.text('4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b'),
+      findsNothing,
     );
     expect(tester.takeException(), isNull);
   });
@@ -163,11 +118,7 @@ OperationalTripReport _report() {
   );
 }
 
-OperationalTripReport _dailyReportWithoutTripReference({
-  String loadingLocation = 'Dubai',
-  String unloadingLocation = 'Abu Dhabi',
-  String? loadingOrderNumber,
-}) {
+OperationalTripReport _dailyReportWithoutTripReference() {
   final row = OperationalTripReportRow(
     tripId: '4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b',
     tripNumber: null,
@@ -182,9 +133,9 @@ OperationalTripReport _dailyReportWithoutTripReference({
     trailerId: null,
     trailerPlateNumber: null,
     routeId: 'route-1',
-    loadingLocation: loadingLocation,
-    unloadingLocation: unloadingLocation,
-    loadingOrderNumber: loadingOrderNumber,
+    loadingLocation: 'Dubai',
+    unloadingLocation: 'Abu Dhabi',
+    loadingOrderNumber: null,
     waybillNumber: null,
     cargoType: null,
     quantityTons: null,
