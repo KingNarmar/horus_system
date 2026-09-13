@@ -67,10 +67,19 @@ void main() {
       ),
     );
 
-    final routeFinder = find.text(route);
-    expect(routeFinder, findsOneWidget);
+    final ltrRouteFinder = find.descendant(
+      of: find.byWidgetPredicate(
+        (widget) =>
+            widget is Directionality &&
+            widget.textDirection == TextDirection.ltr,
+      ),
+      matching: find.text(route),
+    );
+
+    expect(find.text(route), findsNWidgets(2));
+    expect(ltrRouteFinder, findsOneWidget);
     expect(
-      Directionality.of(tester.element(routeFinder)),
+      Directionality.of(tester.element(ltrRouteFinder)),
       TextDirection.ltr,
     );
     expect(tester.takeException(), isNull);
