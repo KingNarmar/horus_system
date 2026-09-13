@@ -28,9 +28,13 @@ final class ReportsRepositoryFailureMapper {
       ReportsRpcErrorCodes.companyNotFound => const NotFoundFailure(
         code: CompanyFailureCodes.notFound,
       ),
-      ReportsRpcErrorCodes.regionalSettingsNotConfigured =>
+      ReportsRpcErrorCodes.businessTimezoneNotConfigured =>
         const ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+        ),
+      ReportsRpcErrorCodes.financialSettingsNotConfigured =>
+        const ConflictFailure(
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
