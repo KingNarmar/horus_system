@@ -47,6 +47,21 @@ void main() {
       expect(failure.code, CompanyFailureCodes.notFound);
     });
 
+    test('maps missing business timezone to a typed conflict', () {
+      final failure = CompanyRegionalSettingsFailureMapper.fromPostgrest(
+        PostgrestException(
+          message: 'regional settings not configured',
+          code: CompanyRpcErrorCodes.regionalSettingsNotConfigured,
+        ),
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+      );
+    });
+
     test('maps historical currency mismatch to a typed conflict', () {
       final failure = CompanyRegionalSettingsFailureMapper.fromPostgrest(
         PostgrestException(
