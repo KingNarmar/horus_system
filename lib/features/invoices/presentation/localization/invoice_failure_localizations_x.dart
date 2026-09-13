@@ -4,6 +4,7 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/invoice_failure_codes.dart';
 import 'invoices_localizations.dart';
@@ -48,7 +49,7 @@ extension InvoiceFailureLocalizationsX on BuildContext {
       InvoiceFailureCodes.conflictSequenceExhausted =>
         strings.invoiceChangedFailure,
       CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
-        strings.regionalSettingsFailure,
+        financialReadinessL10n.configurationRequired,
       InvoiceFailureCodes.conflictSettingsNotConfigured ||
       InvoiceFailureCodes.validationPrefixInvalid => strings.settingsFailure,
       InvoiceFailureCodes.notFound ||
