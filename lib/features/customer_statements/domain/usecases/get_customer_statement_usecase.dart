@@ -56,14 +56,19 @@ final class GetCustomerStatementUseCase
 
     final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
     final configuration = readiness.configuration;
-    final timezone = context.company.businessTimezone?.trim();
-    if (!readiness.isReady ||
-        configuration == null ||
-        timezone == null ||
-        timezone.isEmpty) {
+    if (!readiness.isReady || configuration == null) {
       return const FailureResult(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        ),
+      );
+    }
+
+    final timezone = context.company.businessTimezone?.trim();
+    if (timezone == null || timezone.isEmpty) {
+      return const FailureResult(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
       );
     }
