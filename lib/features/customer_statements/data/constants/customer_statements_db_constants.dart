@@ -42,6 +42,7 @@ abstract final class CustomerStatementsRpcErrorCodes {
   static const permissionDenied = 'P2810';
   static const invalidDateRange = 'P2811';
   static const companyNotFound = 'P2812';
-  static const regionalSettingsNotConfigured = 'P2813';
+  static const businessTimezoneNotConfigured = 'P2813';
   static const customerNotFound = 'P2814';
+  static const financialSettingsNotConfigured = 'P2815';
 }
