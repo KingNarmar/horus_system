@@ -31,7 +31,7 @@ final class GetPaymentsUseCase
       return Future.value(
         const FailureResult<List<Payment>>(
           ConflictFailure(
-            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+            code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
           ),
         ),
       );
