@@ -34,5 +34,6 @@ abstract final class DashboardDbConstants {
 abstract final class DashboardRpcErrorCodes {
   static const permissionDenied = 'P2910';
   static const companyNotFound = 'P2911';
-  static const regionalSettingsNotConfigured = 'P2912';
+  static const businessTimezoneNotConfigured = 'P2912';
+  static const financialSettingsNotConfigured = 'P2913';
 }
