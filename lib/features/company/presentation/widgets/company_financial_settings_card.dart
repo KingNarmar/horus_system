@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../domain/entities/company_financial_configuration.dart';
 import '../../domain/entities/company_financial_readiness.dart';
 import '../../domain/entities/current_company_context.dart';
@@ -10,8 +9,10 @@ import '../../domain/policies/company_financial_readiness_policy.dart';
 import '../cubit/company_financial_settings_cubit.dart';
 import '../cubit/company_financial_settings_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../helpers/company_currency_display_option.dart';
 import '../helpers/company_financial_settings_failure_message.dart';
 import '../localization/company_financial_settings_localizations.dart';
+import 'company_currency_selector.dart';
 
 final class CompanyFinancialSettingsCard extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
@@ -28,15 +29,14 @@ final class CompanyFinancialSettingsCard extends StatefulWidget {
 
 final class _CompanyFinancialSettingsCardState
     extends State<CompanyFinancialSettingsCard> {
-  late final TextEditingController _currencyController;
+  String? _selectedCurrency;
   int? _fractionDigits;
 
   @override
   void initState() {
     super.initState();
-    _currencyController = TextEditingController(
-      text: widget.currentCompanyContext.company.baseCurrencyCode ?? '',
-    );
+    _selectedCurrency =
+        widget.currentCompanyContext.company.baseCurrencyCode;
     _fractionDigits =
         widget.currentCompanyContext.company.baseCurrencyFractionDigits;
   }
@@ -47,7 +47,7 @@ final class _CompanyFinancialSettingsCardState
     final oldCompany = oldWidget.currentCompanyContext.company;
     final company = widget.currentCompanyContext.company;
     if (oldCompany.baseCurrencyCode != company.baseCurrencyCode) {
-      _currencyController.text = company.baseCurrencyCode ?? '';
+      _selectedCurrency = company.baseCurrencyCode;
     }
     if (oldCompany.baseCurrencyFractionDigits !=
         company.baseCurrencyFractionDigits) {
@@ -56,19 +56,16 @@ final class _CompanyFinancialSettingsCardState
   }
 
   @override
-  void dispose() {
-    _currencyController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = context.companyFinancialSettingsL10n;
     final textTheme = Theme.of(context).textTheme;
-    final readiness = CompanyFinancialReadinessPolicy.evaluate(
-      widget.currentCompanyContext.company,
-    );
+    final company = widget.currentCompanyContext.company;
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(company);
     final canManage = widget.currentCompanyContext.canManageCompany;
+    final currencyOptions = CompanyCurrencyDisplayResolver.resolveAll(
+      Localizations.localeOf(context),
+      includeCurrencyCode: _selectedCurrency ?? company.baseCurrencyCode,
+    );
 
     return BlocConsumer<
       CompanyFinancialSettingsCubit,
@@ -133,16 +130,12 @@ final class _CompanyFinancialSettingsCardState
                 ),
                 if (canManage) ...[
                   const SizedBox(height: AppSpacing.lg),
-                  TextField(
-                    controller: _currencyController,
+                  CompanyCurrencySelector(
+                    options: currencyOptions,
+                    selectedValue: _selectedCurrency,
                     enabled: !isSaving,
-                    textCapitalization: TextCapitalization.characters,
-                    maxLength: CurrencyCode.length,
-                    decoration: InputDecoration(
-                      labelText: l10n.baseCurrencyLabel,
-                      hintText: l10n.baseCurrencyHint,
-                    ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (value) =>
+                        setState(() => _selectedCurrency = value),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DropdownButtonFormField<int>(
@@ -200,22 +193,23 @@ final class _CompanyFinancialSettingsCardState
   }
 
   bool _hasChange() {
-    final code = _currencyController.text.trim().toUpperCase();
+    final currency = _selectedCurrency;
     final digits = _fractionDigits;
-    if (code.isEmpty || digits == null) return false;
+    if (currency == null || digits == null) return false;
 
     final company = widget.currentCompanyContext.company;
-    return code != company.baseCurrencyCode ||
+    return currency != company.baseCurrencyCode ||
         digits != company.baseCurrencyFractionDigits;
   }
 
   void _save(BuildContext context) {
+    final currency = _selectedCurrency;
     final digits = _fractionDigits;
-    if (digits == null) return;
+    if (currency == null || digits == null) return;
 
     context.read<CompanyFinancialSettingsCubit>().update(
       currentCompanyContext: widget.currentCompanyContext,
-      baseCurrencyCode: _currencyController.text,
+      baseCurrencyCode: currency,
       baseCurrencyFractionDigits: digits,
     );
   }
