@@ -51,7 +51,7 @@ void main() {
 
         expect(
           result.failureOrNull?.code,
-          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         );
         expect(repository.getInvoicesCalls, 0);
       },
@@ -85,7 +85,7 @@ void main() {
 
       expect(
         result.failureOrNull?.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
       );
       expect(repository.creationContextCalls, 0);
     });
@@ -178,7 +178,7 @@ void main() {
 
         expect(
           result.failureOrNull?.code,
-          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         );
         expect(businessDateProvider.lastCompanyId, isNull);
         expect(repository.issueCalls, 0);
@@ -211,12 +211,12 @@ void main() {
       expect(repository.issueCalls, 0);
     });
 
-    test('missing company settings stop invoice issuance', () async {
+    test('missing business timezone stops invoice issuance', () async {
       final repository = _FakeInvoicesRepository();
       final businessDateProvider = _FixedBusinessDateProvider.withResult(
         const FailureResult<BusinessDate>(
           ConflictFailure(
-            code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+            code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
           ),
         ),
       );
@@ -235,7 +235,7 @@ void main() {
 
       expect(
         result.failureOrNull?.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
       );
       expect(repository.issueCalls, 0);
       expect(repository.creationContextCalls, 0);
