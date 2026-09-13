@@ -33,7 +33,7 @@ void main() {
 
         expect(
           result.failureOrNull?.code,
-          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         );
         expect(payments.getPaymentsCalls, 0);
       },
@@ -56,7 +56,7 @@ void main() {
 
         expect(
           result.failureOrNull?.code,
-          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         );
         expect(invoices.getInvoicesCalls, 0);
         expect(payments.getPaymentsCalls, 0);
@@ -89,7 +89,7 @@ void main() {
 
         expect(
           result.failureOrNull?.code,
-          CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         );
         expect(invoices.detailsCalls, 0);
         expect(payments.getPaymentsForInvoiceCalls, 0);
