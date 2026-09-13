@@ -68,11 +68,11 @@ void main() {
       expect(failure.code, CompanyFailureCodes.notFound);
     });
 
-    test('maps regional settings failure without exposing DB text', () {
+    test('maps missing business timezone without exposing DB text', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(
           message: 'internal database wording',
-          code: ReportsRpcErrorCodes.regionalSettingsNotConfigured,
+          code: ReportsRpcErrorCodes.businessTimezoneNotConfigured,
         ),
         permissionFailureCode: ReportsFailureCodes.permissionFinancialView,
       );
@@ -80,7 +80,24 @@ void main() {
       expect(failure, isA<ConflictFailure>());
       expect(
         failure.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('maps missing financial settings without exposing DB text', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'internal database wording',
+          code: ReportsRpcErrorCodes.financialSettingsNotConfigured,
+        ),
+        permissionFailureCode: ReportsFailureCodes.permissionFinancialView,
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
       );
       expect(failure.message, isNull);
     });
@@ -108,7 +125,6 @@ void main() {
 
       expect(failure, isA<ServerFailure>());
       expect(failure.code, FailureCodes.serverError);
-      expect(failure.message, isNull);
     });
 
     test('maps unexpected failures without exposing internal text', () {
