@@ -61,7 +61,7 @@ final class IssueInvoiceUseCase
     if (!readiness.isReady || configuration == null) {
       return const FailureResult<Invoice>(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       );
     }
@@ -164,7 +164,7 @@ final class CancelInvoiceUseCase
     if (!CompanyFinancialReadinessPolicy.evaluate(context.company).isReady) {
       return const FailureResult<Invoice>(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       );
     }
