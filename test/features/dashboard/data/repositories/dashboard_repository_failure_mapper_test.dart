@@ -55,18 +55,34 @@ void main() {
       expect(failure.message, isNull);
     });
 
-    test('maps missing regional settings to typed conflict', () {
+    test('maps missing business timezone to typed conflict', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(
           message: 'internal database wording',
-          code: DashboardRpcErrorCodes.regionalSettingsNotConfigured,
+          code: DashboardRpcErrorCodes.businessTimezoneNotConfigured,
         ),
       );
 
       expect(failure, isA<ConflictFailure>());
       expect(
         failure.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('maps missing financial settings to typed conflict', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'internal database wording',
+          code: DashboardRpcErrorCodes.financialSettingsNotConfigured,
+        ),
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
       );
       expect(failure.message, isNull);
     });
