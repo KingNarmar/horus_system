@@ -33,7 +33,7 @@ abstract final class CompanyRegionalSettingsFailureMapper {
       ),
       CompanyRpcErrorCodes.regionalSettingsNotConfigured =>
         const ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
