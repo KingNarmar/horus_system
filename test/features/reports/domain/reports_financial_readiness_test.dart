@@ -38,6 +38,31 @@ void main() {
   );
 
   test(
+    'operational report requires business timezone even without currency',
+    () async {
+      final repository = _ReadinessReportsRepository();
+      final useCase = GetOperationalReportUseCase(repository: repository);
+
+      final result = await useCase(
+        OperationalReportParams(
+          currentCompanyContext: _context(
+            CompanyRole.viewer,
+            businessTimezone: null,
+          ),
+          dimension: OperationalReportDimension.day,
+          dateRange: const ReportDateRange(),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+      );
+      expect(repository.operationalCalls, 0);
+    },
+  );
+
+  test(
     'financial report fails before repository access when currency is missing',
     () async {
       final repository = _ReadinessReportsRepository();
@@ -52,19 +77,52 @@ void main() {
 
       expect(
         result.failureOrNull?.code,
-        CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+        CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+      );
+      expect(repository.expenseCalls, 0);
+    },
+  );
+
+  test(
+    'financial report distinguishes missing business timezone',
+    () async {
+      final repository = _ReadinessReportsRepository();
+      final useCase = GetTripExpensesReportUseCase(repository);
+
+      final result = await useCase(
+        ReportParams(
+          currentCompanyContext: _context(
+            CompanyRole.accountant,
+            baseCurrencyCode: 'AED',
+            baseCurrencyFractionDigits: 2,
+            businessTimezone: null,
+          ),
+          dateRange: const ReportDateRange(),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
       );
       expect(repository.expenseCalls, 0);
     },
   );
 }
 
-CurrentCompanyContext _context(CompanyRole role) {
+CurrentCompanyContext _context(
+  CompanyRole role, {
+  String? baseCurrencyCode,
+  int? baseCurrencyFractionDigits,
+  String? businessTimezone = 'Asia/Dubai',
+}) {
   return CurrentCompanyContext(
-    company: const Company(
+    company: Company(
       id: 'company-1',
       name: 'Horus Transport',
-      businessTimezone: 'Asia/Dubai',
+      baseCurrencyCode: baseCurrencyCode,
+      baseCurrencyFractionDigits: baseCurrencyFractionDigits,
+      businessTimezone: businessTimezone,
     ),
     role: role,
   );
