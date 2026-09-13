@@ -32,6 +32,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('daily trips hide internal trip id when trip number is missing', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1200, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      _app(report: _dailyReportWithoutTripReference(), locale: const Locale('en')),
+    );
+
+    expect(find.text('Dubai → Abu Dhabi'), findsWidgets);
+    expect(
+      find.text('4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b'),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('localizes unassigned group and status in Arabic RTL', (
     tester,
   ) async {
@@ -92,6 +110,48 @@ OperationalTripReport _report() {
     groups: [
       OperationalTripReportGroup(
         date: null,
+        entityId: null,
+        entityLabel: null,
+        rows: [row],
+      ),
+    ],
+  );
+}
+
+OperationalTripReport _dailyReportWithoutTripReference() {
+  final row = OperationalTripReportRow(
+    tripId: '4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b',
+    tripNumber: null,
+    operationalDate: DateTime(2026, 9, 8),
+    status: TripStatus.documentsReceived,
+    customerId: 'customer-1',
+    customerName: 'Customer',
+    driverId: null,
+    driverName: null,
+    tractorHeadId: null,
+    tractorHeadPlateNumber: null,
+    trailerId: null,
+    trailerPlateNumber: null,
+    routeId: 'route-1',
+    loadingLocation: 'Dubai',
+    unloadingLocation: 'Abu Dhabi',
+    loadingOrderNumber: null,
+    waybillNumber: null,
+    cargoType: null,
+    quantityTons: null,
+  );
+  return OperationalTripReport(
+    metadata: OperationalReportSourceMetadata(
+      companyId: 'company-1',
+      businessTimezone: 'Asia/Dubai',
+      businessDate: DateTime(2026, 9, 13),
+      fromDate: null,
+      toDate: null,
+    ),
+    dimension: OperationalReportDimension.day,
+    groups: [
+      OperationalTripReportGroup(
+        date: DateTime(2026, 9, 8),
         entityId: null,
         entityLabel: null,
         rows: [row],
