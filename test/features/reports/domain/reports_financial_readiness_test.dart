@@ -83,31 +83,28 @@ void main() {
     },
   );
 
-  test(
-    'financial report distinguishes missing business timezone',
-    () async {
-      final repository = _ReadinessReportsRepository();
-      final useCase = GetTripExpensesReportUseCase(repository);
+  test('financial report distinguishes missing business timezone', () async {
+    final repository = _ReadinessReportsRepository();
+    final useCase = GetTripExpensesReportUseCase(repository);
 
-      final result = await useCase(
-        ReportParams(
-          currentCompanyContext: _context(
-            CompanyRole.accountant,
-            baseCurrencyCode: 'AED',
-            baseCurrencyFractionDigits: 2,
-            businessTimezone: null,
-          ),
-          dateRange: const ReportDateRange(),
+    final result = await useCase(
+      ReportParams(
+        currentCompanyContext: _context(
+          CompanyRole.accountant,
+          baseCurrencyCode: 'AED',
+          baseCurrencyFractionDigits: 2,
+          businessTimezone: null,
         ),
-      );
+        dateRange: const ReportDateRange(),
+      ),
+    );
 
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
-      );
-      expect(repository.expenseCalls, 0);
-    },
-  );
+    expect(
+      result.failureOrNull?.code,
+      CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+    );
+    expect(repository.expenseCalls, 0);
+  });
 }
 
 CurrentCompanyContext _context(

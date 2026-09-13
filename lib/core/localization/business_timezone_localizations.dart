@@ -3,9 +3,7 @@ import 'package:flutter/widgets.dart';
 final class BusinessTimezoneLocalizations {
   final String configurationRequired;
 
-  const BusinessTimezoneLocalizations._({
-    required this.configurationRequired,
-  });
+  const BusinessTimezoneLocalizations._({required this.configurationRequired});
 
   factory BusinessTimezoneLocalizations.forLocale(Locale locale) {
     return locale.languageCode == 'ar' ? _arabic : _english;
