@@ -4,6 +4,7 @@ import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/dashboard/domain/entities/dashboard_source.dart';
 import 'package:horus_system/features/dashboard/domain/failures/dashboard_failure_codes.dart';
 import 'package:horus_system/features/dashboard/domain/repositories/dashboard_repository.dart';
@@ -49,6 +50,27 @@ void main() {
     expect(repository.lastCompanyId, isNull);
   });
 
+  test('requires financial readiness before repository access', () async {
+    final repository = _FakeDashboardRepository();
+    final useCase = GetDashboardSummaryUseCase(repository);
+
+    final result = await useCase(
+      GetDashboardSummaryParams(
+        currentCompanyContext: _context(
+          CompanyRole.owner,
+          baseCurrencyCode: null,
+          baseCurrencyFractionDigits: null,
+        ),
+      ),
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+    );
+    expect(repository.lastCompanyId, isNull);
+  });
+
   test('rejects source currency mismatch', () async {
     final repository = _FakeDashboardRepository(
       sourceBuilder: (companyId) =>
@@ -88,14 +110,19 @@ void main() {
   });
 }
 
-CurrentCompanyContext _context(CompanyRole role) {
+CurrentCompanyContext _context(
+  CompanyRole role, {
+  String? baseCurrencyCode = 'AED',
+  int? baseCurrencyFractionDigits = 2,
+  String? businessTimezone = 'Asia/Dubai',
+}) {
   return CurrentCompanyContext(
-    company: const Company(
+    company: Company(
       id: 'company-1',
       name: 'Company',
-      baseCurrencyCode: 'AED',
-      baseCurrencyFractionDigits: 2,
-      businessTimezone: 'Asia/Dubai',
+      baseCurrencyCode: baseCurrencyCode,
+      baseCurrencyFractionDigits: baseCurrencyFractionDigits,
+      businessTimezone: businessTimezone,
     ),
     role: role,
   );
