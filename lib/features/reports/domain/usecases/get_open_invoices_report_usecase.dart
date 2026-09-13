@@ -39,13 +39,15 @@ final class GetOpenInvoicesReportUseCase
     );
     if (dateFailure != null) return FailureResult(dateFailure);
 
-    final request = ReportsContextValidator.tryBuildFinancial(
+    final requestResult = ReportsContextValidator.buildFinancial(
       context: context,
       range: params.dateRange,
     );
-    if (request == null) {
-      return FailureResult(ReportsContextValidator.regionalSettingsFailure());
+    if (requestResult is FailureResult<ReportsFinancialValidatedRequest>) {
+      return FailureResult(requestResult.failure);
     }
+    final request =
+        (requestResult as Success<ReportsFinancialValidatedRequest>).data;
 
     final result = await _repository.getOpenInvoicesSource(
       companyId: request.companyId,
