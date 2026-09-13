@@ -277,6 +277,7 @@ final class _DailyTripsCards extends StatelessWidget {
                       _Line(
                         strings.route,
                         '${row.loadingLocation} → ${row.unloadingLocation}',
+                        valueTextDirection: TextDirection.ltr,
                       ),
                       _Line(
                         strings.status,
@@ -309,14 +310,29 @@ String _dimensionLabel(
 final class _Line extends StatelessWidget {
   final String label;
   final String value;
+  final TextDirection? valueTextDirection;
 
-  const _Line(this.label, this.value);
+  const _Line(this.label, this.value, {this.valueTextDirection});
 
   @override
   Widget build(BuildContext context) {
+    final valueDirection = valueTextDirection;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: Text('$label: $value'),
+      child: valueDirection == null
+          ? Text('$label: $value')
+          : Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text('$label:'),
+                Directionality(
+                  textDirection: valueDirection,
+                  child: Text(value),
+                ),
+              ],
+            ),
     );
   }
 }
