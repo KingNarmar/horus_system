@@ -22,9 +22,13 @@ final class DashboardRepositoryFailureMapper {
       DashboardRpcErrorCodes.companyNotFound => const NotFoundFailure(
         code: CompanyFailureCodes.notFound,
       ),
-      DashboardRpcErrorCodes.regionalSettingsNotConfigured =>
+      DashboardRpcErrorCodes.businessTimezoneNotConfigured =>
         const ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+        ),
+      DashboardRpcErrorCodes.financialSettingsNotConfigured =>
+        const ConflictFailure(
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
