@@ -39,14 +39,14 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      _app(report: _dailyReportWithoutTripReference(), locale: const Locale('en')),
+      _app(
+        report: _dailyReportWithoutTripReference(),
+        locale: const Locale('en'),
+      ),
     );
 
     expect(find.text('Dubai → Abu Dhabi'), findsWidgets);
-    expect(
-      find.text('4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b'),
-      findsNothing,
-    );
+    expect(find.text('4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
