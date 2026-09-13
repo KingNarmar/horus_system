@@ -45,7 +45,7 @@ final class GetPayableInvoicesUseCase
     if (!readiness.isReady) {
       return const FailureResult<List<PayableInvoice>>(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
         ),
       );
     }
