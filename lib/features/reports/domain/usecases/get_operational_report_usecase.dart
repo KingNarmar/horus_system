@@ -38,13 +38,15 @@ final class GetOperationalReportUseCase
     );
     if (dateFailure != null) return FailureResult(dateFailure);
 
-    final request = ReportsContextValidator.tryBuildOperational(
+    final requestResult = ReportsContextValidator.buildOperational(
       context: context,
       range: params.dateRange,
     );
-    if (request == null) {
-      return FailureResult(ReportsContextValidator.regionalSettingsFailure());
+    if (requestResult is FailureResult<ReportsOperationalValidatedRequest>) {
+      return FailureResult(requestResult.failure);
     }
+    final request =
+        (requestResult as Success<ReportsOperationalValidatedRequest>).data;
 
     final result = await _repository.getOperationalTripSource(
       companyId: request.companyId,
