@@ -321,17 +321,19 @@ final class _Line extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: valueDirection == null
           ? Text('$label: $value')
-          : Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text('$label:'),
-                Directionality(
-                  textDirection: valueDirection,
-                  child: Text(value),
-                ),
-              ],
+          : SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('$label:'),
+                  const SizedBox(height: AppSpacing.xs),
+                  Directionality(
+                    textDirection: valueDirection,
+                    child: Text(value, textAlign: TextAlign.start),
+                  ),
+                ],
+              ),
             ),
     );
   }
