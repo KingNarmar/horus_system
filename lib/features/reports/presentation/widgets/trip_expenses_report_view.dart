@@ -75,7 +75,16 @@ final class _ExpensesTable extends StatelessWidget {
                       Text(formatReportDate(row.expenseDate, localeName)),
                     ),
                     DataCell(
-                      Text(reportDisplayValue(row.tripNumber, row.tripId)),
+                      Text(
+                        reportTripDisplayValue(
+                          tripNumber: row.tripNumber,
+                          loadingOrderNumber: row.loadingOrderNumber,
+                          waybillNumber: row.waybillNumber,
+                          loadingLocation: row.loadingLocation,
+                          unloadingLocation: row.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
+                      ),
                     ),
                     DataCell(Text(row.customerName)),
                     DataCell(Text(row.expenseName)),
@@ -133,7 +142,14 @@ final class _ExpensesCards extends StatelessWidget {
                       ),
                       _Line(
                         strings.trip,
-                        reportDisplayValue(row.tripNumber, row.tripId),
+                        reportTripDisplayValue(
+                          tripNumber: row.tripNumber,
+                          loadingOrderNumber: row.loadingOrderNumber,
+                          waybillNumber: row.waybillNumber,
+                          loadingLocation: row.loadingLocation,
+                          unloadingLocation: row.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
                       ),
                       _Line(strings.customer, row.customerName),
                       _Line(strings.paidBy, strings.paidByLabel(row.paidBy)),
