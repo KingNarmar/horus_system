@@ -5,6 +5,32 @@ import 'package:horus_system/features/company/presentation/helpers/company_curre
 import 'package:horus_system/features/company/presentation/widgets/company_currency_selector.dart';
 
 void main() {
+  testWidgets('unselected currency selector shows one label and one hint', (
+    tester,
+  ) async {
+    final options = CompanyCurrencyDisplayResolver.resolveAll(
+      const Locale('en'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        supportedLocales: const [Locale('en'), Locale('ar')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        home: Scaffold(
+          body: CompanyCurrencySelector(
+            options: options,
+            selectedValue: null,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Base currency'), findsOneWidget);
+    expect(find.text('Select a currency'), findsOneWidget);
+  });
+
   testWidgets(
     'Arabic currency selector searches by code English name and Arabic name',
     (tester) async {
