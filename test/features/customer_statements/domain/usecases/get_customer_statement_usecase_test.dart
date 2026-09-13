@@ -101,7 +101,7 @@ void main() {
     expect(repository.lastCompanyId, isNull);
   });
 
-  test('rejects invalid configured currency code', () async {
+  test('rejects invalid configured currency as financial readiness', () async {
     final repository = _FakeRepository();
     final useCase = GetCustomerStatementUseCase(repository: repository);
     final context = CurrentCompanyContext(
@@ -124,16 +124,20 @@ void main() {
 
     expect(
       result.failureOrNull?.code,
-      CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
     );
     expect(repository.lastCompanyId, isNull);
   });
 
-  test('requires complete company regional settings', () async {
+  test('requires financial settings before repository access', () async {
     final repository = _FakeRepository();
     final useCase = GetCustomerStatementUseCase(repository: repository);
     final context = CurrentCompanyContext(
-      company: const Company(id: 'company-1', name: 'Company'),
+      company: const Company(
+        id: 'company-1',
+        name: 'Company',
+        businessTimezone: 'Asia/Dubai',
+      ),
       role: CompanyRole.owner,
     );
 
@@ -146,7 +150,34 @@ void main() {
 
     expect(
       result.failureOrNull?.code,
-      CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+    );
+    expect(repository.lastCompanyId, isNull);
+  });
+
+  test('requires business timezone after financial settings', () async {
+    final repository = _FakeRepository();
+    final useCase = GetCustomerStatementUseCase(repository: repository);
+    final context = CurrentCompanyContext(
+      company: const Company(
+        id: 'company-1',
+        name: 'Company',
+        baseCurrencyCode: 'AED',
+        baseCurrencyFractionDigits: 2,
+      ),
+      role: CompanyRole.owner,
+    );
+
+    final result = await useCase(
+      GetCustomerStatementParams(
+        currentCompanyContext: context,
+        customerId: 'customer-1',
+      ),
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
     );
     expect(repository.lastCompanyId, isNull);
   });
