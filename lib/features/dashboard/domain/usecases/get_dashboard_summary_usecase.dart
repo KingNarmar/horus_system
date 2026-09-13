@@ -40,14 +40,19 @@ final class GetDashboardSummaryUseCase
       company,
     );
     final financialConfiguration = financialReadiness.configuration;
-    final businessTimezone = company.businessTimezone;
-
-    if (!financialReadiness.isReady ||
-        financialConfiguration == null ||
-        businessTimezone == null) {
+    if (!financialReadiness.isReady || financialConfiguration == null) {
       return const FailureResult(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        ),
+      );
+    }
+
+    final businessTimezone = company.businessTimezone?.trim();
+    if (businessTimezone == null || businessTimezone.isEmpty) {
+      return const FailureResult(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
       );
     }
