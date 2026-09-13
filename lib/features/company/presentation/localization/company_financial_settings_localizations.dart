@@ -20,6 +20,11 @@ final class CompanyFinancialSettingsLocalizations {
   String get invalidConfiguration => _value('invalidConfiguration');
   String get baseCurrencyLabel => _value('baseCurrencyLabel');
   String get baseCurrencyHint => _value('baseCurrencyHint');
+  String get currencyPickerTitle => _value('currencyPickerTitle');
+  String get currencySearchLabel => _value('currencySearchLabel');
+  String get currencySearchHint => _value('currencySearchHint');
+  String get currencyNoResults => _value('currencyNoResults');
+  String get currencyClearSearch => _value('currencyClearSearch');
   String get fractionDigitsLabel => _value('fractionDigitsLabel');
   String get save => _value('save');
   String get saving => _value('saving');
@@ -49,8 +54,13 @@ final class CompanyFinancialSettingsLocalizations {
         'Configure the base currency before using financial modules.',
     'invalidConfiguration':
         'The current financial configuration is invalid and must be corrected.',
-    'baseCurrencyLabel': 'Base currency code',
-    'baseCurrencyHint': 'Enter a 3-letter code, for example AED',
+    'baseCurrencyLabel': 'Base currency',
+    'baseCurrencyHint': 'Select a currency',
+    'currencyPickerTitle': 'Select base currency',
+    'currencySearchLabel': 'Search currencies',
+    'currencySearchHint': 'Search by currency code or name',
+    'currencyNoResults': 'No currencies match the current search.',
+    'currencyClearSearch': 'Clear currency search',
     'fractionDigitsLabel': 'Fraction digits',
     'save': 'Save financial configuration',
     'saving': 'Saving...',
@@ -61,7 +71,7 @@ final class CompanyFinancialSettingsLocalizations {
         'For an existing company, the first configuration applies to its existing financial history. It must match any currency already recorded on historical invoices or payments.',
     'permissionNotice':
         'Only an Owner or Admin can change the financial configuration.',
-    'invalidCurrency': 'Enter a valid 3-letter currency code.',
+    'invalidCurrency': 'Select a valid currency.',
     'invalidFractionDigits': 'Select a valid number of fraction digits.',
     'lockedFailure':
         'The base currency cannot be changed because currency-bound financial data already exists.',
@@ -83,8 +93,13 @@ final class CompanyFinancialSettingsLocalizations {
     'ready': 'الإعدادات المالية جاهزة.',
     'configurationRequired': 'حدد العملة الأساسية قبل استخدام الوحدات المالية.',
     'invalidConfiguration': 'الإعدادات المالية الحالية غير صحيحة ويجب تصحيحها.',
-    'baseCurrencyLabel': 'رمز العملة الأساسية',
-    'baseCurrencyHint': 'أدخل رمزًا من 3 أحرف، مثل AED',
+    'baseCurrencyLabel': 'العملة الأساسية',
+    'baseCurrencyHint': 'اختر العملة',
+    'currencyPickerTitle': 'اختيار العملة الأساسية',
+    'currencySearchLabel': 'البحث في العملات',
+    'currencySearchHint': 'ابحث برمز العملة أو اسمها',
+    'currencyNoResults': 'لا توجد عملات مطابقة للبحث الحالي.',
+    'currencyClearSearch': 'مسح بحث العملات',
     'fractionDigitsLabel': 'عدد الخانات العشرية',
     'save': 'حفظ الإعدادات المالية',
     'saving': 'جاري الحفظ...',
@@ -94,7 +109,7 @@ final class CompanyFinancialSettingsLocalizations {
     'initialSetupNotice':
         'للشركة القائمة، أول إعداد للعملة سيطبق على تاريخها المالي الموجود، ويجب أن يطابق أي عملة مسجلة بالفعل في الفواتير أو المدفوعات التاريخية.',
     'permissionNotice': 'يمكن للمالك أو المسؤول فقط تغيير الإعدادات المالية.',
-    'invalidCurrency': 'أدخل رمز عملة صحيحًا من 3 أحرف.',
+    'invalidCurrency': 'اختر عملة صالحة.',
     'invalidFractionDigits': 'اختر عددًا صحيحًا للخانات العشرية.',
     'lockedFailure':
         'لا يمكن تغيير العملة الأساسية لوجود بيانات مالية مرتبطة بها بالفعل.',
