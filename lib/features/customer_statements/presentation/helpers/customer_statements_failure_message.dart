@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/customer_statement_failure_codes.dart';
 import '../localization/customer_statements_localizations.dart';
@@ -25,7 +26,7 @@ String customerStatementsFailureMessage(BuildContext context, Failure failure) {
     CustomerStatementFailureCodes.conflictMovementInvalid =>
       strings.movementInvalidFailure,
     CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
-      strings.regionalSettingsFailure,
+      context.financialReadinessL10n.configurationRequired,
     CompanyFailureCodes.notFound => strings.companyNotFoundFailure,
     _ => _safeFallback(context, failure, strings),
   };
