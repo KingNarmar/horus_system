@@ -48,6 +48,7 @@ class TripsLoaded extends TripsState {
   final List<TripStatusHistory> selectedTripStatusHistory;
   final List<ExpenseLedgerEntry> selectedTripExpenses;
   final List<ExpenseType> expenseTypes;
+  final List<ExpenseType> selectableExpenseTypes;
   final bool isDetailsLoading;
   final bool isActivityLoading;
   final bool isStatusHistoryLoading;
@@ -85,6 +86,7 @@ class TripsLoaded extends TripsState {
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
     this.selectedTripExpenses = const <ExpenseLedgerEntry>[],
     this.expenseTypes = const <ExpenseType>[],
+    this.selectableExpenseTypes = const <ExpenseType>[],
     this.isDetailsLoading = false,
     this.isActivityLoading = false,
     this.isStatusHistoryLoading = false,
@@ -157,6 +159,7 @@ class TripsLoaded extends TripsState {
     List<TripStatusHistory>? selectedTripStatusHistory,
     List<ExpenseLedgerEntry>? selectedTripExpenses,
     List<ExpenseType>? expenseTypes,
+    List<ExpenseType>? selectableExpenseTypes,
     bool? isDetailsLoading,
     bool? isActivityLoading,
     bool? isStatusHistoryLoading,
@@ -205,6 +208,8 @@ class TripsLoaded extends TripsState {
           selectedTripStatusHistory ?? this.selectedTripStatusHistory,
       selectedTripExpenses: selectedTripExpenses ?? this.selectedTripExpenses,
       expenseTypes: expenseTypes ?? this.expenseTypes,
+      selectableExpenseTypes:
+          selectableExpenseTypes ?? this.selectableExpenseTypes,
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       isStatusHistoryLoading:

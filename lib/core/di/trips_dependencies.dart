@@ -45,6 +45,8 @@ abstract final class TripsDependencies {
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getTripExpenseLedgerEntriesUseCase:
           ExpensesDependencies.createGetTripExpenseLedgerEntriesUseCase(),
+      getExpenseTypeCatalogUseCase:
+          ExpenseTypesDependencies.createGetExpenseTypeCatalogUseCase(),
       getLedgerEligibleExpenseTypesUseCase:
           ExpenseTypesDependencies.createGetLedgerEligibleExpenseTypesUseCase(),
       createTripExpenseUseCase:

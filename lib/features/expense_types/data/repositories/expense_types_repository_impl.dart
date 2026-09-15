@@ -34,7 +34,7 @@ class ExpenseTypesRepositoryImpl implements ExpenseTypesRepository {
         companyId: companyId,
       );
       return Success(models.map((model) => model.toEntity()).toList());
-    }, permissionCode: FailureCodes.permissionExpenseTypesManagement);
+    }, permissionCode: FailureCodes.permissionExpenseTypesView);
   }
 
   @override

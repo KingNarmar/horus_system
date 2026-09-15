@@ -5,6 +5,7 @@ import '../data/repositories/expense_types_repository_impl.dart';
 import '../domain/repositories/expense_types_repository.dart';
 import '../domain/usecases/deactivate_expense_type_usecase.dart';
 import '../domain/usecases/get_active_expense_types_usecase.dart';
+import '../domain/usecases/get_expense_type_catalog_usecase.dart';
 import '../domain/usecases/get_expense_types_usecase.dart';
 import '../domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
 import '../domain/usecases/reactivate_expense_type_usecase.dart';
@@ -34,6 +35,10 @@ abstract final class ExpenseTypesDependencies {
 
   static GetActiveExpenseTypesUseCase createGetActiveExpenseTypesUseCase() {
     return GetActiveExpenseTypesUseCase(createRepository());
+  }
+
+  static GetExpenseTypeCatalogUseCase createGetExpenseTypeCatalogUseCase() {
+    return GetExpenseTypeCatalogUseCase(createRepository());
   }
 
   static GetLedgerEligibleExpenseTypesUseCase

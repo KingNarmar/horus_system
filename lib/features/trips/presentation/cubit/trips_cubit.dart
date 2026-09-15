@@ -10,6 +10,7 @@ import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
+import '../../../expense_types/domain/usecases/get_expense_type_catalog_usecase.dart';
 import '../../../expense_types/domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../expenses/domain/entities/expense_ledger_entry.dart';
@@ -56,6 +57,7 @@ class TripsCubit extends Cubit<TripsState>
   convertInstantsToBusinessLocalDateTimesUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
   final GetTripExpenseLedgerEntriesUseCase getTripExpenseLedgerEntriesUseCase;
+  final GetExpenseTypeCatalogUseCase getExpenseTypeCatalogUseCase;
   final GetLedgerEligibleExpenseTypesUseCase
   getLedgerEligibleExpenseTypesUseCase;
   final CreateTripExpenseUseCase createTripExpenseUseCase;
@@ -77,6 +79,7 @@ class TripsCubit extends Cubit<TripsState>
     required this.convertInstantsToBusinessLocalDateTimesUseCase,
     required this.getTripAuditLogsUseCase,
     required this.getTripExpenseLedgerEntriesUseCase,
+    required this.getExpenseTypeCatalogUseCase,
     required this.getLedgerEligibleExpenseTypesUseCase,
     required this.createTripExpenseUseCase,
     required this.voidExpenseLedgerEntryUseCase,

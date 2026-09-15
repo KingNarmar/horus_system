@@ -143,6 +143,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final current = state;
     if (current is! TripsLoaded || current.isExpenseTypesLoading) return;
     if (current.expenseTypes.isNotEmpty &&
+        current.selectableExpenseTypes.isNotEmpty &&
         current.expenseTypesFailure == null) {
       return;
     }
@@ -151,28 +152,48 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
     );
 
-    final result = await owner.getLedgerEligibleExpenseTypesUseCase(
-      GetLedgerEligibleExpenseTypesParams(
+    final catalogResult = await owner.getExpenseTypeCatalogUseCase(
+      GetExpenseTypeCatalogParams(
         currentCompanyContext: current.currentCompanyContext,
       ),
     );
+    final afterCatalog = state;
+    if (afterCatalog is! TripsLoaded) return;
+    if (catalogResult is FailureResult<List<ExpenseType>>) {
+      emit(
+        afterCatalog.copyWith(
+          isExpenseTypesLoading: false,
+          expenseTypesFailure: catalogResult.failure,
+        ),
+      );
+      return;
+    }
 
+    final selectableResult = await owner.getLedgerEligibleExpenseTypesUseCase(
+      GetLedgerEligibleExpenseTypesParams(
+        currentCompanyContext: afterCatalog.currentCompanyContext,
+      ),
+    );
     final latestState = state;
     if (latestState is! TripsLoaded) return;
 
-    result.when(
-      success: (types) => emit(
-        latestState.copyWith(
-          expenseTypes: types,
-          isExpenseTypesLoading: false,
-          expenseTypesFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
+    if (selectableResult is FailureResult<List<ExpenseType>>) {
+      emit(
         latestState.copyWith(
           isExpenseTypesLoading: false,
-          expenseTypesFailure: failure,
+          expenseTypesFailure: selectableResult.failure,
         ),
+      );
+      return;
+    }
+
+    emit(
+      latestState.copyWith(
+        expenseTypes: (catalogResult as Success<List<ExpenseType>>).data,
+        selectableExpenseTypes:
+            (selectableResult as Success<List<ExpenseType>>).data,
+        isExpenseTypesLoading: false,
+        expenseTypesFailure: null,
       ),
     );
   }
