@@ -20,8 +20,10 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripExpenseTypeAdminCosts => companyExpenseCategoryAdminCosts;
   String get tripExpenseTypeLicensesAndRenewals =>
       companyExpenseCategoryLicensesAndRenewals;
-  String get tripExpenseTypeOfficeExpenses => companyExpenseCategoryOfficeExpenses;
-  String get tripExpenseTypeOilsAndFluids => companyExpenseCategoryOilsAndFluids;
+  String get tripExpenseTypeOfficeExpenses =>
+      companyExpenseCategoryOfficeExpenses;
+  String get tripExpenseTypeOilsAndFluids =>
+      companyExpenseCategoryOilsAndFluids;
   String get tripExpenseTypeRent => companyExpenseCategoryRent;
   String get tripExpenseTypeSpareParts => companyExpenseCategorySpareParts;
   String get tripExpenseTypeTires => companyExpenseCategoryTires;
