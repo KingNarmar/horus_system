@@ -4,10 +4,7 @@ final class MoneyInputParser {
 
   const MoneyInputParser();
 
-  int? tryParseMinorUnits(
-    String input, {
-    required int fractionDigits,
-  }) {
+  int? tryParseMinorUnits(String input, {required int fractionDigits}) {
     if (fractionDigits < 0) return null;
 
     final value = input.trim();

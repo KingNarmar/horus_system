@@ -12,20 +12,23 @@ import 'package:test/test.dart';
 
 void main() {
   group('Expense type read use cases', () {
-    test('catalog lookup trims company id and preserves tenant scope', () async {
-      final repository = _FakeExpenseTypesRepository();
-      final result = await GetExpenseTypeCatalogUseCase(repository)(
-        GetExpenseTypeCatalogParams(
-          currentCompanyContext: _context(
-            CompanyRole.operations,
-            companyId: '  company-1  ',
+    test(
+      'catalog lookup trims company id and preserves tenant scope',
+      () async {
+        final repository = _FakeExpenseTypesRepository();
+        final result = await GetExpenseTypeCatalogUseCase(repository)(
+          GetExpenseTypeCatalogParams(
+            currentCompanyContext: _context(
+              CompanyRole.operations,
+              companyId: '  company-1  ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result, isA<Success<List<ExpenseType>>>());
-      expect(repository.lastCatalogCompanyId, 'company-1');
-    });
+        expect(result, isA<Success<List<ExpenseType>>>());
+        expect(repository.lastCatalogCompanyId, 'company-1');
+      },
+    );
 
     test('catalog lookup rejects driver before repository access', () async {
       final repository = _FakeExpenseTypesRepository();
@@ -43,24 +46,27 @@ void main() {
       expect(repository.lastCatalogCompanyId, isNull);
     });
 
-    test('catalog lookup validates company id before repository access', () async {
-      final repository = _FakeExpenseTypesRepository();
-      final result = await GetExpenseTypeCatalogUseCase(repository)(
-        GetExpenseTypeCatalogParams(
-          currentCompanyContext: _context(
-            CompanyRole.owner,
-            companyId: '   ',
+    test(
+      'catalog lookup validates company id before repository access',
+      () async {
+        final repository = _FakeExpenseTypesRepository();
+        final result = await GetExpenseTypeCatalogUseCase(repository)(
+          GetExpenseTypeCatalogParams(
+            currentCompanyContext: _context(
+              CompanyRole.owner,
+              companyId: '   ',
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(result, isA<FailureResult<List<ExpenseType>>>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationCompanyIdRequired,
-      );
-      expect(repository.lastCatalogCompanyId, isNull);
-    });
+        expect(result, isA<FailureResult<List<ExpenseType>>>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationCompanyIdRequired,
+        );
+        expect(repository.lastCatalogCompanyId, isNull);
+      },
+    );
 
     test('active lookup keeps company scope', () async {
       final repository = _FakeExpenseTypesRepository();

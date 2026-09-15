@@ -76,10 +76,7 @@ class _FakeExpenseTypesRemoteDataSource
   String? lastActiveCompanyId;
   String? lastLedgerEligibleCompanyId;
 
-  _FakeExpenseTypesRemoteDataSource({
-    this.models = const [],
-    this.error,
-  });
+  _FakeExpenseTypesRemoteDataSource({this.models = const [], this.error});
 
   @override
   Future<List<ExpenseTypeModel>> getExpenseTypes({

@@ -19,12 +19,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       return;
     }
 
-    emit(
-      current.copyWith(
-        isTripExpenseMutating: true,
-        expensesFailure: null,
-      ),
-    );
+    emit(current.copyWith(isTripExpenseMutating: true, expensesFailure: null));
 
     final result = await owner.createTripExpenseUseCase(
       CreateTripExpenseParams(
@@ -39,15 +34,12 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       ),
     );
 
-    owner._mapLoaded(
-      (state) => state.copyWith(isTripExpenseMutating: false),
-    );
+    owner._mapLoaded((state) => state.copyWith(isTripExpenseMutating: false));
 
     result.when(
       success: (_) => _refreshSelectedTripExpenseContext(tripId),
-      failure: (failure) => owner._mapLoaded(
-        (state) => state.copyWith(expensesFailure: failure),
-      ),
+      failure: (failure) =>
+          owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
   }
 
@@ -66,12 +58,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       return;
     }
 
-    emit(
-      current.copyWith(
-        isTripExpenseMutating: true,
-        expensesFailure: null,
-      ),
-    );
+    emit(current.copyWith(isTripExpenseMutating: true, expensesFailure: null));
 
     final result = await owner.voidExpenseLedgerEntryUseCase(
       VoidExpenseLedgerEntryParams(
@@ -81,15 +68,12 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       ),
     );
 
-    owner._mapLoaded(
-      (state) => state.copyWith(isTripExpenseMutating: false),
-    );
+    owner._mapLoaded((state) => state.copyWith(isTripExpenseMutating: false));
 
     result.when(
       success: (_) => _refreshSelectedTripExpenseContext(tripId),
-      failure: (failure) => owner._mapLoaded(
-        (state) => state.copyWith(expensesFailure: failure),
-      ),
+      failure: (failure) =>
+          owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
   }
 

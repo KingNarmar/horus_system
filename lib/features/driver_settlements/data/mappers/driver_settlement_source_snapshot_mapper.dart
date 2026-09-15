@@ -133,8 +133,8 @@ class DriverSettlementSourceSnapshotMapper {
     final items = <DriverSettlementItem>[];
 
     for (final row in rows) {
-      final fundingSource =
-          row[DriverSettlementsDbFields.fundingSource]?.toString();
+      final fundingSource = row[DriverSettlementsDbFields.fundingSource]
+          ?.toString();
       if (fundingSource != _fundingSourceDriverAdvance &&
           fundingSource != _fundingSourceDriverCash) {
         throw FormatException(
@@ -160,8 +160,7 @@ class DriverSettlementSourceSnapshotMapper {
           direction: DriverSettlementItemDirection.companyToDriver,
           amount: amount,
           labelKey: _labelTripExpense,
-          descriptionKey:
-              row[DriverSettlementsDbFields.description] as String?,
+          descriptionKey: row[DriverSettlementsDbFields.description] as String?,
           metadata: {
             DriverSettlementsDbFields.paidBy: fundingSource,
             DriverSettlementsDbFields.tripId:

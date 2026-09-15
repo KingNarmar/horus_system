@@ -28,9 +28,14 @@ void main() {
     test('denies driver read access before repository execution', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await GetExpenseLedgerEntriesUseCase(repository)(
-        GetExpenseLedgerEntriesParams(currentCompanyContext: _context(CompanyRole.driver)),
+        GetExpenseLedgerEntriesParams(
+          currentCompanyContext: _context(CompanyRole.driver),
+        ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionView);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionView,
+      );
       expect(repository.getCalls, 0);
     });
   });

@@ -86,10 +86,7 @@ class _Loaded extends StatelessWidget {
   final ExpenseTypesLoaded state;
   final ValueChanged<ExpenseTypeStatusFilter> onStatusFilterChanged;
 
-  const _Loaded({
-    required this.state,
-    required this.onStatusFilterChanged,
-  });
+  const _Loaded({required this.state, required this.onStatusFilterChanged});
 
   @override
   Widget build(BuildContext context) {

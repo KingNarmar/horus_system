@@ -247,9 +247,7 @@ class _TripExpenseTile extends StatelessWidget {
                     l10n.tripEmptyValue,
                   ),
                 ),
-                Text(
-                  l10n.tripExpenseFundingSourceLabel(expense.fundingSource),
-                ),
+                Text(l10n.tripExpenseFundingSourceLabel(expense.fundingSource)),
                 if (typeLabel != l10n.tripEmptyValue && title != typeLabel)
                   Text('${l10n.tripExpenseTypeLabel}: $typeLabel'),
                 if (notes != null && notes.isNotEmpty)

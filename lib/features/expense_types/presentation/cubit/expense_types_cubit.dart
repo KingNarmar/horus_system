@@ -27,9 +27,7 @@ class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
 
     emit(const ExpenseTypesLoading());
     final result = await getExpenseTypeCatalogUseCase(
-      GetExpenseTypeCatalogParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      GetExpenseTypeCatalogParams(currentCompanyContext: currentCompanyContext),
     );
 
     if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;

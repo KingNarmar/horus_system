@@ -33,9 +33,14 @@ void main() {
     test('rejects missing company financial configuration', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
-        _params(company: const Company(id: 'company-1', name: 'Horus')),
+        _params(
+          company: const Company(id: 'company-1', name: 'Horus'),
+        ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.financialConfigurationRequired);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.financialConfigurationRequired,
+      );
       expect(repository.calls, 0);
     });
 
@@ -44,7 +49,10 @@ void main() {
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(amountMinorUnits: 0),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.validationAmountInvalid);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.validationAmountInvalid,
+      );
       expect(repository.calls, 0);
     });
 
@@ -52,10 +60,16 @@ void main() {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(
-          attribution: const ExpenseAttribution(tripId: 'trip-1', driverId: 'driver-1'),
+          attribution: const ExpenseAttribution(
+            tripId: 'trip-1',
+            driverId: 'driver-1',
+          ),
         ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.validationAttributionInvalid);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.validationAttributionInvalid,
+      );
       expect(repository.calls, 0);
     });
 
@@ -64,7 +78,10 @@ void main() {
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(role: CompanyRole.operations),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionManage);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionManage,
+      );
       expect(repository.calls, 0);
     });
 
@@ -108,7 +125,9 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   ExpenseLedgerWriteData? data;
 
   @override
-  Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) async {
+  Future<Result<ExpenseLedgerEntry>> createEntry(
+    ExpenseLedgerWriteData data,
+  ) async {
     calls++;
     this.data = data;
     return Success(

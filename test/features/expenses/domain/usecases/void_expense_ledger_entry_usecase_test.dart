@@ -40,7 +40,10 @@ void main() {
           entry: _entry(companyId: 'company-2'),
         ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionManage);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionManage,
+      );
       expect(repository.voidCalls, 0);
     });
 
@@ -52,7 +55,10 @@ void main() {
           entry: _entry(),
         ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionManage);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionManage,
+      );
       expect(repository.voidCalls, 0);
     });
 
@@ -76,7 +82,10 @@ void main() {
           entry: _entry(isVoided: true),
         ),
       );
-      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.conflictAlreadyVoided);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.conflictAlreadyVoided,
+      );
       expect(repository.voidCalls, 0);
     });
   });

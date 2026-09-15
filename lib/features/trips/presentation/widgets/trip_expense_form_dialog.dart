@@ -43,7 +43,9 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     super.initState();
     _descriptionController = TextEditingController();
     _amountController = TextEditingController();
-    final initialDate = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    final initialDate = BusinessDateDateTimeAdapter.fromDateTime(
+      DateTime.now(),
+    );
     _dateController = TextEditingController(text: _dateOnly(initialDate));
     _notesController = TextEditingController();
   }
@@ -61,7 +63,8 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final selectedType = _selectedType();
-    final requiresDescription = selectedType != null &&
+    final requiresDescription =
+        selectedType != null &&
         ExpenseTypeSemantics.requiresDescription(selectedType);
 
     return AlertDialog(
