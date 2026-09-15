@@ -2,7 +2,9 @@ class ExpenseTypeModel {
   final String id;
   final String companyId;
   final String name;
+  final String? code;
   final bool isActive;
+  final bool isLedgerEligible;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
@@ -13,6 +15,8 @@ class ExpenseTypeModel {
     required this.companyId,
     required this.name,
     required this.isActive,
+    this.code,
+    this.isLedgerEligible = true,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -24,7 +28,9 @@ class ExpenseTypeModel {
       id: map['id'] as String,
       companyId: map['company_id'] as String,
       name: map['name'] as String,
+      code: map['code'] as String?,
       isActive: map['is_active'] as bool? ?? true,
+      isLedgerEligible: map['ledger_eligible'] as bool? ?? true,
       createdBy: map['created_by'] as String?,
       updatedBy: map['updated_by'] as String?,
       createdAt: _toDateTime(map['created_at']),
