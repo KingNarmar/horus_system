@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_decimal_codec.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_entity.dart';
 import '../localization/routes_localizations_x.dart';
 
 class RoutesList extends StatelessWidget {
   final List<RouteEntity> routes;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
   final ValueChanged<RouteEntity> onViewDetails;
@@ -17,6 +20,7 @@ class RoutesList extends StatelessWidget {
 
   const RoutesList({
     required this.routes,
+    required this.financialConfiguration,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
     required this.onViewDetails,
@@ -33,6 +37,7 @@ class RoutesList extends StatelessWidget {
         if (constraints.maxWidth >= 760) {
           return _RoutesTable(
             routes: routes,
+            financialConfiguration: financialConfiguration,
             canManageRoutes: canManageRoutes,
             isActiveStateChanging: isActiveStateChanging,
             onViewDetails: onViewDetails,
@@ -44,6 +49,7 @@ class RoutesList extends StatelessWidget {
 
         return _RoutesCards(
           routes: routes,
+          financialConfiguration: financialConfiguration,
           canManageRoutes: canManageRoutes,
           isActiveStateChanging: isActiveStateChanging,
           onViewDetails: onViewDetails,
@@ -58,6 +64,7 @@ class RoutesList extends StatelessWidget {
 
 class _RoutesTable extends StatelessWidget {
   final List<RouteEntity> routes;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
   final ValueChanged<RouteEntity> onViewDetails;
@@ -67,6 +74,7 @@ class _RoutesTable extends StatelessWidget {
 
   const _RoutesTable({
     required this.routes,
+    required this.financialConfiguration,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
     required this.onViewDetails,
@@ -99,7 +107,15 @@ class _RoutesTable extends StatelessWidget {
                 DataCell(Text(route.loadingLocation)),
                 DataCell(Text(route.unloadingLocation)),
                 DataCell(Text(_governoratesText(route, l10n.emptyValue))),
-                DataCell(Text(_priceText(route, l10n.emptyValue))),
+                DataCell(
+                  Text(
+                    _rateText(
+                      route,
+                      financialConfiguration,
+                      l10n.emptyValue,
+                    ),
+                  ),
+                ),
                 DataCell(_RouteStatusChip(route: route)),
                 DataCell(
                   SizedBox(
@@ -129,6 +145,7 @@ class _RoutesTable extends StatelessWidget {
 
 class _RoutesCards extends StatelessWidget {
   final List<RouteEntity> routes;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageRoutes;
   final bool Function(String id) isActiveStateChanging;
   final ValueChanged<RouteEntity> onViewDetails;
@@ -138,6 +155,7 @@ class _RoutesCards extends StatelessWidget {
 
   const _RoutesCards({
     required this.routes,
+    required this.financialConfiguration,
     required this.canManageRoutes,
     required this.isActiveStateChanging,
     required this.onViewDetails,
@@ -177,7 +195,11 @@ class _RoutesCards extends StatelessWidget {
                     ),
                     _InfoText(
                       label: l10n.routeDefaultPriceHeader,
-                      value: _priceText(route, l10n.emptyValue),
+                      value: _rateText(
+                        route,
+                        financialConfiguration,
+                        l10n.emptyValue,
+                      ),
                     ),
                     _RouteStatusChip(route: route),
                   ],
@@ -337,10 +359,17 @@ String _governoratesText(RouteEntity route, String emptyValue) {
   return '${from == null || from.isEmpty ? emptyValue : from} -> ${to == null || to.isEmpty ? emptyValue : to}';
 }
 
-String _priceText(RouteEntity route, String emptyValue) {
-  final price = route.defaultFreightPrice;
-  if (price == null) return emptyValue;
+String _rateText(
+  RouteEntity route,
+  CurrencyConfiguration? financialConfiguration,
+  String emptyValue,
+) {
+  final rate = route.defaultFreightRatePerTon;
+  if (rate == null) return emptyValue;
+  final configuration = financialConfiguration;
+  if (configuration == null) return emptyValue;
 
-  final text = price.toStringAsFixed(2);
-  return text.endsWith('.00') ? text.substring(0, text.length - 3) : text;
+  const codec = MoneyDecimalCodec();
+  final value = codec.encodeNonNegative(rate, configuration: configuration);
+  return '$value ${rate.currency.value}';
 }

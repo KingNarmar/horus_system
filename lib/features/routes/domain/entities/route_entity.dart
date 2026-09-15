@@ -1,3 +1,5 @@
+import '../../../../core/domain/value_objects/money.dart';
+
 class RouteEntity {
   final String id;
   final String companyId;
@@ -5,7 +7,7 @@ class RouteEntity {
   final String unloadingLocation;
   final String? governorateFrom;
   final String? governorateTo;
-  final double? defaultFreightPrice;
+  final Money? defaultFreightRatePerTon;
   final String? notes;
   final bool isActive;
   final DateTime? createdAt;
@@ -19,7 +21,7 @@ class RouteEntity {
     required this.isActive,
     this.governorateFrom,
     this.governorateTo,
-    this.defaultFreightPrice,
+    this.defaultFreightRatePerTon,
     this.notes,
     this.createdAt,
     this.updatedAt,

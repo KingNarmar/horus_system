@@ -98,6 +98,8 @@ class FailureCodes {
       'validation_route_unloading_location_required';
   static const String validationRouteFreightPriceNegative =
       'validation_route_freight_price_negative';
+  static const String validationRouteFreightRateInvalid =
+      'validation_route_freight_rate_invalid';
   static const String validationTripIdRequired = 'validation_trip_id_required';
   static const String validationTripCustomerRequired =
       'validation_trip_customer_required';
@@ -105,8 +107,16 @@ class FailureCodes {
       'validation_trip_route_required';
   static const String validationTripQuantityNegative =
       'validation_trip_quantity_negative';
+  static const String validationTripQuantityInvalid =
+      'validation_trip_quantity_invalid';
   static const String validationTripFreightPriceNegative =
       'validation_trip_freight_price_negative';
+  static const String validationTripFreightRateInvalid =
+      'validation_trip_freight_rate_invalid';
+  static const String validationTripCommercialTermsIncomplete =
+      'validation_trip_commercial_terms_incomplete';
+  static const String validationTripCommercialAmountOverflow =
+      'validation_trip_commercial_amount_overflow';
   static const String validationTripExpensesNegative =
       'validation_trip_expenses_negative';
   static const String validationTripDeliveryBeforeLoading =

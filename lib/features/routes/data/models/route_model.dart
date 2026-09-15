@@ -8,7 +8,7 @@ class RouteModel {
   final String unloadingLocation;
   final String? governorateFrom;
   final String? governorateTo;
-  final double? defaultFreightPrice;
+  final String? defaultFreightRatePerTonDecimal;
   final String? notes;
   final bool isActive;
   final DateTime? createdAt;
@@ -22,7 +22,7 @@ class RouteModel {
     required this.isActive,
     this.governorateFrom,
     this.governorateTo,
-    this.defaultFreightPrice,
+    this.defaultFreightRatePerTonDecimal,
     this.notes,
     this.createdAt,
     this.updatedAt,
@@ -36,7 +36,9 @@ class RouteModel {
       unloadingLocation: map[RouteDbFields.unloadingLocation] as String,
       governorateFrom: map[RouteDbFields.governorateFrom] as String?,
       governorateTo: map[RouteDbFields.governorateTo] as String?,
-      defaultFreightPrice: _toDouble(map[RouteDbFields.defaultFreightPrice]),
+      defaultFreightRatePerTonDecimal: _toDecimalText(
+        map[RouteDbFields.defaultFreightRatePerTon],
+      ),
       notes: map[RouteDbFields.notes] as String?,
       isActive: map[DbCommonFields.isActive] as bool? ?? true,
       createdAt: _toDateTime(map[DbCommonFields.createdAt]),
@@ -49,9 +51,9 @@ class RouteModel {
     return DateTime.tryParse(value.toString());
   }
 
-  static double? _toDouble(Object? value) {
+  static String? _toDecimalText(Object? value) {
     if (value == null) return null;
-    if (value is num) return value.toDouble();
-    return double.tryParse(value.toString());
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
   }
 }

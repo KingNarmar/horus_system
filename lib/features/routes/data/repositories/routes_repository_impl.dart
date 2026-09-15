@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
@@ -27,10 +28,21 @@ class RoutesRepositoryImpl implements RoutesRepository {
   }
 
   @override
-  Future<Result<List<RouteEntity>>> getRoutes({required String companyId}) {
+  Future<Result<List<RouteEntity>>> getRoutes({
+    required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
+  }) {
     return _guard(() async {
       final models = await remoteDataSource.getRoutes(companyId: companyId);
-      return Success(models.map((model) => model.toEntity()).toList());
+      return Success(
+        models
+            .map(
+              (model) => model.toEntity(
+                financialConfiguration: financialConfiguration,
+              ),
+            )
+            .toList(),
+      );
     });
   }
 
@@ -38,9 +50,13 @@ class RoutesRepositoryImpl implements RoutesRepository {
   Future<Result<RouteEntity>> addRoute({
     required RouteWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
-      final model = await remoteDataSource.addRoute(data: data);
+      final model = await remoteDataSource.addRoute(
+        data: data,
+        financialConfiguration: financialConfiguration,
+      );
       final auditFailure = await _auditWriter.writeCreated(
         model: model,
         actorRole: actorRole,
@@ -49,7 +65,9 @@ class RoutesRepositoryImpl implements RoutesRepository {
       if (auditFailure != null) {
         return FailureResult<RouteEntity>(auditFailure);
       }
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
@@ -58,13 +76,18 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String id,
     required RouteWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
       final oldModel = await remoteDataSource.getRouteById(
         companyId: data.companyId,
         id: id,
       );
-      final model = await remoteDataSource.saveRoute(id: id, data: data);
+      final model = await remoteDataSource.saveRoute(
+        id: id,
+        data: data,
+        financialConfiguration: financialConfiguration,
+      );
       final auditFailure = await _auditWriter.writeUpdated(
         oldModel: oldModel,
         model: model,
@@ -74,7 +97,9 @@ class RoutesRepositoryImpl implements RoutesRepository {
       if (auditFailure != null) {
         return FailureResult<RouteEntity>(auditFailure);
       }
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
@@ -83,11 +108,13 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _changeActiveState(
       companyId: companyId,
       id: id,
       actorRole: actorRole,
+      financialConfiguration: financialConfiguration,
       change: remoteDataSource.deactivateRoute,
       writeAudit: _auditWriter.writeDeactivated,
     );
@@ -98,11 +125,13 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _changeActiveState(
       companyId: companyId,
       id: id,
       actorRole: actorRole,
+      financialConfiguration: financialConfiguration,
       change: remoteDataSource.reactivateRoute,
       writeAudit: _auditWriter.writeReactivated,
     );
@@ -112,6 +141,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
     required Future<RouteModel> Function({
       required String companyId,
       required String id,
@@ -139,7 +169,9 @@ class RoutesRepositoryImpl implements RoutesRepository {
       if (auditFailure != null) {
         return FailureResult<RouteEntity>(auditFailure);
       }
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 

@@ -1,9 +1,13 @@
+import '../../../../core/domain/services/money_input_parser.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../company/domain/failures/company_failure_codes.dart';
 import '../entities/route_entity.dart';
 import '../entities/route_write_data.dart';
 import '../policies/routes_permission_policy.dart';
@@ -22,7 +26,7 @@ class SaveRouteParams {
   final String unloadingLocation;
   final String? governorateFrom;
   final String? governorateTo;
-  final double? defaultFreightPrice;
+  final String? defaultFreightRatePerTonInput;
   final String? notes;
 
   const SaveRouteParams({
@@ -32,7 +36,7 @@ class SaveRouteParams {
     required this.unloadingLocation,
     this.governorateFrom,
     this.governorateTo,
-    this.defaultFreightPrice,
+    this.defaultFreightRatePerTonInput,
     this.notes,
   });
 }
@@ -67,14 +71,21 @@ class GetRoutesUseCase implements UseCase<List<RouteEntity>, GetRoutesParams> {
       );
     }
 
-    return _repository.getRoutes(companyId: context.companyId);
+    return _repository.getRoutes(
+      companyId: context.companyId,
+      financialConfiguration: _financialConfiguration(context),
+    );
   }
 }
 
 class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
   final RoutesRepository _repository;
+  final MoneyInputParser _moneyInputParser;
 
-  const SaveRouteUseCase(this._repository);
+  const SaveRouteUseCase(
+    this._repository, {
+    MoneyInputParser moneyInputParser = const MoneyInputParser(),
+  }) : _moneyInputParser = moneyInputParser;
 
   @override
   Future<Result<RouteEntity>> call(SaveRouteParams params) {
@@ -115,15 +126,40 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
       );
     }
 
-    final defaultFreightPrice = params.defaultFreightPrice;
-    if (defaultFreightPrice != null && defaultFreightPrice < 0) {
-      return Future.value(
-        const FailureResult<RouteEntity>(
-          ValidationFailure(
-            code: FailureCodes.validationRouteFreightPriceNegative,
-            message: 'Default freight price cannot be negative.',
+    final configuration = _financialConfiguration(context);
+    final rateInput = _optional(params.defaultFreightRatePerTonInput);
+    Money? defaultFreightRatePerTon;
+
+    if (rateInput != null) {
+      if (configuration == null) {
+        return Future.value(
+          const FailureResult<RouteEntity>(
+            ConflictFailure(
+              code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+              message: 'Company financial settings are not configured.',
+            ),
           ),
-        ),
+        );
+      }
+
+      final minorUnits = _moneyInputParser.tryParseMinorUnits(
+        rateInput,
+        fractionDigits: configuration.fractionDigits,
+      );
+      if (minorUnits == null) {
+        return Future.value(
+          const FailureResult<RouteEntity>(
+            ValidationFailure(
+              code: FailureCodes.validationRouteFreightRateInvalid,
+              message: 'Default freight rate per ton is invalid.',
+            ),
+          ),
+        );
+      }
+
+      defaultFreightRatePerTon = Money(
+        minorUnits: minorUnits,
+        currency: configuration.currency,
       );
     }
 
@@ -133,19 +169,24 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
       unloadingLocation: unloadingLocation,
       governorateFrom: _optional(params.governorateFrom),
       governorateTo: _optional(params.governorateTo),
-      defaultFreightPrice: defaultFreightPrice,
+      defaultFreightRatePerTon: defaultFreightRatePerTon,
       notes: _optional(params.notes),
     );
 
     final id = _optional(params.id);
     if (id == null) {
-      return _repository.addRoute(data: data, actorRole: context.role.value);
+      return _repository.addRoute(
+        data: data,
+        actorRole: context.role.value,
+        financialConfiguration: configuration,
+      );
     }
 
     return _repository.saveRoute(
       id: id,
       data: data,
       actorRole: context.role.value,
+      financialConfiguration: configuration,
     );
   }
 }
@@ -186,6 +227,7 @@ Future<Result<RouteEntity>> _changeRouteActiveState({
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   })
   action,
 }) {
@@ -206,6 +248,14 @@ Future<Result<RouteEntity>> _changeRouteActiveState({
     companyId: context.companyId,
     id: params.id,
     actorRole: context.role.value,
+    financialConfiguration: _financialConfiguration(context),
+  );
+}
+
+CurrencyConfiguration? _financialConfiguration(CurrentCompanyContext context) {
+  return CurrencyConfiguration.tryCreate(
+    currencyCode: context.company.baseCurrencyCode,
+    fractionDigits: context.company.baseCurrencyFractionDigits,
   );
 }
 

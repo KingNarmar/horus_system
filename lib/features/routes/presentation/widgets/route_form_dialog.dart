@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_decimal_codec.dart';
+import '../../../../core/domain/services/money_input_parser.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_entity.dart';
 
@@ -10,7 +13,7 @@ class RouteFormData {
   final String unloadingLocation;
   final String? governorateFrom;
   final String? governorateTo;
-  final double? defaultFreightPrice;
+  final String? defaultFreightRatePerTonInput;
   final String? notes;
 
   const RouteFormData({
@@ -18,7 +21,7 @@ class RouteFormData {
     required this.unloadingLocation,
     this.governorateFrom,
     this.governorateTo,
-    this.defaultFreightPrice,
+    this.defaultFreightRatePerTonInput,
     this.notes,
   });
 }
@@ -26,11 +29,13 @@ class RouteFormData {
 class RouteFormDialog extends StatefulWidget {
   final String title;
   final RouteEntity? route;
+  final CurrencyConfiguration? financialConfiguration;
   final Future<void> Function(RouteFormData data) onSubmit;
 
   const RouteFormDialog({
     required this.title,
     required this.onSubmit,
+    required this.financialConfiguration,
     this.route,
     super.key,
   });
@@ -40,13 +45,16 @@ class RouteFormDialog extends StatefulWidget {
 }
 
 class _RouteFormDialogState extends State<RouteFormDialog> {
+  static const _moneyCodec = MoneyDecimalCodec();
+  static const _moneyInputParser = MoneyInputParser();
+
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _loadingController;
   late final TextEditingController _unloadingController;
   late final TextEditingController _governorateFromController;
   late final TextEditingController _governorateToController;
-  late final TextEditingController _defaultFreightPriceController;
+  late final TextEditingController _defaultFreightRateController;
   late final TextEditingController _notesController;
 
   bool _isSubmitting = false;
@@ -69,8 +77,8 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     _governorateToController = TextEditingController(
       text: route?.governorateTo ?? '',
     );
-    _defaultFreightPriceController = TextEditingController(
-      text: _formatDouble(route?.defaultFreightPrice),
+    _defaultFreightRateController = TextEditingController(
+      text: _formatRate(route),
     );
     _notesController = TextEditingController(text: route?.notes ?? '');
   }
@@ -81,7 +89,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     _unloadingController.dispose();
     _governorateFromController.dispose();
     _governorateToController.dispose();
-    _defaultFreightPriceController.dispose();
+    _defaultFreightRateController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -143,7 +151,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
-                  controller: _defaultFreightPriceController,
+                  controller: _defaultFreightRateController,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -151,7 +159,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                     labelText: l10n.defaultFreightPriceLabel,
                   ),
                   validator: (_) {
-                    return _defaultFreightPriceValid
+                    return _defaultFreightRateValid
                         ? null
                         : l10n.defaultFreightPriceInvalid;
                   },
@@ -192,7 +200,9 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
         unloadingLocation: _unloadingController.text.trim(),
         governorateFrom: _optional(_governorateFromController.text),
         governorateTo: _optional(_governorateToController.text),
-        defaultFreightPrice: _parseDefaultFreightPrice(),
+        defaultFreightRatePerTonInput: _optional(
+          _defaultFreightRateController.text,
+        ),
         notes: _optional(_notesController.text),
       ),
     );
@@ -202,30 +212,35 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     }
   }
 
-  bool get _defaultFreightPriceValid {
-    final text = _defaultFreightPriceController.text.trim();
+  bool get _defaultFreightRateValid {
+    final text = _defaultFreightRateController.text.trim();
     if (text.isEmpty) return true;
 
-    final value = _parseDefaultFreightPrice();
-    return value != null && value >= 0;
+    final configuration = widget.financialConfiguration;
+    if (configuration == null) return false;
+
+    return _moneyInputParser.tryParseMinorUnits(
+          text.replaceAll(',', '.'),
+          fractionDigits: configuration.fractionDigits,
+        ) !=
+        null;
   }
 
-  double? _parseDefaultFreightPrice() {
-    final text = _defaultFreightPriceController.text.trim();
-    if (text.isEmpty) return null;
+  String _formatRate(RouteEntity? route) {
+    final rate = route?.defaultFreightRatePerTon;
+    if (rate == null) return '';
 
-    return double.tryParse(text.replaceAll(',', '.'));
+    final configuration = widget.financialConfiguration;
+    if (configuration == null) return '';
+
+    return _moneyCodec.encodeNonNegative(
+      rate,
+      configuration: configuration,
+    );
   }
 
   String? _optional(String value) {
     final text = value.trim();
     return text.isEmpty ? null : text;
   }
-}
-
-String _formatDouble(double? value) {
-  if (value == null) return '';
-
-  final text = value.toString();
-  return text.endsWith('.0') ? text.substring(0, text.length - 2) : text;
 }

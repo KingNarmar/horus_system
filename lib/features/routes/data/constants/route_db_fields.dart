@@ -7,12 +7,14 @@ abstract final class RouteDbFields {
   static const unloadingLocation = 'unloading_location';
   static const governorateFrom = 'governorate_from';
   static const governorateTo = 'governorate_to';
-  static const defaultFreightPrice = 'default_freight_price';
+
+  // Physical DB name retained for compatibility with existing functions/reports.
+  static const defaultFreightRatePerTon = 'default_freight_price';
   static const notes = 'notes';
 
   static const allColumns =
       '${DbCommonFields.id}, ${DbCommonFields.companyId}, '
       '$loadingLocation, $unloadingLocation, $governorateFrom, $governorateTo, '
-      '$defaultFreightPrice, $notes, ${DbCommonFields.isActive}, '
+      '$defaultFreightRatePerTon, $notes, ${DbCommonFields.isActive}, '
       '${DbCommonFields.createdAt}, ${DbCommonFields.updatedAt}';
 }
