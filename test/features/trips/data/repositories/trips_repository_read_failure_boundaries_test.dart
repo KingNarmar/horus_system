@@ -10,17 +10,22 @@ import 'trips_repository_test_support.dart';
 
 void main() {
   group('TripsRepository read failure boundaries', () {
-    test('forwards company scope for read operations', () async {
+    test('forwards company scope and financial config for read operations', () async {
       final remoteDataSource = FakeTripsRemoteDataSource();
       final repository = createTripsRepository(remoteDataSource);
 
-      final listResult = await repository.getTrips(companyId: testCompanyId);
+      final listResult = await repository.getTrips(
+        companyId: testCompanyId,
+        financialConfiguration: testFinancialConfiguration,
+      );
       final detailsResult = await repository.getTripDetails(
         companyId: testCompanyId,
         id: testTripId,
+        financialConfiguration: testFinancialConfiguration,
       );
       final lookupsResult = await repository.getTripFormLookups(
         companyId: testCompanyId,
+        financialConfiguration: testFinancialConfiguration,
       );
       final historyResult = await repository.getTripStatusHistory(
         companyId: testCompanyId,
@@ -65,7 +70,10 @@ void main() {
         );
         final repository = createTripsRepository(remoteDataSource);
 
-        final result = await repository.getTrips(companyId: testCompanyId);
+        final result = await repository.getTrips(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
 
         expect(result, isA<FailureResult<List<TripEntity>>>());
         expect(result.failureOrNull, isA<ServerFailure>());
@@ -83,7 +91,10 @@ void main() {
         );
         final repository = createTripsRepository(remoteDataSource);
 
-        final result = await repository.getTrips(companyId: testCompanyId);
+        final result = await repository.getTrips(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
 
         expect(result, isA<FailureResult<List<TripEntity>>>());
         expect(result.failureOrNull, isA<UnexpectedFailure>());

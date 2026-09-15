@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -6,15 +7,20 @@ import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/trips/data/datasources/trips_remote_data_source.dart';
+import 'package:horus_system/features/trips/data/models/trip_lookup_models.dart';
 import 'package:horus_system/features/trips/data/models/trip_model.dart';
 import 'package:horus_system/features/trips/data/models/trip_status_history_model.dart';
 import 'package:horus_system/features/trips/data/repositories/trips_repository_impl.dart';
-import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
 
 const testCompanyId = 'company-1';
 const testTripId = 'trip-1';
+
+final testFinancialConfiguration = CurrencyConfiguration.tryCreate(
+  currencyCode: 'AED',
+  fractionDigits: 2,
+)!;
 
 const testTripWriteData = TripWriteData(
   companyId: testCompanyId,
@@ -88,7 +94,7 @@ const testLoadedTripModel = TripModel(
   routeName: 'Dubai -> Abu Dhabi',
 );
 
-const testEmptyLookups = TripFormLookups(
+const testEmptyLookupsModel = TripFormLookupsModel(
   customers: [],
   routes: [],
   drivers: [],
@@ -152,6 +158,8 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   String? lastOpenTripTrailerId;
   String? lastOpenTripExcludingTripId;
   TripStatus? lastHistoryOldStatus;
+  CurrencyConfiguration? lastCreateFinancialConfiguration;
+  CurrencyConfiguration? lastSaveFinancialConfiguration;
 
   FakeTripsRemoteDataSource({
     this.currentModel = testCreatedTripModel,
@@ -187,18 +195,22 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   }
 
   @override
-  Future<TripFormLookups> getTripFormLookups({
+  Future<TripFormLookupsModel> getTripFormLookups({
     required String companyId,
   }) async {
     events.add('lookups');
     lastLookupsCompanyId = companyId;
     _throwIfNeeded(TripDataOperation.lookups);
-    return testEmptyLookups;
+    return testEmptyLookupsModel;
   }
 
   @override
-  Future<TripModel> createTrip({required TripWriteData data}) async {
+  Future<TripModel> createTrip({
+    required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async {
     events.add('create');
+    lastCreateFinancialConfiguration = financialConfiguration;
     _throwIfNeeded(TripDataOperation.create);
     return currentModel;
   }
@@ -207,8 +219,10 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   Future<TripModel> saveTrip({
     required String id,
     required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     events.add('save');
+    lastSaveFinancialConfiguration = financialConfiguration;
     _throwIfNeeded(TripDataOperation.save);
     return currentModel;
   }
