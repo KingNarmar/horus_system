@@ -6,21 +6,16 @@ import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
-import '../../../expenses/domain/entities/trip_expense.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
-import '../helpers/trip_formatters.dart';
+import '../../../expense_types/domain/policies/expense_type_semantics.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../localization/trips_localizations_x.dart';
 
 class TripExpenseFormDialog extends StatefulWidget {
-  final String title;
-  final TripExpense? expense;
   final List<ExpenseType> expenseTypes;
   final Object? expenseTypesFailure;
   final Future<void> Function(TripExpenseFormData data) onSubmit;
 
   const TripExpenseFormDialog({
-    required this.title,
-    required this.expense,
     required this.expenseTypes,
     required this.expenseTypesFailure,
     required this.onSubmit,
@@ -35,34 +30,27 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   static final RegExp _datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
 
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
+  late final TextEditingController _descriptionController;
   late final TextEditingController _amountController;
   late final TextEditingController _dateController;
   late final TextEditingController _notesController;
-  late TripExpensePaidBy _paidBy;
+  ExpenseFundingSource _fundingSource = ExpenseFundingSource.company;
   String? _expenseTypeId;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    final expense = widget.expense;
-    _expenseTypeId = expense?.expenseTypeId;
-    _paidBy = expense?.paidBy ?? TripExpensePaidBy.company;
-    _nameController = TextEditingController(text: expense?.expenseName ?? '');
-    _amountController = TextEditingController(
-      text: expense == null ? '' : TripFormatters.number(expense.amount, ''),
-    );
-    final initialDate =
-        expense?.expenseDate ??
-        BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    _descriptionController = TextEditingController();
+    _amountController = TextEditingController();
+    final initialDate = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
     _dateController = TextEditingController(text: _dateOnly(initialDate));
-    _notesController = TextEditingController(text: expense?.notes ?? '');
+    _notesController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _descriptionController.dispose();
     _amountController.dispose();
     _dateController.dispose();
     _notesController.dispose();
@@ -73,10 +61,11 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final selectedType = _selectedType();
-    final isOther = _isOtherExpenseType(selectedType?.name);
+    final requiresDescription = selectedType != null &&
+        ExpenseTypeSemantics.requiresDescription(selectedType);
 
     return AlertDialog(
-      title: Text(widget.title),
+      title: Text(l10n.tripAddExpenseTitle),
       content: SizedBox(
         width: AppSizes.formDialogMaxWidth,
         child: Form(
@@ -91,21 +80,21 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 DropdownButtonFormField<String>(
-                  initialValue: _dropdownValue(),
+                  initialValue: _expenseTypeId,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpenseTypeLabel,
                   ),
                   items: widget.expenseTypes.map((type) {
                     return DropdownMenuItem<String>(
                       value: type.id,
-                      child: Text(l10n.tripExpenseTypeName(type.name)),
+                      child: Text(l10n.tripExpenseTypeLabel(type)),
                     );
                   }).toList(),
                   validator: (value) =>
                       value == null ? l10n.tripExpenseTypeRequired : null,
                   onChanged: widget.expenseTypes.isEmpty
                       ? null
-                      : (value) => _onExpenseTypeChanged(value),
+                      : (value) => setState(() => _expenseTypeId = value),
                 ),
                 if (widget.expenseTypes.isEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
@@ -114,10 +103,10 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                     child: Text(l10n.tripExpenseTypesUnavailable),
                   ),
                 ],
-                if (isOther) ...[
+                if (requiresDescription) ...[
                   const SizedBox(height: AppSpacing.md),
                   TextFormField(
-                    controller: _nameController,
+                    controller: _descriptionController,
                     decoration: InputDecoration(
                       labelText: l10n.tripExpenseNameLabel,
                     ),
@@ -135,27 +124,28 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  validator: (value) {
-                    final amount = double.tryParse((value ?? '').trim());
-                    return amount == null || amount <= 0
-                        ? l10n.tripExpenseAmountPositive
-                        : null;
-                  },
+                  validator: (value) => (value ?? '').trim().isEmpty
+                      ? l10n.tripExpenseAmountPositive
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                DropdownButtonFormField<TripExpensePaidBy>(
-                  initialValue: _paidBy,
+                DropdownButtonFormField<ExpenseFundingSource>(
+                  initialValue: _fundingSource,
                   decoration: InputDecoration(
                     labelText: l10n.tripExpensePaidByLabel,
                   ),
-                  items: TripExpensePaidBy.values.map((paidBy) {
-                    return DropdownMenuItem<TripExpensePaidBy>(
-                      value: paidBy,
-                      child: Text(l10n.tripExpensePaidByValueLabel(paidBy)),
+                  items: ExpenseFundingSource.values.map((fundingSource) {
+                    return DropdownMenuItem<ExpenseFundingSource>(
+                      value: fundingSource,
+                      child: Text(
+                        l10n.tripExpenseFundingSourceLabel(fundingSource),
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
-                    if (value != null) setState(() => _paidBy = value);
+                    if (value != null) {
+                      setState(() => _fundingSource = value);
+                    }
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -194,38 +184,25 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     );
   }
 
-  void _onExpenseTypeChanged(String? value) {
-    final selected = _findType(value);
-    setState(() {
-      _expenseTypeId = value;
-      if (!_isOtherExpenseType(selected?.name)) {
-        _nameController.text = selected?.name ?? '';
-      } else {
-        _nameController.clear();
-      }
-    });
-  }
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final selectedType = _selectedType();
     if (selectedType == null) return;
 
-    final amount = double.parse(_amountController.text.trim());
-    final expenseDate = _parseDate(_dateController.text)!;
-    final expenseName = _isOtherExpenseType(selectedType.name)
-        ? _nameController.text.trim()
-        : selectedType.name;
+    final expenseDate = _parseDate(_dateController.text);
+    if (expenseDate == null) return;
 
     setState(() => _isSaving = true);
     await widget.onSubmit(
       TripExpenseFormData(
-        expenseTypeId: selectedType.id,
-        expenseName: expenseName,
-        amount: amount,
-        paidBy: _paidBy,
+        expenseType: selectedType,
+        amountInput: _amountController.text.trim(),
+        fundingSource: _fundingSource,
         expenseDate: expenseDate,
+        description: ExpenseTypeSemantics.requiresDescription(selectedType)
+            ? _descriptionController.text.trim()
+            : null,
         notes: _notesController.text.trim(),
       ),
     );
@@ -235,16 +212,8 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     Navigator.of(context).pop();
   }
 
-  String? _dropdownValue() {
-    final value = _expenseTypeId;
-    if (value == null) return null;
-    if (widget.expenseTypes.any((type) => type.id == value)) return value;
-    return null;
-  }
-
-  ExpenseType? _selectedType() => _findType(_expenseTypeId);
-
-  ExpenseType? _findType(String? id) {
+  ExpenseType? _selectedType() {
+    final id = _expenseTypeId;
     if (id == null) return null;
     for (final type in widget.expenseTypes) {
       if (type.id == id) return type;
@@ -270,25 +239,20 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
   }
 }
 
-bool _isOtherExpenseType(String? name) {
-  final normalized = name?.trim().toLowerCase().replaceAll(' ', '_');
-  return normalized == 'other' || normalized == 'أخرى' || normalized == 'اخرى';
-}
-
-class TripExpenseFormData {
-  final String? expenseTypeId;
-  final String expenseName;
-  final double amount;
-  final TripExpensePaidBy paidBy;
+final class TripExpenseFormData {
+  final ExpenseType expenseType;
+  final String amountInput;
+  final ExpenseFundingSource fundingSource;
   final BusinessDate expenseDate;
+  final String? description;
   final String? notes;
 
   const TripExpenseFormData({
-    required this.expenseTypeId,
-    required this.expenseName,
-    required this.amount,
-    required this.paidBy,
+    required this.expenseType,
+    required this.amountInput,
+    required this.fundingSource,
     required this.expenseDate,
-    required this.notes,
+    this.description,
+    this.notes,
   });
 }

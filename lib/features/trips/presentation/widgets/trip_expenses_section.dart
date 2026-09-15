@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../expenses/domain/entities/trip_expense.dart';
+import '../../../expense_types/domain/entities/expense_type.dart';
+import '../../../expenses/domain/entities/expense_ledger_entry.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
@@ -33,7 +34,11 @@ class TripExpensesSection extends StatelessWidget {
     }
 
     final failure = loaded.expensesFailure;
-    if (failure != null) return TripDetailsFailureCard(failure: failure);
+    if (failure != null) {
+      return TripDetailsCard(
+        children: [Text(l10n.tripExpenseFailureMessage(failure))],
+      );
+    }
 
     return TripDetailsCard(
       children: [
@@ -49,13 +54,13 @@ class TripExpensesSection extends StatelessWidget {
           for (final expense in loaded.selectedTripExpenses)
             _TripExpenseTile(
               expense: expense,
-              canEdit: loaded.canManageTripExpenses,
-              onEdit: () => _showExpenseForm(
-                context,
-                trip: trip,
-                state: loaded,
-                expense: expense,
+              expenseType: _findExpenseType(
+                loaded.expenseTypes,
+                expense.expenseTypeId,
               ),
+              canVoid: loaded.canManageTripExpenses,
+              isMutating: loaded.isTripExpenseMutating,
+              onVoid: () => _confirmVoid(context, expense),
             ),
       ],
     );
@@ -65,10 +70,8 @@ class TripExpensesSection extends StatelessWidget {
     BuildContext context, {
     required TripEntity trip,
     required TripsLoaded state,
-    TripExpense? expense,
   }) {
     final cubit = context.read<TripsCubit>();
-    final l10n = context.l10n;
 
     return showDialog<void>(
       context: context,
@@ -76,21 +79,16 @@ class TripExpensesSection extends StatelessWidget {
         return BlocProvider.value(
           value: cubit,
           child: TripExpenseFormDialog(
-            title: expense == null
-                ? l10n.tripAddExpenseTitle
-                : l10n.tripEditExpenseTitle,
-            expense: expense,
-            expenseTypes: state.expenseTypes,
+            expenseTypes: state.selectableExpenseTypes,
             expenseTypesFailure: state.expenseTypesFailure,
             onSubmit: (data) {
-              return cubit.saveTripExpense(
-                expense: expense,
+              return cubit.createTripExpense(
                 tripId: trip.id,
-                expenseTypeId: data.expenseTypeId,
-                expenseName: data.expenseName,
-                amount: data.amount,
-                paidBy: data.paidBy,
+                expenseType: data.expenseType,
+                amountInput: data.amountInput,
+                fundingSource: data.fundingSource,
                 expenseDate: data.expenseDate,
+                description: data.description,
                 notes: data.notes,
               );
             },
@@ -98,6 +96,64 @@ class TripExpensesSection extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _confirmVoid(
+    BuildContext context,
+    ExpenseLedgerEntry expense,
+  ) async {
+    final cubit = context.read<TripsCubit>();
+    final reasonController = TextEditingController();
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          final l10n = dialogContext.l10n;
+          return AlertDialog(
+            title: Text(l10n.tripExpensesTitle),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.voidCompanyExpenseMessage),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: reasonController,
+                  decoration: InputDecoration(labelText: l10n.voidReasonLabel),
+                  maxLines: 2,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(l10n.cancelButton),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(l10n.confirmButton),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed != true || !context.mounted) return;
+
+      final reason = reasonController.text.trim();
+      await cubit.voidTripExpense(
+        expense: expense,
+        reason: reason.isEmpty ? null : reason,
+      );
+    } finally {
+      reasonController.dispose();
+    }
+  }
+
+  ExpenseType? _findExpenseType(List<ExpenseType> types, String id) {
+    for (final type in types) {
+      if (type.id == id) return type;
+    }
+    return null;
   }
 }
 
@@ -139,7 +195,7 @@ class _TripExpensesHeader extends StatelessWidget {
         ),
         if (state.canManageTripExpenses)
           FilledButton.icon(
-            onPressed: state.isTripExpenseSaving ? null : onAdd,
+            onPressed: state.isTripExpenseMutating ? null : onAdd,
             icon: const Icon(AppIcons.add),
             label: Text(l10n.tripAddExpenseButton),
           ),
@@ -149,28 +205,31 @@ class _TripExpensesHeader extends StatelessWidget {
 }
 
 class _TripExpenseTile extends StatelessWidget {
-  final TripExpense expense;
-  final bool canEdit;
-  final VoidCallback onEdit;
+  final ExpenseLedgerEntry expense;
+  final ExpenseType? expenseType;
+  final bool canVoid;
+  final bool isMutating;
+  final VoidCallback onVoid;
 
   const _TripExpenseTile({
     required this.expense,
-    required this.canEdit,
-    required this.onEdit,
+    required this.expenseType,
+    required this.canVoid,
+    required this.isMutating,
+    required this.onVoid,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final typeName = TripFormatters.optionalText(
-      expense.expenseTypeName,
-      l10n.tripEmptyValue,
-    );
+    final description = expense.description?.trim();
+    final typeLabel = expenseType == null
+        ? l10n.tripEmptyValue
+        : l10n.tripExpenseTypeLabel(expenseType!);
+    final title = description == null || description.isEmpty
+        ? typeLabel
+        : description;
     final notes = expense.notes?.trim();
-    final expenseName = l10n.tripExpenseTypeName(expense.expenseName);
-    final localizedTypeName = typeName == l10n.tripEmptyValue
-        ? typeName
-        : l10n.tripExpenseTypeName(typeName);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -181,27 +240,35 @@ class _TripExpenseTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(expenseName),
+                Text(title),
                 Text(
                   TripFormatters.businessDate(
                     expense.expenseDate,
                     l10n.tripEmptyValue,
                   ),
                 ),
-                Text(l10n.tripExpensePaidByValueLabel(expense.paidBy)),
-                if (localizedTypeName != l10n.tripEmptyValue)
-                  Text('${l10n.tripExpenseTypeLabel}: $localizedTypeName'),
+                Text(
+                  l10n.tripExpenseFundingSourceLabel(expense.fundingSource),
+                ),
+                if (typeLabel != l10n.tripEmptyValue && title != typeLabel)
+                  Text('${l10n.tripExpenseTypeLabel}: $typeLabel'),
                 if (notes != null && notes.isNotEmpty)
                   Text('${l10n.tripNotesLabel}: $notes'),
               ],
             ),
           ),
-          Text(TripFormatters.money(expense.amount, l10n.tripEmptyValue)),
-          if (canEdit)
+          Text(
+            TripFormatters.moneyMinorUnits(
+              expense.amount.minorUnits,
+              expense.currencyFractionDigits,
+              l10n.tripEmptyValue,
+            ),
+          ),
+          if (canVoid)
             IconButton(
-              tooltip: l10n.tripEditButton,
-              onPressed: onEdit,
-              icon: const Icon(AppIcons.edit),
+              tooltip: l10n.voidCompanyExpenseButton,
+              onPressed: isMutating ? null : onVoid,
+              icon: const Icon(AppIcons.deactivate),
             ),
         ],
       ),
