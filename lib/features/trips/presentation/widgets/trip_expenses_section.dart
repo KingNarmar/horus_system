@@ -115,7 +115,7 @@ class TripExpensesSection extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(l10n.voidCompanyExpenseMessage),
+                Text(l10n.tripExpenseVoidMessage),
                 const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: reasonController,
@@ -264,7 +264,7 @@ class _TripExpenseTile extends StatelessWidget {
           ),
           if (canVoid)
             IconButton(
-              tooltip: l10n.voidCompanyExpenseButton,
+              tooltip: l10n.tripExpenseVoidButton,
               onPressed: isMutating ? null : onVoid,
               icon: const Icon(AppIcons.deactivate),
             ),

@@ -39,6 +39,21 @@ void main() {
       expect(en.tripRetryButton, 'Retry');
       expect(ar.tripRetryButton, 'إعادة المحاولة');
 
+      expect(en.tripExpenseVoidedStatus, 'Voided');
+      expect(ar.tripExpenseVoidedStatus, 'ملغى');
+
+      expect(en.tripExpenseVoidButton, 'Void');
+      expect(ar.tripExpenseVoidButton, 'إلغاء');
+
+      expect(
+        en.tripExpenseVoidMessage,
+        'Do you want to void this expense? It will remain in the history as voided.',
+      );
+      expect(
+        ar.tripExpenseVoidMessage,
+        'هل تريد إلغاء هذا المصروف؟ سيتم الاحتفاظ به في السجل كملغى.',
+      );
+
       expect(en.tripUnknownUser, 'Unknown user');
       expect(ar.tripUnknownUser, 'مستخدم غير معروف');
     });
@@ -192,6 +207,7 @@ void main() {
         'status_changed': 'Status changed',
         'deactivated': 'Deactivated',
         'reactivated': 'Reactivated',
+        'voided': 'Voided',
       };
 
       final expectedAr = <String, String>{
@@ -200,6 +216,7 @@ void main() {
         'status_changed': 'تم تغيير الحالة',
         'deactivated': 'تم إلغاء التفعيل',
         'reactivated': 'تمت إعادة التفعيل',
+        'voided': 'ملغى',
       };
 
       for (final entry in expectedEn.entries) {

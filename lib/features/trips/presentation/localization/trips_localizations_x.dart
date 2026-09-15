@@ -14,6 +14,10 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripCancelButton => cancelButton;
   String get tripRetryButton => retryButton;
 
+  String get tripExpenseVoidedStatus => companyExpenseVoidedStatus;
+  String get tripExpenseVoidButton => voidCompanyExpenseButton;
+  String get tripExpenseVoidMessage => voidCompanyExpenseMessage;
+
   String _bidiIsolate(String value) => '\u2068$value\u2069';
 
   String tripDetailsTitle(String name) {
@@ -76,13 +80,13 @@ extension TripsLocalizationsX on AppLocalizations {
       ExpenseLedgerFailureCodes.validationDescriptionRequired =>
         failureValidationTripExpenseNameRequired,
       ExpenseLedgerFailureCodes.validationAmountInvalid =>
-        companyExpenseAmountInvalid,
+        tripExpenseAmountPositive,
       ExpenseLedgerFailureCodes.validationAttributionInvalid =>
         failureValidationTripIdRequired,
       ExpenseLedgerFailureCodes.expenseTypeUnavailable =>
         tripExpenseTypesUnavailable,
       ExpenseLedgerFailureCodes.conflictAlreadyVoided =>
-        companyExpenseVoidedStatus,
+        tripExpenseVoidedStatus,
       ExpenseLedgerFailureCodes.serverError => failureServerError,
       ExpenseLedgerFailureCodes.unexpectedError => failureUnexpectedError,
       _ => failureUnexpectedError,
@@ -128,7 +132,7 @@ extension TripsLocalizationsX on AppLocalizations {
       'status_changed' => tripAuditActionStatusChanged,
       'deactivated' => tripAuditActionDeactivated,
       'reactivated' => tripAuditActionReactivated,
-      'voided' => companyExpenseVoidedStatus,
+      'voided' => tripExpenseVoidedStatus,
       _ => action,
     };
   }
