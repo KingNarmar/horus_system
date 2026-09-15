@@ -1,1 +1,7 @@
-enum ExpenseFundingSource { company, driverAdvance, driverCash, customer, other }
+enum ExpenseFundingSource {
+  company,
+  driverAdvance,
+  driverCash,
+  customer,
+  other,
+}

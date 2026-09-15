@@ -8,9 +8,7 @@ abstract class ExpenseLedgerRepository {
     bool includeVoided = false,
   });
 
-  Future<Result<ExpenseLedgerEntry>> createEntry(
-    ExpenseLedgerWriteData data,
-  );
+  Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data);
 
   Future<Result<ExpenseLedgerEntry>> voidEntry({
     required String companyId,

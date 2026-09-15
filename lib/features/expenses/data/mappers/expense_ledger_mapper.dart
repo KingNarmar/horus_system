@@ -50,7 +50,9 @@ extension ExpenseLedgerWriteDataMapper on ExpenseLedgerWriteData {
       ExpenseLedgerRpcConstants.currencyCode: amount.currency.value,
       ExpenseLedgerRpcConstants.currencyFractionDigits: currencyFractionDigits,
       ExpenseLedgerRpcConstants.expenseDate: _businessDateToIso(expenseDate),
-      ExpenseLedgerRpcConstants.fundingSource: _fundingSourceToDb(fundingSource),
+      ExpenseLedgerRpcConstants.fundingSource: _fundingSourceToDb(
+        fundingSource,
+      ),
       ExpenseLedgerRpcConstants.tripId: attribution.tripId,
       ExpenseLedgerRpcConstants.driverId: attribution.driverId,
       ExpenseLedgerRpcConstants.tractorHeadId: attribution.tractorHeadId,

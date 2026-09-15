@@ -11,7 +11,8 @@ abstract final class ExpenseLedgerFailureCodes {
   static const financialConfigurationRequired =
       'expense_ledger_financial_configuration_required';
   static const currencyMismatch = 'expense_ledger_currency_mismatch';
-  static const expenseTypeUnavailable = 'expense_ledger_expense_type_unavailable';
+  static const expenseTypeUnavailable =
+      'expense_ledger_expense_type_unavailable';
   static const notFound = 'expense_ledger_not_found';
   static const conflictAlreadyVoided = 'expense_ledger_already_voided';
   static const serverError = 'expense_ledger_server_error';

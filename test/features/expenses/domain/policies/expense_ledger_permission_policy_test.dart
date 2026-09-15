@@ -16,7 +16,10 @@ void main() {
         expect(ExpenseLedgerPermissionPolicy.canView(role), isTrue);
       }
 
-      expect(ExpenseLedgerPermissionPolicy.canView(CompanyRole.driver), isFalse);
+      expect(
+        ExpenseLedgerPermissionPolicy.canView(CompanyRole.driver),
+        isFalse,
+      );
     });
 
     test('allows operations to manage trip expenses only', () {
@@ -36,28 +39,31 @@ void main() {
       );
     });
 
-    test('allows owner admin accountant to manage all expense attributions', () {
-      for (final role in [
-        CompanyRole.owner,
-        CompanyRole.admin,
-        CompanyRole.accountant,
-      ]) {
-        expect(
-          ExpenseLedgerPermissionPolicy.canManage(
-            role,
-            attribution: const ExpenseAttribution(),
-          ),
-          isTrue,
-        );
-        expect(
-          ExpenseLedgerPermissionPolicy.canManage(
-            role,
-            attribution: const ExpenseAttribution(tripId: 'trip-1'),
-          ),
-          isTrue,
-        );
-      }
-    });
+    test(
+      'allows owner admin accountant to manage all expense attributions',
+      () {
+        for (final role in [
+          CompanyRole.owner,
+          CompanyRole.admin,
+          CompanyRole.accountant,
+        ]) {
+          expect(
+            ExpenseLedgerPermissionPolicy.canManage(
+              role,
+              attribution: const ExpenseAttribution(),
+            ),
+            isTrue,
+          );
+          expect(
+            ExpenseLedgerPermissionPolicy.canManage(
+              role,
+              attribution: const ExpenseAttribution(tripId: 'trip-1'),
+            ),
+            isTrue,
+          );
+        }
+      },
+    );
 
     test('denies viewer and driver mutation access', () {
       for (final role in [CompanyRole.viewer, CompanyRole.driver]) {

@@ -32,7 +32,9 @@ void main() {
     test('rejects missing company financial configuration', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
-        _params(company: const Company(id: 'company-1', name: 'Horus')),
+        _params(
+          company: const Company(id: 'company-1', name: 'Horus'),
+        ),
       );
 
       expect(
