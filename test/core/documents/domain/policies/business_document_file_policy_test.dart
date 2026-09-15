@@ -37,10 +37,7 @@ void main() {
     test('rejects empty files', () {
       final failure = policy.validate(file(name: 'contract.pdf', size: 0));
 
-      expect(
-        failure?.code,
-        BusinessDocumentFailureCodes.validationFileEmpty,
-      );
+      expect(failure?.code, BusinessDocumentFailureCodes.validationFileEmpty);
     });
 
     test('rejects files above the canonical size limit', () {

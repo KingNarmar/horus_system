@@ -58,8 +58,8 @@ final class SupabaseBusinessDocumentStorageRemoteDataSource
 
   @override
   Future<void> delete({required String objectKey}) async {
-    await client.storage
-        .from(BusinessDocumentStorageConstants.bucket)
-        .remove([objectKey]);
+    await client.storage.from(BusinessDocumentStorageConstants.bucket).remove([
+      objectKey,
+    ]);
   }
 }

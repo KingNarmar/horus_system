@@ -84,10 +84,7 @@ void main() {
       const reference = BusinessDocumentReference(objectKey);
 
       expect(
-        builder.validateReference(
-          companyId: companyId,
-          reference: reference,
-        ),
+        builder.validateReference(companyId: companyId, reference: reference),
         isNull,
       );
       expect(

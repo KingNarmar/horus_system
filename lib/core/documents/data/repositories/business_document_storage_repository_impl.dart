@@ -51,9 +51,7 @@ final class BusinessDocumentStorageRepositoryImpl
     final contentType = filePolicy.contentTypeFor(file);
     if (contentType == null) {
       return const FailureResult<BusinessDocumentReference>(
-        UnexpectedFailure(
-          code: BusinessDocumentFailureCodes.unexpectedError,
-        ),
+        UnexpectedFailure(code: BusinessDocumentFailureCodes.unexpectedError),
       );
     }
 
@@ -91,9 +89,7 @@ final class BusinessDocumentStorageRepositoryImpl
     }
 
     try {
-      final bytes = await remoteDataSource.download(
-        objectKey: reference.value,
-      );
+      final bytes = await remoteDataSource.download(objectKey: reference.value);
       return Success<Uint8List>(bytes);
     } on StorageException catch (error) {
       return FailureResult<Uint8List>(failureMapper.fromStorage(error));

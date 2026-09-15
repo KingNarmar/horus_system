@@ -64,9 +64,7 @@ final class BusinessDocumentObjectPathBuilder {
     final token = _tokenFactory().trim().toLowerCase();
     if (!_tokenPattern.hasMatch(token)) {
       return const FailureResult<String>(
-        UnexpectedFailure(
-          code: BusinessDocumentFailureCodes.unexpectedError,
-        ),
+        UnexpectedFailure(code: BusinessDocumentFailureCodes.unexpectedError),
       );
     }
 

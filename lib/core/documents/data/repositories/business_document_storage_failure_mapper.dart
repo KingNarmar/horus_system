@@ -18,9 +18,7 @@ final class BusinessDocumentStorageFailureMapper {
     }
 
     if (statusCode == '404') {
-      return const NotFoundFailure(
-        code: BusinessDocumentFailureCodes.notFound,
-      );
+      return const NotFoundFailure(code: BusinessDocumentFailureCodes.notFound);
     }
 
     if (statusCode == '409') {
@@ -43,9 +41,7 @@ final class BusinessDocumentStorageFailureMapper {
       );
     }
 
-    return const ServerFailure(
-      code: BusinessDocumentFailureCodes.storageError,
-    );
+    return const ServerFailure(code: BusinessDocumentFailureCodes.storageError);
   }
 
   Failure fromUnexpected(Object _) {
