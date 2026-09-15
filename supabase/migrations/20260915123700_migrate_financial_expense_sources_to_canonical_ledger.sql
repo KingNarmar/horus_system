@@ -98,6 +98,8 @@ REVOKE ALL ON FUNCTION private.expense_ledger_major_amount(bigint, smallint)
 -- ---------------------------------------------------------------------------
 
 DO $preflight$
+DECLARE
+  v_untyped_trip_expense_count bigint;
 BEGIN
   IF EXISTS (
     SELECT 1
@@ -118,15 +120,31 @@ BEGIN
       MESSAGE = 'legacy_expense_financial_configuration_required';
   END IF;
 
-  -- Existing historical NULL Trip Expense types are allowed only for the
-  -- reviewed legacy "driver food" case. Future NULL writes are rejected by
-  -- the compatibility trigger below; this is not a generic NULL => Other rule.
-  IF EXISTS (
-    SELECT 1
-    FROM public.trip_expenses AS expense_row
-    WHERE expense_row.expense_type_id IS NULL
-      AND pg_catalog.lower(pg_catalog.btrim(expense_row.expense_name)) <> 'driver food'
-  ) THEN
+  -- Existing historical NULL Trip Expense types are allowed only for the one
+  -- explicitly reviewed source row. This is intentionally row-specific and
+  -- must never become a generic name-based NULL => Other fallback.
+  SELECT pg_catalog.count(*)
+  INTO v_untyped_trip_expense_count
+  FROM public.trip_expenses AS expense_row
+  WHERE expense_row.expense_type_id IS NULL;
+
+  IF v_untyped_trip_expense_count > 0
+     AND (
+       v_untyped_trip_expense_count <> 1
+       OR NOT EXISTS (
+         SELECT 1
+         FROM public.trip_expenses AS expense_row
+         WHERE expense_row.id = 'b573d3cc-79a9-4fed-8c3d-7f34be873336'::uuid
+           AND expense_row.company_id = '041a7fc8-3593-41f2-b00f-99643277b18f'::uuid
+           AND expense_row.trip_id = '6103c7ec-fd43-4aad-8bd1-c070b71c9d46'::uuid
+           AND expense_row.expense_type_id IS NULL
+           AND pg_catalog.lower(pg_catalog.btrim(expense_row.expense_name)) = 'driver food'
+           AND expense_row.amount = 1500.00::numeric
+           AND expense_row.paid_by::text = 'company'
+           AND expense_row.expense_date = DATE '2026-06-26'
+           AND expense_row.notes IS NULL
+       )
+     ) THEN
     RAISE EXCEPTION USING
       ERRCODE = '23514',
       MESSAGE = 'legacy_trip_expense_type_unmapped';
@@ -152,8 +170,15 @@ BEGIN
   IF EXISTS (
     SELECT 1
     FROM public.trip_expenses AS expense_row
-    WHERE expense_row.expense_type_id IS NULL
+    WHERE expense_row.id = 'b573d3cc-79a9-4fed-8c3d-7f34be873336'::uuid
+      AND expense_row.company_id = '041a7fc8-3593-41f2-b00f-99643277b18f'::uuid
+      AND expense_row.trip_id = '6103c7ec-fd43-4aad-8bd1-c070b71c9d46'::uuid
+      AND expense_row.expense_type_id IS NULL
       AND pg_catalog.lower(pg_catalog.btrim(expense_row.expense_name)) = 'driver food'
+      AND expense_row.amount = 1500.00::numeric
+      AND expense_row.paid_by::text = 'company'
+      AND expense_row.expense_date = DATE '2026-06-26'
+      AND expense_row.notes IS NULL
       AND NOT EXISTS (
         SELECT 1
         FROM public.expense_types AS type_row
@@ -617,8 +642,15 @@ WITH resolved_trip_expenses AS (
   JOIN public.companies AS company_row
     ON company_row.id = expense_row.company_id
   LEFT JOIN public.expense_types AS other_type
-    ON expense_row.expense_type_id IS NULL
+    ON expense_row.id = 'b573d3cc-79a9-4fed-8c3d-7f34be873336'::uuid
+   AND expense_row.company_id = '041a7fc8-3593-41f2-b00f-99643277b18f'::uuid
+   AND expense_row.trip_id = '6103c7ec-fd43-4aad-8bd1-c070b71c9d46'::uuid
+   AND expense_row.expense_type_id IS NULL
    AND pg_catalog.lower(pg_catalog.btrim(expense_row.expense_name)) = 'driver food'
+   AND expense_row.amount = 1500.00::numeric
+   AND expense_row.paid_by::text = 'company'
+   AND expense_row.expense_date = DATE '2026-06-26'
+   AND expense_row.notes IS NULL
    AND other_type.company_id = expense_row.company_id
    AND other_type.code = 'other'
    AND other_type.ledger_eligible = true
