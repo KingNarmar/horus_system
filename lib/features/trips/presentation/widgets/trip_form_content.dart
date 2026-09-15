@@ -100,7 +100,7 @@ extension _TripFormContent on _TripFormDialogState {
               validator: (value) {
                 return _quantityValid(value ?? '')
                     ? null
-                    : l10n.tripQuantityInvalid;
+                    : l10n.tripNumberInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.md),
@@ -108,13 +108,14 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _agreedFreightRateController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: l10n.tripFreightPriceHeader,
+                labelText:
+                    '${l10n.tripFreightPriceHeader} / ${l10n.tripTonsSuffix}',
                 border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 return _moneyInputValid(value ?? '')
                     ? null
-                    : l10n.tripFreightPriceInvalid;
+                    : l10n.tripNumberInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.md),
@@ -122,7 +123,7 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _scheduledLoadingController,
               decoration: InputDecoration(
                 labelText: l10n.tripScheduledLoadingAtLabel,
-                hintText: l10n.tripDateTimeHint,
+                helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) => _dateTimeValid(value ?? '')
@@ -134,7 +135,7 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _scheduledDeliveryController,
               decoration: InputDecoration(
                 labelText: l10n.tripScheduledDeliveryAtLabel,
-                hintText: l10n.tripDateTimeHint,
+                helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) => _dateTimeValid(value ?? '')
@@ -146,7 +147,7 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _actualLoadingController,
               decoration: InputDecoration(
                 labelText: l10n.tripActualLoadingAtLabel,
-                hintText: l10n.tripDateTimeHint,
+                helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) => _dateTimeValid(value ?? '')
@@ -158,7 +159,7 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _actualDeliveryController,
               decoration: InputDecoration(
                 labelText: l10n.tripActualDeliveryAtLabel,
-                hintText: l10n.tripDateTimeHint,
+                helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) => _dateTimeValid(value ?? '')
