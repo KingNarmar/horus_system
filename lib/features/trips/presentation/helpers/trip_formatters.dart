@@ -1,6 +1,8 @@
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../domain/entities/trip_entity.dart';
+import '../../domain/value_objects/quantity_tons.dart';
 
 abstract final class TripFormatters {
   static String optionalText(String? value, String emptyValue) {
@@ -16,9 +18,28 @@ abstract final class TripFormatters {
     return text.endsWith('.00') ? text.substring(0, text.length - 3) : text;
   }
 
-  static String money(double? value, String emptyValue) {
+  static String legacyMoney(double? value, String emptyValue) {
     if (value == null) return emptyValue;
     return number(value, emptyValue);
+  }
+
+  static String money(
+    Money? value,
+    int? fractionDigits,
+    String emptyValue, {
+    bool includeCurrency = true,
+  }) {
+    if (value == null || fractionDigits == null || fractionDigits < 0) {
+      return emptyValue;
+    }
+
+    final amount = moneyMinorUnits(
+      value.minorUnits,
+      fractionDigits,
+      emptyValue,
+    );
+    if (!includeCurrency) return amount;
+    return '$amount ${value.currency.value}';
   }
 
   static String moneyMinorUnits(
@@ -59,12 +80,13 @@ abstract final class TripFormatters {
   }
 
   static String quantityTons(
-    double? value,
+    QuantityTons? value,
     String emptyValue,
     String tonsSuffix,
   ) {
     if (value == null) return emptyValue;
-    return '${number(value, emptyValue)} $tonsSuffix';
+    final decimal = value.toDecimalString().replaceFirst(RegExp(r'\.?0+$'), '');
+    return '$decimal $tonsSuffix';
   }
 
   static String vehicleText(TripEntity trip, String emptyValue) {

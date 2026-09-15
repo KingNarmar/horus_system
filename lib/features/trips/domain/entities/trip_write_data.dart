@@ -1,3 +1,6 @@
+import '../../../../core/domain/value_objects/money.dart';
+import '../value_objects/quantity_tons.dart';
+
 class TripWriteData {
   final String companyId;
   final String customerId;
@@ -7,8 +10,9 @@ class TripWriteData {
   final String? trailerId;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final QuantityTons? quantityTons;
+  final Money? agreedFreightRatePerTon;
+  final Money? commercialAmount;
   final DateTime? scheduledLoadingAt;
   final DateTime? scheduledDeliveryAt;
   final DateTime? actualLoadingAt;
@@ -25,7 +29,8 @@ class TripWriteData {
     this.loadingOrderNumber,
     this.waybillNumber,
     this.quantityTons,
-    this.freightPrice,
+    this.agreedFreightRatePerTon,
+    this.commercialAmount,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
     this.actualLoadingAt,

@@ -175,6 +175,36 @@ class TripsCubit extends Cubit<TripsState>
     );
   }
 
+  Future<void> _recalculateSelectedTripFinancials() async {
+    final current = state;
+    final trip = current is TripsLoaded ? current.selectedTrip : null;
+    if (current is! TripsLoaded || trip == null) return;
+
+    final result = await calculateTripNetProfitUseCase(
+      CalculateTripNetProfitParams(
+        commercialAmount: trip.commercialAmount,
+        expenses: current.selectedTripExpenses
+            .where((expense) => !expense.isVoided)
+            .map((expense) => expense.amount)
+            .toList(),
+      ),
+    );
+
+    final latest = state;
+    if (latest is! TripsLoaded || latest.selectedTrip?.id != trip.id) return;
+
+    result.when(
+      success: (summary) => emit(
+        latest.copyWith(
+          selectedTripTotalExpenses: summary.totalExpenses,
+          selectedTripNetProfit: summary.netProfit,
+          detailsFailure: null,
+        ),
+      ),
+      failure: (failure) => emit(latest.copyWith(detailsFailure: failure)),
+    );
+  }
+
   void _upsertTrip(
     TripEntity trip, {
     TripBusinessLocalTimestamps? businessLocalTimestamps,

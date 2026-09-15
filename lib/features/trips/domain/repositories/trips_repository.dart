@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/trip_entity.dart';
 import '../entities/trip_form_lookups.dart';
@@ -6,26 +7,33 @@ import '../entities/trip_status_history.dart';
 import '../entities/trip_write_data.dart';
 
 abstract class TripsRepository {
-  Future<Result<List<TripEntity>>> getTrips({required String companyId});
+  Future<Result<List<TripEntity>>> getTrips({
+    required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
+  });
 
   Future<Result<TripEntity>> getTripDetails({
     required String companyId,
     required String id,
+    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<TripFormLookups>> getTripFormLookups({
     required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<TripEntity>> saveTrip({
     required String id,
     required TripWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<TripEntity>> updateTripStatus({
@@ -33,6 +41,7 @@ abstract class TripsRepository {
     required String id,
     required TripStatus newStatus,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
     String? notes,
   });
 

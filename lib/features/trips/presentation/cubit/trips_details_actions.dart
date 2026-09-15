@@ -9,6 +9,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     emit(
       current.copyWith(
         selectedTrip: trip,
+        selectedTripTotalExpenses: null,
         selectedTripNetProfit: null,
         selectedTripActivity: const [],
         selectedTripActivityBusinessTimesById: const {},
@@ -39,6 +40,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       emit(
         current.copyWith(
           selectedTrip: null,
+          selectedTripTotalExpenses: null,
           selectedTripNetProfit: null,
           selectedTripActivity: const [],
           selectedTripActivityBusinessTimesById: const {},
@@ -56,19 +58,6 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         ),
       );
     }
-  }
-
-  Future<Result<double>> calculateNetProfit({
-    required double? freightPrice,
-    required double? totalExpenses,
-  }) {
-    final owner = this as TripsCubit;
-    return owner.calculateTripNetProfitUseCase(
-      CalculateTripNetProfitParams(
-        freightPrice: freightPrice,
-        totalExpenses: totalExpenses,
-      ),
-    );
   }
 
   Future<void> _loadSelectedTripDetails(TripEntity trip) async {
@@ -105,25 +94,23 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         return;
       }
 
-      final netProfit = await _calculateSelectedTripNetProfit(details);
-      final currentAfterCalculation = state;
-      if (currentAfterCalculation is! TripsLoaded) return;
+      final currentAfterProjection = state;
+      if (currentAfterProjection is! TripsLoaded) return;
       final localTimestamps = {
-        ...currentAfterCalculation.businessLocalTimestampsByTripId,
+        ...currentAfterProjection.businessLocalTimestampsByTripId,
         details.id:
             (localTimestampsResult as Success<TripBusinessLocalTimestamps>)
                 .data,
       };
 
       emit(
-        currentAfterCalculation.copyWith(
+        currentAfterProjection.copyWith(
           selectedTrip: details,
-          selectedTripNetProfit: netProfit,
           businessLocalTimestampsByTripId: localTimestamps,
           isDetailsLoading: false,
           detailsFailure: null,
           allTrips: _upsertTripInList(
-            currentAfterCalculation.allTrips,
+            currentAfterProjection.allTrips,
             details,
           ),
         ),
@@ -261,17 +248,5 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         activityFailure: null,
       ),
     );
-  }
-
-  Future<double?> _calculateSelectedTripNetProfit(TripEntity trip) async {
-    final owner = this as TripsCubit;
-    final result = await owner.calculateTripNetProfitUseCase(
-      CalculateTripNetProfitParams(
-        freightPrice: trip.freightPrice,
-        totalExpenses: trip.totalExpenses,
-      ),
-    );
-
-    return result.dataOrNull;
   }
 }

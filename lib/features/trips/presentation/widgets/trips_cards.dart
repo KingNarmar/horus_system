@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_entity.dart';
 import 'trip_card.dart';
 
@@ -8,6 +9,7 @@ class TripsCards extends StatelessWidget {
   static const double _twoColumnsBreakpoint = 1100;
 
   final List<TripEntity> trips;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -18,6 +20,7 @@ class TripsCards extends StatelessWidget {
 
   const TripsCards({
     required this.trips,
+    required this.financialConfiguration,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
@@ -48,6 +51,7 @@ class TripsCards extends StatelessWidget {
                   width: cardWidth,
                   child: TripCard(
                     trip: trip,
+                    financialConfiguration: financialConfiguration,
                     canManageTrips: canManageTrips,
                     canUpdateTripStatus: canUpdateTripStatus,
                     canViewTripFinancials: canViewTripFinancials,

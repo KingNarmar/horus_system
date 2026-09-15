@@ -8,6 +8,7 @@ import '../entities/trip_status.dart';
 import '../entities/trip_status_history.dart';
 import '../policies/trips_permission_policy.dart';
 import '../repositories/trips_repository.dart';
+import 'trip_financial_configuration.dart';
 import 'trip_usecase_params.dart';
 import 'trip_write_validation.dart';
 
@@ -40,9 +41,11 @@ class UpdateTripStatusUseCase
       );
     }
 
+    final financialConfiguration = tripFinancialConfiguration(context);
     final currentTripResult = await _repository.getTripDetails(
       companyId: context.companyId,
       id: id,
+      financialConfiguration: financialConfiguration,
     );
 
     if (currentTripResult is FailureResult<TripEntity>) {
@@ -65,6 +68,7 @@ class UpdateTripStatusUseCase
       id: id,
       newStatus: params.newStatus,
       actorRole: context.role.value,
+      financialConfiguration: financialConfiguration,
       notes: optionalTripText(params.notes),
     );
   }

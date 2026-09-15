@@ -12,7 +12,10 @@ abstract final class TripDbFields {
   static const loadingOrderNumber = 'loading_order_number';
   static const waybillNumber = 'waybill_number';
   static const quantityTons = 'quantity_tons';
-  static const freightPrice = 'freight_price';
+  static const agreedFreightRatePerTon = 'agreed_freight_rate_per_ton';
+
+  // Physical DB name retained for invoice/report compatibility.
+  static const commercialAmount = 'freight_price';
   static const totalExpenses = 'total_expenses';
   static const scheduledLoadingAt = 'scheduled_loading_at';
   static const scheduledDeliveryAt = 'scheduled_delivery_at';
@@ -39,10 +42,10 @@ abstract final class TripDbFields {
   static const allColumns =
       '${DbCommonFields.id}, ${DbCommonFields.companyId}, $customerId, $routeId, '
       '$driverId, $tractorHeadId, $trailerId, $status, $loadingOrderNumber, '
-      '$waybillNumber, $quantityTons, $freightPrice, $totalExpenses, '
-      '$scheduledLoadingAt, $scheduledDeliveryAt, $actualLoadingAt, '
-      '$actualDeliveryAt, $notes, ${DbCommonFields.createdAt}, '
-      '${DbCommonFields.updatedAt}, '
+      '$waybillNumber, $quantityTons, $agreedFreightRatePerTon, '
+      '$commercialAmount, $totalExpenses, $scheduledLoadingAt, '
+      '$scheduledDeliveryAt, $actualLoadingAt, $actualDeliveryAt, $notes, '
+      '${DbCommonFields.createdAt}, ${DbCommonFields.updatedAt}, '
       '${TripLookupDbFields.customersTableName}!trips_company_customer_fk'
       '(${TripLookupDbFields.name}), '
       '${TripLookupDbFields.routesTableName}!trips_company_route_fk'
@@ -86,7 +89,9 @@ abstract final class TripLookupDbFields {
   static const plateNumber = 'plate_number';
   static const loadingLocation = 'loading_location';
   static const unloadingLocation = 'unloading_location';
+  static const defaultFreightRatePerTon = 'default_freight_price';
 
   static const routeColumns =
-      '${DbCommonFields.id}, $loadingLocation, $unloadingLocation';
+      '${DbCommonFields.id}, $loadingLocation, $unloadingLocation, '
+      '$defaultFreightRatePerTon';
 }

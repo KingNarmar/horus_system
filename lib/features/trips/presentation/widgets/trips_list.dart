@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_entity.dart';
 import 'trips_cards.dart';
 import 'trips_table.dart';
 
 class TripsList extends StatelessWidget {
   final List<TripEntity> trips;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -17,6 +19,7 @@ class TripsList extends StatelessWidget {
 
   const TripsList({
     required this.trips,
+    required this.financialConfiguration,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
@@ -34,6 +37,7 @@ class TripsList extends StatelessWidget {
         if (constraints.maxWidth >= AppSizes.desktopMinWidth) {
           return TripsTable(
             trips: trips,
+            financialConfiguration: financialConfiguration,
             canManageTrips: canManageTrips,
             canUpdateTripStatus: canUpdateTripStatus,
             canViewTripFinancials: canViewTripFinancials,
@@ -46,6 +50,7 @@ class TripsList extends StatelessWidget {
 
         return TripsCards(
           trips: trips,
+          financialConfiguration: financialConfiguration,
           canManageTrips: canManageTrips,
           canUpdateTripStatus: canUpdateTripStatus,
           canViewTripFinancials: canViewTripFinancials,

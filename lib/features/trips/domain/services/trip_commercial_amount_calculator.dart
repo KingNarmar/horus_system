@@ -16,7 +16,7 @@ final class TripCommercialAmountCalculator {
         BigInt.from(agreedFreightRatePerTon.minorUnits) *
         BigInt.from(quantityTons.scaledUnits);
     final denominator = BigInt.from(QuantityTons.scale);
-    final halfDenominator = denominator ~/ BigInt.two;
+    final halfDenominator = denominator ~/ BigInt.from(2);
     final roundedMinorUnits = (numerator + halfDenominator) ~/ denominator;
 
     if (roundedMinorUnits > _maxSignedBigInt) return null;

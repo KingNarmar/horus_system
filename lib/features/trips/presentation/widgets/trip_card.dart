@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../helpers/trip_formatters.dart';
@@ -10,6 +11,7 @@ import 'trip_status_chip.dart';
 
 class TripCard extends StatelessWidget {
   final TripEntity trip;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -20,6 +22,7 @@ class TripCard extends StatelessWidget {
 
   const TripCard({
     required this.trip,
+    required this.financialConfiguration,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
@@ -34,6 +37,7 @@ class TripCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final notes = trip.notes?.trim();
+    final fractionDigits = financialConfiguration?.fractionDigits;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -85,7 +89,8 @@ class TripCard extends StatelessWidget {
                   TripInfoText(
                     label: l10n.tripFreightPriceHeader,
                     value: TripFormatters.money(
-                      trip.freightPrice,
+                      trip.agreedFreightRatePerTon,
+                      fractionDigits,
                       l10n.tripEmptyValue,
                     ),
                   ),

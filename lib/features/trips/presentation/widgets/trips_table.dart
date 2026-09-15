@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../helpers/trip_formatters.dart';
@@ -12,6 +13,7 @@ class TripsTable extends StatelessWidget {
   static const double _wideBreakpoint = 1120;
 
   final List<TripEntity> trips;
+  final CurrencyConfiguration? financialConfiguration;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
   final bool canViewTripFinancials;
@@ -22,6 +24,7 @@ class TripsTable extends StatelessWidget {
 
   const TripsTable({
     required this.trips,
+    required this.financialConfiguration,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
     required this.canViewTripFinancials,
@@ -53,6 +56,7 @@ class TripsTable extends StatelessWidget {
                 for (final trip in trips) ...[
                   _TripsTableRow(
                     trip: trip,
+                    financialConfiguration: financialConfiguration,
                     isWide: isWide,
                     canManageTrips: canManageTrips,
                     canUpdateTripStatus: canUpdateTripStatus,
@@ -119,6 +123,7 @@ class _TripsTableHeader extends StatelessWidget {
 
 class _TripsTableRow extends StatelessWidget {
   final TripEntity trip;
+  final CurrencyConfiguration? financialConfiguration;
   final bool isWide;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
@@ -130,6 +135,7 @@ class _TripsTableRow extends StatelessWidget {
 
   const _TripsTableRow({
     required this.trip,
+    required this.financialConfiguration,
     required this.isWide,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
@@ -143,6 +149,7 @@ class _TripsTableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final fractionDigits = financialConfiguration?.fractionDigits;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -223,7 +230,11 @@ class _TripsTableRow extends StatelessWidget {
             ),
             secondLabel: l10n.tripFreightPriceHeader,
             secondValue: canViewTripFinancials
-                ? TripFormatters.money(trip.freightPrice, l10n.tripEmptyValue)
+                ? TripFormatters.money(
+                    trip.agreedFreightRatePerTon,
+                    fractionDigits,
+                    l10n.tripEmptyValue,
+                  )
                 : l10n.tripEmptyValue,
             showSecond: canViewTripFinancials,
             flex: 14,

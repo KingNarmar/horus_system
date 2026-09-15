@@ -6,6 +6,7 @@ import '../entities/trip_entity.dart';
 import '../entities/trip_form_lookups.dart';
 import '../policies/trips_permission_policy.dart';
 import '../repositories/trips_repository.dart';
+import 'trip_financial_configuration.dart';
 import 'trip_usecase_params.dart';
 import 'trip_write_validation.dart';
 
@@ -29,7 +30,10 @@ class GetTripsUseCase implements UseCase<List<TripEntity>, GetTripsParams> {
       );
     }
 
-    return _repository.getTrips(companyId: context.companyId);
+    return _repository.getTrips(
+      companyId: context.companyId,
+      financialConfiguration: tripFinancialConfiguration(context),
+    );
   }
 }
 
@@ -66,7 +70,11 @@ class GetTripDetailsUseCase
       );
     }
 
-    return _repository.getTripDetails(companyId: context.companyId, id: id);
+    return _repository.getTripDetails(
+      companyId: context.companyId,
+      id: id,
+      financialConfiguration: tripFinancialConfiguration(context),
+    );
   }
 }
 
@@ -91,6 +99,9 @@ class GetTripFormLookupsUseCase
       );
     }
 
-    return _repository.getTripFormLookups(companyId: context.companyId);
+    return _repository.getTripFormLookups(
+      companyId: context.companyId,
+      financialConfiguration: tripFinancialConfiguration(context),
+    );
   }
 }

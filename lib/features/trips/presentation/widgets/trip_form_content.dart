@@ -1,42 +1,29 @@
 part of 'trip_form_dialog.dart';
 
-extension _TripFormDialogContent on _TripFormDialogState {
+extension _TripFormContent on _TripFormDialogState {
   Widget _content(BuildContext context) {
     final l10n = context.l10n;
 
     if (widget.isLookupsLoading) {
-      return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: AppSpacing.md),
-            Text(l10n.tripLoadingLookups),
-          ],
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: CircularProgressIndicator(),
         ),
       );
     }
 
-    final failure = widget.lookupsFailure;
-    if (failure != null) {
+    if (widget.lookupsFailure != null) {
       return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Text(l10n.localizedErrorMessage(failure)),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Text(l10n.localizedErrorMessage(widget.lookupsFailure!)),
       );
     }
 
     final lookups = widget.lookups;
-    if (lookups == null) {
+    if (lookups == null || !lookups.hasRequiredLookups) {
       return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Text(l10n.tripLoadingLookups),
-      );
-    }
-
-    if (!lookups.hasRequiredLookups) {
-      return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Text(l10n.tripRequiredLookupsMissing),
       );
     }
@@ -72,7 +59,10 @@ extension _TripFormDialogContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             _optionalDropdown(
               label: l10n.tripTractorHeadLabel,
-              value: _validSelectedValue(_tractorHeadId, lookups.tractorHeads),
+              value: _validSelectedValue(
+                _tractorHeadId,
+                lookups.tractorHeads,
+              ),
               options: lookups.tractorHeads,
               onChanged: _setTractorHeadId,
             ),
@@ -88,39 +78,43 @@ extension _TripFormDialogContent on _TripFormDialogState {
               controller: _loadingOrderController,
               decoration: InputDecoration(
                 labelText: l10n.tripLoadingOrderHeader,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _waybillController,
-              decoration: InputDecoration(labelText: l10n.tripWaybillHeader),
+              decoration: InputDecoration(
+                labelText: l10n.tripWaybillHeader,
+                border: const OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _quantityController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: l10n.tripQuantityHeader,
+                border: const OutlineInputBorder(),
               ),
-              decoration: InputDecoration(labelText: l10n.tripQuantityHeader),
-              validator: (_) {
-                return _nonNegativeNumberValid(_quantityController.text)
+              validator: (value) {
+                return _quantityValid(value ?? '')
                     ? null
-                    : l10n.tripNumberInvalid;
+                    : l10n.tripQuantityInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
-              controller: _freightPriceController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
+              controller: _agreedFreightRateController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: l10n.tripFreightPriceHeader,
+                border: const OutlineInputBorder(),
               ),
-              validator: (_) {
-                return _nonNegativeNumberValid(_freightPriceController.text)
+              validator: (value) {
+                return _moneyInputValid(value ?? '')
                     ? null
-                    : l10n.tripNumberInvalid;
+                    : l10n.tripFreightPriceInvalid;
               },
             ),
             const SizedBox(height: AppSpacing.md),
@@ -128,73 +122,58 @@ extension _TripFormDialogContent on _TripFormDialogState {
               controller: _scheduledLoadingController,
               decoration: InputDecoration(
                 labelText: l10n.tripScheduledLoadingAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
+                hintText: l10n.tripDateTimeHint,
+                border: const OutlineInputBorder(),
               ),
-              validator: (_) {
-                return _dateTimeValid(_scheduledLoadingController.text)
-                    ? null
-                    : l10n.tripDateTimeInvalid;
-              },
+              validator: (value) => _dateTimeValid(value ?? '')
+                  ? null
+                  : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _scheduledDeliveryController,
               decoration: InputDecoration(
                 labelText: l10n.tripScheduledDeliveryAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
+                hintText: l10n.tripDateTimeHint,
+                border: const OutlineInputBorder(),
               ),
-              validator: (_) {
-                if (!_dateTimeValid(_scheduledDeliveryController.text)) {
-                  return l10n.tripDateTimeInvalid;
-                }
-
-                final loading = _parseBusinessLocalDateTime(
-                  _scheduledLoadingController.text,
-                );
-                final delivery = _parseBusinessLocalDateTime(
-                  _scheduledDeliveryController.text,
-                );
-
-                if (loading != null &&
-                    delivery != null &&
-                    delivery.isBefore(loading)) {
-                  return l10n.tripDeliveryBeforeLoadingInvalid;
-                }
-
-                return null;
-              },
+              validator: (value) => _dateTimeValid(value ?? '')
+                  ? null
+                  : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _actualLoadingController,
               decoration: InputDecoration(
                 labelText: l10n.tripActualLoadingAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
+                hintText: l10n.tripDateTimeHint,
+                border: const OutlineInputBorder(),
               ),
-              validator: (_) {
-                return _dateTimeValid(_actualLoadingController.text)
-                    ? null
-                    : l10n.tripDateTimeInvalid;
-              },
+              validator: (value) => _dateTimeValid(value ?? '')
+                  ? null
+                  : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _actualDeliveryController,
               decoration: InputDecoration(
                 labelText: l10n.tripActualDeliveryAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
+                hintText: l10n.tripDateTimeHint,
+                border: const OutlineInputBorder(),
               ),
-              validator: (_) {
-                return _dateTimeValid(_actualDeliveryController.text)
-                    ? null
-                    : l10n.tripDateTimeInvalid;
-              },
+              validator: (value) => _dateTimeValid(value ?? '')
+                  ? null
+                  : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _notesController,
-              maxLines: 3,
-              decoration: InputDecoration(labelText: l10n.tripNotesLabel),
+              minLines: 2,
+              maxLines: 4,
+              decoration: InputDecoration(
+                labelText: l10n.tripNotesLabel,
+                border: const OutlineInputBorder(),
+              ),
             ),
           ],
         ),
@@ -203,9 +182,10 @@ extension _TripFormDialogContent on _TripFormDialogState {
   }
 
   bool get _canSubmit {
+    final lookups = widget.lookups;
     return !widget.isLookupsLoading &&
         widget.lookupsFailure == null &&
-        widget.lookups != null &&
-        widget.lookups!.hasRequiredLookups;
+        lookups != null &&
+        lookups.hasRequiredLookups;
   }
 }

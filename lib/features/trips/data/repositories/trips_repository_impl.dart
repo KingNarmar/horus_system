@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/trip_entity.dart';
@@ -28,10 +29,21 @@ class TripsRepositoryImpl implements TripsRepository {
   }
 
   @override
-  Future<Result<List<TripEntity>>> getTrips({required String companyId}) {
+  Future<Result<List<TripEntity>>> getTrips({
+    required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
+  }) {
     return _guard(() async {
       final models = await remoteDataSource.getTrips(companyId: companyId);
-      return Success(models.map((model) => model.toEntity()).toList());
+      return Success(
+        models
+            .map(
+              (model) => model.toEntity(
+                financialConfiguration: financialConfiguration,
+              ),
+            )
+            .toList(),
+      );
     });
   }
 
@@ -39,6 +51,7 @@ class TripsRepositoryImpl implements TripsRepository {
   Future<Result<TripEntity>> getTripDetails({
     required String companyId,
     required String id,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.getTripById(
@@ -46,20 +59,25 @@ class TripsRepositoryImpl implements TripsRepository {
         id: id,
       );
 
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
   @override
   Future<Result<TripFormLookups>> getTripFormLookups({
     required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
       final lookups = await remoteDataSource.getTripFormLookups(
         companyId: companyId,
       );
 
-      return Success(lookups);
+      return Success(
+        lookups.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
@@ -67,9 +85,13 @@ class TripsRepositoryImpl implements TripsRepository {
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
-      final model = await remoteDataSource.createTrip(data: data);
+      final model = await remoteDataSource.createTrip(
+        data: data,
+        financialConfiguration: financialConfiguration,
+      );
       final status = TripStatusX.fromValue(model.status);
 
       await remoteDataSource.addTripStatusHistory(
@@ -89,7 +111,9 @@ class TripsRepositoryImpl implements TripsRepository {
         return FailureResult<TripEntity>(auditFailure);
       }
 
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
@@ -98,6 +122,7 @@ class TripsRepositoryImpl implements TripsRepository {
     required String id,
     required TripWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
       final oldModel = await remoteDataSource.getTripById(
@@ -105,7 +130,11 @@ class TripsRepositoryImpl implements TripsRepository {
         id: id,
       );
 
-      final model = await remoteDataSource.saveTrip(id: id, data: data);
+      final model = await remoteDataSource.saveTrip(
+        id: id,
+        data: data,
+        financialConfiguration: financialConfiguration,
+      );
 
       final auditFailure = await _auditWriter.writeUpdated(
         oldModel: oldModel,
@@ -117,7 +146,9 @@ class TripsRepositoryImpl implements TripsRepository {
         return FailureResult<TripEntity>(auditFailure);
       }
 
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 
@@ -127,6 +158,7 @@ class TripsRepositoryImpl implements TripsRepository {
     required String id,
     required TripStatus newStatus,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
     String? notes,
   }) {
     return _guard(() async {
@@ -165,7 +197,9 @@ class TripsRepositoryImpl implements TripsRepository {
         return FailureResult<TripEntity>(auditFailure);
       }
 
-      return Success(model.toEntity());
+      return Success(
+        model.toEntity(financialConfiguration: financialConfiguration),
+      );
     });
   }
 

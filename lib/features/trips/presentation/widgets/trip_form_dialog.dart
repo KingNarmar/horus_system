@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_decimal_codec.dart';
+import '../../../../core/domain/services/money_input_parser.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_lookup_option.dart';
+import '../../domain/value_objects/quantity_tons.dart';
 import '../localization/trips_localizations_x.dart';
 
 part 'trip_form_content.dart';
@@ -24,8 +29,8 @@ class TripFormData {
   final String? trailerId;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final String? quantityTonsInput;
+  final String? agreedFreightRatePerTonInput;
   final BusinessLocalDateTime? scheduledLoadingAt;
   final BusinessLocalDateTime? scheduledDeliveryAt;
   final BusinessLocalDateTime? actualLoadingAt;
@@ -40,8 +45,8 @@ class TripFormData {
     this.trailerId,
     this.loadingOrderNumber,
     this.waybillNumber,
-    this.quantityTons,
-    this.freightPrice,
+    this.quantityTonsInput,
+    this.agreedFreightRatePerTonInput,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
     this.actualLoadingAt,
@@ -55,6 +60,7 @@ class TripFormDialog extends StatefulWidget {
   final TripEntity? trip;
   final TripBusinessLocalTimestamps? initialBusinessLocalTimestamps;
   final TripFormLookups? lookups;
+  final CurrencyConfiguration? financialConfiguration;
   final bool isLookupsLoading;
   final Failure? lookupsFailure;
   final Future<void> Function(TripFormData data) onSubmit;
@@ -62,6 +68,7 @@ class TripFormDialog extends StatefulWidget {
   const TripFormDialog({
     required this.title,
     required this.onSubmit,
+    required this.financialConfiguration,
     this.trip,
     this.initialBusinessLocalTimestamps,
     this.lookups,
@@ -75,12 +82,15 @@ class TripFormDialog extends StatefulWidget {
 }
 
 class _TripFormDialogState extends State<TripFormDialog> {
+  static const _moneyCodec = MoneyDecimalCodec();
+  static const _moneyInputParser = MoneyInputParser();
+
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _loadingOrderController;
   late final TextEditingController _waybillController;
   late final TextEditingController _quantityController;
-  late final TextEditingController _freightPriceController;
+  late final TextEditingController _agreedFreightRateController;
   late final TextEditingController _scheduledLoadingController;
   late final TextEditingController _scheduledDeliveryController;
   late final TextEditingController _actualLoadingController;
@@ -112,10 +122,13 @@ class _TripFormDialogState extends State<TripFormDialog> {
     );
     _waybillController = TextEditingController(text: trip?.waybillNumber ?? '');
     _quantityController = TextEditingController(
-      text: _formatDouble(trip?.quantityTons),
+      text: _formatQuantityInput(trip?.quantityTons),
     );
-    _freightPriceController = TextEditingController(
-      text: _formatDouble(trip?.freightPrice),
+    _agreedFreightRateController = TextEditingController(
+      text: _formatMoneyInput(
+        trip?.agreedFreightRatePerTon,
+        widget.financialConfiguration,
+      ),
     );
     _scheduledLoadingController = TextEditingController(
       text: _formatBusinessLocalDateTimeForInput(
@@ -145,7 +158,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
     _loadingOrderController.dispose();
     _waybillController.dispose();
     _quantityController.dispose();
-    _freightPriceController.dispose();
+    _agreedFreightRateController.dispose();
     _scheduledLoadingController.dispose();
     _scheduledDeliveryController.dispose();
     _actualLoadingController.dispose();
@@ -183,7 +196,18 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   void _setCustomerId(String? value) => setState(() => _customerId = value);
 
-  void _setRouteId(String? value) => setState(() => _routeId = value);
+  void _setRouteId(String? value) {
+    setState(() {
+      _routeId = value;
+      if (widget.trip != null) return;
+
+      final route = widget.lookups?.routeById(value);
+      _agreedFreightRateController.text = _formatMoneyInput(
+        route?.defaultFreightRatePerTon,
+        widget.financialConfiguration,
+      );
+    });
+  }
 
   void _setDriverId(String? value) => setState(() => _driverId = value);
 

@@ -85,6 +85,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final selectedTrip = latest.selectedTrip!;
     await _loadSelectedTripExpenses(selectedTrip);
     await owner._loadSelectedTripDetails(selectedTrip);
+    await owner._recalculateSelectedTripFinancials();
     await owner._loadSelectedTripActivity(selectedTrip);
   }
 
@@ -105,21 +106,25 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final latestState = state;
     if (latestState is! TripsLoaded) return;
 
-    result.when(
-      success: (expenses) => emit(
-        latestState.copyWith(
-          selectedTripExpenses: expenses,
-          isExpensesLoading: false,
-          expensesFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
+    if (result is FailureResult<List<ExpenseLedgerEntry>>) {
+      emit(
         latestState.copyWith(
           isExpensesLoading: false,
-          expensesFailure: failure,
+          expensesFailure: result.failure,
         ),
+      );
+      return;
+    }
+
+    emit(
+      latestState.copyWith(
+        selectedTripExpenses:
+            (result as Success<List<ExpenseLedgerEntry>>).data,
+        isExpensesLoading: false,
+        expensesFailure: null,
       ),
     );
+    await owner._recalculateSelectedTripFinancials();
   }
 
   Future<void> _loadExpenseTypesIfNeeded() async {
