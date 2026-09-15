@@ -151,9 +151,7 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   }
 
   @override
-  Future<Result<ExpenseLedgerEntry>> createEntry(
-    ExpenseLedgerWriteData data,
-  ) {
+  Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) {
     throw UnimplementedError();
   }
 }

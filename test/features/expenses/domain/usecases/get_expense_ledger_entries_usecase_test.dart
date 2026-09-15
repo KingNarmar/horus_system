@@ -11,20 +11,23 @@ import 'package:test/test.dart';
 
 void main() {
   group('GetExpenseLedgerEntriesUseCase', () {
-    test('scopes reads to the current company and forwards void filter', () async {
-      final repository = _FakeExpenseLedgerRepository();
-      final result = await GetExpenseLedgerEntriesUseCase(repository)(
-        GetExpenseLedgerEntriesParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
-          includeVoided: true,
-        ),
-      );
+    test(
+      'scopes reads to the current company and forwards void filter',
+      () async {
+        final repository = _FakeExpenseLedgerRepository();
+        final result = await GetExpenseLedgerEntriesUseCase(repository)(
+          GetExpenseLedgerEntriesParams(
+            currentCompanyContext: _context(CompanyRole.viewer),
+            includeVoided: true,
+          ),
+        );
 
-      expect(result, isA<Success<List<ExpenseLedgerEntry>>>());
-      expect(repository.getCalls, 1);
-      expect(repository.lastCompanyId, 'company-1');
-      expect(repository.lastIncludeVoided, isTrue);
-    });
+        expect(result, isA<Success<List<ExpenseLedgerEntry>>>());
+        expect(repository.getCalls, 1);
+        expect(repository.lastCompanyId, 'company-1');
+        expect(repository.lastIncludeVoided, isTrue);
+      },
+    );
 
     test('denies driver read access before repository execution', () async {
       final repository = _FakeExpenseLedgerRepository();
@@ -67,9 +70,7 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   }
 
   @override
-  Future<Result<ExpenseLedgerEntry>> createEntry(
-    ExpenseLedgerWriteData data,
-  ) {
+  Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) {
     throw UnimplementedError();
   }
 
