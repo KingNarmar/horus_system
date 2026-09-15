@@ -7,27 +7,25 @@ import '../entities/expense_type.dart';
 import '../policies/expense_types_permission_policy.dart';
 import '../repositories/expense_types_repository.dart';
 
-class GetExpenseTypesParams {
+final class GetExpenseTypeCatalogParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const GetExpenseTypesParams({required this.currentCompanyContext});
+  const GetExpenseTypeCatalogParams({required this.currentCompanyContext});
 }
 
-class GetExpenseTypesUseCase
-    implements UseCase<List<ExpenseType>, GetExpenseTypesParams> {
+final class GetExpenseTypeCatalogUseCase
+    implements UseCase<List<ExpenseType>, GetExpenseTypeCatalogParams> {
   final ExpenseTypesRepository _repository;
 
-  const GetExpenseTypesUseCase(this._repository);
+  const GetExpenseTypeCatalogUseCase(this._repository);
 
   @override
-  Future<Result<List<ExpenseType>>> call(GetExpenseTypesParams params) {
+  Future<Result<List<ExpenseType>>> call(GetExpenseTypeCatalogParams params) {
     final context = params.currentCompanyContext;
-    if (!ExpenseTypesPermissionPolicy.canManageExpenseTypes(context.role)) {
+    if (!ExpenseTypesPermissionPolicy.canViewExpenseTypes(context.role)) {
       return Future.value(
         const FailureResult<List<ExpenseType>>(
-          PermissionFailure(
-            code: FailureCodes.permissionExpenseTypesManagement,
-          ),
+          PermissionFailure(code: FailureCodes.permissionExpenseTypesView),
         ),
       );
     }

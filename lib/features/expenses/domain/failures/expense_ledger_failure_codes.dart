@@ -3,6 +3,8 @@ abstract final class ExpenseLedgerFailureCodes {
   static const permissionManage = 'expense_ledger_permission_manage';
   static const validationExpenseTypeRequired =
       'expense_ledger_expense_type_required';
+  static const validationDescriptionRequired =
+      'expense_ledger_description_required';
   static const validationAmountInvalid = 'expense_ledger_amount_invalid';
   static const validationAttributionInvalid =
       'expense_ledger_attribution_invalid';

@@ -1,7 +1,7 @@
 import '../../../company/domain/entities/company_role.dart';
 
 abstract final class ExpenseTypesPermissionPolicy {
-  static bool canViewActiveExpenseTypes(CompanyRole role) {
+  static bool canViewExpenseTypes(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner ||
       CompanyRole.admin ||
@@ -12,12 +12,7 @@ abstract final class ExpenseTypesPermissionPolicy {
     };
   }
 
-  static bool canManageExpenseTypes(CompanyRole role) {
-    return switch (role) {
-      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations ||
-      CompanyRole.viewer ||
-      CompanyRole.driver => false,
-    };
+  static bool canViewActiveExpenseTypes(CompanyRole role) {
+    return canViewExpenseTypes(role);
   }
 }

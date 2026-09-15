@@ -8,6 +8,12 @@ abstract class ExpenseLedgerRepository {
     bool includeVoided = false,
   });
 
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  });
+
   Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data);
 
   Future<Result<ExpenseLedgerEntry>> voidEntry({

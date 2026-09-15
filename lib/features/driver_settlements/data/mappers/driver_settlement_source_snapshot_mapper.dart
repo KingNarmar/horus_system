@@ -10,8 +10,9 @@ import '../constants/driver_settlements_db_fields.dart';
 const _movementTypeAdvance = 'advance';
 const _movementTypeDriverCharge = 'driver_charge';
 const _movementTypeCashReturn = 'cash_return';
-const _paidByDriverAdvance = 'driver_advance';
-const _paidByDriverCash = 'driver_cash';
+const _fundingSourceDriverAdvance = 'driver_advance';
+const _fundingSourceDriverCash = 'driver_cash';
+const _legacyTripExpenseOrigin = 'legacy_trip_expense';
 const _labelAdvance = 'driver_settlement_item_advance';
 const _labelDriverCharge = 'driver_settlement_item_driver_charge';
 const _labelCashReturn = 'driver_settlement_item_cash_return';
@@ -132,23 +133,26 @@ class DriverSettlementSourceSnapshotMapper {
     final items = <DriverSettlementItem>[];
 
     for (final row in rows) {
-      final paidBy = row[DriverSettlementsDbFields.paidBy]?.toString();
-      if (paidBy != _paidByDriverAdvance && paidBy != _paidByDriverCash) {
+      final fundingSource = row[DriverSettlementsDbFields.fundingSource]
+          ?.toString();
+      if (fundingSource != _fundingSourceDriverAdvance &&
+          fundingSource != _fundingSourceDriverCash) {
         throw FormatException(
-          'Unsupported driver-paid trip expense source: $paidBy',
+          'Unsupported driver-paid trip expense source: $fundingSource',
         );
       }
 
-      final amount = _requiredPositiveAmount(
-        row[DriverSettlementsDbFields.amount],
-      );
+      final amount = _minorUnitsToAmount(row);
+      if (amount <= 0) {
+        throw FormatException('Invalid positive money amount: $amount');
+      }
       total += amount;
 
       items.add(
         DriverSettlementItem(
           companyId: companyId,
           sourceType: DriverSettlementItemSourceType.tripExpense,
-          sourceId: row[DbCommonFields.id] as String?,
+          sourceId: _expenseSourceId(row),
           sourceDate: DbDate.decodeNullable(
             row[DriverSettlementsDbFields.expenseDate],
             field: DriverSettlementsDbFields.expenseDate,
@@ -156,13 +160,11 @@ class DriverSettlementSourceSnapshotMapper {
           direction: DriverSettlementItemDirection.companyToDriver,
           amount: amount,
           labelKey: _labelTripExpense,
-          descriptionKey: row[DriverSettlementsDbFields.expenseName] as String?,
+          descriptionKey: row[DriverSettlementsDbFields.description] as String?,
           metadata: {
-            DriverSettlementsDbFields.paidBy: paidBy,
+            DriverSettlementsDbFields.paidBy: fundingSource,
             DriverSettlementsDbFields.tripId:
                 row[DriverSettlementsDbFields.tripId],
-            DriverSettlementsDbFields.notes:
-                row[DriverSettlementsDbFields.notes],
           },
         ),
       );
@@ -172,6 +174,43 @@ class DriverSettlementSourceSnapshotMapper {
       total: balanceCalculator.roundMoney(total),
       items: items,
     );
+  }
+
+  String? _expenseSourceId(Map<String, dynamic> row) {
+    final originKind = row[DriverSettlementsDbFields.originKind]?.toString();
+    final originId = row[DriverSettlementsDbFields.originId] as String?;
+    if (originKind == _legacyTripExpenseOrigin && originId != null) {
+      return originId;
+    }
+    return row[DbCommonFields.id] as String?;
+  }
+
+  double _minorUnitsToAmount(Map<String, dynamic> row) {
+    final minorUnits = _requiredInt(
+      row[DriverSettlementsDbFields.amountMinorUnits],
+    );
+    final fractionDigits = _requiredInt(
+      row[DriverSettlementsDbFields.currencyFractionDigits],
+    );
+    final factor = switch (fractionDigits) {
+      0 => 1,
+      1 => 10,
+      2 => 100,
+      3 => 1000,
+      4 => 10000,
+      _ => throw FormatException(
+        'Unsupported currency fraction digits: $fractionDigits',
+      ),
+    };
+    return minorUnits / factor;
+  }
+
+  int _requiredInt(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    final parsed = int.tryParse(value?.toString() ?? '');
+    if (parsed == null) throw FormatException('Invalid integer value: $value');
+    return parsed;
   }
 
   double _requiredPositiveAmount(Object? value) {

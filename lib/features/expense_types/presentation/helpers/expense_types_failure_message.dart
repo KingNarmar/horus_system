@@ -8,11 +8,6 @@ String expenseTypesFailureMessage(
 ) {
   return switch (failure.code) {
     FailureCodes.permissionExpenseTypesView => l10n.permissionViewFailure,
-    FailureCodes.permissionExpenseTypesManagement =>
-      l10n.permissionManageFailure,
-    FailureCodes.validationExpenseTypeNameRequired => l10n.nameRequired,
-    FailureCodes.conflictExpenseTypeDuplicateName => l10n.duplicateNameFailure,
-    FailureCodes.expenseTypeNotFound => l10n.notFoundFailure,
     _ => l10n.genericFailure,
   };
 }

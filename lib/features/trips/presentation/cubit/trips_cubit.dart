@@ -9,11 +9,15 @@ import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../../expense_types/domain/usecases/get_active_expense_types_usecase.dart';
-import '../../../expenses/domain/entities/trip_expense.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
-import '../../../expenses/domain/policies/trip_expenses_permission_policy.dart';
-import '../../../expenses/domain/usecases/trip_expenses_usecases.dart';
+import '../../../expense_types/domain/entities/expense_type.dart';
+import '../../../expense_types/domain/usecases/get_expense_type_catalog_usecase.dart';
+import '../../../expense_types/domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
+import '../../../expenses/domain/entities/expense_ledger_entry.dart';
+import '../../../expenses/domain/policies/expense_ledger_permission_policy.dart';
+import '../../../expenses/domain/usecases/create_trip_expense_usecase.dart';
+import '../../../expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
+import '../../../expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
@@ -52,10 +56,12 @@ class TripsCubit extends Cubit<TripsState>
   final ConvertInstantsToBusinessLocalDateTimesUseCase
   convertInstantsToBusinessLocalDateTimesUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
-  final GetTripExpensesUseCase getTripExpensesUseCase;
-  final GetActiveExpenseTypesUseCase getActiveExpenseTypesUseCase;
-  final AddTripExpenseUseCase addTripExpenseUseCase;
-  final UpdateTripExpenseUseCase updateTripExpenseUseCase;
+  final GetTripExpenseLedgerEntriesUseCase getTripExpenseLedgerEntriesUseCase;
+  final GetExpenseTypeCatalogUseCase getExpenseTypeCatalogUseCase;
+  final GetLedgerEligibleExpenseTypesUseCase
+  getLedgerEligibleExpenseTypesUseCase;
+  final CreateTripExpenseUseCase createTripExpenseUseCase;
+  final VoidExpenseLedgerEntryUseCase voidExpenseLedgerEntryUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -72,10 +78,11 @@ class TripsCubit extends Cubit<TripsState>
     required this.resolveTripBusinessLocalTimestampsUseCase,
     required this.convertInstantsToBusinessLocalDateTimesUseCase,
     required this.getTripAuditLogsUseCase,
-    required this.getTripExpensesUseCase,
-    required this.getActiveExpenseTypesUseCase,
-    required this.addTripExpenseUseCase,
-    required this.updateTripExpenseUseCase,
+    required this.getTripExpenseLedgerEntriesUseCase,
+    required this.getExpenseTypeCatalogUseCase,
+    required this.getLedgerEligibleExpenseTypesUseCase,
+    required this.createTripExpenseUseCase,
+    required this.voidExpenseLedgerEntryUseCase,
   }) : super(const TripsInitial());
 
   Future<void> loadTrips(CurrentCompanyContext currentCompanyContext) async {
@@ -126,7 +133,7 @@ class TripsCubit extends Cubit<TripsState>
           currentCompanyContext.role,
         ),
         canManageTripExpenses:
-            TripExpensesPermissionPolicy.canManageTripExpenses(
+            ExpenseLedgerPermissionPolicy.canManageTripAttributed(
               currentCompanyContext.role,
             ),
         searchQuery: searchQuery,

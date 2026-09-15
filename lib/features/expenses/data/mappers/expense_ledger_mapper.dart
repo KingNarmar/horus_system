@@ -29,6 +29,7 @@ extension ExpenseLedgerEntryModelMapper on ExpenseLedgerEntryModel {
         tractorHeadId: tractorHeadId,
         trailerId: trailerId,
       ),
+      description: description,
       referenceNumber: referenceNumber,
       notes: notes,
       isVoided: isVoided,
@@ -57,6 +58,7 @@ extension ExpenseLedgerWriteDataMapper on ExpenseLedgerWriteData {
       ExpenseLedgerRpcConstants.driverId: attribution.driverId,
       ExpenseLedgerRpcConstants.tractorHeadId: attribution.tractorHeadId,
       ExpenseLedgerRpcConstants.trailerId: attribution.trailerId,
+      ExpenseLedgerRpcConstants.description: description,
       ExpenseLedgerRpcConstants.referenceNumber: referenceNumber,
       ExpenseLedgerRpcConstants.notes: notes,
     };

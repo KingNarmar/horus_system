@@ -16,7 +16,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('VoidExpenseLedgerEntryUseCase', () {
-    test('voids same-company expense and trims the reason', () async {
+    test('voids same-company expense and trims reason', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await VoidExpenseLedgerEntryUseCase(repository)(
         VoidExpenseLedgerEntryParams(
@@ -25,7 +25,6 @@ void main() {
           reason: '  duplicate  ',
         ),
       );
-
       expect(result, isA<Success<ExpenseLedgerEntry>>());
       expect(repository.voidCalls, 1);
       expect(repository.lastCompanyId, 'company-1');
@@ -41,7 +40,6 @@ void main() {
           entry: _entry(companyId: 'company-2'),
         ),
       );
-
       expect(
         result.failureOrNull?.code,
         ExpenseLedgerFailureCodes.permissionManage,
@@ -57,7 +55,6 @@ void main() {
           entry: _entry(),
         ),
       );
-
       expect(
         result.failureOrNull?.code,
         ExpenseLedgerFailureCodes.permissionManage,
@@ -73,7 +70,6 @@ void main() {
           entry: _entry(tripId: 'trip-1'),
         ),
       );
-
       expect(result, isA<Success<ExpenseLedgerEntry>>());
       expect(repository.voidCalls, 1);
     });
@@ -86,7 +82,6 @@ void main() {
           entry: _entry(isVoided: true),
         ),
       );
-
       expect(
         result.failureOrNull?.code,
         ExpenseLedgerFailureCodes.conflictAlreadyVoided,
@@ -96,12 +91,10 @@ void main() {
   });
 }
 
-CurrentCompanyContext _context(CompanyRole role) {
-  return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Horus'),
-    role: role,
-  );
-}
+CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
+  company: const Company(id: 'company-1', name: 'Horus'),
+  role: role,
+);
 
 ExpenseLedgerEntry _entry({
   String companyId = 'company-1',
@@ -146,9 +139,14 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   Future<Result<List<ExpenseLedgerEntry>>> getEntries({
     required String companyId,
     bool includeVoided = false,
-  }) {
-    throw UnimplementedError();
-  }
+  }) async => const Success([]);
+
+  @override
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  }) async => const Success([]);
 
   @override
   Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) {

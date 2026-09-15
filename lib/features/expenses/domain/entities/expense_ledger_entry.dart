@@ -12,6 +12,7 @@ final class ExpenseLedgerEntry {
   final BusinessDate expenseDate;
   final ExpenseFundingSource fundingSource;
   final ExpenseAttribution attribution;
+  final String? description;
   final String? referenceNumber;
   final String? notes;
   final bool isVoided;
@@ -31,6 +32,7 @@ final class ExpenseLedgerEntry {
     required this.fundingSource,
     required this.attribution,
     required this.isVoided,
+    this.description,
     this.referenceNumber,
     this.notes,
     this.voidedAt,

@@ -13,6 +13,7 @@ abstract final class ExpenseLedgerDbFields {
   static const driverId = 'driver_id';
   static const tractorHeadId = 'tractor_head_id';
   static const trailerId = 'trailer_id';
+  static const description = 'description';
   static const referenceNumber = 'reference_number';
   static const notes = 'notes';
   static const isVoided = 'is_voided';
@@ -25,6 +26,7 @@ abstract final class ExpenseLedgerDbFields {
   static const allColumns =
       'id, company_id, expense_type_id, amount_minor_units, currency_code, '
       'currency_fraction_digits, expense_date, funding_source, trip_id, '
-      'driver_id, tractor_head_id, trailer_id, reference_number, notes, '
-      'is_voided, voided_at, voided_by, void_reason, created_at, updated_at';
+      'driver_id, tractor_head_id, trailer_id, description, reference_number, '
+      'notes, is_voided, voided_at, voided_by, void_reason, created_at, '
+      'updated_at';
 }

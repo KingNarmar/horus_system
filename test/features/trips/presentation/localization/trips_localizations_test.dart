@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status_filter.dart';
 import 'package:horus_system/features/trips/presentation/localization/trips_localizations_x.dart';
@@ -38,6 +38,21 @@ void main() {
 
       expect(en.tripRetryButton, 'Retry');
       expect(ar.tripRetryButton, 'إعادة المحاولة');
+
+      expect(en.tripExpenseVoidedStatus, 'Voided');
+      expect(ar.tripExpenseVoidedStatus, 'ملغى');
+
+      expect(en.tripExpenseVoidButton, 'Void');
+      expect(ar.tripExpenseVoidButton, 'إلغاء');
+
+      expect(
+        en.tripExpenseVoidMessage,
+        'Do you want to void this expense? It will remain in the history as voided.',
+      );
+      expect(
+        ar.tripExpenseVoidMessage,
+        'هل تريد إلغاء هذا المصروف؟ سيتم الاحتفاظ به في السجل كملغى.',
+      );
 
       expect(en.tripUnknownUser, 'Unknown user');
       expect(ar.tripUnknownUser, 'مستخدم غير معروف');
@@ -119,29 +134,29 @@ void main() {
       }
     });
 
-    test('maps every TripExpensePaidBy in English and Arabic', () {
-      final expectedEn = <TripExpensePaidBy, String>{
-        TripExpensePaidBy.company: 'Company',
-        TripExpensePaidBy.driverAdvance: 'Driver advance',
-        TripExpensePaidBy.driverCash: 'Driver cash',
-        TripExpensePaidBy.customer: 'Customer',
-        TripExpensePaidBy.other: 'Other',
+    test('maps every expense funding source in English and Arabic', () {
+      final expectedEn = <ExpenseFundingSource, String>{
+        ExpenseFundingSource.company: 'Company',
+        ExpenseFundingSource.driverAdvance: 'Driver advance',
+        ExpenseFundingSource.driverCash: 'Driver cash',
+        ExpenseFundingSource.customer: 'Customer',
+        ExpenseFundingSource.other: 'Other',
       };
 
-      final expectedAr = <TripExpensePaidBy, String>{
-        TripExpensePaidBy.company: 'الشركة',
-        TripExpensePaidBy.driverAdvance: 'عهدة السائق',
-        TripExpensePaidBy.driverCash: 'دفع السائق',
-        TripExpensePaidBy.customer: 'العميل',
-        TripExpensePaidBy.other: 'أخرى',
+      final expectedAr = <ExpenseFundingSource, String>{
+        ExpenseFundingSource.company: 'الشركة',
+        ExpenseFundingSource.driverAdvance: 'عهدة السائق',
+        ExpenseFundingSource.driverCash: 'دفع السائق',
+        ExpenseFundingSource.customer: 'العميل',
+        ExpenseFundingSource.other: 'أخرى',
       };
 
       for (final entry in expectedEn.entries) {
-        expect(en.tripExpensePaidByValueLabel(entry.key), entry.value);
+        expect(en.tripExpenseFundingSourceLabel(entry.key), entry.value);
       }
 
       for (final entry in expectedAr.entries) {
-        expect(ar.tripExpensePaidByValueLabel(entry.key), entry.value);
+        expect(ar.tripExpenseFundingSourceLabel(entry.key), entry.value);
       }
     });
 
@@ -192,6 +207,7 @@ void main() {
         'status_changed': 'Status changed',
         'deactivated': 'Deactivated',
         'reactivated': 'Reactivated',
+        'voided': 'Voided',
       };
 
       final expectedAr = <String, String>{
@@ -200,6 +216,7 @@ void main() {
         'status_changed': 'تم تغيير الحالة',
         'deactivated': 'تم إلغاء التفعيل',
         'reactivated': 'تمت إعادة التفعيل',
+        'voided': 'ملغى',
       };
 
       for (final entry in expectedEn.entries) {

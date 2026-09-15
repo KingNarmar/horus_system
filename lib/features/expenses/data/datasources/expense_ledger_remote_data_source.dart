@@ -12,6 +12,12 @@ abstract class ExpenseLedgerRemoteDataSource {
     required bool includeVoided,
   });
 
+  Future<List<ExpenseLedgerEntryModel>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    required bool includeVoided,
+  });
+
   Future<ExpenseLedgerEntryModel> createEntry(ExpenseLedgerWriteData data);
 
   Future<ExpenseLedgerEntryModel> voidEntry({
@@ -49,13 +55,34 @@ final class SupabaseExpenseLedgerRemoteDataSource
           .order(ExpenseLedgerDbFields.createdAt, ascending: false);
     }
 
-    return response
-        .map(
-          (row) => ExpenseLedgerEntryModel.fromMap(
-            Map<String, dynamic>.from(row as Map),
-          ),
-        )
-        .toList(growable: false);
+    return _modelsFromResponse(response);
+  }
+
+  @override
+  Future<List<ExpenseLedgerEntryModel>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    required bool includeVoided,
+  }) async {
+    final baseQuery = client
+        .from(ExpenseLedgerDbFields.tableName)
+        .select(ExpenseLedgerDbFields.allColumns)
+        .eq(ExpenseLedgerDbFields.companyId, companyId)
+        .eq(ExpenseLedgerDbFields.tripId, tripId);
+
+    final List<dynamic> response;
+    if (includeVoided) {
+      response = await baseQuery
+          .order(ExpenseLedgerDbFields.expenseDate, ascending: false)
+          .order(ExpenseLedgerDbFields.createdAt, ascending: false);
+    } else {
+      response = await baseQuery
+          .eq(ExpenseLedgerDbFields.isVoided, false)
+          .order(ExpenseLedgerDbFields.expenseDate, ascending: false)
+          .order(ExpenseLedgerDbFields.createdAt, ascending: false);
+    }
+
+    return _modelsFromResponse(response);
   }
 
   @override
@@ -84,6 +111,16 @@ final class SupabaseExpenseLedgerRemoteDataSource
       },
     );
     return ExpenseLedgerEntryModel.fromMap(_singleRow(response));
+  }
+
+  List<ExpenseLedgerEntryModel> _modelsFromResponse(List<dynamic> response) {
+    return response
+        .map(
+          (row) => ExpenseLedgerEntryModel.fromMap(
+            Map<String, dynamic>.from(row as Map),
+          ),
+        )
+        .toList(growable: false);
   }
 
   Map<String, dynamic> _singleRow(Object? response) {

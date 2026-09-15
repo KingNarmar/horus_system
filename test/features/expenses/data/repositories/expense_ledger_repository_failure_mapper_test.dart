@@ -41,7 +41,7 @@ void main() {
       );
     });
 
-    test('maps amount and funding validation failures', () {
+    test('maps amount, funding, and description validation failures', () {
       const amountError = PostgrestException(
         message: 'sensitive',
         code: 'P2808',
@@ -49,6 +49,10 @@ void main() {
       const fundingError = PostgrestException(
         message: 'sensitive',
         code: 'P2809',
+      );
+      const descriptionError = PostgrestException(
+        message: 'sensitive description detail',
+        code: 'P2810',
       );
 
       expect(
@@ -59,6 +63,13 @@ void main() {
         mapper.fromPostgrest(fundingError).code,
         ExpenseLedgerFailureCodes.validationFundingSourceInvalid,
       );
+      final descriptionFailure = mapper.fromPostgrest(descriptionError);
+      expect(descriptionFailure, isA<ValidationFailure>());
+      expect(
+        descriptionFailure.code,
+        ExpenseLedgerFailureCodes.validationDescriptionRequired,
+      );
+      expect(descriptionFailure.message, isNull);
     });
 
     test('sanitizes unknown Postgrest failure', () {

@@ -11,6 +11,7 @@ final class ExpenseLedgerWriteData {
   final BusinessDate expenseDate;
   final ExpenseFundingSource fundingSource;
   final ExpenseAttribution attribution;
+  final String? description;
   final String? referenceNumber;
   final String? notes;
 
@@ -22,6 +23,7 @@ final class ExpenseLedgerWriteData {
     required this.expenseDate,
     required this.fundingSource,
     required this.attribution,
+    this.description,
     this.referenceNumber,
     this.notes,
   });

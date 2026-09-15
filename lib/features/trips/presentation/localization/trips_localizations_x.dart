@@ -1,5 +1,8 @@
+import '../../../../core/errors/failure.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
+import '../../../expense_types/domain/entities/expense_type.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
+import '../../../expenses/domain/failures/expense_ledger_failure_codes.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 
@@ -11,6 +14,22 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripCancelButton => cancelButton;
   String get tripRetryButton => retryButton;
 
+  String get tripExpenseVoidedStatus => companyExpenseVoidedStatus;
+  String get tripExpenseVoidButton => voidCompanyExpenseButton;
+  String get tripExpenseVoidMessage => voidCompanyExpenseMessage;
+  String get tripExpenseTypeAdminCosts => companyExpenseCategoryAdminCosts;
+  String get tripExpenseTypeLicensesAndRenewals =>
+      companyExpenseCategoryLicensesAndRenewals;
+  String get tripExpenseTypeOfficeExpenses =>
+      companyExpenseCategoryOfficeExpenses;
+  String get tripExpenseTypeOilsAndFluids =>
+      companyExpenseCategoryOilsAndFluids;
+  String get tripExpenseTypeRent => companyExpenseCategoryRent;
+  String get tripExpenseTypeSpareParts => companyExpenseCategorySpareParts;
+  String get tripExpenseTypeTires => companyExpenseCategoryTires;
+  String get tripExpenseTypeVehicleMaintenance =>
+      companyExpenseCategoryVehicleMaintenance;
+
   String _bidiIsolate(String value) => '\u2068$value\u2069';
 
   String tripDetailsTitle(String name) {
@@ -21,30 +40,69 @@ extension TripsLocalizationsX on AppLocalizations {
     return tripUpdateStatusTitleText(_bidiIsolate(name));
   }
 
-  String tripExpensePaidByValueLabel(TripExpensePaidBy paidBy) {
-    return switch (paidBy) {
-      TripExpensePaidBy.company => tripExpensePaidByCompany,
-      TripExpensePaidBy.driverAdvance => tripExpensePaidByDriverAdvance,
-      TripExpensePaidBy.driverCash => tripExpensePaidByDriverCash,
-      TripExpensePaidBy.customer => tripExpensePaidByCustomer,
-      TripExpensePaidBy.other => tripExpensePaidByOther,
+  String tripExpenseFundingSourceLabel(ExpenseFundingSource fundingSource) {
+    return switch (fundingSource) {
+      ExpenseFundingSource.company => tripExpensePaidByCompany,
+      ExpenseFundingSource.driverAdvance => tripExpensePaidByDriverAdvance,
+      ExpenseFundingSource.driverCash => tripExpensePaidByDriverCash,
+      ExpenseFundingSource.customer => tripExpensePaidByCustomer,
+      ExpenseFundingSource.other => tripExpensePaidByOther,
     };
+  }
+
+  String tripExpenseTypeDisplayLabel(ExpenseType expenseType) {
+    return _tripExpenseTypeLabel(expenseType.code, expenseType.name);
   }
 
   String tripExpenseTypeName(String name) {
     final normalized = name.trim().toLowerCase().replaceAll(' ', '_');
+    return _tripExpenseTypeLabel(normalized, name);
+  }
 
-    return switch (normalized) {
-      'fuel' => tripExpenseTypeFuel,
-      'road_fees' => tripExpenseTypeRoadFees,
-      'weighbridge' => tripExpenseTypeWeighbridge,
-      'loading' => tripExpenseTypeLoading,
-      'unloading' => tripExpenseTypeUnloading,
-      'fines' => tripExpenseTypeFines,
+  String _tripExpenseTypeLabel(String? code, String fallback) {
+    return switch (code) {
+      'admin_costs' => tripExpenseTypeAdminCosts,
       'emergency_maintenance' => tripExpenseTypeEmergencyMaintenance,
-      'driver_advance' => tripExpenseTypeDriverAdvance,
+      'fines' => tripExpenseTypeFines,
+      'fuel' => tripExpenseTypeFuel,
+      'licenses_and_renewals' => tripExpenseTypeLicensesAndRenewals,
+      'loading' => tripExpenseTypeLoading,
+      'office_expenses' => tripExpenseTypeOfficeExpenses,
+      'oils_and_fluids' => tripExpenseTypeOilsAndFluids,
       'other' => tripExpenseTypeOther,
-      _ => name,
+      'rent' => tripExpenseTypeRent,
+      'road_fees' => tripExpenseTypeRoadFees,
+      'spare_parts' => tripExpenseTypeSpareParts,
+      'tires' => tripExpenseTypeTires,
+      'unloading' => tripExpenseTypeUnloading,
+      'vehicle_maintenance' => tripExpenseTypeVehicleMaintenance,
+      'weighbridge' => tripExpenseTypeWeighbridge,
+      'driver_advance' => tripExpenseTypeDriverAdvance,
+      _ => fallback,
+    };
+  }
+
+  String tripExpenseFailureMessage(Failure failure) {
+    return switch (failure.code) {
+      ExpenseLedgerFailureCodes.permissionView =>
+        failurePermissionTripExpensesView,
+      ExpenseLedgerFailureCodes.permissionManage =>
+        failurePermissionTripExpensesManagement,
+      ExpenseLedgerFailureCodes.validationExpenseTypeRequired =>
+        failureValidationTripExpenseTypeRequired,
+      ExpenseLedgerFailureCodes.validationDescriptionRequired =>
+        failureValidationTripExpenseNameRequired,
+      ExpenseLedgerFailureCodes.validationAmountInvalid =>
+        tripExpenseAmountPositive,
+      ExpenseLedgerFailureCodes.validationAttributionInvalid =>
+        failureValidationTripIdRequired,
+      ExpenseLedgerFailureCodes.expenseTypeUnavailable =>
+        tripExpenseTypesUnavailable,
+      ExpenseLedgerFailureCodes.conflictAlreadyVoided =>
+        tripExpenseVoidedStatus,
+      ExpenseLedgerFailureCodes.serverError => failureServerError,
+      ExpenseLedgerFailureCodes.unexpectedError => failureUnexpectedError,
+      _ => failureUnexpectedError,
     };
   }
 
@@ -87,6 +145,7 @@ extension TripsLocalizationsX on AppLocalizations {
       'status_changed' => tripAuditActionStatusChanged,
       'deactivated' => tripAuditActionDeactivated,
       'reactivated' => tripAuditActionReactivated,
+      'voided' => tripExpenseVoidedStatus,
       _ => action,
     };
   }
@@ -120,10 +179,10 @@ extension TripsLocalizationsX on AppLocalizations {
       'trip_total_expenses' => tripTotalExpensesLabel,
       'expense_id' => tripAuditFieldExpenseId,
       'expense_type_id' => tripExpenseTypeLabel,
-      'expense_name' => tripExpenseNameLabel,
+      'expense_name' || 'description' => tripExpenseNameLabel,
       'expense_type_name' => tripExpenseTypeLabel,
-      'amount' => tripExpenseAmountLabel,
-      'paid_by' => tripExpensePaidByLabel,
+      'amount' || 'amount_minor_units' => tripExpenseAmountLabel,
+      'paid_by' || 'funding_source' => tripExpensePaidByLabel,
       'expense_date' => tripExpenseDateLabel,
       'scheduled_loading_at' => tripScheduledLoadingAtLabel,
       'scheduled_delivery_at' => tripScheduledDeliveryAtLabel,
@@ -146,8 +205,10 @@ extension TripsLocalizationsX on AppLocalizations {
       return tripStatusLabel(TripStatusX.fromValue(value));
     }
 
-    if (key == 'paid_by' && value is String) {
-      return tripExpensePaidByValueLabel(TripExpensePaidByX.fromValue(value));
+    if ((key == 'paid_by' || key == 'funding_source') && value is String) {
+      return tripExpenseFundingSourceLabel(
+        ExpenseFundingSourceX.fromValue(value),
+      );
     }
 
     if ((key == 'expense_name' || key == 'expense_type_name') &&
