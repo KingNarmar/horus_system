@@ -22,14 +22,8 @@ void main() {
     });
 
     test('maps financial readiness and currency failures', () {
-      const readinessError = PostgrestException(
-        message: 'sensitive',
-        code: 'P2804',
-      );
-      const currencyError = PostgrestException(
-        message: 'sensitive',
-        code: 'P2805',
-      );
+      const readinessError = PostgrestException(message: 'sensitive', code: 'P2804');
+      const currencyError = PostgrestException(message: 'sensitive', code: 'P2805');
 
       expect(
         mapper.fromPostgrest(readinessError).code,
@@ -41,14 +35,12 @@ void main() {
       );
     });
 
-    test('maps amount and funding validation failures', () {
-      const amountError = PostgrestException(
-        message: 'sensitive',
-        code: 'P2808',
-      );
-      const fundingError = PostgrestException(
-        message: 'sensitive',
-        code: 'P2809',
+    test('maps amount, funding, and description validation failures', () {
+      const amountError = PostgrestException(message: 'sensitive', code: 'P2808');
+      const fundingError = PostgrestException(message: 'sensitive', code: 'P2809');
+      const descriptionError = PostgrestException(
+        message: 'sensitive description detail',
+        code: 'P2810',
       );
 
       expect(
@@ -59,13 +51,17 @@ void main() {
         mapper.fromPostgrest(fundingError).code,
         ExpenseLedgerFailureCodes.validationFundingSourceInvalid,
       );
+      final descriptionFailure = mapper.fromPostgrest(descriptionError);
+      expect(descriptionFailure, isA<ValidationFailure>());
+      expect(
+        descriptionFailure.code,
+        ExpenseLedgerFailureCodes.validationDescriptionRequired,
+      );
+      expect(descriptionFailure.message, isNull);
     });
 
     test('sanitizes unknown Postgrest failure', () {
-      const error = PostgrestException(
-        message: 'database internals',
-        code: 'XXXXX',
-      );
+      const error = PostgrestException(message: 'database internals', code: 'XXXXX');
 
       final failure = mapper.fromPostgrest(error);
 

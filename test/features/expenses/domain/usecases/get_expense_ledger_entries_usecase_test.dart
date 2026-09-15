@@ -11,47 +11,35 @@ import 'package:test/test.dart';
 
 void main() {
   group('GetExpenseLedgerEntriesUseCase', () {
-    test(
-      'scopes reads to the current company and forwards void filter',
-      () async {
-        final repository = _FakeExpenseLedgerRepository();
-        final result = await GetExpenseLedgerEntriesUseCase(repository)(
-          GetExpenseLedgerEntriesParams(
-            currentCompanyContext: _context(CompanyRole.viewer),
-            includeVoided: true,
-          ),
-        );
-
-        expect(result, isA<Success<List<ExpenseLedgerEntry>>>());
-        expect(repository.getCalls, 1);
-        expect(repository.lastCompanyId, 'company-1');
-        expect(repository.lastIncludeVoided, isTrue);
-      },
-    );
+    test('scopes reads to current company and forwards void filter', () async {
+      final repository = _FakeExpenseLedgerRepository();
+      final result = await GetExpenseLedgerEntriesUseCase(repository)(
+        GetExpenseLedgerEntriesParams(
+          currentCompanyContext: _context(CompanyRole.viewer),
+          includeVoided: true,
+        ),
+      );
+      expect(result, isA<Success<List<ExpenseLedgerEntry>>>());
+      expect(repository.getCalls, 1);
+      expect(repository.lastCompanyId, 'company-1');
+      expect(repository.lastIncludeVoided, isTrue);
+    });
 
     test('denies driver read access before repository execution', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await GetExpenseLedgerEntriesUseCase(repository)(
-        GetExpenseLedgerEntriesParams(
-          currentCompanyContext: _context(CompanyRole.driver),
-        ),
+        GetExpenseLedgerEntriesParams(currentCompanyContext: _context(CompanyRole.driver)),
       );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.permissionView,
-      );
+      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionView);
       expect(repository.getCalls, 0);
     });
   });
 }
 
-CurrentCompanyContext _context(CompanyRole role) {
-  return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Horus'),
-    role: role,
-  );
-}
+CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
+  company: const Company(id: 'company-1', name: 'Horus'),
+  role: role,
+);
 
 final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   int getCalls = 0;
@@ -68,6 +56,13 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
     lastIncludeVoided = includeVoided;
     return const Success([]);
   }
+
+  @override
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  }) async => const Success([]);
 
   @override
   Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) {

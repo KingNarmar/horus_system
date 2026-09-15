@@ -14,10 +14,10 @@ import 'package:test/test.dart';
 
 void main() {
   group('CreateExpenseLedgerEntryUseCase', () {
-    test('builds exact Money from company financial configuration', () async {
+    test('builds exact Money and preserves description', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
-        _params(amountMinorUnits: 12345),
+        _params(amountMinorUnits: 12345, description: 'Fuel receipt'),
       );
 
       expect(result, isA<Success<ExpenseLedgerEntry>>());
@@ -27,20 +27,15 @@ void main() {
       expect(repository.data?.amount.currency.value, 'AED');
       expect(repository.data?.currencyFractionDigits, 2);
       expect(repository.data?.fundingSource, ExpenseFundingSource.company);
+      expect(repository.data?.description, 'Fuel receipt');
     });
 
     test('rejects missing company financial configuration', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
-        _params(
-          company: const Company(id: 'company-1', name: 'Horus'),
-        ),
+        _params(company: const Company(id: 'company-1', name: 'Horus')),
       );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.financialConfigurationRequired,
-      );
+      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.financialConfigurationRequired);
       expect(repository.calls, 0);
     });
 
@@ -49,11 +44,7 @@ void main() {
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(amountMinorUnits: 0),
       );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.validationAmountInvalid,
-      );
+      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.validationAmountInvalid);
       expect(repository.calls, 0);
     });
 
@@ -61,17 +52,10 @@ void main() {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(
-          attribution: const ExpenseAttribution(
-            tripId: 'trip-1',
-            driverId: 'driver-1',
-          ),
+          attribution: const ExpenseAttribution(tripId: 'trip-1', driverId: 'driver-1'),
         ),
       );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.validationAttributionInvalid,
-      );
+      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.validationAttributionInvalid);
       expect(repository.calls, 0);
     });
 
@@ -80,11 +64,7 @@ void main() {
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(role: CompanyRole.operations),
       );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.permissionManage,
-      );
+      expect(result.failureOrNull?.code, ExpenseLedgerFailureCodes.permissionManage);
       expect(repository.calls, 0);
     });
 
@@ -96,7 +76,6 @@ void main() {
           attribution: const ExpenseAttribution(tripId: 'trip-1'),
         ),
       );
-
       expect(result, isA<Success<ExpenseLedgerEntry>>());
       expect(repository.calls, 1);
       expect(repository.data?.attribution.tripId, 'trip-1');
@@ -114,24 +93,22 @@ CreateExpenseLedgerEntryParams _params({
   ),
   int amountMinorUnits = 1000,
   ExpenseAttribution attribution = const ExpenseAttribution(),
-}) {
-  return CreateExpenseLedgerEntryParams(
-    currentCompanyContext: CurrentCompanyContext(company: company, role: role),
-    expenseTypeId: 'expense-type-1',
-    amountMinorUnits: amountMinorUnits,
-    expenseDate: BusinessDate(year: 2026, month: 9, day: 15),
-    attribution: attribution,
-  );
-}
+  String? description,
+}) => CreateExpenseLedgerEntryParams(
+  currentCompanyContext: CurrentCompanyContext(company: company, role: role),
+  expenseTypeId: 'expense-type-1',
+  amountMinorUnits: amountMinorUnits,
+  expenseDate: BusinessDate(year: 2026, month: 9, day: 15),
+  attribution: attribution,
+  description: description,
+);
 
 final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   int calls = 0;
   ExpenseLedgerWriteData? data;
 
   @override
-  Future<Result<ExpenseLedgerEntry>> createEntry(
-    ExpenseLedgerWriteData data,
-  ) async {
+  Future<Result<ExpenseLedgerEntry>> createEntry(ExpenseLedgerWriteData data) async {
     calls++;
     this.data = data;
     return Success(
@@ -144,6 +121,7 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
         expenseDate: data.expenseDate,
         fundingSource: data.fundingSource,
         attribution: data.attribution,
+        description: data.description,
         isVoided: false,
       ),
     );
@@ -153,9 +131,14 @@ final class _FakeExpenseLedgerRepository implements ExpenseLedgerRepository {
   Future<Result<List<ExpenseLedgerEntry>>> getEntries({
     required String companyId,
     bool includeVoided = false,
-  }) async {
-    return const Success([]);
-  }
+  }) async => const Success([]);
+
+  @override
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  }) async => const Success([]);
 
   @override
   Future<Result<ExpenseLedgerEntry>> voidEntry({
