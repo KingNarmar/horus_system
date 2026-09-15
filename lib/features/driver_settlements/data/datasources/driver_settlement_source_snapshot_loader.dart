@@ -20,20 +20,23 @@ notes,
 created_at
 ''';
 
-const _tripExpenseColumns = '''
+const _expenseLedgerColumns = '''
 id,
 company_id,
 trip_id,
-expense_name,
-amount,
-paid_by,
+description,
+amount_minor_units,
+currency_fraction_digits,
+funding_source,
 expense_date,
 notes,
+origin_kind,
+origin_id,
 created_at
 ''';
 
-const _paidByDriverAdvance = 'driver_advance';
-const _paidByDriverCash = 'driver_cash';
+const _fundingSourceDriverAdvance = 'driver_advance';
+const _fundingSourceDriverCash = 'driver_cash';
 
 class DriverSettlementSourceSnapshotLoader {
   final SupabaseClient client;
@@ -109,13 +112,14 @@ class DriverSettlementSourceSnapshotLoader {
     if (tripIds.isEmpty) return const [];
 
     final rows = await client
-        .from(DriverSettlementsDbTables.tripExpenses)
-        .select(_tripExpenseColumns)
+        .from(DriverSettlementsDbTables.expenseLedgerEntries)
+        .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
+        .eq(DriverSettlementsDbFields.isVoided, false)
         .inFilter(DriverSettlementsDbFields.tripId, tripIds)
-        .inFilter(DriverSettlementsDbFields.paidBy, const [
-          _paidByDriverAdvance,
-          _paidByDriverCash,
+        .inFilter(DriverSettlementsDbFields.fundingSource, const [
+          _fundingSourceDriverAdvance,
+          _fundingSourceDriverCash,
         ])
         .gte(
           DriverSettlementsDbFields.expenseDate,

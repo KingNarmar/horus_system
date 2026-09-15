@@ -74,9 +74,11 @@ final class CreateTripExpenseUseCase
       );
     }
 
-    final description = _optional(params.description);
-    if (ExpenseTypeSemantics.requiresDescription(expenseType) &&
-        description == null) {
+    final submittedDescription = _optional(params.description);
+    final requiresDescription = ExpenseTypeSemantics.requiresDescription(
+      expenseType,
+    );
+    if (requiresDescription && submittedDescription == null) {
       return Future.value(
         const FailureResult<ExpenseLedgerEntry>(
           ValidationFailure(
@@ -85,6 +87,7 @@ final class CreateTripExpenseUseCase
         ),
       );
     }
+    final description = submittedDescription ?? _optional(expenseType.name);
 
     final configuration = CompanyFinancialConfiguration.tryCreate(
       baseCurrencyCode: context.company.baseCurrencyCode,
