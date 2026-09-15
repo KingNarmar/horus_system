@@ -225,7 +225,7 @@ class _TripExpenseTile extends StatelessWidget {
     final description = expense.description?.trim();
     final typeLabel = expenseType == null
         ? l10n.tripEmptyValue
-        : l10n.tripExpenseTypeLabel(expenseType!);
+        : l10n.tripExpenseTypeDisplayLabel(expenseType!);
     final title = description == null || description.isEmpty
         ? typeLabel
         : description;

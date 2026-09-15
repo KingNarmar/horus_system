@@ -87,7 +87,7 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
                   items: widget.expenseTypes.map((type) {
                     return DropdownMenuItem<String>(
                       value: type.id,
-                      child: Text(l10n.tripExpenseTypeLabel(type)),
+                      child: Text(l10n.tripExpenseTypeDisplayLabel(type)),
                     );
                   }).toList(),
                   validator: (value) =>

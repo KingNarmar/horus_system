@@ -34,6 +34,24 @@ void main() {
       expect(result.dataOrNull?.single.attribution.tripId, 'trip-1');
     });
 
+    test('gets trip entries through the company-scoped boundary', () async {
+      final remote = _FakeExpenseLedgerRemoteDataSource();
+      final repository = ExpenseLedgerRepositoryImpl(remoteDataSource: remote);
+
+      final result = await repository.getEntriesForTrip(
+        companyId: 'company-1',
+        tripId: 'trip-1',
+        includeVoided: true,
+      );
+
+      expect(result, isA<Success<List<ExpenseLedgerEntry>>>());
+      expect(remote.getForTripCalls, 1);
+      expect(remote.lastCompanyId, 'company-1');
+      expect(remote.lastTripId, 'trip-1');
+      expect(remote.lastIncludeVoided, isTrue);
+      expect(result.dataOrNull, hasLength(1));
+    });
+
     test('creates entries through the remote data source', () async {
       final remote = _FakeExpenseLedgerRemoteDataSource();
       final repository = ExpenseLedgerRepositoryImpl(remoteDataSource: remote);
@@ -117,9 +135,11 @@ final class _FakeExpenseLedgerRemoteDataSource
   final Object? error;
 
   int getCalls = 0;
+  int getForTripCalls = 0;
   int createCalls = 0;
   int voidCalls = 0;
   String? lastCompanyId;
+  String? lastTripId;
   bool? lastIncludeVoided;
   String? lastExpenseId;
   String? lastReason;
@@ -134,6 +154,20 @@ final class _FakeExpenseLedgerRemoteDataSource
   }) async {
     getCalls++;
     lastCompanyId = companyId;
+    lastIncludeVoided = includeVoided;
+    _throwIfConfigured();
+    return const [_model];
+  }
+
+  @override
+  Future<List<ExpenseLedgerEntryModel>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    required bool includeVoided,
+  }) async {
+    getForTripCalls++;
+    lastCompanyId = companyId;
+    lastTripId = tripId;
     lastIncludeVoided = includeVoided;
     _throwIfConfigured();
     return const [_model];

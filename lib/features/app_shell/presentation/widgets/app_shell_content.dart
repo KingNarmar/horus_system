@@ -204,8 +204,8 @@ class _SettingsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canManageExpenseTypes =
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(contextData.role);
+    final canViewExpenseTypes =
+        ExpenseTypesPermissionPolicy.canViewExpenseTypes(contextData.role);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -219,7 +219,7 @@ class _SettingsContent extends StatelessWidget {
         SubscriptionsPage(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         PaymentMethodsPage(currentCompanyContext: contextData),
-        if (canManageExpenseTypes) ...[
+        if (canViewExpenseTypes) ...[
           const SizedBox(height: AppSpacing.xl),
           ExpenseTypesPage(currentCompanyContext: contextData),
         ],

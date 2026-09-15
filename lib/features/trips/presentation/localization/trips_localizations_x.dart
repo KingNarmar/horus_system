@@ -34,7 +34,7 @@ extension TripsLocalizationsX on AppLocalizations {
     };
   }
 
-  String tripExpenseTypeLabel(ExpenseType expenseType) {
+  String tripExpenseTypeDisplayLabel(ExpenseType expenseType) {
     return switch (expenseType.code) {
       'fuel' => tripExpenseTypeFuel,
       'road_fees' => tripExpenseTypeRoadFees,

@@ -17,11 +17,17 @@ void main() {
         ],
         tripExpenseRows: [
           _tripExpense(
-            id: 'expense-advance',
-            paidBy: 'driver_advance',
-            amount: 5000,
+            id: 'ledger-advance',
+            fundingSource: 'driver_advance',
+            amountMinorUnits: 500000,
+            originKind: 'legacy_trip_expense',
+            originId: 'expense-advance',
           ),
-          _tripExpense(id: 'expense-cash', paidBy: 'driver_cash', amount: 200),
+          _tripExpense(
+            id: 'expense-cash',
+            fundingSource: 'driver_cash',
+            amountMinorUnits: 20000,
+          ),
         ],
       );
 
@@ -47,7 +53,9 @@ void main() {
         cashReturn.direction,
         DriverSettlementItemDirection.companyToDriver,
       );
+      expect(advanceExpense.sourceId, 'expense-advance');
       expect(advanceExpense.metadata['paid_by'], 'driver_advance');
+      expect(cashExpense.sourceId, 'expense-cash');
       expect(cashExpense.metadata['paid_by'], 'driver_cash');
     });
 
@@ -98,16 +106,21 @@ Map<String, dynamic> _movement({
 
 Map<String, dynamic> _tripExpense({
   required String id,
-  required String paidBy,
-  required num amount,
+  required String fundingSource,
+  required int amountMinorUnits,
+  String originKind = 'manual',
+  String? originId,
 }) {
   return {
     'id': id,
     'trip_id': 'trip-1',
-    'expense_name': 'Fuel',
-    'amount': amount,
-    'paid_by': paidBy,
+    'description': 'Fuel',
+    'amount_minor_units': amountMinorUnits,
+    'currency_fraction_digits': 2,
+    'funding_source': fundingSource,
     'expense_date': '2026-07-01',
+    'origin_kind': originKind,
+    'origin_id': originId,
     'notes': null,
   };
 }
