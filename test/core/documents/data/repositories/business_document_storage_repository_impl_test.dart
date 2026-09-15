@@ -25,7 +25,7 @@ void main() {
   }
 
   group('BusinessDocumentStorageRepositoryImpl', () {
-    test('uploads validated files using a generated safe object key', () async {
+    test('uploads validated files using a generated safe reference', () async {
       final remote = _FakeBusinessDocumentStorageRemoteDataSource();
       final repository = createRepository(remote);
 
@@ -45,7 +45,7 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(
-        result.dataOrNull?.objectKey,
+        result.dataOrNull?.value,
         'companies/$companyId/trips/$entityId/delivery-evidence/'
         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf',
       );
@@ -97,7 +97,7 @@ void main() {
       expect(remote.downloadCount, 0);
     });
 
-    test('supports download, signed access, and delete lifecycle', () async {
+    test('supports download, temporary access, and delete lifecycle', () async {
       final remote = _FakeBusinessDocumentStorageRemoteDataSource();
       final repository = createRepository(remote);
       const reference = BusinessDocumentReference(
@@ -109,7 +109,7 @@ void main() {
         companyId: companyId,
         reference: reference,
       );
-      final signedUrl = await repository.createSignedUrl(
+      final access = await repository.createTemporaryAccess(
         companyId: companyId,
         reference: reference,
       );
@@ -119,7 +119,7 @@ void main() {
       );
 
       expect(download.dataOrNull, orderedEquals([7, 8, 9]));
-      expect(signedUrl.dataOrNull, 'https://example.test/signed');
+      expect(access.dataOrNull?.value, 'https://example.test/signed');
       expect(deleted.isSuccess, isTrue);
       expect(remote.downloadCount, 1);
       expect(remote.signedUrlCount, 1);

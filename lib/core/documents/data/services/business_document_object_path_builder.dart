@@ -86,7 +86,7 @@ final class BusinessDocumentObjectPathBuilder {
       );
     }
 
-    final match = _referencePattern.firstMatch(reference.objectKey.trim());
+    final match = _referencePattern.firstMatch(reference.value.trim());
     if (match == null) {
       return const ValidationFailure(
         code: BusinessDocumentFailureCodes.validationReferenceInvalid,

@@ -4,18 +4,19 @@ import 'package:supabase_flutter/supabase_flutter.dart' show StorageException;
 
 import '../../../errors/common_failures.dart';
 import '../../../utils/result.dart';
+import '../../domain/entities/business_document_access.dart';
 import '../../domain/entities/business_document_file.dart';
 import '../../domain/entities/business_document_location.dart';
 import '../../domain/entities/business_document_reference.dart';
 import '../../domain/failures/business_document_failure_codes.dart';
 import '../../domain/policies/business_document_file_policy.dart';
-import '../../domain/repositories/business_document_storage_repository.dart';
+import '../../domain/repositories/business_document_repository.dart';
 import '../datasources/business_document_storage_remote_data_source.dart';
 import '../services/business_document_object_path_builder.dart';
 import 'business_document_storage_failure_mapper.dart';
 
 final class BusinessDocumentStorageRepositoryImpl
-    implements BusinessDocumentStorageRepository {
+    implements BusinessDocumentRepository {
   final BusinessDocumentStorageRemoteDataSource remoteDataSource;
   final BusinessDocumentObjectPathBuilder pathBuilder;
   final BusinessDocumentFilePolicy filePolicy;
@@ -90,7 +91,9 @@ final class BusinessDocumentStorageRepositoryImpl
     }
 
     try {
-      final bytes = await remoteDataSource.download(objectKey: reference.objectKey);
+      final bytes = await remoteDataSource.download(
+        objectKey: reference.value,
+      );
       return Success<Uint8List>(bytes);
     } on StorageException catch (error) {
       return FailureResult<Uint8List>(failureMapper.fromStorage(error));
@@ -100,7 +103,7 @@ final class BusinessDocumentStorageRepositoryImpl
   }
 
   @override
-  Future<Result<String>> createSignedUrl({
+  Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required String companyId,
     required BusinessDocumentReference reference,
   }) async {
@@ -109,18 +112,22 @@ final class BusinessDocumentStorageRepositoryImpl
       reference: reference,
     );
     if (validationFailure != null) {
-      return FailureResult<String>(validationFailure);
+      return FailureResult<BusinessDocumentAccess>(validationFailure);
     }
 
     try {
-      final url = await remoteDataSource.createSignedUrl(
-        objectKey: reference.objectKey,
+      final value = await remoteDataSource.createSignedUrl(
+        objectKey: reference.value,
       );
-      return Success<String>(url);
+      return Success<BusinessDocumentAccess>(BusinessDocumentAccess(value));
     } on StorageException catch (error) {
-      return FailureResult<String>(failureMapper.fromStorage(error));
+      return FailureResult<BusinessDocumentAccess>(
+        failureMapper.fromStorage(error),
+      );
     } catch (error) {
-      return FailureResult<String>(failureMapper.fromUnexpected(error));
+      return FailureResult<BusinessDocumentAccess>(
+        failureMapper.fromUnexpected(error),
+      );
     }
   }
 
@@ -138,7 +145,7 @@ final class BusinessDocumentStorageRepositoryImpl
     }
 
     try {
-      await remoteDataSource.delete(objectKey: reference.objectKey);
+      await remoteDataSource.delete(objectKey: reference.value);
       return const Success<void>(null);
     } on StorageException catch (error) {
       return FailureResult<void>(failureMapper.fromStorage(error));

@@ -1,12 +1,12 @@
-final class BusinessDocumentReference {
+final class BusinessDocumentAccess {
   final String value;
 
-  const BusinessDocumentReference(this.value);
+  const BusinessDocumentAccess(this.value);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is BusinessDocumentReference && other.value == value;
+      other is BusinessDocumentAccess && other.value == value;
 
   @override
   int get hashCode => value.hashCode;

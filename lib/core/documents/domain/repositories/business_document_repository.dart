@@ -1,16 +1,17 @@
 import 'dart:typed_data';
 
 import '../../../utils/result.dart';
+import '../entities/business_document_access.dart';
 import '../entities/business_document_file.dart';
 import '../entities/business_document_location.dart';
 import '../entities/business_document_reference.dart';
 
-/// App-wide storage boundary only.
+/// App-wide document boundary only.
 ///
 /// Owning feature repositories remain responsible for persisting the returned
 /// reference, enforcing narrower business permissions, and coordinating audit
 /// after successful business mutations.
-abstract class BusinessDocumentStorageRepository {
+abstract class BusinessDocumentRepository {
   Future<Result<BusinessDocumentReference>> upload({
     required BusinessDocumentLocation location,
     required BusinessDocumentFile file,
@@ -21,7 +22,7 @@ abstract class BusinessDocumentStorageRepository {
     required BusinessDocumentReference reference,
   });
 
-  Future<Result<String>> createSignedUrl({
+  Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required String companyId,
     required BusinessDocumentReference reference,
   });
