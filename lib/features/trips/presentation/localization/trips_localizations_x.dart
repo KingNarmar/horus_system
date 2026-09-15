@@ -17,6 +17,16 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripExpenseVoidedStatus => companyExpenseVoidedStatus;
   String get tripExpenseVoidButton => voidCompanyExpenseButton;
   String get tripExpenseVoidMessage => voidCompanyExpenseMessage;
+  String get tripExpenseTypeAdminCosts => companyExpenseCategoryAdminCosts;
+  String get tripExpenseTypeLicensesAndRenewals =>
+      companyExpenseCategoryLicensesAndRenewals;
+  String get tripExpenseTypeOfficeExpenses => companyExpenseCategoryOfficeExpenses;
+  String get tripExpenseTypeOilsAndFluids => companyExpenseCategoryOilsAndFluids;
+  String get tripExpenseTypeRent => companyExpenseCategoryRent;
+  String get tripExpenseTypeSpareParts => companyExpenseCategorySpareParts;
+  String get tripExpenseTypeTires => companyExpenseCategoryTires;
+  String get tripExpenseTypeVehicleMaintenance =>
+      companyExpenseCategoryVehicleMaintenance;
 
   String _bidiIsolate(String value) => '\u2068$value\u2069';
 
@@ -39,33 +49,34 @@ extension TripsLocalizationsX on AppLocalizations {
   }
 
   String tripExpenseTypeDisplayLabel(ExpenseType expenseType) {
-    return switch (expenseType.code) {
-      'fuel' => tripExpenseTypeFuel,
-      'road_fees' => tripExpenseTypeRoadFees,
-      'weighbridge' => tripExpenseTypeWeighbridge,
-      'loading' => tripExpenseTypeLoading,
-      'unloading' => tripExpenseTypeUnloading,
-      'fines' => tripExpenseTypeFines,
-      'emergency_maintenance' => tripExpenseTypeEmergencyMaintenance,
-      'other' => tripExpenseTypeOther,
-      _ => expenseType.name,
-    };
+    return _tripExpenseTypeLabel(expenseType.code, expenseType.name);
   }
 
   String tripExpenseTypeName(String name) {
     final normalized = name.trim().toLowerCase().replaceAll(' ', '_');
+    return _tripExpenseTypeLabel(normalized, name);
+  }
 
-    return switch (normalized) {
-      'fuel' => tripExpenseTypeFuel,
-      'road_fees' => tripExpenseTypeRoadFees,
-      'weighbridge' => tripExpenseTypeWeighbridge,
-      'loading' => tripExpenseTypeLoading,
-      'unloading' => tripExpenseTypeUnloading,
-      'fines' => tripExpenseTypeFines,
+  String _tripExpenseTypeLabel(String? code, String fallback) {
+    return switch (code) {
+      'admin_costs' => tripExpenseTypeAdminCosts,
       'emergency_maintenance' => tripExpenseTypeEmergencyMaintenance,
-      'driver_advance' => tripExpenseTypeDriverAdvance,
+      'fines' => tripExpenseTypeFines,
+      'fuel' => tripExpenseTypeFuel,
+      'licenses_and_renewals' => tripExpenseTypeLicensesAndRenewals,
+      'loading' => tripExpenseTypeLoading,
+      'office_expenses' => tripExpenseTypeOfficeExpenses,
+      'oils_and_fluids' => tripExpenseTypeOilsAndFluids,
       'other' => tripExpenseTypeOther,
-      _ => name,
+      'rent' => tripExpenseTypeRent,
+      'road_fees' => tripExpenseTypeRoadFees,
+      'spare_parts' => tripExpenseTypeSpareParts,
+      'tires' => tripExpenseTypeTires,
+      'unloading' => tripExpenseTypeUnloading,
+      'vehicle_maintenance' => tripExpenseTypeVehicleMaintenance,
+      'weighbridge' => tripExpenseTypeWeighbridge,
+      'driver_advance' => tripExpenseTypeDriverAdvance,
+      _ => fallback,
     };
   }
 
