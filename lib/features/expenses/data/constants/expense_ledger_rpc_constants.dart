@@ -13,6 +13,7 @@ abstract final class ExpenseLedgerRpcConstants {
   static const driverId = 'p_driver_id';
   static const tractorHeadId = 'p_tractor_head_id';
   static const trailerId = 'p_trailer_id';
+  static const description = 'p_description';
   static const referenceNumber = 'p_reference_number';
   static const notes = 'p_notes';
   static const expenseId = 'p_expense_id';

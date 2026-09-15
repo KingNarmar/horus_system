@@ -11,6 +11,7 @@ final class ExpenseLedgerEntryModel {
   final String? driverId;
   final String? tractorHeadId;
   final String? trailerId;
+  final String? description;
   final String? referenceNumber;
   final String? notes;
   final bool isVoided;
@@ -34,6 +35,7 @@ final class ExpenseLedgerEntryModel {
     this.driverId,
     this.tractorHeadId,
     this.trailerId,
+    this.description,
     this.referenceNumber,
     this.notes,
     this.voidedAt,
@@ -57,6 +59,7 @@ final class ExpenseLedgerEntryModel {
       driverId: map['driver_id'] as String?,
       tractorHeadId: map['tractor_head_id'] as String?,
       trailerId: map['trailer_id'] as String?,
+      description: map['description'] as String?,
       referenceNumber: map['reference_number'] as String?,
       notes: map['notes'] as String?,
       isVoided: map['is_voided'] as bool? ?? false,

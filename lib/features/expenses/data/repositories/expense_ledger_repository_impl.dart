@@ -38,6 +38,28 @@ final class ExpenseLedgerRepositoryImpl implements ExpenseLedgerRepository {
   }
 
   @override
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  }) async {
+    try {
+      final models = await remoteDataSource.getEntriesForTrip(
+        companyId: companyId,
+        tripId: tripId,
+        includeVoided: includeVoided,
+      );
+      return Success(
+        models.map((model) => model.toEntity()).toList(growable: false),
+      );
+    } on PostgrestException catch (error) {
+      return FailureResult(failureMapper.fromPostgrest(error));
+    } catch (error) {
+      return FailureResult(failureMapper.fromUnexpected(error));
+    }
+  }
+
+  @override
   Future<Result<ExpenseLedgerEntry>> createEntry(
     ExpenseLedgerWriteData data,
   ) async {

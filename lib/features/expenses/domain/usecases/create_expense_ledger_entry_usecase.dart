@@ -21,6 +21,7 @@ final class CreateExpenseLedgerEntryParams {
   final BusinessDate expenseDate;
   final ExpenseFundingSource fundingSource;
   final ExpenseAttribution attribution;
+  final String? description;
   final String? referenceNumber;
   final String? notes;
 
@@ -31,6 +32,7 @@ final class CreateExpenseLedgerEntryParams {
     required this.expenseDate,
     this.fundingSource = ExpenseFundingSource.company,
     this.attribution = const ExpenseAttribution(),
+    this.description,
     this.referenceNumber,
     this.notes,
   });
@@ -116,9 +118,15 @@ final class CreateExpenseLedgerEntryUseCase
         expenseDate: params.expenseDate,
         fundingSource: params.fundingSource,
         attribution: attribution,
+        description: _normalizeOptional(params.description),
         referenceNumber: params.referenceNumber,
         notes: params.notes,
       ),
     );
   }
+}
+
+String? _normalizeOptional(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
