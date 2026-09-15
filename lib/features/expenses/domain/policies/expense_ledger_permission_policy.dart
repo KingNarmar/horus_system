@@ -13,18 +13,22 @@ abstract final class ExpenseLedgerPermissionPolicy {
     };
   }
 
+  static bool canManageTripAttributed(CompanyRole role) {
+    return switch (role) {
+      CompanyRole.owner ||
+      CompanyRole.admin ||
+      CompanyRole.operations ||
+      CompanyRole.accountant => true,
+      CompanyRole.viewer || CompanyRole.driver => false,
+    };
+  }
+
   static bool canManage(
     CompanyRole role, {
     required ExpenseAttribution attribution,
   }) {
     if (attribution.isTripAttributed) {
-      return switch (role) {
-        CompanyRole.owner ||
-        CompanyRole.admin ||
-        CompanyRole.operations ||
-        CompanyRole.accountant => true,
-        CompanyRole.viewer || CompanyRole.driver => false,
-      };
+      return canManageTripAttributed(role);
     }
 
     return switch (role) {

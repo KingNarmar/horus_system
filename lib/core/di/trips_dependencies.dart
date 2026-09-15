@@ -1,8 +1,6 @@
 import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/expense_types/di/expense_types_dependencies.dart';
-import '../../features/expenses/data/datasources/trip_expenses_remote_data_source.dart';
-import '../../features/expenses/data/repositories/trip_expense_repo_impl.dart';
-import '../../features/expenses/domain/usecases/trip_expenses_usecases.dart';
+import '../../features/expenses/di/expenses_dependencies.dart';
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
 import '../../features/trips/data/repositories/trips_repository_impl.dart';
 import '../../features/trips/domain/usecases/trips_usecases.dart';
@@ -20,14 +18,6 @@ abstract final class TripsDependencies {
     final tripsRemoteDataSource = SupabaseTripsRemoteDataSource(client);
     final tripsRepository = TripsRepositoryImpl(
       remoteDataSource: tripsRemoteDataSource,
-      createAuditLogUseCase: createAuditLogUseCase,
-    );
-
-    final expensesRemoteDataSource = SupabaseTripExpensesRemoteDataSource(
-      client,
-    );
-    final expensesRepository = TripExpensesRepositoryImpl(
-      remoteDataSource: expensesRemoteDataSource,
       createAuditLogUseCase: createAuditLogUseCase,
     );
 
@@ -53,11 +43,14 @@ abstract final class TripsDependencies {
             businessTimeZoneConverter,
           ),
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
-      getTripExpensesUseCase: GetTripExpensesUseCase(expensesRepository),
-      getActiveExpenseTypesUseCase:
-          ExpenseTypesDependencies.createGetActiveExpenseTypesUseCase(),
-      addTripExpenseUseCase: AddTripExpenseUseCase(expensesRepository),
-      updateTripExpenseUseCase: UpdateTripExpenseUseCase(expensesRepository),
+      getTripExpenseLedgerEntriesUseCase:
+          ExpensesDependencies.createGetTripExpenseLedgerEntriesUseCase(),
+      getLedgerEligibleExpenseTypesUseCase:
+          ExpenseTypesDependencies.createGetLedgerEligibleExpenseTypesUseCase(),
+      createTripExpenseUseCase:
+          ExpensesDependencies.createCreateTripExpenseUseCase(),
+      voidExpenseLedgerEntryUseCase:
+          ExpensesDependencies.createVoidExpenseLedgerEntryUseCase(),
     );
   }
 }

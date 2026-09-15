@@ -5,7 +5,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
-import '../../../expenses/domain/entities/trip_expense.dart';
+import '../../../expenses/domain/entities/expense_ledger_entry.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
@@ -46,14 +46,14 @@ class TripsLoaded extends TripsState {
   final double? selectedTripNetProfit;
   final List<AuditLog> selectedTripActivity;
   final List<TripStatusHistory> selectedTripStatusHistory;
-  final List<TripExpense> selectedTripExpenses;
+  final List<ExpenseLedgerEntry> selectedTripExpenses;
   final List<ExpenseType> expenseTypes;
   final bool isDetailsLoading;
   final bool isActivityLoading;
   final bool isStatusHistoryLoading;
   final bool isExpensesLoading;
   final bool isExpenseTypesLoading;
-  final bool isTripExpenseSaving;
+  final bool isTripExpenseMutating;
   final Failure? detailsFailure;
   final Failure? activityFailure;
   final Failure? statusHistoryFailure;
@@ -83,14 +83,14 @@ class TripsLoaded extends TripsState {
     this.selectedTripNetProfit,
     this.selectedTripActivity = const <AuditLog>[],
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
-    this.selectedTripExpenses = const <TripExpense>[],
+    this.selectedTripExpenses = const <ExpenseLedgerEntry>[],
     this.expenseTypes = const <ExpenseType>[],
     this.isDetailsLoading = false,
     this.isActivityLoading = false,
     this.isStatusHistoryLoading = false,
     this.isExpensesLoading = false,
     this.isExpenseTypesLoading = false,
-    this.isTripExpenseSaving = false,
+    this.isTripExpenseMutating = false,
     this.detailsFailure,
     this.activityFailure,
     this.statusHistoryFailure,
@@ -155,14 +155,14 @@ class TripsLoaded extends TripsState {
     Object? selectedTripNetProfit = _notSet,
     List<AuditLog>? selectedTripActivity,
     List<TripStatusHistory>? selectedTripStatusHistory,
-    List<TripExpense>? selectedTripExpenses,
+    List<ExpenseLedgerEntry>? selectedTripExpenses,
     List<ExpenseType>? expenseTypes,
     bool? isDetailsLoading,
     bool? isActivityLoading,
     bool? isStatusHistoryLoading,
     bool? isExpensesLoading,
     bool? isExpenseTypesLoading,
-    bool? isTripExpenseSaving,
+    bool? isTripExpenseMutating,
     Object? detailsFailure = _notSet,
     Object? activityFailure = _notSet,
     Object? statusHistoryFailure = _notSet,
@@ -212,7 +212,8 @@ class TripsLoaded extends TripsState {
       isExpensesLoading: isExpensesLoading ?? this.isExpensesLoading,
       isExpenseTypesLoading:
           isExpenseTypesLoading ?? this.isExpenseTypesLoading,
-      isTripExpenseSaving: isTripExpenseSaving ?? this.isTripExpenseSaving,
+      isTripExpenseMutating:
+          isTripExpenseMutating ?? this.isTripExpenseMutating,
       detailsFailure: detailsFailure == _notSet
           ? this.detailsFailure
           : detailsFailure as Failure?,
