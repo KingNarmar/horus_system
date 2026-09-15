@@ -4,38 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('ExpenseTypesPermissionPolicy', () {
-    test('management is limited to owner, admin, and accountant', () {
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.owner),
-        isTrue,
-      );
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.admin),
-        isTrue,
-      );
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(
-          CompanyRole.accountant,
-        ),
-        isTrue,
-      );
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(
-          CompanyRole.operations,
-        ),
-        isFalse,
-      );
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.viewer),
-        isFalse,
-      );
-      expect(
-        ExpenseTypesPermissionPolicy.canManageExpenseTypes(CompanyRole.driver),
-        isFalse,
-      );
-    });
-
-    test('active lookup is available to company app roles except driver', () {
+    test('catalog view is available to company app roles except driver', () {
       for (final role in [
         CompanyRole.owner,
         CompanyRole.admin,
@@ -44,17 +13,25 @@ void main() {
         CompanyRole.viewer,
       ]) {
         expect(
-          ExpenseTypesPermissionPolicy.canViewActiveExpenseTypes(role),
+          ExpenseTypesPermissionPolicy.canViewExpenseTypes(role),
           isTrue,
           reason: role.name,
         );
       }
       expect(
-        ExpenseTypesPermissionPolicy.canViewActiveExpenseTypes(
-          CompanyRole.driver,
-        ),
+        ExpenseTypesPermissionPolicy.canViewExpenseTypes(CompanyRole.driver),
         isFalse,
       );
+    });
+
+    test('active catalog view follows the same read permission', () {
+      for (final role in CompanyRole.values) {
+        expect(
+          ExpenseTypesPermissionPolicy.canViewActiveExpenseTypes(role),
+          ExpenseTypesPermissionPolicy.canViewExpenseTypes(role),
+          reason: role.name,
+        );
+      }
     });
   });
 }

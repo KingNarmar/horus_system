@@ -15,13 +15,4 @@ abstract final class ExpenseTypesPermissionPolicy {
   static bool canViewActiveExpenseTypes(CompanyRole role) {
     return canViewExpenseTypes(role);
   }
-
-  static bool canManageExpenseTypes(CompanyRole role) {
-    return switch (role) {
-      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations ||
-      CompanyRole.viewer ||
-      CompanyRole.driver => false,
-    };
-  }
 }

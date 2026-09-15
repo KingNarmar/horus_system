@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/features/company/domain/entities/company.dart';
-import 'package:horus_system/features/company/domain/entities/company_role.dart';
-import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/expense_types/domain/entities/expense_type.dart';
 import 'package:horus_system/features/expense_types/domain/entities/expense_type_status_filter.dart';
 import 'package:horus_system/features/expense_types/presentation/cubit/expense_types_state.dart';
@@ -23,7 +20,6 @@ void main() {
                 width: 400,
                 child: ExpenseTypesStateView(
                   state: ExpenseTypesLoaded(
-                    currentCompanyContext: _context(),
                     allTypes: const [
                       ExpenseType(
                         id: 'fuel',
@@ -38,16 +34,12 @@ void main() {
                         isActive: false,
                       ),
                     ],
-                    canManageExpenseTypes: true,
                     statusFilter: filter,
                   ),
                   onRetry: () {},
                   onStatusFilterChanged: (value) {
                     setState(() => filter = value);
                   },
-                  onEdit: (_) {},
-                  onDeactivate: (_) {},
-                  onReactivate: (_) {},
                 ),
               );
             },
@@ -58,6 +50,7 @@ void main() {
 
     expect(find.text('Fuel'), findsOneWidget);
     expect(find.text('Road fees'), findsNothing);
+    expect(find.byType(IconButton), findsNothing);
 
     await tester.tap(find.widgetWithText(FilterChip, 'Inactive'));
     await tester.pump();
@@ -69,11 +62,4 @@ void main() {
     expect(find.text('Fuel'), findsOneWidget);
     expect(find.text('Road fees'), findsOneWidget);
   });
-}
-
-CurrentCompanyContext _context() {
-  return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Company One'),
-    role: CompanyRole.accountant,
-  );
 }
