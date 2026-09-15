@@ -6,6 +6,8 @@ abstract final class ExpenseLedgerFailureCodes {
   static const validationAmountInvalid = 'expense_ledger_amount_invalid';
   static const validationAttributionInvalid =
       'expense_ledger_attribution_invalid';
+  static const validationFundingSourceInvalid =
+      'expense_ledger_funding_source_invalid';
   static const financialConfigurationRequired =
       'expense_ledger_financial_configuration_required';
   static const currencyMismatch = 'expense_ledger_currency_mismatch';

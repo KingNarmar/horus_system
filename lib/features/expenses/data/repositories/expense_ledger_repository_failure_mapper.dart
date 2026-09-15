@@ -30,6 +30,12 @@ final class ExpenseLedgerRepositoryFailureMapper {
       'P2807' => const ConflictFailure(
         code: ExpenseLedgerFailureCodes.conflictAlreadyVoided,
       ),
+      'P2808' => const ValidationFailure(
+        code: ExpenseLedgerFailureCodes.validationAmountInvalid,
+      ),
+      'P2809' => const ValidationFailure(
+        code: ExpenseLedgerFailureCodes.validationFundingSourceInvalid,
+      ),
       _ => const ServerFailure(code: ExpenseLedgerFailureCodes.serverError),
     };
   }
