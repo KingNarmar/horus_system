@@ -48,6 +48,8 @@ void main() {
     };
 
     test('maps every canonical ledger-eligible type in English and Arabic', () {
+      expect(expectedAr.keys.toSet(), expectedEn.keys.toSet());
+
       for (final entry in expectedEn.entries) {
         final type = ExpenseType(
           id: entry.key,
