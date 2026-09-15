@@ -13,12 +13,14 @@ abstract interface class ExpenseTypesRemoteDataSource {
     required String companyId,
   });
 
+  Future<List<ExpenseTypeModel>> getLedgerEligibleExpenseTypes({
+    required String companyId,
+  });
+
   Future<ExpenseTypeModel> getExpenseTypeById({
     required String companyId,
     required String expenseTypeId,
   });
-
-  Future<ExpenseTypeModel> addExpenseType({required ExpenseTypeWriteData data});
 
   Future<ExpenseTypeModel> updateExpenseType({
     required String expenseTypeId,
@@ -70,6 +72,20 @@ class SupabaseExpenseTypesRemoteDataSource
   }
 
   @override
+  Future<List<ExpenseTypeModel>> getLedgerEligibleExpenseTypes({
+    required String companyId,
+  }) async {
+    final response = await client
+        .from(ExpenseTypeDbFields.tableName)
+        .select(columns)
+        .eq(DbCommonFields.companyId, companyId)
+        .eq(DbCommonFields.isActive, true)
+        .eq(ExpenseTypeDbFields.ledgerEligible, true)
+        .order(ExpenseTypeDbFields.name);
+    return _modelsFromResponse(response);
+  }
+
+  @override
   Future<ExpenseTypeModel> getExpenseTypeById({
     required String companyId,
     required String expenseTypeId,
@@ -79,24 +95,6 @@ class SupabaseExpenseTypesRemoteDataSource
         .select(columns)
         .eq(DbCommonFields.id, expenseTypeId)
         .eq(DbCommonFields.companyId, companyId)
-        .single();
-    return ExpenseTypeModel.fromMap(Map<String, dynamic>.from(response));
-  }
-
-  @override
-  Future<ExpenseTypeModel> addExpenseType({
-    required ExpenseTypeWriteData data,
-  }) async {
-    final values = data.toInsertMap();
-    final actorUserId = client.auth.currentUser?.id;
-    if (actorUserId != null) {
-      values[DbCommonFields.createdBy] = actorUserId;
-    }
-
-    final response = await client
-        .from(ExpenseTypeDbFields.tableName)
-        .insert(values)
-        .select(columns)
         .single();
     return ExpenseTypeModel.fromMap(Map<String, dynamic>.from(response));
   }

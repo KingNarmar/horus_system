@@ -3,7 +3,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/expense_type.dart';
 import '../../domain/entities/expense_type_status_filter.dart';
 
-enum ExpenseTypeMutation { created, updated, deactivated, reactivated }
+enum ExpenseTypeMutation { updated, deactivated, reactivated }
 
 sealed class ExpenseTypesState {
   const ExpenseTypesState();

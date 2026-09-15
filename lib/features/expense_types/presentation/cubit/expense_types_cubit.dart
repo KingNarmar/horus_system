@@ -6,7 +6,6 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/expense_type.dart';
 import '../../domain/entities/expense_type_status_filter.dart';
 import '../../domain/policies/expense_types_permission_policy.dart';
-import '../../domain/usecases/add_expense_type_usecase.dart';
 import '../../domain/usecases/deactivate_expense_type_usecase.dart';
 import '../../domain/usecases/get_expense_types_usecase.dart';
 import '../../domain/usecases/reactivate_expense_type_usecase.dart';
@@ -15,7 +14,6 @@ import 'expense_types_state.dart';
 
 class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
   final GetExpenseTypesUseCase getExpenseTypesUseCase;
-  final AddExpenseTypeUseCase addExpenseTypeUseCase;
   final UpdateExpenseTypeUseCase updateExpenseTypeUseCase;
   final DeactivateExpenseTypeUseCase deactivateExpenseTypeUseCase;
   final ReactivateExpenseTypeUseCase reactivateExpenseTypeUseCase;
@@ -25,7 +23,6 @@ class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
 
   ExpenseTypesCubit({
     required this.getExpenseTypesUseCase,
-    required this.addExpenseTypeUseCase,
     required this.updateExpenseTypeUseCase,
     required this.deactivateExpenseTypeUseCase,
     required this.reactivateExpenseTypeUseCase,
@@ -69,15 +66,6 @@ class ExpenseTypesCubit extends Cubit<ExpenseTypesState> {
     if (currentState is ExpenseTypesLoaded) {
       emit(currentState.copyWith(statusFilter: filter));
     }
-  }
-
-  Future<bool> addExpenseType(String name) {
-    return _submitMutation(
-      execute: (context) => addExpenseTypeUseCase(
-        AddExpenseTypeParams(currentCompanyContext: context, name: name),
-      ),
-      mutation: ExpenseTypeMutation.created,
-    );
   }
 
   Future<bool> updateExpenseType({

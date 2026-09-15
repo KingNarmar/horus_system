@@ -11,9 +11,8 @@ abstract interface class ExpenseTypesRepository {
     required String companyId,
   });
 
-  Future<Result<ExpenseType>> addExpenseType({
-    required ExpenseTypeWriteData data,
-    required String actorRole,
+  Future<Result<List<ExpenseType>>> getLedgerEligibleExpenseTypes({
+    required String companyId,
   });
 
   Future<Result<ExpenseType>> updateExpenseType({

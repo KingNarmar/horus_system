@@ -50,19 +50,15 @@ class ExpenseTypesRepositoryImpl implements ExpenseTypesRepository {
   }
 
   @override
-  Future<Result<ExpenseType>> addExpenseType({
-    required ExpenseTypeWriteData data,
-    required String actorRole,
+  Future<Result<List<ExpenseType>>> getLedgerEligibleExpenseTypes({
+    required String companyId,
   }) {
     return _guard(() async {
-      final model = await remoteDataSource.addExpenseType(data: data);
-      final auditFailure = await _auditWriter.writeCreated(
-        model: model,
-        actorRole: actorRole,
+      final models = await remoteDataSource.getLedgerEligibleExpenseTypes(
+        companyId: companyId,
       );
-      if (auditFailure != null) return FailureResult<ExpenseType>(auditFailure);
-      return Success(model.toEntity());
-    }, permissionCode: FailureCodes.permissionExpenseTypesManagement);
+      return Success(models.map((model) => model.toEntity()).toList());
+    }, permissionCode: FailureCodes.permissionExpenseTypesView);
   }
 
   @override
