@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/business_timezone_localizations.dart';
+import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../../domain/failures/payment_failure_codes.dart';
 import '../localization/payments_localizations.dart';
@@ -39,8 +41,11 @@ String paymentsFailureMessage(BuildContext context, Failure failure) {
     PaymentFailureCodes.conflictInvoiceLinesRequired =>
       strings.invoiceLinesFailure,
     PaymentFailureCodes.conflictTripStateInvalid => strings.tripStateFailure,
+    CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
+      context.financialReadinessL10n.configurationRequired,
+    CompanyFailureCodes.conflictBusinessTimezoneNotConfigured ||
     CompanyFailureCodes.conflictRegionalSettingsNotConfigured =>
-      strings.regionalSettingsFailure,
+      context.businessTimezoneL10n.configurationRequired,
     _ => _safeFallback(context, failure, strings),
   };
 }

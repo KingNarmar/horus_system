@@ -1,8 +1,8 @@
-import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../company/domain/policies/company_financial_readiness_policy.dart';
 import '../entities/customer_statement.dart';
 import '../entities/customer_statement_source.dart';
 import '../failures/customer_statement_failure_codes.dart';
@@ -54,23 +54,21 @@ final class GetCustomerStatementUseCase
       );
     }
 
-    final company = context.company;
-    final currencyCode = company.baseCurrencyCode;
-    final fractionDigits = company.baseCurrencyFractionDigits;
-    final timezone = company.businessTimezone?.trim();
-    final currency = currencyCode == null
-        ? null
-        : CurrencyCode.tryParse(currencyCode);
-
-    if (currency == null ||
-        fractionDigits == null ||
-        fractionDigits < 0 ||
-        fractionDigits > 4 ||
-        timezone == null ||
-        timezone.isEmpty) {
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
+    final configuration = readiness.configuration;
+    if (!readiness.isReady || configuration == null) {
       return const FailureResult(
         ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        ),
+      );
+    }
+
+    final timezone = context.company.businessTimezone?.trim();
+    if (timezone == null || timezone.isEmpty) {
+      return const FailureResult(
+        ConflictFailure(
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
       );
     }
@@ -87,8 +85,8 @@ final class GetCustomerStatementUseCase
         source: source,
         expectedCompanyId: context.companyId,
         expectedCustomerId: customerId,
-        expectedCurrency: currency,
-        expectedFractionDigits: fractionDigits,
+        expectedCurrency: configuration.baseCurrency,
+        expectedFractionDigits: configuration.fractionDigits,
         expectedBusinessTimezone: timezone,
         expectedFromDate: fromDate,
         expectedToDate: toDate,

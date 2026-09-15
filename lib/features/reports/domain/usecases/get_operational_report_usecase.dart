@@ -38,13 +38,15 @@ final class GetOperationalReportUseCase
     );
     if (dateFailure != null) return FailureResult(dateFailure);
 
-    final request = ReportsContextValidator.tryBuild(
+    final requestResult = ReportsContextValidator.buildOperational(
       context: context,
       range: params.dateRange,
     );
-    if (request == null) {
-      return FailureResult(ReportsContextValidator.regionalSettingsFailure());
+    if (requestResult is FailureResult<ReportsOperationalValidatedRequest>) {
+      return FailureResult(requestResult.failure);
     }
+    final request =
+        (requestResult as Success<ReportsOperationalValidatedRequest>).data;
 
     final result = await _repository.getOperationalTripSource(
       companyId: request.companyId,
@@ -54,15 +56,14 @@ final class GetOperationalReportUseCase
 
     return result.when(
       success: (source) {
-        final metadataFailure = ReportSourceIntegrity.validateMetadata(
-          metadata: source.metadata,
-          expectedCompanyId: request.companyId,
-          expectedCurrency: request.currency,
-          expectedFractionDigits: request.fractionDigits,
-          expectedBusinessTimezone: request.businessTimezone,
-          expectedFromDate: request.fromDate,
-          expectedToDate: request.toDate,
-        );
+        final metadataFailure =
+            ReportSourceIntegrity.validateOperationalMetadata(
+              metadata: source.metadata,
+              expectedCompanyId: request.companyId,
+              expectedBusinessTimezone: request.businessTimezone,
+              expectedFromDate: request.fromDate,
+              expectedToDate: request.toDate,
+            );
         if (metadataFailure != null) {
           return FailureResult<OperationalTripReport>(metadataFailure);
         }

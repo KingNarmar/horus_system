@@ -1,6 +1,8 @@
 abstract final class CompanyRpcConstants {
   static const createCompany = 'create_company_with_initial_owner';
   static const updateRegionalSettings = 'update_company_regional_settings';
+  static const updateFinancialConfiguration =
+      'update_company_financial_configuration';
   static const listTimezones = 'list_company_timezones';
   static const updateBusinessTimezone = 'update_company_business_timezone';
   static const getBusinessDate = 'get_company_business_date';

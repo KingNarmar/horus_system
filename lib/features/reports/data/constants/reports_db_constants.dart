@@ -13,5 +13,6 @@ abstract final class ReportsRpcErrorCodes {
   static const permissionDenied = 'P3010';
   static const invalidDateRange = 'P3011';
   static const companyNotFound = 'P3012';
-  static const regionalSettingsNotConfigured = 'P3013';
+  static const businessTimezoneNotConfigured = 'P3013';
+  static const financialSettingsNotConfigured = 'P3014';
 }

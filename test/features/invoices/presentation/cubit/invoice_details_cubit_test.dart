@@ -166,7 +166,12 @@ CurrentCompanyContext _context({
   CompanyRole role = CompanyRole.accountant,
 }) {
   return CurrentCompanyContext(
-    company: Company(id: companyId, name: 'Test Company'),
+    company: Company(
+      id: companyId,
+      name: 'Test Company',
+      baseCurrencyCode: 'AED',
+      baseCurrencyFractionDigits: 2,
+    ),
     role: role,
   );
 }

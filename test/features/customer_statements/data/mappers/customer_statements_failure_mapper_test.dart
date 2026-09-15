@@ -53,18 +53,33 @@ void main() {
     expect(failure.code, CompanyFailureCodes.notFound);
   });
 
-  test('maps regional settings to company conflict', () {
+  test('maps missing business timezone to a focused conflict', () {
     final failure = CustomerStatementsFailureMapper.fromPostgrest(
       const PostgrestException(
-        message: 'regional',
-        code: CustomerStatementsRpcErrorCodes.regionalSettingsNotConfigured,
+        message: 'timezone',
+        code: CustomerStatementsRpcErrorCodes.businessTimezoneNotConfigured,
       ),
     );
 
     expect(failure, isA<ConflictFailure>());
     expect(
       failure.code,
-      CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+      CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
+    );
+  });
+
+  test('maps missing financial settings to a focused conflict', () {
+    final failure = CustomerStatementsFailureMapper.fromPostgrest(
+      const PostgrestException(
+        message: 'financial',
+        code: CustomerStatementsRpcErrorCodes.financialSettingsNotConfigured,
+      ),
+    );
+
+    expect(failure, isA<ConflictFailure>());
+    expect(
+      failure.code,
+      CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
     );
   });
 

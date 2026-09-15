@@ -18,6 +18,12 @@ abstract final class CompanyFailureCodes {
       'validation_company_membership_id_required';
   static const conflictBaseCurrencyLocked =
       'conflict_company_base_currency_locked';
+  static const conflictBaseCurrencyHistoryMismatch =
+      'conflict_company_base_currency_history_mismatch';
+  static const conflictFinancialSettingsNotConfigured =
+      'conflict_company_financial_settings_not_configured';
+  static const conflictBusinessTimezoneNotConfigured =
+      'conflict_company_business_timezone_not_configured';
   static const conflictRegionalSettingsNotConfigured =
       'conflict_company_regional_settings_not_configured';
   static const companyNotAvailable = 'company_not_available';

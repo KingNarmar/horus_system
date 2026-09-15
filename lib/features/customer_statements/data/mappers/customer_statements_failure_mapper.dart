@@ -21,13 +21,17 @@ abstract final class CustomerStatementsFailureMapper {
       CustomerStatementsRpcErrorCodes.companyNotFound => const NotFoundFailure(
         code: CompanyFailureCodes.notFound,
       ),
-      CustomerStatementsRpcErrorCodes.regionalSettingsNotConfigured =>
+      CustomerStatementsRpcErrorCodes.businessTimezoneNotConfigured =>
         const ConflictFailure(
-          code: CompanyFailureCodes.conflictRegionalSettingsNotConfigured,
+          code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
       CustomerStatementsRpcErrorCodes.customerNotFound => const NotFoundFailure(
         code: CustomerStatementFailureCodes.customerNotFound,
       ),
+      CustomerStatementsRpcErrorCodes.financialSettingsNotConfigured =>
+        const ConflictFailure(
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

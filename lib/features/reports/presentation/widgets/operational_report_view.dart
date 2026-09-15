@@ -190,7 +190,16 @@ final class _DailyTripsTable extends StatelessWidget {
               (row) => DataRow(
                 cells: [
                   DataCell(
-                    Text(reportDisplayValue(row.tripNumber, row.tripId)),
+                    Text(
+                      reportTripDisplayValue(
+                        tripNumber: row.tripNumber,
+                        loadingOrderNumber: row.loadingOrderNumber,
+                        waybillNumber: row.waybillNumber,
+                        loadingLocation: row.loadingLocation,
+                        unloadingLocation: row.unloadingLocation,
+                        emptyValue: strings.notAvailable,
+                      ),
+                    ),
                   ),
                   DataCell(
                     Text(formatReportDate(row.operationalDate, localeName)),
@@ -235,7 +244,14 @@ final class _DailyTripsCards extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        reportDisplayValue(row.tripNumber, row.tripId),
+                        reportTripDisplayValue(
+                          tripNumber: row.tripNumber,
+                          loadingOrderNumber: row.loadingOrderNumber,
+                          waybillNumber: row.waybillNumber,
+                          loadingLocation: row.loadingLocation,
+                          unloadingLocation: row.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

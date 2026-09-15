@@ -109,7 +109,12 @@ PaymentsCubit _cubit(
 
 CurrentCompanyContext _context(CompanyRole role) {
   return CurrentCompanyContext(
-    company: const Company(id: 'company-1', name: 'Company'),
+    company: const Company(
+      id: 'company-1',
+      name: 'Company',
+      baseCurrencyCode: 'AED',
+      baseCurrencyFractionDigits: 2,
+    ),
     role: role,
   );
 }
