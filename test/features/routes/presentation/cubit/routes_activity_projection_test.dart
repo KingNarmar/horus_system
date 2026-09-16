@@ -55,29 +55,26 @@ void main() {
     final state = cubit.state as RoutesLoaded;
     expect(
       state.activityTimestampFor('log-1'),
-      BusinessLocalDateTime(
-        year: 2026,
-        month: 9,
-        day: 7,
-        hour: 0,
-        minute: 30,
-      ),
+      BusinessLocalDateTime(year: 2026, month: 9, day: 7, hour: 0, minute: 30),
     );
     expect(converter.timeZoneIds, ['Asia/Dubai']);
     expect(audit.companyIds, ['company-1']);
   });
 
-  test('projection failure exposes typed failure without raw activity', () async {
-    converter.failure = const ServerFailure(code: FailureCodes.serverError);
-    await cubit.loadRoutes(_context());
-    final pending = cubit.loadRouteActivity(_entity());
-    audit.requests.single.complete(Success([_log()]));
-    await pending;
+  test(
+    'projection failure exposes typed failure without raw activity',
+    () async {
+      converter.failure = const ServerFailure(code: FailureCodes.serverError);
+      await cubit.loadRoutes(_context());
+      final pending = cubit.loadRouteActivity(_entity());
+      audit.requests.single.complete(Success([_log()]));
+      await pending;
 
-    final state = cubit.state as RoutesLoaded;
-    expect(state.activityFailure?.code, FailureCodes.serverError);
-    expect(state.selectedRouteActivity, isEmpty);
-  });
+      final state = cubit.state as RoutesLoaded;
+      expect(state.activityFailure?.code, FailureCodes.serverError);
+      expect(state.selectedRouteActivity, isEmpty);
+    },
+  );
 
   test('foreign-company entity does not initiate an audit read', () async {
     await cubit.loadRoutes(_context());

@@ -109,10 +109,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
           businessLocalTimestampsByTripId: localTimestamps,
           isDetailsLoading: false,
           detailsFailure: null,
-          allTrips: _upsertTripInList(
-            currentAfterProjection.allTrips,
-            details,
-          ),
+          allTrips: _upsertTripInList(currentAfterProjection.allTrips, details),
         ),
       );
       return;

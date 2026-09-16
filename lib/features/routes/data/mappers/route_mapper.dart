@@ -120,8 +120,5 @@ String? _encodeOptionalMoney(
     );
   }
 
-  return _moneyCodec.encodeNonNegative(
-    money,
-    configuration: configuration,
-  );
+  return _moneyCodec.encodeNonNegative(money, configuration: configuration);
 }

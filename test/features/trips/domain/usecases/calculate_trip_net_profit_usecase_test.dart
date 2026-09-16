@@ -12,47 +12,57 @@ void main() {
   final usd = CurrencyCode.tryParse('USD')!;
   const useCase = CalculateTripNetProfitUseCase();
 
-  Money aedMoney(int minorUnits) => Money(minorUnits: minorUnits, currency: aed);
+  Money aedMoney(int minorUnits) =>
+      Money(minorUnits: minorUnits, currency: aed);
 
   group('CalculateTripNetProfitUseCase', () {
-    test('subtracts canonical expense Money from commercial snapshot', () async {
-      final result = await useCase(
-        CalculateTripNetProfitParams(
-          commercialAmount: aedMoney(300000),
-          expenses: [aedMoney(125000), aedMoney(80000)],
-        ),
-      );
+    test(
+      'subtracts canonical expense Money from commercial snapshot',
+      () async {
+        final result = await useCase(
+          CalculateTripNetProfitParams(
+            commercialAmount: aedMoney(300000),
+            expenses: [aedMoney(125000), aedMoney(80000)],
+          ),
+        );
 
-      expect(result, isA<Success<TripProfitSummary>>());
-      expect(result.dataOrNull?.totalExpenses, aedMoney(205000));
-      expect(result.dataOrNull?.netProfit, aedMoney(95000));
-    });
+        expect(result, isA<Success<TripProfitSummary>>());
+        expect(result.dataOrNull?.totalExpenses, aedMoney(205000));
+        expect(result.dataOrNull?.netProfit, aedMoney(95000));
+      },
+    );
 
-    test('returns no financial projection when all inputs are absent', () async {
-      final result = await useCase(
-        const CalculateTripNetProfitParams(
-          commercialAmount: null,
-          expenses: [],
-        ),
-      );
+    test(
+      'returns no financial projection when all inputs are absent',
+      () async {
+        final result = await useCase(
+          const CalculateTripNetProfitParams(
+            commercialAmount: null,
+            expenses: [],
+          ),
+        );
 
-      expect(result, isA<Success<TripProfitSummary>>());
-      expect(result.dataOrNull?.totalExpenses, isNull);
-      expect(result.dataOrNull?.netProfit, isNull);
-    });
+        expect(result, isA<Success<TripProfitSummary>>());
+        expect(result.dataOrNull?.totalExpenses, isNull);
+        expect(result.dataOrNull?.netProfit, isNull);
+      },
+    );
 
-    test('keeps expense total when legacy trip has no commercial amount', () async {
-      final result = await useCase(
-        CalculateTripNetProfitParams(
-          commercialAmount: null,
-          expenses: [aedMoney(30000)],
-        ),
-      );
+    test(
+      'keeps expense total when legacy trip has no commercial amount',
+      () async {
+        final result = await useCase(
+          CalculateTripNetProfitParams(
+            commercialAmount: null,
+            expenses: [aedMoney(30000)],
+          ),
+        );
 
-      expect(result, isA<Success<TripProfitSummary>>());
-      expect(result.dataOrNull?.totalExpenses, aedMoney(30000));
-      expect(result.dataOrNull?.netProfit, isNull);
-    });
+        expect(result, isA<Success<TripProfitSummary>>());
+        expect(result.dataOrNull?.totalExpenses, aedMoney(30000));
+        expect(result.dataOrNull?.netProfit, isNull);
+      },
+    );
 
     test('rejects negative commercial amount', () async {
       final result = await useCase(
@@ -103,10 +113,7 @@ void main() {
       final result = await useCase(
         CalculateTripNetProfitParams(
           commercialAmount: null,
-          expenses: [
-            aedMoney(9223372036854775807),
-            aedMoney(1),
-          ],
+          expenses: [aedMoney(9223372036854775807), aedMoney(1)],
         ),
       );
 

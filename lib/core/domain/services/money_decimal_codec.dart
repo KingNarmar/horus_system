@@ -43,9 +43,10 @@ final class MoneyDecimalCodec {
 
     final scale = _pow10(fractionDigits);
     final whole = money.minorUnits ~/ scale;
-    final fraction = (money.minorUnits % scale)
-        .toString()
-        .padLeft(fractionDigits, '0');
+    final fraction = (money.minorUnits % scale).toString().padLeft(
+      fractionDigits,
+      '0',
+    );
     return '$whole.$fraction';
   }
 

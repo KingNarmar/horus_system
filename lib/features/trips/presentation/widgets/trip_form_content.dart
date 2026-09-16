@@ -59,10 +59,7 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             _optionalDropdown(
               label: l10n.tripTractorHeadLabel,
-              value: _validSelectedValue(
-                _tractorHeadId,
-                lookups.tractorHeads,
-              ),
+              value: _validSelectedValue(_tractorHeadId, lookups.tractorHeads),
               options: lookups.tractorHeads,
               onChanged: _setTractorHeadId,
             ),
@@ -92,7 +89,9 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _quantityController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: l10n.tripQuantityHeader,
                 border: const OutlineInputBorder(),
@@ -106,16 +105,18 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _agreedFreightRateController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: l10n.tripAgreedFreightRatePerTonLabel,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 return _moneyInputValid(
-                  value ?? '',
-                  widget.financialConfiguration,
-                )
+                      value ?? '',
+                      widget.financialConfiguration,
+                    )
                     ? null
                     : l10n.tripNumberInvalid;
               },
@@ -128,9 +129,8 @@ extension _TripFormContent on _TripFormDialogState {
                 helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => _dateTimeValid(value ?? '')
-                  ? null
-                  : l10n.tripDateTimeInvalid,
+              validator: (value) =>
+                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
@@ -140,9 +140,8 @@ extension _TripFormContent on _TripFormDialogState {
                 helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => _dateTimeValid(value ?? '')
-                  ? null
-                  : l10n.tripDateTimeInvalid,
+              validator: (value) =>
+                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
@@ -152,9 +151,8 @@ extension _TripFormContent on _TripFormDialogState {
                 helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => _dateTimeValid(value ?? '')
-                  ? null
-                  : l10n.tripDateTimeInvalid,
+              validator: (value) =>
+                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
@@ -164,9 +162,8 @@ extension _TripFormContent on _TripFormDialogState {
                 helperText: l10n.tripDateTimeHelperText,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => _dateTimeValid(value ?? '')
-                  ? null
-                  : l10n.tripDateTimeInvalid,
+              validator: (value) =>
+                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(

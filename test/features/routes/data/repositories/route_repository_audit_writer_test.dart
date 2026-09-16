@@ -12,31 +12,34 @@ import 'package:test/test.dart';
 
 void main() {
   group('RouteRepositoryAuditWriter', () {
-    test('preserves created audit contract with semantic freight key', () async {
-      final repository = _CapturingAuditLogRepository();
-      final writer = RouteRepositoryAuditWriter(
-        CreateAuditLogUseCase(repository),
-      );
+    test(
+      'preserves created audit contract with semantic freight key',
+      () async {
+        final repository = _CapturingAuditLogRepository();
+        final writer = RouteRepositoryAuditWriter(
+          CreateAuditLogUseCase(repository),
+        );
 
-      final failure = await writer.writeCreated(
-        model: _model(),
-        actorRole: 'operations',
-      );
+        final failure = await writer.writeCreated(
+          model: _model(),
+          actorRole: 'operations',
+        );
 
-      expect(failure, isNull);
-      final data = repository.logs.single;
-      expect(data.companyId, _companyId);
-      expect(data.actorRole, 'operations');
-      expect(data.module, AuditModule.routes);
-      expect(data.entityType, AuditEntityType.route);
-      expect(data.entityId, _routeId);
-      expect(data.entityDisplayName, 'Dubai → Abu Dhabi');
-      expect(data.action, AuditAction.created);
-      expect(data.description, 'route_created');
-      expect(data.oldValues, isNull);
-      expect(data.newValues?['default_freight_rate_per_ton'], '1250.00');
-      expect(data.newValues?.containsKey('default_freight_price'), isFalse);
-    });
+        expect(failure, isNull);
+        final data = repository.logs.single;
+        expect(data.companyId, _companyId);
+        expect(data.actorRole, 'operations');
+        expect(data.module, AuditModule.routes);
+        expect(data.entityType, AuditEntityType.route);
+        expect(data.entityId, _routeId);
+        expect(data.entityDisplayName, 'Dubai → Abu Dhabi');
+        expect(data.action, AuditAction.created);
+        expect(data.description, 'route_created');
+        expect(data.oldValues, isNull);
+        expect(data.newValues?['default_freight_rate_per_ton'], '1250.00');
+        expect(data.newValues?.containsKey('default_freight_price'), isFalse);
+      },
+    );
 
     test('preserves updated old and new snapshots', () async {
       final repository = _CapturingAuditLogRepository();

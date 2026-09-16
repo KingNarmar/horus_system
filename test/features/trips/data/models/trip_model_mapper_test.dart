@@ -17,27 +17,32 @@ void main() {
   final currency = configuration.currency;
 
   group('Trips database constants', () {
-    test('preserve compatibility columns and commercial snapshot identifiers', () {
-      expect(TripDbFields.tableName, 'trips');
-      expect(TripDbFields.quantityTons, 'quantity_tons');
-      expect(
-        TripDbFields.agreedFreightRatePerTon,
-        'agreed_freight_rate_per_ton',
-      );
-      expect(TripDbFields.commercialAmount, 'freight_price');
-      expect(
-        TripLookupDbFields.defaultFreightRatePerTon,
-        'default_freight_price',
-      );
-      expect(
-        TripDbFields.allColumns,
-        contains('customers!trips_company_customer_fk(name)'),
-      );
-      expect(
-        TripDbFields.allColumns,
-        contains('routes!trips_company_route_fk(loading_location, unloading_location)'),
-      );
-    });
+    test(
+      'preserve compatibility columns and commercial snapshot identifiers',
+      () {
+        expect(TripDbFields.tableName, 'trips');
+        expect(TripDbFields.quantityTons, 'quantity_tons');
+        expect(
+          TripDbFields.agreedFreightRatePerTon,
+          'agreed_freight_rate_per_ton',
+        );
+        expect(TripDbFields.commercialAmount, 'freight_price');
+        expect(
+          TripLookupDbFields.defaultFreightRatePerTon,
+          'default_freight_price',
+        );
+        expect(
+          TripDbFields.allColumns,
+          contains('customers!trips_company_customer_fk(name)'),
+        );
+        expect(
+          TripDbFields.allColumns,
+          contains(
+            'routes!trips_company_route_fk(loading_location, unloading_location)',
+          ),
+        );
+      },
+    );
   });
 
   group('TripModel and mapper', () {
@@ -144,14 +149,8 @@ void main() {
         customerId: 'customer-1',
         routeId: 'route-1',
         quantityTons: QuantityTons.tryParse('15.125'),
-        agreedFreightRatePerTon: Money(
-          minorUnits: 350050,
-          currency: currency,
-        ),
-        commercialAmount: Money(
-          minorUnits: 5294506,
-          currency: currency,
-        ),
+        agreedFreightRatePerTon: Money(minorUnits: 350050, currency: currency),
+        commercialAmount: Money(minorUnits: 5294506, currency: currency),
       );
 
       final map = data.toInsertMap(financialConfiguration: configuration);

@@ -36,18 +36,18 @@ void main() {
 
   group('RouteWriteDataMapper', () {
     test('encodes Money exactly into physical compatibility column', () {
-      final map = _writeData(currency).toInsertMap(
-        financialConfiguration: configuration,
-      );
+      final map = _writeData(
+        currency,
+      ).toInsertMap(financialConfiguration: configuration);
 
       expect(map['company_id'], 'company-1');
       expect(map['default_freight_price'], '1250.50');
     });
 
     test('encodes update rate and timestamp without floating point', () {
-      final map = _writeData(currency).toUpdateMap(
-        financialConfiguration: configuration,
-      );
+      final map = _writeData(
+        currency,
+      ).toUpdateMap(financialConfiguration: configuration);
 
       expect(map['default_freight_price'], '1250.50');
       final updatedAt = DateTime.parse(map['updated_at'] as String);

@@ -23,24 +23,15 @@ void main() {
 
     test('rejects missing, malformed, and unsupported fraction digits', () {
       expect(
-        CurrencyConfiguration.tryCreate(
-          currencyCode: null,
-          fractionDigits: 2,
-        ),
+        CurrencyConfiguration.tryCreate(currencyCode: null, fractionDigits: 2),
         isNull,
       );
       expect(
-        CurrencyConfiguration.tryCreate(
-          currencyCode: 'AE',
-          fractionDigits: 2,
-        ),
+        CurrencyConfiguration.tryCreate(currencyCode: 'AE', fractionDigits: 2),
         isNull,
       );
       expect(
-        CurrencyConfiguration.tryCreate(
-          currencyCode: 'AED',
-          fractionDigits: 5,
-        ),
+        CurrencyConfiguration.tryCreate(currencyCode: 'AED', fractionDigits: 5),
         isNull,
       );
     });
@@ -49,34 +40,22 @@ void main() {
   group('MoneyDecimalCodec', () {
     test('decodes decimal text to exact minor units', () {
       expect(
-        codec.tryDecodeNonNegative(
-          '125.05',
-          configuration: aedConfiguration,
-        ),
+        codec.tryDecodeNonNegative('125.05', configuration: aedConfiguration),
         Money(minorUnits: 12505, currency: aedConfiguration.currency),
       );
     });
 
     test('rejects over-precision, negative, and malformed values', () {
       expect(
-        codec.tryDecodeNonNegative(
-          '1.001',
-          configuration: aedConfiguration,
-        ),
+        codec.tryDecodeNonNegative('1.001', configuration: aedConfiguration),
         isNull,
       );
       expect(
-        codec.tryDecodeNonNegative(
-          '-1',
-          configuration: aedConfiguration,
-        ),
+        codec.tryDecodeNonNegative('-1', configuration: aedConfiguration),
         isNull,
       );
       expect(
-        codec.tryDecodeNonNegative(
-          'abc',
-          configuration: aedConfiguration,
-        ),
+        codec.tryDecodeNonNegative('abc', configuration: aedConfiguration),
         isNull,
       );
     });

@@ -29,7 +29,10 @@ final class QuantityTons {
 
   String toDecimalString() {
     final whole = scaledUnits ~/ scale;
-    final fraction = (scaledUnits % scale).toString().padLeft(fractionDigits, '0');
+    final fraction = (scaledUnits % scale).toString().padLeft(
+      fractionDigits,
+      '0',
+    );
     return '$whole.$fraction';
   }
 

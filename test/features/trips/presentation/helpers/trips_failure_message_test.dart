@@ -18,23 +18,26 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-07 Trip presentation hardening', () {
-    test('distinguishes agreed rate per ton from commercial amount in audit', () {
-      final en = AppLocalizationsEn();
-      final ar = AppLocalizationsAr();
+    test(
+      'distinguishes agreed rate per ton from commercial amount in audit',
+      () {
+        final en = AppLocalizationsEn();
+        final ar = AppLocalizationsAr();
 
-      expect(
-        en.tripAuditFieldLabel('agreed_freight_rate_per_ton'),
-        'Freight / t',
-      );
-      expect(en.tripAuditFieldLabel('commercial_amount'), 'Freight');
-      expect(en.tripAuditFieldLabel('freight_price'), 'Freight');
-      expect(
-        ar.tripAuditFieldLabel('agreed_freight_rate_per_ton'),
-        'سعر النقل / طن',
-      );
-      expect(ar.tripAuditFieldLabel('commercial_amount'), 'سعر النقل');
-      expect(ar.tripAuditFieldLabel('freight_price'), 'سعر النقل');
-    });
+        expect(
+          en.tripAuditFieldLabel('agreed_freight_rate_per_ton'),
+          'Freight / t',
+        );
+        expect(en.tripAuditFieldLabel('commercial_amount'), 'Freight');
+        expect(en.tripAuditFieldLabel('freight_price'), 'Freight');
+        expect(
+          ar.tripAuditFieldLabel('agreed_freight_rate_per_ton'),
+          'سعر النقل / طن',
+        );
+        expect(ar.tripAuditFieldLabel('commercial_amount'), 'سعر النقل');
+        expect(ar.tripAuditFieldLabel('freight_price'), 'سعر النقل');
+      },
+    );
 
     test('keeps commercial snapshot fields visible in audit changes', () {
       final log = AuditLog(
@@ -65,7 +68,9 @@ void main() {
       ]);
     });
 
-    testWidgets('localizes commercial input validation failures', (tester) async {
+    testWidgets('localizes commercial input validation failures', (
+      tester,
+    ) async {
       const quantityFailure = ValidationFailure(
         code: FailureCodes.validationTripQuantityInvalid,
         message: 'raw quantity message',
@@ -93,35 +98,36 @@ void main() {
       );
     });
 
-    testWidgets('localizes financial readiness and currency mismatch failures', (
-      tester,
-    ) async {
-      const readinessFailure = ConflictFailure(
-        code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
-        message: 'raw readiness message',
-      );
-      const currencyFailure = ValidationFailure(
-        code: TripFailureCodes.financialCurrencyMismatch,
-        message: 'raw currency message',
-      );
+    testWidgets(
+      'localizes financial readiness and currency mismatch failures',
+      (tester) async {
+        const readinessFailure = ConflictFailure(
+          code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+          message: 'raw readiness message',
+        );
+        const currencyFailure = ValidationFailure(
+          code: TripFailureCodes.financialCurrencyMismatch,
+          message: 'raw currency message',
+        );
 
-      expect(
-        await _messageFor(tester, const Locale('en'), readinessFailure),
-        'Configure the company financial settings before using this module.',
-      );
-      expect(
-        await _messageFor(tester, const Locale('ar'), readinessFailure),
-        'أكمل الإعدادات المالية للشركة قبل استخدام هذه الوحدة.',
-      );
-      expect(
-        await _messageFor(tester, const Locale('en'), currencyFailure),
-        'Financial data currency does not match the company currency.',
-      );
-      expect(
-        await _messageFor(tester, const Locale('ar'), currencyFailure),
-        'عملة البيانات المالية لا تطابق عملة الشركة.',
-      );
-    });
+        expect(
+          await _messageFor(tester, const Locale('en'), readinessFailure),
+          'Configure the company financial settings before using this module.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('ar'), readinessFailure),
+          'أكمل الإعدادات المالية للشركة قبل استخدام هذه الوحدة.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('en'), currencyFailure),
+          'Financial data currency does not match the company currency.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('ar'), currencyFailure),
+          'عملة البيانات المالية لا تطابق عملة الشركة.',
+        );
+      },
+    );
   });
 }
 

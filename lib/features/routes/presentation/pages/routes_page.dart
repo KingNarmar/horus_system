@@ -58,8 +58,7 @@ class _RoutesPageState extends State<RoutesPage> {
               unloadingLocation: data.unloadingLocation,
               governorateFrom: data.governorateFrom,
               governorateTo: data.governorateTo,
-              defaultFreightRatePerTonInput:
-                  data.defaultFreightRatePerTonInput,
+              defaultFreightRatePerTonInput: data.defaultFreightRatePerTonInput,
               notes: data.notes,
             );
           },
@@ -133,7 +132,9 @@ class _RoutesPageState extends State<RoutesPage> {
       listener: (context, state) {
         if (state is RoutesFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(routesFailureMessage(context, state.failure))),
+            SnackBar(
+              content: Text(routesFailureMessage(context, state.failure)),
+            ),
           );
         }
       },

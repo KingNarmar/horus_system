@@ -271,7 +271,9 @@ Money? _decodeMoney(
   if (decimal == null) return null;
   final configuration = financialConfiguration;
   if (configuration == null) {
-    throw StateError('Financial configuration is required to decode $fieldName.');
+    throw StateError(
+      'Financial configuration is required to decode $fieldName.',
+    );
   }
 
   final money = _moneyCodec.tryDecodeNonNegative(
@@ -291,12 +293,11 @@ String? _encodeMoney(
   if (money == null) return null;
   final configuration = financialConfiguration;
   if (configuration == null) {
-    throw StateError('Financial configuration is required to encode Trip money.');
+    throw StateError(
+      'Financial configuration is required to encode Trip money.',
+    );
   }
-  return _moneyCodec.encodeNonNegative(
-    money,
-    configuration: configuration,
-  );
+  return _moneyCodec.encodeNonNegative(money, configuration: configuration);
 }
 
 bool _isZeroDecimal(String value) {

@@ -32,33 +32,36 @@ void main() {
   final currency = configuration.currency;
 
   group('CreateTripUseCase commercial snapshot', () {
-    test('calculates final commercial amount once with half-up rounding', () async {
-      final repository = _FakeTripsRepository();
-      final useCase = CreateTripUseCase(repository);
+    test(
+      'calculates final commercial amount once with half-up rounding',
+      () async {
+        final repository = _FakeTripsRepository();
+        final useCase = CreateTripUseCase(repository);
 
-      final result = await useCase(
-        const CreateTripParams(
-          currentCompanyContext: context,
-          customerId: 'customer-1',
-          routeId: 'route-1',
-          quantityTonsInput: '10.125',
-          agreedFreightRatePerTonInput: '100.55',
-        ),
-      );
+        final result = await useCase(
+          const CreateTripParams(
+            currentCompanyContext: context,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            quantityTonsInput: '10.125',
+            agreedFreightRatePerTonInput: '100.55',
+          ),
+        );
 
-      expect(result, isA<Success<TripEntity>>());
-      final write = repository.lastWriteData!;
-      expect(write.quantityTons, QuantityTons.tryParse('10.125'));
-      expect(
-        write.agreedFreightRatePerTon,
-        Money(minorUnits: 10055, currency: currency),
-      );
-      expect(
-        write.commercialAmount,
-        Money(minorUnits: 101807, currency: currency),
-      );
-      expect(repository.lastFinancialConfiguration, configuration);
-    });
+        expect(result, isA<Success<TripEntity>>());
+        final write = repository.lastWriteData!;
+        expect(write.quantityTons, QuantityTons.tryParse('10.125'));
+        expect(
+          write.agreedFreightRatePerTon,
+          Money(minorUnits: 10055, currency: currency),
+        );
+        expect(
+          write.commercialAmount,
+          Money(minorUnits: 101807, currency: currency),
+        );
+        expect(repository.lastFinancialConfiguration, configuration);
+      },
+    );
 
     test('rejects incomplete quantity/rate terms', () async {
       final repository = _FakeTripsRepository();
@@ -115,37 +118,40 @@ void main() {
       );
     });
 
-    test('rejects changing legacy quantity without authoritative rate', () async {
-      final repository = _FakeTripsRepository(
-        currentTrip: TripEntity(
-          id: 'trip-1',
-          companyId: 'company-1',
-          customerId: 'customer-1',
-          routeId: 'route-1',
-          status: TripStatus.delivered,
-          quantityTons: QuantityTons.tryParse('20'),
-          commercialAmount: Money(minorUnits: 500000, currency: currency),
-        ),
-      );
-      final useCase = SaveTripUseCase(repository);
+    test(
+      'rejects changing legacy quantity without authoritative rate',
+      () async {
+        final repository = _FakeTripsRepository(
+          currentTrip: TripEntity(
+            id: 'trip-1',
+            companyId: 'company-1',
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            status: TripStatus.delivered,
+            quantityTons: QuantityTons.tryParse('20'),
+            commercialAmount: Money(minorUnits: 500000, currency: currency),
+          ),
+        );
+        final useCase = SaveTripUseCase(repository);
 
-      final result = await useCase(
-        const SaveTripParams(
-          currentCompanyContext: context,
-          id: 'trip-1',
-          customerId: 'customer-1',
-          routeId: 'route-1',
-          quantityTonsInput: '21',
-        ),
-      );
+        final result = await useCase(
+          const SaveTripParams(
+            currentCompanyContext: context,
+            id: 'trip-1',
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            quantityTonsInput: '21',
+          ),
+        );
 
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationTripCommercialTermsIncomplete,
-      );
-      expect(repository.lastWriteData, isNull);
-    });
+        expect(result, isA<FailureResult<TripEntity>>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationTripCommercialTermsIncomplete,
+        );
+        expect(repository.lastWriteData, isNull);
+      },
+    );
   });
 }
 

@@ -26,7 +26,9 @@ void main() {
       );
     });
 
-    testWidgets('localizes invalid Route freight rate failures', (tester) async {
+    testWidgets('localizes invalid Route freight rate failures', (
+      tester,
+    ) async {
       const failure = ValidationFailure(
         code: FailureCodes.validationRouteFreightRateInvalid,
         message: 'raw domain message',

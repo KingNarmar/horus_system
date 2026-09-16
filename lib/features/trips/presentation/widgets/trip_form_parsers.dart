@@ -78,10 +78,7 @@ String _formatQuantityInput(QuantityTons? value) {
   return value.toDecimalString().replaceFirst(RegExp(r'\.?0+$'), '');
 }
 
-String _formatMoneyInput(
-  Money? value,
-  CurrencyConfiguration? configuration,
-) {
+String _formatMoneyInput(Money? value, CurrencyConfiguration? configuration) {
   if (value == null || configuration == null) return '';
   return _TripFormDialogState._moneyCodec.encodeNonNegative(
     value,

@@ -14,20 +14,23 @@ import 'package:test/test.dart';
 
 void main() {
   group('GetRoutesUseCase', () {
-    test('denies roles without view permission before repository call', () async {
-      final repository = _FakeRoutesRepository();
-      final useCase = GetRoutesUseCase(repository);
+    test(
+      'denies roles without view permission before repository call',
+      () async {
+        final repository = _FakeRoutesRepository();
+        final useCase = GetRoutesUseCase(repository);
 
-      final result = await useCase(
-        GetRoutesParams(
-          currentCompanyContext: _context(role: CompanyRole.driver),
-        ),
-      );
+        final result = await useCase(
+          GetRoutesParams(
+            currentCompanyContext: _context(role: CompanyRole.driver),
+          ),
+        );
 
-      expect(result, isA<FailureResult<List<RouteEntity>>>());
-      expect(result.failureOrNull?.code, FailureCodes.permissionRoutesView);
-      expect(repository.getRoutesCalls, 0);
-    });
+        expect(result, isA<FailureResult<List<RouteEntity>>>());
+        expect(result.failureOrNull?.code, FailureCodes.permissionRoutesView);
+        expect(repository.getRoutesCalls, 0);
+      },
+    );
 
     test('forwards company id and company financial configuration', () async {
       final repository = _FakeRoutesRepository();
@@ -123,26 +126,29 @@ void main() {
       expect(repository.totalMutationCalls, 0);
     });
 
-    test('requires company financial settings when a rate is supplied', () async {
-      final repository = _FakeRoutesRepository();
-      final useCase = SaveRouteUseCase(repository);
+    test(
+      'requires company financial settings when a rate is supplied',
+      () async {
+        final repository = _FakeRoutesRepository();
+        final useCase = SaveRouteUseCase(repository);
 
-      final result = await useCase(
-        SaveRouteParams(
-          currentCompanyContext: _context(withFinancialSettings: false),
-          loadingLocation: 'Dubai',
-          unloadingLocation: 'Abu Dhabi',
-          defaultFreightRatePerTonInput: '1250',
-        ),
-      );
+        final result = await useCase(
+          SaveRouteParams(
+            currentCompanyContext: _context(withFinancialSettings: false),
+            loadingLocation: 'Dubai',
+            unloadingLocation: 'Abu Dhabi',
+            defaultFreightRatePerTonInput: '1250',
+          ),
+        );
 
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(
-        result.failureOrNull?.code,
-        CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
-      );
-      expect(repository.totalMutationCalls, 0);
-    });
+        expect(result, isA<FailureResult<RouteEntity>>());
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        );
+        expect(repository.totalMutationCalls, 0);
+      },
+    );
 
     test('creates normalized route with exact Money rate', () async {
       final repository = _FakeRoutesRepository();

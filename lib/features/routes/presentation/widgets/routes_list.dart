@@ -109,11 +109,7 @@ class _RoutesTable extends StatelessWidget {
                 DataCell(Text(_governoratesText(route, l10n.emptyValue))),
                 DataCell(
                   Text(
-                    _rateText(
-                      route,
-                      financialConfiguration,
-                      l10n.emptyValue,
-                    ),
+                    _rateText(route, financialConfiguration, l10n.emptyValue),
                   ),
                 ),
                 DataCell(_RouteStatusChip(route: route)),

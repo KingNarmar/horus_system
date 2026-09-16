@@ -160,10 +160,7 @@ class _TripExpensesHeader extends StatelessWidget {
   final TripsLoaded state;
   final VoidCallback onAdd;
 
-  const _TripExpensesHeader({
-    required this.state,
-    required this.onAdd,
-  });
+  const _TripExpensesHeader({required this.state, required this.onAdd});
 
   @override
   Widget build(BuildContext context) {

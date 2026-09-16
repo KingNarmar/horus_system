@@ -30,8 +30,9 @@ final class TripRouteLookupOptionModel {
     return TripRouteLookupOptionModel(
       id: map[DbCommonFields.id] as String,
       label: '$loading -> $unloading',
-      defaultFreightRatePerTonDecimal:
-          rateText == null || rateText.isEmpty ? null : rateText,
+      defaultFreightRatePerTonDecimal: rateText == null || rateText.isEmpty
+          ? null
+          : rateText,
     );
   }
 }

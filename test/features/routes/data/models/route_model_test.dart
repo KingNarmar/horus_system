@@ -21,20 +21,23 @@ void main() {
       expect(model.updatedAt, DateTime.utc(2026, 8, 2, 11, 21, 31));
     });
 
-    test('normalizes supported numeric persistence representations to text', () {
-      final cases = <Object, String>{
-        1250: '1250',
-        1250.5: '1250.5',
-        '1250.7500': '1250.7500',
-      };
+    test(
+      'normalizes supported numeric persistence representations to text',
+      () {
+        final cases = <Object, String>{
+          1250: '1250',
+          1250.5: '1250.5',
+          '1250.7500': '1250.7500',
+        };
 
-      for (final entry in cases.entries) {
-        final model = RouteModel.fromMap(
-          _persistenceMap(defaultFreightRate: entry.key),
-        );
-        expect(model.defaultFreightRatePerTonDecimal, entry.value);
-      }
-    });
+        for (final entry in cases.entries) {
+          final model = RouteModel.fromMap(
+            _persistenceMap(defaultFreightRate: entry.key),
+          );
+          expect(model.defaultFreightRatePerTonDecimal, entry.value);
+        }
+      },
+    );
 
     test('preserves nullable persistence fields', () {
       final model = RouteModel.fromMap(

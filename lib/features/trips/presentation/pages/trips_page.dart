@@ -147,7 +147,9 @@ class _TripsPageState extends State<TripsPage> {
       listener: (context, state) {
         if (state is TripsFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(tripsFailureMessage(context, state.failure))),
+            SnackBar(
+              content: Text(tripsFailureMessage(context, state.failure)),
+            ),
           );
         }
       },

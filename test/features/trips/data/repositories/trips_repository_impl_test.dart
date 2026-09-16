@@ -10,33 +10,36 @@ import 'trips_repository_test_support.dart';
 
 void main() {
   group('TripsRepositoryImpl', () {
-    test('create keeps mutation, initial history, audit ordering and config', () async {
-      final events = <String>[];
-      final remoteDataSource = FakeTripsRemoteDataSource(events: events);
-      final auditRepository = FakeTripAuditLogRepository(events: events);
-      final repository = createTripsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+    test(
+      'create keeps mutation, initial history, audit ordering and config',
+      () async {
+        final events = <String>[];
+        final remoteDataSource = FakeTripsRemoteDataSource(events: events);
+        final auditRepository = FakeTripAuditLogRepository(events: events);
+        final repository = createTripsRepository(
+          remoteDataSource,
+          auditRepository: auditRepository,
+        );
 
-      final result = await repository.createTrip(
-        data: testTripWriteData,
-        actorRole: 'owner',
-        financialConfiguration: testFinancialConfiguration,
-      );
+        final result = await repository.createTrip(
+          data: testTripWriteData,
+          actorRole: 'owner',
+          financialConfiguration: testFinancialConfiguration,
+        );
 
-      expect(result, isA<Success<TripEntity>>());
-      expect(events, ['create', 'history', 'audit:trip_created']);
-      expect(remoteDataSource.lastHistoryOldStatus, isNull);
-      expect(
-        remoteDataSource.lastCreateFinancialConfiguration,
-        testFinancialConfiguration,
-      );
-      expect(auditRepository.lastData?.module, AuditModule.trips);
-      expect(auditRepository.lastData?.entityType, AuditEntityType.trip);
-      expect(auditRepository.lastData?.action, AuditAction.created);
-      expect(auditRepository.lastData?.description, 'trip_created');
-    });
+        expect(result, isA<Success<TripEntity>>());
+        expect(events, ['create', 'history', 'audit:trip_created']);
+        expect(remoteDataSource.lastHistoryOldStatus, isNull);
+        expect(
+          remoteDataSource.lastCreateFinancialConfiguration,
+          testFinancialConfiguration,
+        );
+        expect(auditRepository.lastData?.module, AuditModule.trips);
+        expect(auditRepository.lastData?.entityType, AuditEntityType.trip);
+        expect(auditRepository.lastData?.action, AuditAction.created);
+        expect(auditRepository.lastData?.description, 'trip_created');
+      },
+    );
 
     test('save reads old model then mutates then audits', () async {
       final events = <String>[];

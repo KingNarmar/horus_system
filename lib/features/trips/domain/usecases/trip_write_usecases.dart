@@ -253,7 +253,8 @@ Result<_TripCommercialWriteValues> _resolveCommercialWriteValues({
     return const FailureResult<_TripCommercialWriteValues>(
       ValidationFailure(
         code: FailureCodes.validationTripCommercialTermsIncomplete,
-        message: 'An agreed freight rate is required to change legacy commercial terms.',
+        message:
+            'An agreed freight rate is required to change legacy commercial terms.',
       ),
     );
   }

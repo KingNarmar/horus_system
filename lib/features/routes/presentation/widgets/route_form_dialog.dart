@@ -234,10 +234,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     final configuration = widget.financialConfiguration;
     if (configuration == null) return '';
 
-    return _moneyCodec.encodeNonNegative(
-      rate,
-      configuration: configuration,
-    );
+    return _moneyCodec.encodeNonNegative(rate, configuration: configuration);
   }
 
   String? _optional(String value) {

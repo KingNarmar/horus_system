@@ -43,27 +43,30 @@ void main() {
       );
     });
 
-    test('adds route then writes audit and forwards financial config', () async {
-      final operations = <String>[];
-      final remote = _FakeRoutesRemoteDataSource(operations: operations);
-      final audit = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(remote, auditRepository: audit);
+    test(
+      'adds route then writes audit and forwards financial config',
+      () async {
+        final operations = <String>[];
+        final remote = _FakeRoutesRemoteDataSource(operations: operations);
+        final audit = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(remote, auditRepository: audit);
 
-      final result = await repository.addRoute(
-        data: _writeData(configuration.currency),
-        actorRole: 'operations',
-        financialConfiguration: configuration,
-      );
+        final result = await repository.addRoute(
+          data: _writeData(configuration.currency),
+          actorRole: 'operations',
+          financialConfiguration: configuration,
+        );
 
-      expect(result, isA<Success<RouteEntity>>());
-      expect(operations, ['add_route', 'audit']);
-      expect(remote.lastMutationConfiguration, configuration);
-      expect(audit.logs.single.description, 'route_created');
-      expect(
-        audit.logs.single.newValues?['default_freight_rate_per_ton'],
-        '1250.00',
-      );
-    });
+        expect(result, isA<Success<RouteEntity>>());
+        expect(operations, ['add_route', 'audit']);
+        expect(remote.lastMutationConfiguration, configuration);
+        expect(audit.logs.single.description, 'route_created');
+        expect(
+          audit.logs.single.newValues?['default_freight_rate_per_ton'],
+          '1250.00',
+        );
+      },
+    );
 
     test('save reads old snapshot then mutates then audits', () async {
       final operations = <String>[];
@@ -111,32 +114,35 @@ void main() {
       expect(operations, ['get_route', 'reactivate_route', 'audit']);
     });
 
-    test('sanitizes Postgrest failures and does not audit failed write', () async {
-      final operations = <String>[];
-      final remote = _FakeRoutesRemoteDataSource(
-        operations: operations,
-        addError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-          details: 'sensitive details',
-          hint: 'sensitive hint',
-        ),
-      );
-      final audit = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(remote, auditRepository: audit);
+    test(
+      'sanitizes Postgrest failures and does not audit failed write',
+      () async {
+        final operations = <String>[];
+        final remote = _FakeRoutesRemoteDataSource(
+          operations: operations,
+          addError: const PostgrestException(
+            message: 'permission denied',
+            code: '42501',
+            details: 'sensitive details',
+            hint: 'sensitive hint',
+          ),
+        );
+        final audit = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(remote, auditRepository: audit);
 
-      final result = await repository.addRoute(
-        data: _writeData(configuration.currency),
-        actorRole: 'operations',
-        financialConfiguration: configuration,
-      );
+        final result = await repository.addRoute(
+          data: _writeData(configuration.currency),
+          actorRole: 'operations',
+          financialConfiguration: configuration,
+        );
 
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(audit.logs, isEmpty);
-    });
+        expect(result, isA<FailureResult<RouteEntity>>());
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+        expect(audit.logs, isEmpty);
+      },
+    );
 
     test('propagates audit failure after successful write', () async {
       final operations = <String>[];
