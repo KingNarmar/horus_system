@@ -4,6 +4,7 @@ import '../../../../core/documents/domain/entities/business_document_access.dart
 import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -64,6 +65,13 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
     }
     final businessDate = businessDateResult.dataOrNull;
     if (businessDate == null) {
+      emit(
+        const DriverCompensationFailure(
+          UnexpectedFailure(
+            code: DriverCompensationFailureCodes.unexpectedError,
+          ),
+        ),
+      );
       return;
     }
 
@@ -74,7 +82,6 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
         targetDate: businessDate,
       ),
     );
-    final resolutionFailure = resolutionResult.failureOrNull;
 
     emit(
       DriverCompensationLoaded(
@@ -83,10 +90,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
         businessDate: businessDate,
         history: historyResult.dataOrNull ?? const [],
         currentRevision: resolutionResult.dataOrNull,
-        currentResolutionFailure: resolutionFailure?.code ==
-                DriverCompensationFailureCodes.notFoundForDate
-            ? resolutionFailure
-            : resolutionFailure,
+        currentResolutionFailure: resolutionResult.failureOrNull,
       ),
     );
   }
