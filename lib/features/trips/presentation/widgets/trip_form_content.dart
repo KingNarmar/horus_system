@@ -112,7 +112,10 @@ extension _TripFormContent on _TripFormDialogState {
                 border: const OutlineInputBorder(),
               ),
               validator: (value) {
-                return _moneyInputValid(value ?? '')
+                return _moneyInputValid(
+                  value ?? '',
+                  widget.financialConfiguration,
+                )
                     ? null
                     : l10n.tripNumberInvalid;
               },
