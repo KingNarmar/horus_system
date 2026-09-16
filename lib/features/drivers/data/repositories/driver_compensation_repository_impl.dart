@@ -1,12 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/uuid_v4.dart';
 import '../../../../core/documents/domain/entities/business_document_access.dart';
 import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/documents/domain/entities/business_document_location.dart';
 import '../../../../core/documents/domain/entities/business_document_reference.dart';
 import '../../../../core/documents/domain/repositories/business_document_repository.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_action.dart';
@@ -127,7 +127,7 @@ final class DriverCompensationRepositoryImpl
     required String revisionId,
     required String driverId,
     required String actorRole,
-    required dynamic effectiveTo,
+    required BusinessDate effectiveTo,
   }) {
     return _guard(
       permissionCode: DriverCompensationFailureCodes.permissionManage,
