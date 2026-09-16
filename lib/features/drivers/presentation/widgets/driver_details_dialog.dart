@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
@@ -16,15 +17,24 @@ import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart'
 import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
 import '../../../driver_finance/presentation/widgets/driver_finance_details_section.dart';
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_compensation_revision.dart';
+import '../cubit/driver_compensation_cubit.dart';
+import '../cubit/driver_compensation_state.dart';
 import '../cubit/drivers_state.dart';
 import '../localization/drivers_localizations_x.dart';
 import 'driver_activity_timeline_item.dart';
+import 'driver_compensation_details_section.dart';
 import 'driver_details_section.dart';
 import 'driver_images_grid.dart';
 
 class DriverDetailsDialog extends StatelessWidget {
   final Driver driver;
   final DriversLoaded? state;
+  final bool showCompensation;
+  final VoidCallback? onAddCompensationRevision;
+  final ValueChanged<DriverCompensationRevision>? onEndCompensationRevision;
+  final ValueChanged<DriverCompensationRevision>? onAttachCompensationContract;
+  final ValueChanged<DriverCompensationRevision>? onOpenCompensationContract;
   final VoidCallback? onAddAdvance;
   final VoidCallback? onAddDriverCharge;
   final VoidCallback? onAddCashReturn;
@@ -32,6 +42,11 @@ class DriverDetailsDialog extends StatelessWidget {
   const DriverDetailsDialog({
     required this.driver,
     required this.state,
+    required this.showCompensation,
+    this.onAddCompensationRevision,
+    this.onEndCompensationRevision,
+    this.onAttachCompensationContract,
+    this.onOpenCompensationContract,
     this.onAddAdvance,
     this.onAddDriverCharge,
     this.onAddCashReturn,
@@ -158,6 +173,23 @@ class DriverDetailsDialog extends StatelessWidget {
                     ),
                 ],
               ),
+              if (showCompensation) ...[
+                const SizedBox(height: AppSpacing.md),
+                BlocBuilder<DriverCompensationCubit, DriverCompensationState>(
+                  builder: (context, compensationState) {
+                    return DriverCompensationDetailsSection(
+                      state: compensationState,
+                      onAddRevision: onAddCompensationRevision ?? () {},
+                      onEndRevision:
+                          onEndCompensationRevision ?? (_) {},
+                      onAttachContract:
+                          onAttachCompensationContract ?? (_) {},
+                      onOpenContract:
+                          onOpenCompensationContract ?? (_) {},
+                    );
+                  },
+                ),
+              ],
               const SizedBox(height: AppSpacing.md),
               DriverFinanceDetailsSection(
                 movements: movements,
