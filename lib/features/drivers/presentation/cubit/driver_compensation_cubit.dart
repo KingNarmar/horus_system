@@ -5,6 +5,7 @@ import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -95,7 +96,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
     );
   }
 
-  Future<void> createRevision({
+  Future<Failure?> createRevision({
     required Money amount,
     required BusinessDate effectiveFrom,
     BusinessDate? effectiveTo,
@@ -103,7 +104,11 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
     BusinessDocumentFile? contractDocument,
   }) async {
     final loaded = state;
-    if (loaded is! DriverCompensationLoaded || loaded.isSaving) return;
+    if (loaded is! DriverCompensationLoaded || loaded.isSaving) {
+      return const UnexpectedFailure(
+        code: DriverCompensationFailureCodes.unexpectedError,
+      );
+    }
 
     emit(
       loaded.copyWith(
@@ -133,21 +138,26 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
           mutationFailure: failure,
         ),
       );
-      return;
+      return failure;
     }
 
     await loadForDriver(
       currentCompanyContext: loaded.currentCompanyContext,
       driverId: loaded.driverId,
     );
+    return null;
   }
 
-  Future<void> endRevision({
+  Future<Failure?> endRevision({
     required DriverCompensationRevision revision,
     required BusinessDate effectiveTo,
   }) async {
     final loaded = state;
-    if (loaded is! DriverCompensationLoaded || loaded.isSaving) return;
+    if (loaded is! DriverCompensationLoaded || loaded.isSaving) {
+      return const UnexpectedFailure(
+        code: DriverCompensationFailureCodes.unexpectedError,
+      );
+    }
 
     emit(
       loaded.copyWith(
@@ -173,21 +183,26 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
           mutationFailure: failure,
         ),
       );
-      return;
+      return failure;
     }
 
     await loadForDriver(
       currentCompanyContext: loaded.currentCompanyContext,
       driverId: loaded.driverId,
     );
+    return null;
   }
 
-  Future<void> attachContractDocument({
+  Future<Failure?> attachContractDocument({
     required DriverCompensationRevision revision,
     required BusinessDocumentFile document,
   }) async {
     final loaded = state;
-    if (loaded is! DriverCompensationLoaded || loaded.isSaving) return;
+    if (loaded is! DriverCompensationLoaded || loaded.isSaving) {
+      return const UnexpectedFailure(
+        code: DriverCompensationFailureCodes.unexpectedError,
+      );
+    }
 
     emit(
       loaded.copyWith(
@@ -213,13 +228,14 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
           mutationFailure: failure,
         ),
       );
-      return;
+      return failure;
     }
 
     await loadForDriver(
       currentCompanyContext: loaded.currentCompanyContext,
       driverId: loaded.driverId,
     );
+    return null;
   }
 
   Future<Result<BusinessDocumentAccess>> createContractAccess(
