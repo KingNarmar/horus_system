@@ -108,8 +108,7 @@ extension _TripFormContent on _TripFormDialogState {
               controller: _agreedFreightRateController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText:
-                    '${l10n.tripFreightPriceHeader} / ${l10n.tripTonsSuffix}',
+                labelText: l10n.tripAgreedFreightRatePerTonLabel,
                 border: const OutlineInputBorder(),
               ),
               validator: (value) {

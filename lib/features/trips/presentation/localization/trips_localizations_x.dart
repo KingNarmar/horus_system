@@ -13,6 +13,8 @@ extension TripsLocalizationsX on AppLocalizations {
   String get tripSaveButton => saveButton;
   String get tripCancelButton => cancelButton;
   String get tripRetryButton => retryButton;
+  String get tripAgreedFreightRatePerTonLabel =>
+      '$tripFreightPriceHeader / $tripTonsSuffix';
 
   String get tripExpenseVoidedStatus => companyExpenseVoidedStatus;
   String get tripExpenseVoidButton => voidCompanyExpenseButton;
@@ -174,7 +176,8 @@ extension TripsLocalizationsX on AppLocalizations {
       'loading_order_number' => tripLoadingOrderHeader,
       'waybill_number' => tripWaybillHeader,
       'quantity_tons' => tripQuantityHeader,
-      'freight_price' => tripFreightPriceHeader,
+      'agreed_freight_rate_per_ton' => tripAgreedFreightRatePerTonLabel,
+      'commercial_amount' || 'freight_price' => tripFreightPriceHeader,
       'total_expenses' => tripTotalExpensesLabel,
       'trip_total_expenses' => tripTotalExpensesLabel,
       'expense_id' => tripAuditFieldExpenseId,

@@ -94,7 +94,7 @@ class RouteDetailsDialog extends StatelessWidget {
                     value: _optional(route.governorateTo, l10n),
                   ),
                   _RouteDetailRow(
-                    label: l10n.defaultFreightPriceLabel,
+                    label: l10n.routeDefaultFreightRatePerTonLabel,
                     value: _formatDefaultFreightRate(
                       route,
                       state,

@@ -95,7 +95,7 @@ class _RoutesTable extends StatelessWidget {
             DataColumn(label: Text(l10n.routeLoadingHeader)),
             DataColumn(label: Text(l10n.routeUnloadingHeader)),
             DataColumn(label: Text(l10n.routeGovernoratesHeader)),
-            DataColumn(label: Text(l10n.routeDefaultPriceHeader)),
+            DataColumn(label: Text(l10n.routeDefaultFreightRatePerTonLabel)),
             DataColumn(label: Text(l10n.routeStatusHeader)),
             const DataColumn(label: SizedBox(width: 132)),
           ],
@@ -194,7 +194,7 @@ class _RoutesCards extends StatelessWidget {
                       value: _governoratesText(route, l10n.emptyValue),
                     ),
                     _InfoText(
-                      label: l10n.routeDefaultPriceHeader,
+                      label: l10n.routeDefaultFreightRatePerTonLabel,
                       value: _rateText(
                         route,
                         financialConfiguration,

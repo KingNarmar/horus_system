@@ -17,6 +17,8 @@ const List<String> _tripAuditChangeFieldOrder = [
   'loading_order_number',
   'waybill_number',
   'quantity_tons',
+  'agreed_freight_rate_per_ton',
+  'commercial_amount',
   'freight_price',
   'total_expenses',
   'expense_name',

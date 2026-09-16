@@ -109,7 +109,7 @@ class _TripsTableHeader extends StatelessWidget {
           ],
           _HeaderCell(
             label: canViewTripFinancials
-                ? '${l10n.tripQuantityHeader} / ${l10n.tripFreightPriceHeader}'
+                ? '${l10n.tripQuantityHeader} / ${l10n.tripAgreedFreightRatePerTonLabel}'
                 : l10n.tripQuantityHeader,
             flex: 14,
           ),
@@ -228,7 +228,7 @@ class _TripsTableRow extends StatelessWidget {
               l10n.tripEmptyValue,
               l10n.tripTonsSuffix,
             ),
-            secondLabel: l10n.tripFreightPriceHeader,
+            secondLabel: l10n.tripAgreedFreightRatePerTonLabel,
             secondValue: canViewTripFinancials
                 ? TripFormatters.money(
                     trip.agreedFreightRatePerTon,

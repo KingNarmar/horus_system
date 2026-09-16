@@ -7,6 +7,7 @@ import '../../../../core/domain/services/money_input_parser.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_entity.dart';
+import '../localization/routes_localizations_x.dart';
 
 class RouteFormData {
   final String loadingLocation;
@@ -156,7 +157,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: l10n.defaultFreightPriceLabel,
+                    labelText: l10n.routeDefaultFreightRatePerTonLabel,
                   ),
                   validator: (_) {
                     return _defaultFreightRateValid

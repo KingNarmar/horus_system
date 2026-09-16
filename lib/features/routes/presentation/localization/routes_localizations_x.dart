@@ -12,6 +12,9 @@ extension RoutesLocalizationsX on AppLocalizations {
 
   String get emptyValue => '-';
 
+  String get routeDefaultFreightRatePerTonLabel =>
+      '$defaultFreightPriceLabel / $tripTonsSuffix';
+
   String routeAuditActionLabel(String action) {
     return auditActionValueDisplayLabel(action);
   }
@@ -26,7 +29,7 @@ extension RoutesLocalizationsX on AppLocalizations {
       'unloading_location' => unloadingLocationLabel,
       'governorate_from' => governorateFromLabel,
       'governorate_to' => governorateToLabel,
-      'default_freight_price' => defaultFreightPriceLabel,
+      'default_freight_price' => routeDefaultFreightRatePerTonLabel,
       'notes' => routeNotesLabel,
       'is_active' => routeStatusHeader,
       _ => key,

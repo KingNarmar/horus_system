@@ -5,6 +5,7 @@ import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../helpers/trip_formatters.dart';
+import '../localization/trips_localizations_x.dart';
 import 'trip_actions.dart';
 import 'trip_info_text.dart';
 import 'trip_status_chip.dart';
@@ -87,7 +88,7 @@ class TripCard extends StatelessWidget {
                 ),
                 if (canViewTripFinancials)
                   TripInfoText(
-                    label: l10n.tripFreightPriceHeader,
+                    label: l10n.tripAgreedFreightRatePerTonLabel,
                     value: TripFormatters.money(
                       trip.agreedFreightRatePerTon,
                       fractionDigits,

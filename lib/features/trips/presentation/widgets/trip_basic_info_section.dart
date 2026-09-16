@@ -112,7 +112,7 @@ class TripBasicInfoSection extends StatelessWidget {
     );
 
     addOptional(
-      '${l10n.tripFreightPriceHeader} / ${l10n.tripTonsSuffix}',
+      l10n.tripAgreedFreightRatePerTonLabel,
       TripFormatters.money(
         trip.agreedFreightRatePerTon,
         fractionDigits,
@@ -121,7 +121,7 @@ class TripBasicInfoSection extends StatelessWidget {
     );
 
     addOptional(
-      '${l10n.tripFreightPriceHeader} ${l10n.reportsAmount}',
+      l10n.tripFreightPriceHeader,
       TripFormatters.money(
         trip.commercialAmount,
         fractionDigits,
