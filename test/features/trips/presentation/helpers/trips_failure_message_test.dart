@@ -115,11 +115,11 @@ void main() {
       );
       expect(
         await _messageFor(tester, const Locale('en'), currencyFailure),
-        'Report financial data does not match the company currency.',
+        'Financial data currency does not match the company currency.',
       );
       expect(
         await _messageFor(tester, const Locale('ar'), currencyFailure),
-        'البيانات المالية للتقرير لا تطابق عملة الشركة.',
+        'عملة البيانات المالية لا تطابق عملة الشركة.',
       );
     });
   });

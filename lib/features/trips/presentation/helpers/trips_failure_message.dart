@@ -20,7 +20,7 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
     FailureCodes.validationTripCommercialAmountOverflow =>
       l10n.failureUnexpectedError,
     TripFailureCodes.financialCurrencyMismatch =>
-      l10n.reportsCurrencyMismatchFailure,
+      context.financialReadinessL10n.currencyMismatch,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
     _ => l10n.localizedErrorMessage(failure),
