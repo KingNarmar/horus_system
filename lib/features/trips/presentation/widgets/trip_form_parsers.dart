@@ -30,14 +30,17 @@ bool _quantityValid(String value) {
   return quantity != null && quantity.isPositive;
 }
 
-bool _moneyInputValid(String value) {
+bool _moneyInputValid(
+  String value,
+  CurrencyConfiguration? financialConfiguration,
+) {
   final text = value.trim();
   if (text.isEmpty) return true;
 
-  final configuration = widget.financialConfiguration;
+  final configuration = financialConfiguration;
   if (configuration == null) return false;
 
-  return _moneyInputParser.tryParseMinorUnits(
+  return _TripFormDialogState._moneyInputParser.tryParseMinorUnits(
         _normalizeDecimalInput(text),
         fractionDigits: configuration.fractionDigits,
       ) !=
@@ -80,7 +83,10 @@ String _formatMoneyInput(
   CurrencyConfiguration? configuration,
 ) {
   if (value == null || configuration == null) return '';
-  return _moneyCodec.encodeNonNegative(value, configuration: configuration);
+  return _TripFormDialogState._moneyCodec.encodeNonNegative(
+    value,
+    configuration: configuration,
+  );
 }
 
 String _formatBusinessLocalDateTimeForInput(BusinessLocalDateTime? value) {
