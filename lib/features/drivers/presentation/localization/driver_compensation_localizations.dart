@@ -42,7 +42,11 @@ final class DriverCompensationLocalizations {
   final String alreadyEnded;
   final String documentAlreadyAttached;
   final String documentNotFound;
+  final String revisionNotFound;
+  final String driverNotFound;
   final String notFoundForDate;
+  final String serverError;
+  final String unexpectedError;
 
   const DriverCompensationLocalizations._({
     required this.sectionTitle,
@@ -80,7 +84,11 @@ final class DriverCompensationLocalizations {
     required this.alreadyEnded,
     required this.documentAlreadyAttached,
     required this.documentNotFound,
+    required this.revisionNotFound,
+    required this.driverNotFound,
     required this.notFoundForDate,
+    required this.serverError,
+    required this.unexpectedError,
   });
 
   factory DriverCompensationLocalizations.forLocale(Locale locale) {
@@ -92,7 +100,8 @@ final class DriverCompensationLocalizations {
     currentCompensation: 'Current compensation',
     history: 'Compensation history',
     noHistory: 'No compensation history has been recorded yet.',
-    noCurrentCompensation: 'No compensation is effective on the current business date.',
+    noCurrentCompensation:
+        'No compensation is effective on the current business date.',
     addRevision: 'Add compensation revision',
     addRevisionTitle: 'Add compensation revision',
     amountLabel: 'Compensation amount',
@@ -100,7 +109,7 @@ final class DriverCompensationLocalizations {
     effectiveToLabel: 'Effective to',
     ongoingLabel: 'Ongoing',
     contractReferenceLabel: 'Contract reference',
-    contractDocumentLabel: 'Signed contract',
+    contractDocumentLabel: 'Signed contract attached',
     noContractDocument: 'No signed contract attached',
     chooseContractDocument: 'Choose contract file',
     attachContractDocument: 'Attach signed contract',
@@ -114,16 +123,22 @@ final class DriverCompensationLocalizations {
     filePickerFailed: 'The contract file could not be read.',
     openDocumentFailed: 'The signed contract could not be opened.',
     permissionView: 'You do not have permission to view driver compensation.',
-    permissionManage: 'You do not have permission to manage driver compensation.',
+    permissionManage:
+        'You do not have permission to manage driver compensation.',
     amountPositive: 'Compensation amount must be greater than zero.',
     currencyMismatch: 'Compensation currency must match the company currency.',
     invalidPeriod: 'The compensation effective period is invalid.',
     invalidContractReference: 'The contract reference is invalid.',
     overlap: 'This compensation period overlaps an existing revision.',
     alreadyEnded: 'This compensation revision has already ended.',
-    documentAlreadyAttached: 'A signed contract is already attached to this revision.',
+    documentAlreadyAttached:
+        'A signed contract is already attached to this revision.',
     documentNotFound: 'No signed contract is attached to this revision.',
+    revisionNotFound: 'The compensation revision could not be found.',
+    driverNotFound: 'The driver could not be found for this company.',
     notFoundForDate: 'No compensation revision applies to this business date.',
+    serverError: 'Driver compensation could not be loaded or saved.',
+    unexpectedError: 'An unexpected driver compensation error occurred.',
   );
 
   static const _arabic = DriverCompensationLocalizations._(
@@ -139,7 +154,7 @@ final class DriverCompensationLocalizations {
     effectiveToLabel: 'ساري حتى',
     ongoingLabel: 'مستمر',
     contractReferenceLabel: 'مرجع العقد',
-    contractDocumentLabel: 'العقد الموقّع',
+    contractDocumentLabel: 'العقد الموقّع مرفق',
     noContractDocument: 'لا يوجد عقد موقّع مرفق',
     chooseContractDocument: 'اختيار ملف العقد',
     attachContractDocument: 'إرفاق العقد الموقّع',
@@ -162,7 +177,11 @@ final class DriverCompensationLocalizations {
     alreadyEnded: 'تم إنهاء فترة التعويض هذه بالفعل.',
     documentAlreadyAttached: 'يوجد عقد موقّع مرفق بهذه الفترة بالفعل.',
     documentNotFound: 'لا يوجد عقد موقّع مرفق بهذه الفترة.',
+    revisionNotFound: 'تعذر العثور على فترة التعويض.',
+    driverNotFound: 'تعذر العثور على السائق داخل هذه الشركة.',
     notFoundForDate: 'لا توجد فترة تعويض تنطبق على تاريخ العمل هذا.',
+    serverError: 'تعذر تحميل أو حفظ بيانات تعويض السائق.',
+    unexpectedError: 'حدث خطأ غير متوقع في بيانات تعويض السائق.',
   );
 }
 
@@ -190,7 +209,11 @@ String driverCompensationFailureMessage(BuildContext context, Failure failure) {
     DriverCompensationFailureCodes.conflictDocumentAlreadyAttached =>
       l10n.documentAlreadyAttached,
     DriverCompensationFailureCodes.notFoundDocument => l10n.documentNotFound,
+    DriverCompensationFailureCodes.notFoundRevision => l10n.revisionNotFound,
+    DriverCompensationFailureCodes.notFoundDriver => l10n.driverNotFound,
     DriverCompensationFailureCodes.notFoundForDate => l10n.notFoundForDate,
+    DriverCompensationFailureCodes.serverError => l10n.serverError,
+    DriverCompensationFailureCodes.unexpectedError => l10n.unexpectedError,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
     _ => context.l10n.localizedErrorMessage(failure),
