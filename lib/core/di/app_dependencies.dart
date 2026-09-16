@@ -33,12 +33,14 @@ import '../../features/driver_finance/domain/usecases/driver_finance_usecases.da
 import '../../features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
 import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
+import '../../features/drivers/di/driver_compensation_dependencies.dart';
 import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/deactivate_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/get_driver_image_urls_usecase.dart';
 import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
 import '../../features/drivers/domain/usecases/reactivate_driver_usecase.dart';
 import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
+import '../../features/drivers/presentation/cubit/driver_compensation_cubit.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
 import '../context/current_company_provider.dart';
 import '../context/in_memory_current_company_provider.dart';
@@ -176,5 +178,9 @@ abstract final class AppDependencies {
             getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
           ),
     );
+  }
+
+  static DriverCompensationCubit createDriverCompensationCubit() {
+    return DriverCompensationDependencies.createCubit();
   }
 }
