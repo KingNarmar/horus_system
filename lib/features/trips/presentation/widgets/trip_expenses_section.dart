@@ -43,7 +43,6 @@ class TripExpensesSection extends StatelessWidget {
     return TripDetailsCard(
       children: [
         _TripExpensesHeader(
-          trip: trip,
           state: loaded,
           onAdd: () => _showExpenseForm(context, trip: trip, state: loaded),
         ),
@@ -158,12 +157,10 @@ class TripExpensesSection extends StatelessWidget {
 }
 
 class _TripExpensesHeader extends StatelessWidget {
-  final TripEntity trip;
   final TripsLoaded state;
   final VoidCallback onAdd;
 
   const _TripExpensesHeader({
-    required this.trip,
     required this.state,
     required this.onAdd,
   });
@@ -189,7 +186,7 @@ class _TripExpensesHeader extends StatelessWidget {
             ),
             Text(
               TripFormatters.money(
-                trip.totalExpenses,
+                state.selectedTripTotalExpenses,
                 fractionDigits,
                 l10n.tripEmptyValue,
               ),
