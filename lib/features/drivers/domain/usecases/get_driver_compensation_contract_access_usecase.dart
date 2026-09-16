@@ -55,7 +55,7 @@ final class GetDriverCompensationContractAccessUseCase
       return Future.value(
         const FailureResult(
           NotFoundFailure(
-            code: DriverCompensationFailureCodes.notFoundForDate,
+            code: DriverCompensationFailureCodes.notFoundDocument,
           ),
         ),
       );
