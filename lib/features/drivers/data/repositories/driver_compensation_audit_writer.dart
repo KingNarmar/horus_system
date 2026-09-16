@@ -4,8 +4,8 @@ import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_log_write_data.dart';
 import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
-import '../models/driver_compensation_model.dart';
 import '../mappers/driver_compensation_mapper.dart';
+import '../models/driver_compensation_model.dart';
 
 final class DriverCompensationAuditWriter {
   static const String revisionCreatedEvent =
@@ -32,8 +32,8 @@ final class DriverCompensationAuditWriter {
           companyId: model.companyId,
           actorRole: actorRole,
           module: AuditModule.drivers,
-          entityType: AuditEntityType.driver,
-          entityId: model.driverId,
+          entityType: AuditEntityType.driverCompensationRevision,
+          entityId: model.id,
           action: action,
           description: event,
           oldValues: oldValues,
