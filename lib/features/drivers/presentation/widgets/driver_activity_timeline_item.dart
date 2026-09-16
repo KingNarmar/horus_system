@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/currency_code.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -12,14 +16,22 @@ import '../../../audit/presentation/localization/audit_display_localizations_x.d
 import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
 import '../../../driver_finance/presentation/localization/driver_finance_localizations_x.dart';
+import '../localization/driver_compensation_localizations.dart';
 import '../localization/drivers_localizations_x.dart';
 
 const _driverFinancialMovementEntityKey = 'driver_financial_movement';
 const _legacyDriverFinancialMovementEntityDisplayName =
     'Driver financial movement';
 const _driverFinanceMovementAddedEvent = 'driver_finance_movement_added';
+const _driverCompensationCreatedEvent =
+    'driver_compensation_revision_created';
+const _driverCompensationEndedEvent = 'driver_compensation_revision_ended';
+const _driverCompensationContractAttachedEvent =
+    'driver_compensation_contract_attached';
 
 class DriverActivityTimelineItem extends StatelessWidget {
+  static const MoneyDecimalCodec _moneyCodec = MoneyDecimalCodec();
+
   final AuditLog log;
   final BusinessLocalDateTime? createdAt;
   final List<DriverFinanceTripOption> tripOptions;
@@ -34,8 +46,12 @@ class DriverActivityTimelineItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final financeSummary = _financeSummary(l10n);
-    final changes = financeSummary == null
+    final compensationSummary = _compensationSummary(context);
+    final financeSummary = compensationSummary == null
+        ? _financeSummary(l10n)
+        : null;
+    final summary = compensationSummary ?? financeSummary;
+    final changes = summary == null
         ? _changedFields(log, l10n)
         : const <Widget>[];
     return Padding(
@@ -44,7 +60,7 @@ class DriverActivityTimelineItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            financeSummary?.title ?? l10n.auditActionLabel(log.action.value),
+            summary?.title ?? l10n.auditActionLabel(log.action.value),
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -60,9 +76,9 @@ class DriverActivityTimelineItem extends StatelessWidget {
               ),
             ),
           ),
-          if (financeSummary != null) ...[
+          if (summary != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            ...financeSummary.details.map((detail) => Text(detail)),
+            ...summary.details.map((detail) => Text(detail)),
           ] else if (changes.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             ...changes,
@@ -72,7 +88,77 @@ class DriverActivityTimelineItem extends StatelessWidget {
     );
   }
 
-  _DriverFinanceLogSummary? _financeSummary(AppLocalizations l10n) {
+  _DriverActivityLogSummary? _compensationSummary(BuildContext context) {
+    final event = log.metadata?['audit_event']?.toString().trim();
+    if (event != _driverCompensationCreatedEvent &&
+        event != _driverCompensationEndedEvent &&
+        event != _driverCompensationContractAttachedEvent) {
+      return null;
+    }
+
+    final l10n = context.driverCompensationL10n;
+    final title = switch (event) {
+      _driverCompensationCreatedEvent => l10n.addRevisionTitle,
+      _driverCompensationEndedEvent => l10n.endRevisionTitle,
+      _driverCompensationContractAttachedEvent => l10n.attachContractDocument,
+      _ => l10n.sectionTitle,
+    };
+    final details = <String>[];
+    final amount = _compensationAmount(log.newValues);
+    final effectiveFrom = _firstText([log.newValues?['effective_from']]);
+    final effectiveTo = _firstText([log.newValues?['effective_to']]);
+    final contractReference = _firstText([
+      log.newValues?['contract_reference'],
+    ]);
+
+    if (amount != null) details.add(_detailLine(l10n.amountLabel, amount));
+    if (effectiveFrom != null) {
+      details.add(_detailLine(l10n.effectiveFromLabel, effectiveFrom));
+    }
+    if (effectiveTo != null) {
+      details.add(_detailLine(l10n.effectiveToLabel, effectiveTo));
+    }
+    if (contractReference != null) {
+      details.add(
+        _detailLine(l10n.contractReferenceLabel, contractReference),
+      );
+    }
+
+    return _DriverActivityLogSummary(title: title, details: details);
+  }
+
+  String? _compensationAmount(Map<String, Object?>? values) {
+    if (values == null) return null;
+    final minorUnits = int.tryParse(
+      values['amount_minor_units']?.toString() ?? '',
+    );
+    final fractionDigits = int.tryParse(
+      values['currency_fraction_digits']?.toString() ?? '',
+    );
+    final currency = CurrencyCode.tryParse(
+      values['currency_code']?.toString() ?? '',
+    );
+    if (minorUnits == null ||
+        fractionDigits == null ||
+        currency == null ||
+        fractionDigits < CurrencyConfiguration.minFractionDigits ||
+        fractionDigits > CurrencyConfiguration.maxFractionDigits) {
+      return null;
+    }
+
+    final money = Money(minorUnits: minorUnits, currency: currency);
+    final configuration = CurrencyConfiguration(
+      currency: currency,
+      fractionDigits: fractionDigits,
+    );
+    final value = _moneyCodec.encodeNonNegative(
+      money,
+      configuration: configuration,
+    );
+    return '$value ${currency.value}';
+  }
+
+  _DriverActivityLogSummary? _financeSummary(AppLocalizations l10n) {
     if (!_isDriverFinanceLog(log)) return null;
 
     final typeValue = _firstText([
@@ -106,7 +192,7 @@ class DriverActivityTimelineItem extends StatelessWidget {
       if (notes != null) _detailLine(l10n.driverMovementNotesLabel, notes),
     ];
 
-    return _DriverFinanceLogSummary(
+    return _DriverActivityLogSummary(
       title: titleParts.join(' - '),
       details: details,
     );
@@ -231,11 +317,14 @@ class DriverActivityTimelineItem extends StatelessWidget {
   }
 }
 
-class _DriverFinanceLogSummary {
+class _DriverActivityLogSummary {
   final String title;
   final List<String> details;
 
-  const _DriverFinanceLogSummary({required this.title, required this.details});
+  const _DriverActivityLogSummary({
+    required this.title,
+    required this.details,
+  });
 }
 
 String _formatBusinessLocalDateTime(
