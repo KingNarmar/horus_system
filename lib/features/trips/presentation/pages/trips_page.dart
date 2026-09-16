@@ -9,6 +9,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
+import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
 import '../widgets/trip_details_dialog.dart';
 import '../widgets/trip_form_dialog.dart';
@@ -146,7 +147,7 @@ class _TripsPageState extends State<TripsPage> {
       listener: (context, state) {
         if (state is TripsFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
+            SnackBar(content: Text(tripsFailureMessage(context, state.failure))),
           );
         }
       },
@@ -172,7 +173,7 @@ class _TripsPageState extends State<TripsPage> {
               )
             else if (state is TripsFailure)
               _TripsFailureView(
-                failureText: l10n.localizedErrorMessage(state.failure),
+                failureText: tripsFailureMessage(context, state.failure),
                 onRetry: () {
                   context.read<TripsCubit>().loadTrips(
                     widget.currentCompanyContext,

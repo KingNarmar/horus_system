@@ -1,4 +1,6 @@
+import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -20,6 +22,8 @@ class RoutesLoading extends RoutesState {
 }
 
 class RoutesLoaded extends RoutesState {
+  static const _moneyCodec = MoneyDecimalCodec();
+
   final CurrentCompanyContext currentCompanyContext;
   final List<RouteEntity> allRoutes;
   final bool canManageRoutes;
@@ -63,7 +67,7 @@ class RoutesLoaded extends RoutesState {
         route.unloadingLocation,
         route.governorateFrom,
         route.governorateTo,
-        route.defaultFreightPrice?.toString(),
+        _searchableDefaultFreightRate(route),
         route.notes,
       ].whereType<String>().any((value) {
         return value.toLowerCase().contains(query);
@@ -107,6 +111,20 @@ class RoutesLoaded extends RoutesState {
           ? this.activityFailure
           : activityFailure as Failure?,
     );
+  }
+
+  String? _searchableDefaultFreightRate(RouteEntity route) {
+    final rate = route.defaultFreightRatePerTon;
+    if (rate == null) return null;
+
+    final company = currentCompanyContext.company;
+    final configuration = CurrencyConfiguration.tryCreate(
+      currencyCode: company.baseCurrencyCode,
+      fractionDigits: company.baseCurrencyFractionDigits,
+    );
+    if (configuration == null) return null;
+
+    return _moneyCodec.encodeNonNegative(rate, configuration: configuration);
   }
 }
 

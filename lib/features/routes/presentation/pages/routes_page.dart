@@ -10,6 +10,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_cubit.dart';
 import '../cubit/routes_state.dart';
+import '../helpers/routes_failure_message.dart';
 import '../widgets/route_activity_dialog.dart';
 import '../widgets/route_form_dialog.dart';
 import '../widgets/routes_filters.dart';
@@ -134,7 +135,7 @@ class _RoutesPageState extends State<RoutesPage> {
       listener: (context, state) {
         if (state is RoutesFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
+            SnackBar(content: Text(routesFailureMessage(context, state.failure))),
           );
         }
       },
@@ -160,7 +161,7 @@ class _RoutesPageState extends State<RoutesPage> {
               )
             else if (state is RoutesFailure)
               _RoutesFailureView(
-                failureText: l10n.localizedErrorMessage(state.failure),
+                failureText: routesFailureMessage(context, state.failure),
                 onRetry: () {
                   context.read<RoutesCubit>().loadRoutes(
                     widget.currentCompanyContext,
