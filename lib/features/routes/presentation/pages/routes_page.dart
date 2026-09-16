@@ -129,8 +129,6 @@ class _RoutesPageState extends State<RoutesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
     return BlocConsumer<RoutesCubit, RoutesState>(
       listener: (context, state) {
         if (state is RoutesFailure) {
