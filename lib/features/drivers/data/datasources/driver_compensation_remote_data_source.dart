@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/documents/domain/entities/business_document_reference.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../domain/entities/driver_compensation_write_data.dart';
 import '../constants/driver_compensation_db_fields.dart';
 import '../mappers/driver_compensation_mapper.dart';
@@ -29,7 +30,7 @@ abstract class DriverCompensationRemoteDataSource {
     required String companyId,
     required String revisionId,
     required String driverId,
-    required String effectiveTo,
+    required BusinessDate effectiveTo,
   });
 
   Future<DriverCompensationModel> attachContractDocument({
@@ -115,11 +116,13 @@ final class SupabaseDriverCompensationRemoteDataSource
     required String companyId,
     required String revisionId,
     required String driverId,
-    required String effectiveTo,
+    required BusinessDate effectiveTo,
   }) async {
     final response = await client
         .from(DriverCompensationDbFields.tableName)
-        .update({DriverCompensationDbFields.effectiveTo: effectiveTo})
+        .update({
+          DriverCompensationDbFields.effectiveTo: DbDate.encode(effectiveTo),
+        })
         .eq(DriverCompensationDbFields.id, revisionId)
         .eq(DriverCompensationDbFields.companyId, companyId)
         .eq(DriverCompensationDbFields.driverId, driverId)
