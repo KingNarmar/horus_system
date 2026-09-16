@@ -22,19 +22,33 @@ String? _optional(String value) {
   return text.isEmpty ? null : text;
 }
 
-bool _nonNegativeNumberValid(String value) {
+bool _quantityValid(String value) {
   final text = value.trim();
   if (text.isEmpty) return true;
 
-  final number = _parseDouble(text);
-  return number != null && number >= 0;
+  final quantity = QuantityTons.tryParse(_normalizeDecimalInput(text));
+  return quantity != null && quantity.isPositive;
 }
 
-double? _parseDouble(String value) {
+bool _moneyInputValid(
+  String value,
+  CurrencyConfiguration? financialConfiguration,
+) {
   final text = value.trim();
-  if (text.isEmpty) return null;
+  if (text.isEmpty) return true;
 
-  return double.tryParse(text.replaceAll(',', '.'));
+  final configuration = financialConfiguration;
+  if (configuration == null) return false;
+
+  return _TripFormDialogState._moneyInputParser.tryParseMinorUnits(
+        _normalizeDecimalInput(text),
+        fractionDigits: configuration.fractionDigits,
+      ) !=
+      null;
+}
+
+String _normalizeDecimalInput(String value) {
+  return value.trim().replaceAll(',', '.');
 }
 
 bool _dateTimeValid(String value) {
@@ -59,11 +73,17 @@ BusinessLocalDateTime? _parseBusinessLocalDateTime(String value) {
   );
 }
 
-String _formatDouble(double? value) {
+String _formatQuantityInput(QuantityTons? value) {
   if (value == null) return '';
+  return value.toDecimalString().replaceFirst(RegExp(r'\.?0+$'), '');
+}
 
-  final text = value.toString();
-  return text.endsWith('.0') ? text.substring(0, text.length - 2) : text;
+String _formatMoneyInput(Money? value, CurrencyConfiguration? configuration) {
+  if (value == null || configuration == null) return '';
+  return _TripFormDialogState._moneyCodec.encodeNonNegative(
+    value,
+    configuration: configuration,
+  );
 }
 
 String _formatBusinessLocalDateTimeForInput(BusinessLocalDateTime? value) {

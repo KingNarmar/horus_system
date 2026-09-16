@@ -1,3 +1,5 @@
+import '../../../../core/domain/value_objects/money.dart';
+import '../value_objects/quantity_tons.dart';
 import 'trip_status.dart';
 
 class TripEntity {
@@ -11,8 +13,9 @@ class TripEntity {
   final TripStatus status;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final QuantityTons? quantityTons;
+  final Money? agreedFreightRatePerTon;
+  final Money? commercialAmount;
   final double? totalExpenses;
   final DateTime? scheduledLoadingAt;
   final DateTime? scheduledDeliveryAt;
@@ -39,7 +42,8 @@ class TripEntity {
     this.loadingOrderNumber,
     this.waybillNumber,
     this.quantityTons,
-    this.freightPrice,
+    this.agreedFreightRatePerTon,
+    this.commercialAmount,
     this.totalExpenses,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
@@ -56,6 +60,16 @@ class TripEntity {
   });
 
   bool get isVehicleAssignmentBlocking => status.blocksVehicleAssignment;
+
+  bool get hasAuthoritativeCommercialSnapshot {
+    return quantityTons != null &&
+        agreedFreightRatePerTon != null &&
+        commercialAmount != null;
+  }
+
+  bool get hasLegacyCommercialAmount {
+    return commercialAmount != null && agreedFreightRatePerTon == null;
+  }
 
   String get displayName {
     final orderNumber = _textOrNull(loadingOrderNumber);

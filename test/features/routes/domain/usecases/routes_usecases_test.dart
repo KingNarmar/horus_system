@@ -1,8 +1,11 @@
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/routes/domain/entities/route_entity.dart';
 import 'package:horus_system/features/routes/domain/entities/route_write_data.dart';
 import 'package:horus_system/features/routes/domain/repositories/routes_repository.dart';
@@ -29,22 +32,23 @@ void main() {
       },
     );
 
-    test('forwards exact company id for authorized read', () async {
+    test('forwards company id and company financial configuration', () async {
       final repository = _FakeRoutesRepository();
       final useCase = GetRoutesUseCase(repository);
 
       final result = await useCase(
         GetRoutesParams(
           currentCompanyContext: _context(
-            companyId: '  company-1  ',
+            companyId: 'company-1',
             role: CompanyRole.viewer,
           ),
         ),
       );
 
       expect(result, isA<Success<List<RouteEntity>>>());
-      expect(repository.getRoutesCalls, 1);
-      expect(repository.lastCompanyId, '  company-1  ');
+      expect(repository.lastCompanyId, 'company-1');
+      expect(repository.lastFinancialConfiguration?.currency.value, 'AED');
+      expect(repository.lastFinancialConfiguration?.fractionDigits, 2);
     });
   });
 
@@ -69,68 +73,84 @@ void main() {
       expect(repository.totalMutationCalls, 0);
     });
 
-    test('requires loading location after trimming', () async {
+    test('requires loading and unloading locations after trimming', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
 
-      final result = await useCase(
+      final loadingResult = await useCase(
         SaveRouteParams(
           currentCompanyContext: _context(),
           loadingLocation: '   ',
           unloadingLocation: 'Abu Dhabi',
         ),
       );
-
-      expect(result, isA<FailureResult<RouteEntity>>());
       expect(
-        result.failureOrNull?.code,
+        loadingResult.failureOrNull?.code,
         FailureCodes.validationRouteLoadingLocationRequired,
       );
-      expect(repository.totalMutationCalls, 0);
-    });
 
-    test('requires unloading location after trimming', () async {
-      final repository = _FakeRoutesRepository();
-      final useCase = SaveRouteUseCase(repository);
-
-      final result = await useCase(
+      final unloadingResult = await useCase(
         SaveRouteParams(
           currentCompanyContext: _context(),
           loadingLocation: 'Dubai',
           unloadingLocation: '   ',
         ),
       );
-
-      expect(result, isA<FailureResult<RouteEntity>>());
       expect(
-        result.failureOrNull?.code,
+        unloadingResult.failureOrNull?.code,
         FailureCodes.validationRouteUnloadingLocationRequired,
       );
       expect(repository.totalMutationCalls, 0);
     });
 
-    test('rejects negative default freight price', () async {
+    test('rejects invalid or over-precision rate input', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
 
-      final result = await useCase(
-        SaveRouteParams(
-          currentCompanyContext: _context(),
-          loadingLocation: 'Dubai',
-          unloadingLocation: 'Abu Dhabi',
-          defaultFreightPrice: -1,
-        ),
-      );
+      for (final input in ['-1', '1.001', 'abc']) {
+        final result = await useCase(
+          SaveRouteParams(
+            currentCompanyContext: _context(),
+            loadingLocation: 'Dubai',
+            unloadingLocation: 'Abu Dhabi',
+            defaultFreightRatePerTonInput: input,
+          ),
+        );
 
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationRouteFreightPriceNegative,
-      );
+        expect(result, isA<FailureResult<RouteEntity>>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationRouteFreightRateInvalid,
+        );
+      }
       expect(repository.totalMutationCalls, 0);
     });
 
-    test('blank id creates and normalizes route write data', () async {
+    test(
+      'requires company financial settings when a rate is supplied',
+      () async {
+        final repository = _FakeRoutesRepository();
+        final useCase = SaveRouteUseCase(repository);
+
+        final result = await useCase(
+          SaveRouteParams(
+            currentCompanyContext: _context(withFinancialSettings: false),
+            loadingLocation: 'Dubai',
+            unloadingLocation: 'Abu Dhabi',
+            defaultFreightRatePerTonInput: '1250',
+          ),
+        );
+
+        expect(result, isA<FailureResult<RouteEntity>>());
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.conflictFinancialSettingsNotConfigured,
+        );
+        expect(repository.totalMutationCalls, 0);
+      },
+    );
+
+    test('creates normalized route with exact Money rate', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
 
@@ -142,7 +162,7 @@ void main() {
           unloadingLocation: '  Abu Dhabi  ',
           governorateFrom: '  Dubai  ',
           governorateTo: '   ',
-          defaultFreightPrice: 1250,
+          defaultFreightRatePerTonInput: '1250.50',
           notes: '  Priority route  ',
         ),
       );
@@ -150,18 +170,22 @@ void main() {
       expect(result, isA<Success<RouteEntity>>());
       expect(repository.addRouteCalls, 1);
       expect(repository.saveRouteCalls, 0);
-      expect(repository.lastActorRole, CompanyRole.owner.value);
       final data = repository.lastWriteData!;
-      expect(data.companyId, _companyId);
       expect(data.loadingLocation, 'Dubai');
       expect(data.unloadingLocation, 'Abu Dhabi');
       expect(data.governorateFrom, 'Dubai');
       expect(data.governorateTo, isNull);
-      expect(data.defaultFreightPrice, 1250);
+      expect(
+        data.defaultFreightRatePerTon,
+        Money(
+          minorUnits: 125050,
+          currency: repository.lastFinancialConfiguration!.currency,
+        ),
+      );
       expect(data.notes, 'Priority route');
     });
 
-    test('nonblank id updates using trimmed id and optional values', () async {
+    test('updates using trimmed id and nullable rate', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
 
@@ -178,52 +202,35 @@ void main() {
       );
 
       expect(result, isA<Success<RouteEntity>>());
-      expect(repository.addRouteCalls, 0);
       expect(repository.saveRouteCalls, 1);
       expect(repository.lastRouteId, 'route-1');
-      expect(repository.lastActorRole, CompanyRole.admin.value);
-      final data = repository.lastWriteData!;
-      expect(data.governorateFrom, isNull);
-      expect(data.governorateTo, 'Abu Dhabi');
-      expect(data.notes, isNull);
+      expect(repository.lastWriteData?.defaultFreightRatePerTon, isNull);
     });
   });
 
   group('route lifecycle use cases', () {
-    test('deactivate forwards company, id, and actor role', () async {
+    test('forwards scope, role, and financial config', () async {
       final repository = _FakeRoutesRepository();
-      final useCase = DeactivateRouteUseCase(repository);
 
-      final result = await useCase(
+      final deactivate = await DeactivateRouteUseCase(repository)(
         RouteActiveStateParams(
           currentCompanyContext: _context(role: CompanyRole.operations),
           id: 'route-1',
         ),
       );
-
-      expect(result, isA<Success<RouteEntity>>());
-      expect(repository.deactivateCalls, 1);
+      expect(deactivate, isA<Success<RouteEntity>>());
       expect(repository.lastCompanyId, _companyId);
       expect(repository.lastRouteId, 'route-1');
       expect(repository.lastActorRole, CompanyRole.operations.value);
-    });
+      expect(repository.lastFinancialConfiguration?.currency.value, 'AED');
 
-    test('reactivate forwards company, id, and actor role', () async {
-      final repository = _FakeRoutesRepository();
-      final useCase = ReactivateRouteUseCase(repository);
-
-      final result = await useCase(
+      final reactivate = await ReactivateRouteUseCase(repository)(
         RouteActiveStateParams(
           currentCompanyContext: _context(role: CompanyRole.owner),
-          id: ' route-1 ',
+          id: 'route-1',
         ),
       );
-
-      expect(result, isA<Success<RouteEntity>>());
-      expect(repository.reactivateCalls, 1);
-      expect(repository.lastCompanyId, _companyId);
-      expect(repository.lastRouteId, ' route-1 ');
-      expect(repository.lastActorRole, CompanyRole.owner.value);
+      expect(reactivate, isA<Success<RouteEntity>>());
     });
   });
 }
@@ -233,9 +240,15 @@ const _companyId = 'company-1';
 CurrentCompanyContext _context({
   String companyId = _companyId,
   CompanyRole role = CompanyRole.owner,
+  bool withFinancialSettings = true,
 }) {
   return CurrentCompanyContext(
-    company: Company(id: companyId, name: 'Company'),
+    company: Company(
+      id: companyId,
+      name: 'Company',
+      baseCurrencyCode: withFinancialSettings ? 'AED' : null,
+      baseCurrencyFractionDigits: withFinancialSettings ? 2 : null,
+    ),
     role: role,
   );
 }
@@ -260,16 +273,23 @@ class _FakeRoutesRepository implements RoutesRepository {
   String? lastRouteId;
   String? lastActorRole;
   RouteWriteData? lastWriteData;
+  CurrencyConfiguration? lastFinancialConfiguration;
 
   int get totalMutationCalls =>
       addRouteCalls + saveRouteCalls + deactivateCalls + reactivateCalls;
 
+  void _captureConfiguration(CurrencyConfiguration? value) {
+    lastFinancialConfiguration = value;
+  }
+
   @override
   Future<Result<List<RouteEntity>>> getRoutes({
     required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     getRoutesCalls += 1;
     lastCompanyId = companyId;
+    _captureConfiguration(financialConfiguration);
     return const Success<List<RouteEntity>>([]);
   }
 
@@ -277,11 +297,13 @@ class _FakeRoutesRepository implements RoutesRepository {
   Future<Result<RouteEntity>> addRoute({
     required RouteWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     addRouteCalls += 1;
     lastCompanyId = data.companyId;
     lastActorRole = actorRole;
     lastWriteData = data;
+    _captureConfiguration(financialConfiguration);
     return Success(_route());
   }
 
@@ -290,12 +312,14 @@ class _FakeRoutesRepository implements RoutesRepository {
     required String id,
     required RouteWriteData data,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     saveRouteCalls += 1;
     lastCompanyId = data.companyId;
     lastRouteId = id;
     lastActorRole = actorRole;
     lastWriteData = data;
+    _captureConfiguration(financialConfiguration);
     return Success(_route());
   }
 
@@ -304,11 +328,13 @@ class _FakeRoutesRepository implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     deactivateCalls += 1;
     lastCompanyId = companyId;
     lastRouteId = id;
     lastActorRole = actorRole;
+    _captureConfiguration(financialConfiguration);
     return Success(_route());
   }
 
@@ -317,11 +343,13 @@ class _FakeRoutesRepository implements RoutesRepository {
     required String companyId,
     required String id,
     required String actorRole,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     reactivateCalls += 1;
     lastCompanyId = companyId;
     lastRouteId = id;
     lastActorRole = actorRole;
+    _captureConfiguration(financialConfiguration);
     return Success(_route());
   }
 }

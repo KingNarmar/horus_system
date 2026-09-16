@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/widgets/active_state_confirmation_dialog.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_cubit.dart';
 import '../cubit/routes_state.dart';
+import '../helpers/routes_failure_message.dart';
 import '../widgets/route_activity_dialog.dart';
 import '../widgets/route_form_dialog.dart';
 import '../widgets/routes_filters.dart';
@@ -24,6 +26,14 @@ class RoutesPage extends StatefulWidget {
 }
 
 class _RoutesPageState extends State<RoutesPage> {
+  CurrencyConfiguration? get _financialConfiguration {
+    final company = widget.currentCompanyContext.company;
+    return CurrencyConfiguration.tryCreate(
+      currencyCode: company.baseCurrencyCode,
+      fractionDigits: company.baseCurrencyFractionDigits,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +50,7 @@ class _RoutesPageState extends State<RoutesPage> {
         return RouteFormDialog(
           title: route == null ? l10n.addRouteTitle : l10n.editRouteTitle,
           route: route,
+          financialConfiguration: _financialConfiguration,
           onSubmit: (data) {
             return cubit.saveRoute(
               route: route,
@@ -47,7 +58,7 @@ class _RoutesPageState extends State<RoutesPage> {
               unloadingLocation: data.unloadingLocation,
               governorateFrom: data.governorateFrom,
               governorateTo: data.governorateTo,
-              defaultFreightPrice: data.defaultFreightPrice,
+              defaultFreightRatePerTonInput: data.defaultFreightRatePerTonInput,
               notes: data.notes,
             );
           },
@@ -117,13 +128,13 @@ class _RoutesPageState extends State<RoutesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
     return BlocConsumer<RoutesCubit, RoutesState>(
       listener: (context, state) {
         if (state is RoutesFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
+            SnackBar(
+              content: Text(routesFailureMessage(context, state.failure)),
+            ),
           );
         }
       },
@@ -141,6 +152,7 @@ class _RoutesPageState extends State<RoutesPage> {
             else if (state is RoutesLoaded)
               _RoutesLoadedBody(
                 state: state,
+                financialConfiguration: _financialConfiguration,
                 onViewDetails: _openRouteDetails,
                 onEdit: (route) => _showRouteForm(route: route),
                 onDeactivate: _deactivateRoute,
@@ -148,7 +160,7 @@ class _RoutesPageState extends State<RoutesPage> {
               )
             else if (state is RoutesFailure)
               _RoutesFailureView(
-                failureText: l10n.localizedErrorMessage(state.failure),
+                failureText: routesFailureMessage(context, state.failure),
                 onRetry: () {
                   context.read<RoutesCubit>().loadRoutes(
                     widget.currentCompanyContext,
@@ -197,6 +209,7 @@ class _RoutesHeader extends StatelessWidget {
 
 class _RoutesLoadedBody extends StatelessWidget {
   final RoutesLoaded state;
+  final CurrencyConfiguration? financialConfiguration;
   final ValueChanged<RouteEntity> onViewDetails;
   final ValueChanged<RouteEntity> onEdit;
   final ValueChanged<RouteEntity> onDeactivate;
@@ -204,6 +217,7 @@ class _RoutesLoadedBody extends StatelessWidget {
 
   const _RoutesLoadedBody({
     required this.state,
+    required this.financialConfiguration,
     required this.onViewDetails,
     required this.onEdit,
     required this.onDeactivate,
@@ -232,6 +246,7 @@ class _RoutesLoadedBody extends StatelessWidget {
         else
           RoutesList(
             routes: routes,
+            financialConfiguration: financialConfiguration,
             canManageRoutes: state.canManageRoutes,
             isActiveStateChanging: state.isActiveStateChanging,
             onViewDetails: onViewDetails,

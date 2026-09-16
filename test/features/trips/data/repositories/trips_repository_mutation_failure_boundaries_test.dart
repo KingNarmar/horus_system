@@ -34,6 +34,7 @@ void main() {
         final result = await repository.createTrip(
           data: testTripWriteData,
           actorRole: 'owner',
+          financialConfiguration: testFinancialConfiguration,
         );
 
         expect(result, isA<FailureResult<TripEntity>>());
@@ -65,6 +66,7 @@ void main() {
       final result = await repository.createTrip(
         data: testTripWriteData,
         actorRole: 'owner',
+        financialConfiguration: testFinancialConfiguration,
       );
 
       expect(result, isA<FailureResult<TripEntity>>());
@@ -97,6 +99,7 @@ void main() {
         id: testTripId,
         data: testTripWriteData,
         actorRole: 'operations',
+        financialConfiguration: testFinancialConfiguration,
       );
 
       expect(result, isA<FailureResult<TripEntity>>());
@@ -134,6 +137,7 @@ void main() {
           id: testTripId,
           newStatus: TripStatus.loaded,
           actorRole: 'operations',
+          financialConfiguration: testFinancialConfiguration,
         );
 
         expect(result, isA<FailureResult<TripEntity>>());
@@ -168,6 +172,7 @@ void main() {
           id: testTripId,
           newStatus: TripStatus.loaded,
           actorRole: 'operations',
+          financialConfiguration: testFinancialConfiguration,
         );
 
         expect(result, isA<FailureResult<TripEntity>>());
@@ -197,6 +202,7 @@ void main() {
         id: testTripId,
         newStatus: TripStatus.loaded,
         actorRole: 'operations',
+        financialConfiguration: testFinancialConfiguration,
       );
 
       expect(result, isA<Success<TripEntity>>());

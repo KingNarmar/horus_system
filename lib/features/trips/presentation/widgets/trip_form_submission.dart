@@ -20,8 +20,10 @@ extension _TripFormSubmission on _TripFormDialogState {
         trailerId: _optionalSelected(_trailerId),
         loadingOrderNumber: _optional(_loadingOrderController.text),
         waybillNumber: _optional(_waybillController.text),
-        quantityTons: _parseDouble(_quantityController.text),
-        freightPrice: _parseDouble(_freightPriceController.text),
+        quantityTonsInput: _optional(_quantityController.text),
+        agreedFreightRatePerTonInput: _optional(
+          _agreedFreightRateController.text,
+        ),
         scheduledLoadingAt: _parseBusinessLocalDateTime(
           _scheduledLoadingController.text,
         ),

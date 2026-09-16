@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
@@ -13,13 +15,17 @@ class TripBasicInfoSection extends StatelessWidget {
   static const double _twoColumnsBreakpoint = 300;
 
   final TripEntity trip;
+  final CurrencyConfiguration? financialConfiguration;
   final TripBusinessLocalTimestamps? businessLocalTimestamps;
-  final double? calculatedAmount;
+  final Money? calculatedTotalExpenses;
+  final Money? calculatedNetProfit;
 
   const TripBasicInfoSection({
     required this.trip,
+    required this.financialConfiguration,
     this.businessLocalTimestamps,
-    this.calculatedAmount,
+    this.calculatedTotalExpenses,
+    this.calculatedNetProfit,
     super.key,
   });
 
@@ -54,6 +60,7 @@ class TripBasicInfoSection extends StatelessWidget {
 
   List<_TripBasicInfoItem> _buildItems(BuildContext context) {
     final l10n = context.l10n;
+    final fractionDigits = financialConfiguration?.fractionDigits;
     final items = <_TripBasicInfoItem>[];
 
     void addRequired(String label, String value) {
@@ -105,18 +112,39 @@ class TripBasicInfoSection extends StatelessWidget {
     );
 
     addOptional(
+      l10n.tripAgreedFreightRatePerTonLabel,
+      TripFormatters.money(
+        trip.agreedFreightRatePerTon,
+        fractionDigits,
+        l10n.tripEmptyValue,
+      ),
+    );
+
+    addOptional(
       l10n.tripFreightPriceHeader,
-      TripFormatters.money(trip.freightPrice, l10n.tripEmptyValue),
+      TripFormatters.money(
+        trip.commercialAmount,
+        fractionDigits,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addRequired(
       l10n.tripTotalExpensesLabel,
-      TripFormatters.money(trip.totalExpenses, l10n.tripEmptyValue),
+      TripFormatters.money(
+        calculatedTotalExpenses,
+        fractionDigits,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addRequired(
       l10n.tripNetProfitHeader,
-      TripFormatters.money(calculatedAmount, l10n.tripEmptyValue),
+      TripFormatters.money(
+        calculatedNetProfit,
+        fractionDigits,
+        l10n.tripEmptyValue,
+      ),
     );
 
     addRequired(l10n.tripStatusHeader, l10n.tripStatusLabel(trip.status));

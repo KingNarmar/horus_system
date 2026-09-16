@@ -1,10 +1,12 @@
+import '../../../../core/domain/value_objects/money.dart';
+
 class RouteWriteData {
   final String companyId;
   final String loadingLocation;
   final String unloadingLocation;
   final String? governorateFrom;
   final String? governorateTo;
-  final double? defaultFreightPrice;
+  final Money? defaultFreightRatePerTon;
   final String? notes;
 
   const RouteWriteData({
@@ -13,7 +15,7 @@ class RouteWriteData {
     required this.unloadingLocation,
     this.governorateFrom,
     this.governorateTo,
-    this.defaultFreightPrice,
+    this.defaultFreightRatePerTon,
     this.notes,
   });
 }

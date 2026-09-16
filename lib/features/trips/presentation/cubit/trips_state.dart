@@ -1,6 +1,7 @@
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -43,7 +44,8 @@ class TripsLoaded extends TripsState {
   final TripStatusFilter statusFilter;
   final Set<String> statusChangingTripIds;
   final TripEntity? selectedTrip;
-  final double? selectedTripNetProfit;
+  final Money? selectedTripTotalExpenses;
+  final Money? selectedTripNetProfit;
   final List<AuditLog> selectedTripActivity;
   final List<TripStatusHistory> selectedTripStatusHistory;
   final List<ExpenseLedgerEntry> selectedTripExpenses;
@@ -81,6 +83,7 @@ class TripsLoaded extends TripsState {
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
     this.selectedTrip,
+    this.selectedTripTotalExpenses,
     this.selectedTripNetProfit,
     this.selectedTripActivity = const <AuditLog>[],
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
@@ -132,9 +135,9 @@ class TripsLoaded extends TripsState {
         trip.tractorHeadPlateNumber,
         trip.trailerPlateNumber,
         trip.status.value,
-        trip.quantityTons?.toString(),
-        trip.freightPrice?.toString(),
-        trip.totalExpenses?.toString(),
+        trip.quantityTons?.toDecimalString(),
+        trip.agreedFreightRatePerTon?.minorUnits.toString(),
+        trip.commercialAmount?.minorUnits.toString(),
         trip.notes,
       ].whereType<String>().any((value) => value.toLowerCase().contains(query));
     }).toList();
@@ -154,6 +157,7 @@ class TripsLoaded extends TripsState {
     TripStatusFilter? statusFilter,
     Set<String>? statusChangingTripIds,
     Object? selectedTrip = _notSet,
+    Object? selectedTripTotalExpenses = _notSet,
     Object? selectedTripNetProfit = _notSet,
     List<AuditLog>? selectedTripActivity,
     List<TripStatusHistory>? selectedTripStatusHistory,
@@ -200,9 +204,12 @@ class TripsLoaded extends TripsState {
       selectedTrip: selectedTrip == _notSet
           ? this.selectedTrip
           : selectedTrip as TripEntity?,
+      selectedTripTotalExpenses: selectedTripTotalExpenses == _notSet
+          ? this.selectedTripTotalExpenses
+          : selectedTripTotalExpenses as Money?,
       selectedTripNetProfit: selectedTripNetProfit == _notSet
           ? this.selectedTripNetProfit
-          : selectedTripNetProfit as double?,
+          : selectedTripNetProfit as Money?,
       selectedTripActivity: selectedTripActivity ?? this.selectedTripActivity,
       selectedTripStatusHistory:
           selectedTripStatusHistory ?? this.selectedTripStatusHistory,

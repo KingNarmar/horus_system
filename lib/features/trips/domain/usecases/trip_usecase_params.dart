@@ -32,8 +32,8 @@ class CreateTripParams {
   final String? trailerId;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final String? quantityTonsInput;
+  final String? agreedFreightRatePerTonInput;
   final DateTime? scheduledLoadingAt;
   final DateTime? scheduledDeliveryAt;
   final DateTime? actualLoadingAt;
@@ -49,8 +49,8 @@ class CreateTripParams {
     this.trailerId,
     this.loadingOrderNumber,
     this.waybillNumber,
-    this.quantityTons,
-    this.freightPrice,
+    this.quantityTonsInput,
+    this.agreedFreightRatePerTonInput,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
     this.actualLoadingAt,
@@ -69,8 +69,8 @@ class SaveTripParams {
   final String? trailerId;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final String? quantityTonsInput;
+  final String? agreedFreightRatePerTonInput;
   final DateTime? scheduledLoadingAt;
   final DateTime? scheduledDeliveryAt;
   final DateTime? actualLoadingAt;
@@ -87,8 +87,8 @@ class SaveTripParams {
     this.trailerId,
     this.loadingOrderNumber,
     this.waybillNumber,
-    this.quantityTons,
-    this.freightPrice,
+    this.quantityTonsInput,
+    this.agreedFreightRatePerTonInput,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
     this.actualLoadingAt,
@@ -118,15 +118,5 @@ class GetTripStatusHistoryParams {
   const GetTripStatusHistoryParams({
     required this.currentCompanyContext,
     required this.tripId,
-  });
-}
-
-class CalculateTripNetProfitParams {
-  final double? freightPrice;
-  final double? totalExpenses;
-
-  const CalculateTripNetProfitParams({
-    required this.freightPrice,
-    required this.totalExpenses,
   });
 }

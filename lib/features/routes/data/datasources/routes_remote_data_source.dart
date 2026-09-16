@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/route_write_data.dart';
 import '../constants/route_db_fields.dart';
 import '../mappers/route_mapper.dart';
@@ -15,11 +16,15 @@ abstract class RoutesRemoteDataSource {
     required String id,
   });
 
-  Future<RouteModel> addRoute({required RouteWriteData data});
+  Future<RouteModel> addRoute({
+    required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  });
 
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<RouteModel> deactivateRoute({
@@ -67,10 +72,15 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   }
 
   @override
-  Future<RouteModel> addRoute({required RouteWriteData data}) async {
+  Future<RouteModel> addRoute({
+    required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async {
     final row = await client
         .from(RouteDbFields.tableName)
-        .insert(data.toInsertMap())
+        .insert(
+          data.toInsertMap(financialConfiguration: financialConfiguration),
+        )
         .select(RouteDbFields.allColumns)
         .single();
 
@@ -81,10 +91,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     final row = await client
         .from(RouteDbFields.tableName)
-        .update(data.toUpdateMap())
+        .update(
+          data.toUpdateMap(financialConfiguration: financialConfiguration),
+        )
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
         .select(RouteDbFields.allColumns)

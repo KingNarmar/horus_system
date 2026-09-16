@@ -1,87 +1,64 @@
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/features/routes/data/mappers/route_mapper.dart';
 import 'package:horus_system/features/routes/data/models/route_model.dart';
 import 'package:horus_system/features/routes/domain/entities/route_write_data.dart';
 import 'package:test/test.dart';
 
 void main() {
+  final configuration = CurrencyConfiguration.tryCreate(
+    currencyCode: 'AED',
+    fractionDigits: 2,
+  )!;
+  final currency = configuration.currency;
+
   group('RouteModelMapper', () {
-    test('maps model to entity without changing values', () {
+    test('maps exact decimal rate to Money', () {
       final model = _model();
 
-      final entity = model.toEntity();
+      final entity = model.toEntity(financialConfiguration: configuration);
 
       expect(entity.id, model.id);
-      expect(entity.companyId, model.companyId);
-      expect(entity.loadingLocation, model.loadingLocation);
-      expect(entity.unloadingLocation, model.unloadingLocation);
-      expect(entity.governorateFrom, model.governorateFrom);
-      expect(entity.governorateTo, model.governorateTo);
-      expect(entity.defaultFreightPrice, model.defaultFreightPrice);
-      expect(entity.notes, model.notes);
-      expect(entity.isActive, model.isActive);
-      expect(entity.createdAt, model.createdAt);
-      expect(entity.updatedAt, model.updatedAt);
+      expect(
+        entity.defaultFreightRatePerTon,
+        Money(minorUnits: 125050, currency: currency),
+      );
     });
 
-    test('maps model to the existing audit persistence values', () {
+    test('uses semantic audit key rather than physical legacy column name', () {
       final values = _model().toAuditValues();
 
-      expect(values, {
-        'id': 'route-1',
-        'company_id': 'company-1',
-        'loading_location': 'Dubai',
-        'unloading_location': 'Abu Dhabi',
-        'governorate_from': 'Dubai',
-        'governorate_to': 'Abu Dhabi',
-        'default_freight_price': 1250.5,
-        'notes': 'Priority route',
-        'is_active': true,
-        'created_at': '2026-08-01T10:20:30.000Z',
-        'updated_at': '2026-08-02T11:21:31.000Z',
-      });
+      expect(values['default_freight_rate_per_ton'], '1250.50');
+      expect(values.containsKey('default_freight_price'), isFalse);
     });
   });
 
   group('RouteWriteDataMapper', () {
-    test('maps write data to the existing insert persistence map', () {
-      final map = _writeData().toInsertMap();
+    test('encodes Money exactly into physical compatibility column', () {
+      final map = _writeData(
+        currency,
+      ).toInsertMap(financialConfiguration: configuration);
 
-      expect(map, {
-        'company_id': 'company-1',
-        'loading_location': 'Dubai',
-        'unloading_location': 'Abu Dhabi',
-        'governorate_from': 'Dubai',
-        'governorate_to': 'Abu Dhabi',
-        'default_freight_price': 1250.5,
-        'notes': 'Priority route',
-      });
+      expect(map['company_id'], 'company-1');
+      expect(map['default_freight_price'], '1250.50');
     });
 
-    test('maps write data to the existing update persistence map', () {
-      final before = DateTime.now().toUtc();
+    test('encodes update rate and timestamp without floating point', () {
+      final map = _writeData(
+        currency,
+      ).toUpdateMap(financialConfiguration: configuration);
 
-      final map = _writeData().toUpdateMap();
-
-      final after = DateTime.now().toUtc();
-      expect(map.keys.toSet(), {
-        'loading_location',
-        'unloading_location',
-        'governorate_from',
-        'governorate_to',
-        'default_freight_price',
-        'notes',
-        'updated_at',
-      });
-      expect(map['loading_location'], 'Dubai');
-      expect(map['unloading_location'], 'Abu Dhabi');
-      expect(map['governorate_from'], 'Dubai');
-      expect(map['governorate_to'], 'Abu Dhabi');
-      expect(map['default_freight_price'], 1250.5);
-      expect(map['notes'], 'Priority route');
-
+      expect(map['default_freight_price'], '1250.50');
       final updatedAt = DateTime.parse(map['updated_at'] as String);
-      expect(updatedAt.isBefore(before), isFalse);
-      expect(updatedAt.isAfter(after), isFalse);
+      expect(updatedAt.isUtc, isTrue);
+    });
+
+    test('rejects missing financial configuration when Money is present', () {
+      expect(
+        () => _writeData(currency).toInsertMap(financialConfiguration: null),
+        throwsStateError,
+      );
     });
   });
 }
@@ -94,7 +71,7 @@ RouteModel _model() {
     unloadingLocation: 'Abu Dhabi',
     governorateFrom: 'Dubai',
     governorateTo: 'Abu Dhabi',
-    defaultFreightPrice: 1250.5,
+    defaultFreightRatePerTonDecimal: '1250.50',
     notes: 'Priority route',
     isActive: true,
     createdAt: DateTime.utc(2026, 8, 1, 10, 20, 30),
@@ -102,14 +79,14 @@ RouteModel _model() {
   );
 }
 
-RouteWriteData _writeData() {
-  return const RouteWriteData(
+RouteWriteData _writeData(CurrencyCode currency) {
+  return RouteWriteData(
     companyId: 'company-1',
     loadingLocation: 'Dubai',
     unloadingLocation: 'Abu Dhabi',
     governorateFrom: 'Dubai',
     governorateTo: 'Abu Dhabi',
-    defaultFreightPrice: 1250.5,
+    defaultFreightRatePerTon: Money(minorUnits: 125050, currency: currency),
     notes: 'Priority route',
   );
 }

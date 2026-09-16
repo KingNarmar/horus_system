@@ -174,7 +174,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     required String unloadingLocation,
     String? governorateFrom,
     String? governorateTo,
-    double? defaultFreightPrice,
+    String? defaultFreightRatePerTonInput,
     String? notes,
   }) async {
     final context = _currentCompanyContext;
@@ -188,7 +188,7 @@ class RoutesCubit extends Cubit<RoutesState> {
         unloadingLocation: unloadingLocation,
         governorateFrom: governorateFrom,
         governorateTo: governorateTo,
-        defaultFreightPrice: defaultFreightPrice,
+        defaultFreightRatePerTonInput: defaultFreightRatePerTonInput,
         notes: notes,
       ),
     );

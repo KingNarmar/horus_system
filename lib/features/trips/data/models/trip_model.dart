@@ -13,8 +13,9 @@ class TripModel {
   final String status;
   final String? loadingOrderNumber;
   final String? waybillNumber;
-  final double? quantityTons;
-  final double? freightPrice;
+  final String? quantityTonsDecimal;
+  final String? agreedFreightRatePerTonDecimal;
+  final String? commercialAmountDecimal;
   final double? totalExpenses;
   final DateTime? scheduledLoadingAt;
   final DateTime? scheduledDeliveryAt;
@@ -40,8 +41,9 @@ class TripModel {
     this.trailerId,
     this.loadingOrderNumber,
     this.waybillNumber,
-    this.quantityTons,
-    this.freightPrice,
+    this.quantityTonsDecimal,
+    this.agreedFreightRatePerTonDecimal,
+    this.commercialAmountDecimal,
     this.totalExpenses,
     this.scheduledLoadingAt,
     this.scheduledDeliveryAt,
@@ -69,8 +71,13 @@ class TripModel {
       status: map[TripDbFields.status] as String? ?? 'created',
       loadingOrderNumber: map[TripDbFields.loadingOrderNumber] as String?,
       waybillNumber: map[TripDbFields.waybillNumber] as String?,
-      quantityTons: _toDouble(map[TripDbFields.quantityTons]),
-      freightPrice: _toDouble(map[TripDbFields.freightPrice]),
+      quantityTonsDecimal: _toDecimalText(map[TripDbFields.quantityTons]),
+      agreedFreightRatePerTonDecimal: _toDecimalText(
+        map[TripDbFields.agreedFreightRatePerTon],
+      ),
+      commercialAmountDecimal: _toDecimalText(
+        map[TripDbFields.commercialAmount],
+      ),
       totalExpenses: _toDouble(map[TripDbFields.totalExpenses]),
       scheduledLoadingAt: DbTimestamp.decodeNullable(
         map[TripDbFields.scheduledLoadingAt],
@@ -142,6 +149,12 @@ class TripModel {
         field: DbCommonFields.updatedAt,
       ),
     );
+  }
+
+  static String? _toDecimalText(Object? value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
   }
 
   static double? _toDouble(Object? value) {

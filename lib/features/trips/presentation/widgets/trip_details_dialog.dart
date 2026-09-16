@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_state.dart';
@@ -24,7 +26,11 @@ class TripDetailsDialog extends StatelessWidget {
     final detailsTrip = state?.selectedTrip?.id == trip.id
         ? state!.selectedTrip!
         : trip;
-    final calculatedAmount = state?.selectedTrip?.id == detailsTrip.id
+    final financialConfiguration = _financialConfiguration(state);
+    final calculatedTotalExpenses = state?.selectedTrip?.id == detailsTrip.id
+        ? state?.selectedTripTotalExpenses
+        : null;
+    final calculatedNetProfit = state?.selectedTrip?.id == detailsTrip.id
         ? state?.selectedTripNetProfit
         : null;
     final businessLocalTimestamps = state?.businessLocalTimestampsFor(
@@ -81,7 +87,7 @@ class TripDetailsDialog extends StatelessWidget {
                   IconButton(
                     tooltip: l10n.tripCloseButton,
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.clear),
+                    icon: const Icon(AppIcons.clear),
                   ),
                 ],
               ),
@@ -97,8 +103,10 @@ class TripDetailsDialog extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     TripBasicInfoSection(
                       trip: detailsTrip,
+                      financialConfiguration: financialConfiguration,
                       businessLocalTimestamps: businessLocalTimestamps,
-                      calculatedAmount: calculatedAmount,
+                      calculatedTotalExpenses: calculatedTotalExpenses,
+                      calculatedNetProfit: calculatedNetProfit,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     TripDetailsSectionTitle(text: l10n.tripExpensesTitle),
@@ -134,6 +142,16 @@ class TripDetailsDialog extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  CurrencyConfiguration? _financialConfiguration(TripsLoaded? state) {
+    final company = state?.currentCompanyContext.company;
+    if (company == null) return null;
+
+    return CurrencyConfiguration.tryCreate(
+      currencyCode: company.baseCurrencyCode,
+      fractionDigits: company.baseCurrencyFractionDigits,
     );
   }
 }

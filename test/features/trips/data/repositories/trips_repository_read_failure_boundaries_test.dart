@@ -10,45 +10,53 @@ import 'trips_repository_test_support.dart';
 
 void main() {
   group('TripsRepository read failure boundaries', () {
-    test('forwards company scope for read operations', () async {
-      final remoteDataSource = FakeTripsRemoteDataSource();
-      final repository = createTripsRepository(remoteDataSource);
+    test(
+      'forwards company scope and financial config for read operations',
+      () async {
+        final remoteDataSource = FakeTripsRemoteDataSource();
+        final repository = createTripsRepository(remoteDataSource);
 
-      final listResult = await repository.getTrips(companyId: testCompanyId);
-      final detailsResult = await repository.getTripDetails(
-        companyId: testCompanyId,
-        id: testTripId,
-      );
-      final lookupsResult = await repository.getTripFormLookups(
-        companyId: testCompanyId,
-      );
-      final historyResult = await repository.getTripStatusHistory(
-        companyId: testCompanyId,
-        tripId: testTripId,
-      );
-      final openTripResult = await repository.hasOpenTripForVehicle(
-        companyId: testCompanyId,
-        tractorHeadId: 'tractor-1',
-        trailerId: 'trailer-1',
-        excludingTripId: testTripId,
-      );
+        final listResult = await repository.getTrips(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
+        final detailsResult = await repository.getTripDetails(
+          companyId: testCompanyId,
+          id: testTripId,
+          financialConfiguration: testFinancialConfiguration,
+        );
+        final lookupsResult = await repository.getTripFormLookups(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
+        final historyResult = await repository.getTripStatusHistory(
+          companyId: testCompanyId,
+          tripId: testTripId,
+        );
+        final openTripResult = await repository.hasOpenTripForVehicle(
+          companyId: testCompanyId,
+          tractorHeadId: 'tractor-1',
+          trailerId: 'trailer-1',
+          excludingTripId: testTripId,
+        );
 
-      expect(listResult, isA<Success<List<TripEntity>>>());
-      expect(detailsResult, isA<Success<TripEntity>>());
-      expect(lookupsResult, isA<Success<TripFormLookups>>());
-      expect(historyResult, isA<Success>());
-      expect(openTripResult, isA<Success<bool>>());
-      expect(remoteDataSource.lastListCompanyId, testCompanyId);
-      expect(remoteDataSource.lastGetByIdCompanyId, testCompanyId);
-      expect(remoteDataSource.lastGetByIdId, testTripId);
-      expect(remoteDataSource.lastLookupsCompanyId, testCompanyId);
-      expect(remoteDataSource.lastHistoryListCompanyId, testCompanyId);
-      expect(remoteDataSource.lastHistoryListTripId, testTripId);
-      expect(remoteDataSource.lastOpenTripCompanyId, testCompanyId);
-      expect(remoteDataSource.lastOpenTripTractorHeadId, 'tractor-1');
-      expect(remoteDataSource.lastOpenTripTrailerId, 'trailer-1');
-      expect(remoteDataSource.lastOpenTripExcludingTripId, testTripId);
-    });
+        expect(listResult, isA<Success<List<TripEntity>>>());
+        expect(detailsResult, isA<Success<TripEntity>>());
+        expect(lookupsResult, isA<Success<TripFormLookups>>());
+        expect(historyResult, isA<Success>());
+        expect(openTripResult, isA<Success<bool>>());
+        expect(remoteDataSource.lastListCompanyId, testCompanyId);
+        expect(remoteDataSource.lastGetByIdCompanyId, testCompanyId);
+        expect(remoteDataSource.lastGetByIdId, testTripId);
+        expect(remoteDataSource.lastLookupsCompanyId, testCompanyId);
+        expect(remoteDataSource.lastHistoryListCompanyId, testCompanyId);
+        expect(remoteDataSource.lastHistoryListTripId, testTripId);
+        expect(remoteDataSource.lastOpenTripCompanyId, testCompanyId);
+        expect(remoteDataSource.lastOpenTripTractorHeadId, 'tractor-1');
+        expect(remoteDataSource.lastOpenTripTrailerId, 'trailer-1');
+        expect(remoteDataSource.lastOpenTripExcludingTripId, testTripId);
+      },
+    );
 
     test(
       'sanitizes Postgrest read failures and preserves company forwarding',
@@ -65,7 +73,10 @@ void main() {
         );
         final repository = createTripsRepository(remoteDataSource);
 
-        final result = await repository.getTrips(companyId: testCompanyId);
+        final result = await repository.getTrips(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
 
         expect(result, isA<FailureResult<List<TripEntity>>>());
         expect(result.failureOrNull, isA<ServerFailure>());
@@ -83,7 +94,10 @@ void main() {
         );
         final repository = createTripsRepository(remoteDataSource);
 
-        final result = await repository.getTrips(companyId: testCompanyId);
+        final result = await repository.getTrips(
+          companyId: testCompanyId,
+          financialConfiguration: testFinancialConfiguration,
+        );
 
         expect(result, isA<FailureResult<List<TripEntity>>>());
         expect(result.failureOrNull, isA<UnexpectedFailure>());

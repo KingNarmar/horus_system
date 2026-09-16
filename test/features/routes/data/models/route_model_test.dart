@@ -3,10 +3,10 @@ import 'package:test/test.dart';
 
 void main() {
   group('RouteModel', () {
-    test('parses the expected persistence map', () {
+    test('preserves exact freight-rate decimal text from persistence', () {
       final model = RouteModel.fromMap(
         _persistenceMap(
-          defaultFreightPrice: 1250,
+          defaultFreightRate: '1250.5000',
           createdAt: '2026-08-01T10:20:30.000Z',
           updatedAt: '2026-08-02T11:21:31.000Z',
         ),
@@ -16,41 +16,35 @@ void main() {
       expect(model.companyId, 'company-1');
       expect(model.loadingLocation, 'Dubai');
       expect(model.unloadingLocation, 'Abu Dhabi');
-      expect(model.governorateFrom, 'Dubai');
-      expect(model.governorateTo, 'Abu Dhabi');
-      expect(model.defaultFreightPrice, 1250.0);
-      expect(model.notes, 'Priority route');
-      expect(model.isActive, isTrue);
+      expect(model.defaultFreightRatePerTonDecimal, '1250.5000');
       expect(model.createdAt, DateTime.utc(2026, 8, 1, 10, 20, 30));
       expect(model.updatedAt, DateTime.utc(2026, 8, 2, 11, 21, 31));
     });
 
-    test('parses supported default freight price representations', () {
-      final cases = <Object, double>{
-        1250: 1250.0,
-        1250.5: 1250.5,
-        '1250.75': 1250.75,
-      };
+    test(
+      'normalizes supported numeric persistence representations to text',
+      () {
+        final cases = <Object, String>{
+          1250: '1250',
+          1250.5: '1250.5',
+          '1250.7500': '1250.7500',
+        };
 
-      for (final entry in cases.entries) {
-        final model = RouteModel.fromMap(
-          _persistenceMap(defaultFreightPrice: entry.key),
-        );
+        for (final entry in cases.entries) {
+          final model = RouteModel.fromMap(
+            _persistenceMap(defaultFreightRate: entry.key),
+          );
+          expect(model.defaultFreightRatePerTonDecimal, entry.value);
+        }
+      },
+    );
 
-        expect(
-          model.defaultFreightPrice,
-          entry.value,
-          reason: 'Failed to parse ${entry.key.runtimeType} freight price.',
-        );
-      }
-    });
-
-    test('parses nullable persistence fields', () {
+    test('preserves nullable persistence fields', () {
       final model = RouteModel.fromMap(
         _persistenceMap(
           governorateFrom: null,
           governorateTo: null,
-          defaultFreightPrice: null,
+          defaultFreightRate: null,
           notes: null,
           createdAt: null,
           updatedAt: null,
@@ -59,30 +53,27 @@ void main() {
 
       expect(model.governorateFrom, isNull);
       expect(model.governorateTo, isNull);
-      expect(model.defaultFreightPrice, isNull);
+      expect(model.defaultFreightRatePerTonDecimal, isNull);
       expect(model.notes, isNull);
       expect(model.createdAt, isNull);
       expect(model.updatedAt, isNull);
     });
 
-    test(
-      'defaults active state to true when the persistence key is absent',
-      () {
-        final map = _persistenceMap();
-        map.remove('is_active');
+    test('defaults active state to true when persistence key is absent', () {
+      final map = _persistenceMap();
+      map.remove('is_active');
 
-        final model = RouteModel.fromMap(map);
+      final model = RouteModel.fromMap(map);
 
-        expect(model.isActive, isTrue);
-      },
-    );
+      expect(model.isActive, isTrue);
+    });
   });
 }
 
 Map<String, dynamic> _persistenceMap({
   Object? governorateFrom = 'Dubai',
   Object? governorateTo = 'Abu Dhabi',
-  Object? defaultFreightPrice = 1250,
+  Object? defaultFreightRate = '1250.00',
   Object? notes = 'Priority route',
   Object? createdAt = '2026-08-01T10:20:30.000Z',
   Object? updatedAt = '2026-08-02T11:21:31.000Z',
@@ -94,7 +85,7 @@ Map<String, dynamic> _persistenceMap({
     'unloading_location': 'Abu Dhabi',
     'governorate_from': governorateFrom,
     'governorate_to': governorateTo,
-    'default_freight_price': defaultFreightPrice,
+    'default_freight_price': defaultFreightRate,
     'notes': notes,
     'is_active': true,
     'created_at': createdAt,

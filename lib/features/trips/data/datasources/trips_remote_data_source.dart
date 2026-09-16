@@ -2,12 +2,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/constants/user_profile_db_fields.dart';
-import '../../domain/entities/trip_form_lookups.dart';
-import '../../domain/entities/trip_lookup_option.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_write_data.dart';
 import '../constants/trip_db_fields.dart';
 import '../mappers/trip_mapper.dart';
+import '../models/trip_lookup_models.dart';
 import '../models/trip_model.dart';
 import '../models/trip_status_history_model.dart';
 
@@ -19,11 +19,18 @@ abstract class TripsRemoteDataSource {
     required String id,
   });
 
-  Future<TripFormLookups> getTripFormLookups({required String companyId});
+  Future<TripFormLookupsModel> getTripFormLookups({required String companyId});
 
-  Future<TripModel> createTrip({required TripWriteData data});
+  Future<TripModel> createTrip({
+    required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  });
 
-  Future<TripModel> saveTrip({required String id, required TripWriteData data});
+  Future<TripModel> saveTrip({
+    required String id,
+    required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  });
 
   Future<TripModel> updateTripStatus({
     required String companyId,
@@ -87,51 +94,54 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   }
 
   @override
-  Future<TripFormLookups> getTripFormLookups({
+  Future<TripFormLookupsModel> getTripFormLookups({
     required String companyId,
   }) async {
-    final results = await Future.wait<List<TripLookupOption>>([
-      _getSimpleLookupOptions(
-        companyId: companyId,
-        table: TripLookupDbFields.customersTableName,
-        labelColumn: TripLookupDbFields.name,
-        orderColumn: TripLookupDbFields.name,
-      ),
-      _getRouteLookupOptions(companyId: companyId),
-      _getSimpleLookupOptions(
-        companyId: companyId,
-        table: TripLookupDbFields.driversTableName,
-        labelColumn: TripLookupDbFields.fullName,
-        orderColumn: TripLookupDbFields.fullName,
-      ),
-      _getSimpleLookupOptions(
-        companyId: companyId,
-        table: TripLookupDbFields.tractorHeadsTableName,
-        labelColumn: TripLookupDbFields.plateNumber,
-        orderColumn: TripLookupDbFields.plateNumber,
-      ),
-      _getSimpleLookupOptions(
-        companyId: companyId,
-        table: TripLookupDbFields.trailersTableName,
-        labelColumn: TripLookupDbFields.plateNumber,
-        orderColumn: TripLookupDbFields.plateNumber,
-      ),
-    ]);
+    final customers = await _getSimpleLookupOptions(
+      companyId: companyId,
+      table: TripLookupDbFields.customersTableName,
+      labelColumn: TripLookupDbFields.name,
+      orderColumn: TripLookupDbFields.name,
+    );
+    final routes = await _getRouteLookupOptions(companyId: companyId);
+    final drivers = await _getSimpleLookupOptions(
+      companyId: companyId,
+      table: TripLookupDbFields.driversTableName,
+      labelColumn: TripLookupDbFields.fullName,
+      orderColumn: TripLookupDbFields.fullName,
+    );
+    final tractorHeads = await _getSimpleLookupOptions(
+      companyId: companyId,
+      table: TripLookupDbFields.tractorHeadsTableName,
+      labelColumn: TripLookupDbFields.plateNumber,
+      orderColumn: TripLookupDbFields.plateNumber,
+    );
+    final trailers = await _getSimpleLookupOptions(
+      companyId: companyId,
+      table: TripLookupDbFields.trailersTableName,
+      labelColumn: TripLookupDbFields.plateNumber,
+      orderColumn: TripLookupDbFields.plateNumber,
+    );
 
-    return TripFormLookups(
-      customers: results[0],
-      routes: results[1],
-      drivers: results[2],
-      tractorHeads: results[3],
-      trailers: results[4],
+    return TripFormLookupsModel(
+      customers: customers,
+      routes: routes,
+      drivers: drivers,
+      tractorHeads: tractorHeads,
+      trailers: trailers,
     );
   }
 
   @override
-  Future<TripModel> createTrip({required TripWriteData data}) async {
+  Future<TripModel> createTrip({
+    required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async {
     final row = await client
         .from(TripDbFields.tableName)
-        .insert(data.toInsertMap())
+        .insert(
+          data.toInsertMap(financialConfiguration: financialConfiguration),
+        )
         .select(TripDbFields.allColumns)
         .single();
 
@@ -142,10 +152,13 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   Future<TripModel> saveTrip({
     required String id,
     required TripWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     final row = await client
         .from(TripDbFields.tableName)
-        .update(data.toUpdateMap())
+        .update(
+          data.toUpdateMap(financialConfiguration: financialConfiguration),
+        )
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
         .select(TripDbFields.allColumns)
@@ -254,7 +267,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     return false;
   }
 
-  Future<List<TripLookupOption>> _getSimpleLookupOptions({
+  Future<List<TripLookupOptionModel>> _getSimpleLookupOptions({
     required String companyId,
     required String table,
     required String labelColumn,
@@ -267,7 +280,7 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
         .eq(DbCommonFields.isActive, true)
         .order(orderColumn);
 
-    final options = <TripLookupOption>[];
+    final options = <TripLookupOptionModel>[];
 
     for (final row in rows) {
       final map = Map<String, dynamic>.from(row);
@@ -276,14 +289,17 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
       if (label.isEmpty) continue;
 
       options.add(
-        TripLookupOption(id: map[DbCommonFields.id] as String, label: label),
+        TripLookupOptionModel(
+          id: map[DbCommonFields.id] as String,
+          label: label,
+        ),
       );
     }
 
     return options;
   }
 
-  Future<List<TripLookupOption>> _getRouteLookupOptions({
+  Future<List<TripRouteLookupOptionModel>> _getRouteLookupOptions({
     required String companyId,
   }) async {
     final rows = await client
@@ -293,23 +309,14 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
         .eq(DbCommonFields.isActive, true)
         .order(TripLookupDbFields.loadingLocation);
 
-    final options = <TripLookupOption>[];
+    final options = <TripRouteLookupOptionModel>[];
 
     for (final row in rows) {
-      final map = Map<String, dynamic>.from(row);
-      final loading =
-          map[TripLookupDbFields.loadingLocation]?.toString().trim() ?? '';
-      final unloading =
-          map[TripLookupDbFields.unloadingLocation]?.toString().trim() ?? '';
-
-      if (loading.isEmpty && unloading.isEmpty) continue;
-
-      options.add(
-        TripLookupOption(
-          id: map[DbCommonFields.id] as String,
-          label: '$loading -> $unloading',
-        ),
+      final model = TripRouteLookupOptionModel.fromMap(
+        Map<String, dynamic>.from(row),
       );
+      if (model.label == ' -> ') continue;
+      options.add(model);
     }
 
     return options;

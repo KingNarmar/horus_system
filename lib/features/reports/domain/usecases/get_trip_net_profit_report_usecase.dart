@@ -13,8 +13,6 @@ import 'report_params.dart';
 
 final class GetTripNetProfitReportUseCase
     implements UseCase<TripNetProfitReport, ReportParams> {
-  static const int _maxExactIntegerInDouble = 1 << 53;
-
   final ReportsRepository _repository;
   final CalculateTripNetProfitUseCase _calculateTripNetProfitUseCase;
 
@@ -146,40 +144,27 @@ final class GetTripNetProfitReportUseCase
       final expenses =
           expensesByTrip[trip.tripId] ??
           Money(minorUnits: 0, currency: request.currency);
-      if (!_isExactlyRepresentableAsDouble(trip.freight.minorUnits) ||
-          !_isExactlyRepresentableAsDouble(expenses.minorUnits)) {
-        return const FailureResult(
-          ConflictFailure(
-            code: ReportsFailureCodes.conflictFinancialDataInvalid,
-          ),
-        );
-      }
       final netResult = await _calculateTripNetProfitUseCase(
         CalculateTripNetProfitParams(
-          freightPrice: trip.freight.minorUnits.toDouble(),
-          totalExpenses: expenses.minorUnits.toDouble(),
+          commercialAmount: trip.freight,
+          expenses: [expenses],
         ),
       );
-      if (netResult is FailureResult<double>) {
+      if (netResult.failureOrNull != null) {
         return const FailureResult(
           ConflictFailure(
             code: ReportsFailureCodes.conflictFinancialDataInvalid,
           ),
         );
       }
-      final netMinorUnits = (netResult as Success<double>).data;
-      if (!netMinorUnits.isFinite ||
-          netMinorUnits != netMinorUnits.roundToDouble()) {
+      final netProfit = netResult.dataOrNull?.netProfit;
+      if (netProfit == null) {
         return const FailureResult(
           ConflictFailure(
             code: ReportsFailureCodes.conflictFinancialDataInvalid,
           ),
         );
       }
-      final netProfit = Money(
-        minorUnits: netMinorUnits.toInt(),
-        currency: request.currency,
-      );
       rows.add(
         TripNetProfitReportRow(
           trip: trip,
@@ -201,9 +186,5 @@ final class GetTripNetProfitReportUseCase
         totalNetProfit: totalNetProfit,
       ),
     );
-  }
-
-  bool _isExactlyRepresentableAsDouble(int value) {
-    return value.abs() <= _maxExactIntegerInDouble;
   }
 }

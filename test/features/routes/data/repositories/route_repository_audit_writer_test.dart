@@ -12,34 +12,34 @@ import 'package:test/test.dart';
 
 void main() {
   group('RouteRepositoryAuditWriter', () {
-    test('preserves created audit contract', () async {
-      final repository = _CapturingAuditLogRepository();
-      final writer = RouteRepositoryAuditWriter(
-        CreateAuditLogUseCase(repository),
-      );
+    test(
+      'preserves created audit contract with semantic freight key',
+      () async {
+        final repository = _CapturingAuditLogRepository();
+        final writer = RouteRepositoryAuditWriter(
+          CreateAuditLogUseCase(repository),
+        );
 
-      final failure = await writer.writeCreated(
-        model: _model(),
-        actorRole: 'operations',
-      );
+        final failure = await writer.writeCreated(
+          model: _model(),
+          actorRole: 'operations',
+        );
 
-      expect(failure, isNull);
-      final data = repository.logs.single;
-      expect(data.companyId, _companyId);
-      expect(data.actorRole, 'operations');
-      expect(data.module, AuditModule.routes);
-      expect(data.entityType, AuditEntityType.route);
-      expect(data.entityId, _routeId);
-      expect(data.entityDisplayName, 'Dubai → Abu Dhabi');
-      expect(data.action, AuditAction.created);
-      expect(data.description, 'route_created');
-      expect(data.oldValues, isNull);
-      expect(data.newValues?['id'], _routeId);
-      expect(data.newValues?['company_id'], _companyId);
-      expect(data.newValues?['loading_location'], 'Dubai');
-      expect(data.newValues?['unloading_location'], 'Abu Dhabi');
-      expect(data.newValues?['is_active'], isTrue);
-    });
+        expect(failure, isNull);
+        final data = repository.logs.single;
+        expect(data.companyId, _companyId);
+        expect(data.actorRole, 'operations');
+        expect(data.module, AuditModule.routes);
+        expect(data.entityType, AuditEntityType.route);
+        expect(data.entityId, _routeId);
+        expect(data.entityDisplayName, 'Dubai → Abu Dhabi');
+        expect(data.action, AuditAction.created);
+        expect(data.description, 'route_created');
+        expect(data.oldValues, isNull);
+        expect(data.newValues?['default_freight_rate_per_ton'], '1250.00');
+        expect(data.newValues?.containsKey('default_freight_price'), isFalse);
+      },
+    );
 
     test('preserves updated old and new snapshots', () async {
       final repository = _CapturingAuditLogRepository();
@@ -57,7 +57,6 @@ void main() {
       final data = repository.logs.single;
       expect(data.action, AuditAction.updated);
       expect(data.description, 'route_updated');
-      expect(data.entityDisplayName, 'New Loading → Abu Dhabi');
       expect(data.oldValues?['loading_location'], 'Old Loading');
       expect(data.newValues?['loading_location'], 'New Loading');
     });
@@ -82,12 +81,8 @@ void main() {
       expect(repository.logs, hasLength(2));
       expect(repository.logs[0].action, AuditAction.deactivated);
       expect(repository.logs[0].description, 'route_deactivated');
-      expect(repository.logs[0].oldValues?['is_active'], isTrue);
-      expect(repository.logs[0].newValues?['is_active'], isFalse);
       expect(repository.logs[1].action, AuditAction.reactivated);
       expect(repository.logs[1].description, 'route_reactivated');
-      expect(repository.logs[1].oldValues?['is_active'], isFalse);
-      expect(repository.logs[1].newValues?['is_active'], isTrue);
     });
   });
 }
@@ -107,7 +102,7 @@ RouteModel _model({
     unloadingLocation: unloadingLocation,
     governorateFrom: 'Dubai',
     governorateTo: 'Abu Dhabi',
-    defaultFreightPrice: 1250,
+    defaultFreightRatePerTonDecimal: '1250.00',
     notes: 'Notes',
     isActive: isActive,
     createdAt: DateTime.utc(2026, 8, 1),

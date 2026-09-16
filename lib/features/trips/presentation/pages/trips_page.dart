@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
+import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
 import '../widgets/trip_details_dialog.dart';
 import '../widgets/trip_form_dialog.dart';
@@ -25,6 +27,14 @@ class TripsPage extends StatefulWidget {
 }
 
 class _TripsPageState extends State<TripsPage> {
+  CurrencyConfiguration? get _financialConfiguration {
+    final company = widget.currentCompanyContext.company;
+    return CurrencyConfiguration.tryCreate(
+      currencyCode: company.baseCurrencyCode,
+      fractionDigits: company.baseCurrencyFractionDigits,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +59,7 @@ class _TripsPageState extends State<TripsPage> {
               return TripFormDialog(
                 title: trip == null ? l10n.addTripTitle : l10n.editTripTitle,
                 trip: trip,
+                financialConfiguration: _financialConfiguration,
                 initialBusinessLocalTimestamps: trip == null
                     ? null
                     : loaded?.businessLocalTimestampsFor(trip.id),
@@ -65,8 +76,9 @@ class _TripsPageState extends State<TripsPage> {
                     trailerId: data.trailerId,
                     loadingOrderNumber: data.loadingOrderNumber,
                     waybillNumber: data.waybillNumber,
-                    quantityTons: data.quantityTons,
-                    freightPrice: data.freightPrice,
+                    quantityTonsInput: data.quantityTonsInput,
+                    agreedFreightRatePerTonInput:
+                        data.agreedFreightRatePerTonInput,
                     scheduledLoadingAt: data.scheduledLoadingAt,
                     scheduledDeliveryAt: data.scheduledDeliveryAt,
                     actualLoadingAt: data.actualLoadingAt,
@@ -135,7 +147,9 @@ class _TripsPageState extends State<TripsPage> {
       listener: (context, state) {
         if (state is TripsFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.localizedErrorMessage(state.failure))),
+            SnackBar(
+              content: Text(tripsFailureMessage(context, state.failure)),
+            ),
           );
         }
       },
@@ -154,13 +168,14 @@ class _TripsPageState extends State<TripsPage> {
             else if (state is TripsLoaded)
               _TripsLoadedBody(
                 state: state,
+                financialConfiguration: _financialConfiguration,
                 onViewDetails: _openTripDetails,
                 onEdit: (trip) => _showTripForm(trip: trip),
                 onUpdateStatus: _showStatusUpdateDialog,
               )
             else if (state is TripsFailure)
               _TripsFailureView(
-                failureText: l10n.localizedErrorMessage(state.failure),
+                failureText: tripsFailureMessage(context, state.failure),
                 onRetry: () {
                   context.read<TripsCubit>().loadTrips(
                     widget.currentCompanyContext,
@@ -214,12 +229,14 @@ class _TripsHeader extends StatelessWidget {
 
 class _TripsLoadedBody extends StatelessWidget {
   final TripsLoaded state;
+  final CurrencyConfiguration? financialConfiguration;
   final ValueChanged<TripEntity> onViewDetails;
   final ValueChanged<TripEntity> onEdit;
   final ValueChanged<TripEntity> onUpdateStatus;
 
   const _TripsLoadedBody({
     required this.state,
+    required this.financialConfiguration,
     required this.onViewDetails,
     required this.onEdit,
     required this.onUpdateStatus,
@@ -247,6 +264,7 @@ class _TripsLoadedBody extends StatelessWidget {
         else
           TripsList(
             trips: trips,
+            financialConfiguration: financialConfiguration,
             canManageTrips: state.canManageTrips,
             canUpdateTripStatus: state.canUpdateTripStatus,
             canViewTripFinancials: state.canViewTripFinancials,

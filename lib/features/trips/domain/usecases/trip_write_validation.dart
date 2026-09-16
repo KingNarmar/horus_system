@@ -7,8 +7,6 @@ import '../repositories/trips_repository.dart';
 Failure? validateTripWriteData({
   required String customerId,
   required String routeId,
-  required double? quantityTons,
-  required double? freightPrice,
   required DateTime? scheduledLoadingAt,
   required DateTime? scheduledDeliveryAt,
 }) {
@@ -23,20 +21,6 @@ Failure? validateTripWriteData({
     return const ValidationFailure(
       code: FailureCodes.validationTripRouteRequired,
       message: 'Route is required.',
-    );
-  }
-
-  if (quantityTons != null && quantityTons < 0) {
-    return const ValidationFailure(
-      code: FailureCodes.validationTripQuantityNegative,
-      message: 'Quantity cannot be negative.',
-    );
-  }
-
-  if (freightPrice != null && freightPrice < 0) {
-    return const ValidationFailure(
-      code: FailureCodes.validationTripFreightPriceNegative,
-      message: 'Freight price cannot be negative.',
     );
   }
 

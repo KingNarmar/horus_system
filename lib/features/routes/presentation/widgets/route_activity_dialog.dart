@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -12,6 +14,7 @@ import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/route_entity.dart';
 import '../cubit/routes_state.dart';
+import '../helpers/routes_failure_message.dart';
 import '../localization/routes_localizations_x.dart';
 
 class RouteDetailsDialog extends StatelessWidget {
@@ -91,10 +94,12 @@ class RouteDetailsDialog extends StatelessWidget {
                     value: _optional(route.governorateTo, l10n),
                   ),
                   _RouteDetailRow(
-                    label: l10n.defaultFreightPriceLabel,
-                    value:
-                        route.defaultFreightPrice?.toStringAsFixed(2) ??
-                        l10n.routeEmptyValue,
+                    label: l10n.routeDefaultFreightRatePerTonLabel,
+                    value: _formatDefaultFreightRate(
+                      route,
+                      state,
+                      l10n.routeEmptyValue,
+                    ),
                   ),
                   _RouteDetailRow(
                     label: l10n.routeNotesLabel,
@@ -167,7 +172,7 @@ class RouteDetailsDialog extends StatelessWidget {
                       ],
                     )
                   else if (failure != null)
-                    Text(l10n.localizedErrorMessage(failure))
+                    Text(routesFailureMessage(context, failure))
                   else if (activity.isEmpty)
                     Text(l10n.routeNoActivityFound)
                   else
@@ -208,6 +213,26 @@ class RouteDetailsDialog extends StatelessWidget {
     return normalized == null || normalized.isEmpty
         ? l10n.routeEmptyValue
         : normalized;
+  }
+
+  String _formatDefaultFreightRate(
+    RouteEntity route,
+    RoutesLoaded? state,
+    String emptyValue,
+  ) {
+    final rate = route.defaultFreightRatePerTon;
+    final company = state?.currentCompanyContext.company;
+    if (rate == null || company == null) return emptyValue;
+
+    final configuration = CurrencyConfiguration.tryCreate(
+      currencyCode: company.baseCurrencyCode,
+      fractionDigits: company.baseCurrencyFractionDigits,
+    );
+    if (configuration == null) return emptyValue;
+
+    const codec = MoneyDecimalCodec();
+    final value = codec.encodeNonNegative(rate, configuration: configuration);
+    return '$value ${rate.currency.value}';
   }
 }
 

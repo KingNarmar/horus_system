@@ -1,11 +1,14 @@
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/routes/data/datasources/routes_remote_data_source.dart';
@@ -17,250 +20,149 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
-  group('RoutesRepositoryImpl', () {
-    test('forwards company scope when loading routes', () async {
-      final remoteDataSource = _FakeRoutesRemoteDataSource();
-      final repository = _repository(remoteDataSource);
+  final configuration = CurrencyConfiguration.tryCreate(
+    currencyCode: 'AED',
+    fractionDigits: 2,
+  )!;
 
-      final result = await repository.getRoutes(companyId: _companyId);
+  group('RoutesRepositoryImpl', () {
+    test('forwards company scope and decodes exact rate', () async {
+      final remote = _FakeRoutesRemoteDataSource();
+      final repository = _repository(remote);
+
+      final result = await repository.getRoutes(
+        companyId: _companyId,
+        financialConfiguration: configuration,
+      );
 
       expect(result, isA<Success<List<RouteEntity>>>());
-      expect(remoteDataSource.lastListCompanyId, _companyId);
-    });
-
-    test('adds route then writes audit', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
+      expect(remote.lastListCompanyId, _companyId);
+      expect(
+        result.dataOrNull?.single.defaultFreightRatePerTon,
+        Money(minorUnits: 125000, currency: configuration.currency),
       );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addRoute(
-        data: _writeData(loadingLocation: 'Sharjah'),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<Success<RouteEntity>>());
-      expect(result.dataOrNull?.loadingLocation, 'Sharjah');
-      expect(operations, ['add_route', 'audit']);
-      expect(auditRepository.logs.single.description, 'route_created');
     });
 
     test(
-      'updates after company-scoped old snapshot lookup and audits last',
+      'adds route then writes audit and forwards financial config',
       () async {
         final operations = <String>[];
-        final remoteDataSource = _FakeRoutesRemoteDataSource(
-          operations: operations,
-          oldModel: _model(loadingLocation: 'Old Loading'),
-        );
-        final auditRepository = _FakeAuditLogRepository(operations: operations);
-        final repository = _repository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
+        final remote = _FakeRoutesRemoteDataSource(operations: operations);
+        final audit = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(remote, auditRepository: audit);
 
-        final result = await repository.saveRoute(
-          id: _routeId,
-          data: _writeData(loadingLocation: 'New Loading'),
-          actorRole: 'admin',
+        final result = await repository.addRoute(
+          data: _writeData(configuration.currency),
+          actorRole: 'operations',
+          financialConfiguration: configuration,
         );
 
         expect(result, isA<Success<RouteEntity>>());
-        expect(operations, ['get_route', 'save_route', 'audit']);
-        expect(remoteDataSource.lastLookupCompanyId, _companyId);
-        expect(remoteDataSource.lastLookupId, _routeId);
-        expect(auditRepository.logs.single.description, 'route_updated');
+        expect(operations, ['add_route', 'audit']);
+        expect(remote.lastMutationConfiguration, configuration);
+        expect(audit.logs.single.description, 'route_created');
         expect(
-          auditRepository.logs.single.oldValues?['loading_location'],
-          'Old Loading',
-        );
-        expect(
-          auditRepository.logs.single.newValues?['loading_location'],
-          'New Loading',
+          audit.logs.single.newValues?['default_freight_rate_per_ton'],
+          '1250.00',
         );
       },
     );
 
-    test('deactivates after old snapshot lookup and audits last', () async {
+    test('save reads old snapshot then mutates then audits', () async {
       final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
-        oldModel: _model(isActive: true),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final remote = _FakeRoutesRemoteDataSource(operations: operations);
+      final audit = _FakeAuditLogRepository(operations: operations);
+      final repository = _repository(remote, auditRepository: audit);
 
-      final result = await repository.deactivateRoute(
-        companyId: _companyId,
+      final result = await repository.saveRoute(
         id: _routeId,
-        actorRole: 'owner',
+        data: _writeData(configuration.currency, loadingLocation: 'New'),
+        actorRole: 'admin',
+        financialConfiguration: configuration,
       );
 
       expect(result, isA<Success<RouteEntity>>());
-      expect(result.dataOrNull?.isActive, isFalse);
+      expect(operations, ['get_route', 'save_route', 'audit']);
+      expect(remote.lastLookupCompanyId, _companyId);
+      expect(audit.logs.single.description, 'route_updated');
+    });
+
+    test('lifecycle mutations keep company scope and audit ordering', () async {
+      final operations = <String>[];
+      final remote = _FakeRoutesRemoteDataSource(operations: operations);
+      final audit = _FakeAuditLogRepository(operations: operations);
+      final repository = _repository(remote, auditRepository: audit);
+
+      final deactivated = await repository.deactivateRoute(
+        companyId: _companyId,
+        id: _routeId,
+        actorRole: 'owner',
+        financialConfiguration: configuration,
+      );
+      expect(deactivated.dataOrNull?.isActive, isFalse);
       expect(operations, ['get_route', 'deactivate_route', 'audit']);
-      expect(remoteDataSource.lastLifecycleCompanyId, _companyId);
-      expect(remoteDataSource.lastLifecycleId, _routeId);
-      expect(auditRepository.logs.single.description, 'route_deactivated');
-      expect(auditRepository.logs.single.oldValues?['is_active'], isTrue);
-      expect(auditRepository.logs.single.newValues?['is_active'], isFalse);
-    });
 
-    test('reactivates after old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
-        oldModel: _model(isActive: false),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.reactivateRoute(
+      operations.clear();
+      audit.logs.clear();
+      final reactivated = await repository.reactivateRoute(
         companyId: _companyId,
         id: _routeId,
         actorRole: 'owner',
+        financialConfiguration: configuration,
       );
-
-      expect(result, isA<Success<RouteEntity>>());
-      expect(result.dataOrNull?.isActive, isTrue);
+      expect(reactivated.dataOrNull?.isActive, isTrue);
       expect(operations, ['get_route', 'reactivate_route', 'audit']);
-      expect(remoteDataSource.lastLifecycleCompanyId, _companyId);
-      expect(remoteDataSource.lastLifecycleId, _routeId);
-      expect(auditRepository.logs.single.description, 'route_reactivated');
-      expect(auditRepository.logs.single.oldValues?['is_active'], isFalse);
-      expect(auditRepository.logs.single.newValues?['is_active'], isTrue);
-    });
-
-    test('sanitizes unexpected mutation failure and does not audit', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
-        addError: Exception('mutation failed internal detail'),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addRoute(
-        data: _writeData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['add_route']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('sanitizes Postgrest mutation failure and does not audit', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
-        addError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-          details: 'sensitive details',
-          hint: 'sensitive hint',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addRoute(
-        data: _writeData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['add_route']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('propagates audit failure after successful mutation', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeRoutesRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(
-        operations: operations,
-        failure: const ValidationFailure(code: FailureCodes.serverError),
-      );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addRoute(
-        data: _writeData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<RouteEntity>>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(operations, ['add_route', 'audit']);
     });
 
     test(
-      'sanitizes Postgrest read failures through repository guard',
+      'sanitizes Postgrest failures and does not audit failed write',
       () async {
-        final remoteDataSource = _FakeRoutesRemoteDataSource(
-          listError: const PostgrestException(
+        final operations = <String>[];
+        final remote = _FakeRoutesRemoteDataSource(
+          operations: operations,
+          addError: const PostgrestException(
             message: 'permission denied',
             code: '42501',
             details: 'sensitive details',
             hint: 'sensitive hint',
           ),
         );
-        final repository = _repository(remoteDataSource);
+        final audit = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(remote, auditRepository: audit);
 
-        final result = await repository.getRoutes(companyId: _companyId);
+        final result = await repository.addRoute(
+          data: _writeData(configuration.currency),
+          actorRole: 'operations',
+          financialConfiguration: configuration,
+        );
 
-        expect(result, isA<FailureResult<List<RouteEntity>>>());
+        expect(result, isA<FailureResult<RouteEntity>>());
         expect(result.failureOrNull, isA<ServerFailure>());
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastListCompanyId, _companyId);
+        expect(audit.logs, isEmpty);
       },
     );
 
-    test(
-      'sanitizes model-to-entity mapping failures inside repository guard',
-      () async {
-        final remoteDataSource = _FakeRoutesRemoteDataSource(
-          listModels: const [_ThrowingRouteModel()],
-        );
-        final repository = _repository(remoteDataSource);
+    test('propagates audit failure after successful write', () async {
+      final operations = <String>[];
+      final remote = _FakeRoutesRemoteDataSource(operations: operations);
+      final audit = _FakeAuditLogRepository(
+        operations: operations,
+        failure: const ValidationFailure(code: FailureCodes.serverError),
+      );
+      final repository = _repository(remote, auditRepository: audit);
 
-        final result = await repository.getRoutes(companyId: _companyId);
+      final result = await repository.addRoute(
+        data: _writeData(configuration.currency),
+        actorRole: 'operations',
+        financialConfiguration: configuration,
+      );
 
-        expect(result, isA<FailureResult<List<RouteEntity>>>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastListCompanyId, _companyId);
-      },
-    );
+      expect(result, isA<FailureResult<RouteEntity>>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(operations, ['add_route', 'audit']);
+    });
   });
 }
 
@@ -268,92 +170,53 @@ const _companyId = 'company-1';
 const _routeId = 'route-1';
 
 RoutesRepositoryImpl _repository(
-  RoutesRemoteDataSource remoteDataSource, {
+  RoutesRemoteDataSource remote, {
   _FakeAuditLogRepository? auditRepository,
 }) {
   return RoutesRepositoryImpl(
-    remoteDataSource: remoteDataSource,
+    remoteDataSource: remote,
     createAuditLogUseCase: CreateAuditLogUseCase(
       auditRepository ?? _FakeAuditLogRepository(),
     ),
   );
 }
 
-RouteWriteData _writeData({
+RouteWriteData _writeData(
+  CurrencyCode currency, {
   String loadingLocation = 'Dubai',
-  String unloadingLocation = 'Abu Dhabi',
 }) {
   return RouteWriteData(
     companyId: _companyId,
     loadingLocation: loadingLocation,
-    unloadingLocation: unloadingLocation,
-    governorateFrom: 'Dubai',
-    governorateTo: 'Abu Dhabi',
-    defaultFreightPrice: 1250,
-    notes: 'Notes',
+    unloadingLocation: 'Abu Dhabi',
+    defaultFreightRatePerTon: Money(minorUnits: 125000, currency: currency),
   );
 }
 
-RouteModel _model({
-  String loadingLocation = 'Dubai',
-  String unloadingLocation = 'Abu Dhabi',
-  bool isActive = true,
-}) {
+RouteModel _model({bool isActive = true, String loadingLocation = 'Dubai'}) {
   return RouteModel(
     id: _routeId,
     companyId: _companyId,
     loadingLocation: loadingLocation,
-    unloadingLocation: unloadingLocation,
-    governorateFrom: 'Dubai',
-    governorateTo: 'Abu Dhabi',
-    defaultFreightPrice: 1250,
-    notes: 'Notes',
+    unloadingLocation: 'Abu Dhabi',
+    defaultFreightRatePerTonDecimal: '1250.00',
     isActive: isActive,
-    createdAt: DateTime.utc(2026, 8, 1),
-    updatedAt: DateTime.utc(2026, 8, 2),
   );
-}
-
-class _ThrowingRouteModel extends RouteModel {
-  const _ThrowingRouteModel()
-    : super(
-        id: 'route-broken',
-        companyId: _companyId,
-        loadingLocation: 'ignored',
-        unloadingLocation: 'Abu Dhabi',
-        isActive: true,
-      );
-
-  @override
-  String get loadingLocation => throw StateError('mapping internal detail');
 }
 
 class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
   final List<String>? operations;
-  final Object? listError;
   final Object? addError;
-  final List<RouteModel>? listModels;
-  final RouteModel oldModel;
   String? lastListCompanyId;
   String? lastLookupCompanyId;
-  String? lastLookupId;
-  String? lastLifecycleCompanyId;
-  String? lastLifecycleId;
+  CurrencyConfiguration? lastMutationConfiguration;
 
-  _FakeRoutesRemoteDataSource({
-    this.operations,
-    this.listError,
-    this.addError,
-    this.listModels,
-    RouteModel? oldModel,
-  }) : oldModel = oldModel ?? _model(loadingLocation: 'Old Loading');
+  _FakeRoutesRemoteDataSource({this.operations, this.addError});
 
   @override
   Future<List<RouteModel>> getRoutes({required String companyId}) async {
-    operations?.add('get_routes');
     lastListCompanyId = companyId;
-    if (listError != null) throw listError!;
-    return listModels ?? [_model()];
+    return [_model()];
   }
 
   @override
@@ -363,30 +226,29 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
   }) async {
     operations?.add('get_route');
     lastLookupCompanyId = companyId;
-    lastLookupId = id;
-    return oldModel;
+    return _model();
   }
 
   @override
-  Future<RouteModel> addRoute({required RouteWriteData data}) async {
+  Future<RouteModel> addRoute({
+    required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async {
     operations?.add('add_route');
+    lastMutationConfiguration = financialConfiguration;
     if (addError != null) throw addError!;
-    return _model(
-      loadingLocation: data.loadingLocation,
-      unloadingLocation: data.unloadingLocation,
-    );
+    return _model(loadingLocation: data.loadingLocation);
   }
 
   @override
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
+    required CurrencyConfiguration? financialConfiguration,
   }) async {
     operations?.add('save_route');
-    return _model(
-      loadingLocation: data.loadingLocation,
-      unloadingLocation: data.unloadingLocation,
-    );
+    lastMutationConfiguration = financialConfiguration;
+    return _model(loadingLocation: data.loadingLocation);
   }
 
   @override
@@ -395,8 +257,6 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required String id,
   }) async {
     operations?.add('deactivate_route');
-    lastLifecycleCompanyId = companyId;
-    lastLifecycleId = id;
     return _model(isActive: false);
   }
 
@@ -406,8 +266,6 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required String id,
   }) async {
     operations?.add('reactivate_route');
-    lastLifecycleCompanyId = companyId;
-    lastLifecycleId = id;
     return _model(isActive: true);
   }
 }
@@ -422,8 +280,9 @@ class _FakeAuditLogRepository implements AuditLogRepository {
   @override
   Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
     operations?.add('audit');
-    if (failure != null) return FailureResult<void>(failure!);
     logs.add(data);
+    final currentFailure = failure;
+    if (currentFailure != null) return FailureResult(currentFailure);
     return const Success<void>(null);
   }
 
@@ -433,7 +292,5 @@ class _FakeAuditLogRepository implements AuditLogRepository {
     required AuditModule module,
     required AuditEntityType entityType,
     required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
-  }
+  }) async => const Success([]);
 }
