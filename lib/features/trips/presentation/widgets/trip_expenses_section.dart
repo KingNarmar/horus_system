@@ -171,6 +171,8 @@ class _TripExpensesHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final fractionDigits =
+        state.currentCompanyContext.company.baseCurrencyFractionDigits;
 
     return Wrap(
       spacing: AppSpacing.md,
@@ -186,7 +188,11 @@ class _TripExpensesHeader extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge,
             ),
             Text(
-              TripFormatters.money(trip.totalExpenses, l10n.tripEmptyValue),
+              TripFormatters.money(
+                trip.totalExpenses,
+                fractionDigits,
+                l10n.tripEmptyValue,
+              ),
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
