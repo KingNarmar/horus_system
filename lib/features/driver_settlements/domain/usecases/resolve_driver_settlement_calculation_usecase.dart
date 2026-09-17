@@ -5,6 +5,9 @@ import '../../../driver_finance/domain/usecases/get_canonical_driver_balance_use
 import '../../../driver_finance/domain/usecases/get_canonical_driver_money_balance_usecase.dart';
 import '../../../drivers/domain/entities/driver_compensation_revision.dart';
 import '../../../drivers/domain/usecases/resolve_driver_compensation_for_period_usecase.dart';
+import '../entities/driver_settlement_item_direction.dart';
+import '../entities/driver_settlement_item_source_type.dart';
+import '../entities/driver_settlement_money_item.dart';
 import '../entities/driver_settlement_money_source_snapshot.dart';
 import '../entities/driver_settlement_period.dart';
 import '../entities/driver_settlement_resolved_calculation.dart';
@@ -22,6 +25,10 @@ final class ResolveDriverSettlementCalculationUseCase
           DriverSettlementResolvedCalculation,
           DriverSettlementCalculationParams
         > {
+  static const _manualDeductionLabelKey = 'driver_settlement_item_deduction';
+  static const _manualAdjustmentKindKey = 'adjustment_kind';
+  static const _settlementDeductionKind = 'settlement_deduction';
+
   final DriverSettlementsRepository _repository;
   final DriverSettlementMoneyRepository _moneyRepository;
   final ResolveDriverCompensationForPeriodUseCase _resolveCompensation;
@@ -128,6 +135,12 @@ final class ResolveDriverSettlementCalculationUseCase
         snapshot: snapshot,
       ),
     );
+    final items = _resolvedItems(
+      companyId: context.companyId,
+      period: period,
+      resolvedInputs: resolvedInputs,
+      sourceItems: snapshot.sourceItems,
+    );
 
     return Success(
       DriverSettlementResolvedCalculation(
@@ -138,9 +151,35 @@ final class ResolveDriverSettlementCalculationUseCase
         currencyFractionDigits:
             resolvedInputs.currencyConfiguration.fractionDigits,
         calculation: calculation,
-        items: snapshot.sourceItems,
+        items: items,
         notes: DriverSettlementUseCaseValidation.optional(params.notes),
       ),
     );
+  }
+
+  List<DriverSettlementMoneyItem> _resolvedItems({
+    required String companyId,
+    required DriverSettlementPeriod period,
+    required DriverSettlementResolvedMoneyInputs resolvedInputs,
+    required List<DriverSettlementMoneyItem> sourceItems,
+  }) {
+    if (!resolvedInputs.settlementDeductionsTotal.isPositive) {
+      return List<DriverSettlementMoneyItem>.unmodifiable(sourceItems);
+    }
+
+    return List<DriverSettlementMoneyItem>.unmodifiable([
+      ...sourceItems,
+      DriverSettlementMoneyItem(
+        companyId: companyId,
+        sourceType: DriverSettlementItemSourceType.manualAdjustment,
+        sourceDate: period.end,
+        direction: DriverSettlementItemDirection.driverToCompany,
+        amount: resolvedInputs.settlementDeductionsTotal,
+        labelKey: _manualDeductionLabelKey,
+        metadata: const {
+          _manualAdjustmentKindKey: _settlementDeductionKind,
+        },
+      ),
+    ]);
   }
 }
