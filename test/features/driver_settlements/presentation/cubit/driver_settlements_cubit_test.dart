@@ -1,9 +1,14 @@
 import 'dart:async';
 
-import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -14,27 +19,48 @@ import 'package:horus_system/features/audit/domain/usecases/get_entity_audit_log
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
+import 'package:horus_system/features/driver_finance/domain/repositories/driver_money_balance_repository.dart';
+import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_money_balance_usecase.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_driver_option.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_money_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
+import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlement_money_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlements_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/usecases/driver_settlement_usecases.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlement_form_input.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_state.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_compensation_revision.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_compensation_write_data.dart';
+import 'package:horus_system/features/drivers/domain/repositories/driver_compensation_repository.dart';
+import 'package:horus_system/features/drivers/domain/usecases/resolve_driver_compensation_for_period_usecase.dart';
 
 import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   late _FakeDriverSettlementsRepository repository;
+  late _FakeSettlementMoneyRepository moneyRepository;
   late DriverSettlementsCubit cubit;
 
   setUp(() {
     repository = _FakeDriverSettlementsRepository();
+    moneyRepository = _FakeSettlementMoneyRepository();
+    final resolver = ResolveDriverSettlementCalculationUseCase(
+      repository: repository,
+      moneyRepository: moneyRepository,
+      resolveCompensation: ResolveDriverCompensationForPeriodUseCase(
+        _FakeCompensationRepository(),
+      ),
+      getCanonicalMoneyBalance: GetCanonicalDriverMoneyBalanceUseCase(
+        _FakeMoneyBalanceRepository(),
+      ),
+    );
     cubit = DriverSettlementsCubit(
       convertInstantsToBusinessLocalDateTimesUseCase:
           const ConvertInstantsToBusinessLocalDateTimesUseCase(
@@ -51,9 +77,12 @@ void main() {
         repository,
       ),
       calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
-        repository,
+        resolver,
       ),
-      createDraftUseCase: CreateDriverSettlementDraftUseCase(repository),
+      createDraftUseCase: CreateDriverSettlementDraftUseCase(
+        moneyRepository: moneyRepository,
+        resolveCalculation: resolver,
+      ),
       finalizeSettlementUseCase: FinalizeDriverSettlementUseCase(repository),
       voidSettlementUseCase: VoidDriverSettlementUseCase(repository),
       getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
@@ -77,16 +106,14 @@ void main() {
   });
 
   test(
-    'invalidating inputs prevents a stale preview from being emitted',
+    'invalidating inputs prevents a stale exact preview from being emitted',
     () async {
       await cubit.loadDriverSettlements(_context);
-      repository.snapshotCompleter = Completer();
+      moneyRepository.snapshotCompleter = Completer();
 
       final previewFuture = cubit.calculatePreview(_formInput());
       cubit.invalidatePreview();
-      repository.snapshotCompleter!.complete(
-        const DriverSettlementSourceSnapshot(advancesTotal: 100),
-      );
+      moneyRepository.snapshotCompleter!.complete(_exactSnapshot());
       await previewFuture;
 
       final state = cubit.state as DriverSettlementsLoaded;
@@ -101,7 +128,7 @@ void main() {
       await cubit.loadDriverSettlements(_context);
 
       final created = await cubit.createDraft(
-        _formInput(salaryDeductionsTotal: 50),
+        _formInput(salaryDeductionsTotal: '50.00'),
       );
 
       final state = cubit.state as DriverSettlementsLoaded;
@@ -109,6 +136,7 @@ void main() {
       expect(state.allSettlements, hasLength(1));
       expect(state.feedback, DriverSettlementFeedback.draftCreated);
       expect(state.isCreatingDraft, isFalse);
+      expect(moneyRepository.lastWriteData?.compensationRevisionId, 'revision-1');
     },
   );
 
@@ -136,7 +164,12 @@ void main() {
 }
 
 const _context = CurrentCompanyContext(
-  company: Company(id: 'company-1', name: 'Test Company'),
+  company: Company(
+    id: 'company-1',
+    name: 'Test Company',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+  ),
   role: CompanyRole.accountant,
 );
 
@@ -144,15 +177,24 @@ BusinessDate _date(int year, int month, int day) {
   return BusinessDate(year: year, month: month, day: day);
 }
 
-DriverSettlementFormInput _formInput({double salaryDeductionsTotal = 0}) {
+DriverSettlementFormInput _formInput({String salaryDeductionsTotal = ''}) {
   return DriverSettlementFormInput(
     driverId: 'driver-active',
     periodStart: _date(2026, 7, 1),
     periodEnd: _date(2026, 7, 31),
-    grossSalary: 1000,
     salaryDeductionsTotal: salaryDeductionsTotal,
-    balanceDeductionApplied: 0,
-    settlementDeductionsTotal: 0,
+  );
+}
+
+DriverSettlementMoneySourceSnapshot _exactSnapshot() {
+  final currency = CurrencyCode.tryParse('AED')!;
+  final zero = Money(minorUnits: 0, currency: currency);
+  return DriverSettlementMoneySourceSnapshot(
+    openingDriverBalance: zero,
+    advancesTotal: Money(minorUnits: 10000, currency: currency),
+    driverPaidTripExpensesTotal: Money(minorUnits: 2000, currency: currency),
+    returnedCashTotal: zero,
+    deductionsTotal: zero,
   );
 }
 
@@ -201,7 +243,6 @@ class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   List<DriverSettlement> settlements = [];
   DriverSettlement? details;
-  Completer<DriverSettlementSourceSnapshot>? snapshotCompleter;
 
   @override
   Future<Result<List<DriverSettlement>>> getDriverSettlements({
@@ -261,30 +302,16 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     required String companyId,
     required String driverId,
     required DriverSettlementPeriod period,
-  }) async {
-    final completer = snapshotCompleter;
-    if (completer != null) return Success(await completer.future);
-    return const Success(DriverSettlementSourceSnapshot(advancesTotal: 100));
+  }) {
+    throw UnsupportedError('Legacy source path is not used by PC-09 cubit tests.');
   }
 
   @override
   Future<Result<DriverSettlement>> createDraft({
     required DriverSettlementDraftWriteData data,
     required String actorRole,
-  }) async {
-    final settlement = DriverSettlement(
-      id: 'created-draft',
-      companyId: data.companyId,
-      driverId: data.driverId,
-      period: data.period,
-      calculation: data.calculation,
-      status: DriverSettlementStatus.draft,
-      notes: data.notes,
-      items: data.items,
-    );
-    settlements = [settlement, ...settlements];
-    details = settlement;
-    return Success(settlement);
+  }) {
+    throw UnsupportedError('Legacy draft path is not used by PC-09 cubit tests.');
   }
 
   @override
@@ -335,6 +362,116 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     );
     details = updated;
     return Success(updated);
+  }
+}
+
+class _FakeSettlementMoneyRepository implements DriverSettlementMoneyRepository {
+  Completer<DriverSettlementMoneySourceSnapshot>? snapshotCompleter;
+  DriverSettlementMoneyDraftWriteData? lastWriteData;
+
+  @override
+  Future<Result<DriverSettlementMoneySourceSnapshot>>
+  getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) async {
+    final completer = snapshotCompleter;
+    if (completer != null) return Success(await completer.future);
+    return Success(_exactSnapshot());
+  }
+
+  @override
+  Future<Result<DriverSettlement>> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+    required String actorRole,
+  }) async {
+    lastWriteData = data;
+    return Success(_settlement(id: 'created-draft'));
+  }
+}
+
+class _FakeCompensationRepository implements DriverCompensationRepository {
+  @override
+  Future<Result<List<DriverCompensationRevision>>> getHistory({
+    required String companyId,
+    required String driverId,
+  }) async {
+    final currency = CurrencyCode.tryParse('AED')!;
+    return Success([
+      DriverCompensationRevision(
+        id: 'revision-1',
+        companyId: companyId,
+        driverId: driverId,
+        amount: Money(minorUnits: 100000, currency: currency),
+        currencyFractionDigits: 2,
+        effectiveFrom: _date(2026, 1, 1),
+      ),
+    ]);
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> createRevision({
+    required DriverCompensationWriteData data,
+    required String actorRole,
+    BusinessDocumentFile? contractDocument,
+  }) {
+    throw UnsupportedError('Not used by cubit tests.');
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> endRevision({
+    required String companyId,
+    required String revisionId,
+    required String driverId,
+    required String actorRole,
+    required BusinessDate effectiveTo,
+  }) {
+    throw UnsupportedError('Not used by cubit tests.');
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> attachContractDocument({
+    required DriverCompensationRevision revision,
+    required String actorRole,
+    required BusinessDocumentFile document,
+  }) {
+    throw UnsupportedError('Not used by cubit tests.');
+  }
+
+  @override
+  Future<Result<BusinessDocumentAccess>> createContractDocumentAccess({
+    required String companyId,
+    required DriverCompensationRevision revision,
+  }) {
+    throw UnsupportedError('Not used by cubit tests.');
+  }
+}
+
+class _FakeMoneyBalanceRepository implements DriverMoneyBalanceRepository {
+  @override
+  Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
+    required String companyId,
+    required String driverId,
+    required CurrencyCode currency,
+    required int currencyFractionDigits,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
+  }) async {
+    final zero = Money(minorUnits: 0, currency: currency);
+    return Success(
+      DriverMoneyBalance(
+        companyId: companyId,
+        driverId: driverId,
+        currency: currency,
+        currencyFractionDigits: currencyFractionDigits,
+        totalAdvances: zero,
+        totalDriverCharges: zero,
+        totalTripExpenseCredits: zero,
+        totalCashReturns: zero,
+      ),
+    );
   }
 }
 
