@@ -251,8 +251,5 @@ void main() {
 }
 
 Money _money(int minorUnits) {
-  return Money(
-    minorUnits: minorUnits,
-    currency: CurrencyCode.tryParse('AED')!,
-  );
+  return Money(minorUnits: minorUnits, currency: CurrencyCode.tryParse('AED')!);
 }
