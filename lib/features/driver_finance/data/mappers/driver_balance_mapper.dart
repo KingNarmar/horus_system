@@ -46,8 +46,8 @@ class DriverBalanceSourceMapper {
 
     var totalTripExpenseCredits = 0.0;
     for (final row in expenseLedgerRows) {
-      final fundingSource =
-          row[DriverFinanceDbFields.fundingSource]?.toString();
+      final fundingSource = row[DriverFinanceDbFields.fundingSource]
+          ?.toString();
       if (fundingSource != DriverFinanceDbValues.paidByDriverAdvance &&
           fundingSource != DriverFinanceDbValues.paidByDriverCash) {
         throw FormatException(
