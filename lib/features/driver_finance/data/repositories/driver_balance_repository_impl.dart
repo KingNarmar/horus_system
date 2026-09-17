@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_money_balance.dart';
@@ -43,7 +44,7 @@ class DriverBalanceRepositoryImpl implements DriverBalanceRepository {
   Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
     required String companyId,
     required String driverId,
-    required String currencyCode,
+    required CurrencyCode currency,
     required int currencyFractionDigits,
     required BusinessDate beforeExclusive,
     BusinessDate? checkpointBeforeExclusive,
@@ -52,7 +53,7 @@ class DriverBalanceRepositoryImpl implements DriverBalanceRepository {
       final model = await remoteDataSource.getCanonicalDriverMoneyBalance(
         companyId: companyId,
         driverId: driverId,
-        currencyCode: currencyCode,
+        currencyCode: currency.value,
         currencyFractionDigits: currencyFractionDigits,
         beforeExclusive: beforeExclusive,
         checkpointBeforeExclusive: checkpointBeforeExclusive,
