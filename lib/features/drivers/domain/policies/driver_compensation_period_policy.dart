@@ -66,4 +66,34 @@ final class DriverCompensationPeriodPolicy {
 
     return Success(matches.single);
   }
+
+  Result<DriverCompensationRevision> resolveForPeriod({
+    required List<DriverCompensationRevision> revisions,
+    required BusinessDate periodStart,
+    required BusinessDate periodEnd,
+  }) {
+    final matches = revisions.where((revision) {
+      final startsOnOrBefore = !revision.effectiveFrom.isAfter(periodStart);
+      final endsOnOrAfter =
+          revision.effectiveTo == null ||
+          !revision.effectiveTo!.isBefore(periodEnd);
+      return startsOnOrBefore && endsOnOrAfter;
+    }).toList();
+
+    if (matches.isEmpty) {
+      return const FailureResult<DriverCompensationRevision>(
+        NotFoundFailure(
+          code: DriverCompensationFailureCodes.notFoundForPeriod,
+        ),
+      );
+    }
+
+    if (matches.length > 1) {
+      return const FailureResult<DriverCompensationRevision>(
+        ConflictFailure(code: DriverCompensationFailureCodes.conflictOverlap),
+      );
+    }
+
+    return Success(matches.single);
+  }
 }
