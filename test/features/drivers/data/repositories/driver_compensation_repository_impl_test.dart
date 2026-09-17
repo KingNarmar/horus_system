@@ -44,8 +44,15 @@ void main() {
       expect(operations, ['upload', 'create_revision', 'audit']);
       expect(documents.deletedReferences, isEmpty);
       expect(remote.lastContractDocumentReference, isNotNull);
-      expect(audit.logs.single.description,
-          'driver_compensation_revision_created');
+      expect(
+        audit.logs.single.entityType,
+        AuditEntityType.driverCompensationRevision,
+      );
+      expect(audit.logs.single.entityId, result.dataOrNull?.id);
+      expect(
+        audit.logs.single.description,
+        'driver_compensation_revision_created',
+      );
       expect(
         audit.logs.single.metadata?['compensation_revision_id'],
         result.dataOrNull?.id,
