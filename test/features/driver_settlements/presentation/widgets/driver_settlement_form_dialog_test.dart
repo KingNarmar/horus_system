@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/widgets/adaptive_detail_row.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_form_dialog.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 
@@ -70,7 +71,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Gross salary'), findsOneWidget);
-      expect(find.text('1000.00 AED'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AdaptiveDetailRow &&
+              widget.label == 'Gross salary' &&
+              widget.value == '1000.00 AED',
+        ),
+        findsOneWidget,
+      );
       expect(
         find.byKey(const ValueKey('driverSettlementGrossSalary')),
         findsNothing,
