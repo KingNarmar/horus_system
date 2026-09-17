@@ -1,6 +1,5 @@
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
-import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
@@ -10,7 +9,6 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'package:test/test.dart';
@@ -245,18 +243,6 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
     lastBeforeExclusive = beforeExclusive;
     lastCheckpointBeforeExclusive = checkpointBeforeExclusive;
     return Success(balance);
-  }
-
-  @override
-  Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
-    required String companyId,
-    required String driverId,
-    required CurrencyCode currency,
-    required int currencyFractionDigits,
-    required BusinessDate beforeExclusive,
-    BusinessDate? checkpointBeforeExclusive,
-  }) {
-    throw UnsupportedError('Exact balance path is not used by this test.');
   }
 }
 
