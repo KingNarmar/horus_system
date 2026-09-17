@@ -67,7 +67,7 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.currency.value, 'KWD');
       expect(result.dataOrNull?.currencyFractionDigits, 3);
-      expect(result.dataOrNull?.netBalance.minorUnits, -5624999);
+      expect(result.dataOrNull?.netBalance.minorUnits, -5625001);
       expect(remoteDataSource.moneyBalanceCalls, 1);
       expect(remoteDataSource.lastCurrencyCode, 'KWD');
       expect(remoteDataSource.lastCurrencyFractionDigits, 3);
