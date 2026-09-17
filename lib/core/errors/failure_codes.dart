@@ -139,6 +139,8 @@ class FailureCodes {
       'validation_expense_type_name_required';
   static const String validationDriverFinanceAmountPositive =
       'validation_driver_finance_amount_positive';
+  static const String validationDriverFinanceCurrencyMismatch =
+      'validation_driver_finance_currency_mismatch';
   static const String validationCompanyExpenseIdRequired =
       'validation_company_expense_id_required';
   static const String validationCompanyExpenseCategoryRequired =
