@@ -6,12 +6,14 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_money_balance.dart';
 import '../../domain/repositories/driver_balance_repository.dart';
+import '../../domain/repositories/driver_money_balance_repository.dart';
 import '../datasources/canonical_driver_balance_remote_data_source.dart';
 import '../mappers/driver_balance_mapper.dart';
 import '../mappers/driver_money_balance_mapper.dart';
 import 'driver_finance_repository_failure_mapper.dart';
 
-class DriverBalanceRepositoryImpl implements DriverBalanceRepository {
+class DriverBalanceRepositoryImpl
+    implements DriverBalanceRepository, DriverMoneyBalanceRepository {
   final CanonicalDriverBalanceRemoteDataSource remoteDataSource;
   final DriverFinanceRepositoryFailureMapper _failureMapper;
 
