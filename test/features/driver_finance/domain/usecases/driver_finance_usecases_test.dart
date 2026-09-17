@@ -1,4 +1,5 @@
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -12,7 +13,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Driver Finance movement use cases', () {
-    test('passes BusinessDate unchanged when adding an advance', () async {
+    test('parses company currency and passes BusinessDate unchanged', () async {
       final repository = _FakeDriverFinanceRepository();
       final useCase = AddDriverAdvanceUseCase(repository);
       final movementDate = BusinessDate(year: 2026, month: 9, day: 8);
@@ -21,7 +22,7 @@ void main() {
         AddDriverAdvanceParams(
           currentCompanyContext: _context,
           driverId: '  driver-1  ',
-          amount: 125.5,
+          amount: '125.50',
           movementDate: movementDate,
           notes: '  note  ',
         ),
@@ -31,7 +32,50 @@ void main() {
       expect(repository.lastWriteData?.movementDate, same(movementDate));
       expect(repository.lastWriteData?.driverId, 'driver-1');
       expect(repository.lastWriteData?.notes, 'note');
+      expect(repository.lastWriteData?.amount.minorUnits, 12550);
+      expect(repository.lastWriteData?.amount.currency.value, 'AED');
+      expect(repository.lastWriteData?.currencyFractionDigits, 2);
       expect(repository.lastActorRole, CompanyRole.accountant.name);
+    });
+
+    test('rejects over-precision before repository write', () async {
+      final repository = _FakeDriverFinanceRepository();
+      final useCase = AddDriverAdvanceUseCase(repository);
+
+      final result = await useCase(
+        AddDriverAdvanceParams(
+          currentCompanyContext: _context,
+          driverId: 'driver-1',
+          amount: '1.001',
+          movementDate: BusinessDate(year: 2026, month: 9, day: 8),
+        ),
+      );
+
+      expect(result, isA<FailureResult>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationDriverFinanceAmountPositive,
+      );
+      expect(repository.lastWriteData, isNull);
+    });
+
+    test('supports configured three-decimal currencies exactly', () async {
+      final repository = _FakeDriverFinanceRepository();
+      final useCase = AddDriverCashReturnUseCase(repository);
+
+      final result = await useCase(
+        AddDriverCashReturnParams(
+          currentCompanyContext: _kwdContext,
+          driverId: 'driver-1',
+          amount: '12.345',
+          movementDate: BusinessDate(year: 2026, month: 9, day: 8),
+        ),
+      );
+
+      expect(result, isA<Success<DriverFinancialMovement>>());
+      expect(repository.lastWriteData?.amount.minorUnits, 12345);
+      expect(repository.lastWriteData?.amount.currency.value, 'KWD');
+      expect(repository.lastWriteData?.currencyFractionDigits, 3);
     });
 
     test('passes company IANA timezone when loading trip options', () async {
@@ -57,6 +101,18 @@ const _context = CurrentCompanyContext(
     id: 'company-1',
     name: 'Company',
     businessTimezone: _timeZoneId,
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+  ),
+  role: CompanyRole.accountant,
+);
+const _kwdContext = CurrentCompanyContext(
+  company: Company(
+    id: 'company-1',
+    name: 'Company',
+    businessTimezone: _timeZoneId,
+    baseCurrencyCode: 'KWD',
+    baseCurrencyFractionDigits: 3,
   ),
   role: CompanyRole.accountant,
 );
@@ -98,7 +154,7 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
         driverId: data.driverId,
         tripId: data.tripId,
         type: data.type,
-        amount: data.amount,
+        amount: data.amount.minorUnits.toDouble(),
         movementDate: data.movementDate,
         notes: data.notes,
       ),
