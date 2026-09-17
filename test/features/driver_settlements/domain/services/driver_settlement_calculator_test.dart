@@ -1,5 +1,8 @@
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_balance_direction.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_input.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_money_calculation_input.dart';
 import 'package:horus_system/features/driver_settlements/domain/services/driver_settlement_calculator.dart';
 import 'package:test/test.dart';
 
@@ -175,4 +178,81 @@ void main() {
       expect(result.netSalaryPayable, 1000.56);
     });
   });
+
+  group('DriverSettlementCalculator exact-money contract', () {
+    const calculator = DriverSettlementCalculator();
+
+    test('calculates salary and balance entirely in minor units', () {
+      final result = calculator.calculateMoney(
+        DriverSettlementMoneyCalculationInput(
+          openingDriverBalance: _money(-50000),
+          advancesTotal: _money(10000),
+          driverPaidTripExpensesTotal: _money(2500),
+          returnedCashTotal: _money(5000),
+          deductionsTotal: _money(1000),
+          settlementDeductionsTotal: _money(500),
+          grossSalary: _money(500000),
+          salaryDeductionsTotal: _money(10000),
+          balanceDeductionApplied: _money(20000),
+        ),
+      );
+
+      expect(result.netSalaryPayable.minorUnits, 470000);
+      expect(result.closingDriverBalance.minorUnits, -34000);
+      expect(result.balanceAmountMinorUnits, 34000);
+      expect(
+        result.balanceDirection,
+        DriverSettlementBalanceDirection.driverOwesCompany,
+      );
+    });
+
+    test('supports currencies with non-two-decimal minor-unit semantics', () {
+      final kwd = CurrencyCode.tryParse('KWD')!;
+      final result = calculator.calculateMoney(
+        DriverSettlementMoneyCalculationInput(
+          openingDriverBalance: Money(minorUnits: 0, currency: kwd),
+          advancesTotal: Money(minorUnits: 10005, currency: kwd),
+          driverPaidTripExpensesTotal: Money(minorUnits: 5, currency: kwd),
+          returnedCashTotal: Money(minorUnits: 0, currency: kwd),
+          deductionsTotal: Money(minorUnits: 0, currency: kwd),
+          settlementDeductionsTotal: Money(minorUnits: 0, currency: kwd),
+          grossSalary: Money(minorUnits: 1000555, currency: kwd),
+          salaryDeductionsTotal: Money(minorUnits: 0, currency: kwd),
+          balanceDeductionApplied: Money(minorUnits: 0, currency: kwd),
+        ),
+      );
+
+      expect(result.closingDriverBalance.minorUnits, -10000);
+      expect(result.netSalaryPayable.minorUnits, 1000555);
+      expect(result.netSalaryPayable.currency, kwd);
+    });
+
+    test('rejects mixed currencies instead of silently converting', () {
+      final usd = CurrencyCode.tryParse('USD')!;
+
+      expect(
+        () => calculator.calculateMoney(
+          DriverSettlementMoneyCalculationInput(
+            openingDriverBalance: _money(0),
+            advancesTotal: Money(minorUnits: 10000, currency: usd),
+            driverPaidTripExpensesTotal: _money(0),
+            returnedCashTotal: _money(0),
+            deductionsTotal: _money(0),
+            settlementDeductionsTotal: _money(0),
+            grossSalary: _money(500000),
+            salaryDeductionsTotal: _money(0),
+            balanceDeductionApplied: _money(0),
+          ),
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+}
+
+Money _money(int minorUnits) {
+  return Money(
+    minorUnits: minorUnits,
+    currency: CurrencyCode.tryParse('AED')!,
+  );
 }
