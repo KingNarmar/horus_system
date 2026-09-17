@@ -1,12 +1,12 @@
 -- H.O.R.U.S System — Issue #233 / PC-09
 -- Align Driver Finance and Driver Settlements with canonical financial sources.
 --
--- This migration is intentionally additive:
--- - legacy numeric columns remain available for historical/read compatibility;
--- - exact minor-unit + currency snapshots are added alongside them;
--- - existing rows are backfilled from the company's locked base currency;
+-- Additive migration only:
+-- - legacy numeric columns stay readable during the transition;
+-- - exact minor-unit and currency snapshots are added alongside them;
+-- - existing rows are backfilled only when conversion is exact;
 -- - historical settlements are NOT linked to compensation revisions retroactively;
--- - future application writes may snapshot the resolved PC-08 compensation revision;
+-- - future PC-09 drafts may snapshot the resolved PC-08 compensation revision;
 -- - a v2 checkpoint RPC exposes exact money without breaking the legacy RPC.
 
 BEGIN;
@@ -37,6 +37,96 @@ ALTER TABLE public.driver_settlement_items
   ADD COLUMN IF NOT EXISTS currency_code text NULL,
   ADD COLUMN IF NOT EXISTS currency_fraction_digits smallint NULL;
 
+DO $validation$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM public.driver_financial_movements AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE company.base_currency_code IS NULL
+      OR company.base_currency_fraction_digits IS NULL
+      OR company.base_currency_fraction_digits NOT BETWEEN 0 AND 4
+  ) OR EXISTS (
+    SELECT 1
+    FROM public.driver_settlements AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE company.base_currency_code IS NULL
+      OR company.base_currency_fraction_digits IS NULL
+      OR company.base_currency_fraction_digits NOT BETWEEN 0 AND 4
+  ) OR EXISTS (
+    SELECT 1
+    FROM public.driver_settlement_items AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE company.base_currency_code IS NULL
+      OR company.base_currency_fraction_digits IS NULL
+      OR company.base_currency_fraction_digits NOT BETWEEN 0 AND 4
+  ) THEN
+    RAISE EXCEPTION 'pc09_financial_configuration_required'
+      USING ERRCODE = '23514';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.driver_financial_movements AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE row.amount
+        * pg_catalog.power(10::numeric, company.base_currency_fraction_digits)
+        <> pg_catalog.trunc(
+          row.amount
+            * pg_catalog.power(
+              10::numeric,
+              company.base_currency_fraction_digits
+            )
+        )
+  ) OR EXISTS (
+    SELECT 1
+    FROM public.driver_settlement_items AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE row.amount
+        * pg_catalog.power(10::numeric, company.base_currency_fraction_digits)
+        <> pg_catalog.trunc(
+          row.amount
+            * pg_catalog.power(
+              10::numeric,
+              company.base_currency_fraction_digits
+            )
+        )
+  ) OR EXISTS (
+    SELECT 1
+    FROM public.driver_settlements AS row
+    JOIN public.companies AS company ON company.id = row.company_id
+    WHERE EXISTS (
+      SELECT 1
+      FROM unnest(ARRAY[
+        row.opening_driver_balance,
+        row.advances_total,
+        row.driver_paid_trip_expenses_total,
+        row.returned_cash_total,
+        row.deductions_total,
+        row.settlement_deductions_total,
+        row.gross_salary,
+        row.salary_deductions_total,
+        row.balance_deduction_applied,
+        row.net_salary_payable,
+        row.closing_driver_balance
+      ]) AS amount(value)
+      WHERE amount.value
+          * pg_catalog.power(10::numeric, company.base_currency_fraction_digits)
+          <> pg_catalog.trunc(
+            amount.value
+              * pg_catalog.power(
+                10::numeric,
+                company.base_currency_fraction_digits
+              )
+          )
+    )
+  ) THEN
+    RAISE EXCEPTION 'pc09_legacy_money_precision_invalid'
+      USING ERRCODE = '23514';
+  END IF;
+END;
+$validation$;
+
 UPDATE public.driver_financial_movements AS movement
 SET
   amount_minor_units = (
@@ -49,18 +139,7 @@ FROM public.companies AS company
 WHERE company.id = movement.company_id
   AND movement.amount_minor_units IS NULL
   AND movement.currency_code IS NULL
-  AND movement.currency_fraction_digits IS NULL
-  AND company.base_currency_code IS NOT NULL
-  AND company.base_currency_fraction_digits IS NOT NULL
-  AND movement.amount
-      * pg_catalog.power(10::numeric, company.base_currency_fraction_digits)
-      = pg_catalog.trunc(
-          movement.amount
-            * pg_catalog.power(
-                10::numeric,
-                company.base_currency_fraction_digits
-              )
-        );
+  AND movement.currency_fraction_digits IS NULL;
 
 UPDATE public.driver_settlements AS settlement
 SET
@@ -113,9 +192,7 @@ SET
 FROM public.companies AS company
 WHERE company.id = settlement.company_id
   AND settlement.currency_code IS NULL
-  AND settlement.currency_fraction_digits IS NULL
-  AND company.base_currency_code IS NOT NULL
-  AND company.base_currency_fraction_digits IS NOT NULL;
+  AND settlement.currency_fraction_digits IS NULL;
 
 UPDATE public.driver_settlement_items AS item
 SET
@@ -129,18 +206,7 @@ FROM public.companies AS company
 WHERE company.id = item.company_id
   AND item.amount_minor_units IS NULL
   AND item.currency_code IS NULL
-  AND item.currency_fraction_digits IS NULL
-  AND company.base_currency_code IS NOT NULL
-  AND company.base_currency_fraction_digits IS NOT NULL
-  AND item.amount
-      * pg_catalog.power(10::numeric, company.base_currency_fraction_digits)
-      = pg_catalog.trunc(
-          item.amount
-            * pg_catalog.power(
-                10::numeric,
-                company.base_currency_fraction_digits
-              )
-        );
+  AND item.currency_fraction_digits IS NULL;
 
 ALTER TABLE public.driver_financial_movements
   DROP CONSTRAINT IF EXISTS driver_financial_movements_exact_money_check,
@@ -152,8 +218,11 @@ ALTER TABLE public.driver_financial_movements
       AND currency_fraction_digits IS NULL
     )
     OR (
-      amount_minor_units > 0
+      amount_minor_units IS NOT NULL
+      AND amount_minor_units > 0
+      AND currency_code IS NOT NULL
       AND currency_code ~ '^[A-Z]{3}$'
+      AND currency_fraction_digits IS NOT NULL
       AND currency_fraction_digits BETWEEN 0 AND 4
     )
   );
@@ -178,17 +247,28 @@ ALTER TABLE public.driver_settlements
       AND closing_driver_balance_minor_units IS NULL
     )
     OR (
-      currency_code ~ '^[A-Z]{3}$'
+      currency_code IS NOT NULL
+      AND currency_code ~ '^[A-Z]{3}$'
+      AND currency_fraction_digits IS NOT NULL
       AND currency_fraction_digits BETWEEN 0 AND 4
       AND opening_driver_balance_minor_units IS NOT NULL
+      AND advances_total_minor_units IS NOT NULL
       AND advances_total_minor_units >= 0
+      AND driver_paid_trip_expenses_total_minor_units IS NOT NULL
       AND driver_paid_trip_expenses_total_minor_units >= 0
+      AND returned_cash_total_minor_units IS NOT NULL
       AND returned_cash_total_minor_units >= 0
+      AND deductions_total_minor_units IS NOT NULL
       AND deductions_total_minor_units >= 0
+      AND settlement_deductions_total_minor_units IS NOT NULL
       AND settlement_deductions_total_minor_units >= 0
+      AND gross_salary_minor_units IS NOT NULL
       AND gross_salary_minor_units >= 0
+      AND salary_deductions_total_minor_units IS NOT NULL
       AND salary_deductions_total_minor_units >= 0
+      AND balance_deduction_applied_minor_units IS NOT NULL
       AND balance_deduction_applied_minor_units >= 0
+      AND net_salary_payable_minor_units IS NOT NULL
       AND net_salary_payable_minor_units >= 0
       AND closing_driver_balance_minor_units IS NOT NULL
     )
@@ -204,8 +284,11 @@ ALTER TABLE public.driver_settlement_items
       AND currency_fraction_digits IS NULL
     )
     OR (
-      amount_minor_units >= 0
+      amount_minor_units IS NOT NULL
+      AND amount_minor_units >= 0
+      AND currency_code IS NOT NULL
       AND currency_code ~ '^[A-Z]{3}$'
+      AND currency_fraction_digits IS NOT NULL
       AND currency_fraction_digits BETWEEN 0 AND 4
     )
   );
