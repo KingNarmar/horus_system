@@ -110,6 +110,65 @@ void main() {
         DriverCompensationFailureCodes.conflictOverlap,
       );
     });
+
+    test('resolves one revision that covers the complete settlement period', () {
+      final revision = _revision(
+        id: 'current',
+        from: BusinessDate(year: 2026, month: 1, day: 1),
+        to: BusinessDate(year: 2026, month: 12, day: 31),
+      );
+
+      final result = policy.resolveForPeriod(
+        revisions: [revision],
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(result.dataOrNull?.id, 'current');
+    });
+
+    test('fails when any part of the settlement period has no compensation', () {
+      final result = policy.resolveForPeriod(
+        revisions: [
+          _revision(
+            id: 'partial',
+            from: BusinessDate(year: 2026, month: 9, day: 10),
+            to: null,
+          ),
+        ],
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForPeriod,
+      );
+    });
+
+    test('fails when settlement period crosses compensation revisions', () {
+      final result = policy.resolveForPeriod(
+        revisions: [
+          _revision(
+            id: 'old',
+            from: BusinessDate(year: 2026, month: 1, day: 1),
+            to: BusinessDate(year: 2026, month: 9, day: 14),
+          ),
+          _revision(
+            id: 'new',
+            from: BusinessDate(year: 2026, month: 9, day: 15),
+            to: null,
+          ),
+        ],
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.conflictPeriodSpansRevisions,
+      );
+    });
   });
 }
 
