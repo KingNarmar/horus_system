@@ -4,6 +4,7 @@ import '../../../core/usecases/convert_instants_to_business_local_date_times_use
 import '../../audit/di/audit_dependencies.dart';
 import '../../company/di/company_dependencies.dart';
 import '../../driver_finance/di/driver_finance_dependencies.dart';
+import '../../drivers/di/driver_compensation_dependencies.dart';
 import '../data/datasources/driver_settlements_remote_data_source.dart';
 import '../data/repositories/driver_settlements_repository_impl.dart';
 import '../domain/repositories/driver_settlements_repository.dart';
@@ -11,20 +12,39 @@ import '../domain/usecases/driver_settlement_usecases.dart';
 import '../presentation/cubit/driver_settlements_cubit.dart';
 
 abstract final class DriverSettlementsDependencies {
-  static DriverSettlementsRepository createRepository() {
+  static DriverSettlementsRepositoryImpl _createRepositoryImpl() {
     final remoteDataSource = SupabaseDriverSettlementsRemoteDataSource(
       SupabaseClientProvider.client,
     );
     return DriverSettlementsRepositoryImpl(
       remoteDataSource: remoteDataSource,
+      moneyRemoteDataSource: remoteDataSource,
       driverBalanceRepository:
           DriverFinanceDependencies.createBalanceRepository(),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 
+  static DriverSettlementsRepository createRepository() {
+    return _createRepositoryImpl();
+  }
+
+  static ResolveDriverSettlementCalculationUseCase _createResolveCalculation(
+    DriverSettlementsRepositoryImpl repository,
+  ) {
+    return ResolveDriverSettlementCalculationUseCase(
+      repository: repository,
+      moneyRepository: repository,
+      resolveCompensation:
+          DriverCompensationDependencies.createResolveForPeriodUseCase(),
+      getCanonicalMoneyBalance:
+          DriverFinanceDependencies.createGetCanonicalDriverMoneyBalanceUseCase(),
+    );
+  }
+
   static DriverSettlementsCubit createCubit() {
-    final repository = createRepository();
+    final repository = _createRepositoryImpl();
+    final resolveCalculation = _createResolveCalculation(repository);
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
     return DriverSettlementsCubit(
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
@@ -38,9 +58,12 @@ abstract final class DriverSettlementsDependencies {
         repository,
       ),
       calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
-        repository,
+        resolveCalculation,
       ),
-      createDraftUseCase: CreateDriverSettlementDraftUseCase(repository),
+      createDraftUseCase: CreateDriverSettlementDraftUseCase(
+        moneyRepository: repository,
+        resolveCalculation: resolveCalculation,
+      ),
       finalizeSettlementUseCase: FinalizeDriverSettlementUseCase(repository),
       voidSettlementUseCase: VoidDriverSettlementUseCase(repository),
       getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
@@ -67,12 +90,19 @@ abstract final class DriverSettlementsDependencies {
 
   static CalculateDriverSettlementPreviewUseCase
   createCalculateDriverSettlementPreviewUseCase() {
-    return CalculateDriverSettlementPreviewUseCase(createRepository());
+    final repository = _createRepositoryImpl();
+    return CalculateDriverSettlementPreviewUseCase(
+      _createResolveCalculation(repository),
+    );
   }
 
   static CreateDriverSettlementDraftUseCase
   createCreateDriverSettlementDraftUseCase() {
-    return CreateDriverSettlementDraftUseCase(createRepository());
+    final repository = _createRepositoryImpl();
+    return CreateDriverSettlementDraftUseCase(
+      moneyRepository: repository,
+      resolveCalculation: _createResolveCalculation(repository),
+    );
   }
 
   static FinalizeDriverSettlementUseCase
