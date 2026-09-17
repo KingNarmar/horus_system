@@ -2,6 +2,7 @@ abstract final class DriverFinanceDbTables {
   static const driverFinancialMovements = 'driver_financial_movements';
   static const trips = 'trips';
   static const tripExpenses = 'trip_expenses';
+  static const expenseLedgerEntries = 'expense_ledger_entries';
 }
 
 abstract final class DriverFinanceDbFunctions {
@@ -13,9 +14,16 @@ abstract final class DriverFinanceDbFields {
   static const tripId = 'trip_id';
   static const movementType = 'movement_type';
   static const amount = 'amount';
+  static const amountMinorUnits = 'amount_minor_units';
+  static const currencyCode = 'currency_code';
+  static const currencyFractionDigits = 'currency_fraction_digits';
   static const movementDate = 'movement_date';
   static const expenseDate = 'expense_date';
   static const paidBy = 'paid_by';
+  static const fundingSource = 'funding_source';
+  static const isVoided = 'is_voided';
+  static const originKind = 'origin_kind';
+  static const originId = 'origin_id';
   static const notes = 'notes';
 
   static const checkpointSettlementId = 'settlement_id';
