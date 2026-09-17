@@ -71,8 +71,7 @@ final class DriverCompensationDetailsSection extends StatelessWidget {
             _RevisionCard(
               revision: currentState.currentRevision!,
               canManage: currentState.canManage,
-              canAccessContractDocument:
-                  currentState.canAccessContractDocument,
+              canAccessContractDocument: currentState.canAccessContractDocument,
               isPending:
                   currentState.isSaving &&
                   currentState.pendingRevisionId ==
@@ -82,10 +81,7 @@ final class DriverCompensationDetailsSection extends StatelessWidget {
               onOpenContract: onOpenContract,
             ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            l10n.history,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(l10n.history, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           if (currentState.history.isEmpty)
             Text(l10n.noHistory)
@@ -146,9 +142,9 @@ final class _RevisionCard extends StatelessWidget {
           children: [
             Text(
               DriverCompensationFormatters.amount(revision),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(

@@ -33,19 +33,16 @@ final class DriverCompensationRepositoryFailureMapper {
       final message = error.message;
       if (message.contains('effective_to_immutable')) {
         return const ConflictFailure(
-          code:
-              DriverCompensationFailureCodes.conflictRevisionAlreadyEnded,
+          code: DriverCompensationFailureCodes.conflictRevisionAlreadyEnded,
         );
       }
       if (message.contains('document_immutable')) {
         return const ConflictFailure(
-          code:
-              DriverCompensationFailureCodes.conflictDocumentAlreadyAttached,
+          code: DriverCompensationFailureCodes.conflictDocumentAlreadyAttached,
         );
       }
       return const ValidationFailure(
-        code:
-            DriverCompensationFailureCodes.validationEffectivePeriodInvalid,
+        code: DriverCompensationFailureCodes.validationEffectivePeriodInvalid,
       );
     }
 

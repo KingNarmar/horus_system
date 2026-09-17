@@ -180,12 +180,9 @@ class DriverDetailsDialog extends StatelessWidget {
                     return DriverCompensationDetailsSection(
                       state: compensationState,
                       onAddRevision: onAddCompensationRevision ?? () {},
-                      onEndRevision:
-                          onEndCompensationRevision ?? (_) {},
-                      onAttachContract:
-                          onAttachCompensationContract ?? (_) {},
-                      onOpenContract:
-                          onOpenCompensationContract ?? (_) {},
+                      onEndRevision: onEndCompensationRevision ?? (_) {},
+                      onAttachContract: onAttachCompensationContract ?? (_) {},
+                      onOpenContract: onOpenCompensationContract ?? (_) {},
                     );
                   },
                 ),

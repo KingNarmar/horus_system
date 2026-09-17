@@ -68,8 +68,7 @@ final class CreateDriverCompensationRevisionUseCase
         );
     if (configuration == null) {
       return FailureResult(
-        DriverCompensationUseCaseValidation
-            .financialConfigurationRequiredFailure(),
+        DriverCompensationUseCaseValidation.financialConfigurationRequiredFailure(),
       );
     }
 

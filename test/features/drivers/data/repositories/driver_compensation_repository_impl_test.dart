@@ -134,10 +134,12 @@ void main() {
         );
 
         expect(result.isSuccess, isTrue);
-        expect(
-          operations,
-          ['get_revision', 'upload', 'attach_document', 'audit'],
-        );
+        expect(operations, [
+          'get_revision',
+          'upload',
+          'attach_document',
+          'audit',
+        ]);
         expect(result.dataOrNull?.contractDocumentReference, isNotNull);
         expect(
           audit.logs.single.description,
@@ -191,10 +193,7 @@ DriverCompensationWriteData _writeData() {
   return DriverCompensationWriteData(
     companyId: _companyId,
     driverId: _driverId,
-    amount: Money(
-      minorUnits: 500000,
-      currency: CurrencyCode.tryParse('AED')!,
-    ),
+    amount: Money(minorUnits: 500000, currency: CurrencyCode.tryParse('AED')!),
     currencyFractionDigits: 2,
     effectiveFrom: BusinessDate(year: 2026, month: 1, day: 1),
     contractReference: 'EMP-001',
@@ -213,10 +212,7 @@ DriverCompensationRevision _entity() {
     id: '11111111-1111-1111-1111-111111111111',
     companyId: _companyId,
     driverId: _driverId,
-    amount: Money(
-      minorUnits: 500000,
-      currency: CurrencyCode.tryParse('AED')!,
-    ),
+    amount: Money(minorUnits: 500000, currency: CurrencyCode.tryParse('AED')!),
     currencyFractionDigits: 2,
     effectiveFrom: BusinessDate(year: 2026, month: 1, day: 1),
   );
@@ -239,7 +235,8 @@ DriverCompensationModel _model({
   );
 }
 
-final class _FakeRemoteDataSource implements DriverCompensationRemoteDataSource {
+final class _FakeRemoteDataSource
+    implements DriverCompensationRemoteDataSource {
   final List<String>? operations;
   final Object? createError;
   String? lastHistoryCompanyId;
@@ -326,8 +323,8 @@ final class _FakeBusinessDocumentRepository
   _FakeBusinessDocumentRepository({this.operations});
 
   BusinessDocumentReference get _reference => const BusinessDocumentReference(
-        'companies/11111111-1111-1111-1111-111111111111/driver-compensation/11111111-1111-1111-1111-111111111111/employment-contract/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf',
-      );
+    'companies/11111111-1111-1111-1111-111111111111/driver-compensation/11111111-1111-1111-1111-111111111111/employment-contract/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf',
+  );
 
   @override
   Future<Result<BusinessDocumentReference>> upload({

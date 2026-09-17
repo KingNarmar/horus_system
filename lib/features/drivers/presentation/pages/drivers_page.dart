@@ -156,9 +156,7 @@ class _DriversPageState extends State<DriversPage> {
     if (configuration == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            context.financialReadinessL10n.configurationRequired,
-          ),
+          content: Text(context.financialReadinessL10n.configurationRequired),
         ),
       );
       return;
@@ -241,9 +239,9 @@ class _DriversPageState extends State<DriversPage> {
       await context.read<DriversCubit>().loadDriverActivity(driver);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.filePickerFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.filePickerFailed)));
     }
   }
 
@@ -269,9 +267,9 @@ class _DriversPageState extends State<DriversPage> {
     final access = result.dataOrNull;
     if (access == null || !await _contractDocumentLauncher.open(access.value)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.openDocumentFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.openDocumentFailed)));
     }
   }
 

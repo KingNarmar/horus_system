@@ -9,9 +9,8 @@ import '../../domain/entities/driver_compensation_revision.dart';
 import '../helpers/driver_compensation_formatters.dart';
 import '../localization/driver_compensation_localizations.dart';
 
-typedef DriverCompensationEndSubmit = Future<Failure?> Function(
-  BusinessDate effectiveTo,
-);
+typedef DriverCompensationEndSubmit =
+    Future<Failure?> Function(BusinessDate effectiveTo);
 
 final class DriverCompensationEndDialog extends StatefulWidget {
   final DriverCompensationRevision revision;
@@ -46,7 +45,9 @@ final class _DriverCompensationEndDialogState
     final l10n = context.driverCompensationL10n;
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -129,7 +130,9 @@ final class _DriverCompensationEndDialogState
     if (failure != null) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(driverCompensationFailureMessage(context, failure))),
+        SnackBar(
+          content: Text(driverCompensationFailureMessage(context, failure)),
+        ),
       );
       return;
     }

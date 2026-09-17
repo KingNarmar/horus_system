@@ -40,8 +40,8 @@ final class GetDriverCompensationContractAccessUseCase
       return Future.value(FailureResult(viewFailure));
     }
     if (!DriverCompensationPermissionPolicy.canAccessContractDocument(
-      params.currentCompanyContext.role,
-    ) ||
+          params.currentCompanyContext.role,
+        ) ||
         params.revision.companyId != params.currentCompanyContext.companyId) {
       return Future.value(
         const FailureResult(

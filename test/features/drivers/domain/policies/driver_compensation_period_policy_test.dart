@@ -53,8 +53,10 @@ void main() {
         targetDate: BusinessDate(year: 2026, month: 2, day: 15),
       );
 
-      expect(result.failureOrNull?.code,
-          DriverCompensationFailureCodes.notFoundForDate);
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForDate,
+      );
     });
 
     test('resolves the revision effective on the target business date', () {

@@ -23,9 +23,6 @@ final class DriverContractFilePicker {
     if (file == null) return null;
 
     final bytes = await file.readAsBytes();
-    return BusinessDocumentFile(
-      bytes: bytes,
-      fileName: file.name,
-    );
+    return BusinessDocumentFile(bytes: bytes, fileName: file.name);
   }
 }

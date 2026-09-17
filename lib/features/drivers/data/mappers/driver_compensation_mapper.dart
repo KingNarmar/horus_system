@@ -41,8 +41,7 @@ extension DriverCompensationModelMapper on DriverCompensationModel {
     return {
       DriverCompensationDbFields.amountMinorUnits: amountMinorUnits,
       DriverCompensationDbFields.currencyCode: currencyCode,
-      DriverCompensationDbFields.currencyFractionDigits:
-          currencyFractionDigits,
+      DriverCompensationDbFields.currencyFractionDigits: currencyFractionDigits,
       DriverCompensationDbFields.effectiveFrom: effectiveFrom,
       DriverCompensationDbFields.effectiveTo: effectiveTo,
       DriverCompensationDbFields.contractReference: contractReference,
@@ -64,7 +63,9 @@ extension DriverCompensationWriteDataMapper on DriverCompensationWriteData {
       DriverCompensationDbFields.currencyCode: amount.currency.value,
       DriverCompensationDbFields.currencyFractionDigits: currencyFractionDigits,
       DriverCompensationDbFields.effectiveFrom: DbDate.encode(effectiveFrom),
-      DriverCompensationDbFields.effectiveTo: DbDate.encodeNullable(effectiveTo),
+      DriverCompensationDbFields.effectiveTo: DbDate.encodeNullable(
+        effectiveTo,
+      ),
       DriverCompensationDbFields.contractReference: contractReference,
       DriverCompensationDbFields.contractDocumentReference:
           contractDocumentReference?.value,

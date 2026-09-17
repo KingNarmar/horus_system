@@ -60,25 +60,28 @@ void main() {
       expect(repository.createCalls, 0);
     });
 
-    test('rejects amount in a currency different from company currency', () async {
-      final repository = _FakeDriverCompensationRepository();
-      final useCase = CreateDriverCompensationRevisionUseCase(repository);
+    test(
+      'rejects amount in a currency different from company currency',
+      () async {
+        final repository = _FakeDriverCompensationRepository();
+        final useCase = CreateDriverCompensationRevisionUseCase(repository);
 
-      final result = await useCase(
-        CreateDriverCompensationRevisionParams(
-          currentCompanyContext: _context(CompanyRole.owner),
-          driverId: 'driver-1',
-          amount: _money(500000, 'USD'),
-          effectiveFrom: BusinessDate(year: 2026, month: 1, day: 1),
-        ),
-      );
+        final result = await useCase(
+          CreateDriverCompensationRevisionParams(
+            currentCompanyContext: _context(CompanyRole.owner),
+            driverId: 'driver-1',
+            amount: _money(500000, 'USD'),
+            effectiveFrom: BusinessDate(year: 2026, month: 1, day: 1),
+          ),
+        );
 
-      expect(
-        result.failureOrNull?.code,
-        DriverCompensationFailureCodes.validationCurrencyMismatch,
-      );
-      expect(repository.createCalls, 0);
-    });
+        expect(
+          result.failureOrNull?.code,
+          DriverCompensationFailureCodes.validationCurrencyMismatch,
+        );
+        expect(repository.createCalls, 0);
+      },
+    );
 
     test('rejects a revision that overlaps existing history', () async {
       final repository = _FakeDriverCompensationRepository(
@@ -111,46 +114,49 @@ void main() {
   });
 
   group('ResolveDriverCompensationForDateUseCase', () {
-    test('resolves historical and current revisions by business date', () async {
-      final januaryRevision = _revision(
-        id: 'jan-contract',
-        amountMinorUnits: 500000,
-        from: BusinessDate(year: 2026, month: 1, day: 1),
-        to: BusinessDate(year: 2026, month: 7, day: 31),
-      );
-      final augustRevision = _revision(
-        id: 'aug-contract',
-        amountMinorUnits: 550000,
-        from: BusinessDate(year: 2026, month: 8, day: 1),
-        to: null,
-      );
-      final repository = _FakeDriverCompensationRepository(
-        history: [augustRevision, januaryRevision],
-      );
-      final useCase = ResolveDriverCompensationForDateUseCase(repository);
-      final context = _context(CompanyRole.accountant);
+    test(
+      'resolves historical and current revisions by business date',
+      () async {
+        final januaryRevision = _revision(
+          id: 'jan-contract',
+          amountMinorUnits: 500000,
+          from: BusinessDate(year: 2026, month: 1, day: 1),
+          to: BusinessDate(year: 2026, month: 7, day: 31),
+        );
+        final augustRevision = _revision(
+          id: 'aug-contract',
+          amountMinorUnits: 550000,
+          from: BusinessDate(year: 2026, month: 8, day: 1),
+          to: null,
+        );
+        final repository = _FakeDriverCompensationRepository(
+          history: [augustRevision, januaryRevision],
+        );
+        final useCase = ResolveDriverCompensationForDateUseCase(repository);
+        final context = _context(CompanyRole.accountant);
 
-      final july = await useCase(
-        ResolveDriverCompensationForDateParams(
-          currentCompanyContext: context,
-          driverId: 'driver-1',
-          targetDate: BusinessDate(year: 2026, month: 7, day: 1),
-        ),
-      );
-      final september = await useCase(
-        ResolveDriverCompensationForDateParams(
-          currentCompanyContext: context,
-          driverId: 'driver-1',
-          targetDate: BusinessDate(year: 2026, month: 9, day: 1),
-        ),
-      );
+        final july = await useCase(
+          ResolveDriverCompensationForDateParams(
+            currentCompanyContext: context,
+            driverId: 'driver-1',
+            targetDate: BusinessDate(year: 2026, month: 7, day: 1),
+          ),
+        );
+        final september = await useCase(
+          ResolveDriverCompensationForDateParams(
+            currentCompanyContext: context,
+            driverId: 'driver-1',
+            targetDate: BusinessDate(year: 2026, month: 9, day: 1),
+          ),
+        );
 
-      expect(july.dataOrNull?.id, 'jan-contract');
-      expect(july.dataOrNull?.amount.minorUnits, 500000);
-      expect(september.dataOrNull?.id, 'aug-contract');
-      expect(september.dataOrNull?.amount.minorUnits, 550000);
-      expect(januaryRevision.amount.minorUnits, 500000);
-    });
+        expect(july.dataOrNull?.id, 'jan-contract');
+        expect(july.dataOrNull?.amount.minorUnits, 500000);
+        expect(september.dataOrNull?.id, 'aug-contract');
+        expect(september.dataOrNull?.amount.minorUnits, 550000);
+        expect(januaryRevision.amount.minorUnits, 500000);
+      },
+    );
 
     test('returns typed not-found failure for an intentional gap', () async {
       final repository = _FakeDriverCompensationRepository(
@@ -252,9 +258,8 @@ final class _FakeDriverCompensationRepository
   int endCalls = 0;
   DriverCompensationWriteData? lastWriteData;
 
-  _FakeDriverCompensationRepository({
-    List<DriverCompensationRevision>? history,
-  }) : history = history ?? <DriverCompensationRevision>[];
+  _FakeDriverCompensationRepository({List<DriverCompensationRevision>? history})
+    : history = history ?? <DriverCompensationRevision>[];
 
   @override
   Future<Result<List<DriverCompensationRevision>>> getHistory({

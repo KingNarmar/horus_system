@@ -26,95 +26,104 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverCompensationCubit', () {
-    test('loads history and resolves revision for company business date', () async {
-      final repository = _FakeRepository(
-        history: [
-          _revision(
-            id: 'old',
-            from: BusinessDate(year: 2026, month: 1, day: 1),
-            to: BusinessDate(year: 2026, month: 7, day: 31),
+    test(
+      'loads history and resolves revision for company business date',
+      () async {
+        final repository = _FakeRepository(
+          history: [
+            _revision(
+              id: 'old',
+              from: BusinessDate(year: 2026, month: 1, day: 1),
+              to: BusinessDate(year: 2026, month: 7, day: 31),
+            ),
+            _revision(
+              id: 'current',
+              from: BusinessDate(year: 2026, month: 8, day: 1),
+              to: null,
+            ),
+          ],
+        );
+        final cubit = _cubit(
+          repository,
+          businessDate: BusinessDate(year: 2026, month: 9, day: 16),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.loadForDriver(
+          currentCompanyContext: _ownerContext,
+          driverId: _driverId,
+        );
+
+        final state = cubit.state as DriverCompensationLoaded;
+        expect(state.history, hasLength(2));
+        expect(state.currentRevision?.id, 'current');
+        expect(state.currentResolutionFailure, isNull);
+        expect(state.businessDate, BusinessDate(year: 2026, month: 9, day: 16));
+      },
+    );
+
+    test(
+      'keeps loaded history and exposes typed gap resolution failure',
+      () async {
+        final repository = _FakeRepository(
+          history: [
+            _revision(
+              id: 'old',
+              from: BusinessDate(year: 2026, month: 1, day: 1),
+              to: BusinessDate(year: 2026, month: 7, day: 31),
+            ),
+          ],
+        );
+        final cubit = _cubit(
+          repository,
+          businessDate: BusinessDate(year: 2026, month: 9, day: 16),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.loadForDriver(
+          currentCompanyContext: _ownerContext,
+          driverId: _driverId,
+        );
+
+        final state = cubit.state as DriverCompensationLoaded;
+        expect(state.history.single.id, 'old');
+        expect(state.currentRevision, isNull);
+        expect(
+          state.currentResolutionFailure?.code,
+          DriverCompensationFailureCodes.notFoundForDate,
+        );
+      },
+    );
+
+    test(
+      'returns mutation failure and keeps loaded state on failed create',
+      () async {
+        final repository = _FakeRepository(
+          createFailure: const ConflictFailure(
+            code: DriverCompensationFailureCodes.conflictOverlap,
           ),
-          _revision(
-            id: 'current',
-            from: BusinessDate(year: 2026, month: 8, day: 1),
-            to: null,
-          ),
-        ],
-      );
-      final cubit = _cubit(
-        repository,
-        businessDate: BusinessDate(year: 2026, month: 9, day: 16),
-      );
-      addTearDown(cubit.close);
+        );
+        final cubit = _cubit(repository);
+        addTearDown(cubit.close);
+        await cubit.loadForDriver(
+          currentCompanyContext: _ownerContext,
+          driverId: _driverId,
+        );
 
-      await cubit.loadForDriver(
-        currentCompanyContext: _ownerContext,
-        driverId: _driverId,
-      );
+        final failure = await cubit.createRevision(
+          amount: _money(550000),
+          effectiveFrom: BusinessDate(year: 2026, month: 8, day: 1),
+        );
 
-      final state = cubit.state as DriverCompensationLoaded;
-      expect(state.history, hasLength(2));
-      expect(state.currentRevision?.id, 'current');
-      expect(state.currentResolutionFailure, isNull);
-      expect(state.businessDate, BusinessDate(year: 2026, month: 9, day: 16));
-    });
-
-    test('keeps loaded history and exposes typed gap resolution failure', () async {
-      final repository = _FakeRepository(
-        history: [
-          _revision(
-            id: 'old',
-            from: BusinessDate(year: 2026, month: 1, day: 1),
-            to: BusinessDate(year: 2026, month: 7, day: 31),
-          ),
-        ],
-      );
-      final cubit = _cubit(
-        repository,
-        businessDate: BusinessDate(year: 2026, month: 9, day: 16),
-      );
-      addTearDown(cubit.close);
-
-      await cubit.loadForDriver(
-        currentCompanyContext: _ownerContext,
-        driverId: _driverId,
-      );
-
-      final state = cubit.state as DriverCompensationLoaded;
-      expect(state.history.single.id, 'old');
-      expect(state.currentRevision, isNull);
-      expect(
-        state.currentResolutionFailure?.code,
-        DriverCompensationFailureCodes.notFoundForDate,
-      );
-    });
-
-    test('returns mutation failure and keeps loaded state on failed create', () async {
-      final repository = _FakeRepository(
-        createFailure: const ConflictFailure(
-          code: DriverCompensationFailureCodes.conflictOverlap,
-        ),
-      );
-      final cubit = _cubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadForDriver(
-        currentCompanyContext: _ownerContext,
-        driverId: _driverId,
-      );
-
-      final failure = await cubit.createRevision(
-        amount: _money(550000),
-        effectiveFrom: BusinessDate(year: 2026, month: 8, day: 1),
-      );
-
-      expect(failure?.code, DriverCompensationFailureCodes.conflictOverlap);
-      final state = cubit.state as DriverCompensationLoaded;
-      expect(state.isSaving, isFalse);
-      expect(
-        state.mutationFailure?.code,
-        DriverCompensationFailureCodes.conflictOverlap,
-      );
-    });
+        expect(failure?.code, DriverCompensationFailureCodes.conflictOverlap);
+        final state = cubit.state as DriverCompensationLoaded;
+        expect(state.isSaving, isFalse);
+        expect(
+          state.mutationFailure?.code,
+          DriverCompensationFailureCodes.conflictOverlap,
+        );
+      },
+    );
 
     test('reloads history after successful create', () async {
       final repository = _FakeRepository();
@@ -168,15 +177,14 @@ DriverCompensationCubit _cubit(
     createRevisionUseCase: CreateDriverCompensationRevisionUseCase(repository),
     endRevisionUseCase: EndDriverCompensationRevisionUseCase(repository),
     attachContractUseCase: AttachDriverCompensationContractUseCase(repository),
-    contractAccessUseCase: GetDriverCompensationContractAccessUseCase(repository),
+    contractAccessUseCase: GetDriverCompensationContractAccessUseCase(
+      repository,
+    ),
   );
 }
 
 Money _money(int minorUnits) {
-  return Money(
-    minorUnits: minorUnits,
-    currency: CurrencyCode.tryParse('AED')!,
-  );
+  return Money(minorUnits: minorUnits, currency: CurrencyCode.tryParse('AED')!);
 }
 
 DriverCompensationRevision _revision({
@@ -202,7 +210,9 @@ final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
   _FakeBusinessDateProvider(this.date);
 
   @override
-  Future<Result<BusinessDate>> getBusinessDate({required String companyId}) async {
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
     return Success(date);
   }
 }

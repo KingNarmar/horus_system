@@ -63,9 +63,8 @@ final class SupabaseDriverCompensationRemoteDataSource
 
     return response
         .map(
-          (item) => DriverCompensationModel.fromMap(
-            Map<String, dynamic>.from(item),
-          ),
+          (item) =>
+              DriverCompensationModel.fromMap(Map<String, dynamic>.from(item)),
         )
         .toList();
   }
@@ -84,9 +83,7 @@ final class SupabaseDriverCompensationRemoteDataSource
         .eq(DriverCompensationDbFields.driverId, driverId)
         .single();
 
-    return DriverCompensationModel.fromMap(
-      Map<String, dynamic>.from(response),
-    );
+    return DriverCompensationModel.fromMap(Map<String, dynamic>.from(response));
   }
 
   @override
@@ -106,9 +103,7 @@ final class SupabaseDriverCompensationRemoteDataSource
         .select(_columns)
         .single();
 
-    return DriverCompensationModel.fromMap(
-      Map<String, dynamic>.from(response),
-    );
+    return DriverCompensationModel.fromMap(Map<String, dynamic>.from(response));
   }
 
   @override
@@ -129,9 +124,7 @@ final class SupabaseDriverCompensationRemoteDataSource
         .select(_columns)
         .single();
 
-    return DriverCompensationModel.fromMap(
-      Map<String, dynamic>.from(response),
-    );
+    return DriverCompensationModel.fromMap(Map<String, dynamic>.from(response));
   }
 
   @override
@@ -144,8 +137,7 @@ final class SupabaseDriverCompensationRemoteDataSource
     final response = await client
         .from(DriverCompensationDbFields.tableName)
         .update({
-          DriverCompensationDbFields.contractDocumentReference:
-              reference.value,
+          DriverCompensationDbFields.contractDocumentReference: reference.value,
         })
         .eq(DriverCompensationDbFields.id, revisionId)
         .eq(DriverCompensationDbFields.companyId, companyId)
@@ -153,8 +145,6 @@ final class SupabaseDriverCompensationRemoteDataSource
         .select(_columns)
         .single();
 
-    return DriverCompensationModel.fromMap(
-      Map<String, dynamic>.from(response),
-    );
+    return DriverCompensationModel.fromMap(Map<String, dynamic>.from(response));
   }
 }

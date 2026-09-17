@@ -47,15 +47,14 @@ final class DriverCompensationPeriodPolicy {
     final matches = revisions.where((revision) {
       final startsOnOrBefore = !revision.effectiveFrom.isAfter(targetDate);
       final endsOnOrAfter =
-          revision.effectiveTo == null || !revision.effectiveTo!.isBefore(targetDate);
+          revision.effectiveTo == null ||
+          !revision.effectiveTo!.isBefore(targetDate);
       return startsOnOrBefore && endsOnOrAfter;
     }).toList();
 
     if (matches.isEmpty) {
       return const FailureResult<DriverCompensationRevision>(
-        NotFoundFailure(
-          code: DriverCompensationFailureCodes.notFoundForDate,
-        ),
+        NotFoundFailure(code: DriverCompensationFailureCodes.notFoundForDate),
       );
     }
 

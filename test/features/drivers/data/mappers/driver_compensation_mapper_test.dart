@@ -28,14 +28,8 @@ void main() {
       expect(entity.amount.minorUnits, 550000);
       expect(entity.amount.currency.value, 'AED');
       expect(entity.currencyFractionDigits, 2);
-      expect(
-        entity.effectiveFrom,
-        BusinessDate(year: 2026, month: 8, day: 1),
-      );
-      expect(
-        entity.effectiveTo,
-        BusinessDate(year: 2026, month: 12, day: 31),
-      );
+      expect(entity.effectiveFrom, BusinessDate(year: 2026, month: 8, day: 1));
+      expect(entity.effectiveTo, BusinessDate(year: 2026, month: 12, day: 31));
       expect(entity.contractReference, 'EMP-002');
       expect(entity.contractDocumentReference, isNotNull);
     });

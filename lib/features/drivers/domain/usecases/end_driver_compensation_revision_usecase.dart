@@ -62,8 +62,7 @@ final class EndDriverCompensationRevisionUseCase
       return Future.value(
         const FailureResult(
           ConflictFailure(
-            code:
-                DriverCompensationFailureCodes.conflictRevisionAlreadyEnded,
+            code: DriverCompensationFailureCodes.conflictRevisionAlreadyEnded,
           ),
         ),
       );

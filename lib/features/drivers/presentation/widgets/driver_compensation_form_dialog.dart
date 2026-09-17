@@ -73,7 +73,9 @@ final class _DriverCompensationFormDialogState
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSizes.formDialogMaxWidth),
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.formDialogMaxWidth,
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -212,7 +214,11 @@ final class _DriverCompensationFormDialogState
       lastDate: DateTime(9999, 12, 31),
     );
     if (picked == null) return null;
-    return BusinessDate(year: picked.year, month: picked.month, day: picked.day);
+    return BusinessDate(
+      year: picked.year,
+      month: picked.month,
+      day: picked.day,
+    );
   }
 
   Future<void> _pickContractDocument() async {
@@ -224,9 +230,9 @@ final class _DriverCompensationFormDialogState
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.filePickerFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.filePickerFailed)));
     }
   }
 
@@ -237,9 +243,9 @@ final class _DriverCompensationFormDialogState
       fractionDigits: widget.financialConfiguration.fractionDigits,
     );
     if (minorUnits == null || minorUnits <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.amountPositive)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.amountPositive)));
       return;
     }
 
@@ -259,7 +265,9 @@ final class _DriverCompensationFormDialogState
     if (failure != null) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(driverCompensationFailureMessage(context, failure))),
+        SnackBar(
+          content: Text(driverCompensationFailureMessage(context, failure)),
+        ),
       );
       return;
     }

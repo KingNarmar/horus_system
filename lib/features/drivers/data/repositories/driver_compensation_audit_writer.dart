@@ -10,8 +10,7 @@ import '../models/driver_compensation_model.dart';
 final class DriverCompensationAuditWriter {
   static const String revisionCreatedEvent =
       'driver_compensation_revision_created';
-  static const String revisionEndedEvent =
-      'driver_compensation_revision_ended';
+  static const String revisionEndedEvent = 'driver_compensation_revision_ended';
   static const String contractAttachedEvent =
       'driver_compensation_contract_attached';
 

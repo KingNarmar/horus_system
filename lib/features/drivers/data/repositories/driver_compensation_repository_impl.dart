@@ -175,9 +175,7 @@ final class DriverCompensationRepositoryImpl
     final oldModel = oldModelResult.dataOrNull;
     if (oldModel == null) {
       return const FailureResult(
-        UnexpectedFailure(
-          code: DriverCompensationFailureCodes.unexpectedError,
-        ),
+        UnexpectedFailure(code: DriverCompensationFailureCodes.unexpectedError),
       );
     }
 
@@ -195,9 +193,7 @@ final class DriverCompensationRepositoryImpl
     final uploadedReference = uploadResult.dataOrNull;
     if (uploadedReference == null) {
       return const FailureResult(
-        UnexpectedFailure(
-          code: DriverCompensationFailureCodes.unexpectedError,
-        ),
+        UnexpectedFailure(code: DriverCompensationFailureCodes.unexpectedError),
       );
     }
 
@@ -243,9 +239,7 @@ final class DriverCompensationRepositoryImpl
     final reference = revision.contractDocumentReference;
     if (reference == null) {
       return const FailureResult(
-        NotFoundFailure(
-          code: DriverCompensationFailureCodes.notFoundDocument,
-        ),
+        NotFoundFailure(code: DriverCompensationFailureCodes.notFoundDocument),
       );
     }
     return businessDocumentRepository.createTemporaryAccess(

@@ -4,7 +4,9 @@ abstract final class DriverCompensationPermissionPolicy {
   static bool canView(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations || CompanyRole.viewer || CompanyRole.driver => false,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
     };
   }
 
