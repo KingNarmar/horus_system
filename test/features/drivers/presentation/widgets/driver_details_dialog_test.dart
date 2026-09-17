@@ -210,6 +210,7 @@ Future<void> _pumpDialog(
         body: DriverDetailsDialog(
           driver: _driver,
           state: state ?? _state,
+          showCompensation: false,
           onAddAdvance: () {},
           onAddDriverCharge: () {},
           onAddCashReturn: () {},
