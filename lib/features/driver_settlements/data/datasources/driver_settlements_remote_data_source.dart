@@ -11,6 +11,7 @@ import '../mappers/driver_settlement_mapper.dart';
 import '../models/driver_settlement_driver_option_model.dart';
 import '../models/driver_settlement_item_model.dart';
 import '../models/driver_settlement_model.dart';
+import 'driver_settlement_money_remote_data_source.dart';
 import 'driver_settlement_source_snapshot_loader.dart';
 
 const _driverSettlementColumns = '''
@@ -109,19 +110,8 @@ abstract class DriverSettlementsRemoteDataSource {
     required DriverSettlementPeriod period,
   });
 
-  Future<DriverSettlementMoneySourceSnapshot> getSettlementMoneySourceSnapshot({
-    required String companyId,
-    required String driverId,
-    required DriverSettlementPeriod period,
-    required CurrencyConfiguration currencyConfiguration,
-  });
-
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
-  });
-
-  Future<DriverSettlementModel> createMoneyDraft({
-    required DriverSettlementMoneyDraftWriteData data,
   });
 
   Future<DriverSettlementModel> finalizeSettlement({
@@ -134,7 +124,9 @@ abstract class DriverSettlementsRemoteDataSource {
 }
 
 class SupabaseDriverSettlementsRemoteDataSource
-    implements DriverSettlementsRemoteDataSource {
+    implements
+        DriverSettlementsRemoteDataSource,
+        DriverSettlementMoneyRemoteDataSource {
   final SupabaseClient client;
   final DriverSettlementSourceSnapshotLoader sourceSnapshotLoader;
 
