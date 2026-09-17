@@ -10,7 +10,7 @@ import '../../domain/entities/driver_financial_movement_type.dart';
 
 typedef DriverFinancialMovementSubmit =
     Future<void> Function({
-      required double amount,
+      required String amount,
       required BusinessDate movementDate,
       String? tripId,
       String? notes,
@@ -219,13 +219,11 @@ class _DriverFinancialMovementFormDialogState
   }
 
   Future<void> _submit() async {
-    final l10n = context.l10n;
-    final amount = double.tryParse(_amountController.text.trim());
-
-    if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.invalidDriverMovementAmount)));
+    final amount = _amountController.text.trim();
+    if (amount.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.invalidDriverMovementAmount)),
+      );
       return;
     }
 

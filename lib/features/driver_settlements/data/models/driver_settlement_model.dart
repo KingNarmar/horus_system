@@ -11,17 +11,31 @@ class DriverSettlementModel {
   final String driverId;
   final BusinessDate periodStart;
   final BusinessDate periodEnd;
+  final String? compensationRevisionId;
+  final String? currencyCode;
+  final int? currencyFractionDigits;
   final double openingDriverBalance;
+  final int? openingDriverBalanceMinorUnits;
   final double advancesTotal;
+  final int? advancesTotalMinorUnits;
   final double driverPaidTripExpensesTotal;
+  final int? driverPaidTripExpensesTotalMinorUnits;
   final double returnedCashTotal;
+  final int? returnedCashTotalMinorUnits;
   final double deductionsTotal;
+  final int? deductionsTotalMinorUnits;
   final double settlementDeductionsTotal;
+  final int? settlementDeductionsTotalMinorUnits;
   final double grossSalary;
+  final int? grossSalaryMinorUnits;
   final double salaryDeductionsTotal;
+  final int? salaryDeductionsTotalMinorUnits;
   final double balanceDeductionApplied;
+  final int? balanceDeductionAppliedMinorUnits;
   final double netSalaryPayable;
+  final int? netSalaryPayableMinorUnits;
   final double closingDriverBalance;
+  final int? closingDriverBalanceMinorUnits;
   final DriverSettlementStatus status;
   final String? notes;
   final DateTime? finalizedAt;
@@ -53,6 +67,20 @@ class DriverSettlementModel {
     required this.netSalaryPayable,
     required this.closingDriverBalance,
     required this.status,
+    this.compensationRevisionId,
+    this.currencyCode,
+    this.currencyFractionDigits,
+    this.openingDriverBalanceMinorUnits,
+    this.advancesTotalMinorUnits,
+    this.driverPaidTripExpensesTotalMinorUnits,
+    this.returnedCashTotalMinorUnits,
+    this.deductionsTotalMinorUnits,
+    this.settlementDeductionsTotalMinorUnits,
+    this.grossSalaryMinorUnits,
+    this.salaryDeductionsTotalMinorUnits,
+    this.balanceDeductionAppliedMinorUnits,
+    this.netSalaryPayableMinorUnits,
+    this.closingDriverBalanceMinorUnits,
     this.notes,
     this.finalizedAt,
     this.finalizedBy,
@@ -82,34 +110,73 @@ class DriverSettlementModel {
         map[DriverSettlementsDbFields.periodEnd],
         field: DriverSettlementsDbFields.periodEnd,
       ),
+      compensationRevisionId:
+          map[DriverSettlementsDbFields.compensationRevisionId] as String?,
+      currencyCode: map[DriverSettlementsDbFields.currencyCode] as String?,
+      currencyFractionDigits: _intFromNullable(
+        map[DriverSettlementsDbFields.currencyFractionDigits],
+      ),
       openingDriverBalance: _amountFrom(
         map[DriverSettlementsDbFields.openingDriverBalance],
       ),
+      openingDriverBalanceMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.openingDriverBalanceMinorUnits],
+      ),
       advancesTotal: _amountFrom(map[DriverSettlementsDbFields.advancesTotal]),
+      advancesTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.advancesTotalMinorUnits],
+      ),
       driverPaidTripExpensesTotal: _amountFrom(
         map[DriverSettlementsDbFields.driverPaidTripExpensesTotal],
+      ),
+      driverPaidTripExpensesTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.driverPaidTripExpensesTotalMinorUnits],
       ),
       returnedCashTotal: _amountFrom(
         map[DriverSettlementsDbFields.returnedCashTotal],
       ),
+      returnedCashTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.returnedCashTotalMinorUnits],
+      ),
       deductionsTotal: _amountFrom(
         map[DriverSettlementsDbFields.deductionsTotal],
+      ),
+      deductionsTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.deductionsTotalMinorUnits],
       ),
       settlementDeductionsTotal: _amountFrom(
         map[DriverSettlementsDbFields.settlementDeductionsTotal],
       ),
+      settlementDeductionsTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.settlementDeductionsTotalMinorUnits],
+      ),
       grossSalary: _amountFrom(map[DriverSettlementsDbFields.grossSalary]),
+      grossSalaryMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.grossSalaryMinorUnits],
+      ),
       salaryDeductionsTotal: _amountFrom(
         map[DriverSettlementsDbFields.salaryDeductionsTotal],
+      ),
+      salaryDeductionsTotalMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.salaryDeductionsTotalMinorUnits],
       ),
       balanceDeductionApplied: _amountFrom(
         map[DriverSettlementsDbFields.balanceDeductionApplied],
       ),
+      balanceDeductionAppliedMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.balanceDeductionAppliedMinorUnits],
+      ),
       netSalaryPayable: _amountFrom(
         map[DriverSettlementsDbFields.netSalaryPayable],
       ),
+      netSalaryPayableMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.netSalaryPayableMinorUnits],
+      ),
       closingDriverBalance: _amountFrom(
         map[DriverSettlementsDbFields.closingDriverBalance],
+      ),
+      closingDriverBalanceMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.closingDriverBalanceMinorUnits],
       ),
       status: DriverSettlementStatus.fromValue(
         map[DriverSettlementsDbFields.status].toString(),
@@ -144,4 +211,11 @@ class DriverSettlementModel {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int? _intFromNullable(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }

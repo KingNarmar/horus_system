@@ -1,4 +1,5 @@
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -10,11 +11,13 @@ import 'package:horus_system/features/audit/domain/usecases/create_audit_log_use
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
+import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlement_money_remote_data_source.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_driver_option_model.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_money_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
@@ -31,11 +34,14 @@ BusinessDate testBusinessDate(int year, int month, int day) {
 
 DriverSettlementsRepositoryImpl createDriverSettlementsRepository(
   FakeDriverSettlementsRemoteDataSource remoteDataSource, {
+  FakeDriverSettlementMoneyRemoteDataSource? moneyRemoteDataSource,
   FakeDriverBalanceRepository? balanceRepository,
   FakeDriverSettlementAuditLogRepository? auditRepository,
 }) {
   return DriverSettlementsRepositoryImpl(
     remoteDataSource: remoteDataSource,
+    moneyRemoteDataSource:
+        moneyRemoteDataSource ?? FakeDriverSettlementMoneyRemoteDataSource(),
     driverBalanceRepository: balanceRepository ?? FakeDriverBalanceRepository(),
     createAuditLogUseCase: CreateAuditLogUseCase(
       auditRepository ?? FakeDriverSettlementAuditLogRepository(),
@@ -296,6 +302,26 @@ class FakeDriverSettlementsRemoteDataSource
     operations?.add('void_settlement');
     if (voidError != null) throw voidError!;
     return settlementModel(status: DriverSettlementStatus.voided);
+  }
+}
+
+class FakeDriverSettlementMoneyRemoteDataSource
+    implements DriverSettlementMoneyRemoteDataSource {
+  @override
+  Future<DriverSettlementMoneySourceSnapshot> getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) {
+    throw UnsupportedError('Exact settlement source path is not used here.');
+  }
+
+  @override
+  Future<DriverSettlementModel> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+  }) {
+    throw UnsupportedError('Exact settlement draft path is not used here.');
   }
 }
 

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 
 /// Feature-local immutable localization catalog for Driver Settlements.
 ///
@@ -100,11 +100,17 @@ class DriverSettlementsLocalizations {
       _value('settlementIdRequiredFailure');
   String get periodInvalidFailure => _value('periodInvalidFailure');
   String get amountNegativeFailure => _value('amountNegativeFailure');
+  String get amountInvalidFailure => _value('amountInvalidFailure');
   String get netSalaryNegativeFailure => _value('netSalaryNegativeFailure');
   String get balanceRecoveryExceedsDebtFailure =>
       _value('balanceRecoveryExceedsDebtFailure');
   String get driverNotFoundFailure => _value('driverNotFoundFailure');
   String get driverInactiveFailure => _value('driverInactiveFailure');
+  String get compensationPeriodRequiredFailure =>
+      _value('compensationPeriodRequiredFailure');
+  String get compensationOverlapFailure => _value('compensationOverlapFailure');
+  String get compensationCurrencyMismatchFailure =>
+      _value('compensationCurrencyMismatchFailure');
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
@@ -214,6 +220,8 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'Driver settlement is required.',
     'periodInvalidFailure': 'The settlement period is invalid.',
     'amountNegativeFailure': 'Settlement amounts cannot be negative.',
+    'amountInvalidFailure':
+        'Enter a valid settlement amount using the company currency precision.',
     'netSalaryNegativeFailure': 'Net salary payable cannot be negative.',
     'balanceRecoveryExceedsDebtFailure':
         'Salary recovery cannot exceed the driver\'s outstanding debt.',
@@ -221,6 +229,12 @@ class DriverSettlementsLocalizations {
         'The selected driver was not found in this company.',
     'driverInactiveFailure':
         'Inactive drivers cannot be used for new settlements.',
+    'compensationPeriodRequiredFailure':
+        'One compensation revision must cover the full settlement period. Split the settlement at the compensation revision boundary when needed.',
+    'compensationOverlapFailure':
+        'Overlapping compensation revisions must be corrected before creating this settlement.',
+    'compensationCurrencyMismatchFailure':
+        'The driver compensation currency does not match the company financial currency.',
     'voidReasonRequiredFailure': 'A void reason is required.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
@@ -318,11 +332,18 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'تسوية السائق مطلوبة.',
     'periodInvalidFailure': 'فترة التسوية غير صحيحة.',
     'amountNegativeFailure': 'مبالغ التسوية لا يمكن أن تكون سالبة.',
+    'amountInvalidFailure': 'أدخل مبلغ تسوية صحيحًا وفق دقة عملة الشركة.',
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
     'balanceRecoveryExceedsDebtFailure':
         'لا يمكن أن يتجاوز الاسترداد من الراتب قيمة دين السائق القائم.',
     'driverNotFoundFailure': 'تعذر العثور على السائق المحدد داخل هذه الشركة.',
     'driverInactiveFailure': 'لا يمكن إنشاء تسوية جديدة لسائق غير نشط.',
+    'compensationPeriodRequiredFailure':
+        'يجب أن يغطي سجل تعويض واحد فترة التسوية بالكامل. قسّم التسوية عند حد تغيير التعويض عند الحاجة.',
+    'compensationOverlapFailure':
+        'يجب تصحيح تداخل سجلات تعويض السائق قبل إنشاء هذه التسوية.',
+    'compensationCurrencyMismatchFailure':
+        'عملة تعويض السائق لا تطابق العملة المالية للشركة.',
     'voidReasonRequiredFailure': 'سبب الإبطال مطلوب.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',

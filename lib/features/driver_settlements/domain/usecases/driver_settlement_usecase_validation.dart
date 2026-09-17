@@ -1,12 +1,14 @@
 import '../../../../core/domain/services/driver_balance_calculator.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/utils/result.dart';
-import '../entities/driver_settlement_calculation_input.dart';
 import '../entities/driver_settlement_driver_option.dart';
+import '../entities/driver_settlement_money_calculation_input.dart';
+import '../entities/driver_settlement_money_source_snapshot.dart';
 import '../entities/driver_settlement_period.dart';
-import '../entities/driver_settlement_source_snapshot.dart';
+import '../entities/driver_settlement_resolved_money_inputs.dart';
 import '../policies/driver_settlements_permission_policy.dart';
 import '../repositories/driver_settlements_repository.dart';
 import 'driver_settlement_params.dart';
@@ -56,30 +58,6 @@ abstract final class DriverSettlementUseCaseValidation {
       );
     }
 
-    final amounts = <double>[
-      params.grossSalary,
-      params.salaryDeductionsTotal,
-      params.balanceDeductionApplied,
-      params.settlementDeductionsTotal,
-    ];
-
-    if (amounts.any((amount) => amount < 0)) {
-      return const ValidationFailure(
-        code: FailureCodes.validationDriverSettlementAmountNegative,
-        message: 'Driver settlement amounts cannot be negative.',
-      );
-    }
-
-    if (params.grossSalary -
-            params.salaryDeductionsTotal -
-            params.balanceDeductionApplied <
-        0) {
-      return const ValidationFailure(
-        code: FailureCodes.validationDriverSettlementNetSalaryNegative,
-        message: 'Driver settlement net salary cannot be negative.',
-      );
-    }
-
     return null;
   }
 
@@ -115,26 +93,30 @@ abstract final class DriverSettlementUseCaseValidation {
     return null;
   }
 
-  static Failure? validateBalanceRecovery({
-    required DriverSettlementCalculationParams params,
-    required DriverSettlementSourceSnapshot snapshot,
+  static Failure? validateBalanceRecoveryMoney({
+    required DriverSettlementResolvedMoneyInputs resolvedInputs,
+    required DriverSettlementMoneySourceSnapshot snapshot,
   }) {
-    final balanceBeforeRecovery = _balanceCalculator.calculate(
+    final zero = Money(
+      minorUnits: 0,
+      currency: resolvedInputs.currencyConfiguration.currency,
+    );
+    final balanceBeforeRecovery = _balanceCalculator.calculateMoney(
       openingBalance: snapshot.openingDriverBalance,
       advancesReceived: snapshot.advancesTotal,
-      driverCharges:
-          snapshot.deductionsTotal + params.settlementDeductionsTotal,
+      driverCharges: snapshot.deductionsTotal.add(
+        resolvedInputs.settlementDeductionsTotal,
+      ),
       creditedTripExpenses: snapshot.driverPaidTripExpensesTotal,
       cashReturned: snapshot.returnedCashTotal,
+      salaryRecovery: zero,
     );
-    final outstandingDebt = balanceBeforeRecovery < 0
-        ? _balanceCalculator.roundMoney(-balanceBeforeRecovery)
-        : 0.0;
-    final requestedRecovery = _balanceCalculator.roundMoney(
-      params.balanceDeductionApplied,
-    );
+    final outstandingDebtMinorUnits = balanceBeforeRecovery.isNegative
+        ? -balanceBeforeRecovery.minorUnits
+        : 0;
 
-    if (requestedRecovery > outstandingDebt) {
+    if (resolvedInputs.balanceDeductionApplied.minorUnits >
+        outstandingDebtMinorUnits) {
       return const ValidationFailure(
         code: FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt,
         message: 'Driver balance recovery cannot exceed outstanding debt.',
@@ -144,20 +126,20 @@ abstract final class DriverSettlementUseCaseValidation {
     return null;
   }
 
-  static DriverSettlementCalculationInput calculationInput({
-    required DriverSettlementCalculationParams params,
-    required DriverSettlementSourceSnapshot snapshot,
+  static DriverSettlementMoneyCalculationInput calculationMoneyInput({
+    required DriverSettlementResolvedMoneyInputs resolvedInputs,
+    required DriverSettlementMoneySourceSnapshot snapshot,
   }) {
-    return DriverSettlementCalculationInput(
+    return DriverSettlementMoneyCalculationInput(
       openingDriverBalance: snapshot.openingDriverBalance,
       advancesTotal: snapshot.advancesTotal,
       driverPaidTripExpensesTotal: snapshot.driverPaidTripExpensesTotal,
       returnedCashTotal: snapshot.returnedCashTotal,
       deductionsTotal: snapshot.deductionsTotal,
-      settlementDeductionsTotal: params.settlementDeductionsTotal,
-      grossSalary: params.grossSalary,
-      salaryDeductionsTotal: params.salaryDeductionsTotal,
-      balanceDeductionApplied: params.balanceDeductionApplied,
+      settlementDeductionsTotal: resolvedInputs.settlementDeductionsTotal,
+      grossSalary: resolvedInputs.grossSalary,
+      salaryDeductionsTotal: resolvedInputs.salaryDeductionsTotal,
+      balanceDeductionApplied: resolvedInputs.balanceDeductionApplied,
     );
   }
 

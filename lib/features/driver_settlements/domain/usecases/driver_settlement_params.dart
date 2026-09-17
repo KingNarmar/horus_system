@@ -36,10 +36,9 @@ class DriverSettlementCalculationParams {
   final String driverId;
   final BusinessDate periodStart;
   final BusinessDate periodEnd;
-  final double grossSalary;
-  final double salaryDeductionsTotal;
-  final double balanceDeductionApplied;
-  final double settlementDeductionsTotal;
+  final String salaryDeductionsTotal;
+  final String balanceDeductionApplied;
+  final String settlementDeductionsTotal;
   final String? notes;
 
   const DriverSettlementCalculationParams({
@@ -47,10 +46,9 @@ class DriverSettlementCalculationParams {
     required this.driverId,
     required this.periodStart,
     required this.periodEnd,
-    this.grossSalary = 0,
-    this.salaryDeductionsTotal = 0,
-    this.balanceDeductionApplied = 0,
-    this.settlementDeductionsTotal = 0,
+    this.salaryDeductionsTotal = '',
+    this.balanceDeductionApplied = '',
+    this.settlementDeductionsTotal = '',
     this.notes,
   });
 }
@@ -62,7 +60,6 @@ class CreateDriverSettlementDraftParams
     required super.driverId,
     required super.periodStart,
     required super.periodEnd,
-    super.grossSalary,
     super.salaryDeductionsTotal,
     super.balanceDeductionApplied,
     super.settlementDeductionsTotal,

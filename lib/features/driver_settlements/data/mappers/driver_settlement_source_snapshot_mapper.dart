@@ -5,18 +5,8 @@ import '../../domain/entities/driver_settlement_item.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
 import '../../domain/entities/driver_settlement_item_source_type.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
+import '../constants/driver_settlement_source_values.dart';
 import '../constants/driver_settlements_db_fields.dart';
-
-const _movementTypeAdvance = 'advance';
-const _movementTypeDriverCharge = 'driver_charge';
-const _movementTypeCashReturn = 'cash_return';
-const _fundingSourceDriverAdvance = 'driver_advance';
-const _fundingSourceDriverCash = 'driver_cash';
-const _legacyTripExpenseOrigin = 'legacy_trip_expense';
-const _labelAdvance = 'driver_settlement_item_advance';
-const _labelDriverCharge = 'driver_settlement_item_driver_charge';
-const _labelCashReturn = 'driver_settlement_item_cash_return';
-const _labelTripExpense = 'driver_settlement_item_trip_expense';
 
 class DriverSettlementSourceSnapshotMapper {
   final DriverBalanceCalculator balanceCalculator;
@@ -66,31 +56,34 @@ class DriverSettlementSourceSnapshotMapper {
       );
 
       final semantics = switch (type) {
-        _movementTypeAdvance => const _MovementSemantics(
-          labelKey: _labelAdvance,
-          direction: DriverSettlementItemDirection.driverToCompany,
-        ),
-        _movementTypeDriverCharge => const _MovementSemantics(
-          labelKey: _labelDriverCharge,
-          direction: DriverSettlementItemDirection.driverToCompany,
-        ),
-        _movementTypeCashReturn => const _MovementSemantics(
-          labelKey: _labelCashReturn,
-          direction: DriverSettlementItemDirection.companyToDriver,
-        ),
+        DriverSettlementSourceValues.movementAdvance =>
+          const _MovementSemantics(
+            labelKey: DriverSettlementSourceValues.labelAdvance,
+            direction: DriverSettlementItemDirection.driverToCompany,
+          ),
+        DriverSettlementSourceValues.movementDriverCharge =>
+          const _MovementSemantics(
+            labelKey: DriverSettlementSourceValues.labelDriverCharge,
+            direction: DriverSettlementItemDirection.driverToCompany,
+          ),
+        DriverSettlementSourceValues.movementCashReturn =>
+          const _MovementSemantics(
+            labelKey: DriverSettlementSourceValues.labelCashReturn,
+            direction: DriverSettlementItemDirection.companyToDriver,
+          ),
         _ => throw FormatException(
           'Unsupported driver financial movement type: $type',
         ),
       };
 
       switch (type) {
-        case _movementTypeAdvance:
+        case DriverSettlementSourceValues.movementAdvance:
           advancesTotal += amount;
           break;
-        case _movementTypeDriverCharge:
+        case DriverSettlementSourceValues.movementDriverCharge:
           driverChargesTotal += amount;
           break;
-        case _movementTypeCashReturn:
+        case DriverSettlementSourceValues.movementCashReturn:
           returnedCashTotal += amount;
           break;
       }
@@ -135,8 +128,10 @@ class DriverSettlementSourceSnapshotMapper {
     for (final row in rows) {
       final fundingSource = row[DriverSettlementsDbFields.fundingSource]
           ?.toString();
-      if (fundingSource != _fundingSourceDriverAdvance &&
-          fundingSource != _fundingSourceDriverCash) {
+      if (fundingSource !=
+              DriverSettlementSourceValues.fundingSourceDriverAdvance &&
+          fundingSource !=
+              DriverSettlementSourceValues.fundingSourceDriverCash) {
         throw FormatException(
           'Unsupported driver-paid trip expense source: $fundingSource',
         );
@@ -159,7 +154,7 @@ class DriverSettlementSourceSnapshotMapper {
           ),
           direction: DriverSettlementItemDirection.companyToDriver,
           amount: amount,
-          labelKey: _labelTripExpense,
+          labelKey: DriverSettlementSourceValues.labelTripExpense,
           descriptionKey: row[DriverSettlementsDbFields.description] as String?,
           metadata: {
             DriverSettlementsDbFields.paidBy: fundingSource,
@@ -179,7 +174,8 @@ class DriverSettlementSourceSnapshotMapper {
   String? _expenseSourceId(Map<String, dynamic> row) {
     final originKind = row[DriverSettlementsDbFields.originKind]?.toString();
     final originId = row[DriverSettlementsDbFields.originId] as String?;
-    if (originKind == _legacyTripExpenseOrigin && originId != null) {
+    if (originKind == DriverSettlementSourceValues.legacyTripExpenseOrigin &&
+        originId != null) {
       return originId;
     }
     return row[DbCommonFields.id] as String?;

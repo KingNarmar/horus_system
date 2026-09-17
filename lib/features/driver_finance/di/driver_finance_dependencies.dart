@@ -8,7 +8,9 @@ import '../data/repositories/driver_balance_repository_impl.dart';
 import '../data/repositories/driver_finance_repository_impl.dart';
 import '../domain/repositories/driver_balance_repository.dart';
 import '../domain/repositories/driver_finance_repository.dart';
+import '../domain/repositories/driver_money_balance_repository.dart';
 import '../domain/usecases/get_canonical_driver_balance_usecase.dart';
+import '../domain/usecases/get_canonical_driver_money_balance_usecase.dart';
 
 abstract final class DriverFinanceDependencies {
   static DriverFinanceRepository createRepository() {
@@ -21,7 +23,7 @@ abstract final class DriverFinanceDependencies {
     );
   }
 
-  static DriverBalanceRepository createBalanceRepository() {
+  static DriverBalanceRepositoryImpl _createBalanceRepositoryImpl() {
     return DriverBalanceRepositoryImpl(
       remoteDataSource: SupabaseCanonicalDriverBalanceRemoteDataSource(
         SupabaseClientProvider.client,
@@ -29,9 +31,24 @@ abstract final class DriverFinanceDependencies {
     );
   }
 
+  static DriverBalanceRepository createBalanceRepository() {
+    return _createBalanceRepositoryImpl();
+  }
+
+  static DriverMoneyBalanceRepository createMoneyBalanceRepository() {
+    return _createBalanceRepositoryImpl();
+  }
+
   static GetCanonicalDriverBalanceUseCase
   createGetCanonicalDriverBalanceUseCase() {
     return GetCanonicalDriverBalanceUseCase(createBalanceRepository());
+  }
+
+  static GetCanonicalDriverMoneyBalanceUseCase
+  createGetCanonicalDriverMoneyBalanceUseCase() {
+    return GetCanonicalDriverMoneyBalanceUseCase(
+      createMoneyBalanceRepository(),
+    );
   }
 
   static GetCurrentCanonicalDriverBalanceUseCase

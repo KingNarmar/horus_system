@@ -6,20 +6,18 @@ class DriverSettlementFormInput {
   final String driverId;
   final BusinessDate periodStart;
   final BusinessDate periodEnd;
-  final double grossSalary;
-  final double salaryDeductionsTotal;
-  final double balanceDeductionApplied;
-  final double settlementDeductionsTotal;
+  final String salaryDeductionsTotal;
+  final String balanceDeductionApplied;
+  final String settlementDeductionsTotal;
   final String? notes;
 
   const DriverSettlementFormInput({
     required this.driverId,
     required this.periodStart,
     required this.periodEnd,
-    required this.grossSalary,
-    required this.salaryDeductionsTotal,
-    required this.balanceDeductionApplied,
-    required this.settlementDeductionsTotal,
+    this.salaryDeductionsTotal = '',
+    this.balanceDeductionApplied = '',
+    this.settlementDeductionsTotal = '',
     this.notes,
   });
 
@@ -31,7 +29,6 @@ class DriverSettlementFormInput {
       driverId: driverId,
       periodStart: periodStart,
       periodEnd: periodEnd,
-      grossSalary: grossSalary,
       salaryDeductionsTotal: salaryDeductionsTotal,
       balanceDeductionApplied: balanceDeductionApplied,
       settlementDeductionsTotal: settlementDeductionsTotal,
@@ -47,7 +44,6 @@ class DriverSettlementFormInput {
       driverId: driverId,
       periodStart: periodStart,
       periodEnd: periodEnd,
-      grossSalary: grossSalary,
       salaryDeductionsTotal: salaryDeductionsTotal,
       balanceDeductionApplied: balanceDeductionApplied,
       settlementDeductionsTotal: settlementDeductionsTotal,

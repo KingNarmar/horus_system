@@ -6,4 +6,5 @@ export 'get_driver_settlement_business_date_usecase.dart';
 export 'get_driver_settlement_details_usecase.dart';
 export 'get_driver_settlement_driver_options_usecase.dart';
 export 'get_driver_settlements_usecase.dart';
+export 'resolve_driver_settlement_calculation_usecase.dart';
 export 'void_driver_settlement_usecase.dart';

@@ -14,6 +14,7 @@ import 'package:horus_system/features/drivers/domain/repositories/driver_compens
 import 'package:horus_system/features/drivers/domain/usecases/create_driver_compensation_revision_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/end_driver_compensation_revision_usecase.dart';
 import 'package:horus_system/features/drivers/domain/usecases/resolve_driver_compensation_for_date_usecase.dart';
+import 'package:horus_system/features/drivers/domain/usecases/resolve_driver_compensation_for_period_usecase.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -182,6 +183,65 @@ void main() {
       expect(
         result.failureOrNull?.code,
         DriverCompensationFailureCodes.notFoundForDate,
+      );
+    });
+  });
+
+  group('ResolveDriverCompensationForPeriodUseCase', () {
+    test('resolves the single revision covering the full period', () async {
+      final revision = _revision(
+        id: 'full-period-contract',
+        amountMinorUnits: 550000,
+        from: BusinessDate(year: 2026, month: 8, day: 1),
+        to: null,
+      );
+      final repository = _FakeDriverCompensationRepository(history: [revision]);
+      final useCase = ResolveDriverCompensationForPeriodUseCase(repository);
+
+      final result = await useCase(
+        ResolveDriverCompensationForPeriodParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+          driverId: 'driver-1',
+          periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+          periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+        ),
+      );
+
+      expect(result.dataOrNull?.id, 'full-period-contract');
+      expect(result.dataOrNull?.amount.minorUnits, 550000);
+    });
+
+    test('rejects a period spanning compensation revisions', () async {
+      final repository = _FakeDriverCompensationRepository(
+        history: [
+          _revision(
+            id: 'old-contract',
+            amountMinorUnits: 500000,
+            from: BusinessDate(year: 2026, month: 1, day: 1),
+            to: BusinessDate(year: 2026, month: 9, day: 15),
+          ),
+          _revision(
+            id: 'new-contract',
+            amountMinorUnits: 550000,
+            from: BusinessDate(year: 2026, month: 9, day: 16),
+            to: null,
+          ),
+        ],
+      );
+      final useCase = ResolveDriverCompensationForPeriodUseCase(repository);
+
+      final result = await useCase(
+        ResolveDriverCompensationForPeriodParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+          driverId: 'driver-1',
+          periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+          periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForPeriod,
       );
     });
   });

@@ -295,7 +295,7 @@ class _DriversPageState extends State<DriversPage> {
             tripOptionsFailure: loaded?.tripOptionsFailure,
             onSubmit:
                 ({
-                  required double amount,
+                  required String amount,
                   required BusinessDate movementDate,
                   String? tripId,
                   String? notes,

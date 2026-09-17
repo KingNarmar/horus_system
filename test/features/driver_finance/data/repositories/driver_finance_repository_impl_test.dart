@@ -1,4 +1,6 @@
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -111,7 +113,7 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('adds movement then writes audit then returns entity', () async {
+    test('adds movement then writes exact audit snapshot', () async {
       final operations = <String>[];
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         operations: operations,
@@ -137,6 +139,15 @@ void main() {
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
       expect(auditRepository.logs.single.metadata?['movement_id'], _movementId);
+      expect(
+        auditRepository.logs.single.metadata?['amount_minor_units'],
+        12550,
+      );
+      expect(auditRepository.logs.single.metadata?['currency_code'], 'AED');
+      expect(
+        auditRepository.logs.single.metadata?['currency_fraction_digits'],
+        2,
+      );
       expect(
         auditRepository.logs.single.newValues?['movement_date'],
         '2026-08-23',
@@ -277,6 +288,9 @@ DriverFinancialMovementModel _movementModel() {
     tripId: _tripId,
     type: DriverFinancialMovementType.advance,
     amount: 125.5,
+    amountMinorUnits: 12550,
+    currencyCode: 'AED',
+    currencyFractionDigits: 2,
     movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
     createdAt: DateTime.utc(2026, 8, 23, 9),
@@ -285,12 +299,14 @@ DriverFinancialMovementModel _movementModel() {
 }
 
 DriverFinancialMovementWriteData _writeData() {
+  final currency = CurrencyCode.tryParse('AED')!;
   return DriverFinancialMovementWriteData(
     companyId: _companyId,
     driverId: _driverId,
     tripId: _tripId,
     type: DriverFinancialMovementType.advance,
-    amount: 125.5,
+    amount: Money(minorUnits: 12550, currency: currency),
+    currencyFractionDigits: 2,
     movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
   );

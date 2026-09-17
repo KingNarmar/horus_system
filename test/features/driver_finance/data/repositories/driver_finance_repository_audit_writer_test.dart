@@ -16,7 +16,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverFinanceRepositoryAuditWriter', () {
-    test('preserves canonical movement-added audit contract', () async {
+    test('preserves canonical movement-added exact audit contract', () async {
       final repository = _CapturingAuditLogRepository();
       final writer = DriverFinanceRepositoryAuditWriter(
         CreateAuditLogUseCase(repository),
@@ -44,6 +44,9 @@ void main() {
       expect(data.newValues?['trip_id'], _tripId);
       expect(data.newValues?['movement_type'], 'driver_charge');
       expect(data.newValues?['amount'], 125.5);
+      expect(data.newValues?['amount_minor_units'], 12550);
+      expect(data.newValues?['currency_code'], 'AED');
+      expect(data.newValues?['currency_fraction_digits'], 2);
       expect(data.newValues?['movement_date'], '2026-08-23');
       expect(data.newValues?['created_at'], '2026-08-23T09:00:00.000Z');
       expect(data.newValues?['updated_at'], '2026-08-23T10:00:00.000Z');
@@ -51,6 +54,9 @@ void main() {
       expect(data.metadata?['movement_id'], _movementId);
       expect(data.metadata?['movement_type'], 'driver_charge');
       expect(data.metadata?['amount'], 125.5);
+      expect(data.metadata?['amount_minor_units'], 12550);
+      expect(data.metadata?['currency_code'], 'AED');
+      expect(data.metadata?['currency_fraction_digits'], 2);
       expect(data.metadata?['trip_id'], _tripId);
     });
 
@@ -92,6 +98,9 @@ DriverFinancialMovementModel _movementModel() {
     tripId: _tripId,
     type: DriverFinancialMovementType.driverCharge,
     amount: 125.5,
+    amountMinorUnits: 12550,
+    currencyCode: 'AED',
+    currencyFractionDigits: 2,
     movementDate: BusinessDate(year: 2026, month: 8, day: 23),
     notes: 'note',
     createdAt: DateTime.utc(2026, 8, 23, 9),

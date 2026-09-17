@@ -1,6 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../domain/entities/driver_settlement_money_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_write_data.dart';
@@ -9,6 +11,7 @@ import '../mappers/driver_settlement_mapper.dart';
 import '../models/driver_settlement_driver_option_model.dart';
 import '../models/driver_settlement_item_model.dart';
 import '../models/driver_settlement_model.dart';
+import 'driver_settlement_money_remote_data_source.dart';
 import 'driver_settlement_source_snapshot_loader.dart';
 
 const _driverSettlementColumns = '''
@@ -17,17 +20,31 @@ company_id,
 driver_id,
 period_start,
 period_end,
+compensation_revision_id,
+currency_code,
+currency_fraction_digits,
 opening_driver_balance,
+opening_driver_balance_minor_units,
 advances_total,
+advances_total_minor_units,
 driver_paid_trip_expenses_total,
+driver_paid_trip_expenses_total_minor_units,
 returned_cash_total,
+returned_cash_total_minor_units,
 deductions_total,
+deductions_total_minor_units,
 settlement_deductions_total,
+settlement_deductions_total_minor_units,
 gross_salary,
+gross_salary_minor_units,
 salary_deductions_total,
+salary_deductions_total_minor_units,
 balance_deduction_applied,
+balance_deduction_applied_minor_units,
 net_salary_payable,
+net_salary_payable_minor_units,
 closing_driver_balance,
+closing_driver_balance_minor_units,
 status,
 notes,
 finalized_at,
@@ -50,6 +67,9 @@ source_id,
 source_date,
 direction,
 amount,
+amount_minor_units,
+currency_code,
+currency_fraction_digits,
 label_key,
 description_key,
 metadata,
@@ -104,7 +124,9 @@ abstract class DriverSettlementsRemoteDataSource {
 }
 
 class SupabaseDriverSettlementsRemoteDataSource
-    implements DriverSettlementsRemoteDataSource {
+    implements
+        DriverSettlementsRemoteDataSource,
+        DriverSettlementMoneyRemoteDataSource {
   final SupabaseClient client;
   final DriverSettlementSourceSnapshotLoader sourceSnapshotLoader;
 
@@ -217,6 +239,21 @@ class SupabaseDriverSettlementsRemoteDataSource
   }
 
   @override
+  Future<DriverSettlementMoneySourceSnapshot> getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) {
+    return sourceSnapshotLoader.loadMoney(
+      companyId: companyId,
+      driverId: driverId,
+      period: period,
+      currencyConfiguration: currencyConfiguration,
+    );
+  }
+
+  @override
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
   }) async {
@@ -230,6 +267,37 @@ class SupabaseDriverSettlementsRemoteDataSource
     if (data.items.isNotEmpty) {
       final itemRows = data.items
           .map((item) => item.toInsertMap(settlementId: model.id))
+          .toList();
+      await client
+          .from(DriverSettlementsDbTables.driverSettlementItems)
+          .insert(itemRows);
+    }
+
+    return getDriverSettlementById(
+      companyId: data.companyId,
+      settlementId: model.id,
+    );
+  }
+
+  @override
+  Future<DriverSettlementModel> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+  }) async {
+    final row = await client
+        .from(DriverSettlementsDbTables.driverSettlements)
+        .insert(data.toMoneyInsertMap())
+        .select(_driverSettlementColumns)
+        .single();
+
+    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
+    if (data.items.isNotEmpty) {
+      final itemRows = data.items
+          .map(
+            (item) => item.toMoneyInsertMap(
+              settlementId: model.id,
+              currencyFractionDigits: data.currencyFractionDigits,
+            ),
+          )
           .toList();
       await client
           .from(DriverSettlementsDbTables.driverSettlementItems)

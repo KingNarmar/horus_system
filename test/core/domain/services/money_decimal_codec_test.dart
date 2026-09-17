@@ -72,20 +72,34 @@ void main() {
       );
     });
 
+    test('encodes signed exact minor units without floating point', () {
+      final money = Money(
+        minorUnits: -12505,
+        currency: aedConfiguration.currency,
+      );
+
+      expect(codec.encode(money, configuration: aedConfiguration), '-125.05');
+    });
+
     test('supports zero-fraction currencies', () {
       final configuration = CurrencyConfiguration.tryCreate(
         currencyCode: 'JPY',
         fractionDigits: 0,
       )!;
       final money = Money(minorUnits: 125, currency: configuration.currency);
+      final negativeMoney = Money(
+        minorUnits: -125,
+        currency: configuration.currency,
+      );
 
       expect(
         codec.encodeNonNegative(money, configuration: configuration),
         '125',
       );
+      expect(codec.encode(negativeMoney, configuration: configuration), '-125');
     });
 
-    test('rejects negative and mismatched-currency encoding', () {
+    test('rejects negative and mismatched-currency non-negative encoding', () {
       expect(
         () => codec.encodeNonNegative(
           Money(minorUnits: -1, currency: aedConfiguration.currency),
@@ -101,6 +115,13 @@ void main() {
       expect(
         () => codec.encodeNonNegative(
           Money(minorUnits: 100, currency: usdConfiguration.currency),
+          configuration: aedConfiguration,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => codec.encode(
+          Money(minorUnits: -100, currency: usdConfiguration.currency),
           configuration: aedConfiguration,
         ),
         throwsArgumentError,

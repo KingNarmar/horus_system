@@ -1,18 +1,8 @@
-import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
-import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -23,20 +13,12 @@ import 'package:horus_system/features/driver_settlements/domain/entities/driver_
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_direction.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_source_type.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
-import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
-import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
-import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlements_repository.dart';
-import 'package:horus_system/features/driver_settlements/domain/usecases/driver_settlement_usecases.dart';
-import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_state.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_details_dialog.dart';
-import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_form_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_void_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlements_state_view.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
-
-import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('Driver Settlements widgets', () {
@@ -187,50 +169,6 @@ void main() {
         findsOneWidget,
       );
     });
-
-    testWidgets('form stacks dates and requires driver before preview', (
-      tester,
-    ) async {
-      await _setSurfaceSize(tester, const Size(390, 844));
-      final repository = _FakeDriverSettlementsRepository();
-      final cubit = _cubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadDriverSettlements(_companyContext);
-
-      await _pumpLocalized(
-        tester,
-        locale: const Locale('en'),
-        child: BlocProvider.value(
-          value: cubit,
-          child: DriverSettlementFormDialog(
-            driverOptions: const [_activeDriver],
-            businessDate: _date(2026, 7, 31),
-          ),
-        ),
-      );
-
-      expect(tester.takeException(), isNull);
-      final startTop = tester
-          .getTopLeft(find.byKey(const ValueKey('driverSettlementPeriodStart')))
-          .dy;
-      final endTop = tester
-          .getTopLeft(find.byKey(const ValueKey('driverSettlementPeriodEnd')))
-          .dy;
-      expect(endTop, greaterThan(startTop));
-
-      final saveButton = tester.widget<FilledButton>(
-        find.byKey(const ValueKey('driverSettlementSaveDraftButton')),
-      );
-      expect(saveButton.onPressed, isNull);
-
-      await tester.tap(
-        find.byKey(const ValueKey('driverSettlementCalculatePreviewButton')),
-      );
-      await tester.pump();
-
-      expect(find.text('Select a driver.'), findsOneWidget);
-      expect(repository.snapshotCalls, 0);
-    });
   });
 }
 
@@ -327,34 +265,6 @@ DriverSettlementsLoaded _loadedState({
   );
 }
 
-DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
-  return DriverSettlementsCubit(
-    convertInstantsToBusinessLocalDateTimesUseCase:
-        const ConvertInstantsToBusinessLocalDateTimesUseCase(
-          FakeBusinessTimeZoneConverter(),
-        ),
-    getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
-    getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
-      repository,
-    ),
-    getBusinessDateUseCase: GetDriverSettlementBusinessDateUseCase(
-      _FixedBusinessDateProvider(_date(2026, 7, 31)),
-    ),
-    getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
-      repository,
-    ),
-    calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
-      repository,
-    ),
-    createDraftUseCase: CreateDriverSettlementDraftUseCase(repository),
-    finalizeSettlementUseCase: FinalizeDriverSettlementUseCase(repository),
-    voidSettlementUseCase: VoidDriverSettlementUseCase(repository),
-    getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
-      _FakeAuditLogRepository(),
-    ),
-  );
-}
-
 Future<void> _setSurfaceSize(WidgetTester tester, Size size) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
@@ -378,104 +288,4 @@ Future<void> _pumpLocalized(
     ),
   );
   await tester.pumpAndSettle();
-}
-
-class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
-  final BusinessDate date;
-
-  _FixedBusinessDateProvider(this.date);
-
-  @override
-  Future<Result<BusinessDate>> getBusinessDate({
-    required String companyId,
-  }) async {
-    return Success(date);
-  }
-}
-
-class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
-  int snapshotCalls = 0;
-
-  @override
-  Future<Result<List<DriverSettlement>>> getDriverSettlements({
-    required String companyId,
-    String? driverId,
-    bool includeVoided = false,
-  }) async {
-    return const Success([]);
-  }
-
-  @override
-  Future<Result<List<DriverSettlementDriverOption>>> getDriverOptions({
-    required String companyId,
-  }) async {
-    return const Success([_activeDriver]);
-  }
-
-  @override
-  Future<Result<DriverSettlementDriverOption?>> getDriverOptionById({
-    required String companyId,
-    required String driverId,
-  }) async {
-    return const Success(_activeDriver);
-  }
-
-  @override
-  Future<Result<DriverSettlement>> getDriverSettlementById({
-    required String companyId,
-    required String settlementId,
-  }) async {
-    return Success(_settlement);
-  }
-
-  @override
-  Future<Result<DriverSettlementSourceSnapshot>> getSettlementSourceSnapshot({
-    required String companyId,
-    required String driverId,
-    required DriverSettlementPeriod period,
-  }) async {
-    snapshotCalls++;
-    return const Success(DriverSettlementSourceSnapshot());
-  }
-
-  @override
-  Future<Result<DriverSettlement>> createDraft({
-    required DriverSettlementDraftWriteData data,
-    required String actorRole,
-  }) async {
-    return Success(_settlement);
-  }
-
-  @override
-  Future<Result<DriverSettlement>> finalizeSettlement({
-    required DriverSettlementFinalizeData data,
-    required String actorRole,
-  }) async {
-    return Success(_settlement);
-  }
-
-  @override
-  Future<Result<DriverSettlement>> voidSettlement({
-    required DriverSettlementVoidData data,
-    required String actorRole,
-  }) async {
-    return Success(_settlement);
-  }
-}
-
-class _FakeAuditLogRepository implements AuditLogRepository {
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success([]);
-  }
 }

@@ -1,6 +1,8 @@
 import '../../../../core/domain/services/driver_balance_calculator.dart';
 import '../entities/driver_settlement_calculation_input.dart';
 import '../entities/driver_settlement_calculation_result.dart';
+import '../entities/driver_settlement_money_calculation_input.dart';
+import '../entities/driver_settlement_money_calculation_result.dart';
 
 class DriverSettlementCalculator {
   final DriverBalanceCalculator _balanceCalculator;
@@ -47,6 +49,39 @@ class DriverSettlementCalculator {
       balanceDeductionApplied: _balanceCalculator.roundMoney(
         input.balanceDeductionApplied,
       ),
+      netSalaryPayable: netSalaryPayable,
+      closingDriverBalance: closingDriverBalance,
+    );
+  }
+
+  DriverSettlementMoneyCalculationResult calculateMoney(
+    DriverSettlementMoneyCalculationInput input,
+  ) {
+    final driverCharges = input.deductionsTotal.add(
+      input.settlementDeductionsTotal,
+    );
+    final closingDriverBalance = _balanceCalculator.calculateMoney(
+      openingBalance: input.openingDriverBalance,
+      advancesReceived: input.advancesTotal,
+      driverCharges: driverCharges,
+      creditedTripExpenses: input.driverPaidTripExpensesTotal,
+      cashReturned: input.returnedCashTotal,
+      salaryRecovery: input.balanceDeductionApplied,
+    );
+    final netSalaryPayable = input.grossSalary
+        .subtract(input.balanceDeductionApplied)
+        .subtract(input.salaryDeductionsTotal);
+
+    return DriverSettlementMoneyCalculationResult(
+      openingDriverBalance: input.openingDriverBalance,
+      advancesTotal: input.advancesTotal,
+      driverPaidTripExpensesTotal: input.driverPaidTripExpensesTotal,
+      returnedCashTotal: input.returnedCashTotal,
+      deductionsTotal: input.deductionsTotal,
+      settlementDeductionsTotal: input.settlementDeductionsTotal,
+      grossSalary: input.grossSalary,
+      salaryDeductionsTotal: input.salaryDeductionsTotal,
+      balanceDeductionApplied: input.balanceDeductionApplied,
       netSalaryPayable: netSalaryPayable,
       closingDriverBalance: closingDriverBalance,
     );

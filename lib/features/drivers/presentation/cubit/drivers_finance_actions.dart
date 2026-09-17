@@ -74,7 +74,7 @@ mixin DriversFinanceActions on Cubit<DriversState> {
 
   Future<void> addDriverAdvance({
     required Driver driver,
-    required double amount,
+    required String amount,
     required BusinessDate movementDate,
     String? notes,
   }) {
@@ -98,7 +98,7 @@ mixin DriversFinanceActions on Cubit<DriversState> {
 
   Future<void> addDriverCharge({
     required Driver driver,
-    required double amount,
+    required String amount,
     required BusinessDate movementDate,
     String? tripId,
     String? notes,
@@ -124,7 +124,7 @@ mixin DriversFinanceActions on Cubit<DriversState> {
 
   Future<void> addDriverCashReturn({
     required Driver driver,
-    required double amount,
+    required String amount,
     required BusinessDate movementDate,
     String? notes,
   }) {

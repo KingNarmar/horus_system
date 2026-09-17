@@ -1,23 +1,23 @@
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/driver_settlement.dart';
-import '../entities/driver_settlement_period.dart';
-import '../entities/driver_settlement_source_snapshot.dart';
+import '../entities/driver_settlement_resolved_calculation.dart';
 import '../entities/driver_settlement_write_data.dart';
-import '../repositories/driver_settlements_repository.dart';
-import '../services/driver_settlement_calculator.dart';
+import '../repositories/driver_settlement_money_repository.dart';
 import 'driver_settlement_params.dart';
 import 'driver_settlement_usecase_validation.dart';
+import 'resolve_driver_settlement_calculation_usecase.dart';
 
-class CreateDriverSettlementDraftUseCase
+final class CreateDriverSettlementDraftUseCase
     implements UseCase<DriverSettlement, CreateDriverSettlementDraftParams> {
-  final DriverSettlementsRepository _repository;
-  final DriverSettlementCalculator _calculator;
+  final DriverSettlementMoneyRepository _moneyRepository;
+  final ResolveDriverSettlementCalculationUseCase _resolveCalculation;
 
-  const CreateDriverSettlementDraftUseCase(
-    this._repository, {
-    DriverSettlementCalculator calculator = const DriverSettlementCalculator(),
-  }) : _calculator = calculator;
+  const CreateDriverSettlementDraftUseCase({
+    required DriverSettlementMoneyRepository moneyRepository,
+    required ResolveDriverSettlementCalculationUseCase resolveCalculation,
+  }) : _moneyRepository = moneyRepository,
+       _resolveCalculation = resolveCalculation;
 
   @override
   Future<Result<DriverSettlement>> call(
@@ -30,58 +30,23 @@ class CreateDriverSettlementDraftUseCase
         );
     if (validation != null) return FailureResult(validation);
 
-    final context = params.currentCompanyContext;
-    final driverId = params.driverId.trim();
-    final period = DriverSettlementPeriod(
-      start: params.periodStart,
-      end: params.periodEnd,
-    );
-
-    final driverValidation =
-        await DriverSettlementUseCaseValidation.validateActiveDriver(
-          repository: _repository,
-          companyId: context.companyId,
-          driverId: driverId,
-        );
-    if (driverValidation != null) return FailureResult(driverValidation);
-
-    final snapshotResult = await _repository.getSettlementSourceSnapshot(
-      companyId: context.companyId,
-      driverId: driverId,
-      period: period,
-    );
-
-    if (snapshotResult is FailureResult<DriverSettlementSourceSnapshot>) {
-      return FailureResult(snapshotResult.failure);
+    final result = await _resolveCalculation(params);
+    if (result is FailureResult<DriverSettlementResolvedCalculation>) {
+      return FailureResult(result.failure);
     }
 
-    final snapshot =
-        snapshotResult.dataOrNull ?? const DriverSettlementSourceSnapshot();
-    final recoveryValidation =
-        DriverSettlementUseCaseValidation.validateBalanceRecovery(
-          params: params,
-          snapshot: snapshot,
-        );
-    if (recoveryValidation != null) {
-      return FailureResult(recoveryValidation);
-    }
-
-    final calculation = _calculator.calculate(
-      DriverSettlementUseCaseValidation.calculationInput(
-        params: params,
-        snapshot: snapshot,
-      ),
-    );
-
-    return _repository.createDraft(
-      actorRole: context.role.name,
-      data: DriverSettlementDraftWriteData(
-        companyId: context.companyId,
-        driverId: driverId,
-        period: period,
-        calculation: calculation,
-        items: snapshot.sourceItems,
-        notes: DriverSettlementUseCaseValidation.optional(params.notes),
+    final resolved = result.dataOrNull!;
+    return _moneyRepository.createMoneyDraft(
+      actorRole: params.currentCompanyContext.role.name,
+      data: DriverSettlementMoneyDraftWriteData(
+        companyId: resolved.companyId,
+        driverId: resolved.driverId,
+        period: resolved.period,
+        compensationRevisionId: resolved.compensationRevisionId,
+        currencyFractionDigits: resolved.currencyFractionDigits,
+        calculation: resolved.calculation,
+        items: resolved.items,
+        notes: resolved.notes,
       ),
     );
   }

@@ -110,6 +110,106 @@ void main() {
         DriverCompensationFailureCodes.conflictOverlap,
       );
     });
+
+    test('resolves one revision covering the full settlement period', () {
+      final revisions = [
+        _revision(
+          id: 'current',
+          from: BusinessDate(year: 2026, month: 1, day: 1),
+          to: BusinessDate(year: 2026, month: 12, day: 31),
+        ),
+      ];
+
+      final result = policy.resolveForPeriod(
+        revisions: revisions,
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(result.dataOrNull?.id, 'current');
+    });
+
+    test('accepts exact inclusive settlement period boundaries', () {
+      final revisions = [
+        _revision(
+          id: 'exact',
+          from: BusinessDate(year: 2026, month: 9, day: 1),
+          to: BusinessDate(year: 2026, month: 9, day: 30),
+        ),
+      ];
+
+      final result = policy.resolveForPeriod(
+        revisions: revisions,
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(result.dataOrNull?.id, 'exact');
+    });
+
+    test('rejects revision starting after settlement period start', () {
+      final result = policy.resolveForPeriod(
+        revisions: [
+          _revision(
+            id: 'late',
+            from: BusinessDate(year: 2026, month: 9, day: 2),
+            to: null,
+          ),
+        ],
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForPeriod,
+      );
+    });
+
+    test('rejects revision ending before settlement period end', () {
+      final result = policy.resolveForPeriod(
+        revisions: [
+          _revision(
+            id: 'short',
+            from: BusinessDate(year: 2026, month: 1, day: 1),
+            to: BusinessDate(year: 2026, month: 9, day: 29),
+          ),
+        ],
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForPeriod,
+      );
+    });
+
+    test('rejects settlement period spanning compensation revisions', () {
+      final revisions = [
+        _revision(
+          id: 'old',
+          from: BusinessDate(year: 2026, month: 1, day: 1),
+          to: BusinessDate(year: 2026, month: 9, day: 15),
+        ),
+        _revision(
+          id: 'new',
+          from: BusinessDate(year: 2026, month: 9, day: 16),
+          to: null,
+        ),
+      ];
+
+      final result = policy.resolveForPeriod(
+        revisions: revisions,
+        periodStart: BusinessDate(year: 2026, month: 9, day: 1),
+        periodEnd: BusinessDate(year: 2026, month: 9, day: 30),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.notFoundForPeriod,
+      );
+    });
   });
 }
 

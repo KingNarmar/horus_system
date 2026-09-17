@@ -23,6 +23,27 @@ final class MoneyDecimalCodec {
     return Money(minorUnits: minorUnits, currency: configuration.currency);
   }
 
+  String encode(Money money, {required CurrencyConfiguration configuration}) {
+    if (money.currency != configuration.currency) {
+      throw ArgumentError('Money currency does not match configuration.');
+    }
+
+    final fractionDigits = configuration.fractionDigits;
+    final isNegative = money.minorUnits < 0;
+    final absoluteMinorUnits = money.minorUnits.abs();
+    if (fractionDigits == 0) {
+      return '${isNegative ? '-' : ''}$absoluteMinorUnits';
+    }
+
+    final scale = _pow10(fractionDigits);
+    final whole = absoluteMinorUnits ~/ scale;
+    final fraction = (absoluteMinorUnits % scale).toString().padLeft(
+      fractionDigits,
+      '0',
+    );
+    return '${isNegative ? '-' : ''}$whole.$fraction';
+  }
+
   String encodeNonNegative(
     Money money, {
     required CurrencyConfiguration configuration,
@@ -34,20 +55,7 @@ final class MoneyDecimalCodec {
         'Money must not be negative.',
       );
     }
-    if (money.currency != configuration.currency) {
-      throw ArgumentError('Money currency does not match configuration.');
-    }
-
-    final fractionDigits = configuration.fractionDigits;
-    if (fractionDigits == 0) return money.minorUnits.toString();
-
-    final scale = _pow10(fractionDigits);
-    final whole = money.minorUnits ~/ scale;
-    final fraction = (money.minorUnits % scale).toString().padLeft(
-      fractionDigits,
-      '0',
-    );
-    return '$whole.$fraction';
+    return encode(money, configuration: configuration);
   }
 
   int _pow10(int exponent) {

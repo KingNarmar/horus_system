@@ -3,9 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../domain/entities/driver_settlement_money_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
+import '../constants/driver_settlement_source_values.dart';
 import '../constants/driver_settlements_db_fields.dart';
+import '../mappers/driver_settlement_money_source_snapshot_mapper.dart';
 import '../mappers/driver_settlement_source_snapshot_mapper.dart';
 
 const _driverFinancialMovementColumns = '''
@@ -15,6 +19,9 @@ driver_id,
 trip_id,
 movement_type,
 amount,
+amount_minor_units,
+currency_code,
+currency_fraction_digits,
 movement_date,
 notes,
 created_at
@@ -26,6 +33,7 @@ company_id,
 trip_id,
 description,
 amount_minor_units,
+currency_code,
 currency_fraction_digits,
 funding_source,
 expense_date,
@@ -35,19 +43,56 @@ origin_id,
 created_at
 ''';
 
-const _fundingSourceDriverAdvance = 'driver_advance';
-const _fundingSourceDriverCash = 'driver_cash';
-
 class DriverSettlementSourceSnapshotLoader {
   final SupabaseClient client;
   final DriverSettlementSourceSnapshotMapper snapshotMapper;
+  final DriverSettlementMoneySourceSnapshotMapper moneySnapshotMapper;
 
   const DriverSettlementSourceSnapshotLoader(
     this.client, {
     this.snapshotMapper = const DriverSettlementSourceSnapshotMapper(),
+    this.moneySnapshotMapper =
+        const DriverSettlementMoneySourceSnapshotMapper(),
   });
 
   Future<DriverSettlementSourceSnapshot> load({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+  }) async {
+    final sources = await _loadSourceRows(
+      companyId: companyId,
+      driverId: driverId,
+      period: period,
+    );
+    return snapshotMapper.map(
+      companyId: companyId,
+      openingDriverBalance: 0,
+      movementRows: sources.movementRows,
+      tripExpenseRows: sources.tripExpenseRows,
+    );
+  }
+
+  Future<DriverSettlementMoneySourceSnapshot> loadMoney({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) async {
+    final sources = await _loadSourceRows(
+      companyId: companyId,
+      driverId: driverId,
+      period: period,
+    );
+    return moneySnapshotMapper.map(
+      companyId: companyId,
+      currencyConfiguration: currencyConfiguration,
+      movementRows: sources.movementRows,
+      tripExpenseRows: sources.tripExpenseRows,
+    );
+  }
+
+  Future<_SettlementSourceRows> _loadSourceRows({
     required String companyId,
     required String driverId,
     required DriverSettlementPeriod period,
@@ -64,10 +109,7 @@ class DriverSettlementSourceSnapshotLoader {
       startInclusive: period.start,
       endInclusive: period.end,
     );
-
-    return snapshotMapper.map(
-      companyId: companyId,
-      openingDriverBalance: 0,
+    return _SettlementSourceRows(
       movementRows: movementRows,
       tripExpenseRows: tripExpenseRows,
     );
@@ -118,8 +160,8 @@ class DriverSettlementSourceSnapshotLoader {
         .eq(DriverSettlementsDbFields.isVoided, false)
         .inFilter(DriverSettlementsDbFields.tripId, tripIds)
         .inFilter(DriverSettlementsDbFields.fundingSource, const [
-          _fundingSourceDriverAdvance,
-          _fundingSourceDriverCash,
+          DriverSettlementSourceValues.fundingSourceDriverAdvance,
+          DriverSettlementSourceValues.fundingSourceDriverCash,
         ])
         .gte(
           DriverSettlementsDbFields.expenseDate,
@@ -148,4 +190,14 @@ class DriverSettlementSourceSnapshotLoader {
         .whereType<String>()
         .toList(growable: false);
   }
+}
+
+final class _SettlementSourceRows {
+  final List<Map<String, dynamic>> movementRows;
+  final List<Map<String, dynamic>> tripExpenseRows;
+
+  const _SettlementSourceRows({
+    required this.movementRows,
+    required this.tripExpenseRows,
+  });
 }

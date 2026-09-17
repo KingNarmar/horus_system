@@ -1,29 +1,36 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../../driver_finance/domain/entities/driver_balance.dart';
 import '../../../driver_finance/domain/repositories/driver_balance_repository.dart';
 import '../../domain/entities/driver_settlement.dart';
 import '../../domain/entities/driver_settlement_driver_option.dart';
+import '../../domain/entities/driver_settlement_money_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_write_data.dart';
+import '../../domain/repositories/driver_settlement_money_repository.dart';
 import '../../domain/repositories/driver_settlements_repository.dart';
+import '../datasources/driver_settlement_money_remote_data_source.dart';
 import '../datasources/driver_settlements_remote_data_source.dart';
 import '../mappers/driver_settlement_driver_option_mapper.dart';
 import '../mappers/driver_settlement_mapper.dart';
 import 'driver_settlement_repository_audit_writer.dart';
 import 'driver_settlement_repository_failure_mapper.dart';
 
-class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
+class DriverSettlementsRepositoryImpl
+    implements DriverSettlementsRepository, DriverSettlementMoneyRepository {
   final DriverSettlementsRemoteDataSource remoteDataSource;
+  final DriverSettlementMoneyRemoteDataSource moneyRemoteDataSource;
   final DriverBalanceRepository driverBalanceRepository;
   final CreateAuditLogUseCase createAuditLogUseCase;
   final DriverSettlementRepositoryFailureMapper _failureMapper;
 
   const DriverSettlementsRepositoryImpl({
     required this.remoteDataSource,
+    required this.moneyRemoteDataSource,
     required this.driverBalanceRepository,
     required this.createAuditLogUseCase,
   }) : _failureMapper = const DriverSettlementRepositoryFailureMapper();
@@ -119,12 +126,52 @@ class DriverSettlementsRepositoryImpl implements DriverSettlementsRepository {
   }
 
   @override
+  Future<Result<DriverSettlementMoneySourceSnapshot>>
+  getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) {
+    return _guard(() async {
+      final snapshot = await moneyRemoteDataSource
+          .getSettlementMoneySourceSnapshot(
+            companyId: companyId,
+            driverId: driverId,
+            period: period,
+            currencyConfiguration: currencyConfiguration,
+          );
+      return Success(snapshot);
+    });
+  }
+
+  @override
   Future<Result<DriverSettlement>> createDraft({
     required DriverSettlementDraftWriteData data,
     required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.createDraft(data: data);
+      final auditFailure = await _auditWriter.writeCreated(
+        model: model,
+        actorRole: actorRole,
+      );
+
+      if (auditFailure != null) {
+        return FailureResult<DriverSettlement>(auditFailure);
+      }
+
+      return Success(model.toEntity());
+    });
+  }
+
+  @override
+  Future<Result<DriverSettlement>> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+    required String actorRole,
+  }) {
+    return _guard(() async {
+      final model = await moneyRemoteDataSource.createMoneyDraft(data: data);
       final auditFailure = await _auditWriter.writeCreated(
         model: model,
         actorRole: actorRole,
