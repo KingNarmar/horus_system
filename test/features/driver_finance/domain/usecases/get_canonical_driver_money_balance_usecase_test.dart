@@ -7,9 +7,8 @@ import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
-import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
+import 'package:horus_system/features/driver_finance/domain/repositories/driver_money_balance_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_money_balance_usecase.dart';
 import 'package:test/test.dart';
@@ -17,7 +16,7 @@ import 'package:test/test.dart';
 void main() {
   group('GetCanonicalDriverMoneyBalanceUseCase', () {
     test('forwards typed company currency and exact date boundaries', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
       final beforeExclusive = BusinessDate(year: 2026, month: 9, day: 17);
       final checkpointBeforeExclusive = BusinessDate(
@@ -53,7 +52,7 @@ void main() {
     });
 
     test('requires configured company financial settings', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
 
       final result = await useCase(
@@ -73,7 +72,7 @@ void main() {
     });
 
     test('rejects invalid company currency code', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
 
       final result = await useCase(
@@ -96,7 +95,7 @@ void main() {
     });
 
     test('rejects invalid company fraction digits', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
 
       final result = await useCase(
@@ -119,7 +118,7 @@ void main() {
     });
 
     test('blocks driver role before repository access', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
 
       final result = await useCase(
@@ -139,7 +138,7 @@ void main() {
     });
 
     test('requires driver id before repository access', () async {
-      final repository = _FakeDriverBalanceRepository();
+      final repository = _FakeDriverMoneyBalanceRepository();
       final useCase = GetCanonicalDriverMoneyBalanceUseCase(repository);
 
       final result = await useCase(
@@ -176,7 +175,7 @@ CurrentCompanyContext _context({
   );
 }
 
-class _FakeDriverBalanceRepository implements DriverBalanceRepository {
+class _FakeDriverMoneyBalanceRepository implements DriverMoneyBalanceRepository {
   int moneyBalanceCalls = 0;
   String? lastCompanyId;
   String? lastDriverId;
@@ -184,16 +183,6 @@ class _FakeDriverBalanceRepository implements DriverBalanceRepository {
   int? lastFractionDigits;
   BusinessDate? lastBeforeExclusive;
   BusinessDate? lastCheckpointBeforeExclusive;
-
-  @override
-  Future<Result<DriverBalance>> getCanonicalDriverBalance({
-    required String companyId,
-    required String driverId,
-    required BusinessDate beforeExclusive,
-    BusinessDate? checkpointBeforeExclusive,
-  }) {
-    throw UnsupportedError('Legacy balance path is not used by this test.');
-  }
 
   @override
   Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
