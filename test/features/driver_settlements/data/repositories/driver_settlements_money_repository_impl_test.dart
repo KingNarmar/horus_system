@@ -201,7 +201,9 @@ final class _FakeMoneyRemoteDataSource
     lastPeriod = period;
     lastCurrencyConfiguration = currencyConfiguration;
     final value = snapshot;
-    if (value == null) throw StateError('Exact snapshot was not configured.');
+    if (value == null) {
+      throw StateError('Exact snapshot was not configured.');
+    }
     return value;
   }
 
@@ -213,7 +215,9 @@ final class _FakeMoneyRemoteDataSource
     lastWriteData = data;
     operations?.add('create_money_draft');
     final value = createModel;
-    if (value == null) throw StateError('Exact draft model was not configured.');
+    if (value == null) {
+      throw StateError('Exact draft model was not configured.');
+    }
     return value;
   }
 }
