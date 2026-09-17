@@ -1,4 +1,6 @@
 import 'package:horus_system/core/domain/services/driver_balance_calculator.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -36,6 +38,38 @@ void main() {
     test('rounds money to two decimals', () {
       expect(calculator.calculate(advancesReceived: 10.005), -10.01);
       expect(calculator.roundMoney(1000.555), 1000.56);
+    });
+
+    test('calculates exact money without decimal rounding assumptions', () {
+      final currency = CurrencyCode.tryParse('BHD')!;
+
+      final balance = calculator.calculateMoney(
+        openingBalance: Money(minorUnits: -2000, currency: currency),
+        advancesReceived: Money(minorUnits: 7000, currency: currency),
+        driverCharges: Money(minorUnits: 500, currency: currency),
+        creditedTripExpenses: Money(minorUnits: 7100, currency: currency),
+        cashReturned: Money(minorUnits: 300, currency: currency),
+        salaryRecovery: Money(minorUnits: 100, currency: currency),
+      );
+
+      expect(balance, Money(minorUnits: -2000, currency: currency));
+    });
+
+    test('rejects mixed currencies in exact money calculation', () {
+      final aed = CurrencyCode.tryParse('AED')!;
+      final usd = CurrencyCode.tryParse('USD')!;
+
+      expect(
+        () => calculator.calculateMoney(
+          openingBalance: Money(minorUnits: 0, currency: aed),
+          advancesReceived: Money(minorUnits: 100, currency: usd),
+          driverCharges: Money(minorUnits: 0, currency: aed),
+          creditedTripExpenses: Money(minorUnits: 0, currency: aed),
+          cashReturned: Money(minorUnits: 0, currency: aed),
+          salaryRecovery: Money(minorUnits: 0, currency: aed),
+        ),
+        throwsArgumentError,
+      );
     });
   });
 }
