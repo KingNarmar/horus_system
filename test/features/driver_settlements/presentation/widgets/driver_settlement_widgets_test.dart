@@ -1,11 +1,16 @@
-import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -16,16 +21,21 @@ import 'package:horus_system/features/audit/domain/usecases/get_entity_audit_log
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
+import 'package:horus_system/features/driver_finance/domain/repositories/driver_money_balance_repository.dart';
+import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_money_balance_usecase.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_calculation_result.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_driver_option.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_direction.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_item_source_type.dart';
+import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_money_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
+import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlement_money_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlements_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/usecases/driver_settlement_usecases.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
@@ -34,6 +44,10 @@ import 'package:horus_system/features/driver_settlements/presentation/widgets/dr
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_form_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlement_void_dialog.dart';
 import 'package:horus_system/features/driver_settlements/presentation/widgets/driver_settlements_state_view.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_compensation_revision.dart';
+import 'package:horus_system/features/drivers/domain/entities/driver_compensation_write_data.dart';
+import 'package:horus_system/features/drivers/domain/repositories/driver_compensation_repository.dart';
+import 'package:horus_system/features/drivers/domain/usecases/resolve_driver_compensation_for_period_usecase.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 
 import '../../../../helpers/fake_business_time_zone_converter.dart';
@@ -193,7 +207,8 @@ void main() {
     ) async {
       await _setSurfaceSize(tester, const Size(390, 844));
       final repository = _FakeDriverSettlementsRepository();
-      final cubit = _cubit(repository);
+      final moneyRepository = _FakeSettlementMoneyRepository();
+      final cubit = _cubit(repository, moneyRepository);
       addTearDown(cubit.close);
       await cubit.loadDriverSettlements(_companyContext);
 
@@ -222,6 +237,10 @@ void main() {
         find.byKey(const ValueKey('driverSettlementSaveDraftButton')),
       );
       expect(saveButton.onPressed, isNull);
+      expect(
+        find.byKey(const ValueKey('driverSettlementGrossSalary')),
+        findsNothing,
+      );
 
       await tester.tap(
         find.byKey(const ValueKey('driverSettlementCalculatePreviewButton')),
@@ -229,13 +248,63 @@ void main() {
       await tester.pump();
 
       expect(find.text('Select a driver.'), findsOneWidget);
-      expect(repository.snapshotCalls, 0);
+      expect(moneyRepository.snapshotCalls, 0);
+    });
+
+    testWidgets('shows compensation salary as read-only exact preview data', (
+      tester,
+    ) async {
+      await _setSurfaceSize(tester, const Size(800, 1000));
+      final repository = _FakeDriverSettlementsRepository();
+      final moneyRepository = _FakeSettlementMoneyRepository();
+      final cubit = _cubit(repository, moneyRepository);
+      addTearDown(cubit.close);
+      await cubit.loadDriverSettlements(_companyContext);
+
+      await _pumpLocalized(
+        tester,
+        locale: const Locale('en'),
+        child: BlocProvider.value(
+          value: cubit,
+          child: DriverSettlementFormDialog(
+            driverOptions: const [_activeDriver],
+            businessDate: _date(2026, 7, 31),
+          ),
+        ),
+      );
+
+      await tester.tap(
+        find.byKey(const ValueKey('driverSettlementDriverField')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Driver One').last);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('driverSettlementCalculatePreviewButton')),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('driverSettlementCalculatePreviewButton')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gross salary'), findsOneWidget);
+      expect(find.text('1000.00 AED'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('driverSettlementGrossSalary')),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }
 
 const _companyContext = CurrentCompanyContext(
-  company: Company(id: 'company-1', name: 'Test Company'),
+  company: Company(
+    id: 'company-1',
+    name: 'Test Company',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+  ),
   role: CompanyRole.accountant,
 );
 
@@ -327,7 +396,20 @@ DriverSettlementsLoaded _loadedState({
   );
 }
 
-DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
+DriverSettlementsCubit _cubit(
+  _FakeDriverSettlementsRepository repository,
+  _FakeSettlementMoneyRepository moneyRepository,
+) {
+  final resolver = ResolveDriverSettlementCalculationUseCase(
+    repository: repository,
+    moneyRepository: moneyRepository,
+    resolveCompensation: ResolveDriverCompensationForPeriodUseCase(
+      _FakeCompensationRepository(),
+    ),
+    getCanonicalMoneyBalance: GetCanonicalDriverMoneyBalanceUseCase(
+      _FakeMoneyBalanceRepository(),
+    ),
+  );
   return DriverSettlementsCubit(
     convertInstantsToBusinessLocalDateTimesUseCase:
         const ConvertInstantsToBusinessLocalDateTimesUseCase(
@@ -343,10 +425,11 @@ DriverSettlementsCubit _cubit(_FakeDriverSettlementsRepository repository) {
     getDriverSettlementDetailsUseCase: GetDriverSettlementDetailsUseCase(
       repository,
     ),
-    calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(
-      repository,
+    calculatePreviewUseCase: CalculateDriverSettlementPreviewUseCase(resolver),
+    createDraftUseCase: CreateDriverSettlementDraftUseCase(
+      moneyRepository: moneyRepository,
+      resolveCalculation: resolver,
     ),
-    createDraftUseCase: CreateDriverSettlementDraftUseCase(repository),
     finalizeSettlementUseCase: FinalizeDriverSettlementUseCase(repository),
     voidSettlementUseCase: VoidDriverSettlementUseCase(repository),
     getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
@@ -394,8 +477,6 @@ class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
 }
 
 class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
-  int snapshotCalls = 0;
-
   @override
   Future<Result<List<DriverSettlement>>> getDriverSettlements({
     required String companyId,
@@ -433,17 +514,16 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     required String companyId,
     required String driverId,
     required DriverSettlementPeriod period,
-  }) async {
-    snapshotCalls++;
-    return const Success(DriverSettlementSourceSnapshot());
+  }) {
+    throw UnsupportedError('Legacy source path is not used by widget tests.');
   }
 
   @override
   Future<Result<DriverSettlement>> createDraft({
     required DriverSettlementDraftWriteData data,
     required String actorRole,
-  }) async {
-    return Success(_settlement);
+  }) {
+    throw UnsupportedError('Legacy draft path is not used by widget tests.');
   }
 
   @override
@@ -460,6 +540,122 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     required String actorRole,
   }) async {
     return Success(_settlement);
+  }
+}
+
+class _FakeSettlementMoneyRepository implements DriverSettlementMoneyRepository {
+  int snapshotCalls = 0;
+
+  @override
+  Future<Result<DriverSettlementMoneySourceSnapshot>>
+  getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) async {
+    snapshotCalls++;
+    final zero = Money(minorUnits: 0, currency: currencyConfiguration.currency);
+    return Success(
+      DriverSettlementMoneySourceSnapshot(
+        openingDriverBalance: zero,
+        advancesTotal: zero,
+        driverPaidTripExpensesTotal: zero,
+        returnedCashTotal: zero,
+        deductionsTotal: zero,
+      ),
+    );
+  }
+
+  @override
+  Future<Result<DriverSettlement>> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+    required String actorRole,
+  }) async {
+    return Success(_settlement);
+  }
+}
+
+class _FakeCompensationRepository implements DriverCompensationRepository {
+  @override
+  Future<Result<List<DriverCompensationRevision>>> getHistory({
+    required String companyId,
+    required String driverId,
+  }) async {
+    final currency = CurrencyCode.tryParse('AED')!;
+    return Success([
+      DriverCompensationRevision(
+        id: 'revision-1',
+        companyId: companyId,
+        driverId: driverId,
+        amount: Money(minorUnits: 100000, currency: currency),
+        currencyFractionDigits: 2,
+        effectiveFrom: _date(2026, 1, 1),
+      ),
+    ]);
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> createRevision({
+    required DriverCompensationWriteData data,
+    required String actorRole,
+    BusinessDocumentFile? contractDocument,
+  }) {
+    throw UnsupportedError('Not used by widget tests.');
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> endRevision({
+    required String companyId,
+    required String revisionId,
+    required String driverId,
+    required String actorRole,
+    required BusinessDate effectiveTo,
+  }) {
+    throw UnsupportedError('Not used by widget tests.');
+  }
+
+  @override
+  Future<Result<DriverCompensationRevision>> attachContractDocument({
+    required DriverCompensationRevision revision,
+    required String actorRole,
+    required BusinessDocumentFile document,
+  }) {
+    throw UnsupportedError('Not used by widget tests.');
+  }
+
+  @override
+  Future<Result<BusinessDocumentAccess>> createContractDocumentAccess({
+    required String companyId,
+    required DriverCompensationRevision revision,
+  }) {
+    throw UnsupportedError('Not used by widget tests.');
+  }
+}
+
+class _FakeMoneyBalanceRepository implements DriverMoneyBalanceRepository {
+  @override
+  Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
+    required String companyId,
+    required String driverId,
+    required CurrencyCode currency,
+    required int currencyFractionDigits,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
+  }) async {
+    final zero = Money(minorUnits: 0, currency: currency);
+    return Success(
+      DriverMoneyBalance(
+        companyId: companyId,
+        driverId: driverId,
+        currency: currency,
+        currencyFractionDigits: currencyFractionDigits,
+        totalAdvances: zero,
+        totalDriverCharges: zero,
+        totalTripExpenseCredits: zero,
+        totalCashReturns: zero,
+      ),
+    );
   }
 }
 
