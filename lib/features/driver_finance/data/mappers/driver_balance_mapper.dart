@@ -18,7 +18,7 @@ class DriverBalanceSourceMapper {
     required String driverId,
     required Map<String, dynamic>? checkpointRow,
     required List<Map<String, dynamic>> movementRows,
-    required List<Map<String, dynamic>> tripExpenseRows,
+    required List<Map<String, dynamic>> expenseLedgerRows,
   }) {
     var totalAdvances = 0.0;
     var totalDriverCharges = 0.0;
@@ -45,17 +45,16 @@ class DriverBalanceSourceMapper {
     }
 
     var totalTripExpenseCredits = 0.0;
-    for (final row in tripExpenseRows) {
-      final paidBy = row[DriverFinanceDbFields.paidBy]?.toString();
-      if (paidBy != DriverFinanceDbValues.paidByDriverAdvance &&
-          paidBy != DriverFinanceDbValues.paidByDriverCash) {
+    for (final row in expenseLedgerRows) {
+      final fundingSource =
+          row[DriverFinanceDbFields.fundingSource]?.toString();
+      if (fundingSource != DriverFinanceDbValues.paidByDriverAdvance &&
+          fundingSource != DriverFinanceDbValues.paidByDriverCash) {
         throw FormatException(
-          'Unsupported driver-paid trip expense source: $paidBy',
+          'Unsupported driver-paid trip expense source: $fundingSource',
         );
       }
-      totalTripExpenseCredits += _positiveAmount(
-        row[DriverFinanceDbFields.amount],
-      );
+      totalTripExpenseCredits += _positiveLedgerAmount(row);
     }
 
     return DriverBalanceModel(
@@ -90,6 +89,41 @@ class DriverBalanceSourceMapper {
       ),
       totalCashReturns: balanceCalculator.roundMoney(totalCashReturns),
     );
+  }
+
+  double _positiveLedgerAmount(Map<String, dynamic> row) {
+    final minorUnits = _requiredInt(
+      row[DriverFinanceDbFields.amountMinorUnits],
+    );
+    if (minorUnits <= 0) {
+      throw FormatException('Invalid positive money amount: $minorUnits');
+    }
+
+    final fractionDigits = _requiredInt(
+      row[DriverFinanceDbFields.currencyFractionDigits],
+    );
+    final factor = switch (fractionDigits) {
+      0 => 1,
+      1 => 10,
+      2 => 100,
+      3 => 1000,
+      4 => 10000,
+      _ => throw FormatException(
+        'Unsupported currency fraction digits: $fractionDigits',
+      ),
+    };
+
+    return minorUnits / factor;
+  }
+
+  int _requiredInt(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    final parsed = int.tryParse(value?.toString() ?? '');
+    if (parsed == null) {
+      throw FormatException('Invalid integer value: $value');
+    }
+    return parsed;
   }
 
   double _positiveAmount(Object? value) {
