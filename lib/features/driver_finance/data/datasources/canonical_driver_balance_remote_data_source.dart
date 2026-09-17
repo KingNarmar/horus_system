@@ -22,13 +22,18 @@ created_at,
 updated_at
 ''';
 
-const _tripExpenseColumns = '''
+const _expenseLedgerColumns = '''
 id,
 company_id,
 trip_id,
-amount,
-paid_by,
+amount_minor_units,
+currency_code,
+currency_fraction_digits,
+funding_source,
 expense_date,
+is_voided,
+origin_kind,
+origin_id,
 created_at
 ''';
 
@@ -71,7 +76,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       beforeExclusive: beforeExclusive,
       checkpointRow: checkpointRow,
     );
-    final tripExpenseRows = await _getTripExpenseRows(
+    final expenseLedgerRows = await _getExpenseLedgerRows(
       companyId: companyId,
       driverId: driverId,
       beforeExclusive: beforeExclusive,
@@ -83,7 +88,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       driverId: driverId,
       checkpointRow: checkpointRow,
       movementRows: movementRows,
-      tripExpenseRows: tripExpenseRows,
+      expenseLedgerRows: expenseLedgerRows,
     );
   }
 
@@ -180,7 +185,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
   }
 
-  Future<List<Map<String, dynamic>>> _getTripExpenseRows({
+  Future<List<Map<String, dynamic>>> _getExpenseLedgerRows({
     required String companyId,
     required String driverId,
     required BusinessDate beforeExclusive,
@@ -195,11 +200,12 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await client
-          .from(DriverFinanceDbTables.tripExpenses)
-          .select(_tripExpenseColumns)
+          .from(DriverFinanceDbTables.expenseLedgerEntries)
+          .select(_expenseLedgerColumns)
           .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.isVoided, false)
           .inFilter(DriverFinanceDbFields.tripId, tripIds)
-          .inFilter(DriverFinanceDbFields.paidBy, const [
+          .inFilter(DriverFinanceDbFields.fundingSource, const [
             DriverFinanceDbValues.paidByDriverAdvance,
             DriverFinanceDbValues.paidByDriverCash,
           ])
@@ -224,11 +230,12 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
 
     final effectiveRows = await client
-        .from(DriverFinanceDbTables.tripExpenses)
-        .select(_tripExpenseColumns)
+        .from(DriverFinanceDbTables.expenseLedgerEntries)
+        .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
+        .eq(DriverFinanceDbFields.isVoided, false)
         .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.paidBy, const [
+        .inFilter(DriverFinanceDbFields.fundingSource, const [
           DriverFinanceDbValues.paidByDriverAdvance,
           DriverFinanceDbValues.paidByDriverCash,
         ])
@@ -242,11 +249,12 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .order(DbCommonFields.id);
 
     final lateRows = await client
-        .from(DriverFinanceDbTables.tripExpenses)
-        .select(_tripExpenseColumns)
+        .from(DriverFinanceDbTables.expenseLedgerEntries)
+        .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
+        .eq(DriverFinanceDbFields.isVoided, false)
         .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.paidBy, const [
+        .inFilter(DriverFinanceDbFields.fundingSource, const [
           DriverFinanceDbValues.paidByDriverAdvance,
           DriverFinanceDbValues.paidByDriverCash,
         ])
