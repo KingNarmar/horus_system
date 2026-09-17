@@ -1,5 +1,4 @@
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
-import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -10,7 +9,6 @@ import 'package:horus_system/features/audit/domain/repositories/audit_log_reposi
 import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlements_remote_data_source.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_driver_option_model.dart';
@@ -328,20 +326,6 @@ class FakeDriverBalanceRepository implements DriverBalanceRepository {
 
     if (error != null) throw error!;
     return result ?? Success(canonicalBalance(0));
-  }
-
-  @override
-  Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
-    required String companyId,
-    required String driverId,
-    required CurrencyCode currency,
-    required int currencyFractionDigits,
-    required BusinessDate beforeExclusive,
-    BusinessDate? checkpointBeforeExclusive,
-  }) {
-    throw UnsupportedError(
-      'Exact driver balance is not used by legacy settlement repository tests.',
-    );
   }
 }
 
