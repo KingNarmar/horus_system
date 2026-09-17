@@ -16,20 +16,16 @@ final class DriverContractFilePicker {
   const DriverContractFilePicker();
 
   Future<BusinessDocumentFile?> pick() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: _allowedExtensions,
-      allowMultiple: false,
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) return null;
+    if (file == null) return null;
 
-    final file = result.files.single;
-    final bytes = file.bytes;
-    if (bytes == null) {
-      throw StateError('Selected contract file bytes are unavailable.');
-    }
-
-    return BusinessDocumentFile(bytes: bytes, fileName: file.name);
+    final bytes = await file.readAsBytes();
+    return BusinessDocumentFile(
+      bytes: bytes,
+      fileName: file.name,
+    );
   }
 }
