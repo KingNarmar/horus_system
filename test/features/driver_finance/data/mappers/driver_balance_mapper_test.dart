@@ -18,7 +18,7 @@ void main() {
               'closing_driver_balance': -5600,
             },
             movementRows: const [],
-            tripExpenseRows: const [],
+            expenseLedgerRows: const [],
           )
           .toEntity();
 
@@ -52,9 +52,17 @@ void main() {
               {'movement_type': 'driver_charge', 'amount': 50},
               {'movement_type': 'cash_return', 'amount': 25},
             ],
-            tripExpenseRows: const [
-              {'paid_by': 'driver_advance', 'amount': 40},
-              {'paid_by': 'driver_cash', 'amount': 60},
+            expenseLedgerRows: const [
+              {
+                'funding_source': 'driver_advance',
+                'amount_minor_units': 4000,
+                'currency_fraction_digits': 2,
+              },
+              {
+                'funding_source': 'driver_cash',
+                'amount_minor_units': 6000,
+                'currency_fraction_digits': 2,
+              },
             ],
           )
           .toEntity();
@@ -66,6 +74,27 @@ void main() {
       expect(balance.netBalance, -5625);
     });
 
+    test('respects canonical ledger currency fraction digits', () {
+      final balance = mapper
+          .map(
+            companyId: 'company-1',
+            driverId: 'driver-1',
+            checkpointRow: null,
+            movementRows: const [],
+            expenseLedgerRows: const [
+              {
+                'funding_source': 'driver_cash',
+                'amount_minor_units': 12345,
+                'currency_fraction_digits': 3,
+              },
+            ],
+          )
+          .toEntity();
+
+      expect(balance.totalTripExpenseCredits, 12.35);
+      expect(balance.netBalance, 12.35);
+    });
+
     test('starts from zero when no finalized checkpoint exists', () {
       final balance = mapper
           .map(
@@ -75,7 +104,7 @@ void main() {
             movementRows: const [
               {'movement_type': 'advance', 'amount': 500},
             ],
-            tripExpenseRows: const [],
+            expenseLedgerRows: const [],
           )
           .toEntity();
 
@@ -94,7 +123,7 @@ void main() {
             'closing_driver_balance': -5600,
           },
           movementRows: const [],
-          tripExpenseRows: const [],
+          expenseLedgerRows: const [],
         ),
         throwsA(isA<FormatException>()),
       );
@@ -112,7 +141,7 @@ void main() {
             'closing_driver_balance': -5600,
           },
           movementRows: const [],
-          tripExpenseRows: const [],
+          expenseLedgerRows: const [],
         ),
         throwsA(isA<FormatException>()),
       );
@@ -130,7 +159,7 @@ void main() {
             'closing_driver_balance': -5600,
           },
           movementRows: const [],
-          tripExpenseRows: const [],
+          expenseLedgerRows: const [],
         ),
         throwsA(isA<FormatException>()),
       );
@@ -145,7 +174,26 @@ void main() {
           movementRows: const [
             {'movement_type': 'deduction', 'amount': 100},
           ],
-          tripExpenseRows: const [],
+          expenseLedgerRows: const [],
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('rejects unsupported canonical funding source', () {
+      expect(
+        () => mapper.map(
+          companyId: 'company-1',
+          driverId: 'driver-1',
+          checkpointRow: null,
+          movementRows: const [],
+          expenseLedgerRows: const [
+            {
+              'funding_source': 'company',
+              'amount_minor_units': 1000,
+              'currency_fraction_digits': 2,
+            },
+          ],
         ),
         throwsA(isA<FormatException>()),
       );
