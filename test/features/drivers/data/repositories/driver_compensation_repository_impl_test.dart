@@ -8,6 +8,7 @@ import 'package:horus_system/core/documents/domain/repositories/business_documen
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -45,14 +46,14 @@ void main() {
       expect(documents.deletedReferences, isEmpty);
       expect(remote.lastContractDocumentReference, isNotNull);
       expect(
+        audit.logs.single.description,
+        'driver_compensation_revision_created',
+      );
+      expect(
         audit.logs.single.entityType,
         AuditEntityType.driverCompensationRevision,
       );
       expect(audit.logs.single.entityId, result.dataOrNull?.id);
-      expect(
-        audit.logs.single.description,
-        'driver_compensation_revision_created',
-      );
       expect(
         audit.logs.single.metadata?['compensation_revision_id'],
         result.dataOrNull?.id,
@@ -88,31 +89,67 @@ void main() {
       expect(audit.logs, isEmpty);
     });
 
-    test('attaches contract only after loading current revision and audits', () async {
+    test('returns audit failure after successful persistence', () async {
       final operations = <String>[];
       final remote = _FakeRemoteDataSource(operations: operations);
       final documents = _FakeBusinessDocumentRepository(operations: operations);
-      final audit = _FakeAuditLogRepository(operations: operations);
+      final audit = _FakeAuditLogRepository(
+        operations: operations,
+        failure: const UnexpectedFailure(
+          code: DriverCompensationFailureCodes.unexpectedError,
+        ),
+      );
       final repository = _repository(remote, documents, audit);
-      final revision = _entity();
 
-      final result = await repository.attachContractDocument(
-        revision: revision,
-        actorRole: 'admin',
-        document: _document(),
+      final result = await repository.createRevision(
+        data: _writeData(),
+        actorRole: 'owner',
       );
 
-      expect(result.isSuccess, isTrue);
+      expect(result.isFailure, isTrue);
       expect(
-        operations,
-        ['get_revision', 'upload', 'attach_document', 'audit'],
+        result.failureOrNull?.code,
+        DriverCompensationFailureCodes.unexpectedError,
       );
-      expect(result.dataOrNull?.contractDocumentReference, isNotNull);
-      expect(
-        audit.logs.single.description,
-        'driver_compensation_contract_attached',
-      );
+      expect(operations, ['create_revision', 'audit']);
+      expect(audit.logs, hasLength(1));
     });
+
+    test(
+      'attaches contract only after loading current revision and audits',
+      () async {
+        final operations = <String>[];
+        final remote = _FakeRemoteDataSource(operations: operations);
+        final documents = _FakeBusinessDocumentRepository(
+          operations: operations,
+        );
+        final audit = _FakeAuditLogRepository(operations: operations);
+        final repository = _repository(remote, documents, audit);
+        final revision = _entity();
+
+        final result = await repository.attachContractDocument(
+          revision: revision,
+          actorRole: 'admin',
+          document: _document(),
+        );
+
+        expect(result.isSuccess, isTrue);
+        expect(
+          operations,
+          ['get_revision', 'upload', 'attach_document', 'audit'],
+        );
+        expect(result.dataOrNull?.contractDocumentReference, isNotNull);
+        expect(
+          audit.logs.single.description,
+          'driver_compensation_contract_attached',
+        );
+        expect(
+          audit.logs.single.entityType,
+          AuditEntityType.driverCompensationRevision,
+        );
+        expect(audit.logs.single.entityId, revision.id);
+      },
+    );
 
     test('history query remains company and driver scoped', () async {
       final remote = _FakeRemoteDataSource();
