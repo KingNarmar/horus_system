@@ -87,7 +87,7 @@ void main() {
       expect(audit.metadata?['currency_fraction_digits'], 2);
       expect(audit.metadata?['gross_salary_minor_units'], 100000);
       expect(audit.metadata?['net_salary_payable_minor_units'], 85000);
-      expect(audit.metadata?['closing_driver_balance_minor_units'], -12500);
+      expect(audit.metadata?['closing_driver_balance_minor_units'], -7500);
     });
   });
 }
@@ -127,7 +127,7 @@ DriverSettlementMoneyDraftWriteData _moneyWriteData(CurrencyCode currency) {
       salaryDeductionsTotal: Money(minorUnits: 10000, currency: currency),
       balanceDeductionApplied: Money(minorUnits: 5000, currency: currency),
       netSalaryPayable: Money(minorUnits: 85000, currency: currency),
-      closingDriverBalance: Money(minorUnits: -12500, currency: currency),
+      closingDriverBalance: Money(minorUnits: -7500, currency: currency),
     ),
   );
 }
@@ -162,8 +162,8 @@ DriverSettlementModel _exactModel() {
     balanceDeductionAppliedMinorUnits: 5000,
     netSalaryPayable: 850,
     netSalaryPayableMinorUnits: 85000,
-    closingDriverBalance: -125,
-    closingDriverBalanceMinorUnits: -12500,
+    closingDriverBalance: -75,
+    closingDriverBalanceMinorUnits: -7500,
     status: DriverSettlementStatus.draft,
   );
 }
