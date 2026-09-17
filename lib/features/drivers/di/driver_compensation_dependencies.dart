@@ -12,6 +12,7 @@ import '../domain/usecases/end_driver_compensation_revision_usecase.dart';
 import '../domain/usecases/get_driver_compensation_contract_access_usecase.dart';
 import '../domain/usecases/get_driver_compensation_history_usecase.dart';
 import '../domain/usecases/resolve_driver_compensation_for_date_usecase.dart';
+import '../domain/usecases/resolve_driver_compensation_for_period_usecase.dart';
 import '../presentation/cubit/driver_compensation_cubit.dart';
 
 abstract final class DriverCompensationDependencies {
@@ -24,6 +25,11 @@ abstract final class DriverCompensationDependencies {
           BusinessDocumentDependencies.createRepository(),
       createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
+  }
+
+  static ResolveDriverCompensationForPeriodUseCase
+  createResolveForPeriodUseCase() {
+    return ResolveDriverCompensationForPeriodUseCase(createRepository());
   }
 
   static DriverCompensationCubit createCubit() {
