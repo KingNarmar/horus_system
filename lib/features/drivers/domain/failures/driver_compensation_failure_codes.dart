@@ -14,6 +14,8 @@ abstract final class DriverCompensationFailureCodes {
       'conflict_driver_compensation_document_already_attached';
   static const String notFoundForDate =
       'not_found_driver_compensation_for_date';
+  static const String notFoundForPeriod =
+      'not_found_driver_compensation_for_period';
   static const String notFoundRevision =
       'not_found_driver_compensation_revision';
   static const String notFoundDriver = 'not_found_driver_compensation_driver';
