@@ -3,23 +3,27 @@ import '../../../../core/domain/value_objects/business_date.dart';
 class DriverBalanceModel {
   final String companyId;
   final String driverId;
+  final String currencyCode;
+  final int currencyFractionDigits;
   final String? checkpointSettlementId;
   final BusinessDate? checkpointPeriodEnd;
   final DateTime? checkpointSnapshotCreatedAt;
-  final double checkpointClosingBalance;
-  final double totalAdvances;
-  final double totalDriverCharges;
-  final double totalTripExpenseCredits;
-  final double totalCashReturns;
+  final int checkpointClosingBalanceMinorUnits;
+  final int totalAdvancesMinorUnits;
+  final int totalDriverChargesMinorUnits;
+  final int totalTripExpenseCreditsMinorUnits;
+  final int totalCashReturnsMinorUnits;
 
   const DriverBalanceModel({
     required this.companyId,
     required this.driverId,
-    required this.checkpointClosingBalance,
-    required this.totalAdvances,
-    required this.totalDriverCharges,
-    required this.totalTripExpenseCredits,
-    required this.totalCashReturns,
+    required this.currencyCode,
+    required this.currencyFractionDigits,
+    required this.checkpointClosingBalanceMinorUnits,
+    required this.totalAdvancesMinorUnits,
+    required this.totalDriverChargesMinorUnits,
+    required this.totalTripExpenseCreditsMinorUnits,
+    required this.totalCashReturnsMinorUnits,
     this.checkpointSettlementId,
     this.checkpointPeriodEnd,
     this.checkpointSnapshotCreatedAt,
