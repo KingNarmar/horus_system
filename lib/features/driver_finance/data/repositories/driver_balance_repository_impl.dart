@@ -3,9 +3,11 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/driver_balance.dart';
+import '../../domain/entities/driver_money_balance.dart';
 import '../../domain/repositories/driver_balance_repository.dart';
 import '../datasources/canonical_driver_balance_remote_data_source.dart';
 import '../mappers/driver_balance_mapper.dart';
+import '../mappers/driver_money_balance_mapper.dart';
 import 'driver_finance_repository_failure_mapper.dart';
 
 class DriverBalanceRepositoryImpl implements DriverBalanceRepository {
@@ -26,6 +28,32 @@ class DriverBalanceRepositoryImpl implements DriverBalanceRepository {
       final model = await remoteDataSource.getCanonicalDriverBalance(
         companyId: companyId,
         driverId: driverId,
+        beforeExclusive: beforeExclusive,
+        checkpointBeforeExclusive: checkpointBeforeExclusive,
+      );
+      return Success(model.toEntity());
+    } on PostgrestException catch (error) {
+      return FailureResult(_failureMapper.fromBalancePostgrest(error));
+    } catch (error) {
+      return FailureResult(_failureMapper.fromUnexpected(error));
+    }
+  }
+
+  @override
+  Future<Result<DriverMoneyBalance>> getCanonicalDriverMoneyBalance({
+    required String companyId,
+    required String driverId,
+    required String currencyCode,
+    required int currencyFractionDigits,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
+  }) async {
+    try {
+      final model = await remoteDataSource.getCanonicalDriverMoneyBalance(
+        companyId: companyId,
+        driverId: driverId,
+        currencyCode: currencyCode,
+        currencyFractionDigits: currencyFractionDigits,
         beforeExclusive: beforeExclusive,
         checkpointBeforeExclusive: checkpointBeforeExclusive,
       );
