@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/services/money_input_parser.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
@@ -33,8 +34,9 @@ class DriverSettlementFormDialog extends StatefulWidget {
 
 class _DriverSettlementFormDialogState
     extends State<DriverSettlementFormDialog> {
+  static const MoneyInputParser _moneyInputParser = MoneyInputParser();
+
   final _formKey = GlobalKey<FormState>();
-  final _grossSalaryController = TextEditingController();
   final _salaryDeductionsController = TextEditingController();
   final _balanceDeductionController = TextEditingController();
   final _settlementDeductionsController = TextEditingController();
@@ -58,7 +60,6 @@ class _DriverSettlementFormDialogState
 
   @override
   void dispose() {
-    _grossSalaryController.dispose();
     _salaryDeductionsController.dispose();
     _balanceDeductionController.dispose();
     _settlementDeductionsController.dispose();
@@ -100,12 +101,6 @@ class _DriverSettlementFormDialogState
     );
   }
 
-  double _amount(TextEditingController controller) {
-    final value = controller.text.trim();
-    if (value.isEmpty) return 0;
-    return double.tryParse(value) ?? -1;
-  }
-
   String? _optional(String value) {
     final normalized = value.trim();
     return normalized.isEmpty ? null : normalized;
@@ -115,8 +110,19 @@ class _DriverSettlementFormDialogState
     final strings = context.driverSettlementsL10n;
     final normalized = (value ?? '').trim();
     if (normalized.isEmpty) return null;
-    final amount = double.tryParse(normalized);
-    if (amount == null || amount < 0) return strings.nonNegativeAmount;
+
+    final state = context.read<DriverSettlementsCubit>().state;
+    final fractionDigits = state is DriverSettlementsLoaded
+        ? state.currentCompanyContext.company.baseCurrencyFractionDigits
+        : null;
+    if (fractionDigits == null ||
+        _moneyInputParser.tryParseMinorUnits(
+              normalized,
+              fractionDigits: fractionDigits,
+            ) ==
+            null) {
+      return strings.nonNegativeAmount;
+    }
     return null;
   }
 
@@ -136,10 +142,9 @@ class _DriverSettlementFormDialogState
       driverId: _selectedDriverId!,
       periodStart: BusinessDateDateTimeAdapter.fromDateTime(_periodStart),
       periodEnd: BusinessDateDateTimeAdapter.fromDateTime(_periodEnd),
-      grossSalary: _amount(_grossSalaryController),
-      salaryDeductionsTotal: _amount(_salaryDeductionsController),
-      balanceDeductionApplied: _amount(_balanceDeductionController),
-      settlementDeductionsTotal: _amount(_settlementDeductionsController),
+      salaryDeductionsTotal: _salaryDeductionsController.text,
+      balanceDeductionApplied: _balanceDeductionController.text,
+      settlementDeductionsTotal: _settlementDeductionsController.text,
       notes: _optional(_notesController.text),
     );
   }
@@ -282,15 +287,6 @@ class _DriverSettlementFormDialogState
                         ),
                       ),
                     ],
-                    const SizedBox(height: AppSpacing.md),
-                    _AmountField(
-                      fieldKey: const ValueKey('driverSettlementGrossSalary'),
-                      controller: _grossSalaryController,
-                      label: strings.grossSalary,
-                      enabled: !isBusy,
-                      validator: _validateAmount,
-                      onChanged: _invalidatePreview,
-                    ),
                     const SizedBox(height: AppSpacing.md),
                     _AmountField(
                       fieldKey: const ValueKey(
