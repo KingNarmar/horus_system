@@ -1,5 +1,7 @@
 import 'driver_settlement_calculation_result.dart';
 import 'driver_settlement_item.dart';
+import 'driver_settlement_money_calculation_result.dart';
+import 'driver_settlement_money_item.dart';
 import 'driver_settlement_period.dart';
 
 class DriverSettlementDraftWriteData {
@@ -14,6 +16,28 @@ class DriverSettlementDraftWriteData {
     required this.companyId,
     required this.driverId,
     required this.period,
+    required this.calculation,
+    this.items = const [],
+    this.notes,
+  });
+}
+
+final class DriverSettlementMoneyDraftWriteData {
+  final String companyId;
+  final String driverId;
+  final DriverSettlementPeriod period;
+  final String compensationRevisionId;
+  final int currencyFractionDigits;
+  final DriverSettlementMoneyCalculationResult calculation;
+  final List<DriverSettlementMoneyItem> items;
+  final String? notes;
+
+  const DriverSettlementMoneyDraftWriteData({
+    required this.companyId,
+    required this.driverId,
+    required this.period,
+    required this.compensationRevisionId,
+    required this.currencyFractionDigits,
     required this.calculation,
     this.items = const [],
     this.notes,
