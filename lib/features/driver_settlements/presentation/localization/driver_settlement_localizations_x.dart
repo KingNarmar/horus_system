@@ -5,11 +5,13 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
+import '../../../drivers/domain/failures/driver_compensation_failure_codes.dart';
 import '../../domain/entities/driver_settlement_balance_direction.dart';
 import '../../domain/entities/driver_settlement_item.dart';
 import '../../domain/entities/driver_settlement_item_direction.dart';
 import '../../domain/entities/driver_settlement_item_source_type.dart';
 import '../../domain/entities/driver_settlement_status.dart';
+import '../../domain/failures/driver_settlement_failure_codes.dart';
 import 'driver_settlements_localizations.dart';
 
 extension DriverSettlementPresentationLocalizationsX on BuildContext {
@@ -26,6 +28,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.periodInvalidFailure,
       FailureCodes.validationDriverSettlementAmountNegative =>
         strings.amountNegativeFailure,
+      DriverSettlementFailureCodes.validationAmountInvalid =>
+        strings.amountInvalidFailure,
       FailureCodes.validationDriverSettlementNetSalaryNegative =>
         strings.netSalaryNegativeFailure,
       FailureCodes.validationDriverSettlementBalanceRecoveryExceedsDebt =>
@@ -34,6 +38,12 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.driverNotFoundFailure,
       FailureCodes.validationDriverSettlementDriverInactive =>
         strings.driverInactiveFailure,
+      DriverCompensationFailureCodes.notFoundForPeriod =>
+        strings.compensationPeriodRequiredFailure,
+      DriverCompensationFailureCodes.conflictOverlap =>
+        strings.compensationOverlapFailure,
+      DriverSettlementFailureCodes.conflictCompensationCurrencyMismatch =>
+        strings.compensationCurrencyMismatchFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),
