@@ -66,4 +66,56 @@ final class DriverCompensationPeriodPolicy {
 
     return Success(matches.single);
   }
+
+  Result<DriverCompensationRevision> resolveForPeriod({
+    required List<DriverCompensationRevision> revisions,
+    required BusinessDate periodStart,
+    required BusinessDate periodEnd,
+  }) {
+    if (periodEnd.isBefore(periodStart)) {
+      return const FailureResult<DriverCompensationRevision>(
+        NotFoundFailure(
+          code: DriverCompensationFailureCodes.notFoundForPeriod,
+        ),
+      );
+    }
+
+    final startResult = resolveForDate(
+      revisions: revisions,
+      targetDate: periodStart,
+    );
+    final endResult = resolveForDate(
+      revisions: revisions,
+      targetDate: periodEnd,
+    );
+
+    final startFailure = startResult.failureOrNull;
+    final endFailure = endResult.failureOrNull;
+    if (startFailure?.code == DriverCompensationFailureCodes.conflictOverlap ||
+        endFailure?.code == DriverCompensationFailureCodes.conflictOverlap) {
+      return const FailureResult<DriverCompensationRevision>(
+        ConflictFailure(code: DriverCompensationFailureCodes.conflictOverlap),
+      );
+    }
+
+    final startRevision = startResult.dataOrNull;
+    final endRevision = endResult.dataOrNull;
+    if (startRevision == null || endRevision == null) {
+      return const FailureResult<DriverCompensationRevision>(
+        NotFoundFailure(
+          code: DriverCompensationFailureCodes.notFoundForPeriod,
+        ),
+      );
+    }
+
+    if (startRevision.id != endRevision.id) {
+      return const FailureResult<DriverCompensationRevision>(
+        ConflictFailure(
+          code: DriverCompensationFailureCodes.conflictPeriodSpansRevisions,
+        ),
+      );
+    }
+
+    return Success(startRevision);
+  }
 }
