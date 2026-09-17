@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/driver_settlement_preview.dart';
 import '../localization/driver_settlements_localizations.dart';
-import 'driver_settlement_calculation_section.dart';
-import 'driver_settlement_items_section.dart';
+import 'driver_settlement_money_calculation_section.dart';
+import 'driver_settlement_money_items_section.dart';
 
 class DriverSettlementPreviewSection extends StatelessWidget {
   final DriverSettlementPreview preview;
@@ -27,11 +27,15 @@ class DriverSettlementPreviewSection extends StatelessWidget {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
-            DriverSettlementCalculationSection(
+            DriverSettlementMoneyCalculationSection(
               calculation: preview.calculation,
+              currencyFractionDigits: preview.currencyFractionDigits,
             ),
             const SizedBox(height: AppSpacing.lg),
-            DriverSettlementItemsSection(items: preview.items),
+            DriverSettlementMoneyItemsSection(
+              items: preview.items,
+              currencyFractionDigits: preview.currencyFractionDigits,
+            ),
           ],
         ),
       ),
