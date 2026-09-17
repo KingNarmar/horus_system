@@ -10,8 +10,7 @@ import '../repositories/driver_money_balance_repository.dart';
 import 'get_canonical_driver_balance_usecase.dart';
 
 final class GetCanonicalDriverMoneyBalanceUseCase
-    implements
-        UseCase<DriverMoneyBalance, GetCanonicalDriverBalanceParams> {
+    implements UseCase<DriverMoneyBalance, GetCanonicalDriverBalanceParams> {
   final DriverMoneyBalanceRepository _repository;
 
   const GetCanonicalDriverMoneyBalanceUseCase(this._repository);

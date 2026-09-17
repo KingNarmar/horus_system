@@ -133,7 +133,10 @@ void main() {
         ),
       );
 
-      expect(result.failureOrNull?.code, FailureCodes.permissionDriverFinanceView);
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionDriverFinanceView,
+      );
       expect(repository.moneyBalanceCalls, 0);
     });
 
@@ -153,7 +156,10 @@ void main() {
         ),
       );
 
-      expect(result.failureOrNull?.code, FailureCodes.validationDriverIdRequired);
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationDriverIdRequired,
+      );
       expect(repository.moneyBalanceCalls, 0);
     });
   });
@@ -175,7 +181,8 @@ CurrentCompanyContext _context({
   );
 }
 
-class _FakeDriverMoneyBalanceRepository implements DriverMoneyBalanceRepository {
+class _FakeDriverMoneyBalanceRepository
+    implements DriverMoneyBalanceRepository {
   int moneyBalanceCalls = 0;
   String? lastCompanyId;
   String? lastDriverId;

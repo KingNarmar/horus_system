@@ -51,8 +51,8 @@ final class DriverMoneyBalanceSourceMapper {
     var totalTripExpenseCreditsMinorUnits = 0;
     for (final row in expenseLedgerRows) {
       _validateRowCurrency(row, currencyCode, currencyFractionDigits);
-      final fundingSource =
-          row[DriverFinanceDbFields.fundingSource]?.toString();
+      final fundingSource = row[DriverFinanceDbFields.fundingSource]
+          ?.toString();
       if (fundingSource != DriverFinanceDbValues.paidByDriverAdvance &&
           fundingSource != DriverFinanceDbValues.paidByDriverCash) {
         throw FormatException(
@@ -65,11 +65,7 @@ final class DriverMoneyBalanceSourceMapper {
     }
 
     if (checkpointRow != null) {
-      _validateRowCurrency(
-        checkpointRow,
-        currencyCode,
-        currencyFractionDigits,
-      );
+      _validateRowCurrency(checkpointRow, currencyCode, currencyFractionDigits);
     }
 
     return DriverMoneyBalanceModel(
@@ -97,8 +93,8 @@ final class DriverMoneyBalanceSourceMapper {
       checkpointClosingBalanceMinorUnits: checkpointRow == null
           ? 0
           : _minorUnits(
-              checkpointRow[
-                  DriverFinanceDbFields.checkpointClosingBalanceMinorUnits],
+              checkpointRow[DriverFinanceDbFields
+                  .checkpointClosingBalanceMinorUnits],
             ),
       totalAdvancesMinorUnits: totalAdvancesMinorUnits,
       totalDriverChargesMinorUnits: totalDriverChargesMinorUnits,
@@ -112,7 +108,9 @@ final class DriverMoneyBalanceSourceMapper {
       throw FormatException('Invalid currency code: $currencyCode');
     }
     if (fractionDigits < 0 || fractionDigits > 4) {
-      throw FormatException('Invalid currency fraction digits: $fractionDigits');
+      throw FormatException(
+        'Invalid currency fraction digits: $fractionDigits',
+      );
     }
   }
 
