@@ -4,6 +4,8 @@ import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../company/data/constants/company_db_fields.dart';
 import '../constants/driver_finance_db_fields.dart';
 import '../mappers/driver_balance_mapper.dart';
 import '../models/driver_balance_model.dart';
@@ -15,19 +17,24 @@ company_id,
 driver_id,
 trip_id,
 movement_type,
-amount,
+amount_minor_units,
+currency_code,
+currency_fraction_digits,
 movement_date,
 notes,
 created_at,
 updated_at
 ''';
 
-const _tripExpenseColumns = '''
+const _expenseLedgerColumns = '''
 id,
 company_id,
+driver_id,
 trip_id,
-amount,
-paid_by,
+amount_minor_units,
+currency_code,
+currency_fraction_digits,
+funding_source,
 expense_date,
 created_at
 ''';
@@ -60,6 +67,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     required BusinessDate beforeExclusive,
     BusinessDate? checkpointBeforeExclusive,
   }) async {
+    final configuration = await _getCurrencyConfiguration(companyId);
     final checkpointRow = await _getBalanceCheckpoint(
       companyId: companyId,
       driverId: driverId,
@@ -71,7 +79,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       beforeExclusive: beforeExclusive,
       checkpointRow: checkpointRow,
     );
-    final tripExpenseRows = await _getTripExpenseRows(
+    final expenseRows = await _getDriverExpenseRows(
       companyId: companyId,
       driverId: driverId,
       beforeExclusive: beforeExclusive,
@@ -81,10 +89,33 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     return balanceSourceMapper.map(
       companyId: companyId,
       driverId: driverId,
+      configuration: configuration,
       checkpointRow: checkpointRow,
       movementRows: movementRows,
-      tripExpenseRows: tripExpenseRows,
+      tripExpenseRows: expenseRows,
     );
+  }
+
+  Future<CurrencyConfiguration> _getCurrencyConfiguration(
+    String companyId,
+  ) async {
+    final row = await client
+        .from(CompanyDbFields.companiesTable)
+        .select(
+          '${CompanyDbFields.baseCurrencyCode},'
+          '${CompanyDbFields.baseCurrencyFractionDigits}',
+        )
+        .eq(DbCommonFields.id, companyId)
+        .single();
+    final configuration = CurrencyConfiguration.tryCreate(
+      currencyCode: row[CompanyDbFields.baseCurrencyCode] as String?,
+      fractionDigits:
+          row[CompanyDbFields.baseCurrencyFractionDigits] as int?,
+    );
+    if (configuration == null) {
+      throw const FormatException('Company financial configuration is invalid.');
+    }
+    return configuration;
   }
 
   Future<Map<String, dynamic>?> _getBalanceCheckpoint({
@@ -180,28 +211,23 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
   }
 
-  Future<List<Map<String, dynamic>>> _getTripExpenseRows({
+  Future<List<Map<String, dynamic>>> _getDriverExpenseRows({
     required String companyId,
     required String driverId,
     required BusinessDate beforeExclusive,
     required Map<String, dynamic>? checkpointRow,
   }) async {
-    final tripIds = await _getDriverTripIds(
-      companyId: companyId,
-      driverId: driverId,
-    );
-    if (tripIds.isEmpty) return const [];
-
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await client
-          .from(DriverFinanceDbTables.tripExpenses)
-          .select(_tripExpenseColumns)
+          .from(DriverFinanceDbTables.expenseLedgerEntries)
+          .select(_expenseLedgerColumns)
           .eq(DbCommonFields.companyId, companyId)
-          .inFilter(DriverFinanceDbFields.tripId, tripIds)
-          .inFilter(DriverFinanceDbFields.paidBy, const [
-            DriverFinanceDbValues.paidByDriverAdvance,
-            DriverFinanceDbValues.paidByDriverCash,
+          .eq(DriverFinanceDbFields.driverId, driverId)
+          .eq(DriverFinanceDbFields.isVoided, false)
+          .inFilter(DriverFinanceDbFields.fundingSource, const [
+            DriverFinanceDbValues.fundingSourceDriverAdvance,
+            DriverFinanceDbValues.fundingSourceDriverCash,
           ])
           .lt(DriverFinanceDbFields.expenseDate, before)
           .order(DriverFinanceDbFields.expenseDate)
@@ -224,13 +250,14 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
 
     final effectiveRows = await client
-        .from(DriverFinanceDbTables.tripExpenses)
-        .select(_tripExpenseColumns)
+        .from(DriverFinanceDbTables.expenseLedgerEntries)
+        .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.paidBy, const [
-          DriverFinanceDbValues.paidByDriverAdvance,
-          DriverFinanceDbValues.paidByDriverCash,
+        .eq(DriverFinanceDbFields.driverId, driverId)
+        .eq(DriverFinanceDbFields.isVoided, false)
+        .inFilter(DriverFinanceDbFields.fundingSource, const [
+          DriverFinanceDbValues.fundingSourceDriverAdvance,
+          DriverFinanceDbValues.fundingSourceDriverCash,
         ])
         .gt(
           DriverFinanceDbFields.expenseDate,
@@ -242,13 +269,14 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .order(DbCommonFields.id);
 
     final lateRows = await client
-        .from(DriverFinanceDbTables.tripExpenses)
-        .select(_tripExpenseColumns)
+        .from(DriverFinanceDbTables.expenseLedgerEntries)
+        .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
-        .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.paidBy, const [
-          DriverFinanceDbValues.paidByDriverAdvance,
-          DriverFinanceDbValues.paidByDriverCash,
+        .eq(DriverFinanceDbFields.driverId, driverId)
+        .eq(DriverFinanceDbFields.isVoided, false)
+        .inFilter(DriverFinanceDbFields.fundingSource, const [
+          DriverFinanceDbValues.fundingSourceDriverAdvance,
+          DriverFinanceDbValues.fundingSourceDriverCash,
         ])
         .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
         .lt(DriverFinanceDbFields.expenseDate, before)
@@ -263,22 +291,6 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       checkpointPeriodEnd: checkpointPeriodEnd,
       checkpointSnapshotCreatedAt: snapshotCreatedAt,
     );
-  }
-
-  Future<List<String>> _getDriverTripIds({
-    required String companyId,
-    required String driverId,
-  }) async {
-    final rows = await client
-        .from(DriverFinanceDbTables.trips)
-        .select(DbCommonFields.id)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.driverId, driverId);
-
-    return rows
-        .map((row) => Map<String, dynamic>.from(row)[DbCommonFields.id])
-        .whereType<String>()
-        .toList(growable: false);
   }
 
   List<Map<String, dynamic>> _maps(Iterable<dynamic> rows) {
