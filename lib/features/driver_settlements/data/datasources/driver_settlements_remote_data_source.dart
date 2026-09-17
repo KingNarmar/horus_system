@@ -1,6 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../domain/entities/driver_settlement_money_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_period.dart';
 import '../../domain/entities/driver_settlement_source_snapshot.dart';
 import '../../domain/entities/driver_settlement_write_data.dart';
@@ -107,8 +109,19 @@ abstract class DriverSettlementsRemoteDataSource {
     required DriverSettlementPeriod period,
   });
 
+  Future<DriverSettlementMoneySourceSnapshot> getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  });
+
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
+  });
+
+  Future<DriverSettlementModel> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
   });
 
   Future<DriverSettlementModel> finalizeSettlement({
@@ -234,6 +247,21 @@ class SupabaseDriverSettlementsRemoteDataSource
   }
 
   @override
+  Future<DriverSettlementMoneySourceSnapshot> getSettlementMoneySourceSnapshot({
+    required String companyId,
+    required String driverId,
+    required DriverSettlementPeriod period,
+    required CurrencyConfiguration currencyConfiguration,
+  }) {
+    return sourceSnapshotLoader.loadMoney(
+      companyId: companyId,
+      driverId: driverId,
+      period: period,
+      currencyConfiguration: currencyConfiguration,
+    );
+  }
+
+  @override
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
   }) async {
@@ -247,6 +275,37 @@ class SupabaseDriverSettlementsRemoteDataSource
     if (data.items.isNotEmpty) {
       final itemRows = data.items
           .map((item) => item.toInsertMap(settlementId: model.id))
+          .toList();
+      await client
+          .from(DriverSettlementsDbTables.driverSettlementItems)
+          .insert(itemRows);
+    }
+
+    return getDriverSettlementById(
+      companyId: data.companyId,
+      settlementId: model.id,
+    );
+  }
+
+  @override
+  Future<DriverSettlementModel> createMoneyDraft({
+    required DriverSettlementMoneyDraftWriteData data,
+  }) async {
+    final row = await client
+        .from(DriverSettlementsDbTables.driverSettlements)
+        .insert(data.toMoneyInsertMap())
+        .select(_driverSettlementColumns)
+        .single();
+
+    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
+    if (data.items.isNotEmpty) {
+      final itemRows = data.items
+          .map(
+            (item) => item.toMoneyInsertMap(
+              settlementId: model.id,
+              currencyFractionDigits: data.currencyFractionDigits,
+            ),
+          )
           .toList();
       await client
           .from(DriverSettlementsDbTables.driverSettlementItems)
