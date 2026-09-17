@@ -109,12 +109,13 @@ final class ResolveDriverSettlementCalculationUseCase
     }
     final openingBalance = openingResult.dataOrNull!.netBalance;
 
-    final sourceResult = await _moneyRepository.getSettlementMoneySourceSnapshot(
-      companyId: context.companyId,
-      driverId: driverId,
-      period: period,
-      currencyConfiguration: resolvedInputs.currencyConfiguration,
-    );
+    final sourceResult = await _moneyRepository
+        .getSettlementMoneySourceSnapshot(
+          companyId: context.companyId,
+          driverId: driverId,
+          period: period,
+          currencyConfiguration: resolvedInputs.currencyConfiguration,
+        );
     if (sourceResult is FailureResult<DriverSettlementMoneySourceSnapshot>) {
       return FailureResult(sourceResult.failure);
     }
@@ -176,9 +177,7 @@ final class ResolveDriverSettlementCalculationUseCase
         direction: DriverSettlementItemDirection.driverToCompany,
         amount: resolvedInputs.settlementDeductionsTotal,
         labelKey: _manualDeductionLabelKey,
-        metadata: const {
-          _manualAdjustmentKindKey: _settlementDeductionKind,
-        },
+        metadata: const {_manualAdjustmentKindKey: _settlementDeductionKind},
       ),
     ]);
   }

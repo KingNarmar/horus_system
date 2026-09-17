@@ -139,7 +139,10 @@ void main() {
       expect(auditRepository.logs.single.companyId, _companyId);
       expect(auditRepository.logs.single.entityId, _driverId);
       expect(auditRepository.logs.single.metadata?['movement_id'], _movementId);
-      expect(auditRepository.logs.single.metadata?['amount_minor_units'], 12550);
+      expect(
+        auditRepository.logs.single.metadata?['amount_minor_units'],
+        12550,
+      );
       expect(auditRepository.logs.single.metadata?['currency_code'], 'AED');
       expect(
         auditRepository.logs.single.metadata?['currency_fraction_digits'],

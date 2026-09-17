@@ -23,10 +23,7 @@ final class MoneyDecimalCodec {
     return Money(minorUnits: minorUnits, currency: configuration.currency);
   }
 
-  String encode(
-    Money money, {
-    required CurrencyConfiguration configuration,
-  }) {
+  String encode(Money money, {required CurrencyConfiguration configuration}) {
     if (money.currency != configuration.currency) {
       throw ArgumentError('Money currency does not match configuration.');
     }

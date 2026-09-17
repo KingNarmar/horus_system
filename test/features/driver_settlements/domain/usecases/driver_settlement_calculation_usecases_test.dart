@@ -153,10 +153,7 @@ void main() {
         ),
       ]);
       final balanceRepository = FakeMoneyBalanceRepository(
-        settlementTestMoneyBalance(
-          currency: currency,
-          fractionDigits: 3,
-        ),
+        settlementTestMoneyBalance(currency: currency, fractionDigits: 3),
       );
       final useCase = CalculateDriverSettlementPreviewUseCase(
         createSettlementResolver(
@@ -187,7 +184,10 @@ void main() {
         result.dataOrNull!.calculation.salaryDeductionsTotal.minorUnits,
         456,
       );
-      expect(result.dataOrNull!.calculation.netSalaryPayable.minorUnits, 123000);
+      expect(
+        result.dataOrNull!.calculation.netSalaryPayable.minorUnits,
+        123000,
+      );
     });
 
     test('rejects over-precision before loading financial sources', () async {
@@ -230,56 +230,61 @@ void main() {
       expect(moneyRepository.snapshotCalls, 0);
     });
 
-    test('requires one compensation revision to cover the full period', () async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final legacyRepository = FakeDriverSettlementsRepository();
-      final moneyRepository = FakeSettlementMoneyRepository(
-        snapshot: settlementTestMoneySnapshot(currency: currency),
-      );
-      final compensationRepository = FakeCompensationRepository([
-        settlementTestRevision(
-          id: 'old',
-          currency: currency,
-          amountMinorUnits: 100000,
-          effectiveFrom: settlementTestDate(2026, 7, 1),
-          effectiveTo: settlementTestDate(2026, 7, 15),
-        ),
-        settlementTestRevision(
-          id: 'new',
-          currency: currency,
-          amountMinorUnits: 110000,
-          effectiveFrom: settlementTestDate(2026, 7, 16),
-        ),
-      ]);
-      final balanceRepository = FakeMoneyBalanceRepository(
-        settlementTestMoneyBalance(currency: currency),
-      );
-      final useCase = CalculateDriverSettlementPreviewUseCase(
-        createSettlementResolver(
-          legacyRepository: legacyRepository,
-          moneyRepository: moneyRepository,
-          compensationRepository: compensationRepository,
-          balanceRepository: balanceRepository,
-        ),
-      );
+    test(
+      'requires one compensation revision to cover the full period',
+      () async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final legacyRepository = FakeDriverSettlementsRepository();
+        final moneyRepository = FakeSettlementMoneyRepository(
+          snapshot: settlementTestMoneySnapshot(currency: currency),
+        );
+        final compensationRepository = FakeCompensationRepository([
+          settlementTestRevision(
+            id: 'old',
+            currency: currency,
+            amountMinorUnits: 100000,
+            effectiveFrom: settlementTestDate(2026, 7, 1),
+            effectiveTo: settlementTestDate(2026, 7, 15),
+          ),
+          settlementTestRevision(
+            id: 'new',
+            currency: currency,
+            amountMinorUnits: 110000,
+            effectiveFrom: settlementTestDate(2026, 7, 16),
+          ),
+        ]);
+        final balanceRepository = FakeMoneyBalanceRepository(
+          settlementTestMoneyBalance(currency: currency),
+        );
+        final useCase = CalculateDriverSettlementPreviewUseCase(
+          createSettlementResolver(
+            legacyRepository: legacyRepository,
+            moneyRepository: moneyRepository,
+            compensationRepository: compensationRepository,
+            balanceRepository: balanceRepository,
+          ),
+        );
 
-      final result = await useCase(
-        DriverSettlementCalculationParams(
-          currentCompanyContext: settlementTestContext(CompanyRole.accountant),
-          driverId: testDriverId,
-          periodStart: settlementTestDate(2026, 7, 1),
-          periodEnd: settlementTestDate(2026, 7, 31),
-        ),
-      );
+        final result = await useCase(
+          DriverSettlementCalculationParams(
+            currentCompanyContext: settlementTestContext(
+              CompanyRole.accountant,
+            ),
+            driverId: testDriverId,
+            periodStart: settlementTestDate(2026, 7, 1),
+            periodEnd: settlementTestDate(2026, 7, 31),
+          ),
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(
-        result.failureOrNull?.code,
-        DriverCompensationFailureCodes.notFoundForPeriod,
-      );
-      expect(balanceRepository.calls, 0);
-      expect(moneyRepository.snapshotCalls, 0);
-    });
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          DriverCompensationFailureCodes.notFoundForPeriod,
+        );
+        expect(balanceRepository.calls, 0);
+        expect(moneyRepository.snapshotCalls, 0);
+      },
+    );
 
     test('rejects recovery above exact outstanding driver debt', () async {
       final currency = CurrencyCode.tryParse('AED')!;
@@ -323,101 +328,112 @@ void main() {
       expect(moneyRepository.createDraftCalls, 0);
     });
 
-    test('draft snapshots resolved compensation and exact currency data', () async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final legacyRepository = FakeDriverSettlementsRepository();
-      final moneyRepository = FakeSettlementMoneyRepository(
-        snapshot: settlementTestMoneySnapshot(
-          currency: currency,
-          advances: 2500,
-        ),
-      );
-      final compensationRepository = FakeCompensationRepository([
-        settlementTestRevision(currency: currency, amountMinorUnits: 100000),
-      ]);
-      final balanceRepository = FakeMoneyBalanceRepository(
-        settlementTestMoneyBalance(
-          currency: currency,
-          openingMinorUnits: -5000,
-        ),
-      );
-      final resolver = createSettlementResolver(
-        legacyRepository: legacyRepository,
-        moneyRepository: moneyRepository,
-        compensationRepository: compensationRepository,
-        balanceRepository: balanceRepository,
-      );
-      final useCase = CreateDriverSettlementDraftUseCase(
-        moneyRepository: moneyRepository,
-        resolveCalculation: resolver,
-      );
-
-      final result = await useCase(
-        CreateDriverSettlementDraftParams(
-          currentCompanyContext: settlementTestContext(CompanyRole.accountant),
-          driverId: testDriverId,
-          periodStart: settlementTestDate(2026, 7, 1),
-          periodEnd: settlementTestDate(2026, 7, 31),
-          salaryDeductionsTotal: '10.00',
-          settlementDeductionsTotal: '12.50',
-          notes: 'snapshot',
-        ),
-      );
-
-      expect(result, isA<Success<DriverSettlement>>());
-      expect(moneyRepository.createDraftCalls, 1);
-      final write = moneyRepository.lastWriteData!;
-      expect(write.compensationRevisionId, 'revision-1');
-      expect(write.currencyFractionDigits, 2);
-      expect(write.calculation.grossSalary.minorUnits, 100000);
-      expect(write.calculation.openingDriverBalance.minorUnits, -5000);
-      expect(write.calculation.advancesTotal.minorUnits, 2500);
-      expect(write.items.single.sourceType, DriverSettlementItemSourceType.manualAdjustment);
-      expect(write.items.single.amount.minorUnits, 1250);
-      expect(write.notes, 'snapshot');
-    });
-
-    test('blocks draft creation before financial resolution for viewer', () async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final legacyRepository = FakeDriverSettlementsRepository();
-      final moneyRepository = FakeSettlementMoneyRepository(
-        snapshot: settlementTestMoneySnapshot(currency: currency),
-      );
-      final compensationRepository = FakeCompensationRepository([
-        settlementTestRevision(currency: currency, amountMinorUnits: 100000),
-      ]);
-      final balanceRepository = FakeMoneyBalanceRepository(
-        settlementTestMoneyBalance(currency: currency),
-      );
-      final useCase = CreateDriverSettlementDraftUseCase(
-        moneyRepository: moneyRepository,
-        resolveCalculation: createSettlementResolver(
+    test(
+      'draft snapshots resolved compensation and exact currency data',
+      () async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final legacyRepository = FakeDriverSettlementsRepository();
+        final moneyRepository = FakeSettlementMoneyRepository(
+          snapshot: settlementTestMoneySnapshot(
+            currency: currency,
+            advances: 2500,
+          ),
+        );
+        final compensationRepository = FakeCompensationRepository([
+          settlementTestRevision(currency: currency, amountMinorUnits: 100000),
+        ]);
+        final balanceRepository = FakeMoneyBalanceRepository(
+          settlementTestMoneyBalance(
+            currency: currency,
+            openingMinorUnits: -5000,
+          ),
+        );
+        final resolver = createSettlementResolver(
           legacyRepository: legacyRepository,
           moneyRepository: moneyRepository,
           compensationRepository: compensationRepository,
           balanceRepository: balanceRepository,
-        ),
-      );
+        );
+        final useCase = CreateDriverSettlementDraftUseCase(
+          moneyRepository: moneyRepository,
+          resolveCalculation: resolver,
+        );
 
-      final result = await useCase(
-        CreateDriverSettlementDraftParams(
-          currentCompanyContext: settlementTestContext(CompanyRole.viewer),
-          driverId: testDriverId,
-          periodStart: settlementTestDate(2026, 7, 1),
-          periodEnd: settlementTestDate(2026, 7, 31),
-        ),
-      );
+        final result = await useCase(
+          CreateDriverSettlementDraftParams(
+            currentCompanyContext: settlementTestContext(
+              CompanyRole.accountant,
+            ),
+            driverId: testDriverId,
+            periodStart: settlementTestDate(2026, 7, 1),
+            periodEnd: settlementTestDate(2026, 7, 31),
+            salaryDeductionsTotal: '10.00',
+            settlementDeductionsTotal: '12.50',
+            notes: 'snapshot',
+          ),
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.permissionDriverSettlementsManagement,
-      );
-      expect(compensationRepository.historyCalls, 0);
-      expect(balanceRepository.calls, 0);
-      expect(moneyRepository.snapshotCalls, 0);
-      expect(moneyRepository.createDraftCalls, 0);
-    });
+        expect(result, isA<Success<DriverSettlement>>());
+        expect(moneyRepository.createDraftCalls, 1);
+        final write = moneyRepository.lastWriteData!;
+        expect(write.compensationRevisionId, 'revision-1');
+        expect(write.currencyFractionDigits, 2);
+        expect(write.calculation.grossSalary.minorUnits, 100000);
+        expect(write.calculation.openingDriverBalance.minorUnits, -5000);
+        expect(write.calculation.advancesTotal.minorUnits, 2500);
+        expect(
+          write.items.single.sourceType,
+          DriverSettlementItemSourceType.manualAdjustment,
+        );
+        expect(write.items.single.amount.minorUnits, 1250);
+        expect(write.notes, 'snapshot');
+      },
+    );
+
+    test(
+      'blocks draft creation before financial resolution for viewer',
+      () async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final legacyRepository = FakeDriverSettlementsRepository();
+        final moneyRepository = FakeSettlementMoneyRepository(
+          snapshot: settlementTestMoneySnapshot(currency: currency),
+        );
+        final compensationRepository = FakeCompensationRepository([
+          settlementTestRevision(currency: currency, amountMinorUnits: 100000),
+        ]);
+        final balanceRepository = FakeMoneyBalanceRepository(
+          settlementTestMoneyBalance(currency: currency),
+        );
+        final useCase = CreateDriverSettlementDraftUseCase(
+          moneyRepository: moneyRepository,
+          resolveCalculation: createSettlementResolver(
+            legacyRepository: legacyRepository,
+            moneyRepository: moneyRepository,
+            compensationRepository: compensationRepository,
+            balanceRepository: balanceRepository,
+          ),
+        );
+
+        final result = await useCase(
+          CreateDriverSettlementDraftParams(
+            currentCompanyContext: settlementTestContext(CompanyRole.viewer),
+            driverId: testDriverId,
+            periodStart: settlementTestDate(2026, 7, 1),
+            periodEnd: settlementTestDate(2026, 7, 31),
+          ),
+        );
+
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.permissionDriverSettlementsManagement,
+        );
+        expect(compensationRepository.historyCalls, 0);
+        expect(balanceRepository.calls, 0);
+        expect(moneyRepository.snapshotCalls, 0);
+        expect(moneyRepository.createDraftCalls, 0);
+      },
+    );
 
     test('rejects inactive driver before compensation resolution', () async {
       final currency = CurrencyCode.tryParse('AED')!;

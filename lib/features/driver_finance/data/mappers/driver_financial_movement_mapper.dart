@@ -48,10 +48,7 @@ extension DriverFinancialMovementModelMapper on DriverFinancialMovementModel {
 extension DriverFinancialMovementWriteDataMapper
     on DriverFinancialMovementWriteData {
   Map<String, dynamic> toInsertMap() {
-    return {
-      DbCommonFields.companyId: companyId,
-      ..._mutableValues(),
-    };
+    return {DbCommonFields.companyId: companyId, ..._mutableValues()};
   }
 
   Map<String, dynamic> toUpdateMap() => _mutableValues();

@@ -126,7 +126,8 @@ Future<void> setFormTestSurfaceSize(WidgetTester tester, Size size) async {
   });
 }
 
-final class FormTestBusinessDateProvider implements CompanyBusinessDateProvider {
+final class FormTestBusinessDateProvider
+    implements CompanyBusinessDateProvider {
   final BusinessDate date;
 
   const FormTestBusinessDateProvider(this.date);
@@ -162,7 +163,9 @@ final class FormTestDriverSettlementsRepository
     required String companyId,
     required String driverId,
   }) async {
-    return Success(driverId == formTestActiveDriver.id ? formTestActiveDriver : null);
+    return Success(
+      driverId == formTestActiveDriver.id ? formTestActiveDriver : null,
+    );
   }
 
   @override
@@ -179,7 +182,9 @@ final class FormTestDriverSettlementsRepository
     required String driverId,
     required DriverSettlementPeriod period,
   }) {
-    throw UnsupportedError('Legacy source path is not used by PC-09 form tests.');
+    throw UnsupportedError(
+      'Legacy source path is not used by PC-09 form tests.',
+    );
   }
 
   @override
@@ -187,7 +192,9 @@ final class FormTestDriverSettlementsRepository
     required DriverSettlementDraftWriteData data,
     required String actorRole,
   }) {
-    throw UnsupportedError('Legacy draft path is not used by PC-09 form tests.');
+    throw UnsupportedError(
+      'Legacy draft path is not used by PC-09 form tests.',
+    );
   }
 
   @override

@@ -65,7 +65,8 @@ extension DriverSettlementModelMapper on DriverSettlementModel {
       DriverSettlementsDbFields.openingDriverBalanceMinorUnits:
           openingDriverBalanceMinorUnits,
       DriverSettlementsDbFields.advancesTotal: advancesTotal,
-      DriverSettlementsDbFields.advancesTotalMinorUnits: advancesTotalMinorUnits,
+      DriverSettlementsDbFields.advancesTotalMinorUnits:
+          advancesTotalMinorUnits,
       DriverSettlementsDbFields.driverPaidTripExpensesTotal:
           driverPaidTripExpensesTotal,
       DriverSettlementsDbFields.driverPaidTripExpensesTotalMinorUnits:
@@ -199,10 +200,11 @@ extension DriverSettlementMoneyDraftWriteDataMapper
           ),
       DriverSettlementsDbFields.driverPaidTripExpensesTotalMinorUnits:
           value.driverPaidTripExpensesTotal.minorUnits,
-      DriverSettlementsDbFields.returnedCashTotal: _moneyCodec.encodeNonNegative(
-        value.returnedCashTotal,
-        configuration: configuration,
-      ),
+      DriverSettlementsDbFields.returnedCashTotal: _moneyCodec
+          .encodeNonNegative(
+            value.returnedCashTotal,
+            configuration: configuration,
+          ),
       DriverSettlementsDbFields.returnedCashTotalMinorUnits:
           value.returnedCashTotal.minorUnits,
       DriverSettlementsDbFields.deductionsTotal: _moneyCodec.encodeNonNegative(

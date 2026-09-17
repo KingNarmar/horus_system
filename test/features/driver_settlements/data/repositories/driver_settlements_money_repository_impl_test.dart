@@ -17,42 +17,45 @@ import 'driver_settlements_repository_test_support.dart';
 
 void main() {
   group('DriverSettlementsRepositoryImpl exact money path', () {
-    test('forwards tenant period and currency to exact source loader', () async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final configuration = CurrencyConfiguration(
-        currency: currency,
-        fractionDigits: 2,
-      );
-      final zero = Money(minorUnits: 0, currency: currency);
-      final expected = DriverSettlementMoneySourceSnapshot(
-        openingDriverBalance: zero,
-        advancesTotal: Money(minorUnits: 10005, currency: currency),
-        driverPaidTripExpensesTotal: zero,
-        returnedCashTotal: zero,
-        deductionsTotal: zero,
-      );
-      final moneyRemote = _FakeMoneyRemoteDataSource(snapshot: expected);
-      final repository = _repository(moneyRemote: moneyRemote);
-      final period = DriverSettlementPeriod(
-        start: testBusinessDate(2026, 7, 1),
-        end: testBusinessDate(2026, 7, 31),
-      );
+    test(
+      'forwards tenant period and currency to exact source loader',
+      () async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final configuration = CurrencyConfiguration(
+          currency: currency,
+          fractionDigits: 2,
+        );
+        final zero = Money(minorUnits: 0, currency: currency);
+        final expected = DriverSettlementMoneySourceSnapshot(
+          openingDriverBalance: zero,
+          advancesTotal: Money(minorUnits: 10005, currency: currency),
+          driverPaidTripExpensesTotal: zero,
+          returnedCashTotal: zero,
+          deductionsTotal: zero,
+        );
+        final moneyRemote = _FakeMoneyRemoteDataSource(snapshot: expected);
+        final repository = _repository(moneyRemote: moneyRemote);
+        final period = DriverSettlementPeriod(
+          start: testBusinessDate(2026, 7, 1),
+          end: testBusinessDate(2026, 7, 31),
+        );
 
-      final result = await repository.getSettlementMoneySourceSnapshot(
-        companyId: testCompanyId,
-        driverId: testDriverId,
-        period: period,
-        currencyConfiguration: configuration,
-      );
+        final result = await repository.getSettlementMoneySourceSnapshot(
+          companyId: testCompanyId,
+          driverId: testDriverId,
+          period: period,
+          currencyConfiguration: configuration,
+        );
 
-      expect(result, isA<Success<DriverSettlementMoneySourceSnapshot>>());
-      expect(result.dataOrNull, same(expected));
-      expect(moneyRemote.snapshotCalls, 1);
-      expect(moneyRemote.lastCompanyId, testCompanyId);
-      expect(moneyRemote.lastDriverId, testDriverId);
-      expect(moneyRemote.lastPeriod, same(period));
-      expect(moneyRemote.lastCurrencyConfiguration, configuration);
-    });
+        expect(result, isA<Success<DriverSettlementMoneySourceSnapshot>>());
+        expect(result.dataOrNull, same(expected));
+        expect(moneyRemote.snapshotCalls, 1);
+        expect(moneyRemote.lastCompanyId, testCompanyId);
+        expect(moneyRemote.lastDriverId, testDriverId);
+        expect(moneyRemote.lastPeriod, same(period));
+        expect(moneyRemote.lastCurrencyConfiguration, configuration);
+      },
+    );
 
     test('creates exact draft then writes enriched audit', () async {
       final currency = CurrencyCode.tryParse('AED')!;

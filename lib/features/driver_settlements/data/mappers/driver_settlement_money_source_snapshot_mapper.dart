@@ -28,10 +28,7 @@ final class DriverSettlementMoneySourceSnapshotMapper {
       currencyConfiguration: currencyConfiguration,
       rows: tripExpenseRows,
     );
-    final zero = Money(
-      minorUnits: 0,
-      currency: currencyConfiguration.currency,
-    );
+    final zero = Money(minorUnits: 0, currency: currencyConfiguration.currency);
 
     return DriverSettlementMoneySourceSnapshot(
       openingDriverBalance: zero,
@@ -139,7 +136,8 @@ final class DriverSettlementMoneySourceSnapshotMapper {
           ?.toString();
       if (fundingSource !=
               DriverSettlementSourceValues.fundingSourceDriverAdvance &&
-          fundingSource != DriverSettlementSourceValues.fundingSourceDriverCash) {
+          fundingSource !=
+              DriverSettlementSourceValues.fundingSourceDriverCash) {
         throw FormatException(
           'Unsupported driver-paid trip expense source: $fundingSource',
         );

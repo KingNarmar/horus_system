@@ -134,12 +134,13 @@ class DriverSettlementsRepositoryImpl
     required CurrencyConfiguration currencyConfiguration,
   }) {
     return _guard(() async {
-      final snapshot = await moneyRemoteDataSource.getSettlementMoneySourceSnapshot(
-        companyId: companyId,
-        driverId: driverId,
-        period: period,
-        currencyConfiguration: currencyConfiguration,
-      );
+      final snapshot = await moneyRemoteDataSource
+          .getSettlementMoneySourceSnapshot(
+            companyId: companyId,
+            driverId: driverId,
+            period: period,
+            currencyConfiguration: currencyConfiguration,
+          );
       return Success(snapshot);
     });
   }

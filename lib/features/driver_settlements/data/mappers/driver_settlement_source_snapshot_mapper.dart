@@ -130,7 +130,8 @@ class DriverSettlementSourceSnapshotMapper {
           ?.toString();
       if (fundingSource !=
               DriverSettlementSourceValues.fundingSourceDriverAdvance &&
-          fundingSource != DriverSettlementSourceValues.fundingSourceDriverCash) {
+          fundingSource !=
+              DriverSettlementSourceValues.fundingSourceDriverCash) {
         throw FormatException(
           'Unsupported driver-paid trip expense source: $fundingSource',
         );

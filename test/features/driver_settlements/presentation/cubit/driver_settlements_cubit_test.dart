@@ -136,7 +136,10 @@ void main() {
       expect(state.allSettlements, hasLength(1));
       expect(state.feedback, DriverSettlementFeedback.draftCreated);
       expect(state.isCreatingDraft, isFalse);
-      expect(moneyRepository.lastWriteData?.compensationRevisionId, 'revision-1');
+      expect(
+        moneyRepository.lastWriteData?.compensationRevisionId,
+        'revision-1',
+      );
     },
   );
 
@@ -303,7 +306,9 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     required String driverId,
     required DriverSettlementPeriod period,
   }) {
-    throw UnsupportedError('Legacy source path is not used by PC-09 cubit tests.');
+    throw UnsupportedError(
+      'Legacy source path is not used by PC-09 cubit tests.',
+    );
   }
 
   @override
@@ -311,7 +316,9 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
     required DriverSettlementDraftWriteData data,
     required String actorRole,
   }) {
-    throw UnsupportedError('Legacy draft path is not used by PC-09 cubit tests.');
+    throw UnsupportedError(
+      'Legacy draft path is not used by PC-09 cubit tests.',
+    );
   }
 
   @override
@@ -365,7 +372,8 @@ class _FakeDriverSettlementsRepository implements DriverSettlementsRepository {
   }
 }
 
-class _FakeSettlementMoneyRepository implements DriverSettlementMoneyRepository {
+class _FakeSettlementMoneyRepository
+    implements DriverSettlementMoneyRepository {
   Completer<DriverSettlementMoneySourceSnapshot>? snapshotCompleter;
   DriverSettlementMoneyDraftWriteData? lastWriteData;
 

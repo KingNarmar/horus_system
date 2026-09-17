@@ -236,7 +236,8 @@ Future<Result<DriverFinancialMovement>> _addMovement({
       const FailureResult(
         ValidationFailure(
           code: FailureCodes.validationDriverFinanceAmountPositive,
-          message: 'Driver financial movement amount must be greater than zero.',
+          message:
+              'Driver financial movement amount must be greater than zero.',
         ),
       ),
     );

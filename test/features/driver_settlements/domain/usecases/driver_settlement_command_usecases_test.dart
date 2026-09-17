@@ -24,44 +24,49 @@ void main() {
       expect(repository.driverOptionsCalls, 1);
     });
 
-    test('rejects invalid settlement periods before repository access', () async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final legacyRepository = FakeDriverSettlementsRepository();
-      final moneyRepository = FakeSettlementMoneyRepository(
-        snapshot: settlementTestMoneySnapshot(currency: currency),
-      );
-      final compensationRepository = FakeCompensationRepository([
-        settlementTestRevision(currency: currency, amountMinorUnits: 100000),
-      ]);
-      final balanceRepository = FakeMoneyBalanceRepository(
-        settlementTestMoneyBalance(currency: currency),
-      );
-      final useCase = CalculateDriverSettlementPreviewUseCase(
-        createSettlementResolver(
-          legacyRepository: legacyRepository,
-          moneyRepository: moneyRepository,
-          compensationRepository: compensationRepository,
-          balanceRepository: balanceRepository,
-        ),
-      );
+    test(
+      'rejects invalid settlement periods before repository access',
+      () async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final legacyRepository = FakeDriverSettlementsRepository();
+        final moneyRepository = FakeSettlementMoneyRepository(
+          snapshot: settlementTestMoneySnapshot(currency: currency),
+        );
+        final compensationRepository = FakeCompensationRepository([
+          settlementTestRevision(currency: currency, amountMinorUnits: 100000),
+        ]);
+        final balanceRepository = FakeMoneyBalanceRepository(
+          settlementTestMoneyBalance(currency: currency),
+        );
+        final useCase = CalculateDriverSettlementPreviewUseCase(
+          createSettlementResolver(
+            legacyRepository: legacyRepository,
+            moneyRepository: moneyRepository,
+            compensationRepository: compensationRepository,
+            balanceRepository: balanceRepository,
+          ),
+        );
 
-      final result = await useCase(
-        DriverSettlementCalculationParams(
-          currentCompanyContext: settlementTestContext(CompanyRole.accountant),
-          driverId: testDriverId,
-          periodStart: settlementTestDate(2026, 8, 1),
-          periodEnd: settlementTestDate(2026, 7, 1),
-        ),
-      );
+        final result = await useCase(
+          DriverSettlementCalculationParams(
+            currentCompanyContext: settlementTestContext(
+              CompanyRole.accountant,
+            ),
+            driverId: testDriverId,
+            periodStart: settlementTestDate(2026, 8, 1),
+            periodEnd: settlementTestDate(2026, 7, 1),
+          ),
+        );
 
-      expect(result, isA<FailureResult>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.validationDriverSettlementPeriodInvalid,
-      );
-      expect(legacyRepository.driverOptionCalls, 0);
-      expect(compensationRepository.historyCalls, 0);
-    });
+        expect(result, isA<FailureResult>());
+        expect(
+          result.failureOrNull?.code,
+          FailureCodes.validationDriverSettlementPeriodInvalid,
+        );
+        expect(legacyRepository.driverOptionCalls, 0);
+        expect(compensationRepository.historyCalls, 0);
+      },
+    );
 
     test('requires a void reason', () async {
       final repository = FakeDriverSettlementsRepository();

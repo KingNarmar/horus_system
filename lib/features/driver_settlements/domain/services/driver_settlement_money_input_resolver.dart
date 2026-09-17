@@ -37,8 +37,7 @@ final class DriverSettlementMoneyInputResolver {
         fractionDigits > CurrencyConfiguration.maxFractionDigits) {
       return const FailureResult(
         ValidationFailure(
-          code:
-              CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+          code: CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
           message: 'Company base currency fraction digits are invalid.',
         ),
       );
@@ -62,8 +61,8 @@ final class DriverSettlementMoneyInputResolver {
             configuration.fractionDigits) {
       return const FailureResult(
         ConflictFailure(
-          code: DriverSettlementFailureCodes
-              .conflictCompensationCurrencyMismatch,
+          code:
+              DriverSettlementFailureCodes.conflictCompensationCurrencyMismatch,
           message:
               'Driver compensation currency does not match company currency.',
         ),
@@ -92,7 +91,8 @@ final class DriverSettlementMoneyInputResolver {
       params.settlementDeductionsTotal,
       configuration: configuration,
     );
-    final settlementDeductionsFailure = settlementDeductionsResult.failureOrNull;
+    final settlementDeductionsFailure =
+        settlementDeductionsResult.failureOrNull;
     if (settlementDeductionsFailure != null) {
       return FailureResult(settlementDeductionsFailure);
     }

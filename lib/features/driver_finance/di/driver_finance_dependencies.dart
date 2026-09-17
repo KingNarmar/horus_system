@@ -46,7 +46,9 @@ abstract final class DriverFinanceDependencies {
 
   static GetCanonicalDriverMoneyBalanceUseCase
   createGetCanonicalDriverMoneyBalanceUseCase() {
-    return GetCanonicalDriverMoneyBalanceUseCase(createMoneyBalanceRepository());
+    return GetCanonicalDriverMoneyBalanceUseCase(
+      createMoneyBalanceRepository(),
+    );
   }
 
   static GetCurrentCanonicalDriverBalanceUseCase

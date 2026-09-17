@@ -6,7 +6,9 @@ import 'package:horus_system/features/driver_finance/presentation/widgets/driver
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('submits trusted date and decimal text unchanged', (tester) async {
+  testWidgets('submits trusted date and decimal text unchanged', (
+    tester,
+  ) async {
     final initialDate = BusinessDate(year: 2026, month: 9, day: 8);
     BusinessDate? submittedDate;
     String? submittedAmount;

@@ -168,7 +168,9 @@ final class FakeDriverSettlementsRepository
     required DriverSettlementFinalizeData data,
     required String actorRole,
   }) async {
-    return Success(settlementTestSettlement(status: DriverSettlementStatus.finalized));
+    return Success(
+      settlementTestSettlement(status: DriverSettlementStatus.finalized),
+    );
   }
 
   @override
@@ -226,7 +228,9 @@ final class FakeDriverSettlementsRepository
     required String actorRole,
   }) async {
     voidCalls++;
-    return Success(settlementTestSettlement(status: DriverSettlementStatus.voided));
+    return Success(
+      settlementTestSettlement(status: DriverSettlementStatus.voided),
+    );
   }
 }
 

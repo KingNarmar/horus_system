@@ -332,8 +332,7 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'تسوية السائق مطلوبة.',
     'periodInvalidFailure': 'فترة التسوية غير صحيحة.',
     'amountNegativeFailure': 'مبالغ التسوية لا يمكن أن تكون سالبة.',
-    'amountInvalidFailure':
-        'أدخل مبلغ تسوية صحيحًا وفق دقة عملة الشركة.',
+    'amountInvalidFailure': 'أدخل مبلغ تسوية صحيحًا وفق دقة عملة الشركة.',
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
     'balanceRecoveryExceedsDebtFailure':
         'لا يمكن أن يتجاوز الاسترداد من الراتب قيمة دين السائق القائم.',
