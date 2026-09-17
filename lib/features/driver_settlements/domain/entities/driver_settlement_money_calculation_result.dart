@@ -38,5 +38,12 @@ final class DriverSettlementMoneyCalculationResult {
     return DriverSettlementBalanceDirection.settled;
   }
 
-  int get balanceAmountMinorUnits => closingDriverBalance.minorUnits.abs();
+  Money get balanceAmount {
+    return Money(
+      minorUnits: closingDriverBalance.minorUnits.abs(),
+      currency: closingDriverBalance.currency,
+    );
+  }
+
+  int get balanceAmountMinorUnits => balanceAmount.minorUnits;
 }
