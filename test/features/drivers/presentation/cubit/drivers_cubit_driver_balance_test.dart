@@ -99,7 +99,7 @@ void main() {
       await cubit.loadDriverFinancialMovements(_driver);
       await cubit.addDriverAdvance(
         driver: _driver,
-        amount: 100,
+        amount: '100.00',
         movementDate: BusinessDate(year: 2026, month: 7, day: 22),
       );
 
@@ -107,6 +107,8 @@ void main() {
       expect(state.selectedDriverBalance?.netBalance, -5700);
       expect(state.selectedDriverFinancialMovements.first.id, 'new-advance');
       expect(financeRepository.addMovementCalls, 1);
+      expect(financeRepository.lastWriteData?.amount.minorUnits, 10000);
+      expect(financeRepository.lastWriteData?.amount.currency.value, 'AED');
       expect(balanceRepository.calls, 2);
       expect(balanceRepository.checkpointBoundaries, everyElement(isNull));
       expect(
@@ -182,6 +184,8 @@ const _context = CurrentCompanyContext(
     id: _companyId,
     name: 'Company',
     businessTimezone: _timeZoneId,
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
   ),
   role: CompanyRole.accountant,
 );
@@ -191,6 +195,8 @@ const _ownerContext = CurrentCompanyContext(
     id: _companyId,
     name: 'Company',
     businessTimezone: _timeZoneId,
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
   ),
   role: CompanyRole.owner,
 );
@@ -336,6 +342,7 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   int getMovementsCalls = 0;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
+  DriverFinancialMovementWriteData? lastWriteData;
 
   _FakeDriverFinanceRepository({required this.movements, this.addedMovement});
 
@@ -364,6 +371,7 @@ class _FakeDriverFinanceRepository implements DriverFinanceRepository {
     required String actorRole,
   }) async {
     addMovementCalls++;
+    lastWriteData = data;
     final movement = addedMovement;
     if (movement == null) throw StateError('No added movement configured.');
     return Success<DriverFinancialMovement>(movement);
