@@ -82,9 +82,7 @@ final class DriverCompensationPeriodPolicy {
 
     if (matches.isEmpty) {
       return const FailureResult<DriverCompensationRevision>(
-        NotFoundFailure(
-          code: DriverCompensationFailureCodes.notFoundForPeriod,
-        ),
+        NotFoundFailure(code: DriverCompensationFailureCodes.notFoundForPeriod),
       );
     }
 

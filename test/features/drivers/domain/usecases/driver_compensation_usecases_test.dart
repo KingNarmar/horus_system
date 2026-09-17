@@ -195,9 +195,7 @@ void main() {
         from: BusinessDate(year: 2026, month: 8, day: 1),
         to: null,
       );
-      final repository = _FakeDriverCompensationRepository(
-        history: [revision],
-      );
+      final repository = _FakeDriverCompensationRepository(history: [revision]);
       final useCase = ResolveDriverCompensationForPeriodUseCase(repository);
 
       final result = await useCase(
