@@ -1,4 +1,6 @@
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
@@ -35,7 +37,7 @@ class GetDriverTripOptionsParams {
 class AddDriverAdvanceParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
-  final double amount;
+  final Money amount;
   final BusinessDate movementDate;
   final String? notes;
 
@@ -52,7 +54,7 @@ class AddDriverChargeParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
   final String? tripId;
-  final double amount;
+  final Money amount;
   final BusinessDate movementDate;
   final String? notes;
 
@@ -69,7 +71,7 @@ class AddDriverChargeParams {
 class AddDriverCashReturnParams {
   final CurrentCompanyContext currentCompanyContext;
   final String driverId;
-  final double amount;
+  final Money amount;
   final BusinessDate movementDate;
   final String? notes;
 
@@ -206,14 +208,19 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   required String driverId,
   required String? tripId,
   required DriverFinancialMovementType type,
-  required double amount,
+  required Money amount,
   required BusinessDate movementDate,
   required String? notes,
 }) {
+  final configuration = CurrencyConfiguration.tryCreate(
+    currencyCode: context.company.baseCurrencyCode,
+    fractionDigits: context.company.baseCurrencyFractionDigits,
+  );
   final failure = _validateWritableMovement(
     context: context,
     driverId: driverId,
     amount: amount,
+    configuration: configuration,
   );
 
   if (failure != null) return Future.value(FailureResult(failure));
@@ -226,6 +233,7 @@ Future<Result<DriverFinancialMovement>> _addMovement({
       tripId: type.canLinkTrip ? _optional(tripId) : null,
       type: type,
       amount: amount,
+      currencyFractionDigits: configuration!.fractionDigits,
       movementDate: movementDate,
       notes: _optional(notes),
     ),
@@ -261,7 +269,8 @@ Result<String> _validViewDriverId(
 Failure? _validateWritableMovement({
   required CurrentCompanyContext context,
   required String driverId,
-  required double amount,
+  required Money amount,
+  required CurrencyConfiguration? configuration,
 }) {
   if (!DriverFinancePermissionPolicy.canManageDriverFinance(context.role)) {
     return const PermissionFailure(
@@ -277,7 +286,14 @@ Failure? _validateWritableMovement({
     );
   }
 
-  if (amount <= 0) {
+  if (configuration == null || amount.currency != configuration.currency) {
+    return const ValidationFailure(
+      code: FailureCodes.validationFinancialConfigurationRequired,
+      message: 'Company financial configuration is required.',
+    );
+  }
+
+  if (!amount.isPositive) {
     return const ValidationFailure(
       code: FailureCodes.validationDriverFinanceAmountPositive,
       message: 'Driver financial movement amount must be greater than zero.',
