@@ -14,6 +14,9 @@ class DriverSettlementItemModel {
   final BusinessDate? sourceDate;
   final DriverSettlementItemDirection direction;
   final double amount;
+  final int? amountMinorUnits;
+  final String? currencyCode;
+  final int? currencyFractionDigits;
   final String labelKey;
   final String? descriptionKey;
   final Map<String, Object?> metadata;
@@ -29,6 +32,9 @@ class DriverSettlementItemModel {
     required this.labelKey,
     this.sourceId,
     this.sourceDate,
+    this.amountMinorUnits,
+    this.currencyCode,
+    this.currencyFractionDigits,
     this.descriptionKey,
     this.metadata = const {},
     this.createdAt,
@@ -51,6 +57,13 @@ class DriverSettlementItemModel {
         map[DriverSettlementsDbFields.direction].toString(),
       ),
       amount: _amountFrom(map[DriverSettlementsDbFields.amount]),
+      amountMinorUnits: _intFromNullable(
+        map[DriverSettlementsDbFields.amountMinorUnits],
+      ),
+      currencyCode: map[DriverSettlementsDbFields.currencyCode] as String?,
+      currencyFractionDigits: _intFromNullable(
+        map[DriverSettlementsDbFields.currencyFractionDigits],
+      ),
       labelKey: map[DriverSettlementsDbFields.labelKey] as String,
       descriptionKey: map[DriverSettlementsDbFields.descriptionKey] as String?,
       metadata: _metadataFrom(map[DriverSettlementsDbFields.metadata]),
@@ -71,4 +84,11 @@ Map<String, Object?> _metadataFrom(Object? value) {
 double _amountFrom(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int? _intFromNullable(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }
