@@ -6,13 +6,13 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../entities/driver_money_balance.dart';
 import '../policies/driver_finance_permission_policy.dart';
-import '../repositories/driver_balance_repository.dart';
+import '../repositories/driver_money_balance_repository.dart';
 import 'get_canonical_driver_balance_usecase.dart';
 
 final class GetCanonicalDriverMoneyBalanceUseCase
     implements
         UseCase<DriverMoneyBalance, GetCanonicalDriverBalanceParams> {
-  final DriverBalanceRepository _repository;
+  final DriverMoneyBalanceRepository _repository;
 
   const GetCanonicalDriverMoneyBalanceUseCase(this._repository);
 
