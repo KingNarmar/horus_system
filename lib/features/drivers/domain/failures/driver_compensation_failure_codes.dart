@@ -8,12 +8,16 @@ abstract final class DriverCompensationFailureCodes {
   static const String validationContractReferenceInvalid =
       'validation_driver_compensation_contract_reference_invalid';
   static const String conflictOverlap = 'conflict_driver_compensation_overlap';
+  static const String conflictPeriodSpansRevisions =
+      'conflict_driver_compensation_period_spans_revisions';
   static const String conflictRevisionAlreadyEnded =
       'conflict_driver_compensation_revision_already_ended';
   static const String conflictDocumentAlreadyAttached =
       'conflict_driver_compensation_document_already_attached';
   static const String notFoundForDate =
       'not_found_driver_compensation_for_date';
+  static const String notFoundForPeriod =
+      'not_found_driver_compensation_for_period';
   static const String notFoundRevision =
       'not_found_driver_compensation_revision';
   static const String notFoundDriver = 'not_found_driver_compensation_driver';
