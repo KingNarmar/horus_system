@@ -7,6 +7,7 @@ abstract final class DriverFinanceDbTables {
 
 abstract final class DriverFinanceDbFunctions {
   static const getBalanceCheckpoint = 'get_driver_balance_checkpoint';
+  static const getBalanceCheckpointV2 = 'get_driver_balance_checkpoint_v2';
 }
 
 abstract final class DriverFinanceDbFields {
@@ -30,6 +31,8 @@ abstract final class DriverFinanceDbFields {
   static const checkpointPeriodEnd = 'period_end';
   static const checkpointSnapshotCreatedAt = 'snapshot_created_at';
   static const checkpointClosingBalance = 'closing_driver_balance';
+  static const checkpointClosingBalanceMinorUnits =
+      'closing_driver_balance_minor_units';
 
   static const parameterCompanyId = 'p_company_id';
   static const parameterDriverId = 'p_driver_id';
