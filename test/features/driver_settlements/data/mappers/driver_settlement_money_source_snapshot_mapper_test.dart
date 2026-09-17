@@ -38,7 +38,7 @@ void main() {
       tripExpenseRows: [
         _expense(
           id: 'ledger-1',
-          originKind: 'trip_expense',
+          originKind: 'legacy_trip_expense',
           originId: 'legacy-expense-1',
           minorUnits: 1250,
           date: '2026-07-04',
