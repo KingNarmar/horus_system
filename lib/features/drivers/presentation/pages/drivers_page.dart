@@ -4,15 +4,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/currency_configuration.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
 import '../../../driver_finance/presentation/widgets/driver_financial_movement_form_dialog.dart';
 import '../../domain/entities/driver.dart';
+import '../../domain/entities/driver_compensation_revision.dart';
 import '../../domain/entities/driver_status_filter.dart';
+import '../../domain/policies/driver_compensation_permission_policy.dart';
+import '../cubit/driver_compensation_cubit.dart';
+import '../cubit/driver_compensation_state.dart';
 import '../cubit/drivers_cubit.dart';
 import '../cubit/drivers_state.dart';
+import '../helpers/driver_contract_document_launcher.dart';
+import '../helpers/driver_contract_file_picker.dart';
+import '../localization/driver_compensation_localizations.dart';
+import '../widgets/driver_compensation_end_dialog.dart';
+import '../widgets/driver_compensation_form_dialog.dart';
 import '../widgets/driver_details_dialog.dart';
 import '../widgets/driver_form_dialog.dart';
 import '../widgets/drivers_cards.dart';
@@ -28,6 +41,11 @@ class DriversPage extends StatefulWidget {
 }
 
 class _DriversPageState extends State<DriversPage> {
+  static const DriverContractFilePicker _contractFilePicker =
+      DriverContractFilePicker();
+  static const DriverContractDocumentLauncher _contractDocumentLauncher =
+      DriverContractDocumentLauncher();
+
   @override
   void initState() {
     super.initState();
@@ -68,17 +86,44 @@ class _DriversPageState extends State<DriversPage> {
   }
 
   Future<void> _openDetails(Driver driver) async {
-    final cubit = context.read<DriversCubit>();
-    cubit.loadDriverImageUrls(driver);
-    cubit.loadDriverActivity(driver);
-    cubit.loadDriverFinancialMovements(driver);
-    cubit.loadDriverTripOptions(driver);
+    final driversCubit = context.read<DriversCubit>();
+    final compensationCubit = context.read<DriverCompensationCubit>();
+    final canViewCompensation = DriverCompensationPermissionPolicy.canView(
+      widget.currentCompanyContext.role,
+    );
+
+    driversCubit.loadDriverImageUrls(driver);
+    driversCubit.loadDriverActivity(driver);
+    driversCubit.loadDriverFinancialMovements(driver);
+    driversCubit.loadDriverTripOptions(driver);
+
+    if (canViewCompensation) {
+      await compensationCubit.loadForDriver(
+        currentCompanyContext: widget.currentCompanyContext,
+        driverId: driver.id,
+      );
+    }
+    if (!mounted) return;
+
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<DriversCubit, DriversState>(
         builder: (context, state) => DriverDetailsDialog(
           driver: driver,
           state: state is DriversLoaded ? state : null,
+          showCompensation: canViewCompensation,
+          onAddCompensationRevision: canViewCompensation
+              ? () => _openCompensationForm(driver)
+              : null,
+          onEndCompensationRevision: canViewCompensation
+              ? (revision) => _openCompensationEndDialog(driver, revision)
+              : null,
+          onAttachCompensationContract: canViewCompensation
+              ? (revision) => _attachCompensationContract(driver, revision)
+              : null,
+          onOpenCompensationContract: canViewCompensation
+              ? _openCompensationContract
+              : null,
           onAddAdvance: () => _openFinancialMovementForm(
             driver: driver,
             movementType: DriverFinancialMovementType.advance,
@@ -94,7 +139,138 @@ class _DriversPageState extends State<DriversPage> {
         ),
       ),
     );
-    cubit.clearDriverActivity();
+    driversCubit.clearDriverActivity();
+    if (canViewCompensation) compensationCubit.clear();
+  }
+
+  Future<void> _openCompensationForm(Driver driver) async {
+    final compensationCubit = context.read<DriverCompensationCubit>();
+    final compensationState = compensationCubit.state;
+    if (compensationState is! DriverCompensationLoaded) return;
+
+    final configuration = CurrencyConfiguration.tryCreate(
+      currencyCode: widget.currentCompanyContext.company.baseCurrencyCode,
+      fractionDigits:
+          widget.currentCompanyContext.company.baseCurrencyFractionDigits,
+    );
+    if (configuration == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.financialReadinessL10n.configurationRequired),
+        ),
+      );
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) => DriverCompensationFormDialog(
+        financialConfiguration: configuration,
+        initialEffectiveFrom: compensationState.businessDate,
+        onSubmit:
+            ({
+              required Money amount,
+              required BusinessDate effectiveFrom,
+              BusinessDate? effectiveTo,
+              String? contractReference,
+              BusinessDocumentFile? contractDocument,
+            }) async {
+              final failure = await compensationCubit.createRevision(
+                amount: amount,
+                effectiveFrom: effectiveFrom,
+                effectiveTo: effectiveTo,
+                contractReference: contractReference,
+                contractDocument: contractDocument,
+              );
+              if (failure == null && mounted) {
+                await context.read<DriversCubit>().loadDriverActivity(driver);
+              }
+              return failure;
+            },
+      ),
+    );
+  }
+
+  Future<void> _openCompensationEndDialog(
+    Driver driver,
+    DriverCompensationRevision revision,
+  ) async {
+    final compensationCubit = context.read<DriverCompensationCubit>();
+    await showDialog<void>(
+      context: context,
+      builder: (_) => DriverCompensationEndDialog(
+        revision: revision,
+        initialEffectiveTo: revision.effectiveFrom,
+        onSubmit: (effectiveTo) async {
+          final failure = await compensationCubit.endRevision(
+            revision: revision,
+            effectiveTo: effectiveTo,
+          );
+          if (failure == null && mounted) {
+            await context.read<DriversCubit>().loadDriverActivity(driver);
+          }
+          return failure;
+        },
+      ),
+    );
+  }
+
+  Future<void> _attachCompensationContract(
+    Driver driver,
+    DriverCompensationRevision revision,
+  ) async {
+    final l10n = context.driverCompensationL10n;
+    try {
+      final document = await _contractFilePicker.pick();
+      if (document == null || !mounted) return;
+
+      final failure = await context
+          .read<DriverCompensationCubit>()
+          .attachContractDocument(revision: revision, document: document);
+      if (!mounted) return;
+      if (failure != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(driverCompensationFailureMessage(context, failure)),
+          ),
+        );
+        return;
+      }
+      await context.read<DriversCubit>().loadDriverActivity(driver);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.filePickerFailed)));
+    }
+  }
+
+  Future<void> _openCompensationContract(
+    DriverCompensationRevision revision,
+  ) async {
+    final l10n = context.driverCompensationL10n;
+    final result = await context
+        .read<DriverCompensationCubit>()
+        .createContractAccess(revision);
+    if (!mounted) return;
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(driverCompensationFailureMessage(context, failure)),
+        ),
+      );
+      return;
+    }
+
+    final access = result.dataOrNull;
+    if (access == null || !await _contractDocumentLauncher.open(access.value)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.openDocumentFailed)));
+    }
   }
 
   Future<void> _openFinancialMovementForm({
