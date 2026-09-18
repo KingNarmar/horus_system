@@ -4421,6 +4421,9 @@ abstract class AppLocalizations {
   String get tripDocumentReplaceButton;
   String get tripDocumentRemoveButton;
   String get tripDocumentViewButton;
+  String get tripDocumentDownloadButton;
+  String get tripDocumentSaveDialogTitle;
+  String get tripDocumentDownloadFailed;
   String get tripDocumentChooseKindTitle;
   String get tripDocumentChooseSourceTitle;
   String get tripDocumentChooseFile;
