@@ -1,10 +1,13 @@
 import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/expense_types/di/expense_types_dependencies.dart';
 import '../../features/expenses/di/expenses_dependencies.dart';
+import '../../features/trips/data/datasources/trip_documents_remote_data_source.dart';
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
+import '../../features/trips/data/repositories/trip_documents_repository_impl.dart';
 import '../../features/trips/data/repositories/trips_repository_impl.dart';
 import '../../features/trips/domain/usecases/trips_usecases.dart';
 import '../../features/trips/presentation/cubit/trips_cubit.dart';
+import 'business_document_dependencies.dart';
 import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
 import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
@@ -18,6 +21,10 @@ abstract final class TripsDependencies {
     final tripsRepository = TripsRepositoryImpl(
       remoteDataSource: tripsRemoteDataSource,
     );
+    final tripDocumentsRepository = TripDocumentsRepositoryImpl(
+      remoteDataSource: SupabaseTripDocumentsRemoteDataSource(client),
+      businessDocumentRepository: BusinessDocumentDependencies.createRepository(),
+    );
 
     return TripsCubit(
       getTripsUseCase: GetTripsUseCase(tripsRepository),
@@ -25,8 +32,22 @@ abstract final class TripsDependencies {
       getTripFormLookupsUseCase: GetTripFormLookupsUseCase(tripsRepository),
       createTripUseCase: CreateTripUseCase(tripsRepository),
       saveTripUseCase: SaveTripUseCase(tripsRepository),
-      updateTripStatusUseCase: UpdateTripStatusUseCase(tripsRepository),
+      updateTripStatusUseCase: UpdateTripStatusUseCase(
+        tripsRepository,
+        tripDocumentsRepository,
+      ),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
+      getTripDocumentsUseCase: GetTripDocumentsUseCase(tripDocumentsRepository),
+      uploadTripDocumentUseCase:
+          UploadTripDocumentUseCase(tripDocumentsRepository),
+      getTripDocumentAccessUseCase:
+          GetTripDocumentAccessUseCase(tripDocumentsRepository),
+      downloadTripDocumentUseCase:
+          DownloadTripDocumentUseCase(tripDocumentsRepository),
+      removeTripDocumentUseCase:
+          RemoveTripDocumentUseCase(tripDocumentsRepository),
+      replaceTripDocumentUseCase:
+          ReplaceTripDocumentUseCase(tripDocumentsRepository),
       calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
       getTripBusinessLocalTimestampsUseCase:
           const GetTripBusinessLocalTimestampsUseCase(
