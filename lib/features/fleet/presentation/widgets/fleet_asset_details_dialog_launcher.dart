@@ -18,6 +18,7 @@ Future<void> _openTractorHeadDetails(
       assetId: item.id,
     ),
   );
+  if (!context.mounted) return;
 
   await showDialog<void>(
     context: context,
@@ -67,6 +68,7 @@ Future<void> _openTrailerDetails(
       assetId: item.id,
     ),
   );
+  if (!context.mounted) return;
 
   await showDialog<void>(
     context: context,

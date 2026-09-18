@@ -327,7 +327,7 @@ Future<_LicenseExpirySelection?> _selectExpiryUpdate(
     ),
   );
 
-  if (choice == null) return null;
+  if (choice == null || !context.mounted) return null;
   if (choice == _ExpiryChoice.keepCurrent) {
     return const _LicenseExpirySelection();
   }
