@@ -2010,6 +2010,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الدور غير مسموح له بتحديث حالة الرحلة.';
 
   @override
+  String get tripStatusEvidenceRequiredFailure =>
+      'ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.';
+
+  @override
   String get tripsStatusAllFilter => 'الكل';
 
   @override
