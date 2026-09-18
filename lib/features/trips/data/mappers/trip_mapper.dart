@@ -63,8 +63,6 @@ extension TripModelMapper on TripModel {
       updatedAt: updatedAt,
     );
   }
-
-
 }
 
 extension TripFormLookupsModelMapper on TripFormLookupsModel {
@@ -148,6 +146,38 @@ extension TripWriteDataMapper on TripWriteData {
     };
   }
 
+  Map<String, dynamic> toMutationRpcParams({
+    required CurrencyConfiguration? financialConfiguration,
+  }) {
+    final writeMap = toInsertMap(
+      financialConfiguration: financialConfiguration,
+    );
+
+    return {
+      TripDbRpcParams.companyId: companyId,
+      TripDbRpcParams.customerId: customerId,
+      TripDbRpcParams.routeId: routeId,
+      TripDbRpcParams.driverId: driverId,
+      TripDbRpcParams.tractorHeadId: tractorHeadId,
+      TripDbRpcParams.trailerId: trailerId,
+      TripDbRpcParams.loadingOrderNumber: loadingOrderNumber,
+      TripDbRpcParams.waybillNumber: waybillNumber,
+      TripDbRpcParams.quantityTons: writeMap[TripDbFields.quantityTons],
+      TripDbRpcParams.agreedFreightRatePerTon:
+          writeMap[TripDbFields.agreedFreightRatePerTon],
+      TripDbRpcParams.commercialAmount:
+          writeMap[TripDbFields.commercialAmount],
+      TripDbRpcParams.scheduledLoadingAt:
+          writeMap[TripDbFields.scheduledLoadingAt],
+      TripDbRpcParams.scheduledDeliveryAt:
+          writeMap[TripDbFields.scheduledDeliveryAt],
+      TripDbRpcParams.actualLoadingAt:
+          writeMap[TripDbFields.actualLoadingAt],
+      TripDbRpcParams.actualDeliveryAt:
+          writeMap[TripDbFields.actualDeliveryAt],
+      TripDbRpcParams.notes: notes,
+    };
+  }
 }
 
 QuantityTons? _decodeQuantity(String? decimal) {
