@@ -2034,6 +2034,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trip status update is not allowed for this role.';
 
   @override
+  String get tripStatusEvidenceRequiredFailure =>
+      'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.';
+
+  @override
   String get tripsStatusAllFilter => 'All';
 
   @override
