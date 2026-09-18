@@ -595,6 +595,9 @@
   "tripDocumentReplaceButton": "Replace",
   "tripDocumentRemoveButton": "Remove",
   "tripDocumentViewButton": "Open",
+  "tripDocumentDownloadButton": "Download",
+  "tripDocumentSaveDialogTitle": "Save Trip document",
+  "tripDocumentDownloadFailed": "The document could not be saved."
   "tripDocumentChooseKindTitle": "Choose document type",
   "tripDocumentChooseSourceTitle": "Choose source",
   "tripDocumentChooseFile": "Choose file",
