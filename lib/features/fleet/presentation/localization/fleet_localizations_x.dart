@@ -26,8 +26,7 @@ extension FleetLocalizationsX on AppLocalizations {
   String fleetAuditEventLabel(String? event, String action) {
     return switch (event) {
       'fleet_license_document_uploaded' => fleetAuditLicenseDocumentUploaded,
-      'fleet_license_document_file_added' =>
-        fleetAuditLicenseDocumentFileAdded,
+      'fleet_license_document_file_added' => fleetAuditLicenseDocumentFileAdded,
       'fleet_license_document_file_replaced' =>
         fleetAuditLicenseDocumentFileReplaced,
       'fleet_license_document_replaced' => fleetAuditLicenseDocumentReplaced,

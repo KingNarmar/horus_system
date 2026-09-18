@@ -142,11 +142,7 @@ final class _LoadedContent extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: state.isMutating
                   ? null
-                  : () => _confirmRemove(
-                      context,
-                      document,
-                      onAssetChanged,
-                    ),
+                  : () => _confirmRemove(context, document, onAssetChanged),
               icon: const Icon(AppIcons.deactivate),
               label: Text(l10n.fleetLicenseDocumentRemoveButton),
             ),

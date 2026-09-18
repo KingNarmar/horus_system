@@ -2264,35 +2264,6 @@ abstract class AppLocalizations {
   /// **'Removed'**
   String get fleetLicenseDocumentRemovedValue;
 
-
-  String get fleetLicenseDocumentFrontSide;
-
-  String get fleetLicenseDocumentBackSide;
-
-  String get fleetLicenseDocumentCombinedSide;
-
-  String get fleetLicenseDocumentSideGuidance;
-
-  String fleetLicenseDocumentMissingSide(String side);
-
-  String fleetLicenseDocumentUploadSide(String side);
-
-  String get fleetLicenseDocumentFileSideConflictFailure;
-
-  String get fleetLicenseDocumentFileNotFoundFailure;
-
-  String get fleetAuditLicenseDocumentFileAdded;
-
-  String get fleetAuditLicenseDocumentFileReplaced;
-
-  String get fleetLicenseDocumentSideField;
-
-  String get fleetLicenseDocumentFrontValue;
-
-  String get fleetLicenseDocumentBackValue;
-
-  String get fleetLicenseDocumentCombinedValue;
-
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:
@@ -4890,6 +4861,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The company must keep at least one active Owner.'**
   String get failureCompanyLastOwnerRequired;
+
+  /// No description provided for @fleetLicenseDocumentFrontSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get fleetLicenseDocumentFrontSide;
+
+  /// No description provided for @fleetLicenseDocumentBackSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get fleetLicenseDocumentBackSide;
+
+  /// No description provided for @fleetLicenseDocumentCombinedSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined file'**
+  String get fleetLicenseDocumentCombinedSide;
+
+  /// No description provided for @fleetLicenseDocumentSideGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload the front and back of the license separately.'**
+  String get fleetLicenseDocumentSideGuidance;
+
+  /// No description provided for @fleetLicenseDocumentMissingSide.
+  ///
+  /// In en, this message translates to:
+  /// **'{side} not uploaded.'**
+  String fleetLicenseDocumentMissingSide(String side);
+
+  /// No description provided for @fleetLicenseDocumentUploadSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload {side}'**
+  String fleetLicenseDocumentUploadSide(String side);
+
+  /// No description provided for @fleetLicenseDocumentFileSideConflictFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This license side already has an active file, or the current license uses a combined file.'**
+  String get fleetLicenseDocumentFileSideConflictFailure;
+
+  /// No description provided for @fleetLicenseDocumentFileNotFoundFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The license file could not be found.'**
+  String get fleetLicenseDocumentFileNotFoundFailure;
+
+  /// No description provided for @fleetAuditLicenseDocumentFileAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'License file added'**
+  String get fleetAuditLicenseDocumentFileAdded;
+
+  /// No description provided for @fleetAuditLicenseDocumentFileReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'License file replaced'**
+  String get fleetAuditLicenseDocumentFileReplaced;
+
+  /// No description provided for @fleetLicenseDocumentSideField.
+  ///
+  /// In en, this message translates to:
+  /// **'License side'**
+  String get fleetLicenseDocumentSideField;
+
+  /// No description provided for @fleetLicenseDocumentFrontValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get fleetLicenseDocumentFrontValue;
+
+  /// No description provided for @fleetLicenseDocumentBackValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get fleetLicenseDocumentBackValue;
+
+  /// No description provided for @fleetLicenseDocumentCombinedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined'**
+  String get fleetLicenseDocumentCombinedValue;
 }
 
 class _AppLocalizationsDelegate

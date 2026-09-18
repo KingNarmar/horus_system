@@ -223,10 +223,7 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
         .from(FleetLicenseDocumentFileDbFields.tableName)
         .select(FleetLicenseDocumentFileDbFields.allColumns)
         .eq(DbCommonFields.companyId, document.companyId)
-        .eq(
-          FleetLicenseDocumentFileDbFields.licenseDocumentId,
-          document.id,
-        )
+        .eq(FleetLicenseDocumentFileDbFields.licenseDocumentId, document.id)
         .isFilter(FleetLicenseDocumentFileDbFields.removedAt, null)
         .order(FleetLicenseDocumentFileDbFields.uploadedAt);
 
@@ -264,8 +261,6 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
 
   String _rpcUuid(Object? value) {
     if (value is String && value.trim().isNotEmpty) return value;
-    throw const FormatException(
-      'Invalid Fleet license document RPC response.',
-    );
+    throw const FormatException('Invalid Fleet license document RPC response.');
   }
 }

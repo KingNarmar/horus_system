@@ -143,9 +143,7 @@ final class FleetLicenseDocumentsRepositoryImpl
     final file = modelResult.dataOrNull?.activeFileById(fileId);
     if (file == null) {
       return const FailureResult(
-        NotFoundFailure(
-          code: FleetLicenseDocumentFailureCodes.fileNotFound,
-        ),
+        NotFoundFailure(code: FleetLicenseDocumentFailureCodes.fileNotFound),
       );
     }
 
@@ -171,9 +169,7 @@ final class FleetLicenseDocumentsRepositoryImpl
     final file = modelResult.dataOrNull?.activeFileById(fileId);
     if (file == null) {
       return const FailureResult(
-        NotFoundFailure(
-          code: FleetLicenseDocumentFailureCodes.fileNotFound,
-        ),
+        NotFoundFailure(code: FleetLicenseDocumentFailureCodes.fileNotFound),
       );
     }
 
@@ -200,16 +196,11 @@ final class FleetLicenseDocumentsRepositoryImpl
     if (currentFailure != null) return FailureResult(currentFailure);
     if (currentResult.dataOrNull?.activeFileById(fileId) == null) {
       return const FailureResult(
-        NotFoundFailure(
-          code: FleetLicenseDocumentFailureCodes.fileNotFound,
-        ),
+        NotFoundFailure(code: FleetLicenseDocumentFailureCodes.fileNotFound),
       );
     }
 
-    final uploadedResult = await _uploadFile(
-      target: target,
-      file: replacement,
-    );
+    final uploadedResult = await _uploadFile(target: target, file: replacement);
     final uploadedFailure = uploadedResult.failureOrNull;
     if (uploadedFailure != null) return FailureResult(uploadedFailure);
 
@@ -367,9 +358,7 @@ final class FleetLicenseDocumentsRepositoryImpl
 
   FailureResult<FleetLicenseDocument> _unexpectedDocumentFailure() {
     return const FailureResult(
-      UnexpectedFailure(
-        code: FleetLicenseDocumentFailureCodes.unexpectedError,
-      ),
+      UnexpectedFailure(code: FleetLicenseDocumentFailureCodes.unexpectedError),
     );
   }
 }

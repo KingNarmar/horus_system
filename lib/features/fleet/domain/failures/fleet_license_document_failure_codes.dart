@@ -9,8 +9,7 @@ abstract final class FleetLicenseDocumentFailureCodes {
       'validation_fleet_license_document_file_id_required';
   static const conflictActiveDocumentExists =
       'conflict_fleet_license_document_active_exists';
-  static const conflictFileSide =
-      'conflict_fleet_license_document_file_side';
+  static const conflictFileSide = 'conflict_fleet_license_document_file_side';
   static const notFound = 'fleet_license_document_not_found';
   static const fileNotFound = 'fleet_license_document_file_not_found';
   static const compensationCleanupFailed =

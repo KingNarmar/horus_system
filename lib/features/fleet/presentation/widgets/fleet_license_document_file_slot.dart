@@ -264,10 +264,7 @@ final class _ExistingFileActions extends StatelessWidget {
   }
 }
 
-String _sideLabel(
-  AppLocalizations l10n,
-  FleetLicenseDocumentFileSide side,
-) {
+String _sideLabel(AppLocalizations l10n, FleetLicenseDocumentFileSide side) {
   return switch (side) {
     FleetLicenseDocumentFileSide.front => l10n.fleetLicenseDocumentFrontSide,
     FleetLicenseDocumentFileSide.back => l10n.fleetLicenseDocumentBackSide,

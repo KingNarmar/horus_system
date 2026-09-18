@@ -51,51 +51,57 @@ void main() {
       expect(state.canManage, isFalse);
     });
 
-    test('successful back upload replaces state with aggregate result', () async {
-      final repository = _FakeRepository()
-        ..activeDocument = _frontDocument
-        ..addResult = Success(_frontBackDocument);
-      final cubit = _createCubit(repository);
-      addTearDown(cubit.close);
+    test(
+      'successful back upload replaces state with aggregate result',
+      () async {
+        final repository = _FakeRepository()
+          ..activeDocument = _frontDocument
+          ..addResult = Success(_frontBackDocument);
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.load(
-        currentCompanyContext: _operationsContext,
-        target: _target,
-      );
-      final changed = await cubit.upload(
-        side: FleetLicenseDocumentFileSide.back,
-        file: _businessFile,
-      );
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
+        final changed = await cubit.upload(
+          side: FleetLicenseDocumentFileSide.back,
+          file: _businessFile,
+        );
 
-      final state = cubit.state as FleetLicenseDocumentsLoaded;
-      expect(changed, isTrue);
-      expect(state.document?.frontFile, isNotNull);
-      expect(state.document?.backFile, isNotNull);
-      expect(state.failure, isNull);
-    });
+        final state = cubit.state as FleetLicenseDocumentsLoaded;
+        expect(changed, isTrue);
+        expect(state.document?.frontFile, isNotNull);
+        expect(state.document?.backFile, isNotNull);
+        expect(state.failure, isNull);
+      },
+    );
 
-    test('failed remove preserves document and exposes typed failure', () async {
-      const failure = ServerFailure(
-        code: 'fleet_license_document_server_error',
-      );
-      final repository = _FakeRepository()
-        ..activeDocument = _frontDocument
-        ..removeResult = const FailureResult<void>(failure);
-      final cubit = _createCubit(repository);
-      addTearDown(cubit.close);
+    test(
+      'failed remove preserves document and exposes typed failure',
+      () async {
+        const failure = ServerFailure(
+          code: 'fleet_license_document_server_error',
+        );
+        final repository = _FakeRepository()
+          ..activeDocument = _frontDocument
+          ..removeResult = const FailureResult<void>(failure);
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.load(
-        currentCompanyContext: _operationsContext,
-        target: _target,
-      );
-      final changed = await cubit.remove(_frontDocument);
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
+        final changed = await cubit.remove(_frontDocument);
 
-      final state = cubit.state as FleetLicenseDocumentsLoaded;
-      expect(changed, isFalse);
-      expect(state.document?.id, _frontDocument.id);
-      expect(state.failure, same(failure));
-      expect(state.isMutating, isFalse);
-    });
+        final state = cubit.state as FleetLicenseDocumentsLoaded;
+        expect(changed, isFalse);
+        expect(state.document?.id, _frontDocument.id);
+        expect(state.failure, same(failure));
+        expect(state.isMutating, isFalse);
+      },
+    );
   });
 }
 

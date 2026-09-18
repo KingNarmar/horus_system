@@ -237,9 +237,7 @@ final class ReplaceFleetLicenseDocumentFileUseCase
     if (!_policy.canReplaceFile(params.document, params.file)) {
       return Future.value(
         const FailureResult(
-          NotFoundFailure(
-            code: FleetLicenseDocumentFailureCodes.fileNotFound,
-          ),
+          NotFoundFailure(code: FleetLicenseDocumentFailureCodes.fileNotFound),
         ),
       );
     }

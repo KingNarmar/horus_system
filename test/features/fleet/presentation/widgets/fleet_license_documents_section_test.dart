@@ -41,7 +41,10 @@ void main() {
     expect(find.text(l10n.fleetLicenseDocumentBackSide), findsOneWidget);
     expect(find.text('front.pdf'), findsOneWidget);
     expect(find.text('back.pdf'), findsOneWidget);
-    expect(find.byTooltip(l10n.fleetLicenseDocumentOpenButton), findsNWidgets(2));
+    expect(
+      find.byTooltip(l10n.fleetLicenseDocumentOpenButton),
+      findsNWidgets(2),
+    );
     expect(
       find.byTooltip(l10n.fleetLicenseDocumentDownloadButton),
       findsNWidgets(2),
@@ -76,17 +79,13 @@ void main() {
     expect(find.text(l10n.fleetLicenseDocumentBackSide), findsOneWidget);
     expect(
       find.text(
-        l10n.fleetLicenseDocumentUploadSide(
-          l10n.fleetLicenseDocumentFrontSide,
-        ),
+        l10n.fleetLicenseDocumentUploadSide(l10n.fleetLicenseDocumentFrontSide),
       ),
       findsOneWidget,
     );
     expect(
       find.text(
-        l10n.fleetLicenseDocumentUploadSide(
-          l10n.fleetLicenseDocumentBackSide,
-        ),
+        l10n.fleetLicenseDocumentUploadSide(l10n.fleetLicenseDocumentBackSide),
       ),
       findsOneWidget,
     );

@@ -53,10 +53,7 @@ void main() {
 
       expect(entity.side, FleetLicenseDocumentFileSide.combined);
       expect(entity.originalFileName, 'legacy.pdf');
-      expect(
-        entity.toString(),
-        isNot(contains(fileModel.storageReference)),
-      );
+      expect(entity.toString(), isNot(contains(fileModel.storageReference)));
     });
 
     test('maps Trailer document', () {
