@@ -2356,4 +2356,87 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get failureCompanyLastOwnerRequired =>
       'يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل.';
+  @override
+  String get tripDocumentsTitle => 'المستندات والإثباتات';
+  @override
+  String get tripLoadingDocuments => 'جاري تحميل المستندات...';
+  @override
+  String get tripNoDocumentsFound => 'لم يتم رفع مستندات بعد.';
+  @override
+  String get tripDocumentEvidenceReady => 'الإثبات المطلوب متوفر.';
+  @override
+  String get tripDocumentEvidenceMissing => 'الإثبات المطلوب غير متوفر.';
+  @override
+  String get tripDocumentEvidenceRule =>
+      'حالة استلام المستندات تتطلب بوليصة أو إثبات تسليم نشط.';
+  @override
+  String get tripDocumentUploadButton => 'رفع مستند';
+  @override
+  String get tripDocumentReplaceButton => 'استبدال';
+  @override
+  String get tripDocumentRemoveButton => 'إزالة';
+  @override
+  String get tripDocumentViewButton => 'فتح';
+  @override
+  String get tripDocumentChooseKindTitle => 'اختر نوع المستند';
+  @override
+  String get tripDocumentChooseSourceTitle => 'اختر المصدر';
+  @override
+  String get tripDocumentChooseFile => 'اختيار ملف';
+  @override
+  String get tripDocumentChooseGallery => 'معرض الصور';
+  @override
+  String get tripDocumentTakePhoto => 'الكاميرا';
+  @override
+  String get tripDocumentRemoveTitle => 'إزالة المستند';
+  @override
+  String get tripDocumentRemoveMessage =>
+      'هل تريد إزالة هذا المستند من إثباتات الرحلة النشطة؟';
+  @override
+  String get tripDocumentOpenFailed => 'تعذر فتح المستند.';
+  @override
+  String get tripDocumentKindLoadingOrder => 'أمر التحميل';
+  @override
+  String get tripDocumentKindWaybill => 'البوليصة';
+  @override
+  String get tripDocumentKindProofOfDelivery => 'إثبات التسليم';
+  @override
+  String get tripDocumentKindOther => 'أخرى';
+  @override
+  String get tripDocumentsPermissionFailure =>
+      'هذا الدور غير مسموح له بالوصول إلى مستندات الرحلة.';
+  @override
+  String get tripDocumentsMaxActiveFailure =>
+      'يمكن أن تحتوي الرحلة على 10 مستندات نشطة كحد أقصى.';
+  @override
+  String get tripDocumentsEvidenceRequiredFailure =>
+      'هذا الإجراء سيزيل آخر إثبات مطلوب للحالة الحالية للرحلة.';
+  @override
+  String get tripDocumentNotFoundFailure =>
+      'تعذر العثور على مستند الرحلة.';
+  @override
+  String get tripDocumentFileEmptyFailure => 'الملف المحدد فارغ.';
+  @override
+  String get tripDocumentFileNameInvalidFailure =>
+      'اسم الملف المحدد غير صالح.';
+  @override
+  String get tripDocumentFileTypeUnsupportedFailure =>
+      'استخدم PDF أو JPG أو JPEG أو PNG أو WEBP أو HEIC أو HEIF.';
+  @override
+  String get tripDocumentFileTooLargeFailure =>
+      'يجب ألا يزيد حجم الملف عن 10 ميجابايت.';
+  @override
+  String get tripDocumentStorageFailure =>
+      'فشلت عملية تخزين المستند. حاول مرة أخرى.';
+  @override
+  String get tripDocumentCleanupFailure =>
+      'تعذر تنظيف المستند بأمان بعد فشل الحفظ. تواصل مع المسؤول.';
+  @override
+  String get tripAuditDocumentUploaded => 'تم رفع مستند للرحلة';
+  @override
+  String get tripAuditDocumentRemoved => 'تمت إزالة مستند من الرحلة';
+  @override
+  String get tripAuditDocumentReplaced => 'تم استبدال مستند للرحلة';
+
 }
+
