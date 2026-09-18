@@ -141,6 +141,23 @@ void main() {
       },
     );
 
+    testWidgets('localizes status evidence conflict separately from removal', (
+      tester,
+    ) async {
+      const statusEvidenceFailure = ConflictFailure(
+        code: TripFailureCodes.conflictStatusEvidenceRequired,
+      );
+
+      expect(
+        await _messageFor(tester, const Locale('en'), statusEvidenceFailure),
+        'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), statusEvidenceFailure),
+        'ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.',
+      );
+    });
+
     testWidgets(
       'localizes financial readiness and currency mismatch failures',
       (tester) async {
