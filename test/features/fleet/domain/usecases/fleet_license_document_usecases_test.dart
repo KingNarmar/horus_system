@@ -164,7 +164,7 @@ void main() {
       final useCase = RemoveFleetLicenseDocumentUseCase(repository);
 
       final result = await useCase(
-        const FleetLicenseDocumentActionParams(
+        FleetLicenseDocumentActionParams(
           currentCompanyContext: _operationsContext,
           target: _tractorTarget,
           document: _frontDocument,
