@@ -2,7 +2,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status.dart';
@@ -11,22 +10,14 @@ import '../../domain/entities/trip_write_data.dart';
 import '../../domain/repositories/trips_repository.dart';
 import '../datasources/trips_remote_data_source.dart';
 import '../mappers/trip_mapper.dart';
-import 'trip_repository_audit_writer.dart';
 import 'trip_repository_failure_mapper.dart';
 
 class TripsRepositoryImpl implements TripsRepository {
   final TripsRemoteDataSource remoteDataSource;
-  final CreateAuditLogUseCase createAuditLogUseCase;
   final TripRepositoryFailureMapper _failureMapper;
 
-  const TripsRepositoryImpl({
-    required this.remoteDataSource,
-    required this.createAuditLogUseCase,
-  }) : _failureMapper = const TripRepositoryFailureMapper();
-
-  TripRepositoryAuditWriter get _auditWriter {
-    return TripRepositoryAuditWriter(createAuditLogUseCase);
-  }
+  const TripsRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const TripRepositoryFailureMapper();
 
   @override
   Future<Result<List<TripEntity>>> getTrips({
@@ -84,7 +75,6 @@ class TripsRepositoryImpl implements TripsRepository {
   @override
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
@@ -92,24 +82,6 @@ class TripsRepositoryImpl implements TripsRepository {
         data: data,
         financialConfiguration: financialConfiguration,
       );
-      final status = TripStatusX.fromValue(model.status);
-
-      await remoteDataSource.addTripStatusHistory(
-        companyId: model.companyId,
-        tripId: model.id,
-        oldStatus: null,
-        newStatus: status,
-        actorRole: actorRole,
-      );
-
-      final auditFailure = await _auditWriter.writeCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<TripEntity>(auditFailure);
-      }
 
       return Success(
         model.toEntity(financialConfiguration: financialConfiguration),
@@ -121,30 +93,14 @@ class TripsRepositoryImpl implements TripsRepository {
   Future<Result<TripEntity>> saveTrip({
     required String id,
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTripById(
-        companyId: data.companyId,
-        id: id,
-      );
-
       final model = await remoteDataSource.saveTrip(
         id: id,
         data: data,
         financialConfiguration: financialConfiguration,
       );
-
-      final auditFailure = await _auditWriter.writeUpdated(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<TripEntity>(auditFailure);
-      }
 
       return Success(
         model.toEntity(financialConfiguration: financialConfiguration),
@@ -157,45 +113,16 @@ class TripsRepositoryImpl implements TripsRepository {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
     String? notes,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTripById(
-        companyId: companyId,
-        id: id,
-      );
-
-      final oldStatus = TripStatusX.fromValue(oldModel.status);
-
       final model = await remoteDataSource.updateTripStatus(
         companyId: companyId,
         id: id,
         newStatus: newStatus,
-      );
-
-      await remoteDataSource.addTripStatusHistory(
-        companyId: model.companyId,
-        tripId: model.id,
-        oldStatus: oldStatus,
-        newStatus: newStatus,
-        actorRole: actorRole,
         notes: notes,
       );
-
-      final auditFailure = await _auditWriter.writeStatusChanged(
-        oldModel: oldModel,
-        model: model,
-        oldStatus: oldStatus,
-        newStatus: newStatus,
-        actorRole: actorRole,
-        notes: notes,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<TripEntity>(auditFailure);
-      }
 
       return Success(
         model.toEntity(financialConfiguration: financialConfiguration),

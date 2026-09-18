@@ -1898,6 +1898,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Delivery cannot be before loading.';
 
   @override
+  String get tripNotFoundFailure => 'The trip could not be found.';
+
+  @override
+  String get tripManagementPermissionFailure =>
+      'Trips management is not allowed for this role.';
+
+  @override
+  String get tripStatusPermissionFailure =>
+      'Trip status update is not allowed for this role.';
+
+  @override
   String get tripsStatusAllFilter => 'All';
 
   @override

@@ -1,6 +1,6 @@
-import 'package:horus_system/core/data/constants/db_common_fields.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/features/trips/data/constants/trip_db_contract.dart';
 import 'package:horus_system/features/trips/data/constants/trip_db_fields.dart';
 import 'package:horus_system/features/trips/data/mappers/trip_mapper.dart';
 import 'package:horus_system/features/trips/data/models/trip_model.dart';
@@ -121,25 +121,7 @@ void main() {
       expect(entity.commercialAmount, isNull);
     });
 
-    test('records semantic commercial audit keys', () {
-      const model = TripModel(
-        id: 'trip-1',
-        companyId: 'company-1',
-        customerId: 'customer-1',
-        routeId: 'route-1',
-        status: 'loaded',
-        quantityTonsDecimal: '10.500',
-        agreedFreightRatePerTonDecimal: '250.00',
-        commercialAmountDecimal: '2625.00',
-      );
 
-      final values = model.toAuditValues();
-
-      expect(values[TripDbFields.quantityTons], '10.500');
-      expect(values[TripDbFields.agreedFreightRatePerTon], '250.00');
-      expect(values['commercial_amount'], '2625.00');
-      expect(values.containsKey('freight_price'), isFalse);
-    });
   });
 
   group('TripWriteData mapper', () {
@@ -160,19 +142,43 @@ void main() {
       expect(map[TripDbFields.commercialAmount], '52945.06');
     });
 
-    test('writes null snapshot components without inventing values', () {
-      const data = TripWriteData(
+    test('builds exact atomic RPC parameters without inventing values', () {
+      final scheduledLoadingAt = DateTime.utc(2026, 9, 18, 8, 30);
+      final actualDeliveryAt = DateTime.utc(2026, 9, 18, 12, 45);
+      final data = TripWriteData(
         companyId: 'company-1',
         customerId: 'customer-2',
         routeId: 'route-2',
+        quantityTons: QuantityTons.tryParse('15.125'),
+        agreedFreightRatePerTon: Money(
+          minorUnits: 350050,
+          currency: currency,
+        ),
+        commercialAmount: Money(minorUnits: 5294506, currency: currency),
+        scheduledLoadingAt: scheduledLoadingAt,
+        actualDeliveryAt: actualDeliveryAt,
       );
 
-      final map = data.toUpdateMap(financialConfiguration: configuration);
+      final params = data.toMutationRpcParams(
+        financialConfiguration: configuration,
+      );
 
-      expect(map[TripDbFields.quantityTons], isNull);
-      expect(map[TripDbFields.agreedFreightRatePerTon], isNull);
-      expect(map[TripDbFields.commercialAmount], isNull);
-      expect(map[DbCommonFields.updatedAt], isA<String>());
+      expect(params[TripDbRpcParams.companyId], 'company-1');
+      expect(params[TripDbRpcParams.customerId], 'customer-2');
+      expect(params[TripDbRpcParams.routeId], 'route-2');
+      expect(params[TripDbRpcParams.quantityTons], '15.125');
+      expect(params[TripDbRpcParams.agreedFreightRatePerTon], '3500.50');
+      expect(params[TripDbRpcParams.commercialAmount], '52945.06');
+      expect(
+        params[TripDbRpcParams.scheduledLoadingAt],
+        scheduledLoadingAt.toIso8601String(),
+      );
+      expect(params[TripDbRpcParams.scheduledDeliveryAt], isNull);
+      expect(params[TripDbRpcParams.actualLoadingAt], isNull);
+      expect(
+        params[TripDbRpcParams.actualDeliveryAt],
+        actualDeliveryAt.toIso8601String(),
+      );
     });
   });
 }

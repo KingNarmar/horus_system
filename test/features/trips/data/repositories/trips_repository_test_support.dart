@@ -1,11 +1,4 @@
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
-import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/trips/data/datasources/trips_remote_data_source.dart';
 import 'package:horus_system/features/trips/data/models/trip_lookup_models.dart';
 import 'package:horus_system/features/trips/data/models/trip_model.dart';
@@ -64,21 +57,6 @@ const testOldTripModel = TripModel(
   routeName: 'Dubai -> Abu Dhabi',
 );
 
-const testUnknownStatusTripModel = TripModel(
-  id: testTripId,
-  companyId: testCompanyId,
-  customerId: 'customer-1',
-  routeId: 'route-1',
-  driverId: 'driver-1',
-  tractorHeadId: 'tractor-1',
-  trailerId: 'trailer-1',
-  status: 'legacy_unknown',
-  loadingOrderNumber: 'LO-001',
-  waybillNumber: 'WB-OLD',
-  customerName: 'Customer One',
-  routeName: 'Dubai -> Abu Dhabi',
-);
-
 const testLoadedTripModel = TripModel(
   id: testTripId,
   companyId: testCompanyId,
@@ -103,15 +81,9 @@ const testEmptyLookupsModel = TripFormLookupsModel(
 );
 
 TripsRepositoryImpl createTripsRepository(
-  TripsRemoteDataSource remoteDataSource, {
-  FakeTripAuditLogRepository? auditRepository,
-}) {
-  return TripsRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? FakeTripAuditLogRepository(),
-    ),
-  );
+  TripsRemoteDataSource remoteDataSource,
+) {
+  return TripsRepositoryImpl(remoteDataSource: remoteDataSource);
 }
 
 class ThrowingTripModel extends TripModel {
@@ -135,7 +107,6 @@ enum TripDataOperation {
   create,
   save,
   status,
-  history,
   historyList,
   openTrip,
 }
@@ -157,7 +128,7 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   String? lastOpenTripTractorHeadId;
   String? lastOpenTripTrailerId;
   String? lastOpenTripExcludingTripId;
-  TripStatus? lastHistoryOldStatus;
+  String? lastStatusNotes;
   CurrencyConfiguration? lastCreateFinancialConfiguration;
   CurrencyConfiguration? lastSaveFinancialConfiguration;
 
@@ -232,35 +203,12 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-  }) async {
-    events.add('status');
-    _throwIfNeeded(TripDataOperation.status);
-    return statusModel ?? currentModel;
-  }
-
-  @override
-  Future<TripStatusHistoryModel> addTripStatusHistory({
-    required String companyId,
-    required String tripId,
-    required TripStatus? oldStatus,
-    required TripStatus newStatus,
-    required String actorRole,
     String? notes,
   }) async {
-    events.add('history');
-    lastHistoryOldStatus = oldStatus;
-    _throwIfNeeded(TripDataOperation.history);
-
-    return TripStatusHistoryModel(
-      id: 'history-1',
-      companyId: companyId,
-      tripId: tripId,
-      oldStatus: oldStatus?.value,
-      newStatus: newStatus.value,
-      changedByRole: actorRole,
-      notes: notes,
-      changedAt: DateTime.utc(2026, 8, 19),
-    );
+    events.add('status');
+    lastStatusNotes = notes;
+    _throwIfNeeded(TripDataOperation.status);
+    return statusModel ?? currentModel;
   }
 
   @override
@@ -289,30 +237,5 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
     lastOpenTripExcludingTripId = excludingTripId;
     _throwIfNeeded(TripDataOperation.openTrip);
     return false;
-  }
-}
-
-class FakeTripAuditLogRepository implements AuditLogRepository {
-  final List<String> events;
-  AuditLogWriteData? lastData;
-
-  FakeTripAuditLogRepository({List<String>? events})
-    : events = events ?? <String>[];
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    lastData = data;
-    events.add('audit:${data.description}');
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
   }
 }

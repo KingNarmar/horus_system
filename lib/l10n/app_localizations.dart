@@ -3578,6 +3578,24 @@ abstract class AppLocalizations {
   /// **'Delivery cannot be before loading.'**
   String get tripDeliveryBeforeLoadingInvalid;
 
+  /// No description provided for @tripNotFoundFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip could not be found.'**
+  String get tripNotFoundFailure;
+
+  /// No description provided for @tripManagementPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips management is not allowed for this role.'**
+  String get tripManagementPermissionFailure;
+
+  /// No description provided for @tripStatusPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip status update is not allowed for this role.'**
+  String get tripStatusPermissionFailure;
+
   /// No description provided for @tripsStatusAllFilter.
   ///
   /// In en, this message translates to:

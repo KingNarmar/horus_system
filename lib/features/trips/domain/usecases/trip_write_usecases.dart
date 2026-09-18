@@ -5,7 +5,6 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../entities/trip_entity.dart';
 import '../entities/trip_write_data.dart';
@@ -110,7 +109,6 @@ Future<Result<TripEntity>> _createTrip({
 
   return repository.createTrip(
     data: data,
-    actorRole: context.role.value,
     financialConfiguration: financialConfiguration,
   );
 }
@@ -209,7 +207,6 @@ Future<Result<TripEntity>> _saveTrip({
   return repository.saveTrip(
     id: id,
     data: data,
-    actorRole: context.role.value,
     financialConfiguration: financialConfiguration,
   );
 }

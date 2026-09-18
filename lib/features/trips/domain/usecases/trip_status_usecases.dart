@@ -2,7 +2,6 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
-import '../../../company/domain/entities/company_role.dart';
 import '../entities/trip_entity.dart';
 import '../entities/trip_status.dart';
 import '../entities/trip_status_history.dart';
@@ -67,7 +66,6 @@ class UpdateTripStatusUseCase
       companyId: context.companyId,
       id: id,
       newStatus: params.newStatus,
-      actorRole: context.role.value,
       financialConfiguration: financialConfiguration,
       notes: optionalTripText(params.notes),
     );
