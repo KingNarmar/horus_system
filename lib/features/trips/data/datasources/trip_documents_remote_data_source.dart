@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/data/constants/db_common_fields.dart';
+
 import '../constants/trip_document_db_contract.dart';
 import '../models/trip_document_model.dart';
 
@@ -56,7 +58,7 @@ final class SupabaseTripDocumentsRemoteDataSource
     final rows = await client
         .from(TripDocumentDbFields.tableName)
         .select(TripDocumentDbFields.allColumns)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.companyId, companyId)
         .eq(TripDocumentDbFields.tripId, tripId)
         .isFilter(TripDocumentDbFields.removedAt, null)
         .order(TripDocumentDbFields.uploadedAt, ascending: false);
@@ -79,9 +81,9 @@ final class SupabaseTripDocumentsRemoteDataSource
     final row = await client
         .from(TripDocumentDbFields.tableName)
         .select(TripDocumentDbFields.allColumns)
-        .eq('company_id', companyId)
+        .eq(DbCommonFields.companyId, companyId)
         .eq(TripDocumentDbFields.tripId, tripId)
-        .eq('id', documentId)
+        .eq(DbCommonFields.id, documentId)
         .isFilter(TripDocumentDbFields.removedAt, null)
         .single();
 
