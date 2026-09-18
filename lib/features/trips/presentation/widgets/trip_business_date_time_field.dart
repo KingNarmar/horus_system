@@ -28,11 +28,7 @@ class TripBusinessDateTimeField extends StatelessWidget {
     final now = DateTime.now();
     final initialDate = currentValue == null
         ? DateTime(now.year, now.month, now.day)
-        : DateTime(
-            currentValue.year,
-            currentValue.month,
-            currentValue.day,
-          );
+        : DateTime(currentValue.year, currentValue.month, currentValue.day);
 
     final selectedDate = await showDatePicker(
       context: context,

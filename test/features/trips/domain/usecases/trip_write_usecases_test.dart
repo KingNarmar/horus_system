@@ -181,25 +181,28 @@ void main() {
       expect(repository.lastWriteData?.actualDeliveryAt, actualDeliveryAt);
     });
 
-    test('does not compare actual timestamps against scheduled timestamps', () async {
-      final repository = _FakeTripsRepository();
-      final useCase = CreateTripUseCase(repository);
+    test(
+      'does not compare actual timestamps against scheduled timestamps',
+      () async {
+        final repository = _FakeTripsRepository();
+        final useCase = CreateTripUseCase(repository);
 
-      final result = await useCase(
-        CreateTripParams(
-          currentCompanyContext: context,
-          customerId: 'customer-1',
-          routeId: 'route-1',
-          scheduledLoadingAt: DateTime.utc(2026, 9, 20, 10),
-          scheduledDeliveryAt: DateTime.utc(2026, 9, 20, 12),
-          actualLoadingAt: DateTime.utc(2026, 9, 18, 10),
-          actualDeliveryAt: DateTime.utc(2026, 9, 18, 12),
-        ),
-      );
+        final result = await useCase(
+          CreateTripParams(
+            currentCompanyContext: context,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            scheduledLoadingAt: DateTime.utc(2026, 9, 20, 10),
+            scheduledDeliveryAt: DateTime.utc(2026, 9, 20, 12),
+            actualLoadingAt: DateTime.utc(2026, 9, 18, 10),
+            actualDeliveryAt: DateTime.utc(2026, 9, 18, 12),
+          ),
+        );
 
-      expect(result, isA<Success<TripEntity>>());
-      expect(repository.lastWriteData, isNotNull);
-    });
+        expect(result, isA<Success<TripEntity>>());
+        expect(repository.lastWriteData, isNotNull);
+      },
+    );
   });
 
   group('SaveTripUseCase legacy commercial history', () {

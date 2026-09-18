@@ -12,10 +12,7 @@ import '../models/trip_mutation_result.dart';
 
 class TripStatusUpdateDialog extends StatefulWidget {
   final TripEntity trip;
-  final Future<TripMutationResult> Function(
-    TripStatus status,
-    String? notes,
-  )
+  final Future<TripMutationResult> Function(TripStatus status, String? notes)
   onSubmit;
 
   const TripStatusUpdateDialog({

@@ -165,16 +165,13 @@ extension TripWriteDataMapper on TripWriteData {
       TripDbRpcParams.quantityTons: writeMap[TripDbFields.quantityTons],
       TripDbRpcParams.agreedFreightRatePerTon:
           writeMap[TripDbFields.agreedFreightRatePerTon],
-      TripDbRpcParams.commercialAmount:
-          writeMap[TripDbFields.commercialAmount],
+      TripDbRpcParams.commercialAmount: writeMap[TripDbFields.commercialAmount],
       TripDbRpcParams.scheduledLoadingAt:
           writeMap[TripDbFields.scheduledLoadingAt],
       TripDbRpcParams.scheduledDeliveryAt:
           writeMap[TripDbFields.scheduledDeliveryAt],
-      TripDbRpcParams.actualLoadingAt:
-          writeMap[TripDbFields.actualLoadingAt],
-      TripDbRpcParams.actualDeliveryAt:
-          writeMap[TripDbFields.actualDeliveryAt],
+      TripDbRpcParams.actualLoadingAt: writeMap[TripDbFields.actualLoadingAt],
+      TripDbRpcParams.actualDeliveryAt: writeMap[TripDbFields.actualDeliveryAt],
       TripDbRpcParams.notes: notes,
     };
   }

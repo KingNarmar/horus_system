@@ -173,9 +173,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     );
 
     final catalogResult = await owner.getExpenseTypeCatalogUseCase(
-      GetExpenseTypeCatalogParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      GetExpenseTypeCatalogParams(currentCompanyContext: currentCompanyContext),
     );
 
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {

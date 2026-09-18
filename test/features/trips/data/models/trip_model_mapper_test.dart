@@ -120,8 +120,6 @@ void main() {
       expect(entity.agreedFreightRatePerTon, isNull);
       expect(entity.commercialAmount, isNull);
     });
-
-
   });
 
   group('TripWriteData mapper', () {
@@ -150,10 +148,7 @@ void main() {
         customerId: 'customer-2',
         routeId: 'route-2',
         quantityTons: QuantityTons.tryParse('15.125'),
-        agreedFreightRatePerTon: Money(
-          minorUnits: 350050,
-          currency: currency,
-        ),
+        agreedFreightRatePerTon: Money(minorUnits: 350050, currency: currency),
         commercialAmount: Money(minorUnits: 5294506, currency: currency),
         scheduledLoadingAt: scheduledLoadingAt,
         actualDeliveryAt: actualDeliveryAt,

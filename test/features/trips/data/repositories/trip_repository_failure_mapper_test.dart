@@ -58,10 +58,7 @@ void main() {
       final failure = mapper.fromPostgrest(error);
 
       expect(failure, isA<ValidationFailure>());
-      expect(
-        failure.code,
-        FailureCodes.validationTripDeliveryBeforeLoading,
-      );
+      expect(failure.code, FailureCodes.validationTripDeliveryBeforeLoading);
       expect(failure.message, isNull);
     });
 
@@ -71,8 +68,7 @@ void main() {
     ]) {
       test('maps temporal check violation for $constraint', () {
         final error = PostgrestException(
-          message:
-              'new row violates check constraint "$constraint"',
+          message: 'new row violates check constraint "$constraint"',
           code: TripDbErrorCodes.checkViolation,
           details: 'sensitive row detail',
         );
@@ -80,10 +76,7 @@ void main() {
         final failure = mapper.fromPostgrest(error);
 
         expect(failure, isA<ValidationFailure>());
-        expect(
-          failure.code,
-          FailureCodes.validationTripDeliveryBeforeLoading,
-        );
+        expect(failure.code, FailureCodes.validationTripDeliveryBeforeLoading);
         expect(failure.message, isNull);
       });
     }
