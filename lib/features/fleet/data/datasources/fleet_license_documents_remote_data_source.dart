@@ -18,7 +18,7 @@ abstract class FleetLicenseDocumentsRemoteDataSource {
     required String documentId,
   });
 
-  Future<FleetLicenseDocumentModel> createDocumentWithFile({
+  Future<String> createDocumentWithFile({
     required FleetLicenseDocumentTarget target,
     required FleetLicenseDocumentFileSide side,
     required String storageReference,
@@ -28,7 +28,7 @@ abstract class FleetLicenseDocumentsRemoteDataSource {
     String? licenseExpiryDate,
   });
 
-  Future<FleetLicenseDocumentModel> addDocumentFile({
+  Future<void> addDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required FleetLicenseDocumentFileSide side,
@@ -39,7 +39,7 @@ abstract class FleetLicenseDocumentsRemoteDataSource {
     String? licenseExpiryDate,
   });
 
-  Future<FleetLicenseDocumentModel> replaceDocumentFile({
+  Future<void> replaceDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required String fileId,
@@ -126,7 +126,7 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
   }
 
   @override
-  Future<FleetLicenseDocumentModel> createDocumentWithFile({
+  Future<String> createDocumentWithFile({
     required FleetLicenseDocumentTarget target,
     required FleetLicenseDocumentFileSide side,
     required String storageReference,
@@ -147,12 +147,11 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
         licenseExpiryDate: licenseExpiryDate,
       ),
     );
-    final documentId = _rpcUuid(result);
-    return getActiveDocumentById(target: target, documentId: documentId);
+    return _rpcUuid(result);
   }
 
   @override
-  Future<FleetLicenseDocumentModel> addDocumentFile({
+  Future<void> addDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required FleetLicenseDocumentFileSide side,
@@ -173,11 +172,10 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
     );
     params[FleetLicenseDocumentDbRpcParams.documentId] = documentId;
     await client.rpc(FleetLicenseDocumentDbRpcs.addFile, params: params);
-    return getActiveDocumentById(target: target, documentId: documentId);
   }
 
   @override
-  Future<FleetLicenseDocumentModel> replaceDocumentFile({
+  Future<void> replaceDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required String fileId,
@@ -200,7 +198,6 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
     params[FleetLicenseDocumentDbRpcParams.documentId] = documentId;
     params[FleetLicenseDocumentDbRpcParams.fileId] = fileId;
     await client.rpc(FleetLicenseDocumentDbRpcs.replaceFile, params: params);
-    return getActiveDocumentById(target: target, documentId: documentId);
   }
 
   @override

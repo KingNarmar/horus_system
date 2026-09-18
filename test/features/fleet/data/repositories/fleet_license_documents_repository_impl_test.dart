@@ -86,6 +86,31 @@ void main() {
       );
     });
 
+    test(
+      'does not compensate after DB registration succeeds but readback fails',
+      () async {
+        final remote = _FakeRemoteDataSource()
+          ..readbackError = const PostgrestException(
+            message: 'temporary read failure',
+            code: 'XX000',
+          );
+        final storage = _FakeBusinessDocumentRepository();
+        final repository = FleetLicenseDocumentsRepositoryImpl(
+          remoteDataSource: remote,
+          businessDocumentRepository: storage,
+        );
+
+        final result = await repository.createWithFile(
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
+        );
+
+        expect(result.failureOrNull, isNotNull);
+        expect(storage.deleteCalls, 0);
+      },
+    );
+
     test('logical remove never deletes registered Storage objects', () async {
       final remote = _FakeRemoteDataSource();
       final storage = _FakeBusinessDocumentRepository();
@@ -170,6 +195,7 @@ final class _FakeBusinessDocumentRepository
 final class _FakeRemoteDataSource
     implements FleetLicenseDocumentsRemoteDataSource {
   PostgrestException? createError;
+  PostgrestException? readbackError;
   int addCalls = 0;
   int removeCalls = 0;
   String? lastDocumentId;
@@ -187,11 +213,13 @@ final class _FakeRemoteDataSource
     required FleetLicenseDocumentTarget target,
     required String documentId,
   }) async {
+    final error = readbackError;
+    if (error != null) throw error;
     return _model();
   }
 
   @override
-  Future<FleetLicenseDocumentModel> createDocumentWithFile({
+  Future<String> createDocumentWithFile({
     required FleetLicenseDocumentTarget target,
     required FleetLicenseDocumentFileSide side,
     required String storageReference,
@@ -203,11 +231,11 @@ final class _FakeRemoteDataSource
     final error = createError;
     if (error != null) throw error;
     lastSide = side;
-    return _model(storageReference: storageReference, side: side);
+    return 'document-1';
   }
 
   @override
-  Future<FleetLicenseDocumentModel> addDocumentFile({
+  Future<void> addDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required FleetLicenseDocumentFileSide side,
@@ -220,11 +248,10 @@ final class _FakeRemoteDataSource
     addCalls++;
     lastDocumentId = documentId;
     lastSide = side;
-    return _model(storageReference: storageReference, side: side);
   }
 
   @override
-  Future<FleetLicenseDocumentModel> replaceDocumentFile({
+  Future<void> replaceDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
     required String fileId,
@@ -237,7 +264,6 @@ final class _FakeRemoteDataSource
   }) async {
     lastDocumentId = documentId;
     lastSide = side;
-    return _model(storageReference: storageReference, side: side);
   }
 
   @override

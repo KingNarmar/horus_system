@@ -58,18 +58,12 @@ final class FleetLicenseDocumentsRepositoryImpl
     if (uploadedFailure != null) return FailureResult(uploadedFailure);
 
     final uploaded = uploadedResult.dataOrNull;
-    if (uploaded == null) {
-      return const FailureResult(
-        UnexpectedFailure(
-          code: FleetLicenseDocumentFailureCodes.unexpectedError,
-        ),
-      );
-    }
+    if (uploaded == null) return _unexpectedDocumentFailure();
 
-    return _persistUploadedFile(
+    final registrationResult = await _registerWithCompensation<String>(
       target: target,
       uploaded: uploaded,
-      persist: () => remoteDataSource.createDocumentWithFile(
+      register: () => remoteDataSource.createDocumentWithFile(
         target: target,
         side: side,
         storageReference: uploaded.reference.value,
@@ -79,6 +73,14 @@ final class FleetLicenseDocumentsRepositoryImpl
         licenseExpiryDate: DbDate.encodeNullable(newLicenseExpiryDate),
       ),
     );
+    final registrationFailure = registrationResult.failureOrNull;
+    if (registrationFailure != null) {
+      return FailureResult(registrationFailure);
+    }
+
+    final documentId = registrationResult.dataOrNull;
+    if (documentId == null) return _unexpectedDocumentFailure();
+    return _loadRegisteredDocument(target: target, documentId: documentId);
   }
 
   @override
@@ -101,18 +103,12 @@ final class FleetLicenseDocumentsRepositoryImpl
     if (uploadedFailure != null) return FailureResult(uploadedFailure);
 
     final uploaded = uploadedResult.dataOrNull;
-    if (uploaded == null) {
-      return const FailureResult(
-        UnexpectedFailure(
-          code: FleetLicenseDocumentFailureCodes.unexpectedError,
-        ),
-      );
-    }
+    if (uploaded == null) return _unexpectedDocumentFailure();
 
-    return _persistUploadedFile(
+    final registrationResult = await _registerWithCompensation<void>(
       target: target,
       uploaded: uploaded,
-      persist: () => remoteDataSource.addDocumentFile(
+      register: () => remoteDataSource.addDocumentFile(
         target: target,
         documentId: documentId,
         side: side,
@@ -123,6 +119,12 @@ final class FleetLicenseDocumentsRepositoryImpl
         licenseExpiryDate: DbDate.encodeNullable(newLicenseExpiryDate),
       ),
     );
+    final registrationFailure = registrationResult.failureOrNull;
+    if (registrationFailure != null) {
+      return FailureResult(registrationFailure);
+    }
+
+    return _loadRegisteredDocument(target: target, documentId: documentId);
   }
 
   @override
@@ -212,18 +214,12 @@ final class FleetLicenseDocumentsRepositoryImpl
     if (uploadedFailure != null) return FailureResult(uploadedFailure);
 
     final uploaded = uploadedResult.dataOrNull;
-    if (uploaded == null) {
-      return const FailureResult(
-        UnexpectedFailure(
-          code: FleetLicenseDocumentFailureCodes.unexpectedError,
-        ),
-      );
-    }
+    if (uploaded == null) return _unexpectedDocumentFailure();
 
-    return _persistUploadedFile(
+    final registrationResult = await _registerWithCompensation<void>(
       target: target,
       uploaded: uploaded,
-      persist: () => remoteDataSource.replaceDocumentFile(
+      register: () => remoteDataSource.replaceDocumentFile(
         target: target,
         documentId: documentId,
         fileId: fileId,
@@ -235,6 +231,12 @@ final class FleetLicenseDocumentsRepositoryImpl
         licenseExpiryDate: DbDate.encodeNullable(newLicenseExpiryDate),
       ),
     );
+    final registrationFailure = registrationResult.failureOrNull;
+    if (registrationFailure != null) {
+      return FailureResult(registrationFailure);
+    }
+
+    return _loadRegisteredDocument(target: target, documentId: documentId);
   }
 
   @override
@@ -286,14 +288,13 @@ final class FleetLicenseDocumentsRepositoryImpl
     );
   }
 
-  Future<Result<FleetLicenseDocument>> _persistUploadedFile({
+  Future<Result<T>> _registerWithCompensation<T>({
     required FleetLicenseDocumentTarget target,
     required _UploadedFleetLicenseFile uploaded,
-    required Future<FleetLicenseDocumentModel> Function() persist,
+    required Future<T> Function() register,
   }) async {
     try {
-      final model = await persist();
-      return Success(model.toEntity());
+      return Success(await register());
     } on PostgrestException catch (error) {
       final cleanupFailure = await _cleanupUploadedReference(
         companyId: target.companyId,
@@ -309,6 +310,22 @@ final class FleetLicenseDocumentsRepositoryImpl
       if (cleanupFailure != null) return FailureResult(cleanupFailure);
       return FailureResult(failureMapper.fromUnexpected(error));
     }
+  }
+
+  Future<Result<FleetLicenseDocument>> _loadRegisteredDocument({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+  }) async {
+    final modelResult = await _getActiveDocumentModelById(
+      target: target,
+      documentId: documentId,
+    );
+    final failure = modelResult.failureOrNull;
+    if (failure != null) return FailureResult(failure);
+
+    final model = modelResult.dataOrNull;
+    if (model == null) return _unexpectedDocumentFailure();
+    return Success(model.toEntity());
   }
 
   Future<Result<FleetLicenseDocumentModel>> _getActiveDocumentModelById({
@@ -345,6 +362,14 @@ final class FleetLicenseDocumentsRepositoryImpl
     if (cleanupResult.failureOrNull == null) return null;
     return const UnexpectedFailure(
       code: FleetLicenseDocumentFailureCodes.compensationCleanupFailed,
+    );
+  }
+
+  FailureResult<FleetLicenseDocument> _unexpectedDocumentFailure() {
+    return const FailureResult(
+      UnexpectedFailure(
+        code: FleetLicenseDocumentFailureCodes.unexpectedError,
+      ),
     );
   }
 }
