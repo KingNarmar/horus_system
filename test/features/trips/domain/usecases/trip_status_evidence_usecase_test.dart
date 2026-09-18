@@ -16,7 +16,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.da
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
-import 'package:horus_system/features/trips/domain/failures/trip_document_failure_codes.dart';
+import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trip_status_usecases.dart';
@@ -45,7 +45,7 @@ void main() {
         expect(result.failureOrNull, isA<ConflictFailure>());
         expect(
           result.failureOrNull?.code,
-          TripDocumentFailureCodes.conflictEvidenceRequired,
+          TripFailureCodes.conflictStatusEvidenceRequired,
         );
         expect(tripsRepository.statusUpdateCalls, 0);
       },
