@@ -79,7 +79,7 @@ final class TripDocumentsRepositoryImpl implements TripDocumentsRepository {
       final model = await remoteDataSource.createDocument(
         companyId: companyId,
         tripId: tripId,
-        documentKind: TripDocumentStorageSegments.forKind(kind),
+        documentKind: kind.value,
         storageReference: reference.value,
         originalFileName: document.fileName.trim(),
         mimeType: mimeType,
