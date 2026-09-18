@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
