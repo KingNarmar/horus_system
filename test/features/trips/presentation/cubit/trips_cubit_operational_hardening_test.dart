@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
+import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -27,6 +30,8 @@ import 'package:horus_system/features/expenses/domain/usecases/create_expense_le
 import 'package:horus_system/features/expenses/domain/usecases/create_trip_expense_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_document.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_document_kind.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_lookup_option.dart';
@@ -34,6 +39,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_route_lookup_op
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
+import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
@@ -283,6 +289,7 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
   const converter = FakeBusinessTimeZoneConverter();
   final expenseRepository = _NoopExpenseLedgerRepository();
   final expenseTypesRepository = _NoopExpenseTypesRepository();
+  final documentsRepository = _NoopTripDocumentsRepository();
 
   return TripsCubit(
     getTripsUseCase: GetTripsUseCase(tripsRepository),
@@ -290,8 +297,21 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
     getTripFormLookupsUseCase: GetTripFormLookupsUseCase(tripsRepository),
     createTripUseCase: CreateTripUseCase(tripsRepository),
     saveTripUseCase: SaveTripUseCase(tripsRepository),
-    updateTripStatusUseCase: UpdateTripStatusUseCase(tripsRepository),
+    updateTripStatusUseCase: UpdateTripStatusUseCase(
+      tripsRepository,
+      documentsRepository,
+    ),
     getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
+    getTripDocumentsUseCase: GetTripDocumentsUseCase(documentsRepository),
+    uploadTripDocumentUseCase: UploadTripDocumentUseCase(documentsRepository),
+    getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(
+      documentsRepository,
+    ),
+    downloadTripDocumentUseCase: DownloadTripDocumentUseCase(
+      documentsRepository,
+    ),
+    removeTripDocumentUseCase: RemoveTripDocumentUseCase(documentsRepository),
+    replaceTripDocumentUseCase: ReplaceTripDocumentUseCase(documentsRepository),
     calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
     getTripBusinessLocalTimestampsUseCase:
         const GetTripBusinessLocalTimestampsUseCase(converter),
@@ -544,5 +564,62 @@ final class _NoopExpenseTypesRepository implements ExpenseTypesRepository {
     required String companyId,
   }) {
     return Future.value(const Success([]));
+  }
+}
+
+final class _NoopTripDocumentsRepository implements TripDocumentsRepository {
+  @override
+  Future<Result<List<TripDocument>>> getActiveDocuments({
+    required String companyId,
+    required String tripId,
+  }) {
+    return Future.value(const Success([]));
+  }
+
+  @override
+  Future<Result<TripDocument>> upload({
+    required String companyId,
+    required String tripId,
+    required TripDocumentKind kind,
+    required BusinessDocumentFile document,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
+    required String companyId,
+    required String tripId,
+    required String documentId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<Uint8List>> download({
+    required String companyId,
+    required String tripId,
+    required String documentId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<TripDocument>> replace({
+    required String companyId,
+    required String tripId,
+    required String documentId,
+    required BusinessDocumentFile document,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> remove({
+    required String companyId,
+    required String tripId,
+    required String documentId,
+  }) {
+    throw UnimplementedError();
   }
 }

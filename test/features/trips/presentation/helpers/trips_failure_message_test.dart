@@ -8,6 +8,7 @@ import 'package:horus_system/features/audit/domain/entities/audit_entity_type.da
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
+import 'package:horus_system/features/trips/domain/failures/trip_document_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
 import 'package:horus_system/features/trips/presentation/helpers/trips_failure_message.dart';
 import 'package:horus_system/features/trips/presentation/localization/trips_localizations_x.dart';
@@ -140,6 +141,34 @@ void main() {
         );
       },
     );
+
+    testWidgets('localizes status evidence conflict separately from removal', (
+      tester,
+    ) async {
+      const statusEvidenceFailure = ConflictFailure(
+        code: TripFailureCodes.conflictStatusEvidenceRequired,
+      );
+      const removalEvidenceFailure = ConflictFailure(
+        code: TripDocumentFailureCodes.conflictEvidenceRequired,
+      );
+
+      expect(
+        await _messageFor(tester, const Locale('en'), statusEvidenceFailure),
+        'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), statusEvidenceFailure),
+        'ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('en'), removalEvidenceFailure),
+        'This action would remove the last required evidence for the current Trip status.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), removalEvidenceFailure),
+        'هذا الإجراء سيزيل آخر إثبات مطلوب للحالة الحالية للرحلة.',
+      );
+    });
 
     testWidgets(
       'localizes financial readiness and currency mismatch failures',

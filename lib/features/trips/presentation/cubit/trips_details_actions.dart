@@ -14,15 +14,19 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         selectedTripNetProfit: null,
         selectedTripActivity: const [],
         selectedTripActivityBusinessTimesById: const {},
+        selectedTripDocuments: const [],
+        hasRequiredTripEvidence: false,
         selectedTripStatusHistory: const [],
         selectedTripStatusHistoryBusinessTimesById: const {},
         selectedTripExpenses: const [],
         isDetailsLoading: true,
         isActivityLoading: true,
+        isDocumentsLoading: true,
         isStatusHistoryLoading: true,
         isExpensesLoading: true,
         detailsFailure: null,
         activityFailure: null,
+        documentsFailure: null,
         statusHistoryFailure: null,
         expensesFailure: null,
       ),
@@ -30,6 +34,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
 
     await _loadSelectedTripDetails(trip);
     await owner._loadSelectedTripExpenses(trip);
+    await owner._loadSelectedTripDocuments(trip);
     await owner._loadExpenseTypesIfNeeded();
     await _loadSelectedTripStatusHistory(trip);
     await _loadSelectedTripActivity(trip);
@@ -48,15 +53,20 @@ mixin TripsDetailsActions on Cubit<TripsState> {
           selectedTripNetProfit: null,
           selectedTripActivity: const [],
           selectedTripActivityBusinessTimesById: const {},
+          selectedTripDocuments: const [],
+          hasRequiredTripEvidence: false,
           selectedTripStatusHistory: const [],
           selectedTripStatusHistoryBusinessTimesById: const {},
           selectedTripExpenses: const [],
           isDetailsLoading: false,
           isActivityLoading: false,
+          isDocumentsLoading: false,
+          isTripDocumentMutating: false,
           isStatusHistoryLoading: false,
           isExpensesLoading: false,
           detailsFailure: null,
           activityFailure: null,
+          documentsFailure: null,
           statusHistoryFailure: null,
           expensesFailure: null,
         ),

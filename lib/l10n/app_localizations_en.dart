@@ -1772,6 +1772,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripExpensesTitle => 'Trip expenses';
 
   @override
+  String get tripDocumentsTitle => 'Documents and evidence';
+
+  @override
+  String get tripLoadingDocuments => 'Loading documents...';
+
+  @override
+  String get tripNoDocumentsFound => 'No documents uploaded yet.';
+
+  @override
+  String get tripDocumentEvidenceReady => 'Required evidence is ready.';
+
+  @override
+  String get tripDocumentEvidenceMissing => 'Required evidence is missing.';
+
+  @override
+  String get tripDocumentEvidenceRule =>
+      'Documents received requires an active Waybill or Proof of Delivery.';
+
+  @override
+  String get tripDocumentUploadButton => 'Upload document';
+
+  @override
+  String get tripDocumentReplaceButton => 'Replace';
+
+  @override
+  String get tripDocumentRemoveButton => 'Remove';
+
+  @override
+  String get tripDocumentViewButton => 'Open';
+
+  @override
+  String get tripDocumentDownloadButton => 'Download';
+
+  @override
+  String get tripDocumentSaveDialogTitle => 'Save Trip document';
+
+  @override
+  String get tripDocumentDownloadFailed => 'The document could not be saved.';
+
+  @override
+  String get tripDocumentChooseKindTitle => 'Choose document type';
+
+  @override
+  String get tripDocumentChooseSourceTitle => 'Choose source';
+
+  @override
+  String get tripDocumentChooseFile => 'Choose file';
+
+  @override
+  String get tripDocumentChooseGallery => 'Gallery';
+
+  @override
+  String get tripDocumentTakePhoto => 'Camera';
+
+  @override
+  String get tripDocumentRemoveTitle => 'Remove document';
+
+  @override
+  String get tripDocumentRemoveMessage =>
+      'Remove this document from the active Trip evidence?';
+
+  @override
+  String get tripDocumentOpenFailed => 'The document could not be opened.';
+
+  @override
+  String get tripDocumentKindLoadingOrder => 'Loading order';
+
+  @override
+  String get tripDocumentKindWaybill => 'Waybill';
+
+  @override
+  String get tripDocumentKindProofOfDelivery => 'Proof of delivery';
+
+  @override
+  String get tripDocumentKindOther => 'Other';
+
+  @override
+  String get tripDocumentsPermissionFailure =>
+      'This role is not allowed to access Trip documents.';
+
+  @override
+  String get tripDocumentsMaxActiveFailure =>
+      'A Trip can have up to 10 active documents.';
+
+  @override
+  String get tripDocumentsEvidenceRequiredFailure =>
+      'This action would remove the last required evidence for the current Trip status.';
+
+  @override
+  String get tripDocumentNotFoundFailure =>
+      'The Trip document could not be found.';
+
+  @override
+  String get tripDocumentFileEmptyFailure => 'The selected file is empty.';
+
+  @override
+  String get tripDocumentFileNameInvalidFailure =>
+      'The selected file name is invalid.';
+
+  @override
+  String get tripDocumentFileTypeUnsupportedFailure =>
+      'Use PDF, JPG, JPEG, PNG, WEBP, HEIC, or HEIF.';
+
+  @override
+  String get tripDocumentFileTooLargeFailure =>
+      'The file must be 10 MB or smaller.';
+
+  @override
+  String get tripDocumentStorageFailure =>
+      'The document storage operation failed. Try again.';
+
+  @override
+  String get tripDocumentCleanupFailure =>
+      'The document could not be safely cleaned up after a failed save. Contact an administrator.';
+
+  @override
+  String get tripAuditDocumentUploaded => 'Trip document uploaded';
+
+  @override
+  String get tripAuditDocumentRemoved => 'Trip document removed';
+
+  @override
+  String get tripAuditDocumentReplaced => 'Trip document replaced';
+
+  @override
   String get tripLoadingExpenses => 'Loading expenses...';
 
   @override
@@ -1907,6 +2032,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripStatusPermissionFailure =>
       'Trip status update is not allowed for this role.';
+
+  @override
+  String get tripStatusEvidenceRequiredFailure =>
+      'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.';
 
   @override
   String get tripsStatusAllFilter => 'All';

@@ -81,6 +81,36 @@ void main() {
       });
     }
 
+    test('maps missing required evidence to stable conflict failure', () {
+      const error = PostgrestException(
+        message: 'trip_document_required_evidence',
+        code: TripDbErrorCodes.evidenceRequired,
+      );
+
+      final failure = mapper.fromPostgrest(error);
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripFailureCodes.conflictStatusEvidenceRequired);
+    });
+
+    test(
+      'maps invalid status graph transition to stable validation failure',
+      () {
+        const error = PostgrestException(
+          message: 'trip_status_transition_invalid',
+          code: TripDbErrorCodes.statusTransitionInvalid,
+        );
+
+        final failure = mapper.fromPostgrest(error);
+
+        expect(failure, isA<ValidationFailure>());
+        expect(
+          failure.code,
+          FailureCodes.validationTripStatusTransitionInvalid,
+        );
+      },
+    );
+
     test('sanitizes unrelated Postgrest failures to stable server error', () {
       const error = PostgrestException(
         message: 'permission denied',

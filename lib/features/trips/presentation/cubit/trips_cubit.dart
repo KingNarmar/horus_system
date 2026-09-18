@@ -1,5 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/documents/domain/entities/business_document_access.dart';
+import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/failure.dart';
@@ -20,17 +24,21 @@ import '../../../expenses/domain/usecases/create_trip_expense_usecase.dart';
 import '../../../expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
 import '../../../expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
+import '../../domain/entities/trip_document.dart';
+import '../../domain/entities/trip_document_kind.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
+import '../../domain/policies/trip_evidence_policy.dart';
 import '../../domain/policies/trips_permission_policy.dart';
 import '../../domain/usecases/trips_usecases.dart';
 import '../models/trip_mutation_result.dart';
 import 'trips_state.dart';
 
 part 'trips_details_actions.dart';
+part 'trips_document_actions.dart';
 part 'trips_expense_actions.dart';
 part 'trips_filter_actions.dart';
 part 'trips_form_lookup_actions.dart';
@@ -41,6 +49,7 @@ class TripsCubit extends Cubit<TripsState>
         TripsFilterActions,
         TripsFormLookupActions,
         TripsDetailsActions,
+        TripsDocumentActions,
         TripsExpenseActions,
         TripsMutationActions {
   final GetTripsUseCase getTripsUseCase;
@@ -50,6 +59,13 @@ class TripsCubit extends Cubit<TripsState>
   final SaveTripUseCase saveTripUseCase;
   final UpdateTripStatusUseCase updateTripStatusUseCase;
   final GetTripStatusHistoryUseCase getTripStatusHistoryUseCase;
+  final GetTripDocumentsUseCase getTripDocumentsUseCase;
+  final UploadTripDocumentUseCase uploadTripDocumentUseCase;
+  final GetTripDocumentAccessUseCase getTripDocumentAccessUseCase;
+  final DownloadTripDocumentUseCase downloadTripDocumentUseCase;
+  final RemoveTripDocumentUseCase removeTripDocumentUseCase;
+  final ReplaceTripDocumentUseCase replaceTripDocumentUseCase;
+  final TripEvidencePolicy tripEvidencePolicy;
   final CalculateTripNetProfitUseCase calculateTripNetProfitUseCase;
   final GetTripBusinessLocalTimestampsUseCase
   getTripBusinessLocalTimestampsUseCase;
@@ -77,6 +93,13 @@ class TripsCubit extends Cubit<TripsState>
     required this.saveTripUseCase,
     required this.updateTripStatusUseCase,
     required this.getTripStatusHistoryUseCase,
+    required this.getTripDocumentsUseCase,
+    required this.uploadTripDocumentUseCase,
+    required this.getTripDocumentAccessUseCase,
+    required this.downloadTripDocumentUseCase,
+    required this.removeTripDocumentUseCase,
+    required this.replaceTripDocumentUseCase,
+    this.tripEvidencePolicy = const TripEvidencePolicy(),
     required this.calculateTripNetProfitUseCase,
     required this.getTripBusinessLocalTimestampsUseCase,
     required this.resolveTripBusinessLocalTimestampsUseCase,
@@ -141,6 +164,9 @@ class TripsCubit extends Cubit<TripsState>
           currentCompanyContext.role,
         ),
         canUpdateTripStatus: TripsPermissionPolicy.canUpdateTripStatus(
+          currentCompanyContext.role,
+        ),
+        canManageTripDocuments: TripsPermissionPolicy.canManageTripDocuments(
           currentCompanyContext.role,
         ),
         canViewTripFinancials: TripsPermissionPolicy.canViewTripFinancials(

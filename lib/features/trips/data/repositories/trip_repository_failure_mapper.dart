@@ -23,6 +23,12 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.temporalOrderInvalid => const ValidationFailure(
         code: FailureCodes.validationTripDeliveryBeforeLoading,
       ),
+      TripDbErrorCodes.evidenceRequired => const ConflictFailure(
+        code: TripFailureCodes.conflictStatusEvidenceRequired,
+      ),
+      TripDbErrorCodes.statusTransitionInvalid => const ValidationFailure(
+        code: FailureCodes.validationTripStatusTransitionInvalid,
+      ),
       TripDbErrorCodes.checkViolation
           when _isTemporalConstraintViolation(error) =>
         const ValidationFailure(

@@ -3,6 +3,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../expenses/domain/failures/expense_ledger_failure_codes.dart';
+import '../../domain/entities/trip_document_kind.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 
@@ -122,6 +123,15 @@ extension TripsLocalizationsX on AppLocalizations {
       TripStatusFilter.invoiced => tripsStatusInvoicedFilter,
       TripStatusFilter.paid => tripsStatusPaidFilter,
       TripStatusFilter.cancelled => tripsStatusCancelledFilter,
+    };
+  }
+
+  String tripDocumentKindLabel(TripDocumentKind kind) {
+    return switch (kind) {
+      TripDocumentKind.loadingOrder => tripDocumentKindLoadingOrder,
+      TripDocumentKind.waybill => tripDocumentKindWaybill,
+      TripDocumentKind.proofOfDelivery => tripDocumentKindProofOfDelivery,
+      TripDocumentKind.other => tripDocumentKindOther,
     };
   }
 
