@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/expense_ledger_entry.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
+import '../../domain/entities/trip_document.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_status_filter.dart';
@@ -38,6 +39,7 @@ class TripsLoaded extends TripsState {
   selectedTripStatusHistoryBusinessTimesById;
   final bool canManageTrips;
   final bool canUpdateTripStatus;
+  final bool canManageTripDocuments;
   final bool canViewTripFinancials;
   final bool canManageTripExpenses;
   final String searchQuery;
@@ -50,18 +52,23 @@ class TripsLoaded extends TripsState {
   final Money? selectedTripTotalExpenses;
   final Money? selectedTripNetProfit;
   final List<AuditLog> selectedTripActivity;
+  final List<TripDocument> selectedTripDocuments;
+  final bool hasRequiredTripEvidence;
   final List<TripStatusHistory> selectedTripStatusHistory;
   final List<ExpenseLedgerEntry> selectedTripExpenses;
   final List<ExpenseType> expenseTypes;
   final List<ExpenseType> selectableExpenseTypes;
   final bool isDetailsLoading;
   final bool isActivityLoading;
+  final bool isDocumentsLoading;
+  final bool isTripDocumentMutating;
   final bool isStatusHistoryLoading;
   final bool isExpensesLoading;
   final bool isExpenseTypesLoading;
   final bool isTripExpenseMutating;
   final Failure? detailsFailure;
   final Failure? activityFailure;
+  final Failure? documentsFailure;
   final Failure? statusHistoryFailure;
   final Failure? expensesFailure;
   final Failure? expenseTypesFailure;
@@ -74,6 +81,7 @@ class TripsLoaded extends TripsState {
     required this.allTrips,
     required this.canManageTrips,
     required this.canUpdateTripStatus,
+    required this.canManageTripDocuments,
     required this.canViewTripFinancials,
     required this.canManageTripExpenses,
     this.businessLocalTimestampsByTripId =
@@ -92,18 +100,23 @@ class TripsLoaded extends TripsState {
     this.selectedTripTotalExpenses,
     this.selectedTripNetProfit,
     this.selectedTripActivity = const <AuditLog>[],
+    this.selectedTripDocuments = const <TripDocument>[],
+    this.hasRequiredTripEvidence = false,
     this.selectedTripStatusHistory = const <TripStatusHistory>[],
     this.selectedTripExpenses = const <ExpenseLedgerEntry>[],
     this.expenseTypes = const <ExpenseType>[],
     this.selectableExpenseTypes = const <ExpenseType>[],
     this.isDetailsLoading = false,
     this.isActivityLoading = false,
+    this.isDocumentsLoading = false,
+    this.isTripDocumentMutating = false,
     this.isStatusHistoryLoading = false,
     this.isExpensesLoading = false,
     this.isExpenseTypesLoading = false,
     this.isTripExpenseMutating = false,
     this.detailsFailure,
     this.activityFailure,
+    this.documentsFailure,
     this.statusHistoryFailure,
     this.expensesFailure,
     this.expenseTypesFailure,
@@ -161,6 +174,7 @@ class TripsLoaded extends TripsState {
     selectedTripStatusHistoryBusinessTimesById,
     bool? canManageTrips,
     bool? canUpdateTripStatus,
+    bool? canManageTripDocuments,
     bool? canViewTripFinancials,
     bool? canManageTripExpenses,
     String? searchQuery,
@@ -173,18 +187,23 @@ class TripsLoaded extends TripsState {
     Object? selectedTripTotalExpenses = _notSet,
     Object? selectedTripNetProfit = _notSet,
     List<AuditLog>? selectedTripActivity,
+    List<TripDocument>? selectedTripDocuments,
+    bool? hasRequiredTripEvidence,
     List<TripStatusHistory>? selectedTripStatusHistory,
     List<ExpenseLedgerEntry>? selectedTripExpenses,
     List<ExpenseType>? expenseTypes,
     List<ExpenseType>? selectableExpenseTypes,
     bool? isDetailsLoading,
     bool? isActivityLoading,
+    bool? isDocumentsLoading,
+    bool? isTripDocumentMutating,
     bool? isStatusHistoryLoading,
     bool? isExpensesLoading,
     bool? isExpenseTypesLoading,
     bool? isTripExpenseMutating,
     Object? detailsFailure = _notSet,
     Object? activityFailure = _notSet,
+    Object? documentsFailure = _notSet,
     Object? statusHistoryFailure = _notSet,
     Object? expensesFailure = _notSet,
     Object? expenseTypesFailure = _notSet,
@@ -206,6 +225,8 @@ class TripsLoaded extends TripsState {
           this.selectedTripStatusHistoryBusinessTimesById,
       canManageTrips: canManageTrips ?? this.canManageTrips,
       canUpdateTripStatus: canUpdateTripStatus ?? this.canUpdateTripStatus,
+      canManageTripDocuments:
+          canManageTripDocuments ?? this.canManageTripDocuments,
       canViewTripFinancials:
           canViewTripFinancials ?? this.canViewTripFinancials,
       canManageTripExpenses:
@@ -230,6 +251,10 @@ class TripsLoaded extends TripsState {
           ? this.selectedTripNetProfit
           : selectedTripNetProfit as Money?,
       selectedTripActivity: selectedTripActivity ?? this.selectedTripActivity,
+      selectedTripDocuments:
+          selectedTripDocuments ?? this.selectedTripDocuments,
+      hasRequiredTripEvidence:
+          hasRequiredTripEvidence ?? this.hasRequiredTripEvidence,
       selectedTripStatusHistory:
           selectedTripStatusHistory ?? this.selectedTripStatusHistory,
       selectedTripExpenses: selectedTripExpenses ?? this.selectedTripExpenses,
@@ -238,6 +263,9 @@ class TripsLoaded extends TripsState {
           selectableExpenseTypes ?? this.selectableExpenseTypes,
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      isDocumentsLoading: isDocumentsLoading ?? this.isDocumentsLoading,
+      isTripDocumentMutating:
+          isTripDocumentMutating ?? this.isTripDocumentMutating,
       isStatusHistoryLoading:
           isStatusHistoryLoading ?? this.isStatusHistoryLoading,
       isExpensesLoading: isExpensesLoading ?? this.isExpensesLoading,
@@ -251,6 +279,9 @@ class TripsLoaded extends TripsState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      documentsFailure: documentsFailure == _notSet
+          ? this.documentsFailure
+          : documentsFailure as Failure?,
       statusHistoryFailure: statusHistoryFailure == _notSet
           ? this.statusHistoryFailure
           : statusHistoryFailure as Failure?,
