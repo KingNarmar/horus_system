@@ -671,6 +671,7 @@
   "tripNotFoundFailure": "تعذر العثور على الرحلة.",
   "tripManagementPermissionFailure": "هذا الدور غير مسموح له بإدارة الرحلات.",
   "tripStatusPermissionFailure": "هذا الدور غير مسموح له بتحديث حالة الرحلة.",
+  "tripStatusEvidenceRequiredFailure": "ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.",
   "tripsStatusAllFilter": "الكل",
   "tripsStatusOpenFilter": "المفتوحة",
   "tripsStatusCreatedFilter": "جديدة",
