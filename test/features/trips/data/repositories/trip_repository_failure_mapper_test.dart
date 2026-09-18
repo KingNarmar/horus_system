@@ -2,6 +2,7 @@ import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/trips/data/constants/trip_db_contract.dart';
 import 'package:horus_system/features/trips/data/repositories/trip_repository_failure_mapper.dart';
+import 'package:horus_system/features/trips/domain/failures/trip_document_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
@@ -80,6 +81,30 @@ void main() {
         expect(failure.message, isNull);
       });
     }
+
+    test('maps missing required evidence to stable conflict failure', () {
+      const error = PostgrestException(
+        message: 'trip_document_required_evidence',
+        code: TripDbErrorCodes.evidenceRequired,
+      );
+
+      final failure = mapper.fromPostgrest(error);
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripDocumentFailureCodes.conflictEvidenceRequired);
+    });
+
+    test('maps invalid status graph transition to stable validation failure', () {
+      const error = PostgrestException(
+        message: 'trip_status_transition_invalid',
+        code: TripDbErrorCodes.statusTransitionInvalid,
+      );
+
+      final failure = mapper.fromPostgrest(error);
+
+      expect(failure, isA<ValidationFailure>());
+      expect(failure.code, FailureCodes.validationTripStatusTransitionInvalid);
+    });
 
     test('sanitizes unrelated Postgrest failures to stable server error', () {
       const error = PostgrestException(
