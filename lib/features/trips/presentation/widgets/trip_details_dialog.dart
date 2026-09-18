@@ -10,6 +10,7 @@ import 'trip_accountability_section.dart';
 import 'trip_activity_timeline_section.dart';
 import 'trip_basic_info_section.dart';
 import 'trip_details_shared_widgets.dart';
+import 'trip_documents_section.dart';
 import 'trip_expenses_section.dart';
 import 'trip_status_history_section.dart';
 
@@ -108,6 +109,10 @@ class TripDetailsDialog extends StatelessWidget {
                       calculatedTotalExpenses: calculatedTotalExpenses,
                       calculatedNetProfit: calculatedNetProfit,
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    TripDetailsSectionTitle(text: l10n.tripDocumentsTitle),
+                    const SizedBox(height: AppSpacing.sm),
+                    TripDocumentsSection(trip: detailsTrip, state: state),
                     const SizedBox(height: AppSpacing.lg),
                     TripDetailsSectionTitle(text: l10n.tripExpensesTitle),
                     const SizedBox(height: AppSpacing.sm),
