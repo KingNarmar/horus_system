@@ -1060,6 +1060,130 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fleetAuditActionStatusChanged => 'Status changed';
 
   @override
+  String get fleetLicenseDocumentsTitle => 'License document';
+
+  @override
+  String fleetLicenseExpiryCurrent(String date) {
+    return 'Current license expiry: $date';
+  }
+
+  @override
+  String get fleetLicenseDocumentsLoading => 'Loading license document...';
+
+  @override
+  String get fleetLicenseDocumentMissing =>
+      'No active license document uploaded.';
+
+  @override
+  String get fleetLicenseDocumentUploadButton => 'Upload license document';
+
+  @override
+  String get fleetLicenseDocumentUploaded => 'Active license document';
+
+  @override
+  String get fleetLicenseDocumentOpenButton => 'Open';
+
+  @override
+  String get fleetLicenseDocumentDownloadButton => 'Download';
+
+  @override
+  String get fleetLicenseDocumentReplaceButton => 'Replace';
+
+  @override
+  String get fleetLicenseDocumentRemoveButton => 'Remove';
+
+  @override
+  String get fleetLicenseDocumentOpenFailed =>
+      'The license document could not be opened.';
+
+  @override
+  String get fleetLicenseDocumentSaveDialogTitle => 'Save license document';
+
+  @override
+  String get fleetLicenseDocumentDownloadFailed =>
+      'The license document could not be saved.';
+
+  @override
+  String get fleetLicenseDocumentRemoveTitle => 'Remove license document';
+
+  @override
+  String get fleetLicenseDocumentRemoveMessage =>
+      'Remove this license document from the active Fleet record? The license expiry date will remain unchanged.';
+
+  @override
+  String get fleetLicenseExpiryUpdateTitle => 'License expiry date';
+
+  @override
+  String get fleetLicenseExpiryUpdateMessage =>
+      'Keep the current expiry date, or update it together with this document?';
+
+  @override
+  String get fleetLicenseExpiryKeepCurrent => 'Keep current';
+
+  @override
+  String get fleetLicenseExpiryUpdateButton => 'Update date';
+
+  @override
+  String get fleetLicenseDocumentsPermissionFailure =>
+      'This role is not allowed to access Fleet license documents.';
+
+  @override
+  String get fleetLicenseDocumentActiveExistsFailure =>
+      'This asset already has an active license document. Replace it instead.';
+
+  @override
+  String get fleetLicenseDocumentNotFoundFailure =>
+      'The Fleet license document could not be found.';
+
+  @override
+  String get fleetLicenseDocumentCleanupFailure =>
+      'The new file could not be safely cleaned up after a failed save. Contact an administrator.';
+
+  @override
+  String get fleetLicenseDocumentStorageFailure =>
+      'The license document storage operation failed. Try again.';
+
+  @override
+  String get fleetLicenseDocumentFileEmptyFailure =>
+      'The selected file is empty.';
+
+  @override
+  String get fleetLicenseDocumentFileNameInvalidFailure =>
+      'The selected file name is invalid.';
+
+  @override
+  String get fleetLicenseDocumentFileTypeUnsupportedFailure =>
+      'Use PDF, JPG, JPEG, PNG, WEBP, HEIC, or HEIF.';
+
+  @override
+  String get fleetLicenseDocumentFileTooLargeFailure =>
+      'The file must be 10 MB or smaller.';
+
+  @override
+  String get fleetAuditLicenseDocumentUploaded => 'License document uploaded';
+
+  @override
+  String get fleetAuditLicenseDocumentReplaced => 'License document replaced';
+
+  @override
+  String get fleetAuditLicenseDocumentRemoved => 'License document removed';
+
+  @override
+  String get fleetLicenseDocumentFileNameField => 'License document file';
+
+  @override
+  String get fleetLicenseDocumentMimeTypeField => 'License document type';
+
+  @override
+  String get fleetLicenseDocumentSizeField => 'License document size';
+
+  @override
+  String get fleetLicenseDocumentRemovedField => 'License document removed';
+
+  @override
+  String get fleetLicenseDocumentRemovedValue => 'Removed';
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override

@@ -36,7 +36,7 @@ import '../../../expense_types/di/expense_types_dependencies.dart';
 import '../../../expense_types/domain/policies/expense_types_permission_policy.dart';
 import '../../../expense_types/presentation/cubit/expense_types_cubit.dart';
 import '../../../expense_types/presentation/pages/expense_types_page.dart';
-import '../../../fleet/presentation/cubit/fleet_cubit.dart';
+import '../../../fleet/presentation/cubit/fleet_cubit.dart';\nimport '../../../fleet/presentation/cubit/fleet_license_documents_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
 import '../../../invoices/di/invoices_dependencies.dart';
 import '../../../invoices/presentation/cubit/invoices_cubit.dart';
@@ -102,8 +102,15 @@ class AppShellContent extends StatelessWidget {
         currentCompanyContext: contextData,
       ),
       AppShellModule.drivers => DriversPage(currentCompanyContext: contextData),
-      AppShellModule.fleet => BlocProvider<FleetCubit>(
-        create: (_) => FleetDependencies.createFleetCubit(),
+      AppShellModule.fleet => MultiBlocProvider(
+        providers: [
+          BlocProvider<FleetCubit>(
+            create: (_) => FleetDependencies.createFleetCubit(),
+          ),
+          BlocProvider<FleetLicenseDocumentsCubit>(
+            create: (_) => FleetDependencies.createFleetLicenseDocumentsCubit(),
+          ),
+        ],
         child: FleetPage(currentCompanyContext: contextData),
       ),
       AppShellModule.routes => BlocProvider<RoutesCubit>(

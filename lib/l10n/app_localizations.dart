@@ -2048,6 +2048,123 @@ abstract class AppLocalizations {
   /// **'Status changed'**
   String get fleetAuditActionStatusChanged;
 
+  /// No description provided for @fleetLicenseDocumentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'License document'**
+  String get fleetLicenseDocumentsTitle;
+
+  /// No description provided for @fleetLicenseExpiryCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current license expiry: {date}'**
+  String fleetLicenseExpiryCurrent(String date);
+
+  /// No description provided for @fleetLicenseDocumentsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading license document...'**
+  String get fleetLicenseDocumentsLoading;
+
+  /// No description provided for @fleetLicenseDocumentMissing.
+  String get fleetLicenseDocumentMissing;
+
+  /// No description provided for @fleetLicenseDocumentUploadButton.
+  String get fleetLicenseDocumentUploadButton;
+
+  /// No description provided for @fleetLicenseDocumentUploaded.
+  String get fleetLicenseDocumentUploaded;
+
+  /// No description provided for @fleetLicenseDocumentOpenButton.
+  String get fleetLicenseDocumentOpenButton;
+
+  /// No description provided for @fleetLicenseDocumentDownloadButton.
+  String get fleetLicenseDocumentDownloadButton;
+
+  /// No description provided for @fleetLicenseDocumentReplaceButton.
+  String get fleetLicenseDocumentReplaceButton;
+
+  /// No description provided for @fleetLicenseDocumentRemoveButton.
+  String get fleetLicenseDocumentRemoveButton;
+
+  /// No description provided for @fleetLicenseDocumentOpenFailed.
+  String get fleetLicenseDocumentOpenFailed;
+
+  /// No description provided for @fleetLicenseDocumentSaveDialogTitle.
+  String get fleetLicenseDocumentSaveDialogTitle;
+
+  /// No description provided for @fleetLicenseDocumentDownloadFailed.
+  String get fleetLicenseDocumentDownloadFailed;
+
+  /// No description provided for @fleetLicenseDocumentRemoveTitle.
+  String get fleetLicenseDocumentRemoveTitle;
+
+  /// No description provided for @fleetLicenseDocumentRemoveMessage.
+  String get fleetLicenseDocumentRemoveMessage;
+
+  /// No description provided for @fleetLicenseExpiryUpdateTitle.
+  String get fleetLicenseExpiryUpdateTitle;
+
+  /// No description provided for @fleetLicenseExpiryUpdateMessage.
+  String get fleetLicenseExpiryUpdateMessage;
+
+  /// No description provided for @fleetLicenseExpiryKeepCurrent.
+  String get fleetLicenseExpiryKeepCurrent;
+
+  /// No description provided for @fleetLicenseExpiryUpdateButton.
+  String get fleetLicenseExpiryUpdateButton;
+
+  /// No description provided for @fleetLicenseDocumentsPermissionFailure.
+  String get fleetLicenseDocumentsPermissionFailure;
+
+  /// No description provided for @fleetLicenseDocumentActiveExistsFailure.
+  String get fleetLicenseDocumentActiveExistsFailure;
+
+  /// No description provided for @fleetLicenseDocumentNotFoundFailure.
+  String get fleetLicenseDocumentNotFoundFailure;
+
+  /// No description provided for @fleetLicenseDocumentCleanupFailure.
+  String get fleetLicenseDocumentCleanupFailure;
+
+  /// No description provided for @fleetLicenseDocumentStorageFailure.
+  String get fleetLicenseDocumentStorageFailure;
+
+  /// No description provided for @fleetLicenseDocumentFileEmptyFailure.
+  String get fleetLicenseDocumentFileEmptyFailure;
+
+  /// No description provided for @fleetLicenseDocumentFileNameInvalidFailure.
+  String get fleetLicenseDocumentFileNameInvalidFailure;
+
+  /// No description provided for @fleetLicenseDocumentFileTypeUnsupportedFailure.
+  String get fleetLicenseDocumentFileTypeUnsupportedFailure;
+
+  /// No description provided for @fleetLicenseDocumentFileTooLargeFailure.
+  String get fleetLicenseDocumentFileTooLargeFailure;
+
+  /// No description provided for @fleetAuditLicenseDocumentUploaded.
+  String get fleetAuditLicenseDocumentUploaded;
+
+  /// No description provided for @fleetAuditLicenseDocumentReplaced.
+  String get fleetAuditLicenseDocumentReplaced;
+
+  /// No description provided for @fleetAuditLicenseDocumentRemoved.
+  String get fleetAuditLicenseDocumentRemoved;
+
+  /// No description provided for @fleetLicenseDocumentFileNameField.
+  String get fleetLicenseDocumentFileNameField;
+
+  /// No description provided for @fleetLicenseDocumentMimeTypeField.
+  String get fleetLicenseDocumentMimeTypeField;
+
+  /// No description provided for @fleetLicenseDocumentSizeField.
+  String get fleetLicenseDocumentSizeField;
+
+  /// No description provided for @fleetLicenseDocumentRemovedField.
+  String get fleetLicenseDocumentRemovedField;
+
+  /// No description provided for @fleetLicenseDocumentRemovedValue.
+  String get fleetLicenseDocumentRemovedValue;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:

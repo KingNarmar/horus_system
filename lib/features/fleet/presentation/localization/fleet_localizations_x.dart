@@ -23,6 +23,15 @@ extension FleetLocalizationsX on AppLocalizations {
     return auditActionValueDisplayLabel(action);
   }
 
+  String fleetAuditEventLabel(String? event, String action) {
+    return switch (event) {
+      'fleet_license_document_uploaded' => fleetAuditLicenseDocumentUploaded,
+      'fleet_license_document_replaced' => fleetAuditLicenseDocumentReplaced,
+      'fleet_license_document_removed' => fleetAuditLicenseDocumentRemoved,
+      _ => fleetAuditActionLabel(action),
+    };
+  }
+
   String fleetAuditRoleLabel(String? role) {
     return auditRoleDisplayLabel(role);
   }
@@ -36,6 +45,10 @@ extension FleetLocalizationsX on AppLocalizations {
       'notes' => vehicleNotesLabel,
       'technical_notes' => technicalNotesLabel,
       'is_active' => fleetStatusActiveFilter,
+      'license_document_file_name' => fleetLicenseDocumentFileNameField,
+      'license_document_mime_type' => fleetLicenseDocumentMimeTypeField,
+      'license_document_size_bytes' => fleetLicenseDocumentSizeField,
+      'license_document_removed' => fleetLicenseDocumentRemovedField,
       _ => key,
     };
   }
@@ -53,6 +66,11 @@ extension FleetLocalizationsX on AppLocalizations {
 
     if (key == 'status') {
       return vehicleStatusText(VehicleStatusX.fromValue(text));
+    }
+
+    if (key == 'license_document_removed' &&
+        (value == true || text == 'true')) {
+      return fleetLicenseDocumentRemovedValue;
     }
 
     return text;

@@ -250,6 +250,29 @@ class FleetCubit extends Cubit<FleetState> {
   Future<void> reactivateTrailer(TrailerEntity item) =>
       _changeTrailerActiveState(item.id, reactivateTrailerUseCase.call);
 
+  Future<void> refreshAssets() async {
+    final context = _currentCompanyContext;
+    final current = state;
+    if (context == null || current is! FleetLoaded) return;
+
+    final params = GetFleetParams(currentCompanyContext: context);
+    final tractorHeadsResult = await getTractorHeadsUseCase(params);
+    final trailersResult = await getTrailersUseCase(params);
+    final failure =
+        tractorHeadsResult.failureOrNull ?? trailersResult.failureOrNull;
+    if (failure != null) {
+      emit(FleetFailure(failure));
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        allTractorHeads: tractorHeadsResult.dataOrNull ?? current.allTractorHeads,
+        allTrailers: trailersResult.dataOrNull ?? current.allTrailers,
+      ),
+    );
+  }
+
   Future<void> _changeTractorHeadActiveState(
     String id,
     Future<Result<TractorHead>> Function(FleetAssetStatusParams params) useCase,
