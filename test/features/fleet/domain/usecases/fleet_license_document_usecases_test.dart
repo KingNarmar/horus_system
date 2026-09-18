@@ -196,7 +196,7 @@ const _tractorTarget = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-const _frontFile = FleetLicenseDocumentFile(
+final _frontFile = FleetLicenseDocumentFile(
   id: 'front-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-1',
@@ -206,7 +206,7 @@ const _frontFile = FleetLicenseDocumentFile(
   sizeBytes: 3,
   uploadedAt: _uploadedAt,
 );
-const _frontDocument = FleetLicenseDocument(
+final _frontDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
@@ -214,7 +214,7 @@ const _frontDocument = FleetLicenseDocument(
   files: [_frontFile],
   uploadedAt: _uploadedAt,
 );
-const _uploadedAt = DateTime.utc(2026, 9, 18);
+final _uploadedAt = DateTime.utc(2026, 9, 18);
 
 final _file = BusinessDocumentFile(
   bytes: Uint8List.fromList([1, 2, 3]),
@@ -251,7 +251,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     createCalls++;
     lastSide = side;
     lastExpiryDate = newLicenseExpiryDate;
-    return const Success(_frontDocument);
+    return Success(_frontDocument);
   }
 
   @override
@@ -266,7 +266,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     lastDocumentId = documentId;
     lastSide = side;
     lastExpiryDate = newLicenseExpiryDate;
-    return const Success(_frontDocument);
+    return Success(_frontDocument);
   }
 
   @override
@@ -282,7 +282,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     lastDocumentId = documentId;
     lastSide = side;
     lastExpiryDate = newLicenseExpiryDate;
-    return const Success(_frontDocument);
+    return Success(_frontDocument);
   }
 
   @override

@@ -54,7 +54,7 @@ void main() {
     test('successful back upload replaces state with aggregate result', () async {
       final repository = _FakeRepository()
         ..activeDocument = _frontDocument
-        ..addResult = const Success(_frontBackDocument);
+        ..addResult = Success(_frontBackDocument);
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
@@ -113,7 +113,7 @@ const _target = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-const _frontFile = FleetLicenseDocumentFile(
+final _frontFile = FleetLicenseDocumentFile(
   id: 'front-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-1',
@@ -123,7 +123,7 @@ const _frontFile = FleetLicenseDocumentFile(
   sizeBytes: 3,
   uploadedAt: _uploadedAt,
 );
-const _backFile = FleetLicenseDocumentFile(
+final _backFile = FleetLicenseDocumentFile(
   id: 'back-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-1',
@@ -133,7 +133,7 @@ const _backFile = FleetLicenseDocumentFile(
   sizeBytes: 3,
   uploadedAt: _uploadedAt,
 );
-const _frontDocument = FleetLicenseDocument(
+final _frontDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
@@ -141,7 +141,7 @@ const _frontDocument = FleetLicenseDocument(
   files: [_frontFile],
   uploadedAt: _uploadedAt,
 );
-const _frontBackDocument = FleetLicenseDocument(
+final _frontBackDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
@@ -149,7 +149,7 @@ const _frontBackDocument = FleetLicenseDocument(
   files: [_frontFile, _backFile],
   uploadedAt: _uploadedAt,
 );
-const _uploadedAt = DateTime.utc(2026, 9, 18);
+final _uploadedAt = DateTime.utc(2026, 9, 18);
 
 final _businessFile = BusinessDocumentFile(
   bytes: Uint8List.fromList([1, 2, 3]),
@@ -173,7 +173,7 @@ FleetLicenseDocumentsCubit _createCubit(
 
 final class _FakeRepository implements FleetLicenseDocumentsRepository {
   FleetLicenseDocument? activeDocument;
-  Result<FleetLicenseDocument> addResult = const Success(_frontDocument);
+  Result<FleetLicenseDocument> addResult = Success(_frontDocument);
   Result<void> removeResult = const Success<void>(null);
 
   @override
@@ -190,7 +190,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) async {
-    return const Success(_frontDocument);
+    return Success(_frontDocument);
   }
 
   @override
@@ -213,7 +213,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required BusinessDocumentFile replacement,
     BusinessDate? newLicenseExpiryDate,
   }) async {
-    return const Success(_frontDocument);
+    return Success(_frontDocument);
   }
 
   @override

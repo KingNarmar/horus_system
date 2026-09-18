@@ -128,7 +128,7 @@ const _target = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-const _frontFile = FleetLicenseDocumentFile(
+final _frontFile = FleetLicenseDocumentFile(
   id: 'front-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-1',
@@ -138,7 +138,7 @@ const _frontFile = FleetLicenseDocumentFile(
   sizeBytes: 100,
   uploadedAt: _uploadedAt,
 );
-const _backFile = FleetLicenseDocumentFile(
+final _backFile = FleetLicenseDocumentFile(
   id: 'back-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-1',
@@ -148,7 +148,7 @@ const _backFile = FleetLicenseDocumentFile(
   sizeBytes: 100,
   uploadedAt: _uploadedAt,
 );
-const _combinedFile = FleetLicenseDocumentFile(
+final _combinedFile = FleetLicenseDocumentFile(
   id: 'combined-file',
   companyId: 'company-1',
   licenseDocumentId: 'document-2',
@@ -158,7 +158,7 @@ const _combinedFile = FleetLicenseDocumentFile(
   sizeBytes: 100,
   uploadedAt: _uploadedAt,
 );
-const _frontBackDocument = FleetLicenseDocument(
+final _frontBackDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
@@ -166,7 +166,7 @@ const _frontBackDocument = FleetLicenseDocument(
   files: [_frontFile, _backFile],
   uploadedAt: _uploadedAt,
 );
-const _combinedDocument = FleetLicenseDocument(
+final _combinedDocument = FleetLicenseDocument(
   id: 'document-2',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
@@ -174,7 +174,7 @@ const _combinedDocument = FleetLicenseDocument(
   files: [_combinedFile],
   uploadedAt: _uploadedAt,
 );
-const _uploadedAt = DateTime.utc(2026, 9, 18);
+final _uploadedAt = DateTime.utc(2026, 9, 18);
 
 FleetLicenseDocumentsCubit _createCubit(
   FleetLicenseDocumentsRepository repository,
