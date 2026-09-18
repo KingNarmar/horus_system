@@ -24,51 +24,57 @@ import 'package:horus_system/features/trips/domain/usecases/trip_usecase_params.
 
 void main() {
   group('UpdateTripStatusUseCase evidence rule', () {
-    test('blocks delivered to documents received without qualifying evidence', () async {
-      final tripsRepository = _FakeTripsRepository();
-      final documentsRepository = _FakeDocumentsRepository();
-      final useCase = UpdateTripStatusUseCase(
-        tripsRepository,
-        documentsRepository,
-      );
+    test(
+      'blocks delivered to documents received without qualifying evidence',
+      () async {
+        final tripsRepository = _FakeTripsRepository();
+        final documentsRepository = _FakeDocumentsRepository();
+        final useCase = UpdateTripStatusUseCase(
+          tripsRepository,
+          documentsRepository,
+        );
 
-      final result = await useCase(
-        const UpdateTripStatusParams(
-          currentCompanyContext: _context,
-          id: 'trip-1',
-          newStatus: TripStatus.documentsReceived,
-        ),
-      );
+        final result = await useCase(
+          const UpdateTripStatusParams(
+            currentCompanyContext: _context,
+            id: 'trip-1',
+            newStatus: TripStatus.documentsReceived,
+          ),
+        );
 
-      expect(result.failureOrNull, isA<ConflictFailure>());
-      expect(
-        result.failureOrNull?.code,
-        TripDocumentFailureCodes.conflictEvidenceRequired,
-      );
-      expect(tripsRepository.statusUpdateCalls, 0);
-    });
+        expect(result.failureOrNull, isA<ConflictFailure>());
+        expect(
+          result.failureOrNull?.code,
+          TripDocumentFailureCodes.conflictEvidenceRequired,
+        );
+        expect(tripsRepository.statusUpdateCalls, 0);
+      },
+    );
 
-    test('allows delivered to documents received with an active waybill', () async {
-      final tripsRepository = _FakeTripsRepository();
-      final documentsRepository = _FakeDocumentsRepository()
-        ..documents = [_waybill];
-      final useCase = UpdateTripStatusUseCase(
-        tripsRepository,
-        documentsRepository,
-      );
+    test(
+      'allows delivered to documents received with an active waybill',
+      () async {
+        final tripsRepository = _FakeTripsRepository();
+        final documentsRepository = _FakeDocumentsRepository()
+          ..documents = [_waybill];
+        final useCase = UpdateTripStatusUseCase(
+          tripsRepository,
+          documentsRepository,
+        );
 
-      final result = await useCase(
-        const UpdateTripStatusParams(
-          currentCompanyContext: _context,
-          id: 'trip-1',
-          newStatus: TripStatus.documentsReceived,
-        ),
-      );
+        final result = await useCase(
+          const UpdateTripStatusParams(
+            currentCompanyContext: _context,
+            id: 'trip-1',
+            newStatus: TripStatus.documentsReceived,
+          ),
+        );
 
-      expect(result, isA<Success<TripEntity>>());
-      expect(tripsRepository.statusUpdateCalls, 1);
-      expect(result.dataOrNull?.status, TripStatus.documentsReceived);
-    });
+        expect(result, isA<Success<TripEntity>>());
+        expect(tripsRepository.statusUpdateCalls, 1);
+        expect(result.dataOrNull?.status, TripStatus.documentsReceived);
+      },
+    );
   });
 }
 
@@ -134,37 +140,32 @@ final class _FakeTripsRepository implements TripsRepository {
   Future<Result<List<TripEntity>>> getTrips({
     required String companyId,
     required CurrencyConfiguration? financialConfiguration,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<TripFormLookups>> getTripFormLookups({
     required String companyId,
     required CurrencyConfiguration? financialConfiguration,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<TripEntity>> saveTrip({
     required String id,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<List<TripStatusHistory>>> getTripStatusHistory({
     required String companyId,
     required String tripId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<bool>> hasOpenTripForVehicle({
@@ -172,8 +173,7 @@ final class _FakeTripsRepository implements TripsRepository {
     String? tractorHeadId,
     String? trailerId,
     String? excludingTripId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 }
 
 final class _FakeDocumentsRepository implements TripDocumentsRepository {
@@ -193,24 +193,21 @@ final class _FakeDocumentsRepository implements TripDocumentsRepository {
     required String tripId,
     required TripDocumentKind kind,
     required BusinessDocumentFile document,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required String companyId,
     required String tripId,
     required String documentId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<Uint8List>> download({
     required String companyId,
     required String tripId,
     required String documentId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<TripDocument>> replace({
@@ -218,14 +215,12 @@ final class _FakeDocumentsRepository implements TripDocumentsRepository {
     required String tripId,
     required String documentId,
     required BusinessDocumentFile document,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 
   @override
   Future<Result<void>> remove({
     required String companyId,
     required String tripId,
     required String documentId,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 }

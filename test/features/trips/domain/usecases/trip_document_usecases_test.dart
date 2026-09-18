@@ -56,10 +56,7 @@ void main() {
       final repository = _FakeTripDocumentsRepository()
         ..documents = List.generate(
           10,
-          (index) => _document(
-            TripDocumentKind.other,
-            id: 'document-$index',
-          ),
+          (index) => _document(TripDocumentKind.other, id: 'document-$index'),
         );
       final useCase = UploadTripDocumentUseCase(repository);
 
@@ -83,10 +80,7 @@ void main() {
     test(
       'remove blocks the last qualifying evidence from documents received',
       () async {
-        final waybill = _document(
-          TripDocumentKind.waybill,
-          id: 'waybill',
-        );
+        final waybill = _document(TripDocumentKind.waybill, id: 'waybill');
         final repository = _FakeTripDocumentsRepository()
           ..documents = [waybill];
         final useCase = RemoveTripDocumentUseCase(repository);
@@ -108,26 +102,29 @@ void main() {
       },
     );
 
-    test('remove allows non-required evidence before protected statuses', () async {
-      final loadingOrder = _document(
-        TripDocumentKind.loadingOrder,
-        id: 'loading',
-      );
-      final repository = _FakeTripDocumentsRepository()
-        ..documents = [loadingOrder];
-      final useCase = RemoveTripDocumentUseCase(repository);
+    test(
+      'remove allows non-required evidence before protected statuses',
+      () async {
+        final loadingOrder = _document(
+          TripDocumentKind.loadingOrder,
+          id: 'loading',
+        );
+        final repository = _FakeTripDocumentsRepository()
+          ..documents = [loadingOrder];
+        final useCase = RemoveTripDocumentUseCase(repository);
 
-      final result = await useCase(
-        RemoveTripDocumentParams(
-          currentCompanyContext: _operationsContext,
-          trip: _trip(TripStatus.delivered),
-          document: loadingOrder,
-        ),
-      );
+        final result = await useCase(
+          RemoveTripDocumentParams(
+            currentCompanyContext: _operationsContext,
+            trip: _trip(TripStatus.delivered),
+            document: loadingOrder,
+          ),
+        );
 
-      expect(result, isA<Success<void>>());
-      expect(repository.removeCalls, 1);
-    });
+        expect(result, isA<Success<void>>());
+        expect(repository.removeCalls, 1);
+      },
+    );
   });
 }
 
@@ -161,10 +158,7 @@ TripEntity _trip(TripStatus status) {
   );
 }
 
-TripDocument _document(
-  TripDocumentKind kind, {
-  String id = 'document-1',
-}) {
+TripDocument _document(TripDocumentKind kind, {String id = 'document-1'}) {
   return TripDocument(
     id: id,
     companyId: 'company-1',

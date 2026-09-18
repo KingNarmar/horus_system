@@ -64,11 +64,7 @@ final class SupabaseTripDocumentsRemoteDataSource
         .order(TripDocumentDbFields.uploadedAt, ascending: false);
 
     return rows
-        .map(
-          (row) => TripDocumentModel.fromMap(
-            Map<String, dynamic>.from(row),
-          ),
-        )
+        .map((row) => TripDocumentModel.fromMap(Map<String, dynamic>.from(row)))
         .toList();
   }
 

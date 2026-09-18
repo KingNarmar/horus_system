@@ -94,10 +94,7 @@ class TripDocumentsSection extends StatelessWidget {
     );
   }
 
-  Future<void> _replace(
-    BuildContext context,
-    TripDocument document,
-  ) async {
+  Future<void> _replace(BuildContext context, TripDocument document) async {
     final picked = await _pickDocument(context);
     if (picked == null || !context.mounted) return;
 
@@ -107,10 +104,7 @@ class TripDocumentsSection extends StatelessWidget {
     );
   }
 
-  Future<void> _download(
-    BuildContext context,
-    TripDocument document,
-  ) async {
+  Future<void> _download(BuildContext context, TripDocument document) async {
     final cubit = context.read<TripsCubit>();
     final bytes = await cubit.downloadTripDocument(document);
     if (bytes == null || !context.mounted) return;
@@ -206,9 +200,8 @@ class TripDocumentsSection extends StatelessWidget {
           title: Text(l10n.tripDocumentChooseSourceTitle),
           children: [
             SimpleDialogOption(
-              onPressed: () => Navigator.of(
-                dialogContext,
-              ).pop(TripDocumentPickSource.file),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(TripDocumentPickSource.file),
               child: ListTile(
                 leading: const Icon(AppIcons.uploadFile),
                 title: Text(l10n.tripDocumentChooseFile),

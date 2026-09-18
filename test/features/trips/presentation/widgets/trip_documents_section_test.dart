@@ -19,9 +19,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _localizedApp(
-          TripDocumentsSection(trip: _trip, state: _loadedState()),
-        ),
+        _localizedApp(TripDocumentsSection(trip: _trip, state: _loadedState())),
       );
 
       final l10n = AppLocalizationsEn();
@@ -57,7 +55,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('viewer sees documents without mutation actions', (tester) async {
+    testWidgets('viewer sees documents without mutation actions', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _localizedApp(
           TripDocumentsSection(

@@ -167,9 +167,7 @@ final class GetTripDocumentAccessUseCase
   const GetTripDocumentAccessUseCase(this._repository);
 
   @override
-  Future<Result<BusinessDocumentAccess>> call(
-    TripDocumentActionParams params,
-  ) {
+  Future<Result<BusinessDocumentAccess>> call(TripDocumentActionParams params) {
     final failure = _validateDocumentAccess(params, manage: false);
     if (failure != null) return Future.value(FailureResult(failure));
 

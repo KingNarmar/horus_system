@@ -94,17 +94,23 @@ void main() {
       expect(failure.code, TripDocumentFailureCodes.conflictEvidenceRequired);
     });
 
-    test('maps invalid status graph transition to stable validation failure', () {
-      const error = PostgrestException(
-        message: 'trip_status_transition_invalid',
-        code: TripDbErrorCodes.statusTransitionInvalid,
-      );
+    test(
+      'maps invalid status graph transition to stable validation failure',
+      () {
+        const error = PostgrestException(
+          message: 'trip_status_transition_invalid',
+          code: TripDbErrorCodes.statusTransitionInvalid,
+        );
 
-      final failure = mapper.fromPostgrest(error);
+        final failure = mapper.fromPostgrest(error);
 
-      expect(failure, isA<ValidationFailure>());
-      expect(failure.code, FailureCodes.validationTripStatusTransitionInvalid);
-    });
+        expect(failure, isA<ValidationFailure>());
+        expect(
+          failure.code,
+          FailureCodes.validationTripStatusTransitionInvalid,
+        );
+      },
+    );
 
     test('sanitizes unrelated Postgrest failures to stable server error', () {
       const error = PostgrestException(

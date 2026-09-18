@@ -23,7 +23,8 @@ abstract final class TripsDependencies {
     );
     final tripDocumentsRepository = TripDocumentsRepositoryImpl(
       remoteDataSource: SupabaseTripDocumentsRemoteDataSource(client),
-      businessDocumentRepository: BusinessDocumentDependencies.createRepository(),
+      businessDocumentRepository:
+          BusinessDocumentDependencies.createRepository(),
     );
 
     return TripsCubit(
@@ -38,16 +39,21 @@ abstract final class TripsDependencies {
       ),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
       getTripDocumentsUseCase: GetTripDocumentsUseCase(tripDocumentsRepository),
-      uploadTripDocumentUseCase:
-          UploadTripDocumentUseCase(tripDocumentsRepository),
-      getTripDocumentAccessUseCase:
-          GetTripDocumentAccessUseCase(tripDocumentsRepository),
-      downloadTripDocumentUseCase:
-          DownloadTripDocumentUseCase(tripDocumentsRepository),
-      removeTripDocumentUseCase:
-          RemoveTripDocumentUseCase(tripDocumentsRepository),
-      replaceTripDocumentUseCase:
-          ReplaceTripDocumentUseCase(tripDocumentsRepository),
+      uploadTripDocumentUseCase: UploadTripDocumentUseCase(
+        tripDocumentsRepository,
+      ),
+      getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(
+        tripDocumentsRepository,
+      ),
+      downloadTripDocumentUseCase: DownloadTripDocumentUseCase(
+        tripDocumentsRepository,
+      ),
+      removeTripDocumentUseCase: RemoveTripDocumentUseCase(
+        tripDocumentsRepository,
+      ),
+      replaceTripDocumentUseCase: ReplaceTripDocumentUseCase(
+        tripDocumentsRepository,
+      ),
       calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
       getTripBusinessLocalTimestampsUseCase:
           const GetTripBusinessLocalTimestampsUseCase(

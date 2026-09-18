@@ -9,7 +9,10 @@ void main() {
 
   group('TripEvidencePolicy', () {
     test('requires waybill or proof of delivery for evidence readiness', () {
-      expect(policy.hasRequiredEvidence([_document(TripDocumentKind.waybill)]), isTrue);
+      expect(
+        policy.hasRequiredEvidence([_document(TripDocumentKind.waybill)]),
+        isTrue,
+      );
       expect(
         policy.hasRequiredEvidence([
           _document(TripDocumentKind.proofOfDelivery),
@@ -51,49 +54,43 @@ void main() {
     test('limits active documents to ten', () {
       final nine = List.generate(
         9,
-        (index) => _document(
-          TripDocumentKind.other,
-          id: 'document-$index',
-        ),
+        (index) => _document(TripDocumentKind.other, id: 'document-$index'),
       );
       final ten = List.generate(
         10,
-        (index) => _document(
-          TripDocumentKind.other,
-          id: 'document-$index',
-        ),
+        (index) => _document(TripDocumentKind.other, id: 'document-$index'),
       );
 
       expect(policy.canUpload(nine), isTrue);
       expect(policy.canUpload(ten), isFalse);
     });
 
-    test('cannot remove the last qualifying evidence from protected status', () {
-      final waybill = _document(TripDocumentKind.waybill, id: 'waybill');
-      final other = _document(TripDocumentKind.other, id: 'other');
+    test(
+      'cannot remove the last qualifying evidence from protected status',
+      () {
+        final waybill = _document(TripDocumentKind.waybill, id: 'waybill');
+        final other = _document(TripDocumentKind.other, id: 'other');
 
-      expect(
-        policy.canRemove(
-          currentStatus: TripStatus.documentsReceived,
-          documents: [waybill, other],
-          documentId: waybill.id,
-        ),
-        isFalse,
-      );
+        expect(
+          policy.canRemove(
+            currentStatus: TripStatus.documentsReceived,
+            documents: [waybill, other],
+            documentId: waybill.id,
+          ),
+          isFalse,
+        );
 
-      final proof = _document(
-        TripDocumentKind.proofOfDelivery,
-        id: 'proof',
-      );
-      expect(
-        policy.canRemove(
-          currentStatus: TripStatus.invoiced,
-          documents: [waybill, proof],
-          documentId: waybill.id,
-        ),
-        isTrue,
-      );
-    });
+        final proof = _document(TripDocumentKind.proofOfDelivery, id: 'proof');
+        expect(
+          policy.canRemove(
+            currentStatus: TripStatus.invoiced,
+            documents: [waybill, proof],
+            documentId: waybill.id,
+          ),
+          isTrue,
+        );
+      },
+    );
   });
 }
 

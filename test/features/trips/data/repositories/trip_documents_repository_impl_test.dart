@@ -17,25 +17,28 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   group('TripDocumentsRepositoryImpl', () {
-    test('keeps DB kind separate from the PC-03 storage path segment', () async {
-      final remote = _FakeTripDocumentsRemoteDataSource();
-      final storage = _FakeBusinessDocumentRepository();
-      final repository = TripDocumentsRepositoryImpl(
-        remoteDataSource: remote,
-        businessDocumentRepository: storage,
-      );
+    test(
+      'keeps DB kind separate from the PC-03 storage path segment',
+      () async {
+        final remote = _FakeTripDocumentsRemoteDataSource();
+        final storage = _FakeBusinessDocumentRepository();
+        final repository = TripDocumentsRepositoryImpl(
+          remoteDataSource: remote,
+          businessDocumentRepository: storage,
+        );
 
-      final result = await repository.upload(
-        companyId: _companyId,
-        tripId: _tripId,
-        kind: TripDocumentKind.loadingOrder,
-        document: _file,
-      );
+        final result = await repository.upload(
+          companyId: _companyId,
+          tripId: _tripId,
+          kind: TripDocumentKind.loadingOrder,
+          document: _file,
+        );
 
-      expect(result, isA<Success>());
-      expect(storage.lastUploadLocation?.documentKind, 'loading-order');
-      expect(remote.lastCreateDocumentKind, 'loading_order');
-    });
+        expect(result, isA<Success>());
+        expect(storage.lastUploadLocation?.documentKind, 'loading-order');
+        expect(remote.lastCreateDocumentKind, 'loading_order');
+      },
+    );
 
     test('deletes the uploaded object when metadata creation fails', () async {
       final remote = _FakeTripDocumentsRemoteDataSource()
@@ -63,34 +66,37 @@ void main() {
       );
     });
 
-    test('surfaces cleanup failure instead of hiding an orphaned upload', () async {
-      final remote = _FakeTripDocumentsRemoteDataSource()
-        ..createError = const PostgrestException(
-          message: 'metadata failed',
-          code: 'XX000',
+    test(
+      'surfaces cleanup failure instead of hiding an orphaned upload',
+      () async {
+        final remote = _FakeTripDocumentsRemoteDataSource()
+          ..createError = const PostgrestException(
+            message: 'metadata failed',
+            code: 'XX000',
+          );
+        final storage = _FakeBusinessDocumentRepository()
+          ..deleteResult = const FailureResult(
+            ServerFailure(code: 'storage_delete_failed'),
+          );
+        final repository = TripDocumentsRepositoryImpl(
+          remoteDataSource: remote,
+          businessDocumentRepository: storage,
         );
-      final storage = _FakeBusinessDocumentRepository()
-        ..deleteResult = const FailureResult(
-          ServerFailure(code: 'storage_delete_failed'),
+
+        final result = await repository.upload(
+          companyId: _companyId,
+          tripId: _tripId,
+          kind: TripDocumentKind.proofOfDelivery,
+          document: _file,
         );
-      final repository = TripDocumentsRepositoryImpl(
-        remoteDataSource: remote,
-        businessDocumentRepository: storage,
-      );
 
-      final result = await repository.upload(
-        companyId: _companyId,
-        tripId: _tripId,
-        kind: TripDocumentKind.proofOfDelivery,
-        document: _file,
-      );
-
-      expect(storage.deleteCalls, 1);
-      expect(
-        result.failureOrNull?.code,
-        TripDocumentFailureCodes.compensationCleanupFailed,
-      );
-    });
+        expect(storage.deleteCalls, 1);
+        expect(
+          result.failureOrNull?.code,
+          TripDocumentFailureCodes.compensationCleanupFailed,
+        );
+      },
+    );
   });
 }
 

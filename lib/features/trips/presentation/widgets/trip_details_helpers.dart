@@ -93,13 +93,11 @@ String localizedTripAuditDescription(BuildContext context, AuditLog log) {
     ]);
     final kindLabel = kindValue == null
         ? null
-        : l10n.tripDocumentKindLabel(
-            TripDocumentKindX.fromValue(kindValue),
-          );
-    return [kindLabel, fileName]
-        .whereType<String>()
-        .where((value) => value.trim().isNotEmpty)
-        .join(' - ');
+        : l10n.tripDocumentKindLabel(TripDocumentKindX.fromValue(kindValue));
+    return [
+      kindLabel,
+      fileName,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' - ');
   }
   final actionLabel = _localizedAuditActionLabel(l10n, log);
   final rawEntityName = _auditEntityName(l10n, log);

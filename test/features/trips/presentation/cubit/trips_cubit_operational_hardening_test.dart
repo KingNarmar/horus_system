@@ -303,16 +303,15 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
     ),
     getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
     getTripDocumentsUseCase: GetTripDocumentsUseCase(documentsRepository),
-    uploadTripDocumentUseCase:
-        UploadTripDocumentUseCase(documentsRepository),
-    getTripDocumentAccessUseCase:
-        GetTripDocumentAccessUseCase(documentsRepository),
-    downloadTripDocumentUseCase:
-        DownloadTripDocumentUseCase(documentsRepository),
-    removeTripDocumentUseCase:
-        RemoveTripDocumentUseCase(documentsRepository),
-    replaceTripDocumentUseCase:
-        ReplaceTripDocumentUseCase(documentsRepository),
+    uploadTripDocumentUseCase: UploadTripDocumentUseCase(documentsRepository),
+    getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(
+      documentsRepository,
+    ),
+    downloadTripDocumentUseCase: DownloadTripDocumentUseCase(
+      documentsRepository,
+    ),
+    removeTripDocumentUseCase: RemoveTripDocumentUseCase(documentsRepository),
+    replaceTripDocumentUseCase: ReplaceTripDocumentUseCase(documentsRepository),
     calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
     getTripBusinessLocalTimestampsUseCase:
         const GetTripBusinessLocalTimestampsUseCase(converter),
@@ -567,7 +566,6 @@ final class _NoopExpenseTypesRepository implements ExpenseTypesRepository {
     return Future.value(const Success([]));
   }
 }
-
 
 final class _NoopTripDocumentsRepository implements TripDocumentsRepository {
   @override

@@ -21,10 +21,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = context.companyId;
     emit(
-      current.copyWith(
-        isTripDocumentMutating: true,
-        documentsFailure: null,
-      ),
+      current.copyWith(isTripDocumentMutating: true, documentsFailure: null),
     );
 
     final result = await owner.uploadTripDocumentUseCase(
@@ -45,9 +42,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
       return;
     }
 
-    owner._mapLoaded(
-      (state) => state.copyWith(isTripDocumentMutating: false),
-    );
+    owner._mapLoaded((state) => state.copyWith(isTripDocumentMutating: false));
 
     result.when(
       success: (_) => _refreshSelectedTripDocuments(tripId),
@@ -76,10 +71,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = context.companyId;
     emit(
-      current.copyWith(
-        isTripDocumentMutating: true,
-        documentsFailure: null,
-      ),
+      current.copyWith(isTripDocumentMutating: true, documentsFailure: null),
     );
 
     final result = await owner.replaceTripDocumentUseCase(
@@ -99,9 +91,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
       return;
     }
 
-    owner._mapLoaded(
-      (state) => state.copyWith(isTripDocumentMutating: false),
-    );
+    owner._mapLoaded((state) => state.copyWith(isTripDocumentMutating: false));
 
     result.when(
       success: (_) => _refreshSelectedTripDocuments(document.tripId),
@@ -130,10 +120,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = context.companyId;
     emit(
-      current.copyWith(
-        isTripDocumentMutating: true,
-        documentsFailure: null,
-      ),
+      current.copyWith(isTripDocumentMutating: true, documentsFailure: null),
     );
 
     final result = await owner.removeTripDocumentUseCase(
@@ -153,9 +140,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
       return;
     }
 
-    owner._mapLoaded(
-      (state) => state.copyWith(isTripDocumentMutating: false),
-    );
+    owner._mapLoaded((state) => state.copyWith(isTripDocumentMutating: false));
 
     result.when(
       success: (_) => _refreshSelectedTripDocuments(trip.id),
@@ -244,12 +229,7 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
 
-    emit(
-      current.copyWith(
-        isDocumentsLoading: true,
-        documentsFailure: null,
-      ),
-    );
+    emit(current.copyWith(isDocumentsLoading: true, documentsFailure: null));
 
     final result = await owner.getTripDocumentsUseCase(
       GetTripDocumentsParams(

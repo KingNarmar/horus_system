@@ -16,10 +16,7 @@ void main() {
     );
 
     expect(failure, isA<ConflictFailure>());
-    expect(
-      failure.code,
-      TripDocumentFailureCodes.conflictMaxActiveDocuments,
-    );
+    expect(failure.code, TripDocumentFailureCodes.conflictMaxActiveDocuments);
   });
 
   test('maps evidence loss to stable conflict failure', () {

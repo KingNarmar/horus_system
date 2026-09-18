@@ -26,9 +26,7 @@ final class TripDocumentRepositoryFailureMapper {
       ),
       TripDocumentDbErrorCodes.invalidStorageReference ||
       TripDocumentDbErrorCodes.invalidStatusTransition =>
-        const ValidationFailure(
-          code: TripDocumentFailureCodes.unexpectedError,
-        ),
+        const ValidationFailure(code: TripDocumentFailureCodes.unexpectedError),
       _ => const ServerFailure(code: TripDocumentFailureCodes.serverError),
     };
   }

@@ -35,8 +35,7 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
     TripDocumentFailureCodes.notFound => l10n.tripDocumentNotFoundFailure,
     TripDocumentFailureCodes.compensationCleanupFailed =>
       l10n.tripDocumentCleanupFailure,
-    TripDocumentFailureCodes.serverError =>
-      l10n.tripDocumentStorageFailure,
+    TripDocumentFailureCodes.serverError => l10n.tripDocumentStorageFailure,
     BusinessDocumentFailureCodes.validationFileEmpty =>
       l10n.tripDocumentFileEmptyFailure,
     BusinessDocumentFailureCodes.validationFileNameInvalid =>

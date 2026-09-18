@@ -1,9 +1,4 @@
-enum TripDocumentKind {
-  loadingOrder,
-  waybill,
-  proofOfDelivery,
-  other,
-}
+enum TripDocumentKind { loadingOrder, waybill, proofOfDelivery, other }
 
 extension TripDocumentKindX on TripDocumentKind {
   String get value {

@@ -3332,6 +3332,234 @@ abstract class AppLocalizations {
   /// **'Trip expenses'**
   String get tripExpensesTitle;
 
+  /// No description provided for @tripDocumentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents and evidence'**
+  String get tripDocumentsTitle;
+
+  /// No description provided for @tripLoadingDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading documents...'**
+  String get tripLoadingDocuments;
+
+  /// No description provided for @tripNoDocumentsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents uploaded yet.'**
+  String get tripNoDocumentsFound;
+
+  /// No description provided for @tripDocumentEvidenceReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Required evidence is ready.'**
+  String get tripDocumentEvidenceReady;
+
+  /// No description provided for @tripDocumentEvidenceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Required evidence is missing.'**
+  String get tripDocumentEvidenceMissing;
+
+  /// No description provided for @tripDocumentEvidenceRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents received requires an active Waybill or Proof of Delivery.'**
+  String get tripDocumentEvidenceRule;
+
+  /// No description provided for @tripDocumentUploadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload document'**
+  String get tripDocumentUploadButton;
+
+  /// No description provided for @tripDocumentReplaceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get tripDocumentReplaceButton;
+
+  /// No description provided for @tripDocumentRemoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get tripDocumentRemoveButton;
+
+  /// No description provided for @tripDocumentViewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get tripDocumentViewButton;
+
+  /// No description provided for @tripDocumentDownloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get tripDocumentDownloadButton;
+
+  /// No description provided for @tripDocumentSaveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Trip document'**
+  String get tripDocumentSaveDialogTitle;
+
+  /// No description provided for @tripDocumentDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The document could not be saved.'**
+  String get tripDocumentDownloadFailed;
+
+  /// No description provided for @tripDocumentChooseKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose document type'**
+  String get tripDocumentChooseKindTitle;
+
+  /// No description provided for @tripDocumentChooseSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose source'**
+  String get tripDocumentChooseSourceTitle;
+
+  /// No description provided for @tripDocumentChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get tripDocumentChooseFile;
+
+  /// No description provided for @tripDocumentChooseGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get tripDocumentChooseGallery;
+
+  /// No description provided for @tripDocumentTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get tripDocumentTakePhoto;
+
+  /// No description provided for @tripDocumentRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove document'**
+  String get tripDocumentRemoveTitle;
+
+  /// No description provided for @tripDocumentRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this document from the active Trip evidence?'**
+  String get tripDocumentRemoveMessage;
+
+  /// No description provided for @tripDocumentOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The document could not be opened.'**
+  String get tripDocumentOpenFailed;
+
+  /// No description provided for @tripDocumentKindLoadingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading order'**
+  String get tripDocumentKindLoadingOrder;
+
+  /// No description provided for @tripDocumentKindWaybill.
+  ///
+  /// In en, this message translates to:
+  /// **'Waybill'**
+  String get tripDocumentKindWaybill;
+
+  /// No description provided for @tripDocumentKindProofOfDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof of delivery'**
+  String get tripDocumentKindProofOfDelivery;
+
+  /// No description provided for @tripDocumentKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tripDocumentKindOther;
+
+  /// No description provided for @tripDocumentsPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This role is not allowed to access Trip documents.'**
+  String get tripDocumentsPermissionFailure;
+
+  /// No description provided for @tripDocumentsMaxActiveFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'A Trip can have up to 10 active documents.'**
+  String get tripDocumentsMaxActiveFailure;
+
+  /// No description provided for @tripDocumentsEvidenceRequiredFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This action would remove the last required evidence for the current Trip status.'**
+  String get tripDocumentsEvidenceRequiredFailure;
+
+  /// No description provided for @tripDocumentNotFoundFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The Trip document could not be found.'**
+  String get tripDocumentNotFoundFailure;
+
+  /// No description provided for @tripDocumentFileEmptyFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected file is empty.'**
+  String get tripDocumentFileEmptyFailure;
+
+  /// No description provided for @tripDocumentFileNameInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected file name is invalid.'**
+  String get tripDocumentFileNameInvalidFailure;
+
+  /// No description provided for @tripDocumentFileTypeUnsupportedFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PDF, JPG, JPEG, PNG, WEBP, HEIC, or HEIF.'**
+  String get tripDocumentFileTypeUnsupportedFailure;
+
+  /// No description provided for @tripDocumentFileTooLargeFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The file must be 10 MB or smaller.'**
+  String get tripDocumentFileTooLargeFailure;
+
+  /// No description provided for @tripDocumentStorageFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The document storage operation failed. Try again.'**
+  String get tripDocumentStorageFailure;
+
+  /// No description provided for @tripDocumentCleanupFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The document could not be safely cleaned up after a failed save. Contact an administrator.'**
+  String get tripDocumentCleanupFailure;
+
+  /// No description provided for @tripAuditDocumentUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip document uploaded'**
+  String get tripAuditDocumentUploaded;
+
+  /// No description provided for @tripAuditDocumentRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip document removed'**
+  String get tripAuditDocumentRemoved;
+
+  /// No description provided for @tripAuditDocumentReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip document replaced'**
+  String get tripAuditDocumentReplaced;
+
   /// No description provided for @tripLoadingExpenses.
   ///
   /// In en, this message translates to:
@@ -4411,47 +4639,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The company must keep at least one active Owner.'**
   String get failureCompanyLastOwnerRequired;
-  String get tripDocumentsTitle;
-  String get tripLoadingDocuments;
-  String get tripNoDocumentsFound;
-  String get tripDocumentEvidenceReady;
-  String get tripDocumentEvidenceMissing;
-  String get tripDocumentEvidenceRule;
-  String get tripDocumentUploadButton;
-  String get tripDocumentReplaceButton;
-  String get tripDocumentRemoveButton;
-  String get tripDocumentViewButton;
-  String get tripDocumentDownloadButton;
-  String get tripDocumentSaveDialogTitle;
-  String get tripDocumentDownloadFailed;
-  String get tripDocumentChooseKindTitle;
-  String get tripDocumentChooseSourceTitle;
-  String get tripDocumentChooseFile;
-  String get tripDocumentChooseGallery;
-  String get tripDocumentTakePhoto;
-  String get tripDocumentRemoveTitle;
-  String get tripDocumentRemoveMessage;
-  String get tripDocumentOpenFailed;
-  String get tripDocumentKindLoadingOrder;
-  String get tripDocumentKindWaybill;
-  String get tripDocumentKindProofOfDelivery;
-  String get tripDocumentKindOther;
-  String get tripDocumentsPermissionFailure;
-  String get tripDocumentsMaxActiveFailure;
-  String get tripDocumentsEvidenceRequiredFailure;
-  String get tripDocumentNotFoundFailure;
-  String get tripDocumentFileEmptyFailure;
-  String get tripDocumentFileNameInvalidFailure;
-  String get tripDocumentFileTypeUnsupportedFailure;
-  String get tripDocumentFileTooLargeFailure;
-  String get tripDocumentStorageFailure;
-  String get tripDocumentCleanupFailure;
-  String get tripAuditDocumentUploaded;
-  String get tripAuditDocumentRemoved;
-  String get tripAuditDocumentReplaced;
-
 }
-
 
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
