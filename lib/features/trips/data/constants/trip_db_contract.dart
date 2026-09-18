@@ -30,6 +30,8 @@ abstract final class TripDbErrorCodes {
   static const statusPermissionDenied = 'P3411';
   static const notFound = 'P3412';
   static const temporalOrderInvalid = 'P3413';
+  static const evidenceRequired = 'P3424';
+  static const statusTransitionInvalid = 'P3426';
   static const checkViolation = '23514';
 }
 
