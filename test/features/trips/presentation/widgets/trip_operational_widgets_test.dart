@@ -72,53 +72,54 @@ void main() {
       expect(changedValue, isNull);
     });
 
-    testWidgets('trip form stays open on failure and closes after retry success', (
-      tester,
-    ) async {
-      var submitCount = 0;
+    testWidgets(
+      'trip form stays open on failure and closes after retry success',
+      (tester) async {
+        var submitCount = 0;
 
-      await tester.pumpWidget(
-        _dialogLauncher(
-          builder: (_) => TripFormDialog(
-            title: 'Edit trip',
-            trip: _editableTrip,
-            lookups: _lookups,
-            financialConfiguration: null,
-            onSubmit: (_) async {
-              submitCount++;
-              if (submitCount == 1) {
-                return const TripMutationFailed(
-                  ValidationFailure(
-                    code: FailureCodes.validationTripDeliveryBeforeLoading,
-                  ),
-                );
-              }
-              return const TripMutationSucceeded();
-            },
+        await tester.pumpWidget(
+          _dialogLauncher(
+            builder: (_) => TripFormDialog(
+              title: 'Edit trip',
+              trip: _editableTrip,
+              lookups: _lookups,
+              financialConfiguration: null,
+              onSubmit: (_) async {
+                submitCount++;
+                if (submitCount == 1) {
+                  return const TripMutationFailed(
+                    ValidationFailure(
+                      code: FailureCodes.validationTripDeliveryBeforeLoading,
+                    ),
+                  );
+                }
+                return const TripMutationSucceeded();
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.byKey(const Key('open-dialog')));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('open-dialog')));
+        await tester.pumpAndSettle();
 
-      final saveLabel = AppLocalizationsEn().saveButton;
-      await tester.tap(find.text(saveLabel));
-      await tester.pumpAndSettle();
+        final saveLabel = AppLocalizationsEn().saveButton;
+        await tester.tap(find.text(saveLabel));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(TripFormDialog), findsOneWidget);
-      expect(
-        find.text(AppLocalizationsEn().tripDeliveryBeforeLoadingInvalid),
-        findsOneWidget,
-      );
-      expect(submitCount, 1);
+        expect(find.byType(TripFormDialog), findsOneWidget);
+        expect(
+          find.text(AppLocalizationsEn().tripDeliveryBeforeLoadingInvalid),
+          findsOneWidget,
+        );
+        expect(submitCount, 1);
 
-      await tester.tap(find.text(saveLabel));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text(saveLabel));
+        await tester.pumpAndSettle();
 
-      expect(submitCount, 2);
-      expect(find.byType(TripFormDialog), findsNothing);
-    });
+        expect(submitCount, 2);
+        expect(find.byType(TripFormDialog), findsNothing);
+      },
+    );
 
     testWidgets('status dialog blocks duplicate submit while pending', (
       tester,
@@ -192,18 +193,13 @@ Widget _localizedApp(Widget home) {
   );
 }
 
-Widget _dialogLauncher({
-  required WidgetBuilder builder,
-}) {
+Widget _dialogLauncher({required WidgetBuilder builder}) {
   return _localizedApp(
     Scaffold(
       body: Builder(
         builder: (context) => FilledButton(
           key: const Key('open-dialog'),
-          onPressed: () => showDialog<void>(
-            context: context,
-            builder: builder,
-          ),
+          onPressed: () => showDialog<void>(context: context, builder: builder),
           child: const Text('Open'),
         ),
       ),

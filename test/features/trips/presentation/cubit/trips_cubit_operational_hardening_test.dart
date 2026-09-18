@@ -44,166 +44,184 @@ import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
   group('PC-10 TripsCubit operational hardening', () {
-    test('ignores an old company load after a newer company load wins', () async {
-      final repository = _FakeTripsRepository();
-      final oldLoad = Completer<Result<List<TripEntity>>>();
-      repository.pendingLoads['company-a'] = oldLoad;
-      repository.tripsByCompany['company-b'] = const [_tripB];
+    test(
+      'ignores an old company load after a newer company load wins',
+      () async {
+        final repository = _FakeTripsRepository();
+        final oldLoad = Completer<Result<List<TripEntity>>>();
+        repository.pendingLoads['company-a'] = oldLoad;
+        repository.tripsByCompany['company-b'] = const [_tripB];
 
-      final cubit = _buildCubit(repository);
-      addTearDown(cubit.close);
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
 
-      final oldRequest = cubit.loadTrips(_contextA);
-      await Future<void>.delayed(Duration.zero);
+        final oldRequest = cubit.loadTrips(_contextA);
+        await Future<void>.delayed(Duration.zero);
 
-      await cubit.loadTrips(_contextB);
+        await cubit.loadTrips(_contextB);
 
-      final loadedB = cubit.state as TripsLoaded;
-      expect(loadedB.currentCompanyContext.companyId, 'company-b');
-      expect(loadedB.allTrips, const [_tripB]);
+        final loadedB = cubit.state as TripsLoaded;
+        expect(loadedB.currentCompanyContext.companyId, 'company-b');
+        expect(loadedB.allTrips, const [_tripB]);
 
-      oldLoad.complete(const Success([_tripA]));
-      await oldRequest;
+        oldLoad.complete(const Success([_tripA]));
+        await oldRequest;
 
-      final stillLoadedB = cubit.state as TripsLoaded;
-      expect(stillLoadedB.currentCompanyContext.companyId, 'company-b');
-      expect(stillLoadedB.allTrips, const [_tripB]);
-    });
+        final stillLoadedB = cubit.state as TripsLoaded;
+        expect(stillLoadedB.currentCompanyContext.companyId, 'company-b');
+        expect(stillLoadedB.allTrips, const [_tripB]);
+      },
+    );
 
-    test('failed create preserves loaded state and retry succeeds once', () async {
-      final repository = _FakeTripsRepository()
-        ..tripsByCompany['company-a'] = const [_tripA]
-        ..createResults.add(
-          const FailureResult<TripEntity>(
-            ServerFailure(code: FailureCodes.serverError),
-          ),
-        )
-        ..createResults.add(const Success(_tripCreated));
+    test(
+      'failed create preserves loaded state and retry succeeds once',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = const [_tripA]
+          ..createResults.add(
+            const FailureResult<TripEntity>(
+              ServerFailure(code: FailureCodes.serverError),
+            ),
+          )
+          ..createResults.add(const Success(_tripCreated));
 
-      final cubit = _buildCubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadTrips(_contextA);
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.loadTrips(_contextA);
 
-      final firstResult = await cubit.saveTrip(
-        customerId: 'customer-new',
-        routeId: 'route-new',
-      );
+        final firstResult = await cubit.saveTrip(
+          customerId: 'customer-new',
+          routeId: 'route-new',
+        );
 
-      expect(firstResult, isA<TripMutationFailed>());
-      final failedState = cubit.state as TripsLoaded;
-      expect(failedState.allTrips, const [_tripA]);
-      expect(failedState.isTripSaving, isFalse);
-      expect(failedState.tripSaveFailure?.code, FailureCodes.serverError);
+        expect(firstResult, isA<TripMutationFailed>());
+        final failedState = cubit.state as TripsLoaded;
+        expect(failedState.allTrips, const [_tripA]);
+        expect(failedState.isTripSaving, isFalse);
+        expect(failedState.tripSaveFailure?.code, FailureCodes.serverError);
 
-      final retryResult = await cubit.saveTrip(
-        customerId: 'customer-new',
-        routeId: 'route-new',
-      );
+        final retryResult = await cubit.saveTrip(
+          customerId: 'customer-new',
+          routeId: 'route-new',
+        );
 
-      expect(retryResult, isA<TripMutationSucceeded>());
-      final retryState = cubit.state as TripsLoaded;
-      expect(repository.createCalls, 2);
-      expect(retryState.allTrips.map((trip) => trip.id), contains('trip-new'));
-      expect(retryState.tripSaveFailure, isNull);
-    });
+        expect(retryResult, isA<TripMutationSucceeded>());
+        final retryState = cubit.state as TripsLoaded;
+        expect(repository.createCalls, 2);
+        expect(
+          retryState.allTrips.map((trip) => trip.id),
+          contains('trip-new'),
+        );
+        expect(retryState.tripSaveFailure, isNull);
+      },
+    );
 
-    test('duplicate save is ignored while the first mutation is pending', () async {
-      final repository = _FakeTripsRepository()
-        ..tripsByCompany['company-a'] = const [_tripA];
-      final pendingCreate = Completer<Result<TripEntity>>();
-      repository.pendingCreate = pendingCreate;
+    test(
+      'duplicate save is ignored while the first mutation is pending',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = const [_tripA];
+        final pendingCreate = Completer<Result<TripEntity>>();
+        repository.pendingCreate = pendingCreate;
 
-      final cubit = _buildCubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadTrips(_contextA);
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.loadTrips(_contextA);
 
-      final first = cubit.saveTrip(
-        customerId: 'customer-new',
-        routeId: 'route-new',
-      );
-      await Future<void>.delayed(Duration.zero);
+        final first = cubit.saveTrip(
+          customerId: 'customer-new',
+          routeId: 'route-new',
+        );
+        await Future<void>.delayed(Duration.zero);
 
-      final second = await cubit.saveTrip(
-        customerId: 'customer-new',
-        routeId: 'route-new',
-      );
+        final second = await cubit.saveTrip(
+          customerId: 'customer-new',
+          routeId: 'route-new',
+        );
 
-      expect(second, isA<TripMutationIgnored>());
-      expect(repository.createCalls, 1);
-      expect((cubit.state as TripsLoaded).isTripSaving, isTrue);
+        expect(second, isA<TripMutationIgnored>());
+        expect(repository.createCalls, 1);
+        expect((cubit.state as TripsLoaded).isTripSaving, isTrue);
 
-      pendingCreate.complete(const Success(_tripCreated));
-      expect(await first, isA<TripMutationSucceeded>());
-      expect(repository.createCalls, 1);
-      expect((cubit.state as TripsLoaded).isTripSaving, isFalse);
-    });
+        pendingCreate.complete(const Success(_tripCreated));
+        expect(await first, isA<TripMutationSucceeded>());
+        expect(repository.createCalls, 1);
+        expect((cubit.state as TripsLoaded).isTripSaving, isFalse);
+      },
+    );
 
-    test('stale mutation completion cannot overwrite a new company context', () async {
-      final repository = _FakeTripsRepository()
-        ..tripsByCompany['company-a'] = const [_tripA]
-        ..tripsByCompany['company-b'] = const [_tripB];
-      final pendingCreate = Completer<Result<TripEntity>>();
-      repository.pendingCreate = pendingCreate;
+    test(
+      'stale mutation completion cannot overwrite a new company context',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = const [_tripA]
+          ..tripsByCompany['company-b'] = const [_tripB];
+        final pendingCreate = Completer<Result<TripEntity>>();
+        repository.pendingCreate = pendingCreate;
 
-      final cubit = _buildCubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadTrips(_contextA);
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.loadTrips(_contextA);
 
-      final pendingMutation = cubit.saveTrip(
-        customerId: 'customer-new',
-        routeId: 'route-new',
-      );
-      await Future<void>.delayed(Duration.zero);
+        final pendingMutation = cubit.saveTrip(
+          customerId: 'customer-new',
+          routeId: 'route-new',
+        );
+        await Future<void>.delayed(Duration.zero);
 
-      await cubit.loadTrips(_contextB);
-      pendingCreate.complete(const Success(_tripCreated));
+        await cubit.loadTrips(_contextB);
+        pendingCreate.complete(const Success(_tripCreated));
 
-      expect(await pendingMutation, isA<TripMutationIgnored>());
-      final current = cubit.state as TripsLoaded;
-      expect(current.currentCompanyContext.companyId, 'company-b');
-      expect(current.allTrips, const [_tripB]);
-    });
+        expect(await pendingMutation, isA<TripMutationIgnored>());
+        final current = cubit.state as TripsLoaded;
+        expect(current.currentCompanyContext.companyId, 'company-b');
+        expect(current.allTrips, const [_tripB]);
+      },
+    );
 
-    test('status failure preserves loaded trip and retry clears scoped failure', () async {
-      final repository = _FakeTripsRepository()
-        ..tripsByCompany['company-a'] = const [_tripA]
-        ..detailsById['trip-a'] = _tripA
-        ..statusResults.add(
-          const FailureResult<TripEntity>(
-            ServerFailure(code: FailureCodes.serverError),
-          ),
-        )
-        ..statusResults.add(const Success(_tripAssigned));
+    test(
+      'status failure preserves loaded trip and retry clears scoped failure',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = const [_tripA]
+          ..detailsById['trip-a'] = _tripA
+          ..statusResults.add(
+            const FailureResult<TripEntity>(
+              ServerFailure(code: FailureCodes.serverError),
+            ),
+          )
+          ..statusResults.add(const Success(_tripAssigned));
 
-      final cubit = _buildCubit(repository);
-      addTearDown(cubit.close);
-      await cubit.loadTrips(_contextA);
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.loadTrips(_contextA);
 
-      final firstResult = await cubit.updateTripStatus(
-        trip: _tripA,
-        newStatus: TripStatus.assigned,
-      );
+        final firstResult = await cubit.updateTripStatus(
+          trip: _tripA,
+          newStatus: TripStatus.assigned,
+        );
 
-      expect(firstResult, isA<TripMutationFailed>());
-      final failedState = cubit.state as TripsLoaded;
-      expect(failedState.allTrips.single.status, TripStatus.created);
-      expect(
-        failedState.statusChangeFailureFor('trip-a')?.code,
-        FailureCodes.serverError,
-      );
-      expect(failedState.isStatusChanging('trip-a'), isFalse);
+        expect(firstResult, isA<TripMutationFailed>());
+        final failedState = cubit.state as TripsLoaded;
+        expect(failedState.allTrips.single.status, TripStatus.created);
+        expect(
+          failedState.statusChangeFailureFor('trip-a')?.code,
+          FailureCodes.serverError,
+        );
+        expect(failedState.isStatusChanging('trip-a'), isFalse);
 
-      final retryResult = await cubit.updateTripStatus(
-        trip: _tripA,
-        newStatus: TripStatus.assigned,
-      );
+        final retryResult = await cubit.updateTripStatus(
+          trip: _tripA,
+          newStatus: TripStatus.assigned,
+        );
 
-      expect(retryResult, isA<TripMutationSucceeded>());
-      final retryState = cubit.state as TripsLoaded;
-      expect(repository.statusCalls, 2);
-      expect(retryState.allTrips.single.status, TripStatus.assigned);
-      expect(retryState.statusChangeFailureFor('trip-a'), isNull);
-    });
+        expect(retryResult, isA<TripMutationSucceeded>());
+        final retryState = cubit.state as TripsLoaded;
+        expect(repository.statusCalls, 2);
+        expect(retryState.allTrips.single.status, TripStatus.assigned);
+        expect(retryState.statusChangeFailureFor('trip-a'), isNull);
+      },
+    );
   });
 }
 
@@ -284,17 +302,21 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
     getTripAuditLogsUseCase: GetEntityAuditLogsUseCase(
       _NoopAuditLogRepository(),
     ),
-    getTripExpenseLedgerEntriesUseCase:
-        GetTripExpenseLedgerEntriesUseCase(expenseRepository),
-    getExpenseTypeCatalogUseCase:
-        GetExpenseTypeCatalogUseCase(expenseTypesRepository),
-    getLedgerEligibleExpenseTypesUseCase:
-        GetLedgerEligibleExpenseTypesUseCase(expenseTypesRepository),
+    getTripExpenseLedgerEntriesUseCase: GetTripExpenseLedgerEntriesUseCase(
+      expenseRepository,
+    ),
+    getExpenseTypeCatalogUseCase: GetExpenseTypeCatalogUseCase(
+      expenseTypesRepository,
+    ),
+    getLedgerEligibleExpenseTypesUseCase: GetLedgerEligibleExpenseTypesUseCase(
+      expenseTypesRepository,
+    ),
     createTripExpenseUseCase: CreateTripExpenseUseCase(
       CreateExpenseLedgerEntryUseCase(expenseRepository),
     ),
-    voidExpenseLedgerEntryUseCase:
-        VoidExpenseLedgerEntryUseCase(expenseRepository),
+    voidExpenseLedgerEntryUseCase: VoidExpenseLedgerEntryUseCase(
+      expenseRepository,
+    ),
   );
 }
 
@@ -327,7 +349,8 @@ final class _FakeTripsRepository implements TripsRepository {
   }) {
     var trip = detailsById[id];
     if (trip == null) {
-      for (final candidate in tripsByCompany[companyId] ?? const <TripEntity>[]) {
+      for (final candidate
+          in tripsByCompany[companyId] ?? const <TripEntity>[]) {
         if (candidate.id == id) {
           trip = candidate;
           break;
@@ -336,9 +359,7 @@ final class _FakeTripsRepository implements TripsRepository {
     }
     if (trip == null) {
       return Future.value(
-        const FailureResult(
-          NotFoundFailure(code: 'test_trip_not_found'),
-        ),
+        const FailureResult(NotFoundFailure(code: 'test_trip_not_found')),
       );
     }
     return Future.value(Success(trip));
