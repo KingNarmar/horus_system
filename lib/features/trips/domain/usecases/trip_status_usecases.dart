@@ -6,7 +6,7 @@ import '../entities/trip_document.dart';
 import '../entities/trip_entity.dart';
 import '../entities/trip_status.dart';
 import '../entities/trip_status_history.dart';
-import '../failures/trip_document_failure_codes.dart';
+import '../failures/trip_failure_codes.dart';
 import '../policies/trip_evidence_policy.dart';
 import '../policies/trips_permission_policy.dart';
 import '../repositories/trip_documents_repository.dart';
@@ -79,7 +79,7 @@ class UpdateTripStatusUseCase
       )) {
         return const FailureResult<TripEntity>(
           ConflictFailure(
-            code: TripDocumentFailureCodes.conflictEvidenceRequired,
+            code: TripFailureCodes.conflictStatusEvidenceRequired,
           ),
         );
       }
