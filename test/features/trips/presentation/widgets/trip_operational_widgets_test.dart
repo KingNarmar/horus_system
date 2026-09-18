@@ -43,7 +43,7 @@ void main() {
     });
 
     testWidgets('date-time field can clear an existing value', (tester) async {
-      BusinessLocalDateTime? changedValue = const BusinessLocalDateTime(
+      BusinessLocalDateTime? changedValue = BusinessLocalDateTime(
         year: 2026,
         month: 9,
         day: 18,
@@ -102,7 +102,7 @@ void main() {
       await tester.tap(find.byKey(const Key('open-dialog')));
       await tester.pumpAndSettle();
 
-      final saveLabel = AppLocalizationsEn().tripSaveButton;
+      final saveLabel = AppLocalizationsEn().saveButton;
       await tester.tap(find.text(saveLabel));
       await tester.pumpAndSettle();
 
@@ -141,7 +141,7 @@ void main() {
       await tester.tap(find.byKey(const Key('open-dialog')));
       await tester.pumpAndSettle();
 
-      final saveLabel = AppLocalizationsEn().tripSaveButton;
+      final saveLabel = AppLocalizationsEn().saveButton;
       await tester.tap(find.text(saveLabel));
       await tester.pump();
 
