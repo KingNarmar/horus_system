@@ -30,6 +30,7 @@ String fleetLicenseDocumentFailureMessage(
       l10n.fleetLicenseDocumentFileTypeUnsupportedFailure,
     BusinessDocumentFailureCodes.validationFileTooLarge =>
       l10n.fleetLicenseDocumentFileTooLargeFailure,
+    BusinessDocumentFailureCodes.permissionAccess ||
     BusinessDocumentFailureCodes.storageError =>
       l10n.fleetLicenseDocumentStorageFailure,
     _ => l10n.localizedErrorMessage(failure),
