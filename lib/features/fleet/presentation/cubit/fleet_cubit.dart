@@ -267,7 +267,8 @@ class FleetCubit extends Cubit<FleetState> {
 
     emit(
       current.copyWith(
-        allTractorHeads: tractorHeadsResult.dataOrNull ?? current.allTractorHeads,
+        allTractorHeads:
+            tractorHeadsResult.dataOrNull ?? current.allTractorHeads,
         allTrailers: trailersResult.dataOrNull ?? current.allTrailers,
       ),
     );

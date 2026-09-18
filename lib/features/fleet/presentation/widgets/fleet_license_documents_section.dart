@@ -38,9 +38,9 @@ final class FleetLicenseDocumentsSection extends StatelessWidget {
               children: [
                 Text(
                   l10n.fleetLicenseDocumentsTitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
@@ -224,7 +224,9 @@ final class _DocumentTile extends StatelessWidget {
         .createAccess(document);
     if (access == null || !context.mounted) return;
 
-    final opened = await const FleetLicenseDocumentLauncher().open(access.value);
+    final opened = await const FleetLicenseDocumentLauncher().open(
+      access.value,
+    );
     if (!opened && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.fleetLicenseDocumentOpenFailed)),
@@ -233,9 +235,9 @@ final class _DocumentTile extends StatelessWidget {
   }
 
   Future<void> _download(BuildContext context) async {
-    final bytes = await context
-        .read<FleetLicenseDocumentsCubit>()
-        .download(document);
+    final bytes = await context.read<FleetLicenseDocumentsCubit>().download(
+      document,
+    );
     if (bytes == null || !context.mounted) return;
 
     final saved = await const FleetLicenseDocumentSaver().save(
@@ -246,7 +248,9 @@ final class _DocumentTile extends StatelessWidget {
     );
     if (!saved && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.fleetLicenseDocumentDownloadFailed)),
+        SnackBar(
+          content: Text(context.l10n.fleetLicenseDocumentDownloadFailed),
+        ),
       );
     }
   }
@@ -290,9 +294,9 @@ final class _DocumentTile extends StatelessWidget {
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    final changed = await context
-        .read<FleetLicenseDocumentsCubit>()
-        .remove(document);
+    final changed = await context.read<FleetLicenseDocumentsCubit>().remove(
+      document,
+    );
     if (changed && context.mounted) {
       await onAssetChanged();
     }

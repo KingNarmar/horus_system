@@ -50,10 +50,7 @@ final class FleetLicenseDocumentModel {
       mimeType: map['mime_type'] as String,
       sizeBytes: (map['size_bytes'] as num).toInt(),
       uploadedBy: map['uploaded_by'] as String?,
-      uploadedAt: DbTimestamp.decode(
-        map['uploaded_at'],
-        field: 'uploaded_at',
-      ),
+      uploadedAt: DbTimestamp.decode(map['uploaded_at'], field: 'uploaded_at'),
       removedBy: map['removed_by'] as String?,
       removedAt: DbTimestamp.decodeNullable(
         map['removed_at'],

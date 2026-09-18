@@ -60,23 +60,26 @@ void main() {
       );
     });
 
-    test('logical remove never deletes the registered Storage object', () async {
-      final remote = _FakeRemoteDataSource();
-      final storage = _FakeBusinessDocumentRepository();
-      final repository = FleetLicenseDocumentsRepositoryImpl(
-        remoteDataSource: remote,
-        businessDocumentRepository: storage,
-      );
+    test(
+      'logical remove never deletes the registered Storage object',
+      () async {
+        final remote = _FakeRemoteDataSource();
+        final storage = _FakeBusinessDocumentRepository();
+        final repository = FleetLicenseDocumentsRepositoryImpl(
+          remoteDataSource: remote,
+          businessDocumentRepository: storage,
+        );
 
-      final result = await repository.remove(
-        target: _tractorTarget,
-        documentId: 'document-1',
-      );
+        final result = await repository.remove(
+          target: _tractorTarget,
+          documentId: 'document-1',
+        );
 
-      expect(result, isA<Success<void>>());
-      expect(remote.removeCalls, 1);
-      expect(storage.deleteCalls, 0);
-    });
+        expect(result, isA<Success<void>>());
+        expect(remote.removeCalls, 1);
+        expect(storage.deleteCalls, 0);
+      },
+    );
   });
 }
 

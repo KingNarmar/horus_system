@@ -10,7 +10,8 @@ void main() {
         'company_id': 'company-1',
         'tractor_head_id': 'tractor-1',
         'trailer_id': null,
-        'storage_reference': 'companies/company/tractor-heads/id/license/file.pdf',
+        'storage_reference':
+            'companies/company/tractor-heads/id/license/file.pdf',
         'original_file_name': 'license.pdf',
         'mime_type': 'application/pdf',
         'size_bytes': 12,

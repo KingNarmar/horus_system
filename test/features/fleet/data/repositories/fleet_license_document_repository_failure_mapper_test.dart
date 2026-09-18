@@ -17,10 +17,7 @@ void main() {
       );
 
       expect(failure, isA<PermissionFailure>());
-      expect(
-        failure.code,
-        FleetLicenseDocumentFailureCodes.permissionManage,
-      );
+      expect(failure.code, FleetLicenseDocumentFailureCodes.permissionManage);
     });
 
     test('maps missing active document to typed not-found failure', () {

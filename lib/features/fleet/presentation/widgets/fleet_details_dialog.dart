@@ -271,10 +271,7 @@ class _TimelineItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.fleetAuditEventLabel(
-                    log.description,
-                    log.action.value,
-                  ),
+                  l10n.fleetAuditEventLabel(log.description, log.action.value),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(

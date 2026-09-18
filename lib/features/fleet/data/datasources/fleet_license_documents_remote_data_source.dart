@@ -101,9 +101,7 @@ final class SupabaseFleetLicenseDocumentsRemoteDataSource
     };
 
     final row = await query.single();
-    return FleetLicenseDocumentModel.fromMap(
-      Map<String, dynamic>.from(row),
-    );
+    return FleetLicenseDocumentModel.fromMap(Map<String, dynamic>.from(row));
   }
 
   @override

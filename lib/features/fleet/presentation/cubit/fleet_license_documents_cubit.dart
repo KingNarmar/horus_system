@@ -168,9 +168,7 @@ final class FleetLicenseDocumentsCubit
       return false;
     }
 
-    emit(
-      latest.copyWith(document: null, isMutating: false, failure: null),
-    );
+    emit(latest.copyWith(document: null, isMutating: false, failure: null));
     return true;
   }
 

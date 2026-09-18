@@ -68,8 +68,7 @@ final class ReplaceFleetLicenseDocumentParams {
 }
 
 final class GetFleetLicenseDocumentUseCase
-    implements
-        UseCase<FleetLicenseDocument?, GetFleetLicenseDocumentParams> {
+    implements UseCase<FleetLicenseDocument?, GetFleetLicenseDocumentParams> {
   final FleetLicenseDocumentsRepository _repository;
 
   const GetFleetLicenseDocumentUseCase(this._repository);
@@ -91,8 +90,7 @@ final class GetFleetLicenseDocumentUseCase
 }
 
 final class UploadFleetLicenseDocumentUseCase
-    implements
-        UseCase<FleetLicenseDocument, UploadFleetLicenseDocumentParams> {
+    implements UseCase<FleetLicenseDocument, UploadFleetLicenseDocumentParams> {
   final FleetLicenseDocumentsRepository _repository;
   final FleetLicenseDocumentPolicy _policy;
 
@@ -122,8 +120,7 @@ final class UploadFleetLicenseDocumentUseCase
     if (!_policy.canUpload(current)) {
       return const FailureResult(
         ConflictFailure(
-          code:
-              FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+          code: FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
         ),
       );
     }

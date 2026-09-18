@@ -21,8 +21,7 @@ final class FleetLicenseDocumentRepositoryFailureMapper {
       ),
       FleetLicenseDocumentDbErrorCodes.activeDocumentExists ||
       '23505' => const ConflictFailure(
-        code:
-            FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+        code: FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
       ),
       FleetLicenseDocumentDbErrorCodes.invalidStorageReference ||
       FleetLicenseDocumentDbErrorCodes.invalidAssetType =>

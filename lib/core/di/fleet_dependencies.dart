@@ -50,8 +50,9 @@ abstract final class FleetDependencies {
     return FleetLicenseDocumentsCubit(
       getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
       uploadDocumentUseCase: UploadFleetLicenseDocumentUseCase(repository),
-      getDocumentAccessUseCase:
-          GetFleetLicenseDocumentAccessUseCase(repository),
+      getDocumentAccessUseCase: GetFleetLicenseDocumentAccessUseCase(
+        repository,
+      ),
       downloadDocumentUseCase: DownloadFleetLicenseDocumentUseCase(repository),
       replaceDocumentUseCase: ReplaceFleetLicenseDocumentUseCase(repository),
       removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),

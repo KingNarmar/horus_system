@@ -89,10 +89,8 @@ Future<void> _openTrailerDetails(
             notes: current.technicalNotes,
             notesLabel: context.l10n.technicalNotesLabel,
             state: state is FleetLoaded ? state : null,
-            onAssetChanged: () => _refreshTrailerDetails(
-              fleetCubit,
-              current.id,
-            ),
+            onAssetChanged: () =>
+                _refreshTrailerDetails(fleetCubit, current.id),
           );
         },
       ),
@@ -116,10 +114,7 @@ Future<void> _refreshTractorHeadDetails(
   }
 }
 
-Future<void> _refreshTrailerDetails(
-  FleetCubit cubit,
-  String assetId,
-) async {
+Future<void> _refreshTrailerDetails(FleetCubit cubit, String assetId) async {
   await cubit.refreshAssets();
   final state = cubit.state;
   if (state is! FleetLoaded) return;

@@ -29,20 +29,14 @@ void main() {
     final repository = _FakeRepository(document: _document);
     final cubit = _createCubit(repository);
     addTearDown(cubit.close);
-    await cubit.load(
-      currentCompanyContext: _viewerContext,
-      target: _target,
-    );
+    await cubit.load(currentCompanyContext: _viewerContext, target: _target);
 
     await tester.pumpWidget(_app(cubit));
 
     final l10n = AppLocalizationsEn();
     expect(find.text(l10n.fleetLicenseDocumentsTitle), findsOneWidget);
     expect(find.text('license.pdf'), findsOneWidget);
-    expect(
-      find.byTooltip(l10n.fleetLicenseDocumentOpenButton),
-      findsOneWidget,
-    );
+    expect(find.byTooltip(l10n.fleetLicenseDocumentOpenButton), findsOneWidget);
     expect(
       find.byTooltip(l10n.fleetLicenseDocumentDownloadButton),
       findsOneWidget,
@@ -51,14 +45,8 @@ void main() {
       find.byTooltip(l10n.fleetLicenseDocumentReplaceButton),
       findsNothing,
     );
-    expect(
-      find.byTooltip(l10n.fleetLicenseDocumentRemoveButton),
-      findsNothing,
-    );
-    expect(
-      find.text(l10n.fleetLicenseDocumentUploadButton),
-      findsNothing,
-    );
+    expect(find.byTooltip(l10n.fleetLicenseDocumentRemoveButton), findsNothing);
+    expect(find.text(l10n.fleetLicenseDocumentUploadButton), findsNothing);
   });
 
   testWidgets('operations sees mutation actions on narrow Arabic RTL layout', (
@@ -125,8 +113,7 @@ FleetLicenseDocumentsCubit _createCubit(
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
     uploadDocumentUseCase: UploadFleetLicenseDocumentUseCase(repository),
-    getDocumentAccessUseCase:
-        GetFleetLicenseDocumentAccessUseCase(repository),
+    getDocumentAccessUseCase: GetFleetLicenseDocumentAccessUseCase(repository),
     downloadDocumentUseCase: DownloadFleetLicenseDocumentUseCase(repository),
     replaceDocumentUseCase: ReplaceFleetLicenseDocumentUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),

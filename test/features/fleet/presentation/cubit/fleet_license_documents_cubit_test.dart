@@ -42,10 +42,7 @@ void main() {
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
-      await cubit.load(
-        currentCompanyContext: _viewerContext,
-        target: _target,
-      );
+      await cubit.load(currentCompanyContext: _viewerContext, target: _target);
 
       final state = cubit.state as FleetLicenseDocumentsLoaded;
       expect(state.document?.id, _document.id);
@@ -70,26 +67,31 @@ void main() {
       expect(repository.removeCalls, 1);
     });
 
-    test('failed remove preserves document and exposes typed failure', () async {
-      const failure = ServerFailure(code: 'fleet_license_document_server_error');
-      final repository = _FakeRepository()
-        ..activeDocument = _document
-        ..removeResult = const FailureResult<void>(failure);
-      final cubit = _createCubit(repository);
-      addTearDown(cubit.close);
+    test(
+      'failed remove preserves document and exposes typed failure',
+      () async {
+        const failure = ServerFailure(
+          code: 'fleet_license_document_server_error',
+        );
+        final repository = _FakeRepository()
+          ..activeDocument = _document
+          ..removeResult = const FailureResult<void>(failure);
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.load(
-        currentCompanyContext: _operationsContext,
-        target: _target,
-      );
-      final changed = await cubit.remove(_document);
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
+        final changed = await cubit.remove(_document);
 
-      final state = cubit.state as FleetLicenseDocumentsLoaded;
-      expect(changed, isFalse);
-      expect(state.document?.id, _document.id);
-      expect(state.failure, same(failure));
-      expect(state.isMutating, isFalse);
-    });
+        final state = cubit.state as FleetLicenseDocumentsLoaded;
+        expect(changed, isFalse);
+        expect(state.document?.id, _document.id);
+        expect(state.failure, same(failure));
+        expect(state.isMutating, isFalse);
+      },
+    );
   });
 }
 
@@ -125,8 +127,7 @@ FleetLicenseDocumentsCubit _createCubit(
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
     uploadDocumentUseCase: UploadFleetLicenseDocumentUseCase(repository),
-    getDocumentAccessUseCase:
-        GetFleetLicenseDocumentAccessUseCase(repository),
+    getDocumentAccessUseCase: GetFleetLicenseDocumentAccessUseCase(repository),
     downloadDocumentUseCase: DownloadFleetLicenseDocumentUseCase(repository),
     replaceDocumentUseCase: ReplaceFleetLicenseDocumentUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),

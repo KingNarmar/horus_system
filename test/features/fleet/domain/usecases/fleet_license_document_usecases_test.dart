@@ -74,25 +74,28 @@ void main() {
       expect(repository.uploadCalls, 0);
     });
 
-    test('upload rejects a second active document before persistence', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
-      final useCase = UploadFleetLicenseDocumentUseCase(repository);
+    test(
+      'upload rejects a second active document before persistence',
+      () async {
+        final repository = _FakeRepository()..activeDocument = _document;
+        final useCase = UploadFleetLicenseDocumentUseCase(repository);
 
-      final result = await useCase(
-        UploadFleetLicenseDocumentParams(
-          currentCompanyContext: _operationsContext,
-          target: _tractorTarget,
-          document: _file,
-        ),
-      );
+        final result = await useCase(
+          UploadFleetLicenseDocumentParams(
+            currentCompanyContext: _operationsContext,
+            target: _tractorTarget,
+            document: _file,
+          ),
+        );
 
-      expect(result.failureOrNull, isA<ConflictFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
-      );
-      expect(repository.uploadCalls, 0);
-    });
+        expect(result.failureOrNull, isA<ConflictFailure>());
+        expect(
+          result.failureOrNull?.code,
+          FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+        );
+        expect(repository.uploadCalls, 0);
+      },
+    );
 
     test('replace forwards exact optional Business Date', () async {
       final repository = _FakeRepository()..activeDocument = _document;

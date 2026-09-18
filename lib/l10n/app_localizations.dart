@@ -2067,102 +2067,201 @@ abstract class AppLocalizations {
   String get fleetLicenseDocumentsLoading;
 
   /// No description provided for @fleetLicenseDocumentMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No active license document uploaded.'**
   String get fleetLicenseDocumentMissing;
 
   /// No description provided for @fleetLicenseDocumentUploadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload license document'**
   String get fleetLicenseDocumentUploadButton;
 
   /// No description provided for @fleetLicenseDocumentUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Active license document'**
   String get fleetLicenseDocumentUploaded;
 
   /// No description provided for @fleetLicenseDocumentOpenButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
   String get fleetLicenseDocumentOpenButton;
 
   /// No description provided for @fleetLicenseDocumentDownloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
   String get fleetLicenseDocumentDownloadButton;
 
   /// No description provided for @fleetLicenseDocumentReplaceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
   String get fleetLicenseDocumentReplaceButton;
 
   /// No description provided for @fleetLicenseDocumentRemoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
   String get fleetLicenseDocumentRemoveButton;
 
   /// No description provided for @fleetLicenseDocumentOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The license document could not be opened.'**
   String get fleetLicenseDocumentOpenFailed;
 
   /// No description provided for @fleetLicenseDocumentSaveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save license document'**
   String get fleetLicenseDocumentSaveDialogTitle;
 
   /// No description provided for @fleetLicenseDocumentDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The license document could not be saved.'**
   String get fleetLicenseDocumentDownloadFailed;
 
   /// No description provided for @fleetLicenseDocumentRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove license document'**
   String get fleetLicenseDocumentRemoveTitle;
 
   /// No description provided for @fleetLicenseDocumentRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this license document from the active Fleet record? The license expiry date will remain unchanged.'**
   String get fleetLicenseDocumentRemoveMessage;
 
   /// No description provided for @fleetLicenseExpiryUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'License expiry date'**
   String get fleetLicenseExpiryUpdateTitle;
 
   /// No description provided for @fleetLicenseExpiryUpdateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the current expiry date, or update it together with this document?'**
   String get fleetLicenseExpiryUpdateMessage;
 
   /// No description provided for @fleetLicenseExpiryKeepCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current'**
   String get fleetLicenseExpiryKeepCurrent;
 
   /// No description provided for @fleetLicenseExpiryUpdateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update date'**
   String get fleetLicenseExpiryUpdateButton;
 
   /// No description provided for @fleetLicenseDocumentsPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This role is not allowed to access Fleet license documents.'**
   String get fleetLicenseDocumentsPermissionFailure;
 
   /// No description provided for @fleetLicenseDocumentActiveExistsFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This asset already has an active license document. Replace it instead.'**
   String get fleetLicenseDocumentActiveExistsFailure;
 
   /// No description provided for @fleetLicenseDocumentNotFoundFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The Fleet license document could not be found.'**
   String get fleetLicenseDocumentNotFoundFailure;
 
   /// No description provided for @fleetLicenseDocumentCleanupFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The new file could not be safely cleaned up after a failed save. Contact an administrator.'**
   String get fleetLicenseDocumentCleanupFailure;
 
   /// No description provided for @fleetLicenseDocumentStorageFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The license document storage operation failed. Try again.'**
   String get fleetLicenseDocumentStorageFailure;
 
   /// No description provided for @fleetLicenseDocumentFileEmptyFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected file is empty.'**
   String get fleetLicenseDocumentFileEmptyFailure;
 
   /// No description provided for @fleetLicenseDocumentFileNameInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected file name is invalid.'**
   String get fleetLicenseDocumentFileNameInvalidFailure;
 
   /// No description provided for @fleetLicenseDocumentFileTypeUnsupportedFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PDF, JPG, JPEG, PNG, WEBP, HEIC, or HEIF.'**
   String get fleetLicenseDocumentFileTypeUnsupportedFailure;
 
   /// No description provided for @fleetLicenseDocumentFileTooLargeFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The file must be 10 MB or smaller.'**
   String get fleetLicenseDocumentFileTooLargeFailure;
 
   /// No description provided for @fleetAuditLicenseDocumentUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'License document uploaded'**
   String get fleetAuditLicenseDocumentUploaded;
 
   /// No description provided for @fleetAuditLicenseDocumentReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'License document replaced'**
   String get fleetAuditLicenseDocumentReplaced;
 
   /// No description provided for @fleetAuditLicenseDocumentRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'License document removed'**
   String get fleetAuditLicenseDocumentRemoved;
 
   /// No description provided for @fleetLicenseDocumentFileNameField.
+  ///
+  /// In en, this message translates to:
+  /// **'License document file'**
   String get fleetLicenseDocumentFileNameField;
 
   /// No description provided for @fleetLicenseDocumentMimeTypeField.
+  ///
+  /// In en, this message translates to:
+  /// **'License document type'**
   String get fleetLicenseDocumentMimeTypeField;
 
   /// No description provided for @fleetLicenseDocumentSizeField.
+  ///
+  /// In en, this message translates to:
+  /// **'License document size'**
   String get fleetLicenseDocumentSizeField;
 
   /// No description provided for @fleetLicenseDocumentRemovedField.
+  ///
+  /// In en, this message translates to:
+  /// **'License document removed'**
   String get fleetLicenseDocumentRemovedField;
 
   /// No description provided for @fleetLicenseDocumentRemovedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed'**
   String get fleetLicenseDocumentRemovedValue;
 
   /// No description provided for @driverFinanceTitle.
