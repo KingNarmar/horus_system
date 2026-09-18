@@ -9,6 +9,7 @@ extension _TripFormFields on _TripFormDialogState {
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: value,
       decoration: InputDecoration(
         labelText: label,
@@ -17,7 +18,7 @@ extension _TripFormFields on _TripFormDialogState {
       items: options.map((option) {
         return DropdownMenuItem<String>(
           value: option.id,
-          child: Text(option.label),
+          child: _dropdownLabel(option.label),
         );
       }).toList(),
       onChanged: _isSubmitting ? null : onChanged,
@@ -36,23 +37,35 @@ extension _TripFormFields on _TripFormDialogState {
     final l10n = context.l10n;
 
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
       ),
       items: [
-        DropdownMenuItem<String>(value: '', child: Text(l10n.tripOptionalNone)),
+        DropdownMenuItem<String>(
+          value: '',
+          child: _dropdownLabel(l10n.tripOptionalNone),
+        ),
         ...options.map((option) {
           return DropdownMenuItem<String>(
             value: option.id,
-            child: Text(option.label),
+            child: _dropdownLabel(option.label),
           );
         }),
       ],
       onChanged: _isSubmitting
           ? null
           : (value) => onChanged(value == null || value.isEmpty ? null : value),
+    );
+  }
+
+  Widget _dropdownLabel(String label) {
+    return Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

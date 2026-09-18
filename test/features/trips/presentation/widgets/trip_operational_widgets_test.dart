@@ -80,6 +80,43 @@ void main() {
     });
 
     testWidgets(
+      'trip form dropdowns do not overflow on narrow Arabic RTL layouts',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          _dialogLauncher(
+            locale: const Locale('ar'),
+            builder: (_) => TripFormDialog(
+              title: 'تعديل رحلة',
+              trip: _longLabelTrip,
+              lookups: _longLabelLookups,
+              financialConfiguration: null,
+              onSubmit: (_) async => const TripMutationSucceeded(),
+            ),
+          ),
+        );
+
+        await tester.tap(find.byKey(const Key('open-dialog')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(TripFormDialog), findsOneWidget);
+
+        final dropdowns = tester
+            .widgetList<DropdownButtonFormField<String>>(
+              find.byType(DropdownButtonFormField<String>),
+            )
+            .toList();
+
+        expect(dropdowns, isNotEmpty);
+        expect(dropdowns.every((dropdown) => dropdown.isExpanded), isTrue);
+      },
+    );
+
+    testWidgets(
       'trip form stays open on failure and closes after retry success',
       (tester) async {
         var submitCount = 0;
@@ -192,15 +229,46 @@ const _lookups = TripFormLookups(
   trailers: [],
 );
 
-Widget _localizedApp(Widget home) {
+const _longLabelTrip = TripEntity(
+  id: 'trip-long',
+  companyId: 'company-1',
+  customerId: 'customer-long',
+  routeId: 'route-long',
+  status: TripStatus.created,
+);
+
+const _longLabelLookups = TripFormLookups(
+  customers: [
+    TripLookupOption(
+      id: 'customer-long',
+      label: 'Al Noor Heavy Transport Logistics International LLC',
+    ),
+  ],
+  routes: [
+    TripRouteLookupOption(
+      id: 'route-long',
+      label:
+          'Jebel Ali Port -> Dubai South Logistics District Extended Route Name',
+    ),
+  ],
+  drivers: [],
+  tractorHeads: [],
+  trailers: [],
+);
+
+Widget _localizedApp(Widget home, {Locale? locale}) {
   return MaterialApp(
+    locale: locale,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: home,
   );
 }
 
-Widget _dialogLauncher({required WidgetBuilder builder}) {
+Widget _dialogLauncher({
+  required WidgetBuilder builder,
+  Locale? locale,
+}) {
   return _localizedApp(
     Scaffold(
       body: Builder(
@@ -211,5 +279,6 @@ Widget _dialogLauncher({required WidgetBuilder builder}) {
         ),
       ),
     ),
+    locale: locale,
   );
 }
