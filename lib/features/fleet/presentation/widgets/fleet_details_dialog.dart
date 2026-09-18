@@ -13,7 +13,8 @@ import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_state.dart';
-import '../localization/fleet_localizations_x.dart';\nimport 'fleet_license_documents_section.dart';
+import '../localization/fleet_localizations_x.dart';
+import 'fleet_license_documents_section.dart';
 
 class FleetDetailsDialog extends StatelessWidget {
   final String assetId;
