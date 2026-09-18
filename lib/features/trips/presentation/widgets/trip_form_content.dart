@@ -140,40 +140,28 @@ extension _TripFormContent on _TripFormDialogState {
               label: l10n.tripScheduledLoadingAtLabel,
               value: _scheduledLoadingAt,
               enabled: !_isSubmitting,
-              onChanged: (value) => setState(() {
-                _scheduledLoadingAt = value;
-                _submitFailure = null;
-              }),
+              onChanged: _setScheduledLoadingAt,
             ),
             const SizedBox(height: AppSpacing.md),
             TripBusinessDateTimeField(
               label: l10n.tripScheduledDeliveryAtLabel,
               value: _scheduledDeliveryAt,
               enabled: !_isSubmitting,
-              onChanged: (value) => setState(() {
-                _scheduledDeliveryAt = value;
-                _submitFailure = null;
-              }),
+              onChanged: _setScheduledDeliveryAt,
             ),
             const SizedBox(height: AppSpacing.md),
             TripBusinessDateTimeField(
               label: l10n.tripActualLoadingAtLabel,
               value: _actualLoadingAt,
               enabled: !_isSubmitting,
-              onChanged: (value) => setState(() {
-                _actualLoadingAt = value;
-                _submitFailure = null;
-              }),
+              onChanged: _setActualLoadingAt,
             ),
             const SizedBox(height: AppSpacing.md),
             TripBusinessDateTimeField(
               label: l10n.tripActualDeliveryAtLabel,
               value: _actualDeliveryAt,
               enabled: !_isSubmitting,
-              onChanged: (value) => setState(() {
-                _actualDeliveryAt = value;
-                _submitFailure = null;
-              }),
+              onChanged: _setActualDeliveryAt,
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(

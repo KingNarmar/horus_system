@@ -9,10 +9,7 @@ extension _TripFormSubmission on _TripFormDialogState {
 
     if (customerId == null || routeId == null || _isSubmitting) return;
 
-    setState(() {
-      _isSubmitting = true;
-      _submitFailure = null;
-    });
+    _beginSubmitting();
 
     final result = await widget.onSubmit(
       TripFormData(
@@ -48,9 +45,6 @@ extension _TripFormSubmission on _TripFormDialogState {
     }
 
     final failure = (result as TripMutationFailed).failure;
-    setState(() {
-      _isSubmitting = false;
-      _submitFailure = failure;
-    });
+    _showSubmitFailure(failure);
   }
 }

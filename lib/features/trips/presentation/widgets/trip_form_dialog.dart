@@ -207,6 +207,48 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   void _setTrailerId(String? value) => setState(() => _trailerId = value);
 
+  void _setScheduledLoadingAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _scheduledLoadingAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setScheduledDeliveryAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _scheduledDeliveryAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setActualLoadingAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _actualLoadingAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setActualDeliveryAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _actualDeliveryAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _beginSubmitting() {
+    setState(() {
+      _isSubmitting = true;
+      _submitFailure = null;
+    });
+  }
+
+  void _showSubmitFailure(Failure failure) {
+    setState(() {
+      _isSubmitting = false;
+      _submitFailure = failure;
+    });
+  }
+
   void _closeIfMounted() {
     if (mounted) {
       Navigator.of(context).pop();
