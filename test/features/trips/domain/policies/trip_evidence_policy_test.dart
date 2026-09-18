@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_document.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_document_kind.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
