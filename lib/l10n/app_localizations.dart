@@ -4411,7 +4411,44 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The company must keep at least one active Owner.'**
   String get failureCompanyLastOwnerRequired;
+  String get tripDocumentsTitle;
+  String get tripLoadingDocuments;
+  String get tripNoDocumentsFound;
+  String get tripDocumentEvidenceReady;
+  String get tripDocumentEvidenceMissing;
+  String get tripDocumentEvidenceRule;
+  String get tripDocumentUploadButton;
+  String get tripDocumentReplaceButton;
+  String get tripDocumentRemoveButton;
+  String get tripDocumentViewButton;
+  String get tripDocumentChooseKindTitle;
+  String get tripDocumentChooseSourceTitle;
+  String get tripDocumentChooseFile;
+  String get tripDocumentChooseGallery;
+  String get tripDocumentTakePhoto;
+  String get tripDocumentRemoveTitle;
+  String get tripDocumentRemoveMessage;
+  String get tripDocumentOpenFailed;
+  String get tripDocumentKindLoadingOrder;
+  String get tripDocumentKindWaybill;
+  String get tripDocumentKindProofOfDelivery;
+  String get tripDocumentKindOther;
+  String get tripDocumentsPermissionFailure;
+  String get tripDocumentsMaxActiveFailure;
+  String get tripDocumentsEvidenceRequiredFailure;
+  String get tripDocumentNotFoundFailure;
+  String get tripDocumentFileEmptyFailure;
+  String get tripDocumentFileNameInvalidFailure;
+  String get tripDocumentFileTypeUnsupportedFailure;
+  String get tripDocumentFileTooLargeFailure;
+  String get tripDocumentStorageFailure;
+  String get tripDocumentCleanupFailure;
+  String get tripAuditDocumentUploaded;
+  String get tripAuditDocumentRemoved;
+  String get tripAuditDocumentReplaced;
+
 }
+
 
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
