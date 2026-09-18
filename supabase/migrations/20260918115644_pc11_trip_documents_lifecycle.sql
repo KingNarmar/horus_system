@@ -38,8 +38,7 @@ CREATE TABLE public.trip_documents (
     UNIQUE (company_id, id),
   CONSTRAINT trip_documents_company_replaces_fk
     FOREIGN KEY (company_id, replaces_document_id)
-    REFERENCES public.trip_documents(company_id, id)
-    ON DELETE RESTRICT,
+    REFERENCES public.trip_documents(company_id, id),
   CONSTRAINT trip_documents_kind_check
     CHECK (
       document_kind IN (
