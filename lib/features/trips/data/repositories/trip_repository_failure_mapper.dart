@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../domain/failures/trip_document_failure_codes.dart';
 import '../../domain/failures/trip_failure_codes.dart';
 import '../constants/trip_db_contract.dart';
 
@@ -22,6 +23,12 @@ final class TripRepositoryFailureMapper {
       ),
       TripDbErrorCodes.temporalOrderInvalid => const ValidationFailure(
         code: FailureCodes.validationTripDeliveryBeforeLoading,
+      ),
+      TripDbErrorCodes.evidenceRequired => const ConflictFailure(
+        code: TripDocumentFailureCodes.conflictEvidenceRequired,
+      ),
+      TripDbErrorCodes.statusTransitionInvalid => const ValidationFailure(
+        code: FailureCodes.validationTripStatusTransitionInvalid,
       ),
       TripDbErrorCodes.checkViolation
           when _isTemporalConstraintViolation(error) =>
