@@ -13,6 +13,7 @@ import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
 import '../helpers/trip_document_launcher.dart';
 import '../helpers/trip_document_picker.dart';
+import '../helpers/trip_document_saver.dart';
 import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
 import 'trip_details_shared_widgets.dart';
@@ -71,6 +72,7 @@ class TripDocumentsSection extends StatelessWidget {
               canManage: loaded.canManageTripDocuments,
               isMutating: loaded.isTripDocumentMutating,
               onOpen: () => _open(context, document),
+              onDownload: () => _download(context, document),
               onReplace: () => _replace(context, document),
               onRemove: () => _confirmRemove(context, document),
             ),
@@ -103,6 +105,27 @@ class TripDocumentsSection extends StatelessWidget {
       document: document,
       replacement: picked,
     );
+  }
+
+  Future<void> _download(
+    BuildContext context,
+    TripDocument document,
+  ) async {
+    final cubit = context.read<TripsCubit>();
+    final bytes = await cubit.downloadTripDocument(document);
+    if (bytes == null || !context.mounted) return;
+
+    final saved = await const TripDocumentSaver().save(
+      bytes: bytes,
+      fileName: document.originalFileName,
+      mimeType: document.mimeType,
+      dialogTitle: context.l10n.tripDocumentSaveDialogTitle,
+    );
+    if (!saved && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.tripDocumentDownloadFailed)),
+      );
+    }
   }
 
   Future<void> _open(BuildContext context, TripDocument document) async {
@@ -261,6 +284,7 @@ class _TripDocumentTile extends StatelessWidget {
   final bool canManage;
   final bool isMutating;
   final VoidCallback onOpen;
+  final VoidCallback onDownload;
   final VoidCallback onReplace;
   final VoidCallback onRemove;
 
@@ -269,6 +293,7 @@ class _TripDocumentTile extends StatelessWidget {
     required this.canManage,
     required this.isMutating,
     required this.onOpen,
+    required this.onDownload,
     required this.onReplace,
     required this.onRemove,
   });
@@ -300,6 +325,11 @@ class _TripDocumentTile extends StatelessWidget {
                 tooltip: l10n.tripDocumentViewButton,
                 onPressed: isMutating ? null : onOpen,
                 icon: const Icon(AppIcons.view),
+              ),
+              IconButton(
+                tooltip: l10n.tripDocumentDownloadButton,
+                onPressed: isMutating ? null : onDownload,
+                icon: const Icon(AppIcons.download),
               ),
               if (canManage)
                 IconButton(
