@@ -59,6 +59,8 @@ Future<Result<TripEntity>> _createTrip({
     routeId: params.routeId,
     scheduledLoadingAt: params.scheduledLoadingAt,
     scheduledDeliveryAt: params.scheduledDeliveryAt,
+    actualLoadingAt: params.actualLoadingAt,
+    actualDeliveryAt: params.actualDeliveryAt,
   );
 
   if (validationFailure != null) {
@@ -143,6 +145,8 @@ Future<Result<TripEntity>> _saveTrip({
     routeId: params.routeId,
     scheduledLoadingAt: params.scheduledLoadingAt,
     scheduledDeliveryAt: params.scheduledDeliveryAt,
+    actualLoadingAt: params.actualLoadingAt,
+    actualDeliveryAt: params.actualDeliveryAt,
   );
 
   if (validationFailure != null) {

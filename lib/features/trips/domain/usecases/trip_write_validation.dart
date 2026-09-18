@@ -9,6 +9,8 @@ Failure? validateTripWriteData({
   required String routeId,
   required DateTime? scheduledLoadingAt,
   required DateTime? scheduledDeliveryAt,
+  required DateTime? actualLoadingAt,
+  required DateTime? actualDeliveryAt,
 }) {
   if (customerId.trim().isEmpty) {
     return const ValidationFailure(
@@ -24,12 +26,28 @@ Failure? validateTripWriteData({
     );
   }
 
-  if (scheduledLoadingAt != null &&
-      scheduledDeliveryAt != null &&
-      scheduledDeliveryAt.isBefore(scheduledLoadingAt)) {
+  final scheduledPairFailure = _validateTemporalPair(
+    loadingAt: scheduledLoadingAt,
+    deliveryAt: scheduledDeliveryAt,
+  );
+  if (scheduledPairFailure != null) return scheduledPairFailure;
+
+  return _validateTemporalPair(
+    loadingAt: actualLoadingAt,
+    deliveryAt: actualDeliveryAt,
+  );
+}
+
+Failure? _validateTemporalPair({
+  required DateTime? loadingAt,
+  required DateTime? deliveryAt,
+}) {
+  if (loadingAt == null || deliveryAt == null) return null;
+
+  if (deliveryAt.isBefore(loadingAt)) {
     return const ValidationFailure(
       code: FailureCodes.validationTripDeliveryBeforeLoading,
-      message: 'Scheduled delivery cannot be before scheduled loading.',
+      message: 'Delivery cannot be before loading.',
     );
   }
 
