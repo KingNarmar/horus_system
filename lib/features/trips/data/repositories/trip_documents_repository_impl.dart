@@ -14,6 +14,7 @@ import '../../domain/entities/trip_document.dart';
 import '../../domain/entities/trip_document_kind.dart';
 import '../../domain/failures/trip_document_failure_codes.dart';
 import '../../domain/repositories/trip_documents_repository.dart';
+import '../constants/trip_document_storage_segments.dart';
 import '../datasources/trip_documents_remote_data_source.dart';
 import '../models/trip_document_model.dart';
 import 'trip_document_repository_failure_mapper.dart';
@@ -59,7 +60,7 @@ final class TripDocumentsRepositoryImpl implements TripDocumentsRepository {
         companyId: companyId,
         scope: _documentScope,
         entityId: tripId,
-        documentKind: kind.value,
+        documentKind: TripDocumentStorageSegments.forKind(kind),
       ),
       file: document,
     );
@@ -78,7 +79,7 @@ final class TripDocumentsRepositoryImpl implements TripDocumentsRepository {
       final model = await remoteDataSource.createDocument(
         companyId: companyId,
         tripId: tripId,
-        documentKind: kind.value,
+        documentKind: TripDocumentStorageSegments.forKind(kind),
         storageReference: reference.value,
         originalFileName: document.fileName.trim(),
         mimeType: mimeType,
@@ -182,7 +183,7 @@ final class TripDocumentsRepositoryImpl implements TripDocumentsRepository {
         companyId: companyId,
         scope: _documentScope,
         entityId: tripId,
-        documentKind: current.kind.value,
+        documentKind: TripDocumentStorageSegments.forKind(current.kind),
       ),
       file: document,
     );
