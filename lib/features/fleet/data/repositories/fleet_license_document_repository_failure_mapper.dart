@@ -19,12 +19,18 @@ final class FleetLicenseDocumentRepositoryFailureMapper {
       'PGRST116' => const NotFoundFailure(
         code: FleetLicenseDocumentFailureCodes.notFound,
       ),
+      FleetLicenseDocumentDbErrorCodes.fileNotFound =>
+        const NotFoundFailure(
+          code: FleetLicenseDocumentFailureCodes.fileNotFound,
+        ),
       FleetLicenseDocumentDbErrorCodes.activeDocumentExists ||
+      FleetLicenseDocumentDbErrorCodes.fileSideConflict ||
       '23505' => const ConflictFailure(
-        code: FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+        code: FleetLicenseDocumentFailureCodes.conflictFileSide,
       ),
       FleetLicenseDocumentDbErrorCodes.invalidStorageReference ||
-      FleetLicenseDocumentDbErrorCodes.invalidAssetType =>
+      FleetLicenseDocumentDbErrorCodes.invalidAssetType ||
+      FleetLicenseDocumentDbErrorCodes.invalidFileSide =>
         const ValidationFailure(
           code: FleetLicenseDocumentFailureCodes.unexpectedError,
         ),

@@ -1,16 +1,14 @@
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/fleet_asset_type.dart';
 import '../../domain/entities/fleet_license_document.dart';
+import 'fleet_license_document_file_model.dart';
 
 final class FleetLicenseDocumentModel {
   final String id;
   final String companyId;
   final String? tractorHeadId;
   final String? trailerId;
-  final String storageReference;
-  final String originalFileName;
-  final String mimeType;
-  final int sizeBytes;
+  final List<FleetLicenseDocumentFileModel> files;
   final String? uploadedBy;
   final DateTime uploadedAt;
   final String? removedBy;
@@ -20,10 +18,7 @@ final class FleetLicenseDocumentModel {
   const FleetLicenseDocumentModel({
     required this.id,
     required this.companyId,
-    required this.storageReference,
-    required this.originalFileName,
-    required this.mimeType,
-    required this.sizeBytes,
+    required this.files,
     required this.uploadedAt,
     this.tractorHeadId,
     this.trailerId,
@@ -33,7 +28,10 @@ final class FleetLicenseDocumentModel {
     this.replacesDocumentId,
   });
 
-  factory FleetLicenseDocumentModel.fromMap(Map<String, dynamic> map) {
+  factory FleetLicenseDocumentModel.fromMap(
+    Map<String, dynamic> map, {
+    List<FleetLicenseDocumentFileModel> files = const [],
+  }) {
     final tractorHeadId = map['tractor_head_id'] as String?;
     final trailerId = map['trailer_id'] as String?;
     if ((tractorHeadId == null) == (trailerId == null)) {
@@ -45,10 +43,7 @@ final class FleetLicenseDocumentModel {
       companyId: map['company_id'] as String,
       tractorHeadId: tractorHeadId,
       trailerId: trailerId,
-      storageReference: map['storage_reference'] as String,
-      originalFileName: map['original_file_name'] as String,
-      mimeType: map['mime_type'] as String,
-      sizeBytes: (map['size_bytes'] as num).toInt(),
+      files: files,
       uploadedBy: map['uploaded_by'] as String?,
       uploadedAt: DbTimestamp.decode(map['uploaded_at'], field: 'uploaded_at'),
       removedBy: map['removed_by'] as String?,
@@ -60,6 +55,30 @@ final class FleetLicenseDocumentModel {
     );
   }
 
+  FleetLicenseDocumentModel copyWithFiles(
+    List<FleetLicenseDocumentFileModel> value,
+  ) {
+    return FleetLicenseDocumentModel(
+      id: id,
+      companyId: companyId,
+      tractorHeadId: tractorHeadId,
+      trailerId: trailerId,
+      files: value,
+      uploadedBy: uploadedBy,
+      uploadedAt: uploadedAt,
+      removedBy: removedBy,
+      removedAt: removedAt,
+      replacesDocumentId: replacesDocumentId,
+    );
+  }
+
+  FleetLicenseDocumentFileModel? activeFileById(String fileId) {
+    for (final file in files) {
+      if (file.id == fileId && file.removedAt == null) return file;
+    }
+    return null;
+  }
+
   FleetLicenseDocument toEntity() {
     final tractorId = tractorHeadId;
     return FleetLicenseDocument(
@@ -69,9 +88,7 @@ final class FleetLicenseDocumentModel {
           ? FleetAssetType.tractorHead
           : FleetAssetType.trailer,
       assetId: tractorId ?? trailerId!,
-      originalFileName: originalFileName,
-      mimeType: mimeType,
-      sizeBytes: sizeBytes,
+      files: files.map((file) => file.toEntity()).toList(growable: false),
       uploadedBy: uploadedBy,
       uploadedAt: uploadedAt,
       removedBy: removedBy,

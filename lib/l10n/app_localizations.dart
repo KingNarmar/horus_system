@@ -2264,6 +2264,35 @@ abstract class AppLocalizations {
   /// **'Removed'**
   String get fleetLicenseDocumentRemovedValue;
 
+
+  String get fleetLicenseDocumentFrontSide;
+
+  String get fleetLicenseDocumentBackSide;
+
+  String get fleetLicenseDocumentCombinedSide;
+
+  String get fleetLicenseDocumentSideGuidance;
+
+  String fleetLicenseDocumentMissingSide(String side);
+
+  String fleetLicenseDocumentUploadSide(String side);
+
+  String get fleetLicenseDocumentFileSideConflictFailure;
+
+  String get fleetLicenseDocumentFileNotFoundFailure;
+
+  String get fleetAuditLicenseDocumentFileAdded;
+
+  String get fleetAuditLicenseDocumentFileReplaced;
+
+  String get fleetLicenseDocumentSideField;
+
+  String get fleetLicenseDocumentFrontValue;
+
+  String get fleetLicenseDocumentBackValue;
+
+  String get fleetLicenseDocumentCombinedValue;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:

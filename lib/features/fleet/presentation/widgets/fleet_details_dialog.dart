@@ -243,6 +243,7 @@ class _TimelineItem extends StatelessWidget {
       'license_document_file_name',
       'license_document_mime_type',
       'license_document_size_bytes',
+      'license_document_side',
       'license_document_removed',
     ];
     final changes = AuditChangeBuilder.buildChanges(

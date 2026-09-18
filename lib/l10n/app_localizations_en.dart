@@ -1183,6 +1183,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fleetLicenseDocumentRemovedValue => 'Removed';
 
+
+  @override
+  String get fleetLicenseDocumentFrontSide => 'Front';
+
+  @override
+  String get fleetLicenseDocumentBackSide => 'Back';
+
+  @override
+  String get fleetLicenseDocumentCombinedSide => 'Combined file';
+
+  @override
+  String get fleetLicenseDocumentSideGuidance =>
+      'Upload the front and back of the license separately.';
+
+  @override
+  String fleetLicenseDocumentMissingSide(String side) {
+    return '$side not uploaded.';
+  }
+
+  @override
+  String fleetLicenseDocumentUploadSide(String side) {
+    return 'Upload $side';
+  }
+
+  @override
+  String get fleetLicenseDocumentFileSideConflictFailure =>
+      'This license side already has an active file, or the current license uses a combined file.';
+
+  @override
+  String get fleetLicenseDocumentFileNotFoundFailure =>
+      'The license file could not be found.';
+
+  @override
+  String get fleetAuditLicenseDocumentFileAdded => 'License file added';
+
+  @override
+  String get fleetAuditLicenseDocumentFileReplaced => 'License file replaced';
+
+  @override
+  String get fleetLicenseDocumentSideField => 'License side';
+
+  @override
+  String get fleetLicenseDocumentFrontValue => 'Front';
+
+  @override
+  String get fleetLicenseDocumentBackValue => 'Back';
+
+  @override
+  String get fleetLicenseDocumentCombinedValue => 'Combined';
+
   @override
   String get driverFinanceTitle => 'Driver finance';
 

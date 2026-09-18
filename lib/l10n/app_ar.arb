@@ -869,5 +869,33 @@
   "failureCompanyMemberStatusChangeNotAllowed": "لا يمكنك تغيير حالة تفعيل هذا العضو.",
   "failureCompanyOwnershipCommandRequired": "يجب إدارة أدوار المالك من خلال إجراء الملكية المخصص.",
   "failureCompanyOwnershipTransferNotAllowed": "ليست لديك صلاحية لتغيير ملكية الشركة.",
-  "failureCompanyLastOwnerRequired": "يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل."
+  "failureCompanyLastOwnerRequired": "يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل.",
+  "fleetLicenseDocumentFrontSide": "الوجه الأمامي",
+  "fleetLicenseDocumentBackSide": "الوجه الخلفي",
+  "fleetLicenseDocumentCombinedSide": "ملف رخصة مجمع",
+  "fleetLicenseDocumentSideGuidance": "ارفع الوجه الأمامي والخلفي للرخصة كلٌ على حدة.",
+  "fleetLicenseDocumentMissingSide": "لم يتم رفع {side}.",
+  "@fleetLicenseDocumentMissingSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentUploadSide": "رفع {side}",
+  "@fleetLicenseDocumentUploadSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentFileSideConflictFailure": "يوجد ملف نشط بالفعل لهذا الجانب من الرخصة، أو أن الرخصة الحالية تستخدم ملفًا مجمعًا.",
+  "fleetLicenseDocumentFileNotFoundFailure": "تعذر العثور على ملف الرخصة.",
+  "fleetAuditLicenseDocumentFileAdded": "تمت إضافة ملف للرخصة",
+  "fleetAuditLicenseDocumentFileReplaced": "تم استبدال ملف الرخصة",
+  "fleetLicenseDocumentSideField": "جانب الرخصة",
+  "fleetLicenseDocumentFrontValue": "الوجه الأمامي",
+  "fleetLicenseDocumentBackValue": "الوجه الخلفي",
+  "fleetLicenseDocumentCombinedValue": "ملف مجمع"
 }

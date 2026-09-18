@@ -7,6 +7,8 @@ import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/fleet_license_document.dart';
+import '../../domain/entities/fleet_license_document_file.dart';
+import '../../domain/entities/fleet_license_document_file_side.dart';
 import '../../domain/entities/fleet_license_document_target.dart';
 import '../../domain/usecases/fleet_license_document_usecases.dart';
 import '../../domain/usecases/fleet_usecases.dart';
@@ -15,19 +17,19 @@ import 'fleet_license_documents_state.dart';
 final class FleetLicenseDocumentsCubit
     extends Cubit<FleetLicenseDocumentsState> {
   final GetFleetLicenseDocumentUseCase getDocumentUseCase;
-  final UploadFleetLicenseDocumentUseCase uploadDocumentUseCase;
-  final GetFleetLicenseDocumentAccessUseCase getDocumentAccessUseCase;
-  final DownloadFleetLicenseDocumentUseCase downloadDocumentUseCase;
-  final ReplaceFleetLicenseDocumentUseCase replaceDocumentUseCase;
+  final UploadFleetLicenseDocumentFileUseCase uploadFileUseCase;
+  final GetFleetLicenseDocumentFileAccessUseCase getFileAccessUseCase;
+  final DownloadFleetLicenseDocumentFileUseCase downloadFileUseCase;
+  final ReplaceFleetLicenseDocumentFileUseCase replaceFileUseCase;
   final RemoveFleetLicenseDocumentUseCase removeDocumentUseCase;
   final CanManageFleetUseCase canManageFleetUseCase;
 
   FleetLicenseDocumentsCubit({
     required this.getDocumentUseCase,
-    required this.uploadDocumentUseCase,
-    required this.getDocumentAccessUseCase,
-    required this.downloadDocumentUseCase,
-    required this.replaceDocumentUseCase,
+    required this.uploadFileUseCase,
+    required this.getFileAccessUseCase,
+    required this.downloadFileUseCase,
+    required this.replaceFileUseCase,
     required this.removeDocumentUseCase,
     required this.canManageFleetUseCase,
   }) : super(const FleetLicenseDocumentsInitial());
@@ -70,7 +72,8 @@ final class FleetLicenseDocumentsCubit
   }
 
   Future<bool> upload({
-    required BusinessDocumentFile document,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) async {
     final current = state;
@@ -79,11 +82,12 @@ final class FleetLicenseDocumentsCubit
     }
 
     emit(current.copyWith(isMutating: true, failure: null));
-    final result = await uploadDocumentUseCase(
-      UploadFleetLicenseDocumentParams(
+    final result = await uploadFileUseCase(
+      UploadFleetLicenseDocumentFileParams(
         currentCompanyContext: current.currentCompanyContext,
         target: current.target,
-        document: document,
+        side: side,
+        file: file,
         newLicenseExpiryDate: newLicenseExpiryDate,
       ),
     );
@@ -108,6 +112,7 @@ final class FleetLicenseDocumentsCubit
 
   Future<bool> replace({
     required FleetLicenseDocument document,
+    required FleetLicenseDocumentFile file,
     required BusinessDocumentFile replacement,
     BusinessDate? newLicenseExpiryDate,
   }) async {
@@ -117,11 +122,12 @@ final class FleetLicenseDocumentsCubit
     }
 
     emit(current.copyWith(isMutating: true, failure: null));
-    final result = await replaceDocumentUseCase(
-      ReplaceFleetLicenseDocumentParams(
+    final result = await replaceFileUseCase(
+      ReplaceFleetLicenseDocumentFileParams(
         currentCompanyContext: current.currentCompanyContext,
         target: current.target,
         document: document,
+        file: file,
         replacement: replacement,
         newLicenseExpiryDate: newLicenseExpiryDate,
       ),
@@ -174,15 +180,17 @@ final class FleetLicenseDocumentsCubit
 
   Future<BusinessDocumentAccess?> createAccess(
     FleetLicenseDocument document,
+    FleetLicenseDocumentFile file,
   ) async {
     final current = state;
     if (current is! FleetLicenseDocumentsLoaded) return null;
 
-    final result = await getDocumentAccessUseCase(
-      FleetLicenseDocumentActionParams(
+    final result = await getFileAccessUseCase(
+      FleetLicenseDocumentFileActionParams(
         currentCompanyContext: current.currentCompanyContext,
         target: current.target,
         document: document,
+        file: file,
       ),
     );
     final failure = result.failureOrNull;
@@ -190,19 +198,24 @@ final class FleetLicenseDocumentsCubit
       emit(current.copyWith(failure: failure));
       return null;
     }
+
     emit(current.copyWith(failure: null));
     return result.dataOrNull;
   }
 
-  Future<Uint8List?> download(FleetLicenseDocument document) async {
+  Future<Uint8List?> download(
+    FleetLicenseDocument document,
+    FleetLicenseDocumentFile file,
+  ) async {
     final current = state;
     if (current is! FleetLicenseDocumentsLoaded) return null;
 
-    final result = await downloadDocumentUseCase(
-      FleetLicenseDocumentActionParams(
+    final result = await downloadFileUseCase(
+      FleetLicenseDocumentFileActionParams(
         currentCompanyContext: current.currentCompanyContext,
         target: current.target,
         document: document,
+        file: file,
       ),
     );
     final failure = result.failureOrNull;
@@ -210,6 +223,7 @@ final class FleetLicenseDocumentsCubit
       emit(current.copyWith(failure: failure));
       return null;
     }
+
     emit(current.copyWith(failure: null));
     return result.dataOrNull;
   }

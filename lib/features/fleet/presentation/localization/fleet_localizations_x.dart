@@ -26,6 +26,10 @@ extension FleetLocalizationsX on AppLocalizations {
   String fleetAuditEventLabel(String? event, String action) {
     return switch (event) {
       'fleet_license_document_uploaded' => fleetAuditLicenseDocumentUploaded,
+      'fleet_license_document_file_added' =>
+        fleetAuditLicenseDocumentFileAdded,
+      'fleet_license_document_file_replaced' =>
+        fleetAuditLicenseDocumentFileReplaced,
       'fleet_license_document_replaced' => fleetAuditLicenseDocumentReplaced,
       'fleet_license_document_removed' => fleetAuditLicenseDocumentRemoved,
       _ => fleetAuditActionLabel(action),
@@ -48,6 +52,7 @@ extension FleetLocalizationsX on AppLocalizations {
       'license_document_file_name' => fleetLicenseDocumentFileNameField,
       'license_document_mime_type' => fleetLicenseDocumentMimeTypeField,
       'license_document_size_bytes' => fleetLicenseDocumentSizeField,
+      'license_document_side' => fleetLicenseDocumentSideField,
       'license_document_removed' => fleetLicenseDocumentRemovedField,
       _ => key,
     };
@@ -71,6 +76,15 @@ extension FleetLocalizationsX on AppLocalizations {
     if (key == 'license_document_removed' &&
         (value == true || text == 'true')) {
       return fleetLicenseDocumentRemovedValue;
+    }
+
+    if (key == 'license_document_side') {
+      return switch (text) {
+        'front' => fleetLicenseDocumentFrontValue,
+        'back' => fleetLicenseDocumentBackValue,
+        'combined' => fleetLicenseDocumentCombinedValue,
+        _ => text,
+      };
     }
 
     return text;

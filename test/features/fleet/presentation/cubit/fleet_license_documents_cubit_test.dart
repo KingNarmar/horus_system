@@ -10,6 +10,8 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_asset_type.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file_side.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_target.dart';
 import 'package:horus_system/features/fleet/domain/repositories/fleet_license_documents_repository.dart';
 import 'package:horus_system/features/fleet/domain/usecases/fleet_license_document_usecases.dart';
@@ -21,7 +23,7 @@ import 'package:test/test.dart';
 void main() {
   group('FleetLicenseDocumentsCubit', () {
     test('load exposes active document and management permission', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
@@ -31,26 +33,28 @@ void main() {
       );
 
       final state = cubit.state as FleetLicenseDocumentsLoaded;
-      expect(state.document?.id, _document.id);
+      expect(state.document?.frontFile?.id, _frontFile.id);
       expect(state.canManage, isTrue);
       expect(state.isMutating, isFalse);
       expect(state.failure, isNull);
     });
 
     test('viewer load remains read-only', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
       await cubit.load(currentCompanyContext: _viewerContext, target: _target);
 
       final state = cubit.state as FleetLicenseDocumentsLoaded;
-      expect(state.document?.id, _document.id);
+      expect(state.document?.id, _frontDocument.id);
       expect(state.canManage, isFalse);
     });
 
-    test('successful remove clears only document state', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
+    test('successful back upload replaces state with aggregate result', () async {
+      final repository = _FakeRepository()
+        ..activeDocument = _frontDocument
+        ..addResult = const Success(_frontBackDocument);
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
 
@@ -58,40 +62,40 @@ void main() {
         currentCompanyContext: _operationsContext,
         target: _target,
       );
-      final changed = await cubit.remove(_document);
+      final changed = await cubit.upload(
+        side: FleetLicenseDocumentFileSide.back,
+        file: _businessFile,
+      );
 
       final state = cubit.state as FleetLicenseDocumentsLoaded;
       expect(changed, isTrue);
-      expect(state.document, isNull);
+      expect(state.document?.frontFile, isNotNull);
+      expect(state.document?.backFile, isNotNull);
       expect(state.failure, isNull);
-      expect(repository.removeCalls, 1);
     });
 
-    test(
-      'failed remove preserves document and exposes typed failure',
-      () async {
-        const failure = ServerFailure(
-          code: 'fleet_license_document_server_error',
-        );
-        final repository = _FakeRepository()
-          ..activeDocument = _document
-          ..removeResult = const FailureResult<void>(failure);
-        final cubit = _createCubit(repository);
-        addTearDown(cubit.close);
+    test('failed remove preserves document and exposes typed failure', () async {
+      const failure = ServerFailure(
+        code: 'fleet_license_document_server_error',
+      );
+      final repository = _FakeRepository()
+        ..activeDocument = _frontDocument
+        ..removeResult = const FailureResult<void>(failure);
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-        await cubit.load(
-          currentCompanyContext: _operationsContext,
-          target: _target,
-        );
-        final changed = await cubit.remove(_document);
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+      final changed = await cubit.remove(_frontDocument);
 
-        final state = cubit.state as FleetLicenseDocumentsLoaded;
-        expect(changed, isFalse);
-        expect(state.document?.id, _document.id);
-        expect(state.failure, same(failure));
-        expect(state.isMutating, isFalse);
-      },
-    );
+      final state = cubit.state as FleetLicenseDocumentsLoaded;
+      expect(changed, isFalse);
+      expect(state.document?.id, _frontDocument.id);
+      expect(state.failure, same(failure));
+      expect(state.isMutating, isFalse);
+    });
   });
 }
 
@@ -109,16 +113,48 @@ const _target = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-
-final _document = FleetLicenseDocument(
+const _frontFile = FleetLicenseDocumentFile(
+  id: 'front-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-1',
+  side: FleetLicenseDocumentFileSide.front,
+  originalFileName: 'front.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 3,
+  uploadedAt: _uploadedAt,
+);
+const _backFile = FleetLicenseDocumentFile(
+  id: 'back-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-1',
+  side: FleetLicenseDocumentFileSide.back,
+  originalFileName: 'back.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 3,
+  uploadedAt: _uploadedAt,
+);
+const _frontDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
-  originalFileName: 'license.pdf',
+  files: [_frontFile],
+  uploadedAt: _uploadedAt,
+);
+const _frontBackDocument = FleetLicenseDocument(
+  id: 'document-1',
+  companyId: 'company-1',
+  assetType: FleetAssetType.tractorHead,
+  assetId: 'tractor-1',
+  files: [_frontFile, _backFile],
+  uploadedAt: _uploadedAt,
+);
+const _uploadedAt = DateTime.utc(2026, 9, 18);
+
+final _businessFile = BusinessDocumentFile(
+  bytes: Uint8List.fromList([1, 2, 3]),
+  fileName: 'back.pdf',
   mimeType: 'application/pdf',
-  sizeBytes: 3,
-  uploadedAt: DateTime.utc(2026, 9, 18),
 );
 
 FleetLicenseDocumentsCubit _createCubit(
@@ -126,10 +162,10 @@ FleetLicenseDocumentsCubit _createCubit(
 ) {
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
-    uploadDocumentUseCase: UploadFleetLicenseDocumentUseCase(repository),
-    getDocumentAccessUseCase: GetFleetLicenseDocumentAccessUseCase(repository),
-    downloadDocumentUseCase: DownloadFleetLicenseDocumentUseCase(repository),
-    replaceDocumentUseCase: ReplaceFleetLicenseDocumentUseCase(repository),
+    uploadFileUseCase: UploadFleetLicenseDocumentFileUseCase(repository),
+    getFileAccessUseCase: GetFleetLicenseDocumentFileAccessUseCase(repository),
+    downloadFileUseCase: DownloadFleetLicenseDocumentFileUseCase(repository),
+    replaceFileUseCase: ReplaceFleetLicenseDocumentFileUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
     canManageFleetUseCase: const CanManageFleetUseCase(),
   );
@@ -137,8 +173,8 @@ FleetLicenseDocumentsCubit _createCubit(
 
 final class _FakeRepository implements FleetLicenseDocumentsRepository {
   FleetLicenseDocument? activeDocument;
+  Result<FleetLicenseDocument> addResult = const Success(_frontDocument);
   Result<void> removeResult = const Success<void>(null);
-  int removeCalls = 0;
 
   @override
   Future<Result<FleetLicenseDocument?>> getActiveDocument({
@@ -148,40 +184,54 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   }
 
   @override
+  Future<Result<FleetLicenseDocument>> createWithFile({
+    required FleetLicenseDocumentTarget target,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
+    BusinessDate? newLicenseExpiryDate,
+  }) async {
+    return const Success(_frontDocument);
+  }
+
+  @override
+  Future<Result<FleetLicenseDocument>> addFile({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
+    BusinessDate? newLicenseExpiryDate,
+  }) async {
+    return addResult;
+  }
+
+  @override
+  Future<Result<FleetLicenseDocument>> replaceFile({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+    required String fileId,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile replacement,
+    BusinessDate? newLicenseExpiryDate,
+  }) async {
+    return const Success(_frontDocument);
+  }
+
+  @override
   Future<Result<void>> remove({
     required FleetLicenseDocumentTarget target,
     required String documentId,
   }) async {
-    removeCalls++;
     return removeResult;
-  }
-
-  @override
-  Future<Result<FleetLicenseDocument>> upload({
-    required FleetLicenseDocumentTarget target,
-    required BusinessDocumentFile document,
-    BusinessDate? newLicenseExpiryDate,
-  }) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Result<FleetLicenseDocument>> replace({
-    required FleetLicenseDocumentTarget target,
-    required String documentId,
-    required BusinessDocumentFile document,
-    BusinessDate? newLicenseExpiryDate,
-  }) {
-    throw UnimplementedError();
   }
 
   @override
   Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required FleetLicenseDocumentTarget target,
     required String documentId,
-  }) {
-    return Future.value(
-      const Success(BusinessDocumentAccess('https://example.test/license')),
+    required String fileId,
+  }) async {
+    return const Success(
+      BusinessDocumentAccess('https://example.test/license'),
     );
   }
 
@@ -189,7 +239,8 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Future<Result<Uint8List>> download({
     required FleetLicenseDocumentTarget target,
     required String documentId,
-  }) {
-    return Future.value(Success(Uint8List.fromList([1])));
+    required String fileId,
+  }) async {
+    return Success(Uint8List.fromList([1]));
   }
 }

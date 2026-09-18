@@ -12,6 +12,8 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_asset_type.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file_side.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_target.dart';
 import 'package:horus_system/features/fleet/domain/repositories/fleet_license_documents_repository.dart';
 import 'package:horus_system/features/fleet/domain/usecases/fleet_license_document_usecases.dart';
@@ -23,10 +25,10 @@ import 'package:horus_system/l10n/app_localizations_ar.dart';
 import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
-  testWidgets('viewer sees the document without mutation actions', (
+  testWidgets('viewer sees front and back files without mutation actions', (
     tester,
   ) async {
-    final repository = _FakeRepository(document: _document);
+    final repository = _FakeRepository(document: _frontBackDocument);
     final cubit = _createCubit(repository);
     addTearDown(cubit.close);
     await cubit.load(currentCompanyContext: _viewerContext, target: _target);
@@ -35,21 +37,23 @@ void main() {
 
     final l10n = AppLocalizationsEn();
     expect(find.text(l10n.fleetLicenseDocumentsTitle), findsOneWidget);
-    expect(find.text('license.pdf'), findsOneWidget);
-    expect(find.byTooltip(l10n.fleetLicenseDocumentOpenButton), findsOneWidget);
+    expect(find.text(l10n.fleetLicenseDocumentFrontSide), findsOneWidget);
+    expect(find.text(l10n.fleetLicenseDocumentBackSide), findsOneWidget);
+    expect(find.text('front.pdf'), findsOneWidget);
+    expect(find.text('back.pdf'), findsOneWidget);
+    expect(find.byTooltip(l10n.fleetLicenseDocumentOpenButton), findsNWidgets(2));
     expect(
       find.byTooltip(l10n.fleetLicenseDocumentDownloadButton),
-      findsOneWidget,
+      findsNWidgets(2),
     );
     expect(
       find.byTooltip(l10n.fleetLicenseDocumentReplaceButton),
       findsNothing,
     );
-    expect(find.byTooltip(l10n.fleetLicenseDocumentRemoveButton), findsNothing);
-    expect(find.text(l10n.fleetLicenseDocumentUploadButton), findsNothing);
+    expect(find.text(l10n.fleetLicenseDocumentRemoveButton), findsNothing);
   });
 
-  testWidgets('operations sees mutation actions on narrow Arabic RTL layout', (
+  testWidgets('operations sees two upload slots on narrow Arabic RTL layout', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -57,7 +61,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final repository = _FakeRepository(document: _document);
+    final repository = const _FakeRepository();
     final cubit = _createCubit(repository);
     addTearDown(cubit.close);
     await cubit.load(
@@ -68,17 +72,45 @@ void main() {
     await tester.pumpWidget(_app(cubit, locale: const Locale('ar')));
 
     final l10n = AppLocalizationsAr();
+    expect(find.text(l10n.fleetLicenseDocumentFrontSide), findsOneWidget);
+    expect(find.text(l10n.fleetLicenseDocumentBackSide), findsOneWidget);
     expect(
-      find.byTooltip(l10n.fleetLicenseDocumentReplaceButton),
+      find.text(
+        l10n.fleetLicenseDocumentUploadSide(
+          l10n.fleetLicenseDocumentFrontSide,
+        ),
+      ),
       findsOneWidget,
     );
     expect(
-      find.byTooltip(l10n.fleetLicenseDocumentRemoveButton),
+      find.text(
+        l10n.fleetLicenseDocumentUploadSide(
+          l10n.fleetLicenseDocumentBackSide,
+        ),
+      ),
       findsOneWidget,
     );
     final context = tester.element(find.byType(FleetLicenseDocumentsSection));
     expect(Directionality.of(context), TextDirection.rtl);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('legacy combined file stays visible as one slot', (tester) async {
+    final repository = _FakeRepository(document: _combinedDocument);
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+    await cubit.load(
+      currentCompanyContext: _operationsContext,
+      target: _target,
+    );
+
+    await tester.pumpWidget(_app(cubit));
+
+    final l10n = AppLocalizationsEn();
+    expect(find.text(l10n.fleetLicenseDocumentCombinedSide), findsOneWidget);
+    expect(find.text('legacy.pdf'), findsOneWidget);
+    expect(find.text(l10n.fleetLicenseDocumentFrontSide), findsNothing);
+    expect(find.text(l10n.fleetLicenseDocumentBackSide), findsNothing);
   });
 }
 
@@ -96,26 +128,63 @@ const _target = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-final _document = FleetLicenseDocument(
+const _frontFile = FleetLicenseDocumentFile(
+  id: 'front-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-1',
+  side: FleetLicenseDocumentFileSide.front,
+  originalFileName: 'front.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 100,
+  uploadedAt: _uploadedAt,
+);
+const _backFile = FleetLicenseDocumentFile(
+  id: 'back-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-1',
+  side: FleetLicenseDocumentFileSide.back,
+  originalFileName: 'back.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 100,
+  uploadedAt: _uploadedAt,
+);
+const _combinedFile = FleetLicenseDocumentFile(
+  id: 'combined-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-2',
+  side: FleetLicenseDocumentFileSide.combined,
+  originalFileName: 'legacy.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 100,
+  uploadedAt: _uploadedAt,
+);
+const _frontBackDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
-  originalFileName: 'license.pdf',
-  mimeType: 'application/pdf',
-  sizeBytes: 100,
-  uploadedAt: DateTime.utc(2026, 9, 18),
+  files: [_frontFile, _backFile],
+  uploadedAt: _uploadedAt,
 );
+const _combinedDocument = FleetLicenseDocument(
+  id: 'document-2',
+  companyId: 'company-1',
+  assetType: FleetAssetType.tractorHead,
+  assetId: 'tractor-1',
+  files: [_combinedFile],
+  uploadedAt: _uploadedAt,
+);
+const _uploadedAt = DateTime.utc(2026, 9, 18);
 
 FleetLicenseDocumentsCubit _createCubit(
   FleetLicenseDocumentsRepository repository,
 ) {
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
-    uploadDocumentUseCase: UploadFleetLicenseDocumentUseCase(repository),
-    getDocumentAccessUseCase: GetFleetLicenseDocumentAccessUseCase(repository),
-    downloadDocumentUseCase: DownloadFleetLicenseDocumentUseCase(repository),
-    replaceDocumentUseCase: ReplaceFleetLicenseDocumentUseCase(repository),
+    uploadFileUseCase: UploadFleetLicenseDocumentFileUseCase(repository),
+    getFileAccessUseCase: GetFleetLicenseDocumentFileAccessUseCase(repository),
+    downloadFileUseCase: DownloadFleetLicenseDocumentFileUseCase(repository),
+    replaceFileUseCase: ReplaceFleetLicenseDocumentFileUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
     canManageFleetUseCase: const CanManageFleetUseCase(),
   );
@@ -158,19 +227,33 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   }
 
   @override
-  Future<Result<FleetLicenseDocument>> upload({
+  Future<Result<FleetLicenseDocument>> createWithFile({
     required FleetLicenseDocumentTarget target,
-    required BusinessDocumentFile document,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Result<FleetLicenseDocument>> replace({
+  Future<Result<FleetLicenseDocument>> addFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
-    required BusinessDocumentFile document,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
+    BusinessDate? newLicenseExpiryDate,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<FleetLicenseDocument>> replaceFile({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+    required String fileId,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile replacement,
     BusinessDate? newLicenseExpiryDate,
   }) {
     throw UnimplementedError();
@@ -188,6 +271,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Future<Result<Uint8List>> download({
     required FleetLicenseDocumentTarget target,
     required String documentId,
+    required String fileId,
   }) async {
     return Success(Uint8List.fromList([1]));
   }
@@ -196,6 +280,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required FleetLicenseDocumentTarget target,
     required String documentId,
+    required String fileId,
   }) async {
     return const Success(
       BusinessDocumentAccess('https://example.test/license'),

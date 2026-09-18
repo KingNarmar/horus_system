@@ -14,10 +14,13 @@ String fleetLicenseDocumentFailureMessage(
     FleetLicenseDocumentFailureCodes.permissionView ||
     FleetLicenseDocumentFailureCodes.permissionManage =>
       l10n.fleetLicenseDocumentsPermissionFailure,
-    FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists =>
-      l10n.fleetLicenseDocumentActiveExistsFailure,
+    FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists ||
+    FleetLicenseDocumentFailureCodes.conflictFileSide =>
+      l10n.fleetLicenseDocumentFileSideConflictFailure,
     FleetLicenseDocumentFailureCodes.notFound =>
       l10n.fleetLicenseDocumentNotFoundFailure,
+    FleetLicenseDocumentFailureCodes.fileNotFound =>
+      l10n.fleetLicenseDocumentFileNotFoundFailure,
     FleetLicenseDocumentFailureCodes.compensationCleanupFailed =>
       l10n.fleetLicenseDocumentCleanupFailure,
     FleetLicenseDocumentFailureCodes.serverError =>

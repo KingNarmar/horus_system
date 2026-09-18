@@ -9,6 +9,8 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/fleet_license_document.dart';
+import '../entities/fleet_license_document_file.dart';
+import '../entities/fleet_license_document_file_side.dart';
 import '../entities/fleet_license_document_target.dart';
 import '../failures/fleet_license_document_failure_codes.dart';
 import '../policies/fleet_license_document_policy.dart';
@@ -25,16 +27,18 @@ final class GetFleetLicenseDocumentParams {
   });
 }
 
-final class UploadFleetLicenseDocumentParams {
+final class UploadFleetLicenseDocumentFileParams {
   final CurrentCompanyContext currentCompanyContext;
   final FleetLicenseDocumentTarget target;
-  final BusinessDocumentFile document;
+  final FleetLicenseDocumentFileSide side;
+  final BusinessDocumentFile file;
   final BusinessDate? newLicenseExpiryDate;
 
-  const UploadFleetLicenseDocumentParams({
+  const UploadFleetLicenseDocumentFileParams({
     required this.currentCompanyContext,
     required this.target,
-    required this.document,
+    required this.side,
+    required this.file,
     this.newLicenseExpiryDate,
   });
 }
@@ -51,17 +55,33 @@ final class FleetLicenseDocumentActionParams {
   });
 }
 
-final class ReplaceFleetLicenseDocumentParams {
+final class FleetLicenseDocumentFileActionParams {
   final CurrentCompanyContext currentCompanyContext;
   final FleetLicenseDocumentTarget target;
   final FleetLicenseDocument document;
-  final BusinessDocumentFile replacement;
-  final BusinessDate? newLicenseExpiryDate;
+  final FleetLicenseDocumentFile file;
 
-  const ReplaceFleetLicenseDocumentParams({
+  const FleetLicenseDocumentFileActionParams({
     required this.currentCompanyContext,
     required this.target,
     required this.document,
+    required this.file,
+  });
+}
+
+final class ReplaceFleetLicenseDocumentFileParams {
+  final CurrentCompanyContext currentCompanyContext;
+  final FleetLicenseDocumentTarget target;
+  final FleetLicenseDocument document;
+  final FleetLicenseDocumentFile file;
+  final BusinessDocumentFile replacement;
+  final BusinessDate? newLicenseExpiryDate;
+
+  const ReplaceFleetLicenseDocumentFileParams({
+    required this.currentCompanyContext,
+    required this.target,
+    required this.document,
+    required this.file,
     required this.replacement,
     this.newLicenseExpiryDate,
   });
@@ -89,19 +109,20 @@ final class GetFleetLicenseDocumentUseCase
   }
 }
 
-final class UploadFleetLicenseDocumentUseCase
-    implements UseCase<FleetLicenseDocument, UploadFleetLicenseDocumentParams> {
+final class UploadFleetLicenseDocumentFileUseCase
+    implements
+        UseCase<FleetLicenseDocument, UploadFleetLicenseDocumentFileParams> {
   final FleetLicenseDocumentsRepository _repository;
   final FleetLicenseDocumentPolicy _policy;
 
-  const UploadFleetLicenseDocumentUseCase(
+  const UploadFleetLicenseDocumentFileUseCase(
     this._repository, {
     FleetLicenseDocumentPolicy policy = const FleetLicenseDocumentPolicy(),
   }) : _policy = policy;
 
   @override
   Future<Result<FleetLicenseDocument>> call(
-    UploadFleetLicenseDocumentParams params,
+    UploadFleetLicenseDocumentFileParams params,
   ) async {
     final validation = _validateTarget(
       params.currentCompanyContext,
@@ -113,96 +134,122 @@ final class UploadFleetLicenseDocumentUseCase
     final currentResult = await _repository.getActiveDocument(
       target: params.target,
     );
-    if (currentResult is FailureResult<FleetLicenseDocument?>) {
-      return FailureResult(currentResult.failure);
+    final currentFailure = currentResult.failureOrNull;
+    if (currentFailure != null) return FailureResult(currentFailure);
+
+    final current = currentResult.dataOrNull;
+    if (current == null) {
+      if (!_policy.canCreateWithSide(params.side)) {
+        return const FailureResult(
+          ConflictFailure(
+            code: FleetLicenseDocumentFailureCodes.conflictFileSide,
+          ),
+        );
+      }
+      return _repository.createWithFile(
+        target: params.target,
+        side: params.side,
+        file: params.file,
+        newLicenseExpiryDate: params.newLicenseExpiryDate,
+      );
     }
-    final current = (currentResult as Success<FleetLicenseDocument?>).data;
-    if (!_policy.canUpload(current)) {
+
+    if (!_policy.canAddFile(current, params.side)) {
       return const FailureResult(
         ConflictFailure(
-          code: FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+          code: FleetLicenseDocumentFailureCodes.conflictFileSide,
         ),
       );
     }
 
-    return _repository.upload(
+    return _repository.addFile(
       target: params.target,
-      document: params.document,
+      documentId: current.id,
+      side: params.side,
+      file: params.file,
       newLicenseExpiryDate: params.newLicenseExpiryDate,
     );
   }
 }
 
-final class GetFleetLicenseDocumentAccessUseCase
+final class GetFleetLicenseDocumentFileAccessUseCase
     implements
-        UseCase<BusinessDocumentAccess, FleetLicenseDocumentActionParams> {
+        UseCase<BusinessDocumentAccess, FleetLicenseDocumentFileActionParams> {
   final FleetLicenseDocumentsRepository _repository;
 
-  const GetFleetLicenseDocumentAccessUseCase(this._repository);
+  const GetFleetLicenseDocumentFileAccessUseCase(this._repository);
 
   @override
   Future<Result<BusinessDocumentAccess>> call(
-    FleetLicenseDocumentActionParams params,
+    FleetLicenseDocumentFileActionParams params,
   ) {
-    final validation = _validateDocumentAction(params, manage: false);
+    final validation = _validateFileAction(params, manage: false);
     if (validation != null) return Future.value(FailureResult(validation));
     return _repository.createTemporaryAccess(
       target: params.target,
       documentId: params.document.id,
+      fileId: params.file.id,
     );
   }
 }
 
-final class DownloadFleetLicenseDocumentUseCase
-    implements UseCase<Uint8List, FleetLicenseDocumentActionParams> {
+final class DownloadFleetLicenseDocumentFileUseCase
+    implements UseCase<Uint8List, FleetLicenseDocumentFileActionParams> {
   final FleetLicenseDocumentsRepository _repository;
 
-  const DownloadFleetLicenseDocumentUseCase(this._repository);
+  const DownloadFleetLicenseDocumentFileUseCase(this._repository);
 
   @override
-  Future<Result<Uint8List>> call(FleetLicenseDocumentActionParams params) {
-    final validation = _validateDocumentAction(params, manage: false);
+  Future<Result<Uint8List>> call(FleetLicenseDocumentFileActionParams params) {
+    final validation = _validateFileAction(params, manage: false);
     if (validation != null) return Future.value(FailureResult(validation));
     return _repository.download(
       target: params.target,
       documentId: params.document.id,
+      fileId: params.file.id,
     );
   }
 }
 
-final class ReplaceFleetLicenseDocumentUseCase
+final class ReplaceFleetLicenseDocumentFileUseCase
     implements
-        UseCase<FleetLicenseDocument, ReplaceFleetLicenseDocumentParams> {
+        UseCase<FleetLicenseDocument, ReplaceFleetLicenseDocumentFileParams> {
   final FleetLicenseDocumentsRepository _repository;
   final FleetLicenseDocumentPolicy _policy;
 
-  const ReplaceFleetLicenseDocumentUseCase(
+  const ReplaceFleetLicenseDocumentFileUseCase(
     this._repository, {
     FleetLicenseDocumentPolicy policy = const FleetLicenseDocumentPolicy(),
   }) : _policy = policy;
 
   @override
   Future<Result<FleetLicenseDocument>> call(
-    ReplaceFleetLicenseDocumentParams params,
+    ReplaceFleetLicenseDocumentFileParams params,
   ) {
-    final action = FleetLicenseDocumentActionParams(
+    final action = FleetLicenseDocumentFileActionParams(
       currentCompanyContext: params.currentCompanyContext,
       target: params.target,
       document: params.document,
+      file: params.file,
     );
-    final validation = _validateDocumentAction(action, manage: true);
+    final validation = _validateFileAction(action, manage: true);
     if (validation != null) return Future.value(FailureResult(validation));
-    if (!_policy.canMutate(params.document)) {
+    if (!_policy.canReplaceFile(params.document, params.file)) {
       return Future.value(
         const FailureResult(
-          NotFoundFailure(code: FleetLicenseDocumentFailureCodes.notFound),
+          NotFoundFailure(
+            code: FleetLicenseDocumentFailureCodes.fileNotFound,
+          ),
         ),
       );
     }
-    return _repository.replace(
+
+    return _repository.replaceFile(
       target: params.target,
       documentId: params.document.id,
-      document: params.replacement,
+      fileId: params.file.id,
+      side: params.file.side,
+      replacement: params.replacement,
       newLicenseExpiryDate: params.newLicenseExpiryDate,
     );
   }
@@ -222,7 +269,7 @@ final class RemoveFleetLicenseDocumentUseCase
   Future<Result<void>> call(FleetLicenseDocumentActionParams params) {
     final validation = _validateDocumentAction(params, manage: true);
     if (validation != null) return Future.value(FailureResult(validation));
-    if (!_policy.canMutate(params.document)) {
+    if (!_policy.canRemove(params.document)) {
       return Future.value(
         const FailureResult(
           NotFoundFailure(code: FleetLicenseDocumentFailureCodes.notFound),
@@ -234,6 +281,38 @@ final class RemoveFleetLicenseDocumentUseCase
       documentId: params.document.id,
     );
   }
+}
+
+Failure? _validateFileAction(
+  FleetLicenseDocumentFileActionParams params, {
+  required bool manage,
+}) {
+  final documentFailure = _validateDocumentAction(
+    FleetLicenseDocumentActionParams(
+      currentCompanyContext: params.currentCompanyContext,
+      target: params.target,
+      document: params.document,
+    ),
+    manage: manage,
+  );
+  if (documentFailure != null) return documentFailure;
+
+  final file = params.file;
+  if (file.companyId != params.target.companyId ||
+      file.licenseDocumentId != params.document.id ||
+      !file.isActive) {
+    return PermissionFailure(
+      code: manage
+          ? FleetLicenseDocumentFailureCodes.permissionManage
+          : FleetLicenseDocumentFailureCodes.permissionView,
+    );
+  }
+  if (file.id.trim().isEmpty) {
+    return const ValidationFailure(
+      code: FleetLicenseDocumentFailureCodes.validationFileIdRequired,
+    );
+  }
+  return null;
 }
 
 Failure? _validateDocumentAction(

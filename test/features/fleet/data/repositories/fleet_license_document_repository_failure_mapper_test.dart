@@ -20,7 +20,7 @@ void main() {
       expect(failure.code, FleetLicenseDocumentFailureCodes.permissionManage);
     });
 
-    test('maps missing active document to typed not-found failure', () {
+    test('maps missing document to typed not-found failure', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(
           message: 'fleet_license_document_not_found',
@@ -32,19 +32,28 @@ void main() {
       expect(failure.code, FleetLicenseDocumentFailureCodes.notFound);
     });
 
-    test('maps one-active conflict to typed conflict failure', () {
+    test('maps missing child file to typed file not-found failure', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(
-          message: 'fleet_license_document_active_exists',
-          code: 'P3433',
+          message: 'fleet_license_document_file_not_found',
+          code: 'P3437',
+        ),
+      );
+
+      expect(failure, isA<NotFoundFailure>());
+      expect(failure.code, FleetLicenseDocumentFailureCodes.fileNotFound);
+    });
+
+    test('maps side conflict to typed conflict failure', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'fleet_license_document_file_side_conflict',
+          code: 'P3436',
         ),
       );
 
       expect(failure, isA<ConflictFailure>());
-      expect(
-        failure.code,
-        FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
-      );
+      expect(failure.code, FleetLicenseDocumentFailureCodes.conflictFileSide);
     });
 
     test('sanitizes unknown backend errors', () {

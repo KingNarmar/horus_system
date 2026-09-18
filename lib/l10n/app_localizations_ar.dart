@@ -1167,6 +1167,57 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get fleetLicenseDocumentRemovedValue => 'تمت الإزالة';
 
+
+  @override
+  String get fleetLicenseDocumentFrontSide => 'الوجه الأمامي';
+
+  @override
+  String get fleetLicenseDocumentBackSide => 'الوجه الخلفي';
+
+  @override
+  String get fleetLicenseDocumentCombinedSide => 'ملف رخصة مجمع';
+
+  @override
+  String get fleetLicenseDocumentSideGuidance =>
+      'ارفع الوجه الأمامي والخلفي للرخصة كلٌ على حدة.';
+
+  @override
+  String fleetLicenseDocumentMissingSide(String side) {
+    return 'لم يتم رفع $side.';
+  }
+
+  @override
+  String fleetLicenseDocumentUploadSide(String side) {
+    return 'رفع $side';
+  }
+
+  @override
+  String get fleetLicenseDocumentFileSideConflictFailure =>
+      'يوجد ملف نشط بالفعل لهذا الجانب من الرخصة، أو أن الرخصة الحالية تستخدم ملفًا مجمعًا.';
+
+  @override
+  String get fleetLicenseDocumentFileNotFoundFailure =>
+      'تعذر العثور على ملف الرخصة.';
+
+  @override
+  String get fleetAuditLicenseDocumentFileAdded => 'تمت إضافة ملف للرخصة';
+
+  @override
+  String get fleetAuditLicenseDocumentFileReplaced =>
+      'تم استبدال ملف الرخصة';
+
+  @override
+  String get fleetLicenseDocumentSideField => 'جانب الرخصة';
+
+  @override
+  String get fleetLicenseDocumentFrontValue => 'الوجه الأمامي';
+
+  @override
+  String get fleetLicenseDocumentBackValue => 'الوجه الخلفي';
+
+  @override
+  String get fleetLicenseDocumentCombinedValue => 'ملف مجمع';
+
   @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 

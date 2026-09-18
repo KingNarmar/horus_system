@@ -10,6 +10,8 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_asset_type.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file_side.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_target.dart';
 import 'package:horus_system/features/fleet/domain/failures/fleet_license_document_failure_codes.dart';
 import 'package:horus_system/features/fleet/domain/repositories/fleet_license_documents_repository.dart';
@@ -19,7 +21,7 @@ import 'package:test/test.dart';
 void main() {
   group('Fleet license document use cases', () {
     test('viewer can load active license document', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
       final useCase = GetFleetLicenseDocumentUseCase(repository);
 
       final result = await useCase(
@@ -30,7 +32,7 @@ void main() {
       );
 
       expect(result, isA<Success<FleetLicenseDocument?>>());
-      expect(result.dataOrNull?.id, _document.id);
+      expect(result.dataOrNull?.frontFile?.id, _frontFile.id);
       expect(repository.getCalls, 1);
     });
 
@@ -53,60 +55,99 @@ void main() {
       expect(repository.getCalls, 0);
     });
 
-    test('cross-company target is denied before repository call', () async {
+    test('cross-company upload is denied before repository call', () async {
       final repository = _FakeRepository();
-      final useCase = UploadFleetLicenseDocumentUseCase(repository);
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
 
       final result = await useCase(
-        UploadFleetLicenseDocumentParams(
+        UploadFleetLicenseDocumentFileParams(
           currentCompanyContext: _operationsContext,
           target: const FleetLicenseDocumentTarget(
             companyId: 'company-2',
             assetType: FleetAssetType.tractorHead,
             assetId: 'tractor-1',
           ),
-          document: _file,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
         ),
       );
 
       expect(result.failureOrNull, isA<PermissionFailure>());
-      expect(repository.getCalls, 0);
-      expect(repository.uploadCalls, 0);
+      expect(repository.createCalls, 0);
+      expect(repository.addCalls, 0);
     });
 
-    test(
-      'upload rejects a second active document before persistence',
-      () async {
-        final repository = _FakeRepository()..activeDocument = _document;
-        final useCase = UploadFleetLicenseDocumentUseCase(repository);
+    test('first side creates the license aggregate', () async {
+      final repository = _FakeRepository();
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
 
-        final result = await useCase(
-          UploadFleetLicenseDocumentParams(
-            currentCompanyContext: _operationsContext,
-            target: _tractorTarget,
-            document: _file,
-          ),
-        );
+      final result = await useCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: _operationsContext,
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
+        ),
+      );
 
-        expect(result.failureOrNull, isA<ConflictFailure>());
-        expect(
-          result.failureOrNull?.code,
-          FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
-        );
-        expect(repository.uploadCalls, 0);
-      },
-    );
+      expect(result, isA<Success<FleetLicenseDocument>>());
+      expect(repository.createCalls, 1);
+      expect(repository.addCalls, 0);
+      expect(repository.lastSide, FleetLicenseDocumentFileSide.front);
+    });
 
-    test('replace forwards exact optional Business Date', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
-      final useCase = ReplaceFleetLicenseDocumentUseCase(repository);
+    test('missing back side is added to the same active document', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
+
+      final result = await useCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: _operationsContext,
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.back,
+          file: _file,
+        ),
+      );
+
+      expect(result, isA<Success<FleetLicenseDocument>>());
+      expect(repository.createCalls, 0);
+      expect(repository.addCalls, 1);
+      expect(repository.lastDocumentId, _frontDocument.id);
+      expect(repository.lastSide, FleetLicenseDocumentFileSide.back);
+    });
+
+    test('duplicate active side is rejected before persistence', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
+
+      final result = await useCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: _operationsContext,
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
+        ),
+      );
+
+      expect(result.failureOrNull, isA<ConflictFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FleetLicenseDocumentFailureCodes.conflictFileSide,
+      );
+      expect(repository.addCalls, 0);
+    });
+
+    test('replace forwards side and exact optional Business Date', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final useCase = ReplaceFleetLicenseDocumentFileUseCase(repository);
       final newExpiry = BusinessDate(year: 2028, month: 2, day: 29);
 
       final result = await useCase(
-        ReplaceFleetLicenseDocumentParams(
+        ReplaceFleetLicenseDocumentFileParams(
           currentCompanyContext: _operationsContext,
           target: _tractorTarget,
-          document: _document,
+          document: _frontDocument,
+          file: _frontFile,
           replacement: _file,
           newLicenseExpiryDate: newExpiry,
         ),
@@ -114,18 +155,19 @@ void main() {
 
       expect(result, isA<Success<FleetLicenseDocument>>());
       expect(repository.replaceCalls, 1);
+      expect(repository.lastSide, FleetLicenseDocumentFileSide.front);
       expect(repository.lastExpiryDate, newExpiry);
     });
 
     test('remove does not carry or clear license expiry state', () async {
-      final repository = _FakeRepository()..activeDocument = _document;
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
       final useCase = RemoveFleetLicenseDocumentUseCase(repository);
 
       final result = await useCase(
-        FleetLicenseDocumentActionParams(
+        const FleetLicenseDocumentActionParams(
           currentCompanyContext: _operationsContext,
           target: _tractorTarget,
-          document: _document,
+          document: _frontDocument,
         ),
       );
 
@@ -154,17 +196,25 @@ const _tractorTarget = FleetLicenseDocumentTarget(
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
 );
-
-final _document = FleetLicenseDocument(
+const _frontFile = FleetLicenseDocumentFile(
+  id: 'front-file',
+  companyId: 'company-1',
+  licenseDocumentId: 'document-1',
+  side: FleetLicenseDocumentFileSide.front,
+  originalFileName: 'front.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 3,
+  uploadedAt: _uploadedAt,
+);
+const _frontDocument = FleetLicenseDocument(
   id: 'document-1',
   companyId: 'company-1',
   assetType: FleetAssetType.tractorHead,
   assetId: 'tractor-1',
-  originalFileName: 'license.pdf',
-  mimeType: 'application/pdf',
-  sizeBytes: 3,
-  uploadedAt: DateTime.utc(2026, 9, 18),
+  files: [_frontFile],
+  uploadedAt: _uploadedAt,
 );
+const _uploadedAt = DateTime.utc(2026, 9, 18);
 
 final _file = BusinessDocumentFile(
   bytes: Uint8List.fromList([1, 2, 3]),
@@ -175,9 +225,12 @@ final _file = BusinessDocumentFile(
 final class _FakeRepository implements FleetLicenseDocumentsRepository {
   FleetLicenseDocument? activeDocument;
   int getCalls = 0;
-  int uploadCalls = 0;
+  int createCalls = 0;
+  int addCalls = 0;
   int replaceCalls = 0;
   int removeCalls = 0;
+  String? lastDocumentId;
+  FleetLicenseDocumentFileSide? lastSide;
   BusinessDate? lastExpiryDate;
 
   @override
@@ -189,26 +242,47 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   }
 
   @override
-  Future<Result<FleetLicenseDocument>> upload({
+  Future<Result<FleetLicenseDocument>> createWithFile({
     required FleetLicenseDocumentTarget target,
-    required BusinessDocumentFile document,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) async {
-    uploadCalls++;
+    createCalls++;
+    lastSide = side;
     lastExpiryDate = newLicenseExpiryDate;
-    return Success(_document);
+    return const Success(_frontDocument);
   }
 
   @override
-  Future<Result<FleetLicenseDocument>> replace({
+  Future<Result<FleetLicenseDocument>> addFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
-    required BusinessDocumentFile document,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile file,
+    BusinessDate? newLicenseExpiryDate,
+  }) async {
+    addCalls++;
+    lastDocumentId = documentId;
+    lastSide = side;
+    lastExpiryDate = newLicenseExpiryDate;
+    return const Success(_frontDocument);
+  }
+
+  @override
+  Future<Result<FleetLicenseDocument>> replaceFile({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+    required String fileId,
+    required FleetLicenseDocumentFileSide side,
+    required BusinessDocumentFile replacement,
     BusinessDate? newLicenseExpiryDate,
   }) async {
     replaceCalls++;
+    lastDocumentId = documentId;
+    lastSide = side;
     lastExpiryDate = newLicenseExpiryDate;
-    return Success(_document);
+    return const Success(_frontDocument);
   }
 
   @override
@@ -224,6 +298,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Future<Result<Uint8List>> download({
     required FleetLicenseDocumentTarget target,
     required String documentId,
+    required String fileId,
   }) async {
     return Success(Uint8List.fromList([1]));
   }
@@ -232,6 +307,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Future<Result<BusinessDocumentAccess>> createTemporaryAccess({
     required FleetLicenseDocumentTarget target,
     required String documentId,
+    required String fileId,
   }) async {
     return const Success(
       BusinessDocumentAccess('https://example.test/license'),

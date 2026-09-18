@@ -8,16 +8,18 @@ import 'package:horus_system/core/documents/domain/entities/business_document_re
 import 'package:horus_system/core/documents/domain/repositories/business_document_repository.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/fleet/data/datasources/fleet_license_documents_remote_data_source.dart';
+import 'package:horus_system/features/fleet/data/models/fleet_license_document_file_model.dart';
 import 'package:horus_system/features/fleet/data/models/fleet_license_document_model.dart';
 import 'package:horus_system/features/fleet/data/repositories/fleet_license_documents_repository_impl.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_asset_type.dart';
+import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file_side.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_target.dart';
 import 'package:horus_system/features/fleet/domain/failures/fleet_license_document_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   group('FleetLicenseDocumentsRepositoryImpl', () {
-    test('uses Fleet-owned Tractor Head storage scope', () async {
+    test('creates first front file in Fleet-owned storage scope', () async {
       final remote = _FakeRemoteDataSource();
       final storage = _FakeBusinessDocumentRepository();
       final repository = FleetLicenseDocumentsRepositoryImpl(
@@ -25,22 +27,45 @@ void main() {
         businessDocumentRepository: storage,
       );
 
-      final result = await repository.upload(
+      final result = await repository.createWithFile(
         target: _tractorTarget,
-        document: _file,
+        side: FleetLicenseDocumentFileSide.front,
+        file: _file,
       );
 
       expect(result, isA<Success>());
       expect(storage.lastUploadLocation?.scope, 'tractor-heads');
       expect(storage.lastUploadLocation?.entityId, _assetId);
       expect(storage.lastUploadLocation?.documentKind, 'license');
+      expect(remote.lastSide, FleetLicenseDocumentFileSide.front);
     });
 
-    test('deletes only the new upload when metadata creation fails', () async {
+    test('adds back file to the existing document', () async {
+      final remote = _FakeRemoteDataSource();
+      final storage = _FakeBusinessDocumentRepository();
+      final repository = FleetLicenseDocumentsRepositoryImpl(
+        remoteDataSource: remote,
+        businessDocumentRepository: storage,
+      );
+
+      final result = await repository.addFile(
+        target: _tractorTarget,
+        documentId: 'document-1',
+        side: FleetLicenseDocumentFileSide.back,
+        file: _file,
+      );
+
+      expect(result, isA<Success>());
+      expect(remote.addCalls, 1);
+      expect(remote.lastSide, FleetLicenseDocumentFileSide.back);
+      expect(remote.lastDocumentId, 'document-1');
+    });
+
+    test('cleans up only new upload when DB registration fails', () async {
       final remote = _FakeRemoteDataSource()
         ..createError = const PostgrestException(
-          message: 'active exists',
-          code: 'P3433',
+          message: 'side conflict',
+          code: 'P3436',
         );
       final storage = _FakeBusinessDocumentRepository();
       final repository = FleetLicenseDocumentsRepositoryImpl(
@@ -48,38 +73,36 @@ void main() {
         businessDocumentRepository: storage,
       );
 
-      final result = await repository.upload(
+      final result = await repository.createWithFile(
         target: _tractorTarget,
-        document: _file,
+        side: FleetLicenseDocumentFileSide.front,
+        file: _file,
       );
 
       expect(storage.deleteCalls, 1);
       expect(
         result.failureOrNull?.code,
-        FleetLicenseDocumentFailureCodes.conflictActiveDocumentExists,
+        FleetLicenseDocumentFailureCodes.conflictFileSide,
       );
     });
 
-    test(
-      'logical remove never deletes the registered Storage object',
-      () async {
-        final remote = _FakeRemoteDataSource();
-        final storage = _FakeBusinessDocumentRepository();
-        final repository = FleetLicenseDocumentsRepositoryImpl(
-          remoteDataSource: remote,
-          businessDocumentRepository: storage,
-        );
+    test('logical remove never deletes registered Storage objects', () async {
+      final remote = _FakeRemoteDataSource();
+      final storage = _FakeBusinessDocumentRepository();
+      final repository = FleetLicenseDocumentsRepositoryImpl(
+        remoteDataSource: remote,
+        businessDocumentRepository: storage,
+      );
 
-        final result = await repository.remove(
-          target: _tractorTarget,
-          documentId: 'document-1',
-        );
+      final result = await repository.remove(
+        target: _tractorTarget,
+        documentId: 'document-1',
+      );
 
-        expect(result, isA<Success<void>>());
-        expect(remote.removeCalls, 1);
-        expect(storage.deleteCalls, 0);
-      },
-    );
+      expect(result, isA<Success<void>>());
+      expect(remote.removeCalls, 1);
+      expect(storage.deleteCalls, 0);
+    });
   });
 }
 
@@ -147,13 +170,16 @@ final class _FakeBusinessDocumentRepository
 final class _FakeRemoteDataSource
     implements FleetLicenseDocumentsRemoteDataSource {
   PostgrestException? createError;
+  int addCalls = 0;
   int removeCalls = 0;
+  String? lastDocumentId;
+  FleetLicenseDocumentFileSide? lastSide;
 
   @override
   Future<FleetLicenseDocumentModel?> getActiveDocument({
     required FleetLicenseDocumentTarget target,
   }) async {
-    return null;
+    return _model();
   }
 
   @override
@@ -165,8 +191,9 @@ final class _FakeRemoteDataSource
   }
 
   @override
-  Future<FleetLicenseDocumentModel> createDocument({
+  Future<FleetLicenseDocumentModel> createDocumentWithFile({
     required FleetLicenseDocumentTarget target,
+    required FleetLicenseDocumentFileSide side,
     required String storageReference,
     required String originalFileName,
     required String mimeType,
@@ -175,20 +202,42 @@ final class _FakeRemoteDataSource
   }) async {
     final error = createError;
     if (error != null) throw error;
-    return _model(storageReference: storageReference);
+    lastSide = side;
+    return _model(storageReference: storageReference, side: side);
   }
 
   @override
-  Future<FleetLicenseDocumentModel> replaceDocument({
+  Future<FleetLicenseDocumentModel> addDocumentFile({
     required FleetLicenseDocumentTarget target,
     required String documentId,
+    required FleetLicenseDocumentFileSide side,
     required String storageReference,
     required String originalFileName,
     required String mimeType,
     required int sizeBytes,
     String? licenseExpiryDate,
   }) async {
-    return _model(storageReference: storageReference);
+    addCalls++;
+    lastDocumentId = documentId;
+    lastSide = side;
+    return _model(storageReference: storageReference, side: side);
+  }
+
+  @override
+  Future<FleetLicenseDocumentModel> replaceDocumentFile({
+    required FleetLicenseDocumentTarget target,
+    required String documentId,
+    required String fileId,
+    required FleetLicenseDocumentFileSide side,
+    required String storageReference,
+    required String originalFileName,
+    required String mimeType,
+    required int sizeBytes,
+    String? licenseExpiryDate,
+  }) async {
+    lastDocumentId = documentId;
+    lastSide = side;
+    return _model(storageReference: storageReference, side: side);
   }
 
   @override
@@ -204,15 +253,25 @@ final class _FakeRemoteDataSource
         'companies/11111111-1111-1111-1111-111111111111/'
         'tractor-heads/22222222-2222-2222-2222-222222222222/'
         'license/0123456789abcdef0123456789abcdef.pdf',
+    FleetLicenseDocumentFileSide side = FleetLicenseDocumentFileSide.front,
   }) {
     return FleetLicenseDocumentModel(
       id: 'document-1',
       companyId: _companyId,
       tractorHeadId: _assetId,
-      storageReference: storageReference,
-      originalFileName: 'license.pdf',
-      mimeType: 'application/pdf',
-      sizeBytes: 3,
+      files: [
+        FleetLicenseDocumentFileModel(
+          id: 'file-1',
+          companyId: _companyId,
+          licenseDocumentId: 'document-1',
+          side: side,
+          storageReference: storageReference,
+          originalFileName: 'license.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 3,
+          uploadedAt: DateTime.utc(2026, 9, 18),
+        ),
+      ],
       uploadedAt: DateTime.utc(2026, 9, 18),
     );
   }
