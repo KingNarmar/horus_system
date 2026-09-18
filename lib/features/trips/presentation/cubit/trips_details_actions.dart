@@ -6,6 +6,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     final current = state;
     if (current is! TripsLoaded) return;
 
+    owner._beginDetailsRequest();
     emit(
       current.copyWith(
         selectedTrip: trip,
@@ -35,6 +36,9 @@ mixin TripsDetailsActions on Cubit<TripsState> {
   }
 
   void clearTripDetails() {
+    final owner = this as TripsCubit;
+    owner._beginDetailsRequest();
+
     final current = state;
     if (current is TripsLoaded) {
       emit(
@@ -63,7 +67,11 @@ mixin TripsDetailsActions on Cubit<TripsState> {
   Future<void> _loadSelectedTripDetails(TripEntity trip) async {
     final owner = this as TripsCubit;
     final current = state;
-    if (current is! TripsLoaded) return;
+    if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
+
+    final companyGeneration = owner._companyRequestGeneration;
+    final detailsGeneration = owner._detailsRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
 
     final result = await owner.getTripDetailsUseCase(
       GetTripDetailsParams(
@@ -72,63 +80,79 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       ),
     );
 
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
-
-    if (result is Success<TripEntity>) {
-      final details = result.data;
-      final localTimestampsResult = await owner
-          .getTripBusinessLocalTimestampsUseCase(
-            GetTripBusinessLocalTimestampsParams(
-              currentCompanyContext: latestState.currentCompanyContext,
-              trip: details,
-            ),
-          );
-      if (localTimestampsResult is FailureResult<TripBusinessLocalTimestamps>) {
-        emit(
-          latestState.copyWith(
-            isDetailsLoading: false,
-            detailsFailure: localTimestampsResult.failure,
-          ),
-        );
-        return;
-      }
-
-      final currentAfterProjection = state;
-      if (currentAfterProjection is! TripsLoaded) return;
-      final localTimestamps = {
-        ...currentAfterProjection.businessLocalTimestampsByTripId,
-        details.id:
-            (localTimestampsResult as Success<TripBusinessLocalTimestamps>)
-                .data,
-      };
-
-      emit(
-        currentAfterProjection.copyWith(
-          selectedTrip: details,
-          businessLocalTimestampsByTripId: localTimestamps,
-          isDetailsLoading: false,
-          detailsFailure: null,
-          allTrips: _upsertTripInList(currentAfterProjection.allTrips, details),
-        ),
-      );
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
       return;
     }
 
     if (result is FailureResult<TripEntity>) {
       emit(
-        latestState.copyWith(
+        (state as TripsLoaded).copyWith(
           isDetailsLoading: false,
           detailsFailure: result.failure,
         ),
       );
+      return;
     }
+
+    final details = (result as Success<TripEntity>).data;
+    final localTimestampsResult = await owner
+        .getTripBusinessLocalTimestampsUseCase(
+          GetTripBusinessLocalTimestampsParams(
+            currentCompanyContext: current.currentCompanyContext,
+            trip: details,
+          ),
+        );
+
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
+
+    final latest = state as TripsLoaded;
+    if (localTimestampsResult is FailureResult<TripBusinessLocalTimestamps>) {
+      emit(
+        latest.copyWith(
+          isDetailsLoading: false,
+          detailsFailure: localTimestampsResult.failure,
+        ),
+      );
+      return;
+    }
+
+    final localTimestamps = {
+      ...latest.businessLocalTimestampsByTripId,
+      details.id:
+          (localTimestampsResult as Success<TripBusinessLocalTimestamps>).data,
+    };
+
+    emit(
+      latest.copyWith(
+        selectedTrip: details,
+        businessLocalTimestampsByTripId: localTimestamps,
+        isDetailsLoading: false,
+        detailsFailure: null,
+        allTrips: _upsertTripInList(latest.allTrips, details),
+      ),
+    );
   }
 
   Future<void> _loadSelectedTripStatusHistory(TripEntity trip) async {
     final owner = this as TripsCubit;
     final current = state;
-    if (current is! TripsLoaded) return;
+    if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
+
+    final companyGeneration = owner._companyRequestGeneration;
+    final detailsGeneration = owner._detailsRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
 
     emit(
       current.copyWith(
@@ -144,12 +168,18 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       ),
     );
 
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
 
     if (result is FailureResult<List<TripStatusHistory>>) {
       emit(
-        latestState.copyWith(
+        (state as TripsLoaded).copyWith(
           isStatusHistoryLoading: false,
           statusHistoryFailure: result.failure,
         ),
@@ -159,16 +189,24 @@ mixin TripsDetailsActions on Cubit<TripsState> {
 
     final history = (result as Success<List<TripStatusHistory>>).data;
     final businessTimesResult = await owner._convertCompanyInstants(
-      latestState.currentCompanyContext,
+      current.currentCompanyContext,
       {for (final item in history) item.id: item.changedAt},
     );
-    final currentAfterConversion = state;
-    if (currentAfterConversion is! TripsLoaded) return;
 
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
+
+    final latest = state as TripsLoaded;
     if (businessTimesResult
         is FailureResult<Map<String, BusinessLocalDateTime>>) {
       emit(
-        currentAfterConversion.copyWith(
+        latest.copyWith(
           isStatusHistoryLoading: false,
           statusHistoryFailure: businessTimesResult.failure,
         ),
@@ -177,7 +215,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     }
 
     emit(
-      currentAfterConversion.copyWith(
+      latest.copyWith(
         selectedTripStatusHistory: history,
         selectedTripStatusHistoryBusinessTimesById:
             (businessTimesResult as Success<Map<String, BusinessLocalDateTime>>)
@@ -191,24 +229,34 @@ mixin TripsDetailsActions on Cubit<TripsState> {
   Future<void> _loadSelectedTripActivity(TripEntity trip) async {
     final owner = this as TripsCubit;
     final current = state;
-    if (current is! TripsLoaded) return;
+    if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
+
+    final companyGeneration = owner._companyRequestGeneration;
+    final detailsGeneration = owner._detailsRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
 
     emit(current.copyWith(isActivityLoading: true, activityFailure: null));
     final result = await owner.getTripAuditLogsUseCase(
       GetEntityAuditLogsParams(
-        companyId: current.currentCompanyContext.companyId,
+        companyId: companyId,
         module: AuditModule.trips,
         entityType: AuditEntityType.trip,
         entityId: trip.id,
       ),
     );
 
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
 
     if (result is FailureResult<List<AuditLog>>) {
       emit(
-        latestState.copyWith(
+        (state as TripsLoaded).copyWith(
           isActivityLoading: false,
           activityFailure: result.failure,
         ),
@@ -218,16 +266,24 @@ mixin TripsDetailsActions on Cubit<TripsState> {
 
     final activity = (result as Success<List<AuditLog>>).data;
     final businessTimesResult = await owner._convertCompanyInstants(
-      latestState.currentCompanyContext,
+      current.currentCompanyContext,
       {for (final log in activity) log.id: log.createdAt},
     );
-    final currentAfterConversion = state;
-    if (currentAfterConversion is! TripsLoaded) return;
 
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
+
+    final latest = state as TripsLoaded;
     if (businessTimesResult
         is FailureResult<Map<String, BusinessLocalDateTime>>) {
       emit(
-        currentAfterConversion.copyWith(
+        latest.copyWith(
           isActivityLoading: false,
           activityFailure: businessTimesResult.failure,
         ),
@@ -236,7 +292,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     }
 
     emit(
-      currentAfterConversion.copyWith(
+      latest.copyWith(
         selectedTripActivity: activity,
         selectedTripActivityBusinessTimesById:
             (businessTimesResult as Success<Map<String, BusinessLocalDateTime>>)

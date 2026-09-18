@@ -41,6 +41,15 @@ class _TripsPageState extends State<TripsPage> {
     context.read<TripsCubit>().loadTrips(widget.currentCompanyContext);
   }
 
+  @override
+  void didUpdateWidget(covariant TripsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentCompanyContext.companyId !=
+        widget.currentCompanyContext.companyId) {
+      context.read<TripsCubit>().loadTrips(widget.currentCompanyContext);
+    }
+  }
+
   Future<void> _showTripForm({TripEntity? trip}) async {
     final cubit = context.read<TripsCubit>();
     final l10n = context.l10n;

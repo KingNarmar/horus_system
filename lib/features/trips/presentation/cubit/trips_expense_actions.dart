@@ -15,10 +15,14 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final current = state;
     if (context == null ||
         current is! TripsLoaded ||
+        current.currentCompanyContext.companyId != context.companyId ||
+        current.selectedTrip?.id != tripId ||
         current.isTripExpenseMutating) {
       return;
     }
 
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = context.companyId;
     emit(current.copyWith(isTripExpenseMutating: true, expensesFailure: null));
 
     final result = await owner.createTripExpenseUseCase(
@@ -33,6 +37,10 @@ mixin TripsExpenseActions on Cubit<TripsState> {
         notes: notes,
       ),
     );
+
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
 
     owner._mapLoaded((state) => state.copyWith(isTripExpenseMutating: false));
 
@@ -54,10 +62,14 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     if (context == null ||
         tripId == null ||
         current is! TripsLoaded ||
+        current.currentCompanyContext.companyId != context.companyId ||
+        current.selectedTrip?.id != tripId ||
         current.isTripExpenseMutating) {
       return;
     }
 
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = context.companyId;
     emit(current.copyWith(isTripExpenseMutating: true, expensesFailure: null));
 
     final result = await owner.voidExpenseLedgerEntryUseCase(
@@ -67,6 +79,10 @@ mixin TripsExpenseActions on Cubit<TripsState> {
         reason: reason,
       ),
     );
+
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
 
     owner._mapLoaded((state) => state.copyWith(isTripExpenseMutating: false));
 
@@ -92,7 +108,11 @@ mixin TripsExpenseActions on Cubit<TripsState> {
   Future<void> _loadSelectedTripExpenses(TripEntity trip) async {
     final owner = this as TripsCubit;
     final current = state;
-    if (current is! TripsLoaded) return;
+    if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
+
+    final companyGeneration = owner._companyRequestGeneration;
+    final detailsGeneration = owner._detailsRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
 
     emit(current.copyWith(isExpensesLoading: true, expensesFailure: null));
 
@@ -103,9 +123,16 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       ),
     );
 
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
 
+    final latestState = state as TripsLoaded;
     if (result is FailureResult<List<ExpenseLedgerEntry>>) {
       emit(
         latestState.copyWith(
@@ -137,17 +164,25 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       return;
     }
 
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
+    final currentCompanyContext = current.currentCompanyContext;
+
     emit(
       current.copyWith(isExpenseTypesLoading: true, expenseTypesFailure: null),
     );
 
     final catalogResult = await owner.getExpenseTypeCatalogUseCase(
       GetExpenseTypeCatalogParams(
-        currentCompanyContext: current.currentCompanyContext,
+        currentCompanyContext: currentCompanyContext,
       ),
     );
-    final afterCatalog = state;
-    if (afterCatalog is! TripsLoaded) return;
+
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
+
+    final afterCatalog = state as TripsLoaded;
     if (catalogResult is FailureResult<List<ExpenseType>>) {
       emit(
         afterCatalog.copyWith(
@@ -160,12 +195,15 @@ mixin TripsExpenseActions on Cubit<TripsState> {
 
     final selectableResult = await owner.getLedgerEligibleExpenseTypesUseCase(
       GetLedgerEligibleExpenseTypesParams(
-        currentCompanyContext: afterCatalog.currentCompanyContext,
+        currentCompanyContext: currentCompanyContext,
       ),
     );
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
 
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
+
+    final latestState = state as TripsLoaded;
     if (selectableResult is FailureResult<List<ExpenseType>>) {
       emit(
         latestState.copyWith(

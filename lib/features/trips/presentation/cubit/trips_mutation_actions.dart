@@ -20,7 +20,17 @@ mixin TripsMutationActions on Cubit<TripsState> {
   }) async {
     final owner = this as TripsCubit;
     final context = owner._currentCompanyContext;
-    if (context == null) return;
+    final current = state;
+    if (context == null ||
+        current is! TripsLoaded ||
+        current.isTripSaving ||
+        current.currentCompanyContext.companyId != context.companyId) {
+      return;
+    }
+
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = context.companyId;
+    emit(current.copyWith(isTripSaving: true, tripSaveFailure: null));
 
     final timestampsResult = await owner
         .resolveTripBusinessLocalTimestampsUseCase(
@@ -32,8 +42,18 @@ mixin TripsMutationActions on Cubit<TripsState> {
             actualDeliveryAt: actualDeliveryAt,
           ),
         );
+
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
+
     if (timestampsResult is FailureResult<TripTimestampInstants>) {
-      emit(TripsFailure(timestampsResult.failure));
+      emit(
+        (state as TripsLoaded).copyWith(
+          isTripSaving: false,
+          tripSaveFailure: timestampsResult.failure,
+        ),
+      );
       return;
     }
     final timestamps = timestampsResult.dataOrNull!;
@@ -79,8 +99,17 @@ mixin TripsMutationActions on Cubit<TripsState> {
             ),
           );
 
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
+
     if (result is FailureResult<TripEntity>) {
-      emit(TripsFailure(result.failure));
+      emit(
+        (state as TripsLoaded).copyWith(
+          isTripSaving: false,
+          tripSaveFailure: result.failure,
+        ),
+      );
       return;
     }
 
@@ -93,6 +122,9 @@ mixin TripsMutationActions on Cubit<TripsState> {
         actualDeliveryAt: actualDeliveryAt,
       ),
     );
+    owner._mapLoaded(
+      (state) => state.copyWith(isTripSaving: false, tripSaveFailure: null),
+    );
   }
 
   Future<void> updateTripStatus({
@@ -102,9 +134,17 @@ mixin TripsMutationActions on Cubit<TripsState> {
   }) async {
     final owner = this as TripsCubit;
     final context = owner._currentCompanyContext;
-    if (context == null || owner._isTripStatusChanging(trip.id)) return;
+    final current = state;
+    if (context == null ||
+        current is! TripsLoaded ||
+        current.currentCompanyContext.companyId != context.companyId ||
+        owner._isTripStatusChanging(trip.id)) {
+      return;
+    }
 
-    owner._setTripStatusChanging(trip.id, true);
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = context.companyId;
+    owner._beginTripStatusChange(trip.id);
 
     final result = await owner.updateTripStatusUseCase(
       UpdateTripStatusParams(
@@ -115,20 +155,23 @@ mixin TripsMutationActions on Cubit<TripsState> {
       ),
     );
 
-    owner._setTripStatusChanging(trip.id, false);
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
 
-    result.when(
-      success: (updatedTrip) async {
-        owner._upsertTrip(updatedTrip);
+    if (result is FailureResult<TripEntity>) {
+      owner._finishTripStatusChange(trip.id, failure: result.failure);
+      return;
+    }
 
-        final current = state;
-        if (current is TripsLoaded &&
-            current.selectedTrip?.id == updatedTrip.id) {
-          await owner._loadSelectedTripStatusHistory(updatedTrip);
-          await owner._loadSelectedTripActivity(updatedTrip);
-        }
-      },
-      failure: (failure) => emit(TripsFailure(failure)),
-    );
+    final updatedTrip = (result as Success<TripEntity>).data;
+    owner._finishTripStatusChange(trip.id);
+    owner._upsertTrip(updatedTrip);
+
+    final latest = state;
+    if (latest is TripsLoaded && latest.selectedTrip?.id == updatedTrip.id) {
+      await owner._loadSelectedTripStatusHistory(updatedTrip);
+      await owner._loadSelectedTripActivity(updatedTrip);
+    }
   }
 }
