@@ -2378,6 +2378,12 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tripDocumentViewButton => 'فتح';
   @override
+  String get tripDocumentDownloadButton => 'تنزيل';
+  @override
+  String get tripDocumentSaveDialogTitle => 'حفظ مستند الرحلة';
+  @override
+  String get tripDocumentDownloadFailed => 'تعذر حفظ المستند.';
+  @override
   String get tripDocumentChooseKindTitle => 'اختر نوع المستند';
   @override
   String get tripDocumentChooseSourceTitle => 'اختر المصدر';
