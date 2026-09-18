@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../../../../core/documents/domain/entities/business_document_access.dart';
 import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
