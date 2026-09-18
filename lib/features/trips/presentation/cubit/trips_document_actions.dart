@@ -165,6 +165,35 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     );
   }
 
+  Future<Uint8List?> downloadTripDocument(TripDocument document) async {
+    final owner = this as TripsCubit;
+    final context = owner._currentCompanyContext;
+    final current = state;
+    if (context == null ||
+        current is! TripsLoaded ||
+        current.currentCompanyContext.companyId != context.companyId ||
+        current.selectedTrip?.id != document.tripId) {
+      return null;
+    }
+
+    final result = await owner.downloadTripDocumentUseCase(
+      TripDocumentActionParams(
+        currentCompanyContext: context,
+        document: document,
+      ),
+    );
+
+    if (result is FailureResult<Uint8List>) {
+      owner._mapLoaded(
+        (state) => state.copyWith(documentsFailure: result.failure),
+      );
+      return null;
+    }
+
+    owner._mapLoaded((state) => state.copyWith(documentsFailure: null));
+    return (result as Success<Uint8List>).data;
+  }
+
   Future<BusinessDocumentAccess?> createTripDocumentAccess(
     TripDocument document,
   ) async {
