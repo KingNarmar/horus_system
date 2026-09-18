@@ -62,10 +62,6 @@ extension _TripFormFields on _TripFormDialogState {
   }
 
   Widget _dropdownLabel(String label) {
-    return Text(
-      label,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
+    return Text(label, maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 }

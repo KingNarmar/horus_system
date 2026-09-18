@@ -266,10 +266,7 @@ Widget _localizedApp(Widget home, {Locale? locale}) {
   );
 }
 
-Widget _dialogLauncher({
-  required WidgetBuilder builder,
-  Locale? locale,
-}) {
+Widget _dialogLauncher({required WidgetBuilder builder, Locale? locale}) {
   return _localizedApp(
     Scaffold(
       body: Builder(
