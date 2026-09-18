@@ -4,6 +4,7 @@ import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
+import '../../domain/entities/trip_document_kind.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../localization/trips_localizations_x.dart';
 
@@ -79,6 +80,27 @@ String localizedTripAuditActionTitle(BuildContext context, AuditLog log) {
 
 String localizedTripAuditDescription(BuildContext context, AuditLog log) {
   final l10n = context.l10n;
+  if (_isTripDocumentAudit(log)) {
+    final fileName = _firstText([
+      log.metadata?['original_file_name'],
+      log.newValues?['original_file_name'],
+      log.oldValues?['original_file_name'],
+    ]);
+    final kindValue = _firstText([
+      log.metadata?['document_kind'],
+      log.newValues?['document_kind'],
+      log.oldValues?['document_kind'],
+    ]);
+    final kindLabel = kindValue == null
+        ? null
+        : l10n.tripDocumentKindLabel(
+            TripDocumentKindX.fromValue(kindValue),
+          );
+    return [kindLabel, fileName]
+        .whereType<String>()
+        .where((value) => value.trim().isNotEmpty)
+        .join(' - ');
+  }
   final actionLabel = _localizedAuditActionLabel(l10n, log);
   final rawEntityName = _auditEntityName(l10n, log);
   final entityName = _isExpenseAudit(log)
@@ -182,6 +204,11 @@ String _auditEntityName(AppLocalizations l10n, AuditLog log) {
 }
 
 String _localizedAuditActionLabel(AppLocalizations l10n, AuditLog log) {
+  final event = _firstText([log.metadata?['audit_event'], log.description]);
+  if (event == 'trip_document_uploaded') return l10n.tripAuditDocumentUploaded;
+  if (event == 'trip_document_removed') return l10n.tripAuditDocumentRemoved;
+  if (event == 'trip_document_replaced') return l10n.tripAuditDocumentReplaced;
+
   final isArabic = l10n.localeName.startsWith('ar');
 
   if (_isExpenseAudit(log)) {
@@ -205,6 +232,13 @@ String _localizedAuditActionLabel(AppLocalizations l10n, AuditLog log) {
       isArabic ? 'تمت إعادة تفعيل الرحلة' : 'Trip reactivated',
     AuditAction.statusChanged => l10n.tripAuditActionLabel(log.action.value),
   };
+}
+
+bool _isTripDocumentAudit(AuditLog log) {
+  final event = _firstText([log.metadata?['audit_event'], log.description]);
+  return event == 'trip_document_uploaded' ||
+      event == 'trip_document_removed' ||
+      event == 'trip_document_replaced';
 }
 
 bool _isExpenseAudit(AuditLog log) {
