@@ -106,13 +106,14 @@ void main() {
         expect(find.byType(TripFormDialog), findsOneWidget);
 
         final dropdowns = tester
-            .widgetList<DropdownButtonFormField<String>>(
-              find.byType(DropdownButtonFormField<String>),
+            .widgetList<DropdownButton<String>>(
+              find.byType(DropdownButton<String>),
             )
             .toList();
 
         expect(dropdowns, isNotEmpty);
         expect(dropdowns.every((dropdown) => dropdown.isExpanded), isTrue);
+        expect(tester.takeException(), isNull);
       },
     );
 
