@@ -1,3 +1,5 @@
+import '../../../../core/data/constants/db_common_fields.dart';
+
 abstract final class TripDocumentDbFields {
   static const tableName = 'trip_documents';
 
@@ -14,7 +16,8 @@ abstract final class TripDocumentDbFields {
   static const replacesDocumentId = 'replaces_document_id';
 
   static const allColumns =
-      'id, company_id, $tripId, $documentKind, $storageReference, '
+      '${DbCommonFields.id}, ${DbCommonFields.companyId}, $tripId, '
+      '$documentKind, $storageReference, '
       '$originalFileName, $mimeType, $sizeBytes, $uploadedBy, $uploadedAt, '
       '$removedBy, $removedAt, $replacesDocumentId';
 }
