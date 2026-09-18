@@ -3824,6 +3824,12 @@ abstract class AppLocalizations {
   /// **'Trip status update is not allowed for this role.'**
   String get tripStatusPermissionFailure;
 
+  /// No description provided for @tripStatusEvidenceRequiredFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.'**
+  String get tripStatusEvidenceRequiredFailure;
+
   /// No description provided for @tripsStatusAllFilter.
   ///
   /// In en, this message translates to:
