@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_document.dart';
 import '../../domain/entities/trip_document_kind.dart';
