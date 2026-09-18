@@ -30,6 +30,8 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
       l10n.tripDocumentsPermissionFailure,
     TripDocumentFailureCodes.conflictMaxActiveDocuments =>
       l10n.tripDocumentsMaxActiveFailure,
+    TripFailureCodes.conflictStatusEvidenceRequired =>
+      l10n.tripStatusEvidenceRequiredFailure,
     TripDocumentFailureCodes.conflictEvidenceRequired =>
       l10n.tripDocumentsEvidenceRequiredFailure,
     TripDocumentFailureCodes.notFound => l10n.tripDocumentNotFoundFailure,
