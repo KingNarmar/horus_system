@@ -2405,6 +2405,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripDocumentViewButton => 'Open';
   @override
+  String get tripDocumentDownloadButton => 'Download';
+  @override
+  String get tripDocumentSaveDialogTitle => 'Save Trip document';
+  @override
+  String get tripDocumentDownloadFailed => 'The document could not be saved.';
+  @override
   String get tripDocumentChooseKindTitle => 'Choose document type';
   @override
   String get tripDocumentChooseSourceTitle => 'Choose source';
