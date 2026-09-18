@@ -1876,6 +1876,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'موعد التسليم لا يمكن أن يكون قبل موعد التحميل.';
 
   @override
+  String get tripNotFoundFailure => 'تعذر العثور على الرحلة.';
+
+  @override
+  String get tripManagementPermissionFailure =>
+      'هذا الدور غير مسموح له بإدارة الرحلات.';
+
+  @override
+  String get tripStatusPermissionFailure =>
+      'هذا الدور غير مسموح له بتحديث حالة الرحلة.';
+
+  @override
   String get tripsStatusAllFilter => 'الكل';
 
   @override

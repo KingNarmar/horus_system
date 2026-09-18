@@ -12,13 +12,11 @@ import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 abstract final class TripsDependencies {
   static TripsCubit createTripsCubit() {
     final client = SupabaseClientProvider.client;
-    final createAuditLogUseCase = AuditDependencies.createAuditLogUseCase;
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
 
     final tripsRemoteDataSource = SupabaseTripsRemoteDataSource(client);
     final tripsRepository = TripsRepositoryImpl(
       remoteDataSource: tripsRemoteDataSource,
-      createAuditLogUseCase: createAuditLogUseCase,
     );
 
     return TripsCubit(

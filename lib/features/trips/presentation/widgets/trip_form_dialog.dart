@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/services/money_input_parser.dart';
@@ -14,7 +15,10 @@ import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
 import '../../domain/entities/trip_lookup_option.dart';
 import '../../domain/value_objects/quantity_tons.dart';
+import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
+import '../models/trip_mutation_result.dart';
+import 'trip_business_date_time_field.dart';
 
 part 'trip_form_content.dart';
 part 'trip_form_fields.dart';
@@ -63,7 +67,7 @@ class TripFormDialog extends StatefulWidget {
   final CurrencyConfiguration? financialConfiguration;
   final bool isLookupsLoading;
   final Failure? lookupsFailure;
-  final Future<void> Function(TripFormData data) onSubmit;
+  final Future<TripMutationResult> Function(TripFormData data) onSubmit;
 
   const TripFormDialog({
     required this.title,
@@ -91,10 +95,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
   late final TextEditingController _waybillController;
   late final TextEditingController _quantityController;
   late final TextEditingController _agreedFreightRateController;
-  late final TextEditingController _scheduledLoadingController;
-  late final TextEditingController _scheduledDeliveryController;
-  late final TextEditingController _actualLoadingController;
-  late final TextEditingController _actualDeliveryController;
   late final TextEditingController _notesController;
 
   String? _customerId;
@@ -102,7 +102,12 @@ class _TripFormDialogState extends State<TripFormDialog> {
   String? _driverId;
   String? _tractorHeadId;
   String? _trailerId;
+  BusinessLocalDateTime? _scheduledLoadingAt;
+  BusinessLocalDateTime? _scheduledDeliveryAt;
+  BusinessLocalDateTime? _actualLoadingAt;
+  BusinessLocalDateTime? _actualDeliveryAt;
   bool _isSubmitting = false;
+  Failure? _submitFailure;
 
   @override
   void initState() {
@@ -116,6 +121,10 @@ class _TripFormDialogState extends State<TripFormDialog> {
     _driverId = trip?.driverId;
     _tractorHeadId = trip?.tractorHeadId;
     _trailerId = trip?.trailerId;
+    _scheduledLoadingAt = initialTimestamps?.scheduledLoadingAt;
+    _scheduledDeliveryAt = initialTimestamps?.scheduledDeliveryAt;
+    _actualLoadingAt = initialTimestamps?.actualLoadingAt;
+    _actualDeliveryAt = initialTimestamps?.actualDeliveryAt;
 
     _loadingOrderController = TextEditingController(
       text: trip?.loadingOrderNumber ?? '',
@@ -130,26 +139,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
         widget.financialConfiguration,
       ),
     );
-    _scheduledLoadingController = TextEditingController(
-      text: _formatBusinessLocalDateTimeForInput(
-        initialTimestamps?.scheduledLoadingAt,
-      ),
-    );
-    _scheduledDeliveryController = TextEditingController(
-      text: _formatBusinessLocalDateTimeForInput(
-        initialTimestamps?.scheduledDeliveryAt,
-      ),
-    );
-    _actualLoadingController = TextEditingController(
-      text: _formatBusinessLocalDateTimeForInput(
-        initialTimestamps?.actualLoadingAt,
-      ),
-    );
-    _actualDeliveryController = TextEditingController(
-      text: _formatBusinessLocalDateTimeForInput(
-        initialTimestamps?.actualDeliveryAt,
-      ),
-    );
     _notesController = TextEditingController(text: trip?.notes ?? '');
   }
 
@@ -159,10 +148,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
     _waybillController.dispose();
     _quantityController.dispose();
     _agreedFreightRateController.dispose();
-    _scheduledLoadingController.dispose();
-    _scheduledDeliveryController.dispose();
-    _actualLoadingController.dispose();
-    _actualDeliveryController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -173,7 +158,10 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
     return AlertDialog(
       title: Text(widget.title),
-      content: SizedBox(width: 680, child: _content(context)),
+      content: SizedBox(
+        width: AppSizes.formDialogMaxWidth,
+        child: _content(context),
+      ),
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
@@ -184,8 +172,10 @@ class _TripFormDialogState extends State<TripFormDialog> {
             onPressed: _isSubmitting ? null : _submit,
             icon: _isSubmitting
                 ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    dimension: AppSizes.loadingIndicatorSm,
+                    child: CircularProgressIndicator(
+                      strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                    ),
                   )
                 : const Icon(AppIcons.add),
             label: Text(l10n.tripSaveButton),
@@ -217,7 +207,47 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   void _setTrailerId(String? value) => setState(() => _trailerId = value);
 
-  void _setSubmitting(bool value) => setState(() => _isSubmitting = value);
+  void _setScheduledLoadingAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _scheduledLoadingAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setScheduledDeliveryAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _scheduledDeliveryAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setActualLoadingAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _actualLoadingAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _setActualDeliveryAt(BusinessLocalDateTime? value) {
+    setState(() {
+      _actualDeliveryAt = value;
+      _submitFailure = null;
+    });
+  }
+
+  void _beginSubmitting() {
+    setState(() {
+      _isSubmitting = true;
+      _submitFailure = null;
+    });
+  }
+
+  void _showSubmitFailure(Failure failure) {
+    setState(() {
+      _isSubmitting = false;
+      _submitFailure = failure;
+    });
+  }
 
   void _closeIfMounted() {
     if (mounted) {

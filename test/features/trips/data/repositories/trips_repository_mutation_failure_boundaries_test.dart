@@ -9,31 +9,53 @@ import 'package:test/test.dart';
 import 'trips_repository_test_support.dart';
 
 void main() {
-  group('TripsRepository mutation failure boundaries', () {
+  group('TripsRepository atomic mutation failure boundaries', () {
+    test('sanitizes create RPC failure without follow-up writes', () async {
+      final events = <String>[];
+      final remoteDataSource = FakeTripsRemoteDataSource(
+        events: events,
+        errors: const {
+          TripDataOperation.create: PostgrestException(
+            message: 'insert failed',
+            code: '23503',
+            details: 'sensitive details',
+            hint: 'sensitive hint',
+          ),
+        },
+      );
+      final repository = createTripsRepository(remoteDataSource);
+
+      final result = await repository.createTrip(
+        data: testTripWriteData,
+        financialConfiguration: testFinancialConfiguration,
+      );
+
+      expect(result, isA<FailureResult<TripEntity>>());
+      expect(result.failureOrNull, isA<ServerFailure>());
+      expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
+      expect(events, ['create']);
+    });
+
     test(
-      'sanitizes create persistence failure and stops before history',
+      'sanitizes save RPC failure without pre-read or follow-up writes',
       () async {
         final events = <String>[];
         final remoteDataSource = FakeTripsRemoteDataSource(
+          currentModel: testOldTripModel,
           events: events,
           errors: const {
-            TripDataOperation.create: PostgrestException(
-              message: 'insert failed',
-              code: '23503',
-              details: 'sensitive details',
-              hint: 'sensitive hint',
+            TripDataOperation.save: PostgrestException(
+              message: 'update failed',
+              code: '42501',
             ),
           },
         );
-        final auditRepository = FakeTripAuditLogRepository(events: events);
-        final repository = createTripsRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
+        final repository = createTripsRepository(remoteDataSource);
 
-        final result = await repository.createTrip(
+        final result = await repository.saveTrip(
+          id: testTripId,
           data: testTripWriteData,
-          actorRole: 'owner',
           financialConfiguration: testFinancialConfiguration,
         );
 
@@ -41,83 +63,17 @@ void main() {
         expect(result.failureOrNull, isA<ServerFailure>());
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
-        expect(events, ['create']);
-        expect(auditRepository.lastData, isNull);
+        expect(events, ['save']);
+        expect(remoteDataSource.lastGetByIdCompanyId, isNull);
       },
     );
 
-    test('sanitizes initial history failure and does not audit', () async {
-      final events = <String>[];
-      final remoteDataSource = FakeTripsRemoteDataSource(
-        events: events,
-        errors: const {
-          TripDataOperation.history: PostgrestException(
-            message: 'history insert failed',
-            code: '42501',
-          ),
-        },
-      );
-      final auditRepository = FakeTripAuditLogRepository(events: events);
-      final repository = createTripsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.createTrip(
-        data: testTripWriteData,
-        actorRole: 'owner',
-        financialConfiguration: testFinancialConfiguration,
-      );
-
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(events, ['create', 'history']);
-      expect(auditRepository.lastData, isNull);
-    });
-
-    test('sanitizes save persistence failure and does not audit', () async {
-      final events = <String>[];
-      final remoteDataSource = FakeTripsRemoteDataSource(
-        currentModel: testOldTripModel,
-        events: events,
-        errors: const {
-          TripDataOperation.save: PostgrestException(
-            message: 'update failed',
-            code: '42501',
-          ),
-        },
-      );
-      final auditRepository = FakeTripAuditLogRepository(events: events);
-      final repository = createTripsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.saveTrip(
-        id: testTripId,
-        data: testTripWriteData,
-        actorRole: 'operations',
-        financialConfiguration: testFinancialConfiguration,
-      );
-
-      expect(result, isA<FailureResult<TripEntity>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(events, ['get', 'save']);
-      expect(remoteDataSource.lastGetByIdCompanyId, testCompanyId);
-      expect(remoteDataSource.lastGetByIdId, testTripId);
-      expect(auditRepository.lastData, isNull);
-    });
-
     test(
-      'sanitizes status persistence failure before history and audit',
+      'sanitizes status RPC failure without client-side history or audit',
       () async {
         final events = <String>[];
         final remoteDataSource = FakeTripsRemoteDataSource(
-          currentModel: testOldTripModel,
+          statusModel: testLoadedTripModel,
           events: events,
           errors: const {
             TripDataOperation.status: PostgrestException(
@@ -126,17 +82,12 @@ void main() {
             ),
           },
         );
-        final auditRepository = FakeTripAuditLogRepository(events: events);
-        final repository = createTripsRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
+        final repository = createTripsRepository(remoteDataSource);
 
         final result = await repository.updateTripStatus(
           companyId: testCompanyId,
           id: testTripId,
           newStatus: TripStatus.loaded,
-          actorRole: 'operations',
           financialConfiguration: testFinancialConfiguration,
         );
 
@@ -144,70 +95,8 @@ void main() {
         expect(result.failureOrNull, isA<ServerFailure>());
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
-        expect(events, ['get', 'status']);
-        expect(auditRepository.lastData, isNull);
+        expect(events, ['status']);
       },
     );
-
-    test(
-      'sanitizes status history runtime failure and does not audit',
-      () async {
-        final events = <String>[];
-        final remoteDataSource = FakeTripsRemoteDataSource(
-          currentModel: testOldTripModel,
-          statusModel: testLoadedTripModel,
-          events: events,
-          errors: {
-            TripDataOperation.history: Exception('history runtime detail'),
-          },
-        );
-        final auditRepository = FakeTripAuditLogRepository(events: events);
-        final repository = createTripsRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
-
-        final result = await repository.updateTripStatus(
-          companyId: testCompanyId,
-          id: testTripId,
-          newStatus: TripStatus.loaded,
-          actorRole: 'operations',
-          financialConfiguration: testFinancialConfiguration,
-        );
-
-        expect(result, isA<FailureResult<TripEntity>>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(events, ['get', 'status', 'history']);
-        expect(auditRepository.lastData, isNull);
-      },
-    );
-
-    test('preserves unknown stored status fallback behavior', () async {
-      final events = <String>[];
-      final remoteDataSource = FakeTripsRemoteDataSource(
-        currentModel: testUnknownStatusTripModel,
-        statusModel: testLoadedTripModel,
-        events: events,
-      );
-      final auditRepository = FakeTripAuditLogRepository(events: events);
-      final repository = createTripsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.updateTripStatus(
-        companyId: testCompanyId,
-        id: testTripId,
-        newStatus: TripStatus.loaded,
-        actorRole: 'operations',
-        financialConfiguration: testFinancialConfiguration,
-      );
-
-      expect(result, isA<Success<TripEntity>>());
-      expect(remoteDataSource.lastHistoryOldStatus, TripStatus.created);
-      expect(events, ['get', 'status', 'history', 'audit:trip_status_changed']);
-    });
   });
 }

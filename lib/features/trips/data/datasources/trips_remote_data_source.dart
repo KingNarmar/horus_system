@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
-import '../../../../core/data/constants/user_profile_db_fields.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_write_data.dart';
+import '../constants/trip_db_contract.dart';
 import '../constants/trip_db_fields.dart';
 import '../mappers/trip_mapper.dart';
 import '../models/trip_lookup_models.dart';
@@ -36,14 +36,6 @@ abstract class TripsRemoteDataSource {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-  });
-
-  Future<TripStatusHistoryModel> addTripStatusHistory({
-    required String companyId,
-    required String tripId,
-    required TripStatus? oldStatus,
-    required TripStatus newStatus,
-    required String actorRole,
     String? notes,
   });
 
@@ -137,15 +129,14 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
-    final row = await client
-        .from(TripDbFields.tableName)
-        .insert(
-          data.toInsertMap(financialConfiguration: financialConfiguration),
-        )
-        .select(TripDbFields.allColumns)
-        .single();
+    final result = await client.rpc(
+      TripDbRpcs.create,
+      params: data.toMutationRpcParams(
+        financialConfiguration: financialConfiguration,
+      ),
+    );
 
-    return TripModel.fromMap(Map<String, dynamic>.from(row));
+    return TripModel.fromMap(_rpcMap(result));
   }
 
   @override
@@ -154,17 +145,12 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
-    final row = await client
-        .from(TripDbFields.tableName)
-        .update(
-          data.toUpdateMap(financialConfiguration: financialConfiguration),
-        )
-        .eq(DbCommonFields.id, id)
-        .eq(DbCommonFields.companyId, data.companyId)
-        .select(TripDbFields.allColumns)
-        .single();
+    final params = data.toMutationRpcParams(
+      financialConfiguration: financialConfiguration,
+    )..[TripDbRpcParams.tripId] = id;
 
-    return TripModel.fromMap(Map<String, dynamic>.from(row));
+    final result = await client.rpc(TripDbRpcs.save, params: params);
+    return TripModel.fromMap(_rpcMap(result));
   }
 
   @override
@@ -172,47 +158,19 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-  }) async {
-    final row = await client
-        .from(TripDbFields.tableName)
-        .update(newStatus.toTripStatusUpdateMap())
-        .eq(DbCommonFields.id, id)
-        .eq(DbCommonFields.companyId, companyId)
-        .select(TripDbFields.allColumns)
-        .single();
-
-    return TripModel.fromMap(Map<String, dynamic>.from(row));
-  }
-
-  @override
-  Future<TripStatusHistoryModel> addTripStatusHistory({
-    required String companyId,
-    required String tripId,
-    required TripStatus? oldStatus,
-    required TripStatus newStatus,
-    required String actorRole,
     String? notes,
   }) async {
-    final insertMap = newStatus.toHistoryInsertMap(
-      companyId: companyId,
-      tripId: tripId,
-      oldStatus: oldStatus,
-      actorRole: actorRole,
-      notes: notes,
+    final result = await client.rpc(
+      TripDbRpcs.updateStatus,
+      params: {
+        TripDbRpcParams.companyId: companyId,
+        TripDbRpcParams.tripId: id,
+        TripDbRpcParams.newStatus: newStatus.value,
+        TripDbRpcParams.notes: notes,
+      },
     );
 
-    final actorDisplayName = await _getCurrentActorDisplayName();
-    if (actorDisplayName != null) {
-      insertMap[TripStatusHistoryDbFields.changedByName] = actorDisplayName;
-    }
-
-    final row = await client
-        .from(TripStatusHistoryDbFields.tableName)
-        .insert(insertMap)
-        .select(TripStatusHistoryDbFields.allColumns)
-        .single();
-
-    return TripStatusHistoryModel.fromMap(Map<String, dynamic>.from(row));
+    return TripModel.fromMap(_rpcMap(result));
   }
 
   @override
@@ -352,32 +310,9 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     return rows.isNotEmpty;
   }
 
-  Future<String?> _getCurrentActorDisplayName() async {
-    final currentUser = client.auth.currentUser;
-    final currentUserId = currentUser?.id;
-    final currentUserEmail = currentUser?.email;
-    if (currentUserId == null) return null;
-
-    final rows = await client
-        .from(UserProfileDbFields.tableName)
-        .select(UserProfileDbFields.fullName)
-        .eq(DbCommonFields.id, currentUserId)
-        .limit(1);
-
-    if (rows.isNotEmpty) {
-      final firstRow = Map<String, dynamic>.from(rows.first);
-      final fullName = _normalizeOptional(
-        firstRow[UserProfileDbFields.fullName] as String?,
-      );
-      if (fullName != null) return fullName;
-    }
-
-    return _normalizeOptional(currentUserEmail);
-  }
-
-  String? _normalizeOptional(String? value) {
-    final text = value?.trim();
-    if (text == null || text.isEmpty) return null;
-    return text;
+  Map<String, dynamic> _rpcMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    throw const FormatException('Invalid trip RPC response.');
   }
 }

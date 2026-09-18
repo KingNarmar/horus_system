@@ -1,5 +1,4 @@
 import '../../../../core/data/constants/db_common_fields.dart';
-import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/domain/value_objects/money.dart';
@@ -11,12 +10,12 @@ import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_write_data.dart';
 import '../../domain/value_objects/quantity_tons.dart';
+import '../constants/trip_db_contract.dart';
 import '../constants/trip_db_fields.dart';
 import '../models/trip_lookup_models.dart';
 import '../models/trip_model.dart';
 import '../models/trip_status_history_model.dart';
 
-const _commercialAmountAuditKey = 'commercial_amount';
 const _moneyCodec = MoneyDecimalCodec();
 
 extension TripModelMapper on TripModel {
@@ -63,43 +62,6 @@ extension TripModelMapper on TripModel {
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
-  }
-
-  Map<String, Object?> toAuditValues() {
-    return {
-      DbCommonFields.id: id,
-      DbCommonFields.companyId: companyId,
-      TripDbFields.customerId: customerId,
-      TripDbFields.routeId: routeId,
-      TripDbFields.driverId: driverId,
-      TripDbFields.tractorHeadId: tractorHeadId,
-      TripDbFields.trailerId: trailerId,
-      TripDbFields.status: status,
-      TripDbFields.loadingOrderNumber: loadingOrderNumber,
-      TripDbFields.waybillNumber: waybillNumber,
-      TripDbFields.quantityTons: quantityTonsDecimal,
-      TripDbFields.agreedFreightRatePerTon: agreedFreightRatePerTonDecimal,
-      _commercialAmountAuditKey: commercialAmountDecimal,
-      TripDbFields.totalExpenses: totalExpenses,
-      TripDbFields.scheduledLoadingAt: scheduledLoadingAt
-          ?.toUtc()
-          .toIso8601String(),
-      TripDbFields.scheduledDeliveryAt: scheduledDeliveryAt
-          ?.toUtc()
-          .toIso8601String(),
-      TripDbFields.actualLoadingAt: actualLoadingAt?.toUtc().toIso8601String(),
-      TripDbFields.actualDeliveryAt: actualDeliveryAt
-          ?.toUtc()
-          .toIso8601String(),
-      TripDbFields.notes: notes,
-      TripDbFields.customerNameAlias: customerName,
-      TripDbFields.routeNameAlias: routeName,
-      TripDbFields.driverNameAlias: driverName,
-      TripDbFields.tractorHeadPlateNumberAlias: tractorHeadPlateNumber,
-      TripDbFields.trailerPlateNumberAlias: trailerPlateNumber,
-      DbCommonFields.createdAt: createdAt?.toUtc().toIso8601String(),
-      DbCommonFields.updatedAt: updatedAt?.toUtc().toIso8601String(),
-    };
   }
 }
 
@@ -184,58 +146,33 @@ extension TripWriteDataMapper on TripWriteData {
     };
   }
 
-  Map<String, dynamic> toUpdateMap({
+  Map<String, dynamic> toMutationRpcParams({
     required CurrencyConfiguration? financialConfiguration,
   }) {
-    return {
-      TripDbFields.customerId: customerId,
-      TripDbFields.routeId: routeId,
-      TripDbFields.driverId: driverId,
-      TripDbFields.tractorHeadId: tractorHeadId,
-      TripDbFields.trailerId: trailerId,
-      TripDbFields.loadingOrderNumber: loadingOrderNumber,
-      TripDbFields.waybillNumber: waybillNumber,
-      TripDbFields.quantityTons: quantityTons?.toDecimalString(),
-      TripDbFields.agreedFreightRatePerTon: _encodeMoney(
-        agreedFreightRatePerTon,
-        financialConfiguration: financialConfiguration,
-      ),
-      TripDbFields.commercialAmount: _encodeMoney(
-        commercialAmount,
-        financialConfiguration: financialConfiguration,
-      ),
-      TripDbFields.scheduledLoadingAt: _toUtcIsoString(scheduledLoadingAt),
-      TripDbFields.scheduledDeliveryAt: _toUtcIsoString(scheduledDeliveryAt),
-      TripDbFields.actualLoadingAt: _toUtcIsoString(actualLoadingAt),
-      TripDbFields.actualDeliveryAt: _toUtcIsoString(actualDeliveryAt),
-      TripDbFields.notes: notes,
-      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-    };
-  }
-}
+    final writeMap = toInsertMap(
+      financialConfiguration: financialConfiguration,
+    );
 
-extension TripStatusMapper on TripStatus {
-  Map<String, dynamic> toTripStatusUpdateMap() {
     return {
-      TripDbFields.status: value,
-      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-    };
-  }
-
-  Map<String, dynamic> toHistoryInsertMap({
-    required String companyId,
-    required String tripId,
-    required TripStatus? oldStatus,
-    required String actorRole,
-    String? notes,
-  }) {
-    return {
-      DbCommonFields.companyId: companyId,
-      TripStatusHistoryDbFields.tripId: tripId,
-      TripStatusHistoryDbFields.oldStatus: oldStatus?.value,
-      TripStatusHistoryDbFields.newStatus: value,
-      TripStatusHistoryDbFields.changedByRole: actorRole,
-      TripStatusHistoryDbFields.notes: notes,
+      TripDbRpcParams.companyId: companyId,
+      TripDbRpcParams.customerId: customerId,
+      TripDbRpcParams.routeId: routeId,
+      TripDbRpcParams.driverId: driverId,
+      TripDbRpcParams.tractorHeadId: tractorHeadId,
+      TripDbRpcParams.trailerId: trailerId,
+      TripDbRpcParams.loadingOrderNumber: loadingOrderNumber,
+      TripDbRpcParams.waybillNumber: waybillNumber,
+      TripDbRpcParams.quantityTons: writeMap[TripDbFields.quantityTons],
+      TripDbRpcParams.agreedFreightRatePerTon:
+          writeMap[TripDbFields.agreedFreightRatePerTon],
+      TripDbRpcParams.commercialAmount: writeMap[TripDbFields.commercialAmount],
+      TripDbRpcParams.scheduledLoadingAt:
+          writeMap[TripDbFields.scheduledLoadingAt],
+      TripDbRpcParams.scheduledDeliveryAt:
+          writeMap[TripDbFields.scheduledDeliveryAt],
+      TripDbRpcParams.actualLoadingAt: writeMap[TripDbFields.actualLoadingAt],
+      TripDbRpcParams.actualDeliveryAt: writeMap[TripDbFields.actualDeliveryAt],
+      TripDbRpcParams.notes: notes,
     };
   }
 }

@@ -10,6 +10,9 @@ mixin TripsFormLookupActions on Cubit<TripsState> {
       return;
     }
 
+    final companyGeneration = owner._companyRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
+
     emit(
       current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null),
     );
@@ -20,9 +23,11 @@ mixin TripsFormLookupActions on Cubit<TripsState> {
       ),
     );
 
-    final latestState = state;
-    if (latestState is! TripsLoaded) return;
+    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+      return;
+    }
 
+    final latestState = state as TripsLoaded;
     result.when(
       success: (lookups) {
         emit(

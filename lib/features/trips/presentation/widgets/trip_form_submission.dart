@@ -9,9 +9,9 @@ extension _TripFormSubmission on _TripFormDialogState {
 
     if (customerId == null || routeId == null || _isSubmitting) return;
 
-    _setSubmitting(true);
+    _beginSubmitting();
 
-    await widget.onSubmit(
+    final result = await widget.onSubmit(
       TripFormData(
         customerId: customerId,
         routeId: routeId,
@@ -24,22 +24,27 @@ extension _TripFormSubmission on _TripFormDialogState {
         agreedFreightRatePerTonInput: _optional(
           _agreedFreightRateController.text,
         ),
-        scheduledLoadingAt: _parseBusinessLocalDateTime(
-          _scheduledLoadingController.text,
-        ),
-        scheduledDeliveryAt: _parseBusinessLocalDateTime(
-          _scheduledDeliveryController.text,
-        ),
-        actualLoadingAt: _parseBusinessLocalDateTime(
-          _actualLoadingController.text,
-        ),
-        actualDeliveryAt: _parseBusinessLocalDateTime(
-          _actualDeliveryController.text,
-        ),
+        scheduledLoadingAt: _scheduledLoadingAt,
+        scheduledDeliveryAt: _scheduledDeliveryAt,
+        actualLoadingAt: _actualLoadingAt,
+        actualDeliveryAt: _actualDeliveryAt,
         notes: _optional(_notesController.text),
       ),
     );
 
-    _closeIfMounted();
+    if (!mounted) return;
+
+    if (result is TripMutationSucceeded) {
+      _closeIfMounted();
+      return;
+    }
+
+    if (result is TripMutationIgnored) {
+      _closeIfMounted();
+      return;
+    }
+
+    final failure = (result as TripMutationFailed).failure;
+    _showSubmitFailure(failure);
   }
 }

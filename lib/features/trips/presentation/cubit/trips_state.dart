@@ -43,6 +43,9 @@ class TripsLoaded extends TripsState {
   final String searchQuery;
   final TripStatusFilter statusFilter;
   final Set<String> statusChangingTripIds;
+  final Map<String, Failure> statusChangeFailuresByTripId;
+  final bool isTripSaving;
+  final Failure? tripSaveFailure;
   final TripEntity? selectedTrip;
   final Money? selectedTripTotalExpenses;
   final Money? selectedTripNetProfit;
@@ -82,6 +85,9 @@ class TripsLoaded extends TripsState {
     this.searchQuery = '',
     this.statusFilter = TripStatusFilter.open,
     this.statusChangingTripIds = const <String>{},
+    this.statusChangeFailuresByTripId = const <String, Failure>{},
+    this.isTripSaving = false,
+    this.tripSaveFailure,
     this.selectedTrip,
     this.selectedTripTotalExpenses,
     this.selectedTripNetProfit,
@@ -107,6 +113,10 @@ class TripsLoaded extends TripsState {
   });
 
   bool isStatusChanging(String id) => statusChangingTripIds.contains(id);
+
+  Failure? statusChangeFailureFor(String id) {
+    return statusChangeFailuresByTripId[id];
+  }
 
   TripBusinessLocalTimestamps? businessLocalTimestampsFor(String tripId) {
     return businessLocalTimestampsByTripId[tripId];
@@ -156,6 +166,9 @@ class TripsLoaded extends TripsState {
     String? searchQuery,
     TripStatusFilter? statusFilter,
     Set<String>? statusChangingTripIds,
+    Map<String, Failure>? statusChangeFailuresByTripId,
+    bool? isTripSaving,
+    Object? tripSaveFailure = _notSet,
     Object? selectedTrip = _notSet,
     Object? selectedTripTotalExpenses = _notSet,
     Object? selectedTripNetProfit = _notSet,
@@ -201,6 +214,12 @@ class TripsLoaded extends TripsState {
       statusFilter: statusFilter ?? this.statusFilter,
       statusChangingTripIds:
           statusChangingTripIds ?? this.statusChangingTripIds,
+      statusChangeFailuresByTripId:
+          statusChangeFailuresByTripId ?? this.statusChangeFailuresByTripId,
+      isTripSaving: isTripSaving ?? this.isTripSaving,
+      tripSaveFailure: tripSaveFailure == _notSet
+          ? this.tripSaveFailure
+          : tripSaveFailure as Failure?,
       selectedTrip: selectedTrip == _notSet
           ? this.selectedTrip
           : selectedTrip as TripEntity?,

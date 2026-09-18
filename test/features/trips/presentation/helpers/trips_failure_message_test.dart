@@ -99,6 +99,49 @@ void main() {
     });
 
     testWidgets(
+      'localizes atomic trip mutation permission and not-found failures',
+      (tester) async {
+        const managementFailure = PermissionFailure(
+          code: FailureCodes.permissionTripsManagement,
+          message: 'raw management message',
+        );
+        const statusFailure = PermissionFailure(
+          code: FailureCodes.permissionTripStatusUpdate,
+          message: 'raw status message',
+        );
+        const notFoundFailure = NotFoundFailure(
+          code: TripFailureCodes.notFound,
+          message: 'raw not-found message',
+        );
+
+        expect(
+          await _messageFor(tester, const Locale('en'), managementFailure),
+          'Trips management is not allowed for this role.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('ar'), managementFailure),
+          'هذا الدور غير مسموح له بإدارة الرحلات.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('en'), statusFailure),
+          'Trip status update is not allowed for this role.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('ar'), statusFailure),
+          'هذا الدور غير مسموح له بتحديث حالة الرحلة.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('en'), notFoundFailure),
+          'The trip could not be found.',
+        );
+        expect(
+          await _messageFor(tester, const Locale('ar'), notFoundFailure),
+          'تعذر العثور على الرحلة.',
+        );
+      },
+    );
+
+    testWidgets(
       'localizes financial readiness and currency mismatch failures',
       (tester) async {
         const readinessFailure = ConflictFailure(

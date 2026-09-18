@@ -85,6 +85,126 @@ void main() {
     });
   });
 
+  group('CreateTripUseCase temporal validation', () {
+    test('rejects scheduled delivery before scheduled loading', () async {
+      final repository = _FakeTripsRepository();
+      final useCase = CreateTripUseCase(repository);
+      final loadingAt = DateTime.utc(2026, 9, 18, 10);
+      final deliveryAt = DateTime.utc(2026, 9, 18, 9);
+
+      final result = await useCase(
+        CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          scheduledLoadingAt: loadingAt,
+          scheduledDeliveryAt: deliveryAt,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TripEntity>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationTripDeliveryBeforeLoading,
+      );
+      expect(repository.lastWriteData, isNull);
+    });
+
+    test('rejects actual delivery before actual loading', () async {
+      final repository = _FakeTripsRepository();
+      final useCase = CreateTripUseCase(repository);
+      final loadingAt = DateTime.utc(2026, 9, 18, 10);
+      final deliveryAt = DateTime.utc(2026, 9, 18, 9);
+
+      final result = await useCase(
+        CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          actualLoadingAt: loadingAt,
+          actualDeliveryAt: deliveryAt,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TripEntity>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationTripDeliveryBeforeLoading,
+      );
+      expect(repository.lastWriteData, isNull);
+    });
+
+    test('allows equal loading and delivery timestamps', () async {
+      final repository = _FakeTripsRepository();
+      final useCase = CreateTripUseCase(repository);
+      final timestamp = DateTime.utc(2026, 9, 18, 10);
+
+      final result = await useCase(
+        CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          scheduledLoadingAt: timestamp,
+          scheduledDeliveryAt: timestamp,
+          actualLoadingAt: timestamp,
+          actualDeliveryAt: timestamp,
+        ),
+      );
+
+      expect(result, isA<Success<TripEntity>>());
+      expect(repository.lastWriteData?.scheduledLoadingAt, timestamp);
+      expect(repository.lastWriteData?.scheduledDeliveryAt, timestamp);
+      expect(repository.lastWriteData?.actualLoadingAt, timestamp);
+      expect(repository.lastWriteData?.actualDeliveryAt, timestamp);
+    });
+
+    test('allows optional partial temporal pairs', () async {
+      final repository = _FakeTripsRepository();
+      final useCase = CreateTripUseCase(repository);
+      final scheduledLoadingAt = DateTime.utc(2026, 9, 18, 10);
+      final actualDeliveryAt = DateTime.utc(2026, 9, 18, 12);
+
+      final result = await useCase(
+        CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          scheduledLoadingAt: scheduledLoadingAt,
+          actualDeliveryAt: actualDeliveryAt,
+        ),
+      );
+
+      expect(result, isA<Success<TripEntity>>());
+      expect(repository.lastWriteData?.scheduledLoadingAt, scheduledLoadingAt);
+      expect(repository.lastWriteData?.scheduledDeliveryAt, isNull);
+      expect(repository.lastWriteData?.actualLoadingAt, isNull);
+      expect(repository.lastWriteData?.actualDeliveryAt, actualDeliveryAt);
+    });
+
+    test(
+      'does not compare actual timestamps against scheduled timestamps',
+      () async {
+        final repository = _FakeTripsRepository();
+        final useCase = CreateTripUseCase(repository);
+
+        final result = await useCase(
+          CreateTripParams(
+            currentCompanyContext: context,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            scheduledLoadingAt: DateTime.utc(2026, 9, 20, 10),
+            scheduledDeliveryAt: DateTime.utc(2026, 9, 20, 12),
+            actualLoadingAt: DateTime.utc(2026, 9, 18, 10),
+            actualDeliveryAt: DateTime.utc(2026, 9, 18, 12),
+          ),
+        );
+
+        expect(result, isA<Success<TripEntity>>());
+        expect(repository.lastWriteData, isNotNull);
+      },
+    );
+  });
+
   group('SaveTripUseCase legacy commercial history', () {
     test('preserves legacy amount when quantity remains unchanged', () async {
       final repository = _FakeTripsRepository(
@@ -178,7 +298,6 @@ class _FakeTripsRepository implements TripsRepository {
   @override
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
     lastWriteData = data;
@@ -190,7 +309,6 @@ class _FakeTripsRepository implements TripsRepository {
   Future<Result<TripEntity>> saveTrip({
     required String id,
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
     lastWriteData = data;
@@ -236,7 +354,6 @@ class _FakeTripsRepository implements TripsRepository {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
     String? notes,
   }) {

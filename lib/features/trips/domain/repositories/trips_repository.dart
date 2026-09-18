@@ -25,14 +25,12 @@ abstract class TripsRepository {
 
   Future<Result<TripEntity>> createTrip({
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<TripEntity>> saveTrip({
     required String id,
     required TripWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 
@@ -40,7 +38,6 @@ abstract class TripsRepository {
     required String companyId,
     required String id,
     required TripStatus newStatus,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
     String? notes,
   });

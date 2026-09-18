@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
@@ -26,6 +27,7 @@ import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/policies/trips_permission_policy.dart';
 import '../../domain/usecases/trips_usecases.dart';
+import '../models/trip_mutation_result.dart';
 import 'trips_state.dart';
 
 part 'trips_details_actions.dart';
@@ -64,6 +66,8 @@ class TripsCubit extends Cubit<TripsState>
   final VoidExpenseLedgerEntryUseCase voidExpenseLedgerEntryUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
+  int _companyRequestGeneration = 0;
+  int _detailsRequestGeneration = 0;
 
   TripsCubit({
     required this.getTripsUseCase,
@@ -86,19 +90,27 @@ class TripsCubit extends Cubit<TripsState>
   }) : super(const TripsInitial());
 
   Future<void> loadTrips(CurrentCompanyContext currentCompanyContext) async {
+    final requestGeneration = ++_companyRequestGeneration;
+    _detailsRequestGeneration++;
     _currentCompanyContext = currentCompanyContext;
+    final companyId = currentCompanyContext.companyId;
 
     final previous = state;
-    final searchQuery = previous is TripsLoaded ? previous.searchQuery : '';
-    final statusFilter = previous is TripsLoaded
-        ? previous.statusFilter
-        : TripStatusFilter.open;
+    final previousLoaded =
+        previous is TripsLoaded &&
+            previous.currentCompanyContext.companyId == companyId
+        ? previous
+        : null;
+    final searchQuery = previousLoaded?.searchQuery ?? '';
+    final statusFilter = previousLoaded?.statusFilter ?? TripStatusFilter.open;
 
     emit(const TripsLoading());
 
     final result = await getTripsUseCase(
       GetTripsParams(currentCompanyContext: currentCompanyContext),
     );
+    if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
+
     if (result is FailureResult<List<TripEntity>>) {
       emit(TripsFailure(result.failure));
       return;
@@ -109,6 +121,8 @@ class TripsCubit extends Cubit<TripsState>
       trips,
       currentCompanyContext,
     );
+    if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
+
     if (localTimestampsResult
         is FailureResult<Map<String, TripBusinessLocalTimestamps>>) {
       emit(TripsFailure(localTimestampsResult.failure));
@@ -180,6 +194,10 @@ class TripsCubit extends Cubit<TripsState>
     final trip = current is TripsLoaded ? current.selectedTrip : null;
     if (current is! TripsLoaded || trip == null) return;
 
+    final companyGeneration = _companyRequestGeneration;
+    final detailsGeneration = _detailsRequestGeneration;
+    final companyId = current.currentCompanyContext.companyId;
+
     final result = await calculateTripNetProfitUseCase(
       CalculateTripNetProfitParams(
         commercialAmount: trip.commercialAmount,
@@ -190,9 +208,16 @@ class TripsCubit extends Cubit<TripsState>
       ),
     );
 
-    final latest = state;
-    if (latest is! TripsLoaded || latest.selectedTrip?.id != trip.id) return;
+    if (!_isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
 
+    final latest = state as TripsLoaded;
     result.when(
       success: (summary) => emit(
         latest.copyWith(
@@ -210,6 +235,10 @@ class TripsCubit extends Cubit<TripsState>
     TripBusinessLocalTimestamps? businessLocalTimestamps,
   }) {
     _mapLoaded((state) {
+      if (state.currentCompanyContext.companyId != trip.companyId) {
+        return state;
+      }
+
       final localTimestamps = {...state.businessLocalTimestampsByTripId};
       if (businessLocalTimestamps != null) {
         localTimestamps[trip.id] = businessLocalTimestamps;
@@ -229,16 +258,65 @@ class TripsCubit extends Cubit<TripsState>
     return current is TripsLoaded && current.isStatusChanging(id);
   }
 
-  void _setTripStatusChanging(String id, bool isRunning) {
+  void _beginTripStatusChange(String id) {
     _mapLoaded((state) {
-      final ids = {...state.statusChangingTripIds};
-      if (isRunning) {
-        ids.add(id);
-      } else {
-        ids.remove(id);
-      }
-      return state.copyWith(statusChangingTripIds: ids);
+      final ids = {...state.statusChangingTripIds, id};
+      final failures = {...state.statusChangeFailuresByTripId}..remove(id);
+      return state.copyWith(
+        statusChangingTripIds: ids,
+        statusChangeFailuresByTripId: failures,
+      );
     });
+  }
+
+  void _finishTripStatusChange(String id, {Failure? failure}) {
+    _mapLoaded((state) {
+      final ids = {...state.statusChangingTripIds}..remove(id);
+      final failures = {...state.statusChangeFailuresByTripId};
+      if (failure == null) {
+        failures.remove(id);
+      } else {
+        failures[id] = failure;
+      }
+      return state.copyWith(
+        statusChangingTripIds: ids,
+        statusChangeFailuresByTripId: failures,
+      );
+    });
+  }
+
+  void _beginDetailsRequest() {
+    _detailsRequestGeneration++;
+  }
+
+  bool _isCurrentCompanyRequest(int generation, String companyId) {
+    return generation == _companyRequestGeneration &&
+        _currentCompanyContext?.companyId == companyId;
+  }
+
+  bool _isCurrentLoadedCompanyRequest(int generation, String companyId) {
+    if (!_isCurrentCompanyRequest(generation, companyId)) return false;
+    final current = state;
+    return current is TripsLoaded &&
+        current.currentCompanyContext.companyId == companyId;
+  }
+
+  bool _isCurrentDetailsRequest({
+    required int companyGeneration,
+    required int detailsGeneration,
+    required String companyId,
+    required String tripId,
+  }) {
+    if (companyGeneration != _companyRequestGeneration ||
+        detailsGeneration != _detailsRequestGeneration ||
+        _currentCompanyContext?.companyId != companyId) {
+      return false;
+    }
+
+    final current = state;
+    return current is TripsLoaded &&
+        current.currentCompanyContext.companyId == companyId &&
+        current.selectedTrip?.id == tripId;
   }
 
   void _mapLoaded(TripsLoaded Function(TripsLoaded state) mapper) {
