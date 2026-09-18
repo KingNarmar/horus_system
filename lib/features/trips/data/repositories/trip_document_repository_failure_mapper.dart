@@ -14,7 +14,8 @@ final class TripDocumentRepositoryFailureMapper {
         code: TripDocumentFailureCodes.permissionManage,
       ),
       TripDocumentDbErrorCodes.tripNotFound ||
-      TripDocumentDbErrorCodes.documentNotFound => const NotFoundFailure(
+      TripDocumentDbErrorCodes.documentNotFound ||
+      'PGRST116' => const NotFoundFailure(
         code: TripDocumentFailureCodes.notFound,
       ),
       TripDocumentDbErrorCodes.maxActiveDocuments => const ConflictFailure(
