@@ -358,6 +358,49 @@
   "fleetAuditActionDeactivated": "تم التعطيل",
   "fleetAuditActionReactivated": "تم التفعيل",
   "fleetAuditActionStatusChanged": "تم تغيير الحالة",
+  "fleetLicenseDocumentsTitle": "مستند الترخيص",
+  "fleetLicenseExpiryCurrent": "انتهاء الترخيص الحالي: {date}",
+  "@fleetLicenseExpiryCurrent": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentsLoading": "جاري تحميل مستند الترخيص...",
+  "fleetLicenseDocumentMissing": "لا يوجد مستند ترخيص نشط مرفوع.",
+  "fleetLicenseDocumentUploadButton": "رفع مستند الترخيص",
+  "fleetLicenseDocumentUploaded": "مستند الترخيص النشط",
+  "fleetLicenseDocumentOpenButton": "فتح",
+  "fleetLicenseDocumentDownloadButton": "تنزيل",
+  "fleetLicenseDocumentReplaceButton": "استبدال",
+  "fleetLicenseDocumentRemoveButton": "إزالة",
+  "fleetLicenseDocumentOpenFailed": "تعذر فتح مستند الترخيص.",
+  "fleetLicenseDocumentSaveDialogTitle": "حفظ مستند الترخيص",
+  "fleetLicenseDocumentDownloadFailed": "تعذر حفظ مستند الترخيص.",
+  "fleetLicenseDocumentRemoveTitle": "إزالة مستند الترخيص",
+  "fleetLicenseDocumentRemoveMessage": "هل تريد إزالة مستند الترخيص من سجل الأسطول النشط؟ سيظل تاريخ انتهاء الترخيص كما هو.",
+  "fleetLicenseExpiryUpdateTitle": "تاريخ انتهاء الترخيص",
+  "fleetLicenseExpiryUpdateMessage": "هل تريد الاحتفاظ بتاريخ الانتهاء الحالي أم تحديثه مع هذا المستند؟",
+  "fleetLicenseExpiryKeepCurrent": "الاحتفاظ بالحالي",
+  "fleetLicenseExpiryUpdateButton": "تحديث التاريخ",
+  "fleetLicenseDocumentsPermissionFailure": "هذا الدور غير مسموح له بالوصول إلى مستندات تراخيص الأسطول.",
+  "fleetLicenseDocumentActiveExistsFailure": "يوجد بالفعل مستند ترخيص نشط لهذا الأصل. استخدم الاستبدال بدلًا من ذلك.",
+  "fleetLicenseDocumentNotFoundFailure": "تعذر العثور على مستند ترخيص الأسطول.",
+  "fleetLicenseDocumentCleanupFailure": "تعذر تنظيف الملف الجديد بأمان بعد فشل الحفظ. تواصل مع المسؤول.",
+  "fleetLicenseDocumentStorageFailure": "فشلت عملية تخزين مستند الترخيص. حاول مرة أخرى.",
+  "fleetLicenseDocumentFileEmptyFailure": "الملف المحدد فارغ.",
+  "fleetLicenseDocumentFileNameInvalidFailure": "اسم الملف المحدد غير صالح.",
+  "fleetLicenseDocumentFileTypeUnsupportedFailure": "استخدم PDF أو JPG أو JPEG أو PNG أو WEBP أو HEIC أو HEIF.",
+  "fleetLicenseDocumentFileTooLargeFailure": "يجب ألا يزيد حجم الملف عن 10 ميجابايت.",
+  "fleetAuditLicenseDocumentUploaded": "تم رفع مستند الترخيص",
+  "fleetAuditLicenseDocumentReplaced": "تم استبدال مستند الترخيص",
+  "fleetAuditLicenseDocumentRemoved": "تمت إزالة مستند الترخيص",
+  "fleetLicenseDocumentFileNameField": "ملف مستند الترخيص",
+  "fleetLicenseDocumentMimeTypeField": "نوع مستند الترخيص",
+  "fleetLicenseDocumentSizeField": "حجم مستند الترخيص",
+  "fleetLicenseDocumentRemovedField": "إزالة مستند الترخيص",
+  "fleetLicenseDocumentRemovedValue": "تمت الإزالة",
   "driverFinanceTitle": "حركات السائق المالية",
   "driverBalancePlaceholderDescription": "الرصيد السالب يعني أن السائق مدين للشركة، والرصيد الموجب يعني أن الشركة مدينة للسائق.",
   "addDriverAdvanceButton": "إضافة سلفة",
@@ -826,5 +869,33 @@
   "failureCompanyMemberStatusChangeNotAllowed": "لا يمكنك تغيير حالة تفعيل هذا العضو.",
   "failureCompanyOwnershipCommandRequired": "يجب إدارة أدوار المالك من خلال إجراء الملكية المخصص.",
   "failureCompanyOwnershipTransferNotAllowed": "ليست لديك صلاحية لتغيير ملكية الشركة.",
-  "failureCompanyLastOwnerRequired": "يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل."
+  "failureCompanyLastOwnerRequired": "يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل.",
+  "fleetLicenseDocumentFrontSide": "الوجه الأمامي",
+  "fleetLicenseDocumentBackSide": "الوجه الخلفي",
+  "fleetLicenseDocumentCombinedSide": "ملف رخصة مجمع",
+  "fleetLicenseDocumentSideGuidance": "ارفع الوجه الأمامي والخلفي للرخصة كلٌ على حدة.",
+  "fleetLicenseDocumentMissingSide": "لم يتم رفع {side}.",
+  "@fleetLicenseDocumentMissingSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentUploadSide": "رفع {side}",
+  "@fleetLicenseDocumentUploadSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentFileSideConflictFailure": "يوجد ملف نشط بالفعل لهذا الجانب من الرخصة، أو أن الرخصة الحالية تستخدم ملفًا مجمعًا.",
+  "fleetLicenseDocumentFileNotFoundFailure": "تعذر العثور على ملف الرخصة.",
+  "fleetAuditLicenseDocumentFileAdded": "تمت إضافة ملف للرخصة",
+  "fleetAuditLicenseDocumentFileReplaced": "تم استبدال ملف الرخصة",
+  "fleetLicenseDocumentSideField": "جانب الرخصة",
+  "fleetLicenseDocumentFrontValue": "الوجه الأمامي",
+  "fleetLicenseDocumentBackValue": "الوجه الخلفي",
+  "fleetLicenseDocumentCombinedValue": "ملف مجمع"
 }

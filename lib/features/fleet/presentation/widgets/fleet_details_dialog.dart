@@ -14,6 +14,7 @@ import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_state.dart';
 import '../localization/fleet_localizations_x.dart';
+import 'fleet_license_documents_section.dart';
 
 class FleetDetailsDialog extends StatelessWidget {
   final String assetId;
@@ -25,6 +26,7 @@ class FleetDetailsDialog extends StatelessWidget {
   final String? notes;
   final String notesLabel;
   final FleetLoaded? state;
+  final Future<void> Function() onAssetChanged;
 
   const FleetDetailsDialog({
     required this.assetId,
@@ -35,6 +37,7 @@ class FleetDetailsDialog extends StatelessWidget {
     required this.notes,
     required this.notesLabel,
     required this.state,
+    required this.onAssetChanged,
     this.expectedFuelConsumption,
     super.key,
   });
@@ -105,6 +108,11 @@ class FleetDetailsDialog extends StatelessWidget {
                     value: isActive ? l10n.activeStatus : l10n.inactiveStatus,
                   ),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              FleetLicenseDocumentsSection(
+                currentLicenseExpiryDate: licenseExpiryDate,
+                onAssetChanged: onAssetChanged,
               ),
               const SizedBox(height: AppSpacing.md),
               _Section(
@@ -232,6 +240,11 @@ class _TimelineItem extends StatelessWidget {
       'notes',
       'technical_notes',
       'is_active',
+      'license_document_file_name',
+      'license_document_mime_type',
+      'license_document_size_bytes',
+      'license_document_side',
+      'license_document_removed',
     ];
     final changes = AuditChangeBuilder.buildChanges(
       log: log,
@@ -259,7 +272,7 @@ class _TimelineItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.fleetAuditActionLabel(log.action.value),
+                  l10n.fleetAuditEventLabel(log.description, log.action.value),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(

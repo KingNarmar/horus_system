@@ -1048,6 +1048,126 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fleetAuditActionStatusChanged => 'تم تغيير الحالة';
 
   @override
+  String get fleetLicenseDocumentsTitle => 'مستند الترخيص';
+
+  @override
+  String fleetLicenseExpiryCurrent(String date) {
+    return 'انتهاء الترخيص الحالي: $date';
+  }
+
+  @override
+  String get fleetLicenseDocumentsLoading => 'جاري تحميل مستند الترخيص...';
+
+  @override
+  String get fleetLicenseDocumentMissing => 'لا يوجد مستند ترخيص نشط مرفوع.';
+
+  @override
+  String get fleetLicenseDocumentUploadButton => 'رفع مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentUploaded => 'مستند الترخيص النشط';
+
+  @override
+  String get fleetLicenseDocumentOpenButton => 'فتح';
+
+  @override
+  String get fleetLicenseDocumentDownloadButton => 'تنزيل';
+
+  @override
+  String get fleetLicenseDocumentReplaceButton => 'استبدال';
+
+  @override
+  String get fleetLicenseDocumentRemoveButton => 'إزالة';
+
+  @override
+  String get fleetLicenseDocumentOpenFailed => 'تعذر فتح مستند الترخيص.';
+
+  @override
+  String get fleetLicenseDocumentSaveDialogTitle => 'حفظ مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentDownloadFailed => 'تعذر حفظ مستند الترخيص.';
+
+  @override
+  String get fleetLicenseDocumentRemoveTitle => 'إزالة مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentRemoveMessage =>
+      'هل تريد إزالة مستند الترخيص من سجل الأسطول النشط؟ سيظل تاريخ انتهاء الترخيص كما هو.';
+
+  @override
+  String get fleetLicenseExpiryUpdateTitle => 'تاريخ انتهاء الترخيص';
+
+  @override
+  String get fleetLicenseExpiryUpdateMessage =>
+      'هل تريد الاحتفاظ بتاريخ الانتهاء الحالي أم تحديثه مع هذا المستند؟';
+
+  @override
+  String get fleetLicenseExpiryKeepCurrent => 'الاحتفاظ بالحالي';
+
+  @override
+  String get fleetLicenseExpiryUpdateButton => 'تحديث التاريخ';
+
+  @override
+  String get fleetLicenseDocumentsPermissionFailure =>
+      'هذا الدور غير مسموح له بالوصول إلى مستندات تراخيص الأسطول.';
+
+  @override
+  String get fleetLicenseDocumentActiveExistsFailure =>
+      'يوجد بالفعل مستند ترخيص نشط لهذا الأصل. استخدم الاستبدال بدلًا من ذلك.';
+
+  @override
+  String get fleetLicenseDocumentNotFoundFailure =>
+      'تعذر العثور على مستند ترخيص الأسطول.';
+
+  @override
+  String get fleetLicenseDocumentCleanupFailure =>
+      'تعذر تنظيف الملف الجديد بأمان بعد فشل الحفظ. تواصل مع المسؤول.';
+
+  @override
+  String get fleetLicenseDocumentStorageFailure =>
+      'فشلت عملية تخزين مستند الترخيص. حاول مرة أخرى.';
+
+  @override
+  String get fleetLicenseDocumentFileEmptyFailure => 'الملف المحدد فارغ.';
+
+  @override
+  String get fleetLicenseDocumentFileNameInvalidFailure =>
+      'اسم الملف المحدد غير صالح.';
+
+  @override
+  String get fleetLicenseDocumentFileTypeUnsupportedFailure =>
+      'استخدم PDF أو JPG أو JPEG أو PNG أو WEBP أو HEIC أو HEIF.';
+
+  @override
+  String get fleetLicenseDocumentFileTooLargeFailure =>
+      'يجب ألا يزيد حجم الملف عن 10 ميجابايت.';
+
+  @override
+  String get fleetAuditLicenseDocumentUploaded => 'تم رفع مستند الترخيص';
+
+  @override
+  String get fleetAuditLicenseDocumentReplaced => 'تم استبدال مستند الترخيص';
+
+  @override
+  String get fleetAuditLicenseDocumentRemoved => 'تمت إزالة مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentFileNameField => 'ملف مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentMimeTypeField => 'نوع مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentSizeField => 'حجم مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentRemovedField => 'إزالة مستند الترخيص';
+
+  @override
+  String get fleetLicenseDocumentRemovedValue => 'تمت الإزالة';
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override
@@ -2483,4 +2603,53 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get failureCompanyLastOwnerRequired =>
       'يجب أن تحتفظ الشركة بمالك نشط واحد على الأقل.';
+
+  @override
+  String get fleetLicenseDocumentFrontSide => 'الوجه الأمامي';
+
+  @override
+  String get fleetLicenseDocumentBackSide => 'الوجه الخلفي';
+
+  @override
+  String get fleetLicenseDocumentCombinedSide => 'ملف رخصة مجمع';
+
+  @override
+  String get fleetLicenseDocumentSideGuidance =>
+      'ارفع الوجه الأمامي والخلفي للرخصة كلٌ على حدة.';
+
+  @override
+  String fleetLicenseDocumentMissingSide(String side) {
+    return 'لم يتم رفع $side.';
+  }
+
+  @override
+  String fleetLicenseDocumentUploadSide(String side) {
+    return 'رفع $side';
+  }
+
+  @override
+  String get fleetLicenseDocumentFileSideConflictFailure =>
+      'يوجد ملف نشط بالفعل لهذا الجانب من الرخصة، أو أن الرخصة الحالية تستخدم ملفًا مجمعًا.';
+
+  @override
+  String get fleetLicenseDocumentFileNotFoundFailure =>
+      'تعذر العثور على ملف الرخصة.';
+
+  @override
+  String get fleetAuditLicenseDocumentFileAdded => 'تمت إضافة ملف للرخصة';
+
+  @override
+  String get fleetAuditLicenseDocumentFileReplaced => 'تم استبدال ملف الرخصة';
+
+  @override
+  String get fleetLicenseDocumentSideField => 'جانب الرخصة';
+
+  @override
+  String get fleetLicenseDocumentFrontValue => 'الوجه الأمامي';
+
+  @override
+  String get fleetLicenseDocumentBackValue => 'الوجه الخلفي';
+
+  @override
+  String get fleetLicenseDocumentCombinedValue => 'ملف مجمع';
 }

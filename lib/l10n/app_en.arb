@@ -354,6 +354,49 @@
   "fleetAuditActionDeactivated": "Deactivated",
   "fleetAuditActionReactivated": "Reactivated",
   "fleetAuditActionStatusChanged": "Status changed",
+  "fleetLicenseDocumentsTitle": "License document",
+  "fleetLicenseExpiryCurrent": "Current license expiry: {date}",
+  "@fleetLicenseExpiryCurrent": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentsLoading": "Loading license document...",
+  "fleetLicenseDocumentMissing": "No active license document uploaded.",
+  "fleetLicenseDocumentUploadButton": "Upload license document",
+  "fleetLicenseDocumentUploaded": "Active license document",
+  "fleetLicenseDocumentOpenButton": "Open",
+  "fleetLicenseDocumentDownloadButton": "Download",
+  "fleetLicenseDocumentReplaceButton": "Replace",
+  "fleetLicenseDocumentRemoveButton": "Remove",
+  "fleetLicenseDocumentOpenFailed": "The license document could not be opened.",
+  "fleetLicenseDocumentSaveDialogTitle": "Save license document",
+  "fleetLicenseDocumentDownloadFailed": "The license document could not be saved.",
+  "fleetLicenseDocumentRemoveTitle": "Remove license document",
+  "fleetLicenseDocumentRemoveMessage": "Remove this license document from the active Fleet record? The license expiry date will remain unchanged.",
+  "fleetLicenseExpiryUpdateTitle": "License expiry date",
+  "fleetLicenseExpiryUpdateMessage": "Keep the current expiry date, or update it together with this document?",
+  "fleetLicenseExpiryKeepCurrent": "Keep current",
+  "fleetLicenseExpiryUpdateButton": "Update date",
+  "fleetLicenseDocumentsPermissionFailure": "This role is not allowed to access Fleet license documents.",
+  "fleetLicenseDocumentActiveExistsFailure": "This asset already has an active license document. Replace it instead.",
+  "fleetLicenseDocumentNotFoundFailure": "The Fleet license document could not be found.",
+  "fleetLicenseDocumentCleanupFailure": "The new file could not be safely cleaned up after a failed save. Contact an administrator.",
+  "fleetLicenseDocumentStorageFailure": "The license document storage operation failed. Try again.",
+  "fleetLicenseDocumentFileEmptyFailure": "The selected file is empty.",
+  "fleetLicenseDocumentFileNameInvalidFailure": "The selected file name is invalid.",
+  "fleetLicenseDocumentFileTypeUnsupportedFailure": "Use PDF, JPG, JPEG, PNG, WEBP, HEIC, or HEIF.",
+  "fleetLicenseDocumentFileTooLargeFailure": "The file must be 10 MB or smaller.",
+  "fleetAuditLicenseDocumentUploaded": "License document uploaded",
+  "fleetAuditLicenseDocumentReplaced": "License document replaced",
+  "fleetAuditLicenseDocumentRemoved": "License document removed",
+  "fleetLicenseDocumentFileNameField": "License document file",
+  "fleetLicenseDocumentMimeTypeField": "License document type",
+  "fleetLicenseDocumentSizeField": "License document size",
+  "fleetLicenseDocumentRemovedField": "License document removed",
+  "fleetLicenseDocumentRemovedValue": "Removed",
   "driverFinanceTitle": "Driver finance",
   "driverBalancePlaceholderDescription": "Negative balance means the driver owes the company. Positive balance means the company owes the driver.",
   "addDriverAdvanceButton": "Add advance",
@@ -822,5 +865,33 @@
   "failureCompanyMemberStatusChangeNotAllowed": "You cannot change this member's active status.",
   "failureCompanyOwnershipCommandRequired": "Owner roles must be managed through the dedicated ownership action.",
   "failureCompanyOwnershipTransferNotAllowed": "You do not have permission to change company ownership.",
-  "failureCompanyLastOwnerRequired": "The company must keep at least one active Owner."
+  "failureCompanyLastOwnerRequired": "The company must keep at least one active Owner.",
+  "fleetLicenseDocumentFrontSide": "Front",
+  "fleetLicenseDocumentBackSide": "Back",
+  "fleetLicenseDocumentCombinedSide": "Combined file",
+  "fleetLicenseDocumentSideGuidance": "Upload the front and back of the license separately.",
+  "fleetLicenseDocumentMissingSide": "{side} not uploaded.",
+  "@fleetLicenseDocumentMissingSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentUploadSide": "Upload {side}",
+  "@fleetLicenseDocumentUploadSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "fleetLicenseDocumentFileSideConflictFailure": "This license side already has an active file, or the current license uses a combined file.",
+  "fleetLicenseDocumentFileNotFoundFailure": "The license file could not be found.",
+  "fleetAuditLicenseDocumentFileAdded": "License file added",
+  "fleetAuditLicenseDocumentFileReplaced": "License file replaced",
+  "fleetLicenseDocumentSideField": "License side",
+  "fleetLicenseDocumentFrontValue": "Front",
+  "fleetLicenseDocumentBackValue": "Back",
+  "fleetLicenseDocumentCombinedValue": "Combined"
 }
