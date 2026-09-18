@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -40,6 +41,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DatePickerDialog), findsOneWidget);
+
+      final dialog = tester.widget<DatePickerDialog>(
+        find.byType(DatePickerDialog),
+      );
+      expect(dialog.firstDate.year, BusinessDate.minYear);
+      expect(dialog.lastDate.year, BusinessDate.maxYear);
     });
 
     testWidgets('date-time field can clear an existing value', (tester) async {

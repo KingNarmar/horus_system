@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 
 class TripBusinessDateTimeField extends StatelessWidget {
-  static const int _firstSupportedYear = 2000;
-  static const int _lastSupportedYear = 2100;
-
   final String label;
   final BusinessLocalDateTime? value;
   final ValueChanged<BusinessLocalDateTime?> onChanged;
@@ -33,8 +31,8 @@ class TripBusinessDateTimeField extends StatelessWidget {
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(_firstSupportedYear),
-      lastDate: DateTime(_lastSupportedYear, 12, 31),
+      firstDate: DateTime(BusinessDate.minYear),
+      lastDate: DateTime(BusinessDate.maxYear, 12, 31),
     );
     if (!context.mounted || selectedDate == null) return;
 

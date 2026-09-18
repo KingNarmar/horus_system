@@ -1,4 +1,7 @@
 final class BusinessDate implements Comparable<BusinessDate> {
+  static const int minYear = 1;
+  static const int maxYear = 9999;
+
   final int year;
   final int month;
   final int day;
@@ -49,8 +52,10 @@ final class BusinessDate implements Comparable<BusinessDate> {
     if (month < 12) {
       return BusinessDate._(year: year, month: month + 1, day: 1);
     }
-    if (year == 9999) {
-      throw StateError('Business date cannot advance beyond year 9999.');
+    if (year == maxYear) {
+      throw StateError(
+        'Business date cannot advance beyond year $maxYear.',
+      );
     }
     return BusinessDate._(year: year + 1, month: 1, day: 1);
   }
@@ -90,7 +95,11 @@ final class BusinessDate implements Comparable<BusinessDate> {
     required int month,
     required int day,
   }) {
-    if (year < 1 || year > 9999 || month < 1 || month > 12 || day < 1) {
+    if (year < minYear ||
+        year > maxYear ||
+        month < 1 ||
+        month > 12 ||
+        day < 1) {
       return false;
     }
     return day <= _daysInMonth(year: year, month: month);
