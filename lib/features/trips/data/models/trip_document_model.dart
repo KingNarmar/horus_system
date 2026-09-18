@@ -1,3 +1,4 @@
+import '../../../../core/data/constants/db_common_fields.dart';
 import '../../domain/entities/trip_document.dart';
 import '../../domain/entities/trip_document_kind.dart';
 import '../constants/trip_document_db_contract.dart';
@@ -35,8 +36,8 @@ final class TripDocumentModel {
 
   factory TripDocumentModel.fromMap(Map<String, dynamic> map) {
     return TripDocumentModel(
-      id: map['id'] as String,
-      companyId: map['company_id'] as String,
+      id: map[DbCommonFields.id] as String,
+      companyId: map[DbCommonFields.companyId] as String,
       tripId: map[TripDocumentDbFields.tripId] as String,
       kind: TripDocumentKindX.fromValue(
         map[TripDocumentDbFields.documentKind] as String,
