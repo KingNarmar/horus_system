@@ -17,6 +17,8 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
     FailureCodes.validationTripFreightRateInvalid ||
     FailureCodes.validationTripCommercialTermsIncomplete =>
       l10n.tripNumberInvalid,
+    FailureCodes.validationTripDeliveryBeforeLoading =>
+      l10n.tripDeliveryBeforeLoadingInvalid,
     FailureCodes.validationTripCommercialAmountOverflow =>
       l10n.failureUnexpectedError,
     TripFailureCodes.financialCurrencyMismatch =>

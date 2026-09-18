@@ -1,7 +1,7 @@
 part of 'trips_cubit.dart';
 
 mixin TripsMutationActions on Cubit<TripsState> {
-  Future<void> saveTrip({
+  Future<TripMutationResult> saveTrip({
     TripEntity? trip,
     required String customerId,
     required String routeId,
@@ -25,7 +25,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
         current is! TripsLoaded ||
         current.isTripSaving ||
         current.currentCompanyContext.companyId != context.companyId) {
-      return;
+      return const TripMutationIgnored();
     }
 
     final companyGeneration = owner._companyRequestGeneration;
@@ -44,7 +44,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
         );
 
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
-      return;
+      return const TripMutationIgnored();
     }
 
     if (timestampsResult is FailureResult<TripTimestampInstants>) {
@@ -54,7 +54,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
           tripSaveFailure: timestampsResult.failure,
         ),
       );
-      return;
+      return TripMutationFailed(timestampsResult.failure);
     }
     final timestamps = timestampsResult.dataOrNull!;
 
@@ -100,7 +100,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
           );
 
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
-      return;
+      return const TripMutationIgnored();
     }
 
     if (result is FailureResult<TripEntity>) {
@@ -110,7 +110,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
           tripSaveFailure: result.failure,
         ),
       );
-      return;
+      return TripMutationFailed(result.failure);
     }
 
     owner._upsertTrip(
@@ -125,9 +125,10 @@ mixin TripsMutationActions on Cubit<TripsState> {
     owner._mapLoaded(
       (state) => state.copyWith(isTripSaving: false, tripSaveFailure: null),
     );
+    return const TripMutationSucceeded();
   }
 
-  Future<void> updateTripStatus({
+  Future<TripMutationResult> updateTripStatus({
     required TripEntity trip,
     required TripStatus newStatus,
     String? notes,
@@ -139,7 +140,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
         current is! TripsLoaded ||
         current.currentCompanyContext.companyId != context.companyId ||
         owner._isTripStatusChanging(trip.id)) {
-      return;
+      return const TripMutationIgnored();
     }
 
     final companyGeneration = owner._companyRequestGeneration;
@@ -156,12 +157,12 @@ mixin TripsMutationActions on Cubit<TripsState> {
     );
 
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
-      return;
+      return const TripMutationIgnored();
     }
 
     if (result is FailureResult<TripEntity>) {
       owner._finishTripStatusChange(trip.id, failure: result.failure);
-      return;
+      return TripMutationFailed(result.failure);
     }
 
     final updatedTrip = (result as Success<TripEntity>).data;
@@ -173,5 +174,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
       await owner._loadSelectedTripStatusHistory(updatedTrip);
       await owner._loadSelectedTripActivity(updatedTrip);
     }
+
+    return const TripMutationSucceeded();
   }
 }

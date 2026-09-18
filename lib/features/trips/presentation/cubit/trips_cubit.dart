@@ -27,6 +27,7 @@ import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/policies/trips_permission_policy.dart';
 import '../../domain/usecases/trips_usecases.dart';
+import '../models/trip_mutation_result.dart';
 import 'trips_state.dart';
 
 part 'trips_details_actions.dart';

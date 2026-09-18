@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
+import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
+import '../models/trip_mutation_result.dart';
 
 class TripStatusUpdateDialog extends StatefulWidget {
   final TripEntity trip;
-  final Future<void> Function(TripStatus status, String? notes) onSubmit;
+  final Future<TripMutationResult> Function(
+    TripStatus status,
+    String? notes,
+  )
+  onSubmit;
 
   const TripStatusUpdateDialog({
     required this.trip,
@@ -24,6 +32,7 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
   final _notesController = TextEditingController();
   TripStatus? _selectedStatus;
   bool _isSubmitting = false;
+  Failure? _submitFailure;
 
   @override
   void initState() {
@@ -42,13 +51,27 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
     final status = _selectedStatus;
     if (status == null || _isSubmitting) return;
 
-    setState(() => _isSubmitting = true);
+    setState(() {
+      _isSubmitting = true;
+      _submitFailure = null;
+    });
 
-    await widget.onSubmit(status, _optional(_notesController.text));
+    final result = await widget.onSubmit(
+      status,
+      _optional(_notesController.text),
+    );
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (result is TripMutationSucceeded || result is TripMutationIgnored) {
       Navigator.of(context).pop();
+      return;
     }
+
+    setState(() {
+      _isSubmitting = false;
+      _submitFailure = (result as TripMutationFailed).failure;
+    });
   }
 
   @override
@@ -59,13 +82,22 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
     return AlertDialog(
       title: Text(l10n.tripUpdateStatusTitle(widget.trip.displayName)),
       content: SizedBox(
-        width: 420,
+        width: AppSizes.formDialogMaxWidth,
         child: nextStatuses.isEmpty
             ? Text(l10n.tripNoAvailableStatusActions)
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_submitFailure != null) ...[
+                    Text(
+                      tripsFailureMessage(context, _submitFailure!),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
                   Text(
                     l10n.tripCurrentStatusLine(
                       l10n.tripStatusLabel(widget.trip.status),
@@ -86,7 +118,10 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
                     }).toList(),
                     onChanged: _isSubmitting
                         ? null
-                        : (status) => setState(() => _selectedStatus = status),
+                        : (status) => setState(() {
+                            _selectedStatus = status;
+                            _submitFailure = null;
+                          }),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   TextField(
@@ -113,8 +148,10 @@ class _TripStatusUpdateDialogState extends State<TripStatusUpdateDialog> {
               : _submit,
           child: _isSubmitting
               ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  dimension: AppSizes.loadingIndicatorSm,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                  ),
                 )
               : Text(l10n.tripSaveButton),
         ),

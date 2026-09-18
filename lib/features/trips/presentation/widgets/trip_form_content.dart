@@ -34,6 +34,16 @@ extension _TripFormContent on _TripFormDialogState {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (_submitFailure != null) ...[
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  tripsFailureMessage(context, _submitFailure!),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
             _requiredDropdown(
               label: l10n.tripCustomerHeader,
               value: _validSelectedValue(_customerId, lookups.customers),
@@ -73,6 +83,7 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _loadingOrderController,
+              enabled: !_isSubmitting,
               decoration: InputDecoration(
                 labelText: l10n.tripLoadingOrderHeader,
                 border: const OutlineInputBorder(),
@@ -81,6 +92,7 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _waybillController,
+              enabled: !_isSubmitting,
               decoration: InputDecoration(
                 labelText: l10n.tripWaybillHeader,
                 border: const OutlineInputBorder(),
@@ -89,6 +101,7 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _quantityController,
+              enabled: !_isSubmitting,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -105,6 +118,7 @@ extension _TripFormContent on _TripFormDialogState {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _agreedFreightRateController,
+              enabled: !_isSubmitting,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -122,52 +136,49 @@ extension _TripFormContent on _TripFormDialogState {
               },
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _scheduledLoadingController,
-              decoration: InputDecoration(
-                labelText: l10n.tripScheduledLoadingAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
+            TripBusinessDateTimeField(
+              label: l10n.tripScheduledLoadingAtLabel,
+              value: _scheduledLoadingAt,
+              enabled: !_isSubmitting,
+              onChanged: (value) => setState(() {
+                _scheduledLoadingAt = value;
+                _submitFailure = null;
+              }),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _scheduledDeliveryController,
-              decoration: InputDecoration(
-                labelText: l10n.tripScheduledDeliveryAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
+            TripBusinessDateTimeField(
+              label: l10n.tripScheduledDeliveryAtLabel,
+              value: _scheduledDeliveryAt,
+              enabled: !_isSubmitting,
+              onChanged: (value) => setState(() {
+                _scheduledDeliveryAt = value;
+                _submitFailure = null;
+              }),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _actualLoadingController,
-              decoration: InputDecoration(
-                labelText: l10n.tripActualLoadingAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
+            TripBusinessDateTimeField(
+              label: l10n.tripActualLoadingAtLabel,
+              value: _actualLoadingAt,
+              enabled: !_isSubmitting,
+              onChanged: (value) => setState(() {
+                _actualLoadingAt = value;
+                _submitFailure = null;
+              }),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _actualDeliveryController,
-              decoration: InputDecoration(
-                labelText: l10n.tripActualDeliveryAtLabel,
-                helperText: l10n.tripDateTimeHelperText,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  _dateTimeValid(value ?? '') ? null : l10n.tripDateTimeInvalid,
+            TripBusinessDateTimeField(
+              label: l10n.tripActualDeliveryAtLabel,
+              value: _actualDeliveryAt,
+              enabled: !_isSubmitting,
+              onChanged: (value) => setState(() {
+                _actualDeliveryAt = value;
+                _submitFailure = null;
+              }),
             ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _notesController,
+              enabled: !_isSubmitting,
               minLines: 2,
               maxLines: 4,
               decoration: InputDecoration(
