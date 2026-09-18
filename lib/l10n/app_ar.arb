@@ -599,6 +599,9 @@
   "tripDocumentReplaceButton": "استبدال",
   "tripDocumentRemoveButton": "إزالة",
   "tripDocumentViewButton": "فتح",
+  "tripDocumentDownloadButton": "تنزيل",
+  "tripDocumentSaveDialogTitle": "حفظ مستند الرحلة",
+  "tripDocumentDownloadFailed": "تعذر حفظ المستند."
   "tripDocumentChooseKindTitle": "اختر نوع المستند",
   "tripDocumentChooseSourceTitle": "اختر المصدر",
   "tripDocumentChooseFile": "اختيار ملف",
