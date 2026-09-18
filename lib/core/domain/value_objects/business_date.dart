@@ -53,9 +53,7 @@ final class BusinessDate implements Comparable<BusinessDate> {
       return BusinessDate._(year: year, month: month + 1, day: 1);
     }
     if (year == maxYear) {
-      throw StateError(
-        'Business date cannot advance beyond year $maxYear.',
-      );
+      throw StateError('Business date cannot advance beyond year $maxYear.');
     }
     return BusinessDate._(year: year + 1, month: 1, day: 1);
   }
