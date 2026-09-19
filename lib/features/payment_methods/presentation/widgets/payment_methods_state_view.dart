@@ -106,6 +106,7 @@ class _Loaded extends StatelessWidget {
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
+    this.showLabels = false,
   });
 
   @override
@@ -254,29 +255,29 @@ class _MethodsCards extends StatelessWidget {
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              method.name,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(method.isActive ? l10n.active : l10n.inactive),
-                          ],
-                        ),
+                      Text(
+                        method.name,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      if (state.canManagePaymentMethods)
-                        _MethodActions(
-                          method: method,
-                          state: state,
-                          onEdit: onEdit,
-                          onDeactivate: onDeactivate,
-                          onReactivate: onReactivate,
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(method.isActive ? l10n.active : l10n.inactive),
+                      if (state.canManagePaymentMethods) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: _MethodActions(
+                            method: method,
+                            state: state,
+                            onEdit: onEdit,
+                            onDeactivate: onDeactivate,
+                            onReactivate: onReactivate,
+                            showLabels: true,
+                          ),
                         ),
+                      ],
                     ],
                   ),
                 ),
@@ -294,6 +295,7 @@ class _MethodActions extends StatelessWidget {
   final ValueChanged<PaymentMethod> onEdit;
   final ValueChanged<PaymentMethod> onDeactivate;
   final ValueChanged<PaymentMethod> onReactivate;
+  final bool showLabels;
 
   const _MethodActions({
     required this.method,
@@ -315,6 +317,31 @@ class _MethodActions extends StatelessWidget {
         child: CircularProgressIndicator(
           strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
         ),
+      );
+    }
+
+    if (showLabels) {
+      return Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.sm,
+        children: [
+          OutlinedButton.icon(
+            onPressed: state.isMutationPending ? null : () => onEdit(method),
+            icon: const Icon(AppIcons.edit),
+            label: Text(l10n.edit),
+          ),
+          OutlinedButton.icon(
+            onPressed: state.isMutationPending
+                ? null
+                : () => method.isActive
+                      ? onDeactivate(method)
+                      : onReactivate(method),
+            icon: Icon(
+              method.isActive ? AppIcons.deactivate : AppIcons.reactivate,
+            ),
+            label: Text(method.isActive ? l10n.deactivate : l10n.reactivate),
+          ),
+        ],
       );
     }
 

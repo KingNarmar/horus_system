@@ -286,7 +286,7 @@
   "routeNoActivityFound": "No activity yet.",
   "routeChanges": "Changes",
   "routeUnknownUser": "Unknown user",
-  "routeNotAvailable": "N/A",
+  "routeNotAvailable": "Not available",
   "routeAuditActionCreated": "Created",
   "routeAuditActionUpdated": "Updated",
   "routeAuditActionDeactivated": "Deactivated",
