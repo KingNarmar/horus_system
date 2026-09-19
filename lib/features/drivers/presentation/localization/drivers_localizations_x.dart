@@ -25,7 +25,7 @@ extension DriversLocalizationsX on AppLocalizations {
 
   String get noActivityFound => driverNoActivityFound;
 
-  String get emptyValue => '-';
+  String get emptyValue => driverNotAvailable;
 
   String get unknownUser => driverUnknownUser;
 

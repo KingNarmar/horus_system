@@ -45,16 +45,14 @@ class DriversTable extends StatelessWidget {
           child: DataTable(
             columns: [
               DataColumn(label: Text(l10n.driverNameLabel)),
+              DataColumn(label: Text(l10n.actionsHeader)),
               DataColumn(label: Text(l10n.phoneLabel)),
               DataColumn(label: Text(l10n.statusHeader)),
-              DataColumn(label: Text(l10n.actionsHeader)),
             ],
             rows: drivers.map((driver) {
               return DataRow(
                 cells: [
                   DataCell(Text(driver.fullName)),
-                  DataCell(Text(driver.phone ?? l10n.emptyValue)),
-                  DataCell(Text(l10n.driverStatusLabel(driver.status))),
                   DataCell(
                     _DriverActions(
                       driver: driver,
@@ -66,6 +64,8 @@ class DriversTable extends StatelessWidget {
                       onReactivate: onReactivate,
                     ),
                   ),
+                  DataCell(Text(driver.phone ?? l10n.emptyValue)),
+                  DataCell(Text(l10n.driverStatusLabel(driver.status))),
                 ],
               );
             }).toList(),

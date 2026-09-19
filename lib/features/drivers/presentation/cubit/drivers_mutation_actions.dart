@@ -16,6 +16,12 @@ mixin DriversMutationActions on Cubit<DriversState> {
       return const UnexpectedFailure();
     }
 
+    final businessDateResult = await owner.getCurrentBusinessDate();
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) return businessDateFailure;
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) return const UnexpectedFailure();
+
     final result = await owner.addDriverUseCase(
       AddDriverParams(
         currentCompanyContext: context,
@@ -26,6 +32,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
         licenseExpiryDate: licenseExpiryDate,
         imageUploads: imageUploads,
         notes: notes,
+        currentBusinessDate: currentBusinessDate,
       ),
     );
 
@@ -57,6 +64,12 @@ mixin DriversMutationActions on Cubit<DriversState> {
       return const UnexpectedFailure();
     }
 
+    final businessDateResult = await owner.getCurrentBusinessDate();
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) return businessDateFailure;
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) return const UnexpectedFailure();
+
     final result = await owner.updateDriverUseCase(
       UpdateDriverParams(
         currentCompanyContext: context,
@@ -68,6 +81,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
         licenseExpiryDate: licenseExpiryDate,
         imageUploads: imageUploads,
         notes: notes,
+        currentBusinessDate: currentBusinessDate,
       ),
     );
 
