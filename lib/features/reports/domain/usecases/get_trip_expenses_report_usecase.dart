@@ -64,9 +64,20 @@ final class GetTripExpensesReportUseCase
         if (ReportSourceIntegrity.hasInvalidCounter([
               source.precisionLossCount,
               source.negativeAmountCount,
-            ]) ||
-            source.precisionLossCount > 0 ||
-            source.negativeAmountCount > 0) {
+              source.currencyMismatchCount,
+            ])) {
+          return const FailureResult<TripExpensesReport>(
+            ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
+          );
+        }
+
+        if (source.currencyMismatchCount > 0) {
+          return const FailureResult<TripExpensesReport>(
+            ConflictFailure(code: ReportsFailureCodes.conflictCurrencyMismatch),
+          );
+        }
+
+        if (source.precisionLossCount > 0 || source.negativeAmountCount > 0) {
           return const FailureResult<TripExpensesReport>(
             ConflictFailure(
               code: ReportsFailureCodes.conflictFinancialDataInvalid,
