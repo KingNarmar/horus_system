@@ -84,10 +84,7 @@ class _CompanyEntryContent extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.companyEntrySubtitle,
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(l10n.companyEntrySubtitle, textAlign: TextAlign.center),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     l10n.createCompanyOptionDescription,

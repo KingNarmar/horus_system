@@ -113,9 +113,7 @@ class CompanyMembersView extends StatelessWidget {
                     children: [
                       _memberName(context, user),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        context.l10n.phoneLine(_phoneValue(context, user)),
-                      ),
+                      Text(context.l10n.phoneLine(_phoneValue(context, user))),
                       Text(
                         context.l10n.roleLine(
                           user.role.localizedLabel(context),

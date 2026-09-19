@@ -2945,7 +2945,7 @@ abstract class AppLocalizations {
   /// No description provided for @createCompanyOptionDescription.
   ///
   /// In en, this message translates to:
-  /// **'Set up a new workspace for your company's operations and settings.'**
+  /// **'Set up a new workspace for your company\'s operations and settings.'**
   String get createCompanyOptionDescription;
 
   /// No description provided for @joinCompanyOptionDescription.

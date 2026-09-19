@@ -53,10 +53,7 @@ Widget _app({required AuthUser user, Locale locale = const Locale('en')}) {
     home: Scaffold(
       body: SizedBox(
         width: 320,
-        child: AppShellIdentityContext(
-          user: user,
-          contextData: _context,
-        ),
+        child: AppShellIdentityContext(user: user, contextData: _context),
       ),
     ),
   );

@@ -125,11 +125,7 @@ class _CompanyInvitationAcceptancePageState
               return Scaffold(
                 appBar: AppBar(title: Text(context.l10n.invitationTitle)),
                 body: SafeArea(
-                  child: _buildBody(
-                    context,
-                    state,
-                    currentUser: currentUser,
-                  ),
+                  child: _buildBody(context, state, currentUser: currentUser),
                 ),
               );
             },
