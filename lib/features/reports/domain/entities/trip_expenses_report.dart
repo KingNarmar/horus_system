@@ -1,13 +1,14 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
 import 'report_source_metadata.dart';
 
 final class TripExpenseReportRow {
   final String expenseId;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String tripId;
   final String? tripNumber;
-  final DateTime tripDate;
+  final BusinessDate tripDate;
   final String customerId;
   final String customerName;
   final String loadingLocation;
