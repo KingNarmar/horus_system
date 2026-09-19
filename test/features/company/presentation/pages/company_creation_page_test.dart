@@ -25,22 +25,23 @@ import 'package:horus_system/features/company/presentation/pages/company_creatio
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('opens app shell only after authoritative company context matches', (
-    tester,
-  ) async {
-    final harness = await _pumpCreationPage(tester);
+  testWidgets(
+    'opens app shell only after authoritative company context matches',
+    (tester) async {
+      final harness = await _pumpCreationPage(tester);
 
-    await harness.onboardingCubit.createCompany(
-      name: _company.name,
-      businessTimezone: _company.businessTimezone!,
-    );
-    await tester.pumpAndSettle();
+      await harness.onboardingCubit.createCompany(
+        name: _company.name,
+        businessTimezone: _company.businessTimezone!,
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('app-shell-route'), findsOneWidget);
-    expect(harness.companyRepository.createCompanyCallCount, 1);
-    expect(harness.contextRepository.selectCompanyCallCount, 1);
-    expect(harness.contextRepository.lastSelectedCompanyId, _company.id);
-  });
+      expect(find.text('app-shell-route'), findsOneWidget);
+      expect(harness.companyRepository.createCompanyCallCount, 1);
+      expect(harness.contextRepository.selectCompanyCallCount, 1);
+      expect(harness.contextRepository.lastSelectedCompanyId, _company.id);
+    },
+  );
 
   testWidgets(
     'mismatched context stays outside workspace and retry does not recreate company',
@@ -91,8 +92,9 @@ Future<_CreationPageHarness> _pumpCreationPage(
       contextRepository,
     ),
     selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(contextRepository),
-    refreshSelectedCompanyContextUseCase:
-        RefreshSelectedCompanyContextUseCase(contextRepository),
+    refreshSelectedCompanyContextUseCase: RefreshSelectedCompanyContextUseCase(
+      contextRepository,
+    ),
     clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
       contextRepository,
     ),
