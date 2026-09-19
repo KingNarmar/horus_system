@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../app/routing/app_routes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
@@ -56,9 +58,10 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     final timezoneL10n = context.companyTimezoneL10n;
 
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
-      listener: (context, state) {
-        if (state is CompanyOnboardingLoaded) {
-          context.read<CurrentCompanyCubit>().loadCurrentCompanyContext();
+      listener: (context, state) async {
+        if (state is CompanyOnboardingCreated) {
+          await _openCreatedCompany(state.company.id);
+          return;
         }
 
         if (state is CompanyOnboardingFailure) {
@@ -75,7 +78,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
       },
       builder: (context, state) {
         if (state is CompanyOnboardingLoading ||
-            state is CompanyOnboardingInitial) {
+            state is CompanyOnboardingInitial ||
+            state is CompanyOnboardingCreated) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -108,6 +112,29 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         );
       },
     );
+  }
+
+  Future<void> _openCreatedCompany(String companyId) async {
+    final currentCompanyCubit = context.read<CurrentCompanyCubit>();
+    await currentCompanyCubit.refreshAndSelectCompany(companyId);
+    if (!mounted) return;
+
+    final currentCompanyState = currentCompanyCubit.state;
+    if (currentCompanyState is CurrentCompanyLoaded &&
+        currentCompanyState.context.companyId == companyId) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.appShell, (route) => false);
+      return;
+    }
+
+    final message = currentCompanyState is CurrentCompanyFailure
+        ? context.l10n.localizedErrorMessage(currentCompanyState.failure)
+        : context.l10n.currentCompanyContextRequired;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.root, (_) => false);
   }
 
   void _submit() {

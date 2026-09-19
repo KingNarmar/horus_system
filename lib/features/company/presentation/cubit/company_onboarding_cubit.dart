@@ -63,9 +63,7 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
     );
 
     result.when(
-      success: (company) => emit(
-        CompanyOnboardingLoaded(companies: [company], activeCompany: company),
-      ),
+      success: (company) => emit(CompanyOnboardingCreated(company)),
       failure: (failure) => emit(CompanyOnboardingFailure(failure)),
     );
   }
