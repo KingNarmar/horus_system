@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/result.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/expense_ledger_entry.dart';
 import '../../domain/entities/trip_entity.dart';
@@ -69,15 +71,32 @@ class TripExpensesSection extends StatelessWidget {
     BuildContext context, {
     required TripEntity trip,
     required TripsLoaded state,
-  }) {
+  }) async {
     final cubit = context.read<TripsCubit>();
+    final businessDateResult = await cubit.getCurrentBusinessDate();
+    if (!context.mounted) return;
 
-    return showDialog<void>(
+    if (businessDateResult is FailureResult<BusinessDate>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.l10n.localizedErrorMessage(businessDateResult.failure),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final initialExpenseDate =
+        (businessDateResult as Success<BusinessDate>).data;
+
+    await showDialog<void>(
       context: context,
       builder: (_) {
         return BlocProvider.value(
           value: cubit,
           child: TripExpenseFormDialog(
+            initialExpenseDate: initialExpenseDate,
             expenseTypes: state.selectableExpenseTypes,
             expenseTypesFailure: state.expenseTypesFailure,
             onSubmit: (data) {
