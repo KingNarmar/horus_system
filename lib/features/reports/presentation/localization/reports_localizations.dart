@@ -58,6 +58,7 @@ final class ReportsLocalizations {
     return switch (type) {
       ReportType.dailyTrips => _l10n.reportsTypeDailyTrips,
       ReportType.tripsByCustomer => _l10n.reportsTypeTripsByCustomer,
+      ReportType.tripsByRoute => _l10n.reportsTypeTripsByRoute,
       ReportType.tripsByDriver => _l10n.reportsTypeTripsByDriver,
       ReportType.tripsByTractorHead => _l10n.reportsTypeTripsByTractorHead,
       ReportType.tripsByTrailer => _l10n.reportsTypeTripsByTrailer,
