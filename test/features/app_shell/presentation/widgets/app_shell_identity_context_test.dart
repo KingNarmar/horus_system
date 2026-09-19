@@ -39,7 +39,7 @@ void main() {
   testWidgets('Arabic context renders RTL with localized role', (tester) async {
     await tester.pumpWidget(_app(user: _user, locale: const Locale('ar')));
 
-    final role = find.text('الدور: المالك');
+    final role = find.text('الدور: مالك الشركة');
     expect(role, findsOneWidget);
     expect(Directionality.of(tester.element(role)), TextDirection.rtl);
   });

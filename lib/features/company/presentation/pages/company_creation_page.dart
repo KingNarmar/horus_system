@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import '../../../../app/routing/app_routes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -34,6 +33,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   final _countryController = TextEditingController();
   final _cityController = TextEditingController();
   String? _selectedTimezone;
+  String? _contextSyncErrorMessage;
 
   @override
   void initState() {
@@ -77,6 +77,35 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         }
       },
       builder: (context, state) {
+        if (state is CompanyOnboardingCreated &&
+            _contextSyncErrorMessage != null) {
+          return Scaffold(
+            appBar: AppBar(title: Text(l10n.appTitle)),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _contextSyncErrorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() => _contextSyncErrorMessage = null);
+                        _openCreatedCompany(state.company.id);
+                      },
+                      child: Text(l10n.retryButton),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (state is CompanyOnboardingLoading ||
             state is CompanyOnboardingInitial ||
             state is CompanyOnboardingCreated) {
@@ -131,10 +160,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     final message = currentCompanyState is CurrentCompanyFailure
         ? context.l10n.localizedErrorMessage(currentCompanyState.failure)
         : context.l10n.currentCompanyContextRequired;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.root, (_) => false);
+    setState(() => _contextSyncErrorMessage = message);
   }
 
   void _submit() {

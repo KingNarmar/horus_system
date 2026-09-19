@@ -511,6 +511,13 @@
   "failureValidationCompanyExpenseAmountPositive": "Company expense amount must be greater than zero.",
   "failureValidationAuditEntityIdRequired": "Audit entity id is required.",
   "failureValidationAuditDescriptionRequired": "Audit description is required.",
+  "signedInAsLabel": "Signed in as",
+  "youLabel": "You",
+  "notProvidedLabel": "Not provided",
+  "companyEntryTitle": "Choose how to continue",
+  "companyEntrySubtitle": "Create a company workspace or join one using a company invitation.",
+  "createCompanyOptionDescription": "Set up a new workspace for your company's operations and settings.",
+  "joinCompanyOptionDescription": "Already invited to a company? Open the invitation or enter its code to join with this signed-in account.",
   "unknownUser": "Unknown User",
   "profileDetailsNotSetYet": "Profile details not set yet",
   "reportsTitle": "Reports",
@@ -893,13 +900,5 @@
   "fleetLicenseDocumentSideField": "License side",
   "fleetLicenseDocumentFrontValue": "Front",
   "fleetLicenseDocumentBackValue": "Back",
-  "fleetLicenseDocumentCombinedValue": "Combined",
-  "signedInAsLabel": "Signed in as",
-  "youLabel": "You",
-  "notProvidedLabel": "Not provided",
-  "companyEntryTitle": "Choose how to continue",
-  "companyEntrySubtitle": "Create a company workspace or join one using a company invitation.",
-  "createCompanyOptionDescription": "Set up a new workspace for your company's operations and settings.",
-  "joinCompanyOptionDescription": "Already invited to a company? Open the invitation or enter its code to join with this signed-in account."
-
+  "fleetLicenseDocumentCombinedValue": "Combined"
 }

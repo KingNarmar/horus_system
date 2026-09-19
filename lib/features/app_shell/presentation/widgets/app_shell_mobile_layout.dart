@@ -119,7 +119,7 @@ class AppShellMobileLayout extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
+      builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: AppShellIdentityContext(

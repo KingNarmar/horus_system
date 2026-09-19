@@ -105,7 +105,7 @@ class CompanyMembersView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(child: _avatarContent(context, user)),
+                CircleAvatar(child: _avatarContent(user)),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -264,7 +264,7 @@ class CompanyMembersView extends StatelessWidget {
     );
   }
 
-  Widget _avatarContent(BuildContext context, CompanyUser user) {
+  Widget _avatarContent(CompanyUser user) {
     final displayName = user.displayName?.trim();
     if (displayName == null || displayName.isEmpty) {
       return const Icon(AppIcons.user);
