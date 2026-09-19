@@ -108,6 +108,8 @@ Future<_CreationPageHarness> _pumpCreationPage(
   addTearDown(currentCompanyCubit.close);
   addTearDown(timezoneCubit.close);
 
+  await timezoneCubit.loadOptions();
+
   await tester.pumpWidget(
     MultiBlocProvider(
       providers: [
@@ -126,7 +128,8 @@ Future<_CreationPageHarness> _pumpCreationPage(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  await tester.pump();
+  await tester.pump();
 
   return _CreationPageHarness(
     onboardingCubit: onboardingCubit,
