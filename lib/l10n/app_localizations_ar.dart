@@ -1703,6 +1703,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsTypeTripsByCustomer => 'الرحلات حسب العميل';
 
   @override
+  String get reportsTypeTripsByRoute => 'الرحلات حسب المسار';
+
+  @override
   String get reportsTypeTripsByDriver => 'الرحلات حسب السائق';
 
   @override
