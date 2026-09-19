@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/features/dashboard/domain/entities/dashboard_summary.dart';
@@ -50,7 +51,7 @@ void main() {
 DashboardSummary _summary() {
   final currency = CurrencyCode.tryParse('AED')!;
   return DashboardSummary(
-    businessDate: DateTime(2026, 8, 12),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 12),
     baseCurrencyFractionDigits: 2,
     todayTrips: 0,
     runningTrips: 0,
