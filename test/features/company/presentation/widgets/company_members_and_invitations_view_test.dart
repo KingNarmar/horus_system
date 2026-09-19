@@ -108,6 +108,40 @@ void main() {
       expect(find.byIcon(AppIcons.moreActions), findsNothing);
     });
 
+    testWidgets(
+      'marks current member and uses semantic missing profile fallbacks',
+      (tester) async {
+        await _setSurface(tester, const Size(390, 844));
+        await tester.pumpWidget(
+          _localizedApp(
+            CompanyMembersView(
+              users: [
+                _user(
+                  role: CompanyRole.owner,
+                  userId: 'actor-user',
+                  displayName: null,
+                  phone: null,
+                ),
+              ],
+              currentCompanyContext: _context(CompanyRole.owner),
+              currentUserId: 'actor-user',
+              actionInProgress: false,
+              onChangeRole: (_) {},
+              onDeactivate: (_) {},
+              onReactivate: (_) {},
+              onGrantOwnership: (_) {},
+              onTransferOwnership: (_) {},
+            ),
+          ),
+        );
+
+        expect(find.text('Unknown User'), findsOneWidget);
+        expect(find.text('Phone: Not provided'), findsOneWidget);
+        expect(find.text('You'), findsOneWidget);
+        expect(find.byIcon(AppIcons.user), findsOneWidget);
+      },
+    );
+
     testWidgets('inactive lower-role member exposes reactivate to admin', (
       tester,
     ) async {
@@ -231,13 +265,19 @@ CurrentCompanyContext _context(CompanyRole role) {
   );
 }
 
-CompanyUser _user({required CompanyRole role, bool isActive = true}) {
+CompanyUser _user({
+  required CompanyRole role,
+  bool isActive = true,
+  String userId = 'member-user',
+  String? displayName = 'Member One',
+  String? phone = '+971500000000',
+}) {
   return CompanyUser(
     id: 'membership-1',
     companyId: 'company-1',
-    userId: 'member-user',
-    displayName: 'Member One',
-    phone: '+971500000000',
+    userId: userId,
+    displayName: displayName,
+    phone: phone,
     role: role,
     isActive: isActive,
   );

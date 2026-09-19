@@ -1540,6 +1540,30 @@ class AppLocalizationsAr extends AppLocalizations {
       'وصف سجل المراجعة مطلوب.';
 
   @override
+  String get signedInAsLabel => 'تم تسجيل الدخول باسم';
+
+  @override
+  String get youLabel => 'أنت';
+
+  @override
+  String get notProvidedLabel => 'غير مُدخل';
+
+  @override
+  String get companyEntryTitle => 'اختر كيف تريد المتابعة';
+
+  @override
+  String get companyEntrySubtitle =>
+      'أنشئ مساحة عمل لشركة جديدة أو انضم إلى شركة باستخدام دعوة.';
+
+  @override
+  String get createCompanyOptionDescription =>
+      'أنشئ مساحة عمل جديدة لإدارة عمليات شركتك وإعداداتها.';
+
+  @override
+  String get joinCompanyOptionDescription =>
+      'لديك دعوة بالفعل؟ افتح الدعوة أو أدخل رمزها للانضمام بهذا الحساب.';
+
+  @override
   String get unknownUser => 'مستخدم غير معروف';
 
   @override

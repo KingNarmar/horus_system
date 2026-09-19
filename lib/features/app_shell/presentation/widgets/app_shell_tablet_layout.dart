@@ -4,12 +4,14 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/widgets/app_language_toggle_button.dart';
+import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
 import 'app_shell_body.dart';
 
 class AppShellTabletLayout extends StatelessWidget {
   final CurrentCompanyContext contextData;
+  final AuthUser? currentUser;
   final AppShellDestination selected;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
@@ -17,6 +19,7 @@ class AppShellTabletLayout extends StatelessWidget {
 
   const AppShellTabletLayout({
     required this.contextData,
+    required this.currentUser,
     required this.selected,
     required this.selectedIndex,
     required this.onSelect,
@@ -62,7 +65,12 @@ class AppShellTabletLayout extends StatelessWidget {
             ),
             const VerticalDivider(width: 1),
             Expanded(
-              child: AppShellBody(contextData: contextData, selected: selected),
+              child: AppShellBody(
+                contextData: contextData,
+                currentUser: currentUser,
+                selected: selected,
+                showIdentityContext: true,
+              ),
             ),
           ],
         ),

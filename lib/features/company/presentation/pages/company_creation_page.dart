@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
@@ -11,6 +12,7 @@ import '../cubit/company_onboarding_state.dart';
 import '../cubit/company_timezone_cubit.dart';
 import '../cubit/company_timezone_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../cubit/current_company_state.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
 import '../widgets/company_logout_button.dart';
@@ -32,6 +34,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   final _countryController = TextEditingController();
   final _cityController = TextEditingController();
   String? _selectedTimezone;
+  String? _contextSyncErrorMessage;
 
   @override
   void initState() {
@@ -56,9 +59,10 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     final timezoneL10n = context.companyTimezoneL10n;
 
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
-      listener: (context, state) {
-        if (state is CompanyOnboardingLoaded) {
-          context.read<CurrentCompanyCubit>().loadCurrentCompanyContext();
+      listener: (context, state) async {
+        if (state is CompanyOnboardingCreated) {
+          await _openCreatedCompany(state.company.id);
+          return;
         }
 
         if (state is CompanyOnboardingFailure) {
@@ -74,8 +78,38 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         }
       },
       builder: (context, state) {
+        if (state is CompanyOnboardingCreated &&
+            _contextSyncErrorMessage != null) {
+          return Scaffold(
+            appBar: AppBar(title: Text(l10n.appTitle)),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _contextSyncErrorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    FilledButton(
+                      onPressed: () async {
+                        setState(() => _contextSyncErrorMessage = null);
+                        await _openCreatedCompany(state.company.id);
+                      },
+                      child: Text(l10n.retryButton),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (state is CompanyOnboardingLoading ||
-            state is CompanyOnboardingInitial) {
+            state is CompanyOnboardingInitial ||
+            state is CompanyOnboardingCreated) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -108,6 +142,26 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         );
       },
     );
+  }
+
+  Future<void> _openCreatedCompany(String companyId) async {
+    final currentCompanyCubit = context.read<CurrentCompanyCubit>();
+    await currentCompanyCubit.refreshAndSelectCompany(companyId);
+    if (!mounted) return;
+
+    final currentCompanyState = currentCompanyCubit.state;
+    if (currentCompanyState is CurrentCompanyLoaded &&
+        currentCompanyState.context.companyId == companyId) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.appShell, (route) => false);
+      return;
+    }
+
+    final message = currentCompanyState is CurrentCompanyFailure
+        ? context.l10n.localizedErrorMessage(currentCompanyState.failure)
+        : context.l10n.currentCompanyContextRequired;
+    setState(() => _contextSyncErrorMessage = message);
   }
 
   void _submit() {

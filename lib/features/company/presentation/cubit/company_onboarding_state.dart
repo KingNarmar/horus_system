@@ -27,6 +27,12 @@ class CompanyOnboardingLoaded extends CompanyOnboardingState {
   });
 }
 
+class CompanyOnboardingCreated extends CompanyOnboardingState {
+  final Company company;
+
+  const CompanyOnboardingCreated(this.company);
+}
+
 class CompanyOnboardingFailure extends CompanyOnboardingState {
   final Failure failure;
 

@@ -7,9 +7,11 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart'
     show AppLocalizationsX;
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
 import '../../domain/entities/company_invitation_preview.dart';
 import '../../domain/entities/company_invitation_status.dart';
 import '../cubit/company_invitation_acceptance_cubit.dart';
@@ -117,9 +119,14 @@ class _CompanyInvitationAcceptancePageState
                 return const LoginPage();
               }
 
+              final currentUser = authState is AuthAuthenticated
+                  ? authState.user
+                  : null;
               return Scaffold(
                 appBar: AppBar(title: Text(context.l10n.invitationTitle)),
-                body: SafeArea(child: _buildBody(context, state)),
+                body: SafeArea(
+                  child: _buildBody(context, state, currentUser: currentUser),
+                ),
               );
             },
           );
@@ -130,19 +137,30 @@ class _CompanyInvitationAcceptancePageState
 
   Widget _buildBody(
     BuildContext context,
-    CompanyInvitationAcceptanceState state,
-  ) {
+    CompanyInvitationAcceptanceState state, {
+    required AuthUser? currentUser,
+  }) {
     if (state is CompanyInvitationPreviewLoading ||
         state is CompanyInvitationAccepted) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state is CompanyInvitationPreviewReady) {
-      return _responsivePreview(context, state.preview, isAccepting: false);
+      return _responsivePreview(
+        context,
+        state.preview,
+        currentUser: currentUser,
+        isAccepting: false,
+      );
     }
 
     if (state is CompanyInvitationAccepting) {
-      return _responsivePreview(context, state.preview, isAccepting: true);
+      return _responsivePreview(
+        context,
+        state.preview,
+        currentUser: currentUser,
+        isAccepting: true,
+      );
     }
 
     if (state is CompanyInvitationAcceptanceFailure) {
@@ -174,6 +192,7 @@ class _CompanyInvitationAcceptancePageState
   Widget _responsivePreview(
     BuildContext context,
     CompanyInvitationPreview preview, {
+    required AuthUser? currentUser,
     required bool isAccepting,
   }) {
     final l10n = context.l10n;
@@ -200,6 +219,10 @@ class _CompanyInvitationAcceptancePageState
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: AppSpacing.lg),
+              if (currentUser != null) ...[
+                AuthUserIdentitySummary(user: currentUser),
+                const SizedBox(height: AppSpacing.lg),
+              ],
               Text(l10n.invitationCompanyLine(preview.companyName)),
               Text(l10n.invitationEmailLine(preview.email)),
               Text(

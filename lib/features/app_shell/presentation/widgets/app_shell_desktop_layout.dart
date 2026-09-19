@@ -6,14 +6,16 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/widgets/app_language_toggle_button.dart';
+import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../models/app_shell_destination.dart';
 import 'app_shell_body.dart';
+import 'app_shell_identity_context.dart';
 import 'app_shell_sidebar_nav.dart';
 
 class AppShellDesktopLayout extends StatelessWidget {
   final CurrentCompanyContext contextData;
+  final AuthUser? currentUser;
   final AppShellDestination selected;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
@@ -21,6 +23,7 @@ class AppShellDesktopLayout extends StatelessWidget {
 
   const AppShellDesktopLayout({
     required this.contextData,
+    required this.currentUser,
     required this.selected,
     required this.selectedIndex,
     required this.onSelect,
@@ -50,12 +53,10 @@ class AppShellDesktopLayout extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(contextData.company.name),
-                    Text(
-                      l10n.roleWithName(
-                        contextData.role.localizedLabel(context),
-                      ),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppShellIdentityContext(
+                      user: currentUser,
+                      contextData: contextData,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     const Align(
@@ -80,7 +81,11 @@ class AppShellDesktopLayout extends StatelessWidget {
             ),
             const VerticalDivider(width: 1),
             Expanded(
-              child: AppShellBody(contextData: contextData, selected: selected),
+              child: AppShellBody(
+                contextData: contextData,
+                currentUser: currentUser,
+                selected: selected,
+              ),
             ),
           ],
         ),

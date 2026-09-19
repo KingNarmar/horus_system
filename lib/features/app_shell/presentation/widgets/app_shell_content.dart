@@ -10,6 +10,9 @@ import '../../../../core/di/routes_dependencies.dart';
 import '../../../../core/di/trips_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
 import '../../../company/di/company_dependencies.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
@@ -248,6 +251,8 @@ class _SettingsCard extends StatelessWidget {
     final permissions = CompanyPermissionPolicy.permissionsFor(
       contextData.role,
     );
+    final authState = context.watch<AuthCubit>().state;
+    final currentUser = authState is AuthAuthenticated ? authState.user : null;
 
     return Card(
       child: Padding(
@@ -261,6 +266,8 @@ class _SettingsCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: AppSpacing.md),
+            AuthUserIdentitySummary(user: currentUser),
             const SizedBox(height: AppSpacing.md),
             Text(l10n.companyWithName(contextData.company.name)),
             Text(l10n.roleWithName(contextData.role.localizedLabel(context))),
