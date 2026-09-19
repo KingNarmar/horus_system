@@ -1,4 +1,5 @@
 import '../../features/audit/di/audit_dependencies.dart';
+import '../../features/company/di/company_dependencies.dart';
 import '../../features/expense_types/di/expense_types_dependencies.dart';
 import '../../features/expenses/di/expenses_dependencies.dart';
 import '../../features/trips/data/datasources/trip_documents_remote_data_source.dart';
@@ -11,6 +12,7 @@ import 'business_document_dependencies.dart';
 import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
 import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../usecases/get_company_business_date_usecase.dart';
 
 abstract final class TripsDependencies {
   static TripsCubit createTripsCubit() {
@@ -67,6 +69,9 @@ abstract final class TripsDependencies {
           const ConvertInstantsToBusinessLocalDateTimesUseCase(
             businessTimeZoneConverter,
           ),
+      getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+        CompanyDependencies.createBusinessDateProvider(),
+      ),
       getTripAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
       getTripExpenseLedgerEntriesUseCase:
           ExpensesDependencies.createGetTripExpenseLedgerEntriesUseCase(),
