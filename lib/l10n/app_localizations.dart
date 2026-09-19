@@ -194,6 +194,18 @@ abstract class AppLocalizations {
   /// **'Create, track, and update trips.'**
   String get appShellTripsDescription;
 
+  /// No description provided for @appShellFinanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get appShellFinanceLabel;
+
+  /// No description provided for @appShellFinanceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage driver finance, settlements, expenses, invoices, payments, and customer statements.'**
+  String get appShellFinanceDescription;
+
   /// No description provided for @appShellExpensesLabel.
   ///
   /// In en, this message translates to:

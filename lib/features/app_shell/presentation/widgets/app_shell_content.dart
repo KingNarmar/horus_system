@@ -21,19 +21,10 @@ import '../../../company/presentation/cubit/company_timezone_cubit.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../../../company/presentation/widgets/company_financial_settings_card.dart';
 import '../../../company/presentation/widgets/company_timezone_settings_card.dart';
-import '../../../company_expenses/di/company_expenses_dependencies.dart';
-import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
-import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
-import '../../../customer_statements/di/customer_statements_dependencies.dart';
-import '../../../customer_statements/presentation/cubit/customer_statements_cubit.dart';
-import '../../../customer_statements/presentation/pages/customer_statements_page.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../dashboard/di/dashboard_dependencies.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
-import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
-import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
-import '../../../driver_settlements/presentation/pages/driver_settlements_page.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../expense_types/di/expense_types_dependencies.dart';
 import '../../../expense_types/domain/policies/expense_types_permission_policy.dart';
@@ -42,15 +33,9 @@ import '../../../expense_types/presentation/pages/expense_types_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/cubit/fleet_license_documents_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
-import '../../../invoices/di/invoices_dependencies.dart';
-import '../../../invoices/presentation/cubit/invoices_cubit.dart';
-import '../../../invoices/presentation/pages/invoices_page.dart';
 import '../../../payment_methods/di/payment_methods_dependencies.dart';
 import '../../../payment_methods/presentation/cubit/payment_methods_cubit.dart';
 import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
-import '../../../payments/di/payments_dependencies.dart';
-import '../../../payments/presentation/cubit/payments_cubit.dart';
-import '../../../payments/presentation/pages/payments_page.dart';
 import '../../../reports/di/reports_dependencies.dart';
 import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
@@ -62,15 +47,21 @@ import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
 import '../models/app_shell_destination.dart';
+import '../models/finance_workspace_section.dart';
+import '../pages/finance_workspace_page.dart';
 import 'adaptive_access_notice.dart';
 
 class AppShellContent extends StatelessWidget {
   final CurrentCompanyContext contextData;
   final AppShellDestination selected;
+  final FinanceWorkspaceSection selectedFinanceSection;
+  final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
 
   const AppShellContent({
     required this.contextData,
     required this.selected,
+    required this.selectedFinanceSection,
+    required this.onFinanceSectionSelected,
     super.key,
   });
 
@@ -125,27 +116,11 @@ class AppShellContent extends StatelessWidget {
         create: (_) => TripsDependencies.createTripsCubit(),
         child: TripsPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.expenses => BlocProvider<CompanyExpensesCubit>(
-        create: (_) => CompanyExpensesDependencies.createCubit(),
-        child: CompanyExpensesPage(currentCompanyContext: contextData),
+      AppShellModule.finance => FinanceWorkspacePage(
+        currentCompanyContext: contextData,
+        selectedSection: selectedFinanceSection,
+        onSectionSelected: onFinanceSectionSelected,
       ),
-      AppShellModule.driverSettlements => BlocProvider<DriverSettlementsCubit>(
-        create: (_) => DriverSettlementsDependencies.createCubit(),
-        child: DriverSettlementsPage(currentCompanyContext: contextData),
-      ),
-      AppShellModule.invoices => BlocProvider<InvoicesCubit>(
-        create: (_) => InvoicesDependencies.createInvoicesCubit(),
-        child: InvoicesPage(currentCompanyContext: contextData),
-      ),
-      AppShellModule.payments => BlocProvider<PaymentsCubit>(
-        create: (_) => PaymentsDependencies.createPaymentsCubit(),
-        child: PaymentsPage(currentCompanyContext: contextData),
-      ),
-      AppShellModule.customerStatements =>
-        BlocProvider<CustomerStatementsCubit>(
-          create: (_) => CustomerStatementsDependencies.createCubit(),
-          child: CustomerStatementsPage(currentCompanyContext: contextData),
-        ),
       AppShellModule.reports => BlocProvider<ReportsCubit>(
         create: (_) => ReportsDependencies.createCubit(),
         child: ReportsPage(currentCompanyContext: contextData),

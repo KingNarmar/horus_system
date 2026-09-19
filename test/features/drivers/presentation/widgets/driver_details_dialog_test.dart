@@ -8,10 +8,6 @@ import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement.dart';
-import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_type.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_status.dart';
 import 'package:horus_system/features/drivers/presentation/cubit/drivers_state.dart';
@@ -28,7 +24,6 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text(_phone), findsOneWidget);
-      expect(find.text('السائق مدين للشركة: 5600.00'), findsOneWidget);
 
       final labelBottom = tester.getBottomLeft(find.text('الهاتف')).dy;
       final valueTop = tester.getTopLeft(find.text(_phone)).dy;
@@ -47,6 +42,14 @@ void main() {
       final valueTop = tester.getTopLeft(find.text(_phone)).dy;
       expect((labelTop - valueTop).abs(), lessThan(2));
     });
+  });
+
+  testWidgets('does not expose embedded Driver Finance actions', (
+    tester,
+  ) async {
+    await _pumpDialog(tester, locale: const Locale('en'));
+
+    expect(find.text('Driver finance'), findsNothing);
   });
 
   group('DriverDetailsDialog audit localization', () {
@@ -81,11 +84,11 @@ void main() {
           id: 'audit-2',
           companyId: _companyId,
           actorRole: 'owner',
-          actorDisplayName: 'Mina Aly',
+          actorDisplayName: 'Test Owner',
           module: AuditModule.drivers,
           entityType: AuditEntityType.driver,
           entityId: _driverId,
-          entityDisplayName: 'test driver2',
+          entityDisplayName: 'Test Driver',
           action: AuditAction.updated,
           description: 'driver_updated',
           oldValues: const {
@@ -120,9 +123,9 @@ void main() {
   });
 }
 
-const _companyId = 'company-1';
-const _driverId = 'driver-1';
-const _phone = '+21812181212';
+const _companyId = 'company-test';
+const _driverId = 'driver-test';
+const _phone = '+10000000000';
 
 const _companyContext = CurrentCompanyContext(
   company: Company(id: _companyId, name: 'Test Company'),
@@ -132,10 +135,10 @@ const _companyContext = CurrentCompanyContext(
 final _driver = Driver(
   id: _driverId,
   companyId: _companyId,
-  fullName: 'test driver2',
+  fullName: 'Test Driver',
   phone: _phone,
-  nationalId: '84514850',
-  licenseNumber: '181218451',
+  nationalId: 'TEST-NATIONAL-ID',
+  licenseNumber: 'TEST-LICENSE',
   licenseExpiryDate: BusinessDate(year: 2026, month: 6, day: 29),
   status: DriverStatus.active,
 );
@@ -148,7 +151,7 @@ final _auditLog = AuditLog(
   module: AuditModule.drivers,
   entityType: AuditEntityType.driver,
   entityId: _driverId,
-  entityDisplayName: 'test driver2',
+  entityDisplayName: 'Test Driver',
   action: AuditAction.statusChanged,
   description: 'driver_status_changed',
   oldValues: const {'is_active': false},
@@ -160,31 +163,8 @@ final _state = DriversLoaded(
   currentCompanyContext: _companyContext,
   allDrivers: [_driver],
   canManageDrivers: true,
-  canManageDriverFinance: true,
   selectedDriver: _driver,
   selectedDriverActivity: [_auditLog],
-  selectedDriverBalance: DriverBalance(
-    companyId: _companyId,
-    driverId: _driverId,
-    checkpoint: DriverBalanceCheckpoint(
-      settlementId: 'settlement-1',
-      periodEnd: BusinessDate(year: 2026, month: 8, day: 31),
-      snapshotCreatedAt: DateTime.utc(2026, 7, 15, 4, 59),
-      closingBalance: -5600,
-    ),
-    totalAdvances: 0,
-    totalDriverCharges: 0,
-  ),
-  selectedDriverFinancialMovements: [
-    DriverFinancialMovement(
-      id: 'movement-1',
-      companyId: _companyId,
-      driverId: _driverId,
-      type: DriverFinancialMovementType.advance,
-      amount: 5000,
-      movementDate: BusinessDate(year: 2026, month: 6, day: 29),
-    ),
-  ],
 );
 
 Future<void> _setSurfaceSize(WidgetTester tester, Size size) async {
@@ -211,9 +191,6 @@ Future<void> _pumpDialog(
           driver: _driver,
           state: state ?? _state,
           showCompensation: false,
-          onAddAdvance: () {},
-          onAddDriverCharge: () {},
-          onAddCashReturn: () {},
         ),
       ),
     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/app_shell/presentation/models/app_shell_destination.dart';
+import '../../features/app_shell/presentation/models/finance_workspace_section.dart';
 import '../../features/app_shell/presentation/pages/app_shell_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -54,28 +55,42 @@ abstract final class AppRouter {
         CompanyRequiredRouteGuard(
           builder: (currentCompanyContext) => AppShellPage(
             currentCompanyContext: currentCompanyContext,
-            initialModule: _moduleForRoute(routeName),
+            initialModule: moduleForRoute(routeName),
+            initialFinanceSection: financeSectionForRoute(routeName),
           ),
         ),
       _ => const AuthGate(),
     };
   }
 
-  static AppShellModule _moduleForRoute(String routeName) {
+  static AppShellModule moduleForRoute(String routeName) {
     return switch (routeName) {
       AppRoutes.customers => AppShellModule.customers,
       AppRoutes.drivers => AppShellModule.drivers,
       AppRoutes.fleet => AppShellModule.fleet,
       AppRoutes.routes => AppShellModule.routes,
       AppRoutes.trips => AppShellModule.trips,
-      AppRoutes.expenses => AppShellModule.expenses,
-      AppRoutes.driverSettlements => AppShellModule.driverSettlements,
-      AppRoutes.invoices => AppShellModule.invoices,
-      AppRoutes.payments => AppShellModule.payments,
-      AppRoutes.customerStatements => AppShellModule.customerStatements,
+      AppRoutes.finance ||
+      AppRoutes.expenses ||
+      AppRoutes.driverSettlements ||
+      AppRoutes.invoices ||
+      AppRoutes.payments ||
+      AppRoutes.customerStatements => AppShellModule.finance,
       AppRoutes.reports => AppShellModule.reports,
       AppRoutes.settings => AppShellModule.settings,
       _ => AppShellModule.dashboard,
+    };
+  }
+
+  static FinanceWorkspaceSection financeSectionForRoute(String routeName) {
+    return switch (routeName) {
+      AppRoutes.driverSettlements => FinanceWorkspaceSection.driverSettlements,
+      AppRoutes.expenses => FinanceWorkspaceSection.companyExpenses,
+      AppRoutes.invoices => FinanceWorkspaceSection.invoices,
+      AppRoutes.payments => FinanceWorkspaceSection.payments,
+      AppRoutes.customerStatements =>
+        FinanceWorkspaceSection.customerStatements,
+      _ => FinanceWorkspaceSection.driverFinance,
     };
   }
 }

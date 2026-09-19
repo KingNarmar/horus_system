@@ -7,22 +7,29 @@ import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
+import '../models/finance_workspace_section.dart';
 import 'app_shell_body.dart';
 
 class AppShellTabletLayout extends StatelessWidget {
   final CurrentCompanyContext contextData;
   final AuthUser? currentUser;
+  final List<AppShellDestination> destinations;
   final AppShellDestination selected;
   final int selectedIndex;
+  final FinanceWorkspaceSection selectedFinanceSection;
   final ValueChanged<int> onSelect;
+  final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
 
   const AppShellTabletLayout({
     required this.contextData,
     required this.currentUser,
+    required this.destinations,
     required this.selected,
     required this.selectedIndex,
+    required this.selectedFinanceSection,
     required this.onSelect,
+    required this.onFinanceSectionSelected,
     required this.onLogout,
     super.key,
   });
@@ -53,7 +60,7 @@ class AppShellTabletLayout extends StatelessWidget {
                   ),
                 ),
               ),
-              destinations: appShellDestinations
+              destinations: destinations
                   .map(
                     (item) => NavigationRailDestination(
                       icon: Icon(item.icon),
@@ -61,7 +68,7 @@ class AppShellTabletLayout extends StatelessWidget {
                       label: Text(item.label(context)),
                     ),
                   )
-                  .toList(),
+                  .toList(growable: false),
             ),
             const VerticalDivider(width: 1),
             Expanded(
@@ -69,6 +76,8 @@ class AppShellTabletLayout extends StatelessWidget {
                 contextData: contextData,
                 currentUser: currentUser,
                 selected: selected,
+                selectedFinanceSection: selectedFinanceSection,
+                onFinanceSectionSelected: onFinanceSectionSelected,
                 showIdentityContext: true,
               ),
             ),

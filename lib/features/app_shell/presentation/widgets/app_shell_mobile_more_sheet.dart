@@ -5,6 +5,7 @@ import '../models/app_shell_destination.dart';
 abstract final class AppShellMobileMoreSheet {
   static void show({
     required BuildContext context,
+    required List<AppShellDestination> destinations,
     required int selectedIndex,
     required ValueChanged<int> onSelect,
   }) {
@@ -14,9 +15,9 @@ abstract final class AppShellMobileMoreSheet {
       builder: (context) => SafeArea(
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: appShellDestinations.length,
+          itemCount: destinations.length,
           itemBuilder: (context, index) {
-            final item = appShellDestinations[index];
+            final item = destinations[index];
 
             return ListTile(
               selected: index == selectedIndex,

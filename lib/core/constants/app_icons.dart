@@ -29,6 +29,8 @@ abstract final class AppIcons {
   static const IconData email = Icons.email_outlined;
   static const IconData expenses = Icons.receipt_long_outlined;
   static const IconData expensesSelected = Icons.receipt_long;
+  static const IconData finance = Icons.account_balance_outlined;
+  static const IconData financeSelected = Icons.account_balance;
   static const IconData fleet = Icons.local_shipping_outlined;
   static const IconData fleetSelected = Icons.local_shipping;
   static const IconData invitationSent = Icons.mark_email_read_outlined;

@@ -4,10 +4,12 @@ import '../../../../core/theme/app_radius.dart';
 import '../models/app_shell_destination.dart';
 
 class AppShellSidebarNav extends StatelessWidget {
+  final List<AppShellDestination> destinations;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
 
   const AppShellSidebarNav({
+    required this.destinations,
     required this.selectedIndex,
     required this.onSelect,
     super.key,
@@ -16,9 +18,9 @@ class AppShellSidebarNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: appShellDestinations.length,
+      itemCount: destinations.length,
       itemBuilder: (context, index) {
-        final item = appShellDestinations[index];
+        final item = destinations[index];
 
         return ListTile(
           selected: selectedIndex == index,

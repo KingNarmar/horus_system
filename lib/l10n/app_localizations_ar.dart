@@ -63,6 +63,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'إنشاء الرحلات ومتابعتها وتحديث حالتها.';
 
   @override
+  String get appShellFinanceLabel => 'المالية';
+
+  @override
+  String get appShellFinanceDescription =>
+      'إدارة مالية السائقين والتسويات والمصروفات والفواتير والمدفوعات وكشوف حساب العملاء.';
+
+  @override
   String get appShellExpensesLabel => 'المصروفات';
 
   @override

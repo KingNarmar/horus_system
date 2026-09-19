@@ -1,4 +1,3 @@
-import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -28,26 +27,13 @@ import '../../features/company/presentation/cubit/company_users_cubit.dart';
 import '../../features/company/presentation/cubit/current_company_cubit.dart';
 import '../../features/customers/di/customers_dependencies.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
-import '../../features/driver_finance/di/driver_finance_dependencies.dart';
-import '../../features/driver_finance/domain/usecases/driver_finance_usecases.dart';
-import '../../features/drivers/data/datasources/driver_images_remote_data_source.dart';
-import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
-import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
 import '../../features/drivers/di/driver_compensation_dependencies.dart';
-import '../../features/drivers/domain/usecases/add_driver_usecase.dart';
-import '../../features/drivers/domain/usecases/deactivate_driver_usecase.dart';
-import '../../features/drivers/domain/usecases/get_driver_image_urls_usecase.dart';
-import '../../features/drivers/domain/usecases/get_drivers_usecase.dart';
-import '../../features/drivers/domain/usecases/reactivate_driver_usecase.dart';
-import '../../features/drivers/domain/usecases/update_driver_usecase.dart';
+import '../../features/drivers/di/drivers_dependencies.dart';
 import '../../features/drivers/presentation/cubit/driver_compensation_cubit.dart';
 import '../../features/drivers/presentation/cubit/drivers_cubit.dart';
 import '../context/current_company_provider.dart';
 import '../context/in_memory_current_company_provider.dart';
-import '../data/services/timezone_business_time_zone_converter.dart';
 import '../data/supabase/supabase_client_provider.dart';
-import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
-import '../usecases/get_company_business_date_usecase.dart';
 
 abstract final class AppDependencies {
   static final CurrentCompanyProvider _currentCompanyProvider =
@@ -132,52 +118,7 @@ abstract final class AppDependencies {
   }
 
   static DriversCubit createDriversCubit() {
-    final driversRemoteDataSource = SupabaseDriversRemoteDataSource(
-      SupabaseClientProvider.client,
-    );
-    final driversRepository = DriversRepositoryImpl(
-      remoteDataSource: driversRemoteDataSource,
-      imagesRemoteDataSource: SupabaseDriverImagesRemoteDataSource(
-        SupabaseClientProvider.client,
-      ),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
-    );
-    final driverFinanceRepository =
-        DriverFinanceDependencies.createRepository();
-    final getCompanyBusinessDateUseCase = GetCompanyBusinessDateUseCase(
-      CompanyDependencies.createBusinessDateProvider(),
-    );
-    const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
-
-    return DriversCubit(
-      getDriversUseCase: GetDriversUseCase(driversRepository),
-      getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(driversRepository),
-      addDriverUseCase: AddDriverUseCase(driversRepository),
-      updateDriverUseCase: UpdateDriverUseCase(driversRepository),
-      deactivateDriverUseCase: DeactivateDriverUseCase(driversRepository),
-      reactivateDriverUseCase: ReactivateDriverUseCase(driversRepository),
-      getEntityAuditLogsUseCase: AuditDependencies.getEntityAuditLogsUseCase,
-      convertInstantsToBusinessLocalDateTimesUseCase:
-          const ConvertInstantsToBusinessLocalDateTimesUseCase(
-            businessTimeZoneConverter,
-          ),
-      getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
-      getDriverMovementsUseCase: GetDriverMovementsUseCase(
-        driverFinanceRepository,
-      ),
-      getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(
-        driverFinanceRepository,
-      ),
-      addDriverAdvanceUseCase: AddDriverAdvanceUseCase(driverFinanceRepository),
-      addDriverChargeUseCase: AddDriverChargeUseCase(driverFinanceRepository),
-      addDriverCashReturnUseCase: AddDriverCashReturnUseCase(
-        driverFinanceRepository,
-      ),
-      getCurrentCanonicalDriverBalanceUseCase:
-          DriverFinanceDependencies.createGetCurrentCanonicalDriverBalanceUseCase(
-            getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
-          ),
-    );
+    return DriversDependencies.createCubit();
   }
 
   static DriverCompensationCubit createDriverCompensationCubit() {

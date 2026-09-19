@@ -13,9 +13,6 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
-import '../../../driver_finance/domain/entities/driver_finance_trip_option.dart';
-import '../../../driver_finance/domain/entities/driver_financial_movement.dart';
-import '../../../driver_finance/presentation/widgets/driver_finance_details_section.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_compensation_revision.dart';
 import '../cubit/driver_compensation_cubit.dart';
@@ -35,9 +32,6 @@ class DriverDetailsDialog extends StatelessWidget {
   final ValueChanged<DriverCompensationRevision>? onEndCompensationRevision;
   final ValueChanged<DriverCompensationRevision>? onAttachCompensationContract;
   final ValueChanged<DriverCompensationRevision>? onOpenCompensationContract;
-  final VoidCallback? onAddAdvance;
-  final VoidCallback? onAddDriverCharge;
-  final VoidCallback? onAddCashReturn;
 
   const DriverDetailsDialog({
     required this.driver,
@@ -47,9 +41,6 @@ class DriverDetailsDialog extends StatelessWidget {
     this.onEndCompensationRevision,
     this.onAttachCompensationContract,
     this.onOpenCompensationContract,
-    this.onAddAdvance,
-    this.onAddDriverCharge,
-    this.onAddCashReturn,
     super.key,
   });
 
@@ -64,12 +55,6 @@ class DriverDetailsDialog extends StatelessWidget {
         : const <AuditLog>[];
     final isLoading = isSelectedDriver && (state?.isActivityLoading ?? false);
     final failure = isSelectedDriver ? state?.activityFailure : null;
-    final movements = isSelectedDriver
-        ? state!.selectedDriverFinancialMovements
-        : const <DriverFinancialMovement>[];
-    final tripOptions = isSelectedDriver
-        ? state!.selectedDriverTripOptions
-        : const <DriverFinanceTripOption>[];
     final createdLog = _findOldestAction(activity, AuditAction.created.value);
     final latestLog = activity.isEmpty ? null : activity.first;
 
@@ -188,25 +173,6 @@ class DriverDetailsDialog extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: AppSpacing.md),
-              DriverFinanceDetailsSection(
-                movements: movements,
-                balance: isSelectedDriver ? state?.selectedDriverBalance : null,
-                tripOptions: tripOptions,
-                canManage: state?.canManageDriverFinance ?? false,
-                isLoading:
-                    isSelectedDriver &&
-                    (state?.isFinancialMovementsLoading ?? false),
-                isSaving:
-                    isSelectedDriver &&
-                    (state?.isSavingFinancialMovement ?? false),
-                failure: isSelectedDriver
-                    ? state?.financialMovementsFailure
-                    : null,
-                onAddAdvance: onAddAdvance,
-                onAddDriverCharge: onAddDriverCharge,
-                onAddCashReturn: onAddCashReturn,
-              ),
-              const SizedBox(height: AppSpacing.md),
               DriverDetailsSection(
                 title: l10n.accountability,
                 children: [
@@ -263,7 +229,7 @@ class DriverDetailsDialog extends StatelessWidget {
                       (log) => DriverActivityTimelineItem(
                         log: log,
                         createdAt: state?.activityTimestampFor(log.id),
-                        tripOptions: tripOptions,
+                        tripOptions: const [],
                       ),
                     ),
                 ],

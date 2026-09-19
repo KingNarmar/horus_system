@@ -16,6 +16,8 @@
   "appShellRoutesDescription": "Manage loading points, delivery points, and lanes.",
   "appShellTripsLabel": "Trips",
   "appShellTripsDescription": "Create, track, and update trips.",
+  "appShellFinanceLabel": "Finance",
+  "appShellFinanceDescription": "Manage driver finance, settlements, expenses, invoices, payments, and customer statements.",
   "appShellExpensesLabel": "Expenses",
   "appShellExpensesDescription": "Track trip costs, fees, and financial movements.",
   "appShellInvoicesLabel": "Invoices",

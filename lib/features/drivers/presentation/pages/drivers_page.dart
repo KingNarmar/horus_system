@@ -12,8 +12,6 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
-import '../../../driver_finance/presentation/widgets/driver_financial_movement_form_dialog.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_compensation_revision.dart';
 import '../../domain/entities/driver_status_filter.dart';
@@ -114,8 +112,6 @@ class _DriversPageState extends State<DriversPage> {
 
     driversCubit.loadDriverImageUrls(driver);
     driversCubit.loadDriverActivity(driver);
-    driversCubit.loadDriverFinancialMovements(driver);
-    driversCubit.loadDriverTripOptions(driver);
 
     if (canViewCompensation) {
       await compensationCubit.loadForDriver(
@@ -144,18 +140,6 @@ class _DriversPageState extends State<DriversPage> {
           onOpenCompensationContract: canViewCompensation
               ? _openCompensationContract
               : null,
-          onAddAdvance: () => _openFinancialMovementForm(
-            driver: driver,
-            movementType: DriverFinancialMovementType.advance,
-          ),
-          onAddDriverCharge: () => _openFinancialMovementForm(
-            driver: driver,
-            movementType: DriverFinancialMovementType.driverCharge,
-          ),
-          onAddCashReturn: () => _openFinancialMovementForm(
-            driver: driver,
-            movementType: DriverFinancialMovementType.cashReturn,
-          ),
         ),
       ),
     );
@@ -291,69 +275,6 @@ class _DriversPageState extends State<DriversPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.openDocumentFailed)));
     }
-  }
-
-  Future<void> _openFinancialMovementForm({
-    required Driver driver,
-    required DriverFinancialMovementType movementType,
-  }) async {
-    final cubit = context.read<DriversCubit>();
-    final initialMovementDate = await cubit
-        .getCurrentDriverFinanceBusinessDate();
-    if (!mounted || initialMovementDate == null) return;
-
-    await showDialog<void>(
-      context: context,
-      builder: (_) => BlocBuilder<DriversCubit, DriversState>(
-        builder: (context, state) {
-          final loaded = state is DriversLoaded ? state : null;
-          return DriverFinancialMovementFormDialog(
-            movementType: movementType,
-            initialMovementDate: initialMovementDate,
-            tripOptions: loaded?.selectedDriverTripOptions ?? const [],
-            isTripOptionsLoading: loaded?.isTripOptionsLoading ?? false,
-            tripOptionsFailure: loaded?.tripOptionsFailure,
-            onSubmit:
-                ({
-                  required String amount,
-                  required BusinessDate movementDate,
-                  String? tripId,
-                  String? notes,
-                }) async {
-                  final cubit = context.read<DriversCubit>();
-                  switch (movementType) {
-                    case DriverFinancialMovementType.advance:
-                      await cubit.addDriverAdvance(
-                        driver: driver,
-                        amount: amount,
-                        movementDate: movementDate,
-                        notes: notes,
-                      );
-                      break;
-                    case DriverFinancialMovementType.driverCharge:
-                      await cubit.addDriverCharge(
-                        driver: driver,
-                        amount: amount,
-                        movementDate: movementDate,
-                        tripId: tripId,
-                        notes: notes,
-                      );
-                      break;
-                    case DriverFinancialMovementType.cashReturn:
-                      await cubit.addDriverCashReturn(
-                        driver: driver,
-                        amount: amount,
-                        movementDate: movementDate,
-                        notes: notes,
-                      );
-                      break;
-                  }
-                  await cubit.loadDriverActivity(driver);
-                },
-          );
-        },
-      ),
-    );
   }
 
   @override

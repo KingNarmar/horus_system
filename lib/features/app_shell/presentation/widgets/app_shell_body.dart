@@ -4,6 +4,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
+import '../models/finance_workspace_section.dart';
 import 'app_shell_content.dart';
 import 'app_shell_identity_context.dart';
 
@@ -11,12 +12,16 @@ class AppShellBody extends StatelessWidget {
   final CurrentCompanyContext contextData;
   final AuthUser? currentUser;
   final AppShellDestination selected;
+  final FinanceWorkspaceSection selectedFinanceSection;
+  final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final bool showIdentityContext;
 
   const AppShellBody({
     required this.contextData,
     required this.currentUser,
     required this.selected,
+    required this.selectedFinanceSection,
+    required this.onFinanceSectionSelected,
     this.showIdentityContext = false,
     super.key,
   });
@@ -66,7 +71,12 @@ class AppShellBody extends StatelessWidget {
         ),
         const Divider(height: 1),
         Expanded(
-          child: AppShellContent(contextData: contextData, selected: selected),
+          child: AppShellContent(
+            contextData: contextData,
+            selected: selected,
+            selectedFinanceSection: selectedFinanceSection,
+            onFinanceSectionSelected: onFinanceSectionSelected,
+          ),
         ),
       ],
     );
