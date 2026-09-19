@@ -89,6 +89,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
       metadata: reportMetadata,
       precisionLossCount: precisionLossCount,
       negativeAmountCount: negativeAmountCount,
+      currencyMismatchCount: currencyMismatchCount,
       rows: rows
           .map((row) {
             return TripExpenseReportRow(
@@ -127,6 +128,7 @@ extension TripNetProfitReportSourceModelMapper
       negativeFreightCount: negativeFreightCount,
       expensePrecisionLossCount: expensePrecisionLossCount,
       negativeExpenseCount: negativeExpenseCount,
+      expenseCurrencyMismatchCount: expenseCurrencyMismatchCount,
       trips: trips
           .map((trip) {
             return TripNetProfitSourceTrip(
