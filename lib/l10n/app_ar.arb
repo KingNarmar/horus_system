@@ -568,6 +568,7 @@
   "reportsTotalOutstanding": "إجمالي المستحق",
   "reportsTypeDailyTrips": "الرحلات اليومية",
   "reportsTypeTripsByCustomer": "الرحلات حسب العميل",
+  "reportsTypeTripsByRoute": "الرحلات حسب المسار",
   "reportsTypeTripsByDriver": "الرحلات حسب السائق",
   "reportsTypeTripsByTractorHead": "الرحلات حسب رأس الجرار",
   "reportsTypeTripsByTrailer": "الرحلات حسب المقطورة",

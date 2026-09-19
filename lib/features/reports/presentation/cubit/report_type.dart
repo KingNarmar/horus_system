@@ -5,6 +5,7 @@ import '../../../company/domain/entities/company_role.dart';
 enum ReportType {
   dailyTrips,
   tripsByCustomer,
+  tripsByRoute,
   tripsByDriver,
   tripsByTractorHead,
   tripsByTrailer,
@@ -18,6 +19,7 @@ extension ReportTypeX on ReportType {
     return switch (this) {
       ReportType.dailyTrips ||
       ReportType.tripsByCustomer ||
+      ReportType.tripsByRoute ||
       ReportType.tripsByDriver ||
       ReportType.tripsByTractorHead ||
       ReportType.tripsByTrailer =>
@@ -33,6 +35,7 @@ extension ReportTypeX on ReportType {
     return switch (this) {
       ReportType.dailyTrips => OperationalReportDimension.day,
       ReportType.tripsByCustomer => OperationalReportDimension.customer,
+      ReportType.tripsByRoute => OperationalReportDimension.route,
       ReportType.tripsByDriver => OperationalReportDimension.driver,
       ReportType.tripsByTractorHead => OperationalReportDimension.tractorHead,
       ReportType.tripsByTrailer => OperationalReportDimension.trailer,

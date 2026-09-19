@@ -1,20 +1,12 @@
+import '../../../../core/domain/value_objects/business_date.dart';
+
 final class ReportDateRange {
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const ReportDateRange({this.fromDate, this.toDate});
 
-  static DateTime? dateOnly(DateTime? value) {
-    if (value == null) return null;
-    return DateTime(value.year, value.month, value.day);
-  }
-
-  ReportDateRange normalized() {
-    return ReportDateRange(
-      fromDate: dateOnly(fromDate),
-      toDate: dateOnly(toDate),
-    );
-  }
+  ReportDateRange normalized() => this;
 
   bool get isInvalid =>
       fromDate != null && toDate != null && fromDate!.isAfter(toDate!);

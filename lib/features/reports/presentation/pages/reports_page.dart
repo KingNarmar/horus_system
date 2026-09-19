@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/report_date_range.dart';
 import '../cubit/report_type.dart';
@@ -27,8 +29,8 @@ final class ReportsPage extends StatefulWidget {
 }
 
 final class _ReportsPageState extends State<ReportsPage> {
-  DateTime? _fromDate;
-  DateTime? _toDate;
+  BusinessDate? _fromDate;
+  BusinessDate? _toDate;
   late ReportType _reportType;
 
   List<ReportType> get _availableReports => ReportType.values
@@ -149,18 +151,22 @@ final class _ReportsPageState extends State<ReportsPage> {
       now.year + ReportsPresentationConstants.futureSelectableYears,
     );
     final current = isFrom ? _fromDate : _toDate;
+    final initialDate = current == null
+        ? now
+        : BusinessDateDateTimeAdapter.toDateTime(current);
     final selected = await showDatePicker(
       context: context,
-      initialDate: current ?? now,
+      initialDate: initialDate,
       firstDate: firstDate,
       lastDate: lastDate,
     );
     if (selected == null || !mounted) return;
+    final businessDate = BusinessDateDateTimeAdapter.fromDateTime(selected);
     setState(() {
       if (isFrom) {
-        _fromDate = selected;
+        _fromDate = businessDate;
       } else {
-        _toDate = selected;
+        _toDate = businessDate;
       }
     });
   }

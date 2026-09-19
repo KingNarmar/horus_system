@@ -111,6 +111,7 @@ final class ReportsCubit extends Cubit<ReportsState> {
       ),
       ReportType.dailyTrips ||
       ReportType.tripsByCustomer ||
+      ReportType.tripsByRoute ||
       ReportType.tripsByDriver ||
       ReportType.tripsByTractorHead ||
       ReportType.tripsByTrailer => throw StateError('Handled above.'),

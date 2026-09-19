@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../entities/operational_trip_report.dart';
 
 final class OperationalReportAggregator {
@@ -14,6 +15,7 @@ final class OperationalReportAggregator {
         idOf: (row) => row.customerId,
         labelOf: (row) => row.customerName,
       ),
+      OperationalReportDimension.route => _groupByRoute(rows),
       OperationalReportDimension.driver => _groupByEntity(
         rows,
         idOf: (row) => row.driverId,
@@ -35,14 +37,9 @@ final class OperationalReportAggregator {
   List<OperationalTripReportGroup> _groupByDay(
     List<OperationalTripReportRow> rows,
   ) {
-    final grouped = <DateTime, List<OperationalTripReportRow>>{};
+    final grouped = <BusinessDate, List<OperationalTripReportRow>>{};
     for (final row in rows) {
-      final date = DateTime(
-        row.operationalDate.year,
-        row.operationalDate.month,
-        row.operationalDate.day,
-      );
-      (grouped[date] ??= <OperationalTripReportRow>[]).add(row);
+      (grouped[row.operationalDate] ??= <OperationalTripReportRow>[]).add(row);
     }
 
     final dates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
@@ -56,6 +53,46 @@ final class OperationalReportAggregator {
         ),
       ),
     );
+  }
+
+  List<OperationalTripReportGroup> _groupByRoute(
+    List<OperationalTripReportRow> rows,
+  ) {
+    final grouped = <String, List<OperationalTripReportRow>>{};
+    final unassigned = <OperationalTripReportRow>[];
+
+    for (final row in rows) {
+      final routeId = row.routeId.trim();
+      if (routeId.isEmpty) {
+        unassigned.add(row);
+        continue;
+      }
+      (grouped[routeId] ??= <OperationalTripReportRow>[]).add(row);
+    }
+
+    final routeIds = grouped.keys.toList()..sort();
+    final result = <OperationalTripReportGroup>[
+      ...routeIds.map(
+        (routeId) => OperationalTripReportGroup(
+          date: null,
+          entityId: routeId,
+          entityLabel: null,
+          rows: grouped[routeId]!,
+        ),
+      ),
+    ];
+
+    if (unassigned.isNotEmpty) {
+      result.add(
+        OperationalTripReportGroup(
+          date: null,
+          entityId: null,
+          entityLabel: null,
+          rows: unassigned,
+        ),
+      );
+    }
+    return List.unmodifiable(result);
   }
 
   List<OperationalTripReportGroup> _groupByEntity(

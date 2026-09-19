@@ -1,7 +1,8 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 
 final class DashboardSummary {
-  final DateTime businessDate;
+  final BusinessDate businessDate;
   final int baseCurrencyFractionDigits;
 
   final int todayTrips;

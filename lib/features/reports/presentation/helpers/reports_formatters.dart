@@ -1,10 +1,14 @@
 import 'package:intl/intl.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../core/localization/money_formatter.dart';
 
-String formatReportDate(DateTime date, String localeName) {
-  return DateFormat.yMMMd(localeName).format(date);
+String formatReportDate(BusinessDate date, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
 String formatReportMoney({
@@ -36,6 +40,18 @@ String reportTripDisplayValue({
     if (normalized != null) return normalized;
   }
 
+  return reportRouteDisplayValue(
+    loadingLocation: loadingLocation,
+    unloadingLocation: unloadingLocation,
+    emptyValue: emptyValue,
+  );
+}
+
+String reportRouteDisplayValue({
+  required String loadingLocation,
+  required String unloadingLocation,
+  required String emptyValue,
+}) {
   final loading = _normalizedText(loadingLocation);
   final unloading = _normalizedText(unloadingLocation);
   if (loading != null && unloading != null) return '$loading → $unloading';

@@ -111,7 +111,11 @@ final class _GroupedTripsTable extends StatelessWidget {
               .map(
                 (group) => DataRow(
                   cells: [
-                    DataCell(Text(group.entityLabel ?? strings.unassigned)),
+                    DataCell(
+                      Text(
+                        _groupDisplayLabel(strings, report.dimension, group),
+                      ),
+                    ),
                     DataCell(Text(group.tripCount.toString())),
                   ],
                 ),
@@ -144,13 +148,16 @@ final class _GroupedTripsCards extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        group.entityLabel ?? strings.unassigned,
+                        _groupDisplayLabel(strings, report.dimension, group),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      _Line(label, group.entityLabel ?? strings.unassigned),
+                      _Line(
+                        label,
+                        _groupDisplayLabel(strings, report.dimension, group),
+                      ),
                       _Line(strings.tripsCount, group.tripCount.toString()),
                     ],
                   ),
@@ -211,7 +218,13 @@ final class _DailyTripsTable extends StatelessWidget {
                   ),
                   DataCell(Text(row.trailerPlateNumber ?? strings.unassigned)),
                   DataCell(
-                    Text('${row.loadingLocation} → ${row.unloadingLocation}'),
+                    Text(
+                      reportRouteDisplayValue(
+                        loadingLocation: row.loadingLocation,
+                        unloadingLocation: row.unloadingLocation,
+                        emptyValue: strings.notAvailable,
+                      ),
+                    ),
                   ),
                   DataCell(Text(context.l10n.tripStatusLabel(row.status))),
                 ],
@@ -276,7 +289,11 @@ final class _DailyTripsCards extends StatelessWidget {
                       ),
                       _Line(
                         strings.route,
-                        '${row.loadingLocation} → ${row.unloadingLocation}',
+                        reportRouteDisplayValue(
+                          loadingLocation: row.loadingLocation,
+                          unloadingLocation: row.unloadingLocation,
+                          emptyValue: strings.notAvailable,
+                        ),
                       ),
                       _Line(
                         strings.status,
@@ -293,6 +310,26 @@ final class _DailyTripsCards extends StatelessWidget {
   }
 }
 
+String _groupDisplayLabel(
+  ReportsLocalizations strings,
+  OperationalReportDimension dimension,
+  OperationalTripReportGroup group,
+) {
+  final entityLabel = group.entityLabel?.trim();
+  if (entityLabel != null && entityLabel.isNotEmpty) return entityLabel;
+
+  if (dimension == OperationalReportDimension.route && group.rows.isNotEmpty) {
+    final row = group.rows.first;
+    return reportRouteDisplayValue(
+      loadingLocation: row.loadingLocation,
+      unloadingLocation: row.unloadingLocation,
+      emptyValue: strings.notAvailable,
+    );
+  }
+
+  return strings.unassigned;
+}
+
 String _dimensionLabel(
   ReportsLocalizations strings,
   OperationalReportDimension dimension,
@@ -300,6 +337,7 @@ String _dimensionLabel(
   return switch (dimension) {
     OperationalReportDimension.day => strings.date,
     OperationalReportDimension.customer => strings.customer,
+    OperationalReportDimension.route => strings.route,
     OperationalReportDimension.driver => strings.driver,
     OperationalReportDimension.tractorHead => strings.tractorHead,
     OperationalReportDimension.trailer => strings.trailer,

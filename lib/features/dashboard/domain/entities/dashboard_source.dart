@@ -1,10 +1,11 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 
 final class DashboardSource {
   final String companyId;
   final int baseCurrencyFractionDigits;
   final String businessTimezone;
-  final DateTime businessDate;
+  final BusinessDate businessDate;
 
   final int todayTrips;
   final int runningTrips;

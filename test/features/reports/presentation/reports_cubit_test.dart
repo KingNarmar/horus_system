@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -35,6 +36,22 @@ void main() {
     expect(content.report.dimension, OperationalReportDimension.driver);
     expect(repository.operationalCalls, 1);
   });
+
+  test('maps trips-by-route to the route operational dimension', () async {
+    final repository = _EmptyReportsRepository();
+    final cubit = _cubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.load(
+      currentCompanyContext: _context,
+      reportType: ReportType.tripsByRoute,
+    );
+
+    final loaded = cubit.state as ReportsLoaded;
+    expect(loaded.reportType, ReportType.tripsByRoute);
+    final content = loaded.content as OperationalReportsContent;
+    expect(content.report.dimension, OperationalReportDimension.route);
+  });
 }
 
 ReportsCubit _cubit(ReportsRepository repository) {
@@ -59,11 +76,14 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.owner,
 );
 
-OperationalReportSourceMetadata _metadata(DateTime? from, DateTime? to) {
+OperationalReportSourceMetadata _metadata(
+  BusinessDate? from,
+  BusinessDate? to,
+) {
   return OperationalReportSourceMetadata(
     companyId: 'company-1',
     businessTimezone: 'Asia/Dubai',
-    businessDate: DateTime(2026, 8, 13),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 13),
     fromDate: from,
     toDate: to,
   );
@@ -75,8 +95,8 @@ final class _EmptyReportsRepository implements ReportsRepository {
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     operationalCalls++;
     return Success(
@@ -90,21 +110,21 @@ final class _EmptyReportsRepository implements ReportsRepository {
   @override
   Future<Result<TripExpensesReportSource>> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async => throw StateError('Unexpected call.');
 
   @override
   Future<Result<TripNetProfitReportSource>> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async => throw StateError('Unexpected call.');
 
   @override
   Future<Result<OpenInvoicesReportSource>> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async => throw StateError('Unexpected call.');
 }

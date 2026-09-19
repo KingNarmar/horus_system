@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -56,7 +57,7 @@ final class _FakeDashboardRepository implements DashboardRepository {
         companyId: companyId,
         baseCurrencyFractionDigits: 2,
         businessTimezone: 'Asia/Dubai',
-        businessDate: DateTime(2026, 8, 12),
+        businessDate: BusinessDate(year: 2026, month: 8, day: 12),
         todayTrips: 0,
         runningTrips: 0,
         deliveredTrips: 3,

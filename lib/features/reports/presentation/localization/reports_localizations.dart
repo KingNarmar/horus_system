@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../cubit/report_type.dart';
 
@@ -58,6 +58,7 @@ final class ReportsLocalizations {
     return switch (type) {
       ReportType.dailyTrips => _l10n.reportsTypeDailyTrips,
       ReportType.tripsByCustomer => _l10n.reportsTypeTripsByCustomer,
+      ReportType.tripsByRoute => _l10n.reportsTypeTripsByRoute,
       ReportType.tripsByDriver => _l10n.reportsTypeTripsByDriver,
       ReportType.tripsByTractorHead => _l10n.reportsTypeTripsByTractorHead,
       ReportType.tripsByTrailer => _l10n.reportsTypeTripsByTrailer,
@@ -73,13 +74,13 @@ final class ReportsLocalizations {
     return _l10n.reportsDateRange(from, to);
   }
 
-  String paidByLabel(TripExpensePaidBy value) {
+  String fundingSourceLabel(ExpenseFundingSource value) {
     return switch (value) {
-      TripExpensePaidBy.company => _l10n.reportsPaidByCompany,
-      TripExpensePaidBy.driverAdvance => _l10n.reportsPaidByDriverAdvance,
-      TripExpensePaidBy.driverCash => _l10n.reportsPaidByDriverCash,
-      TripExpensePaidBy.customer => _l10n.reportsPaidByCustomer,
-      TripExpensePaidBy.other => _l10n.reportsPaidByOther,
+      ExpenseFundingSource.company => _l10n.reportsPaidByCompany,
+      ExpenseFundingSource.driverAdvance => _l10n.reportsPaidByDriverAdvance,
+      ExpenseFundingSource.driverCash => _l10n.reportsPaidByDriverCash,
+      ExpenseFundingSource.customer => _l10n.reportsPaidByCustomer,
+      ExpenseFundingSource.other => _l10n.reportsPaidByOther,
     };
   }
 

@@ -5,6 +5,7 @@ import '../../../invoices/domain/entities/invoice.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../entities/payment.dart';
 import '../entities/payment_balance.dart';
+import '../entities/payment_balance_snapshot.dart';
 import '../failures/payment_failure_codes.dart';
 
 final class PaymentBalanceCalculator {
@@ -14,12 +15,33 @@ final class PaymentBalanceCalculator {
     required Invoice invoice,
     required Iterable<Payment> payments,
   }) {
-    final total = invoice.totals.grandTotal;
+    return calculateSnapshot(
+      invoice: PaymentBalanceInvoiceSnapshot(
+        companyId: invoice.companyId,
+        invoiceId: invoice.id,
+        status: invoice.status,
+        total: invoice.totals.grandTotal,
+      ),
+      payments: payments.map(
+        (payment) => PaymentBalancePaymentSnapshot(
+          companyId: payment.companyId,
+          invoiceId: payment.invoiceId,
+          amount: payment.amount,
+        ),
+      ),
+    );
+  }
+
+  Result<PaymentBalance> calculateSnapshot({
+    required PaymentBalanceInvoiceSnapshot invoice,
+    required Iterable<PaymentBalancePaymentSnapshot> payments,
+  }) {
+    final total = invoice.total;
     var paidMinorUnits = 0;
 
     for (final payment in payments) {
       if (payment.companyId != invoice.companyId ||
-          payment.invoiceId != invoice.id ||
+          payment.invoiceId != invoice.invoiceId ||
           !payment.amount.hasSameCurrency(total) ||
           !payment.amount.isPositive) {
         return const FailureResult(

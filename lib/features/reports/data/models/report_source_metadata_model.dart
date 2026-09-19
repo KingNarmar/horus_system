@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'report_model_parsing.dart';
 
 final class ReportSourceMetadataModel {
@@ -5,9 +6,9 @@ final class ReportSourceMetadataModel {
   final String? baseCurrencyCode;
   final int? baseCurrencyFractionDigits;
   final String businessTimezone;
-  final DateTime businessDate;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate businessDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const ReportSourceMetadataModel({
     required this.companyId,

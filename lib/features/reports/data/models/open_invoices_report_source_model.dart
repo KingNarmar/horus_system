@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'report_model_parsing.dart';
 import 'report_source_metadata_model.dart';
 
@@ -67,8 +68,8 @@ final class OpenInvoiceModel {
   final String status;
   final String currencyCode;
   final int totalMinorUnits;
-  final DateTime issueDate;
-  final DateTime? dueDate;
+  final BusinessDate issueDate;
+  final BusinessDate? dueDate;
   final DateTime? issuedAt;
 
   const OpenInvoiceModel({
@@ -108,7 +109,7 @@ final class OpenInvoicePaymentModel {
   final String invoiceId;
   final String currencyCode;
   final int amountMinorUnits;
-  final DateTime paymentDate;
+  final BusinessDate paymentDate;
   final DateTime createdAt;
 
   const OpenInvoicePaymentModel({

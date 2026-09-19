@@ -1,3 +1,5 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/dashboard_db_constants.dart';
 
 final class DashboardSourceModel {
@@ -5,7 +7,7 @@ final class DashboardSourceModel {
   final String baseCurrencyCode;
   final int baseCurrencyFractionDigits;
   final String businessTimezone;
-  final DateTime businessDate;
+  final BusinessDate businessDate;
 
   final int todayTrips;
   final int runningTrips;
@@ -79,9 +81,9 @@ final class DashboardSourceModel {
         company[DashboardDbConstants.businessTimezone],
         DashboardDbConstants.businessTimezone,
       ),
-      businessDate: _requiredDate(
+      businessDate: DbDate.decode(
         company[DashboardDbConstants.businessDate],
-        DashboardDbConstants.businessDate,
+        field: DashboardDbConstants.businessDate,
       ),
       todayTrips: _requiredInt(
         metrics[DashboardDbConstants.todayTrips],
@@ -157,13 +159,4 @@ int _requiredInt(Object? value, String field) {
   if (value is int) return value;
   if (value is num && value == value.truncate()) return value.toInt();
   throw FormatException('Invalid dashboard integer field: $field.');
-}
-
-DateTime _requiredDate(Object? value, String field) {
-  final raw = _requiredString(value, field);
-  final parsed = DateTime.tryParse(raw);
-  if (parsed == null) {
-    throw FormatException('Invalid dashboard date: $field.');
-  }
-  return DateTime(parsed.year, parsed.month, parsed.day);
 }

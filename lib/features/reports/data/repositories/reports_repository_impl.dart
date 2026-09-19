@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/open_invoices_report.dart';
 import '../../domain/entities/operational_trip_report.dart';
@@ -22,8 +23,8 @@ final class ReportsRepositoryImpl implements ReportsRepository {
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     return _guard(
       () async => (await _remoteDataSource.getOperationalSource(
@@ -38,8 +39,8 @@ final class ReportsRepositoryImpl implements ReportsRepository {
   @override
   Future<Result<TripExpensesReportSource>> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     return _guard(
       () async => (await _remoteDataSource.getTripExpensesSource(
@@ -54,8 +55,8 @@ final class ReportsRepositoryImpl implements ReportsRepository {
   @override
   Future<Result<TripNetProfitReportSource>> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     return _guard(
       () async => (await _remoteDataSource.getTripNetProfitSource(
@@ -70,8 +71,8 @@ final class ReportsRepositoryImpl implements ReportsRepository {
   @override
   Future<Result<OpenInvoicesReportSource>> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     return _guard(
       () async => (await _remoteDataSource.getOpenInvoicesSource(

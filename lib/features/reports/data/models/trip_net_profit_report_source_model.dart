@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'report_model_parsing.dart';
 import 'report_source_metadata_model.dart';
 
@@ -7,6 +8,7 @@ final class TripNetProfitReportSourceModel {
   final int negativeFreightCount;
   final int expensePrecisionLossCount;
   final int negativeExpenseCount;
+  final int expenseCurrencyMismatchCount;
   final List<TripNetProfitTripModel> trips;
   final List<TripNetProfitExpenseModel> expenses;
 
@@ -16,6 +18,7 @@ final class TripNetProfitReportSourceModel {
     required this.negativeFreightCount,
     required this.expensePrecisionLossCount,
     required this.negativeExpenseCount,
+    required this.expenseCurrencyMismatchCount,
     required List<TripNetProfitTripModel> trips,
     required List<TripNetProfitExpenseModel> expenses,
   }) : trips = List.unmodifiable(trips),
@@ -41,6 +44,10 @@ final class TripNetProfitReportSourceModel {
         validation['negative_expense_count'],
         'negative_expense_count',
       ),
+      expenseCurrencyMismatchCount: requiredInt(
+        validation['expense_currency_mismatch_count'],
+        'expense_currency_mismatch_count',
+      ),
       trips: requiredMapList(
         map['trips'],
         'trips',
@@ -56,7 +63,7 @@ final class TripNetProfitReportSourceModel {
 final class TripNetProfitTripModel {
   final String tripId;
   final String? tripNumber;
-  final DateTime operationalDate;
+  final BusinessDate operationalDate;
   final String status;
   final String customerId;
   final String customerName;

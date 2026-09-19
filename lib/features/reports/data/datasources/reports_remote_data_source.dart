@@ -1,5 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 import '../constants/reports_db_constants.dart';
 import '../models/open_invoices_report_source_model.dart';
 import '../models/operational_report_source_model.dart';
@@ -9,26 +12,26 @@ import '../models/trip_net_profit_report_source_model.dart';
 abstract interface class ReportsRemoteDataSource {
   Future<OperationalReportSourceModel> getOperationalSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   });
 
   Future<TripExpensesReportSourceModel> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   });
 
   Future<TripNetProfitReportSourceModel> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   });
 
   Future<OpenInvoicesReportSourceModel> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   });
 }
 
@@ -40,8 +43,8 @@ final class SupabaseReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<OperationalReportSourceModel> getOperationalSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final response = await _rpc(
       ReportsDbConstants.operationalRpc,
@@ -55,8 +58,8 @@ final class SupabaseReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<TripExpensesReportSourceModel> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final response = await _rpc(
       ReportsDbConstants.tripExpensesRpc,
@@ -70,8 +73,8 @@ final class SupabaseReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<TripNetProfitReportSourceModel> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final response = await _rpc(
       ReportsDbConstants.tripNetProfitRpc,
@@ -85,8 +88,8 @@ final class SupabaseReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<OpenInvoicesReportSourceModel> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final response = await _rpc(
       ReportsDbConstants.openInvoicesRpc,
@@ -100,27 +103,19 @@ final class SupabaseReportsRemoteDataSource implements ReportsRemoteDataSource {
   Future<Map<String, dynamic>> _rpc(
     String functionName, {
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final response = await _client.rpc(
       functionName,
       params: {
         ReportsDbConstants.companyIdParam: companyId,
-        ReportsDbConstants.fromDateParam: _dateParam(fromDate),
-        ReportsDbConstants.toDateParam: _dateParam(toDate),
+        ReportsDbConstants.fromDateParam: DbDate.encodeNullable(fromDate),
+        ReportsDbConstants.toDateParam: DbDate.encodeNullable(toDate),
       },
     );
     return _singleMap(response);
   }
-}
-
-String? _dateParam(DateTime? date) {
-  if (date == null) return null;
-  final year = date.year.toString().padLeft(4, '0');
-  final month = date.month.toString().padLeft(2, '0');
-  final day = date.day.toString().padLeft(2, '0');
-  return '$year-$month-$day';
 }
 
 Map<String, dynamic> _singleMap(Object? response) {

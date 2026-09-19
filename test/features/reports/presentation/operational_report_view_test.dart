@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/presentation/widgets/operational_report_view.dart';
@@ -80,7 +81,7 @@ OperationalTripReport _report() {
   final row = OperationalTripReportRow(
     tripId: 'trip-1',
     tripNumber: 'TR-1',
-    operationalDate: DateTime(2026, 6, 20),
+    operationalDate: BusinessDate(year: 2026, month: 6, day: 20),
     status: TripStatus.cancelled,
     customerId: 'customer-1',
     customerName: 'Customer',
@@ -102,7 +103,7 @@ OperationalTripReport _report() {
     metadata: OperationalReportSourceMetadata(
       companyId: 'company-1',
       businessTimezone: 'Asia/Dubai',
-      businessDate: DateTime(2026, 8, 13),
+      businessDate: BusinessDate(year: 2026, month: 8, day: 13),
       fromDate: null,
       toDate: null,
     ),
@@ -122,7 +123,7 @@ OperationalTripReport _dailyReportWithoutTripReference() {
   final row = OperationalTripReportRow(
     tripId: '4ba8dc8f-fa8c-4099-ab7c-ffedef6d4d1b',
     tripNumber: null,
-    operationalDate: DateTime(2026, 9, 8),
+    operationalDate: BusinessDate(year: 2026, month: 9, day: 8),
     status: TripStatus.documentsReceived,
     customerId: 'customer-1',
     customerName: 'Customer',
@@ -144,14 +145,14 @@ OperationalTripReport _dailyReportWithoutTripReference() {
     metadata: OperationalReportSourceMetadata(
       companyId: 'company-1',
       businessTimezone: 'Asia/Dubai',
-      businessDate: DateTime(2026, 9, 13),
+      businessDate: BusinessDate(year: 2026, month: 9, day: 13),
       fromDate: null,
       toDate: null,
     ),
     dimension: OperationalReportDimension.day,
     groups: [
       OperationalTripReportGroup(
-        date: DateTime(2026, 9, 8),
+        date: BusinessDate(year: 2026, month: 9, day: 8),
         entityId: null,
         entityLabel: null,
         rows: [row],

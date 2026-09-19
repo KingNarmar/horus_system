@@ -1,3 +1,7 @@
+import '../../../../core/data/utils/db_date.dart';
+import '../../../../core/data/utils/db_timestamp.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
+
 Map<String, dynamic> requiredMap(Object? value, String field) {
   if (value is! Map) throw FormatException('Invalid reports object: $field.');
   return Map<String, dynamic>.from(value);
@@ -43,31 +47,18 @@ double? optionalDouble(Object? value, String field) {
   throw FormatException('Invalid reports number: $field.');
 }
 
-DateTime requiredDate(Object? value, String field) {
-  final parsed = _parseDate(value, field);
-  return DateTime(parsed.year, parsed.month, parsed.day);
+BusinessDate requiredDate(Object? value, String field) {
+  return DbDate.decode(value, field: field);
 }
 
-DateTime? optionalDate(Object? value, String field) {
-  if (value == null) return null;
-  final parsed = _parseDate(value, field);
-  return DateTime(parsed.year, parsed.month, parsed.day);
+BusinessDate? optionalDate(Object? value, String field) {
+  return DbDate.decodeNullable(value, field: field);
 }
 
 DateTime? optionalDateTime(Object? value, String field) {
-  if (value == null) return null;
-  return _parseDate(value, field);
+  return DbTimestamp.decodeNullable(value, field: field);
 }
 
 DateTime requiredDateTime(Object? value, String field) {
-  return _parseDate(value, field);
-}
-
-DateTime _parseDate(Object? value, String field) {
-  if (value is! String || value.trim().isEmpty) {
-    throw FormatException('Invalid reports date: $field.');
-  }
-  final parsed = DateTime.tryParse(value.trim());
-  if (parsed == null) throw FormatException('Invalid reports date: $field.');
-  return parsed;
+  return DbTimestamp.decode(value, field: field);
 }

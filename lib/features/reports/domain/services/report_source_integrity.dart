@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
@@ -11,8 +12,8 @@ abstract final class ReportSourceIntegrity {
     required CurrencyCode expectedCurrency,
     required int expectedFractionDigits,
     required String expectedBusinessTimezone,
-    required DateTime? expectedFromDate,
-    required DateTime? expectedToDate,
+    required BusinessDate? expectedFromDate,
+    required BusinessDate? expectedToDate,
   }) {
     final sharedFailure = _validateSharedMetadata(
       companyId: metadata.companyId,
@@ -45,8 +46,8 @@ abstract final class ReportSourceIntegrity {
     required OperationalReportSourceMetadata metadata,
     required String expectedCompanyId,
     required String expectedBusinessTimezone,
-    required DateTime? expectedFromDate,
-    required DateTime? expectedToDate,
+    required BusinessDate? expectedFromDate,
+    required BusinessDate? expectedToDate,
   }) {
     return _validateSharedMetadata(
       companyId: metadata.companyId,
@@ -67,12 +68,12 @@ abstract final class ReportSourceIntegrity {
   static Failure? _validateSharedMetadata({
     required String companyId,
     required String businessTimezone,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
     required String expectedCompanyId,
     required String expectedBusinessTimezone,
-    required DateTime? expectedFromDate,
-    required DateTime? expectedToDate,
+    required BusinessDate? expectedFromDate,
+    required BusinessDate? expectedToDate,
   }) {
     if (companyId != expectedCompanyId ||
         businessTimezone != expectedBusinessTimezone ||
@@ -86,10 +87,7 @@ abstract final class ReportSourceIntegrity {
     return null;
   }
 
-  static bool _sameDate(DateTime? left, DateTime? right) {
-    if (left == null || right == null) return left == right;
-    return left.year == right.year &&
-        left.month == right.month &&
-        left.day == right.day;
+  static bool _sameDate(BusinessDate? left, BusinessDate? right) {
+    return left == right;
   }
 }

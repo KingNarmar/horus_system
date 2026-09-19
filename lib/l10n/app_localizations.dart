@@ -3230,6 +3230,12 @@ abstract class AppLocalizations {
   /// **'Trips by customer'**
   String get reportsTypeTripsByCustomer;
 
+  /// No description provided for @reportsTypeTripsByRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips by route'**
+  String get reportsTypeTripsByRoute;
+
   /// No description provided for @reportsTypeTripsByDriver.
   ///
   /// In en, this message translates to:

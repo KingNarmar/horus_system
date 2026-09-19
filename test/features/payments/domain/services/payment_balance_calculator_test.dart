@@ -8,6 +8,7 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_totals.da
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 import 'package:horus_system/features/payments/domain/entities/payment.dart';
+import 'package:horus_system/features/payments/domain/entities/payment_balance_snapshot.dart';
 import 'package:horus_system/features/payments/domain/failures/payment_failure_codes.dart';
 import 'package:horus_system/features/payments/domain/services/payment_balance_calculator.dart';
 import 'package:test/test.dart';
@@ -26,6 +27,29 @@ void main() {
     expect(balance.total.minorUnits, 120000);
     expect(balance.paid.minorUnits, 40000);
     expect(balance.remaining.minorUnits, 80000);
+  });
+
+  test('calculates the same balance from a report-safe snapshot', () {
+    final currency = CurrencyCode.tryParse('AED')!;
+    final result = calculator.calculateSnapshot(
+      invoice: PaymentBalanceInvoiceSnapshot(
+        companyId: 'company-1',
+        invoiceId: 'invoice-1',
+        status: InvoiceStatus.partiallyPaid,
+        total: Money(minorUnits: 120000, currency: currency),
+      ),
+      payments: [
+        PaymentBalancePaymentSnapshot(
+          companyId: 'company-1',
+          invoiceId: 'invoice-1',
+          amount: Money(minorUnits: 40000, currency: currency),
+        ),
+      ],
+    );
+
+    expect(result.failureOrNull, isNull);
+    expect(result.dataOrNull?.paid.minorUnits, 40000);
+    expect(result.dataOrNull?.remaining.minorUnits, 80000);
   });
 
   test('paid invoice requires payments to equal invoice total', () {

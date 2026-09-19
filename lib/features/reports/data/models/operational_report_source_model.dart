@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'report_model_parsing.dart';
 import 'report_source_metadata_model.dart';
 
@@ -24,7 +25,7 @@ final class OperationalReportSourceModel {
 final class OperationalTripRowModel {
   final String tripId;
   final String? tripNumber;
-  final DateTime operationalDate;
+  final BusinessDate operationalDate;
   final String status;
   final String customerId;
   final String customerName;

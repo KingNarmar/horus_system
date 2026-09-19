@@ -1,10 +1,11 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
-import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/reports/domain/entities/open_invoices_report.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
@@ -63,6 +64,34 @@ void main() {
     },
   );
 
+  test('route report groups by historical trip route identity', () async {
+    final repository = _FakeReportsRepository(
+      operational: (companyId, from, to) => OperationalTripReportSource(
+        metadata: _operationalMetadata(companyId, from, to),
+        rows: [
+          _operationalRow(id: 'trip-1', driverId: null, driverName: null),
+          _operationalRow(id: 'trip-2', driverId: null, driverName: null),
+        ],
+      ),
+    );
+    final useCase = GetOperationalReportUseCase(repository: repository);
+
+    final result = await useCase(
+      OperationalReportParams(
+        currentCompanyContext: _context(CompanyRole.viewer),
+        dimension: OperationalReportDimension.route,
+        dateRange: const ReportDateRange(),
+      ),
+    );
+
+    final report = result.dataOrNull;
+    expect(report, isNotNull);
+    expect(report!.groups, hasLength(1));
+    expect(report.groups.single.entityId, 'route-1');
+    expect(report.groups.single.entityLabel, isNull);
+    expect(report.groups.single.tripCount, 2);
+  });
+
   test(
     'operational reports remain available when financial configuration is missing',
     () async {
@@ -120,8 +149,8 @@ void main() {
         currentCompanyContext: _context(CompanyRole.owner),
         dimension: OperationalReportDimension.day,
         dateRange: ReportDateRange(
-          fromDate: DateTime(2026, 6, 21),
-          toDate: DateTime(2026, 6, 20),
+          fromDate: BusinessDate(year: 2026, month: 6, day: 21),
+          toDate: BusinessDate(year: 2026, month: 6, day: 20),
         ),
       ),
     );
@@ -137,6 +166,7 @@ void main() {
         metadata: _metadata(companyId, from, to),
         precisionLossCount: 0,
         negativeAmountCount: 0,
+        currencyMismatchCount: 0,
         rows: [
           _expenseRow('expense-1', Money(minorUnits: 1250, currency: currency)),
           _expenseRow('expense-2', Money(minorUnits: 2750, currency: currency)),
@@ -155,6 +185,30 @@ void main() {
     expect(result.dataOrNull?.totalExpenses.minorUnits, 4000);
   });
 
+  test('trip expenses reject canonical ledger currency mismatch', () async {
+    final repository = _FakeReportsRepository(
+      expenses: (companyId, from, to) => TripExpensesReportSource(
+        metadata: _metadata(companyId, from, to),
+        precisionLossCount: 0,
+        negativeAmountCount: 0,
+        currencyMismatchCount: 1,
+        rows: const [],
+      ),
+    );
+
+    final result = await GetTripExpensesReportUseCase(repository)(
+      ReportParams(
+        currentCompanyContext: _context(CompanyRole.accountant),
+        dateRange: const ReportDateRange(),
+      ),
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      ReportsFailureCodes.conflictCurrencyMismatch,
+    );
+  });
+
   test(
     'trip net profit uses all authoritative linked expenses from source',
     () async {
@@ -166,6 +220,7 @@ void main() {
           negativeFreightCount: 0,
           expensePrecisionLossCount: 0,
           negativeExpenseCount: 0,
+          expenseCurrencyMismatchCount: 0,
           trips: [
             _profitTrip(
               id: 'trip-1',
@@ -187,8 +242,8 @@ void main() {
         ReportParams(
           currentCompanyContext: _context(CompanyRole.owner),
           dateRange: ReportDateRange(
-            fromDate: DateTime(2026, 6, 26),
-            toDate: DateTime(2026, 6, 26),
+            fromDate: BusinessDate(year: 2026, month: 6, day: 26),
+            toDate: BusinessDate(year: 2026, month: 6, day: 26),
           ),
         ),
       );
@@ -200,6 +255,33 @@ void main() {
       expect(report?.rows.single.netProfit.minorUnits, 480000);
     },
   );
+
+  test('trip net profit rejects canonical expense currency mismatch', () async {
+    final repository = _FakeReportsRepository(
+      netProfit: (companyId, from, to) => TripNetProfitReportSource(
+        metadata: _metadata(companyId, from, to),
+        freightPrecisionLossCount: 0,
+        negativeFreightCount: 0,
+        expensePrecisionLossCount: 0,
+        negativeExpenseCount: 0,
+        expenseCurrencyMismatchCount: 1,
+        trips: const [],
+        expenses: const [],
+      ),
+    );
+
+    final result = await GetTripNetProfitReportUseCase(repository: repository)(
+      ReportParams(
+        currentCompanyContext: _context(CompanyRole.owner),
+        dateRange: const ReportDateRange(),
+      ),
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      ReportsFailureCodes.conflictCurrencyMismatch,
+    );
+  });
 
   test(
     'open invoices validates paid rows but excludes them from final report',
@@ -271,13 +353,17 @@ CurrentCompanyContext _contextWithoutCurrency(CompanyRole role) {
   );
 }
 
-ReportSourceMetadata _metadata(String companyId, DateTime? from, DateTime? to) {
+ReportSourceMetadata _metadata(
+  String companyId,
+  BusinessDate? from,
+  BusinessDate? to,
+) {
   return ReportSourceMetadata(
     companyId: companyId,
     currency: _currency,
     baseCurrencyFractionDigits: 2,
     businessTimezone: 'Asia/Dubai',
-    businessDate: DateTime(2026, 8, 13),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 13),
     fromDate: from,
     toDate: to,
   );
@@ -285,13 +371,13 @@ ReportSourceMetadata _metadata(String companyId, DateTime? from, DateTime? to) {
 
 OperationalReportSourceMetadata _operationalMetadata(
   String companyId,
-  DateTime? from,
-  DateTime? to,
+  BusinessDate? from,
+  BusinessDate? to,
 ) {
   return OperationalReportSourceMetadata(
     companyId: companyId,
     businessTimezone: 'Asia/Dubai',
-    businessDate: DateTime(2026, 8, 13),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 13),
     fromDate: from,
     toDate: to,
   );
@@ -306,7 +392,7 @@ OperationalTripReportRow _operationalRow({
   return OperationalTripReportRow(
     tripId: id,
     tripNumber: id,
-    operationalDate: DateTime(2026, 6, 20),
+    operationalDate: BusinessDate(year: 2026, month: 6, day: 20),
     status: status,
     customerId: 'customer-1',
     customerName: 'Customer',
@@ -329,10 +415,10 @@ OperationalTripReportRow _operationalRow({
 TripExpenseReportRow _expenseRow(String id, Money amount) {
   return TripExpenseReportRow(
     expenseId: id,
-    expenseDate: DateTime(2026, 6, 26),
+    expenseDate: BusinessDate(year: 2026, month: 6, day: 26),
     tripId: 'trip-1',
     tripNumber: 'TR-1',
-    tripDate: DateTime(2026, 6, 26),
+    tripDate: BusinessDate(year: 2026, month: 6, day: 26),
     customerId: 'customer-1',
     customerName: 'Customer',
     loadingLocation: 'Dubai',
@@ -341,7 +427,7 @@ TripExpenseReportRow _expenseRow(String id, Money amount) {
     waybillNumber: null,
     expenseTypeId: null,
     expenseName: 'Fuel',
-    paidBy: TripExpensePaidBy.company,
+    fundingSource: ExpenseFundingSource.company,
     amount: amount,
   );
 }
@@ -353,7 +439,7 @@ TripNetProfitSourceTrip _profitTrip({
   return TripNetProfitSourceTrip(
     tripId: id,
     tripNumber: 'TR-1',
-    operationalDate: DateTime(2026, 6, 26),
+    operationalDate: BusinessDate(year: 2026, month: 6, day: 26),
     status: TripStatus.delivered,
     customerId: 'customer-1',
     customerName: 'Customer',
@@ -379,9 +465,9 @@ OpenInvoiceSourceInvoice _invoice(String id, InvoiceStatus status, int total) {
     customerName: 'Customer',
     status: status,
     total: Money(minorUnits: total, currency: _currency),
-    issueDate: DateTime(2026, 7, 1),
-    dueDate: DateTime(2026, 7, 31),
-    issuedAt: DateTime(2026, 7, 1, 9),
+    issueDate: BusinessDate(year: 2026, month: 7, day: 1),
+    dueDate: BusinessDate(year: 2026, month: 7, day: 31),
+    issuedAt: DateTime.utc(2026, 7, 1, 9),
   );
 }
 
@@ -395,19 +481,27 @@ OpenInvoiceSourcePayment _payment(
     paymentId: id,
     invoiceId: invoiceId,
     amount: Money(minorUnits: amount, currency: currency),
-    paymentDate: DateTime(2026, 7, 10),
-    createdAt: DateTime(2026, 7, 10, 10),
+    paymentDate: BusinessDate(year: 2026, month: 7, day: 10),
+    createdAt: DateTime.utc(2026, 7, 10, 10),
   );
 }
 
 final class _FakeReportsRepository implements ReportsRepository {
-  final OperationalTripReportSource Function(String, DateTime?, DateTime?)?
+  final OperationalTripReportSource Function(
+    String,
+    BusinessDate?,
+    BusinessDate?,
+  )?
   operational;
-  final TripExpensesReportSource Function(String, DateTime?, DateTime?)?
+  final TripExpensesReportSource Function(String, BusinessDate?, BusinessDate?)?
   expenses;
-  final TripNetProfitReportSource Function(String, DateTime?, DateTime?)?
+  final TripNetProfitReportSource Function(
+    String,
+    BusinessDate?,
+    BusinessDate?,
+  )?
   netProfit;
-  final OpenInvoicesReportSource Function(String, DateTime?, DateTime?)?
+  final OpenInvoicesReportSource Function(String, BusinessDate?, BusinessDate?)?
   openInvoices;
   int operationalCalls = 0;
 
@@ -421,8 +515,8 @@ final class _FakeReportsRepository implements ReportsRepository {
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     operationalCalls++;
     final builder = operational;
@@ -435,8 +529,8 @@ final class _FakeReportsRepository implements ReportsRepository {
   @override
   Future<Result<TripExpensesReportSource>> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final builder = expenses;
     if (builder == null) {
@@ -448,8 +542,8 @@ final class _FakeReportsRepository implements ReportsRepository {
   @override
   Future<Result<TripNetProfitReportSource>> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final builder = netProfit;
     if (builder == null) {
@@ -461,8 +555,8 @@ final class _FakeReportsRepository implements ReportsRepository {
   @override
   Future<Result<OpenInvoicesReportSource>> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     final builder = openInvoices;
     if (builder == null) {

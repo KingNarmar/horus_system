@@ -1,6 +1,6 @@
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/domain/value_objects/money.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import '../../../trips/domain/entities/trip_status.dart';
 import '../../domain/entities/open_invoices_report.dart';
@@ -89,6 +89,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
       metadata: reportMetadata,
       precisionLossCount: precisionLossCount,
       negativeAmountCount: negativeAmountCount,
+      currencyMismatchCount: currencyMismatchCount,
       rows: rows
           .map((row) {
             return TripExpenseReportRow(
@@ -105,7 +106,7 @@ extension TripExpensesReportSourceModelMapper on TripExpensesReportSourceModel {
               waybillNumber: row.waybillNumber,
               expenseTypeId: row.expenseTypeId,
               expenseName: row.expenseName,
-              paidBy: _paidBy(row.paidBy),
+              fundingSource: _fundingSource(row.fundingSource),
               amount: Money(
                 minorUnits: row.amountMinorUnits,
                 currency: reportMetadata.currency,
@@ -127,6 +128,7 @@ extension TripNetProfitReportSourceModelMapper
       negativeFreightCount: negativeFreightCount,
       expensePrecisionLossCount: expensePrecisionLossCount,
       negativeExpenseCount: negativeExpenseCount,
+      expenseCurrencyMismatchCount: expenseCurrencyMismatchCount,
       trips: trips
           .map((trip) {
             return TripNetProfitSourceTrip(
@@ -231,9 +233,9 @@ TripStatus _tripStatus(String raw) {
   throw const FormatException('Invalid trip report status.');
 }
 
-TripExpensePaidBy _paidBy(String raw) {
-  for (final paidBy in TripExpensePaidBy.values) {
-    if (paidBy.value == raw.trim().toLowerCase()) return paidBy;
+ExpenseFundingSource _fundingSource(String raw) {
+  for (final source in ExpenseFundingSource.values) {
+    if (source.value == raw.trim().toLowerCase()) return source;
   }
-  throw const FormatException('Invalid trip expense paid-by value.');
+  throw const FormatException('Invalid expense funding source value.');
 }
