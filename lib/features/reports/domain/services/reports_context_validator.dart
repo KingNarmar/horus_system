@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
@@ -13,8 +14,8 @@ final class ReportsFinancialValidatedRequest {
   final CurrencyCode currency;
   final int fractionDigits;
   final String businessTimezone;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const ReportsFinancialValidatedRequest({
     required this.companyId,
@@ -29,8 +30,8 @@ final class ReportsFinancialValidatedRequest {
 final class ReportsOperationalValidatedRequest {
   final String companyId;
   final String businessTimezone;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const ReportsOperationalValidatedRequest({
     required this.companyId,
