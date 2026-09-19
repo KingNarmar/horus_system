@@ -106,7 +106,6 @@ class _Loaded extends StatelessWidget {
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
-    this.showLabels = false,
   });
 
   @override
@@ -303,6 +302,7 @@ class _MethodActions extends StatelessWidget {
     required this.onEdit,
     required this.onDeactivate,
     required this.onReactivate,
+    this.showLabels = false,
   });
 
   @override
