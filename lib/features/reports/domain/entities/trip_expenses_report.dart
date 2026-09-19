@@ -43,12 +43,14 @@ final class TripExpensesReportSource {
   final ReportSourceMetadata metadata;
   final int precisionLossCount;
   final int negativeAmountCount;
+  final int currencyMismatchCount;
   final List<TripExpenseReportRow> rows;
 
   TripExpensesReportSource({
     required this.metadata,
     required this.precisionLossCount,
     required this.negativeAmountCount,
+    required this.currencyMismatchCount,
     required List<TripExpenseReportRow> rows,
   }) : rows = List.unmodifiable(rows);
 }
