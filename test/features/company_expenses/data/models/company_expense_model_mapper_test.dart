@@ -226,7 +226,7 @@ void main() {
       });
     });
 
-    test('builds the existing update payload with an updated timestamp', () {
+    test('builds update payload without client-owned timestamp metadata', () {
       final data = CompanyExpenseWriteData(
         companyId: 'company-1',
         categoryId: 'category-2',
@@ -245,35 +245,26 @@ void main() {
       expect(map['expense_date'], '2026-08-22');
       expect(map['reference_number'], isNull);
       expect(map['notes'], isNull);
-      final updatedAt = DateTime.tryParse(
-        map[DbCommonFields.updatedAt] as String,
-      );
-      expect(updatedAt, isNotNull);
-      expect(updatedAt?.isUtc, isTrue);
+      expect(map.containsKey(DbCommonFields.updatedAt), isFalse);
     });
 
-    test('builds the existing void payload with actor metadata', () {
+    test('builds void payload without client-owned lifecycle metadata', () {
       const data = CompanyExpenseVoidData(
         companyId: 'company-1',
         expenseId: 'expense-1',
         reason: 'duplicate',
       );
 
-      final map = data.toVoidMap(actorUserId: 'user-1');
+      final map = data.toVoidMap();
 
-      expect(map['is_voided'], isTrue);
-      expect(map['voided_by'], 'user-1');
-      expect(map['void_reason'], 'duplicate');
-      expect(map[DbCommonFields.updatedBy], 'user-1');
-
-      final voidedAt = DateTime.tryParse(map['voided_at'] as String);
-      final updatedAt = DateTime.tryParse(
-        map[DbCommonFields.updatedAt] as String,
-      );
-      expect(voidedAt, isNotNull);
-      expect(voidedAt?.isUtc, isTrue);
-      expect(updatedAt, isNotNull);
-      expect(updatedAt?.isUtc, isTrue);
+      expect(map, {
+        'is_voided': true,
+        'void_reason': 'duplicate',
+      });
+      expect(map.containsKey('voided_at'), isFalse);
+      expect(map.containsKey('voided_by'), isFalse);
+      expect(map.containsKey(DbCommonFields.updatedAt), isFalse);
+      expect(map.containsKey(DbCommonFields.updatedBy), isFalse);
     });
   });
 }
