@@ -61,6 +61,7 @@ final class TripNetProfitReportSource {
   final int negativeFreightCount;
   final int expensePrecisionLossCount;
   final int negativeExpenseCount;
+  final int expenseCurrencyMismatchCount;
   final List<TripNetProfitSourceTrip> trips;
   final List<TripNetProfitSourceExpense> expenses;
 
@@ -70,6 +71,7 @@ final class TripNetProfitReportSource {
     required this.negativeFreightCount,
     required this.expensePrecisionLossCount,
     required this.negativeExpenseCount,
+    required this.expenseCurrencyMismatchCount,
     required List<TripNetProfitSourceTrip> trips,
     required List<TripNetProfitSourceExpense> expenses,
   }) : trips = List.unmodifiable(trips),
