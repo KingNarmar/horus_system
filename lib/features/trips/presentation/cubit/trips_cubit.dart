@@ -6,8 +6,10 @@ import '../../../../core/documents/domain/entities/business_document_access.dart
 import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_log.dart';
@@ -73,6 +75,7 @@ class TripsCubit extends Cubit<TripsState>
   resolveTripBusinessLocalTimestampsUseCase;
   final ConvertInstantsToBusinessLocalDateTimesUseCase
   convertInstantsToBusinessLocalDateTimesUseCase;
+  final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
   final GetEntityAuditLogsUseCase getTripAuditLogsUseCase;
   final GetTripExpenseLedgerEntriesUseCase getTripExpenseLedgerEntriesUseCase;
   final GetExpenseTypeCatalogUseCase getExpenseTypeCatalogUseCase;
@@ -104,6 +107,7 @@ class TripsCubit extends Cubit<TripsState>
     required this.getTripBusinessLocalTimestampsUseCase,
     required this.resolveTripBusinessLocalTimestampsUseCase,
     required this.convertInstantsToBusinessLocalDateTimesUseCase,
+    required this.getCompanyBusinessDateUseCase,
     required this.getTripAuditLogsUseCase,
     required this.getTripExpenseLedgerEntriesUseCase,
     required this.getExpenseTypeCatalogUseCase,
@@ -212,6 +216,18 @@ class TripsCubit extends Cubit<TripsState>
         timeZoneId: currentCompanyContext.company.businessTimezone ?? '',
         instantsByKey: instantsByKey,
       ),
+    );
+  }
+
+  Future<Result<BusinessDate>> getCurrentBusinessDate() {
+    final context = _currentCompanyContext;
+    if (context == null) {
+      return Future.value(
+        const FailureResult<BusinessDate>(UnexpectedFailure()),
+      );
+    }
+    return getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(companyId: context.companyId),
     );
   }
 
