@@ -564,6 +564,7 @@
   "reportsTotalOutstanding": "Total outstanding",
   "reportsTypeDailyTrips": "Daily trips",
   "reportsTypeTripsByCustomer": "Trips by customer",
+  "reportsTypeTripsByRoute": "Trips by route",
   "reportsTypeTripsByDriver": "Trips by driver",
   "reportsTypeTripsByTractorHead": "Trips by tractor head",
   "reportsTypeTripsByTrailer": "Trips by trailer",
