@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_type.dart';
 import 'package:horus_system/features/reports/presentation/localization/reports_localizations.dart';
@@ -90,23 +90,23 @@ void main() {
     });
 
     test('maps every paid-by value through generated localization', () {
-      expect(english.paidByLabel(TripExpensePaidBy.company), 'Company');
+      expect(english.fundingSourceLabel(ExpenseFundingSource.company), 'Company');
       expect(
-        english.paidByLabel(TripExpensePaidBy.driverAdvance),
+        english.fundingSourceLabel(ExpenseFundingSource.driverAdvance),
         'Driver advance',
       );
-      expect(english.paidByLabel(TripExpensePaidBy.driverCash), 'Driver cash');
-      expect(english.paidByLabel(TripExpensePaidBy.customer), 'Customer');
-      expect(english.paidByLabel(TripExpensePaidBy.other), 'Other');
+      expect(english.fundingSourceLabel(ExpenseFundingSource.driverCash), 'Driver cash');
+      expect(english.fundingSourceLabel(ExpenseFundingSource.customer), 'Customer');
+      expect(english.fundingSourceLabel(ExpenseFundingSource.other), 'Other');
 
-      expect(arabic.paidByLabel(TripExpensePaidBy.company), 'الشركة');
+      expect(arabic.fundingSourceLabel(ExpenseFundingSource.company), 'الشركة');
       expect(
-        arabic.paidByLabel(TripExpensePaidBy.driverAdvance),
+        arabic.fundingSourceLabel(ExpenseFundingSource.driverAdvance),
         'عهدة السائق',
       );
-      expect(arabic.paidByLabel(TripExpensePaidBy.driverCash), 'دفع السائق');
-      expect(arabic.paidByLabel(TripExpensePaidBy.customer), 'العميل');
-      expect(arabic.paidByLabel(TripExpensePaidBy.other), 'أخرى');
+      expect(arabic.fundingSourceLabel(ExpenseFundingSource.driverCash), 'دفع السائق');
+      expect(arabic.fundingSourceLabel(ExpenseFundingSource.customer), 'العميل');
+      expect(arabic.fundingSourceLabel(ExpenseFundingSource.other), 'أخرى');
     });
 
     test('maps every invoice status used by reports', () {

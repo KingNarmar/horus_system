@@ -5,7 +5,7 @@ import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
-import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/reports/domain/entities/open_invoices_report.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
@@ -427,7 +427,7 @@ TripExpenseReportRow _expenseRow(String id, Money amount) {
     waybillNumber: null,
     expenseTypeId: null,
     expenseName: 'Fuel',
-    paidBy: TripExpensePaidBy.company,
+    fundingSource: ExpenseFundingSource.company,
     amount: amount,
   );
 }
