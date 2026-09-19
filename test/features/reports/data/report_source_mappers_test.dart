@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/expenses/domain/entities/trip_expense_paid_by.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/reports/data/mappers/report_source_mappers.dart';
@@ -11,7 +12,11 @@ void main() {
     final model = TripExpensesReportSourceModel.fromMap({
       'company': _company,
       'period': {'from_date': '2026-06-26', 'to_date': '2026-06-26'},
-      'validation': {'precision_loss_count': 0, 'negative_amount_count': 0},
+      'validation': {
+        'precision_loss_count': 0,
+        'negative_amount_count': 0,
+        'currency_mismatch_count': 0,
+      },
       'rows': [
         {
           'expense_id': 'expense-1',
@@ -37,7 +42,10 @@ void main() {
     expect(source.rows.single.paidBy, TripExpensePaidBy.driverAdvance);
     expect(source.rows.single.amount.minorUnits, 2500);
     expect(source.rows.single.amount.currency.value, 'AED');
-    expect(source.metadata.fromDate, DateTime(2026, 6, 26));
+    expect(
+      source.metadata.fromDate,
+      BusinessDate(year: 2026, month: 6, day: 26),
+    );
   });
 
   test('maps operational source without financial metadata', () {
@@ -79,7 +87,11 @@ void main() {
     final model = TripExpensesReportSourceModel.fromMap({
       'company': _operationalCompany,
       'period': {'from_date': null, 'to_date': null},
-      'validation': {'precision_loss_count': 0, 'negative_amount_count': 0},
+      'validation': {
+        'precision_loss_count': 0,
+        'negative_amount_count': 0,
+        'currency_mismatch_count': 0,
+      },
       'rows': const [],
     });
 
@@ -133,7 +145,11 @@ void main() {
     final model = TripExpensesReportSourceModel.fromMap({
       'company': _company,
       'period': {'from_date': null, 'to_date': null},
-      'validation': {'precision_loss_count': 0, 'negative_amount_count': 0},
+      'validation': {
+        'precision_loss_count': 0,
+        'negative_amount_count': 0,
+        'currency_mismatch_count': 0,
+      },
       'rows': [
         {
           'expense_id': 'expense-1',
