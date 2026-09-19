@@ -69,12 +69,12 @@ final class GetTripNetProfitReportUseCase
     if (metadataFailure != null) return FailureResult(metadataFailure);
 
     if (ReportSourceIntegrity.hasInvalidCounter([
-          source.freightPrecisionLossCount,
-          source.negativeFreightCount,
-          source.expensePrecisionLossCount,
-          source.negativeExpenseCount,
-          source.expenseCurrencyMismatchCount,
-        ])) {
+      source.freightPrecisionLossCount,
+      source.negativeFreightCount,
+      source.expensePrecisionLossCount,
+      source.negativeExpenseCount,
+      source.expenseCurrencyMismatchCount,
+    ])) {
       return const FailureResult(
         ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
       );

@@ -160,4 +160,3 @@ int _requiredInt(Object? value, String field) {
   if (value is num && value == value.truncate()) return value.toInt();
   throw FormatException('Invalid dashboard integer field: $field.');
 }
-

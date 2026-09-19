@@ -69,16 +69,8 @@ void main() {
       operational: (companyId, from, to) => OperationalTripReportSource(
         metadata: _operationalMetadata(companyId, from, to),
         rows: [
-          _operationalRow(
-            id: 'trip-1',
-            driverId: null,
-            driverName: null,
-          ),
-          _operationalRow(
-            id: 'trip-2',
-            driverId: null,
-            driverName: null,
-          ),
+          _operationalRow(id: 'trip-1', driverId: null, driverName: null),
+          _operationalRow(id: 'trip-2', driverId: null, driverName: null),
         ],
       ),
     );
@@ -361,7 +353,11 @@ CurrentCompanyContext _contextWithoutCurrency(CompanyRole role) {
   );
 }
 
-ReportSourceMetadata _metadata(String companyId, BusinessDate? from, BusinessDate? to) {
+ReportSourceMetadata _metadata(
+  String companyId,
+  BusinessDate? from,
+  BusinessDate? to,
+) {
   return ReportSourceMetadata(
     companyId: companyId,
     currency: _currency,
@@ -491,11 +487,19 @@ OpenInvoiceSourcePayment _payment(
 }
 
 final class _FakeReportsRepository implements ReportsRepository {
-  final OperationalTripReportSource Function(String, BusinessDate?, BusinessDate?)?
+  final OperationalTripReportSource Function(
+    String,
+    BusinessDate?,
+    BusinessDate?,
+  )?
   operational;
   final TripExpensesReportSource Function(String, BusinessDate?, BusinessDate?)?
   expenses;
-  final TripNetProfitReportSource Function(String, BusinessDate?, BusinessDate?)?
+  final TripNetProfitReportSource Function(
+    String,
+    BusinessDate?,
+    BusinessDate?,
+  )?
   netProfit;
   final OpenInvoicesReportSource Function(String, BusinessDate?, BusinessDate?)?
   openInvoices;

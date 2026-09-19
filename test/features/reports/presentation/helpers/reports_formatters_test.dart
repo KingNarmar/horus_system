@@ -5,10 +5,7 @@ import 'package:horus_system/features/reports/presentation/helpers/reports_forma
 void main() {
   test('formats BusinessDate without timezone conversion', () {
     expect(
-      formatReportDate(
-        BusinessDate(year: 2026, month: 9, day: 7),
-        'en',
-      ),
+      formatReportDate(BusinessDate(year: 2026, month: 9, day: 7), 'en'),
       contains('Sep'),
     );
   });

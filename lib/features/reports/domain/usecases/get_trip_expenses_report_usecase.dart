@@ -62,10 +62,10 @@ final class GetTripExpensesReportUseCase
         }
 
         if (ReportSourceIntegrity.hasInvalidCounter([
-              source.precisionLossCount,
-              source.negativeAmountCount,
-              source.currencyMismatchCount,
-            ])) {
+          source.precisionLossCount,
+          source.negativeAmountCount,
+          source.currencyMismatchCount,
+        ])) {
           return const FailureResult<TripExpensesReport>(
             ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
           );

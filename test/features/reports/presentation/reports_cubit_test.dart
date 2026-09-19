@@ -76,7 +76,10 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.owner,
 );
 
-OperationalReportSourceMetadata _metadata(BusinessDate? from, BusinessDate? to) {
+OperationalReportSourceMetadata _metadata(
+  BusinessDate? from,
+  BusinessDate? to,
+) {
   return OperationalReportSourceMetadata(
     companyId: 'company-1',
     businessTimezone: 'Asia/Dubai',

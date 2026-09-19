@@ -18,8 +18,7 @@ final class OperationalReportAggregator {
       OperationalReportDimension.route => _groupByEntity(
         rows,
         idOf: (row) => row.routeId,
-        labelOf: (row) =>
-            '${row.loadingLocation} → ${row.unloadingLocation}',
+        labelOf: (row) => '${row.loadingLocation} → ${row.unloadingLocation}',
       ),
       OperationalReportDimension.driver => _groupByEntity(
         rows,
