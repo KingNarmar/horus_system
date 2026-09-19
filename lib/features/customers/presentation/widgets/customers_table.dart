@@ -42,31 +42,18 @@ class CustomersTable extends StatelessWidget {
               child: DataTable(
                 columns: [
                   DataColumn(label: Text(l10n.customerNameHeader)),
+                  DataColumn(label: Text(l10n.actionsHeader)),
                   DataColumn(label: Text(l10n.contactHeader)),
                   DataColumn(label: Text(l10n.phoneLabel)),
                   DataColumn(label: Text(l10n.emailLabel)),
                   DataColumn(label: Text(l10n.cityLabel)),
                   DataColumn(label: Text(l10n.statusHeader)),
-                  DataColumn(label: Text(l10n.actionsHeader)),
                 ],
                 rows: customers.map((customer) {
                   final loading = pendingActionCustomerId == customer.id;
                   return DataRow(
                     cells: [
                       DataCell(Text(customer.name)),
-                      DataCell(
-                        Text(customer.contactPerson ?? l10n.customerEmptyValue),
-                      ),
-                      DataCell(Text(customer.phone ?? l10n.customerEmptyValue)),
-                      DataCell(Text(customer.email ?? l10n.customerEmptyValue)),
-                      DataCell(Text(customer.city ?? l10n.customerEmptyValue)),
-                      DataCell(
-                        Text(
-                          customer.isActive
-                              ? l10n.activeStatus
-                              : l10n.inactiveStatus,
-                        ),
-                      ),
                       DataCell(
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -100,6 +87,27 @@ class CustomersTable extends StatelessWidget {
                               ),
                             ],
                           ],
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          customer.contactPerson ?? l10n.customerNotAvailable,
+                        ),
+                      ),
+                      DataCell(
+                        Text(customer.phone ?? l10n.customerNotAvailable),
+                      ),
+                      DataCell(
+                        Text(customer.email ?? l10n.customerNotAvailable),
+                      ),
+                      DataCell(
+                        Text(customer.city ?? l10n.customerNotAvailable),
+                      ),
+                      DataCell(
+                        Text(
+                          customer.isActive
+                              ? l10n.activeStatus
+                              : l10n.inactiveStatus,
                         ),
                       ),
                     ],

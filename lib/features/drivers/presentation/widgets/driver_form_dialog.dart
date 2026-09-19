@@ -10,6 +10,7 @@ import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
+import '../../domain/policies/driver_license_expiry_policy.dart';
 import '../../domain/services/driver_image_upload_validator.dart';
 import 'driver_form_date_helpers.dart';
 import 'driver_form_image_picker_tile.dart';
@@ -40,9 +41,15 @@ class DriverFormData {
 
 class DriverFormDialog extends StatefulWidget {
   final Driver? driver;
+  final BusinessDate currentBusinessDate;
   final Future<Failure?> Function(DriverFormData data) onSubmit;
 
-  const DriverFormDialog({required this.onSubmit, this.driver, super.key});
+  const DriverFormDialog({
+    required this.onSubmit,
+    required this.currentBusinessDate,
+    this.driver,
+    super.key,
+  });
 
   @override
   State<DriverFormDialog> createState() => _DriverFormDialogState();
@@ -176,7 +183,7 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   }
 
   Future<void> _pickLicenseExpiryDate() async {
-    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    final today = widget.currentBusinessDate;
     final currentSelection = _selectedLicenseExpiryDate;
     final initialBusinessDate =
         currentSelection == null || currentSelection.isBefore(today)
@@ -212,10 +219,10 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
       _imageSelectionFailure != null && _imageSelectionFailureTarget != null;
 
   bool get _isLicenseExpiryDateValid {
-    final selectedDate = _selectedLicenseExpiryDate;
-    if (selectedDate == null) return true;
-    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
-    return !selectedDate.isBefore(today);
+    return DriverLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: _selectedLicenseExpiryDate,
+      currentBusinessDate: widget.currentBusinessDate,
+    );
   }
 
   String? _optional(String value) {

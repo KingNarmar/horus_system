@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
@@ -34,7 +35,7 @@ class RoutesList extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 760) {
+        if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
           return _RoutesTable(
             routes: routes,
             financialConfiguration: financialConfiguration,
@@ -93,11 +94,11 @@ class _RoutesTable extends StatelessWidget {
         child: DataTable(
           columns: [
             DataColumn(label: Text(l10n.routeLoadingHeader)),
+            const DataColumn(label: SizedBox(width: 132)),
             DataColumn(label: Text(l10n.routeUnloadingHeader)),
             DataColumn(label: Text(l10n.routeGovernoratesHeader)),
             DataColumn(label: Text(l10n.routeDefaultFreightRatePerTonLabel)),
             DataColumn(label: Text(l10n.routeStatusHeader)),
-            const DataColumn(label: SizedBox(width: 132)),
           ],
           rows: routes.map((route) {
             final isChanging = isActiveStateChanging(route.id);
@@ -105,14 +106,6 @@ class _RoutesTable extends StatelessWidget {
             return DataRow(
               cells: [
                 DataCell(Text(route.loadingLocation)),
-                DataCell(Text(route.unloadingLocation)),
-                DataCell(Text(_governoratesText(route, l10n.emptyValue))),
-                DataCell(
-                  Text(
-                    _rateText(route, financialConfiguration, l10n.emptyValue),
-                  ),
-                ),
-                DataCell(_RouteStatusChip(route: route)),
                 DataCell(
                   SizedBox(
                     width: 132,
@@ -130,6 +123,14 @@ class _RoutesTable extends StatelessWidget {
                     ),
                   ),
                 ),
+                DataCell(Text(route.unloadingLocation)),
+                DataCell(Text(_governoratesText(route, l10n.emptyValue))),
+                DataCell(
+                  Text(
+                    _rateText(route, financialConfiguration, l10n.emptyValue),
+                  ),
+                ),
+                DataCell(_RouteStatusChip(route: route)),
               ],
             );
           }).toList(),
@@ -207,7 +208,7 @@ class _RoutesCards extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: _RouteActions(
+                  child: _RouteCardActions(
                     route: route,
                     canManageRoutes: canManageRoutes,
                     isChanging: isChanging,
@@ -314,6 +315,71 @@ class _RouteActions extends StatelessWidget {
                     )
                   : const Icon(AppIcons.reactivate),
             ),
+        ],
+      ],
+    );
+  }
+}
+
+class _RouteCardActions extends StatelessWidget {
+  final RouteEntity route;
+  final bool canManageRoutes;
+  final bool isChanging;
+  final ValueChanged<RouteEntity> onViewDetails;
+  final ValueChanged<RouteEntity> onEdit;
+  final ValueChanged<RouteEntity> onDeactivate;
+  final ValueChanged<RouteEntity> onReactivate;
+
+  const _RouteCardActions({
+    required this.route,
+    required this.canManageRoutes,
+    required this.isChanging,
+    required this.onViewDetails,
+    required this.onEdit,
+    required this.onDeactivate,
+    required this.onReactivate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () => onViewDetails(route),
+          icon: const Icon(AppIcons.view),
+          label: Text(l10n.routeViewDetails),
+        ),
+        if (canManageRoutes) ...[
+          OutlinedButton.icon(
+            onPressed: isChanging ? null : () => onEdit(route),
+            icon: const Icon(AppIcons.edit),
+            label: Text(l10n.editButton),
+          ),
+          OutlinedButton.icon(
+            onPressed: isChanging
+                ? null
+                : () => route.isActive
+                      ? onDeactivate(route)
+                      : onReactivate(route),
+            icon: isChanging
+                ? const SizedBox.square(
+                    dimension: AppSizes.iconSm,
+                    child: CircularProgressIndicator(
+                      strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                    ),
+                  )
+                : Icon(
+                    route.isActive ? AppIcons.deactivate : AppIcons.reactivate,
+                  ),
+            label: Text(
+              route.isActive
+                  ? l10n.routeDeactivateButton
+                  : l10n.routeReactivateButton,
+            ),
+          ),
         ],
       ],
     );

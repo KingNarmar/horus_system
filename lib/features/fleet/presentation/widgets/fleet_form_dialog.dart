@@ -27,6 +27,7 @@ class FleetFormData {
 
 class FleetFormDialog extends StatefulWidget {
   final String title;
+  final BusinessDate currentBusinessDate;
   final String? initialPlateNumber;
   final VehicleStatus initialStatus;
   final BusinessDate? initialLicenseExpiryDate;
@@ -38,6 +39,7 @@ class FleetFormDialog extends StatefulWidget {
 
   const FleetFormDialog({
     required this.title,
+    required this.currentBusinessDate,
     required this.initialStatus,
     required this.notesLabel,
     required this.onSubmit,
@@ -202,7 +204,7 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
   }
 
   Future<void> _pickDate() async {
-    final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
+    final today = widget.currentBusinessDate;
     final picked = await showDatePicker(
       context: context,
       initialDate: BusinessDateDateTimeAdapter.toDateTime(

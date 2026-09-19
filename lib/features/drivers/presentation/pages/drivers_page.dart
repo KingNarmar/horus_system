@@ -10,6 +10,7 @@ import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
+import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../driver_finance/domain/entities/driver_financial_movement_type.dart';
 import '../../../driver_finance/presentation/widgets/driver_financial_movement_form_dialog.dart';
@@ -53,10 +54,29 @@ class _DriversPageState extends State<DriversPage> {
   }
 
   Future<void> _openForm({Driver? driver}) async {
+    final cubit = context.read<DriversCubit>();
+    final businessDateResult = await cubit.getCurrentBusinessDate();
+    if (!mounted) return;
+
+    if (businessDateResult is FailureResult<BusinessDate>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.l10n.localizedErrorMessage(businessDateResult.failure),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final currentBusinessDate =
+        (businessDateResult as Success<BusinessDate>).data;
+
     await showDialog<void>(
       context: context,
       builder: (_) => DriverFormDialog(
         driver: driver,
+        currentBusinessDate: currentBusinessDate,
         onSubmit: (data) {
           final cubit = context.read<DriversCubit>();
           if (driver == null) {

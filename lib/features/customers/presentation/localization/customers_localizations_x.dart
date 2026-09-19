@@ -27,10 +27,10 @@ extension CustomersLocalizationsX on AppLocalizations {
   }
 
   String customerAuditValueLabel(String key, Object? value) {
-    if (value == null) return customerEmptyValue;
+    if (value == null) return customerNotAvailable;
 
     final stringValue = value.toString().trim();
-    if (stringValue.isEmpty) return customerEmptyValue;
+    if (stringValue.isEmpty) return customerNotAvailable;
 
     if (key == 'is_active') {
       if (value == true || stringValue == 'true') return activeStatus;

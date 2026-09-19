@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/validators/app_validators.dart';
 import '../../domain/entities/customer.dart';
 
 class CustomerFormData {
@@ -145,6 +146,11 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                 _TextField(
                   controller: _emailController,
                   label: l10n.emailLabel,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) =>
+                      AppValidators.hasValidOptionalEmail(value)
+                      ? null
+                      : l10n.failureAuthInvalidEmail,
                 ),
                 _TextField(
                   controller: _taxRegistrationNumberController,
@@ -195,12 +201,14 @@ class _TextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? requiredMessage;
+  final TextInputType? keyboardType;
   final String? Function(String?)? validator;
 
   const _TextField({
     required this.controller,
     required this.label,
     this.requiredMessage,
+    this.keyboardType,
     this.validator,
   });
 
@@ -210,6 +218,7 @@ class _TextField extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: TextFormField(
         controller: controller,
+        keyboardType: keyboardType,
         decoration: InputDecoration(labelText: label),
         validator:
             validator ??

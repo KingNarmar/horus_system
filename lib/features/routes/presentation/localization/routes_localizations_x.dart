@@ -8,9 +8,9 @@ extension RoutesLocalizationsX on AppLocalizations {
 
   String get editButton => routeEditButton;
 
-  String get routeEmptyValue => '-';
+  String get routeEmptyValue => routeNotAvailable;
 
-  String get emptyValue => '-';
+  String get emptyValue => routeNotAvailable;
 
   String get routeDefaultFreightRatePerTonLabel =>
       '$defaultFreightPriceLabel / $tripTonsSuffix';

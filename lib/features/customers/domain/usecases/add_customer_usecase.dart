@@ -2,6 +2,7 @@ import 'package:horus_system/core/errors/failure_codes.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../core/validators/app_validators.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/customer.dart';
@@ -68,6 +69,18 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
       );
     }
 
+    final normalizedEmail = _normalizeOptional(params.email);
+    if (!AppValidators.hasValidOptionalEmail(normalizedEmail)) {
+      return Future.value(
+        const FailureResult<Customer>(
+          ValidationFailure(
+            code: FailureCodes.validationEmailInvalid,
+            message: 'Email address is invalid.',
+          ),
+        ),
+      );
+    }
+
     if (params.creditLimit != null && params.creditLimit! < 0) {
       return Future.value(
         const FailureResult<Customer>(
@@ -86,7 +99,7 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
         name: normalizedName,
         contactPerson: _normalizeOptional(params.contactPerson),
         phone: _normalizeOptional(params.phone),
-        email: _normalizeOptional(params.email),
+        email: normalizedEmail,
         taxRegistrationNumber: _normalizeOptional(params.taxRegistrationNumber),
         address: _normalizeOptional(params.address),
         city: _normalizeOptional(params.city),

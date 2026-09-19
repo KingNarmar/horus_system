@@ -113,6 +113,18 @@ class DriversCubit extends Cubit<DriversState>
     );
   }
 
+  Future<Result<BusinessDate>> getCurrentBusinessDate() {
+    final context = _currentCompanyContext;
+    if (context == null) {
+      return Future.value(
+        const FailureResult<BusinessDate>(UnexpectedFailure()),
+      );
+    }
+    return getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(companyId: context.companyId),
+    );
+  }
+
   Future<Result<Map<String, BusinessLocalDateTime>>> _convertCompanyInstants(
     CurrentCompanyContext currentCompanyContext,
     Map<String, DateTime> instantsByKey,

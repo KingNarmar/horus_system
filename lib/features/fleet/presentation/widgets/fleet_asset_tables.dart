@@ -11,18 +11,29 @@ class _TractorHeadsTable extends StatelessWidget {
       child: DataTable(
         columns: [
           DataColumn(label: Text(l10n.plateNumberLabel)),
+          DataColumn(label: Text(l10n.actionsHeader)),
           DataColumn(label: Text(l10n.vehicleStatusLabel)),
           DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)),
           DataColumn(label: Text(l10n.expectedFuelConsumptionLabel)),
           DataColumn(label: Text(l10n.vehicleNotesLabel)),
           DataColumn(label: Text(l10n.statusHeader)),
-          DataColumn(label: Text(l10n.actionsHeader)),
         ],
         rows: view.tractorHeads.map((item) {
           final loading = view.isActionLoading(item.id);
           return DataRow(
             cells: [
               DataCell(Text(item.plateNumber)),
+              DataCell(
+                _Actions(
+                  canManage: view.canManageFleet,
+                  isActive: item.isActive,
+                  isLoading: loading,
+                  onViewDetails: () => _openTractorHeadDetails(context, item),
+                  onEdit: () => view.onEdit(item),
+                  onDeactivate: () => view.onDeactivate(item),
+                  onReactivate: () => view.onReactivate(item),
+                ),
+              ),
               DataCell(Text(l10n.vehicleStatusText(item.status))),
               DataCell(Text(_dateOnlyOrEmpty(context, item.licenseExpiryDate))),
               DataCell(
@@ -35,17 +46,6 @@ class _TractorHeadsTable extends StatelessWidget {
               DataCell(Text(item.notes ?? l10n.emptyValue)),
               DataCell(
                 Text(item.isActive ? l10n.activeStatus : l10n.inactiveStatus),
-              ),
-              DataCell(
-                _Actions(
-                  canManage: view.canManageFleet,
-                  isActive: item.isActive,
-                  isLoading: loading,
-                  onViewDetails: () => _openTractorHeadDetails(context, item),
-                  onEdit: () => view.onEdit(item),
-                  onDeactivate: () => view.onDeactivate(item),
-                  onReactivate: () => view.onReactivate(item),
-                ),
               ),
             ],
           );
@@ -66,23 +66,17 @@ class _TrailersTable extends StatelessWidget {
       child: DataTable(
         columns: [
           DataColumn(label: Text(l10n.plateNumberLabel)),
+          DataColumn(label: Text(l10n.actionsHeader)),
           DataColumn(label: Text(l10n.vehicleStatusLabel)),
           DataColumn(label: Text(l10n.vehicleLicenseExpiryDateLabel)),
           DataColumn(label: Text(l10n.technicalNotesLabel)),
           DataColumn(label: Text(l10n.statusHeader)),
-          DataColumn(label: Text(l10n.actionsHeader)),
         ],
         rows: view.trailers.map((item) {
           final loading = view.isActionLoading(item.id);
           return DataRow(
             cells: [
               DataCell(Text(item.plateNumber)),
-              DataCell(Text(l10n.vehicleStatusText(item.status))),
-              DataCell(Text(_dateOnlyOrEmpty(context, item.licenseExpiryDate))),
-              DataCell(Text(item.technicalNotes ?? l10n.emptyValue)),
-              DataCell(
-                Text(item.isActive ? l10n.activeStatus : l10n.inactiveStatus),
-              ),
               DataCell(
                 _Actions(
                   canManage: view.canManageFleet,
@@ -93,6 +87,12 @@ class _TrailersTable extends StatelessWidget {
                   onDeactivate: () => view.onDeactivate(item),
                   onReactivate: () => view.onReactivate(item),
                 ),
+              ),
+              DataCell(Text(l10n.vehicleStatusText(item.status))),
+              DataCell(Text(_dateOnlyOrEmpty(context, item.licenseExpiryDate))),
+              DataCell(Text(item.technicalNotes ?? l10n.emptyValue)),
+              DataCell(
+                Text(item.isActive ? l10n.activeStatus : l10n.inactiveStatus),
               ),
             ],
           );

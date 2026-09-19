@@ -41,6 +41,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationCustomerIdRequired,
       FailureCodes.validationCustomerNameRequired =>
         failureValidationCustomerNameRequired,
+      FailureCodes.validationEmailInvalid => failureAuthInvalidEmail,
       FailureCodes.validationCreditLimitNegative =>
         failureValidationCreditLimitNegative,
       FailureCodes.validationAuditEntityIdRequired =>
@@ -63,6 +64,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationDriverIdRequired,
       FailureCodes.validationDriverNameRequired =>
         failureValidationDriverNameRequired,
+      FailureCodes.validationDriverLicenseExpiryBeforeBusinessDate =>
+        licenseExpiryDateMustBeFuture,
       FailureCodes.validationDriverImageTooLarge =>
         failureValidationDriverImageTooLarge,
       FailureCodes.validationDriverImageTypeUnsupported =>

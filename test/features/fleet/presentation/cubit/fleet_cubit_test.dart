@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
@@ -48,6 +51,17 @@ void main() {
         expect(state.canManageFleet, isFalse);
       },
     );
+
+    test('current business date comes from injected provider', () async {
+      final repository = _FakeFleetRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.loadFleet(_ownerContext);
+      final result = await cubit.getCurrentBusinessDate();
+
+      expect(result.dataOrNull, BusinessDate(year: 2026, month: 9, day: 19));
+    });
 
     test('reload preserves search, status filter, and selected tab', () async {
       final repository = _FakeFleetRepository();
@@ -253,6 +267,9 @@ FleetCubit _createCubit(
     getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
       _FakeAuditLogRepository(),
     ),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      _FakeCompanyBusinessDateProvider(),
+    ),
   );
 }
 
@@ -423,6 +440,15 @@ class _FakeFleetRepository implements FleetRepository {
     required String actorRole,
   }) async {
     return const Success<TrailerEntity>(_trailer);
+  }
+}
+
+class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(BusinessDate(year: 2026, month: 9, day: 19));
   }
 }
 

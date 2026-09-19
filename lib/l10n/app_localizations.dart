@@ -1661,7 +1661,7 @@ abstract class AppLocalizations {
   /// No description provided for @routeNotAvailable.
   ///
   /// In en, this message translates to:
-  /// **'N/A'**
+  /// **'Not available'**
   String get routeNotAvailable;
 
   /// No description provided for @routeAuditActionCreated.

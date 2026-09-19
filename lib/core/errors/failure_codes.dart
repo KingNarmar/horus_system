@@ -70,12 +70,15 @@ class FailureCodes {
       'validation_driver_id_required';
   static const String validationDriverNameRequired =
       'validation_driver_name_required';
+  static const String validationDriverLicenseExpiryBeforeBusinessDate =
+      'validation_driver_license_expiry_before_business_date';
   static const String validationDriverImageTooLarge =
       'validation_driver_image_too_large';
   static const String validationDriverImageTypeUnsupported =
       'validation_driver_image_type_unsupported';
   static const String validationCustomerNameRequired =
       'validation_customer_name_required';
+  static const String validationEmailInvalid = 'validation_email_invalid';
   static const String validationCreditLimitNegative =
       'validation_credit_limit_negative';
   static const String validationCustomerIdRequired =

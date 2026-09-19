@@ -855,7 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeUnknownUser => 'Unknown user';
 
   @override
-  String get routeNotAvailable => 'N/A';
+  String get routeNotAvailable => 'Not available';
 
   @override
   String get routeAuditActionCreated => 'Created';

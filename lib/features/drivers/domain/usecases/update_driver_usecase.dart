@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/driver.dart';
 import '../entities/driver_image_file.dart';
 import '../entities/driver_write_data.dart';
+import '../policies/driver_license_expiry_policy.dart';
 import '../policies/drivers_permission_policy.dart';
 import '../repositories/drivers_repository.dart';
 import '../services/driver_image_upload_validator.dart';
@@ -22,6 +23,7 @@ class UpdateDriverParams {
   final BusinessDate? licenseExpiryDate;
   final DriverImageUploadSet? imageUploads;
   final String? notes;
+  final BusinessDate currentBusinessDate;
 
   const UpdateDriverParams({
     required this.currentCompanyContext,
@@ -33,6 +35,7 @@ class UpdateDriverParams {
     this.licenseExpiryDate,
     this.imageUploads,
     this.notes,
+    required this.currentBusinessDate,
   });
 }
 
@@ -67,6 +70,20 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
           ValidationFailure(
             code: FailureCodes.validationDriverNameRequired,
             message: 'Driver name is required.',
+          ),
+        ),
+      );
+    }
+
+    if (!DriverLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: params.licenseExpiryDate,
+      currentBusinessDate: params.currentBusinessDate,
+    )) {
+      return Future.value(
+        const FailureResult<Driver>(
+          ValidationFailure(
+            code: FailureCodes.validationDriverLicenseExpiryBeforeBusinessDate,
+            message: 'Driver license expiry date is before the business date.',
           ),
         ),
       );

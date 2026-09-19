@@ -58,11 +58,14 @@ void main() {
 
     expect(find.text('Cash'), findsOneWidget);
     expect(find.text('Cheque'), findsNothing);
+    expect(find.widgetWithText(OutlinedButton, 'Edit'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Deactivate'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilterChip, 'Inactive'));
     await tester.pump();
     expect(find.text('Cash'), findsNothing);
     expect(find.text('Cheque'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Reactivate'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilterChip, 'All'));
     await tester.pump();

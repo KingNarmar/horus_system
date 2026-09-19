@@ -5,7 +5,7 @@ import '../../domain/entities/vehicle_status.dart';
 extension FleetLocalizationsX on AppLocalizations {
   String get editButton => fleetEditButton;
 
-  String get emptyValue => '-';
+  String get emptyValue => fleetNotAvailable;
 
   String vehicleStatusText(VehicleStatus status) {
     return switch (status) {
