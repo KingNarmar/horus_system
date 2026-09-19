@@ -1,10 +1,14 @@
 import 'package:intl/intl.dart';
 
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
+import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../core/localization/money_formatter.dart';
 
-String formatReportDate(DateTime date, String localeName) {
-  return DateFormat.yMMMd(localeName).format(date);
+String formatReportDate(BusinessDate date, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).format(BusinessDateDateTimeAdapter.toDateTime(date));
 }
 
 String formatReportMoney({
