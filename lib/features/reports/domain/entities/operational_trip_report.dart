@@ -2,7 +2,14 @@ import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../trips/domain/entities/trip_status.dart';
 import 'report_source_metadata.dart';
 
-enum OperationalReportDimension { day, customer, driver, tractorHead, trailer }
+enum OperationalReportDimension {
+  day,
+  customer,
+  route,
+  driver,
+  tractorHead,
+  trailer,
+}
 
 final class OperationalTripReportRow {
   final String tripId;
