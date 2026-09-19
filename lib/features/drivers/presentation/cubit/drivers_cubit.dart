@@ -29,11 +29,7 @@ part 'drivers_mutation_actions.dart';
 part 'drivers_selected_driver_actions.dart';
 
 class DriversCubit extends Cubit<DriversState>
-    with
-        DriversFilterActions,
-        DriversSelectedDriverActions,
-        DriversFinanceActions,
-        DriversMutationActions {
+    with DriversFilterActions, DriversSelectedDriverActions, DriversMutationActions {
   final GetDriversUseCase getDriversUseCase;
   final GetDriverImageUrlsUseCase getDriverImageUrlsUseCase;
   final AddDriverUseCase addDriverUseCase;
