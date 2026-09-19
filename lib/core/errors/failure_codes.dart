@@ -70,6 +70,8 @@ class FailureCodes {
       'validation_driver_id_required';
   static const String validationDriverNameRequired =
       'validation_driver_name_required';
+  static const String validationDriverLicenseExpiryBeforeBusinessDate =
+      'validation_driver_license_expiry_before_business_date';
   static const String validationDriverImageTooLarge =
       'validation_driver_image_too_large';
   static const String validationDriverImageTypeUnsupported =

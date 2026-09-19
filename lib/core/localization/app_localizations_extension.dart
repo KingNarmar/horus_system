@@ -64,6 +64,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationDriverIdRequired,
       FailureCodes.validationDriverNameRequired =>
         failureValidationDriverNameRequired,
+      FailureCodes.validationDriverLicenseExpiryBeforeBusinessDate =>
+        licenseExpiryDateMustBeFuture,
       FailureCodes.validationDriverImageTooLarge =>
         failureValidationDriverImageTooLarge,
       FailureCodes.validationDriverImageTypeUnsupported =>
