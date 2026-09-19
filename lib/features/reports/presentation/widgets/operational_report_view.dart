@@ -300,6 +300,7 @@ String _dimensionLabel(
   return switch (dimension) {
     OperationalReportDimension.day => strings.date,
     OperationalReportDimension.customer => strings.customer,
+    OperationalReportDimension.route => strings.route,
     OperationalReportDimension.driver => strings.driver,
     OperationalReportDimension.tractorHead => strings.tractorHead,
     OperationalReportDimension.trailer => strings.trailer,
