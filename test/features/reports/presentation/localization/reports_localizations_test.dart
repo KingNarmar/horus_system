@@ -32,6 +32,10 @@ void main() {
         'Trips by customer',
       );
       expect(
+        english.reportTypeLabel(ReportType.tripsByRoute),
+        'Trips by route',
+      );
+      expect(
         english.reportTypeLabel(ReportType.tripsByDriver),
         'Trips by driver',
       );
@@ -54,6 +58,10 @@ void main() {
       expect(
         arabic.reportTypeLabel(ReportType.tripsByCustomer),
         'الرحلات حسب العميل',
+      );
+      expect(
+        arabic.reportTypeLabel(ReportType.tripsByRoute),
+        'الرحلات حسب المسار',
       );
       expect(
         arabic.reportTypeLabel(ReportType.tripsByDriver),
