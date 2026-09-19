@@ -9,6 +9,7 @@ import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
+import '../models/finance_workspace_section.dart';
 import 'app_shell_body.dart';
 import 'app_shell_identity_context.dart';
 import 'app_shell_sidebar_nav.dart';
@@ -16,17 +17,23 @@ import 'app_shell_sidebar_nav.dart';
 class AppShellDesktopLayout extends StatelessWidget {
   final CurrentCompanyContext contextData;
   final AuthUser? currentUser;
+  final List<AppShellDestination> destinations;
   final AppShellDestination selected;
   final int selectedIndex;
+  final FinanceWorkspaceSection selectedFinanceSection;
   final ValueChanged<int> onSelect;
+  final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
 
   const AppShellDesktopLayout({
     required this.contextData,
     required this.currentUser,
+    required this.destinations,
     required this.selected,
     required this.selectedIndex,
+    required this.selectedFinanceSection,
     required this.onSelect,
+    required this.onFinanceSectionSelected,
     required this.onLogout,
     super.key,
   });
@@ -66,6 +73,7 @@ class AppShellDesktopLayout extends StatelessWidget {
                     const SizedBox(height: AppSpacing.lg),
                     Expanded(
                       child: AppShellSidebarNav(
+                        destinations: destinations,
                         selectedIndex: selectedIndex,
                         onSelect: onSelect,
                       ),
@@ -85,6 +93,8 @@ class AppShellDesktopLayout extends StatelessWidget {
                 contextData: contextData,
                 currentUser: currentUser,
                 selected: selected,
+                selectedFinanceSection: selectedFinanceSection,
+                onFinanceSectionSelected: onFinanceSectionSelected,
               ),
             ),
           ],

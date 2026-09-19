@@ -128,54 +128,6 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     );
   }
 
-  Future<void> loadDriverTripOptions(Driver driver) async {
-    final owner = this as DriversCubit;
-    final context = owner._currentCompanyContext;
-    final currentState = state;
-    if (context == null || currentState is! DriversLoaded) {
-      return;
-    }
-
-    emit(
-      currentState.copyWith(
-        selectedDriver: driver,
-        selectedDriverTripOptions: const [],
-        isTripOptionsLoading: true,
-        tripOptionsFailure: null,
-      ),
-    );
-
-    final result = await owner.getDriverTripOptionsUseCase(
-      GetDriverTripOptionsParams(
-        currentCompanyContext: context,
-        driverId: driver.id,
-      ),
-    );
-
-    final latestState = state;
-    if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
-      return;
-    }
-
-    result.when(
-      success: (tripOptions) => emit(
-        latestState.copyWith(
-          selectedDriverTripOptions: tripOptions,
-          isTripOptionsLoading: false,
-          tripOptionsFailure: null,
-        ),
-      ),
-      failure: (failure) => emit(
-        latestState.copyWith(
-          selectedDriverTripOptions: const [],
-          isTripOptionsLoading: false,
-          tripOptionsFailure: failure,
-        ),
-      ),
-    );
-  }
-
   void clearDriverActivity() {
     final currentState = state;
     if (currentState is DriversLoaded) {
@@ -190,14 +142,6 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
               const <String, BusinessLocalDateTime>{},
           isActivityLoading: false,
           activityFailure: null,
-          selectedDriverFinancialMovements: const [],
-          selectedDriverBalance: null,
-          selectedDriverTripOptions: const [],
-          isTripOptionsLoading: false,
-          tripOptionsFailure: null,
-          isFinancialMovementsLoading: false,
-          isSavingFinancialMovement: false,
-          financialMovementsFailure: null,
         ),
       );
     }

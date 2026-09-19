@@ -7,6 +7,7 @@ import '../../../../core/localization/widgets/app_language_toggle_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
+import '../models/finance_workspace_section.dart';
 import 'app_shell_content.dart';
 import 'app_shell_identity_context.dart';
 import 'app_shell_mobile_more_sheet.dart';
@@ -14,17 +15,23 @@ import 'app_shell_mobile_more_sheet.dart';
 class AppShellMobileLayout extends StatelessWidget {
   final CurrentCompanyContext contextData;
   final AuthUser? currentUser;
+  final List<AppShellDestination> destinations;
   final AppShellDestination selected;
   final int selectedIndex;
+  final FinanceWorkspaceSection selectedFinanceSection;
   final ValueChanged<int> onSelect;
+  final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
 
   const AppShellMobileLayout({
     required this.contextData,
     required this.currentUser,
+    required this.destinations,
     required this.selected,
     required this.selectedIndex,
+    required this.selectedFinanceSection,
     required this.onSelect,
+    required this.onFinanceSectionSelected,
     required this.onLogout,
     super.key,
   });
@@ -38,15 +45,17 @@ class AppShellMobileLayout extends StatelessWidget {
 
   List<int> get primaryIndexes => primaryModules
       .map(
-        (module) => appShellDestinations.indexWhere(
+        (module) => destinations.indexWhere(
           (destination) => destination.module == module,
         ),
       )
+      .where((index) => index >= 0)
       .toList(growable: false);
 
   int get navIndex {
-    final index = primaryIndexes.indexOf(selectedIndex);
-    return index == -1 ? primaryIndexes.length : index;
+    final indexes = primaryIndexes;
+    final index = indexes.indexOf(selectedIndex);
+    return index == -1 ? indexes.length : index;
   }
 
   @override
@@ -83,13 +92,19 @@ class AppShellMobileLayout extends StatelessWidget {
           ),
         ],
       ),
-      body: AppShellContent(contextData: contextData, selected: selected),
+      body: AppShellContent(
+        contextData: contextData,
+        selected: selected,
+        selectedFinanceSection: selectedFinanceSection,
+        onFinanceSectionSelected: onFinanceSectionSelected,
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navIndex,
         onDestinationSelected: (index) {
           if (index == indexes.length) {
             AppShellMobileMoreSheet.show(
               context: context,
+              destinations: destinations,
               selectedIndex: selectedIndex,
               onSelect: onSelect,
             );
@@ -101,9 +116,9 @@ class AppShellMobileLayout extends StatelessWidget {
         destinations: [
           for (final index in indexes)
             NavigationDestination(
-              icon: Icon(appShellDestinations[index].icon),
-              selectedIcon: Icon(appShellDestinations[index].selectedIcon),
-              label: appShellDestinations[index].label(context),
+              icon: Icon(destinations[index].icon),
+              selectedIcon: Icon(destinations[index].selectedIcon),
+              label: destinations[index].label(context),
             ),
           NavigationDestination(
             icon: const Icon(AppIcons.appsOutlined),

@@ -64,6 +64,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appShellTripsDescription => 'Create, track, and update trips.';
 
   @override
+  String get appShellFinanceLabel => 'Finance';
+
+  @override
+  String get appShellFinanceDescription =>
+      'Manage driver finance, settlements, expenses, invoices, payments, and customer statements.';
+
+  @override
   String get appShellExpensesLabel => 'Expenses';
 
   @override

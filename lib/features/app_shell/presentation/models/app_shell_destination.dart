@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../customer_statements/presentation/localization/customer_statements_localizations.dart';
-import '../../../driver_settlements/presentation/localization/driver_settlements_localizations.dart';
-import '../../../invoices/presentation/localization/invoices_localizations.dart';
-import '../../../payments/presentation/localization/payments_localizations.dart';
+import '../../../company/domain/entities/company_role.dart';
+import 'finance_workspace_section.dart';
 
 enum AppShellModule {
   dashboard,
@@ -14,11 +12,7 @@ enum AppShellModule {
   fleet,
   routes,
   trips,
-  expenses,
-  driverSettlements,
-  invoices,
-  payments,
-  customerStatements,
+  finance,
   reports,
   settings,
 }
@@ -42,13 +36,7 @@ class AppShellDestination {
       AppShellModule.fleet => context.l10n.appShellFleetLabel,
       AppShellModule.routes => context.l10n.appShellRoutesLabel,
       AppShellModule.trips => context.l10n.appShellTripsLabel,
-      AppShellModule.expenses => context.l10n.appShellExpensesLabel,
-      AppShellModule.driverSettlements =>
-        context.driverSettlementsL10n.appShellLabel,
-      AppShellModule.invoices => context.invoicesL10n.appShellLabel,
-      AppShellModule.payments => context.paymentsL10n.appShellLabel,
-      AppShellModule.customerStatements =>
-        context.customerStatementsL10n.appShellLabel,
+      AppShellModule.finance => context.l10n.appShellFinanceLabel,
       AppShellModule.reports => context.l10n.appShellReportsLabel,
       AppShellModule.settings => context.l10n.appShellSettingsLabel,
     };
@@ -62,13 +50,7 @@ class AppShellDestination {
       AppShellModule.fleet => context.l10n.appShellFleetDescription,
       AppShellModule.routes => context.l10n.appShellRoutesDescription,
       AppShellModule.trips => context.l10n.appShellTripsDescription,
-      AppShellModule.expenses => context.l10n.appShellExpensesDescription,
-      AppShellModule.driverSettlements =>
-        context.driverSettlementsL10n.appShellDescription,
-      AppShellModule.invoices => context.invoicesL10n.appShellDescription,
-      AppShellModule.payments => context.paymentsL10n.appShellDescription,
-      AppShellModule.customerStatements =>
-        context.customerStatementsL10n.appShellDescription,
+      AppShellModule.finance => context.l10n.appShellFinanceDescription,
       AppShellModule.reports => context.l10n.appShellReportsDescription,
       AppShellModule.settings => context.l10n.appShellSettingsDescription,
     };
@@ -107,29 +89,9 @@ const List<AppShellDestination> appShellDestinations = [
     selectedIcon: AppIcons.tripsSelected,
   ),
   AppShellDestination(
-    module: AppShellModule.expenses,
-    icon: AppIcons.expenses,
-    selectedIcon: AppIcons.expensesSelected,
-  ),
-  AppShellDestination(
-    module: AppShellModule.driverSettlements,
-    icon: AppIcons.driverSettlements,
-    selectedIcon: AppIcons.driverSettlementsSelected,
-  ),
-  AppShellDestination(
-    module: AppShellModule.invoices,
-    icon: AppIcons.invoices,
-    selectedIcon: AppIcons.invoicesSelected,
-  ),
-  AppShellDestination(
-    module: AppShellModule.payments,
-    icon: AppIcons.payments,
-    selectedIcon: AppIcons.paymentsSelected,
-  ),
-  AppShellDestination(
-    module: AppShellModule.customerStatements,
-    icon: AppIcons.customerStatements,
-    selectedIcon: AppIcons.customerStatementsSelected,
+    module: AppShellModule.finance,
+    icon: AppIcons.finance,
+    selectedIcon: AppIcons.financeSelected,
   ),
   AppShellDestination(
     module: AppShellModule.reports,
@@ -142,3 +104,13 @@ const List<AppShellDestination> appShellDestinations = [
     selectedIcon: AppIcons.settingsSelected,
   ),
 ];
+
+List<AppShellDestination> appShellDestinationsForRole(CompanyRole role) {
+  final canViewFinance = financeWorkspaceSectionsForRole(role).isNotEmpty;
+  return appShellDestinations
+      .where(
+        (destination) =>
+            destination.module != AppShellModule.finance || canViewFinance,
+      )
+      .toList(growable: false);
+}

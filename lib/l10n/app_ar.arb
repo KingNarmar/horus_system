@@ -20,6 +20,8 @@
   "appShellRoutesDescription": "إدارة نقاط التحميل والتسليم وخطوط السير.",
   "appShellTripsLabel": "الرحلات",
   "appShellTripsDescription": "إنشاء الرحلات ومتابعتها وتحديث حالتها.",
+  "appShellFinanceLabel": "المالية",
+  "appShellFinanceDescription": "إدارة مالية السائقين والتسويات والمصروفات والفواتير والمدفوعات وكشوف حساب العملاء.",
   "appShellExpensesLabel": "المصروفات",
   "appShellExpensesDescription": "تسجيل تكاليف الرحلات والرسوم والحركات المالية.",
   "appShellInvoicesLabel": "الفواتير",

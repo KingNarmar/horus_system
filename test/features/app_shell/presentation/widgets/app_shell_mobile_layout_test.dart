@@ -1,40 +1,28 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:horus_system/app/routing/app_routes.dart';
 import 'package:horus_system/features/app_shell/presentation/models/app_shell_destination.dart';
+import 'package:horus_system/features/app_shell/presentation/models/finance_workspace_section.dart';
 import 'package:horus_system/features/app_shell/presentation/widgets/app_shell_mobile_layout.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 
 void main() {
-  group('App Shell driver settlements integration', () {
-    test('registers driver settlements as a company-scoped route', () {
-      expect(
-        AppRoutes.companyRequiredRoutes,
-        contains(AppRoutes.driverSettlements),
-      );
-
-      final destinations = appShellDestinations
-          .where(
-            (destination) =>
-                destination.module == AppShellModule.driverSettlements,
-          )
-          .toList();
-
-      expect(destinations, hasLength(1));
-    });
-
-    test('resolves mobile primary navigation by module instead of indexes', () {
-      final dashboardIndex = appShellDestinations.indexWhere(
+  group('App Shell mobile navigation', () {
+    test('resolves primary navigation from the filtered destination list', () {
+      final destinations = appShellDestinationsForRole(_companyContext.role);
+      final dashboardIndex = destinations.indexWhere(
         (destination) => destination.module == AppShellModule.dashboard,
       );
 
       final layout = AppShellMobileLayout(
         contextData: _companyContext,
         currentUser: null,
-        selected: appShellDestinations[dashboardIndex],
+        destinations: destinations,
+        selected: destinations[dashboardIndex],
         selectedIndex: dashboardIndex,
+        selectedFinanceSection: FinanceWorkspaceSection.driverFinance,
         onSelect: (_) {},
+        onFinanceSectionSelected: (_) {},
         onLogout: () {},
       );
 
@@ -46,27 +34,31 @@ void main() {
       );
       expect(primaryIndexes, everyElement(greaterThanOrEqualTo(0)));
       expect(
-        primaryIndexes.map((index) => appShellDestinations[index].module),
+        primaryIndexes.map((index) => destinations[index].module),
         AppShellMobileLayout.primaryModules,
       );
       expect(layout.navIndex, 0);
     });
 
-    test('places driver settlements under mobile More navigation', () {
-      final settlementIndex = appShellDestinations.indexWhere(
-        (destination) => destination.module == AppShellModule.driverSettlements,
+    test('places Finance under mobile More navigation', () {
+      final destinations = appShellDestinationsForRole(_companyContext.role);
+      final financeIndex = destinations.indexWhere(
+        (destination) => destination.module == AppShellModule.finance,
       );
 
       final layout = AppShellMobileLayout(
         contextData: _companyContext,
         currentUser: null,
-        selected: appShellDestinations[settlementIndex],
-        selectedIndex: settlementIndex,
+        destinations: destinations,
+        selected: destinations[financeIndex],
+        selectedIndex: financeIndex,
+        selectedFinanceSection: FinanceWorkspaceSection.driverFinance,
         onSelect: (_) {},
+        onFinanceSectionSelected: (_) {},
         onLogout: () {},
       );
 
-      expect(settlementIndex, greaterThanOrEqualTo(0));
+      expect(financeIndex, greaterThanOrEqualTo(0));
       expect(layout.navIndex, AppShellMobileLayout.primaryModules.length);
     });
   });

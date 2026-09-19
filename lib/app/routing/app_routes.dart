@@ -15,11 +15,15 @@ abstract final class AppRoutes {
   static const String fleet = '/app/fleet';
   static const String routes = '/app/routes';
   static const String trips = '/app/trips';
+  static const String finance = '/app/finance';
+
+  // Backward-compatible deep links into the Finance workspace.
   static const String expenses = '/app/expenses';
   static const String driverSettlements = '/app/driver-settlements';
   static const String invoices = '/app/invoices';
   static const String payments = '/app/payments';
   static const String customerStatements = '/app/customer-statements';
+
   static const String reports = '/app/reports';
   static const String settings = '/app/settings';
 
@@ -35,6 +39,7 @@ abstract final class AppRoutes {
     fleet,
     routes,
     trips,
+    finance,
     expenses,
     driverSettlements,
     invoices,
