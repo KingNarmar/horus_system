@@ -13,8 +13,9 @@ final class FleetLicenseExpirySelection {
 
 Future<FleetLicenseExpirySelection?> selectFleetLicenseExpiryUpdate(
   BuildContext context,
-  BusinessDate? currentValue,
-) async {
+  BusinessDate? currentValue, {
+  required BusinessDate currentBusinessDate,
+}) async {
   final choice = await showDialog<_ExpiryChoice>(
     context: context,
     builder: (dialogContext) => AlertDialog(
@@ -44,24 +45,33 @@ Future<FleetLicenseExpirySelection?> selectFleetLicenseExpiryUpdate(
     return const FleetLicenseExpirySelection();
   }
 
-  final today = BusinessDateDateTimeAdapter.fromDateTime(DateTime.now());
   final picked = await showDatePicker(
     context: context,
-    initialDate: BusinessDateDateTimeAdapter.toDateTime(currentValue ?? today),
-    firstDate: DateTime(
-      today.year - AppDateConstraints.fleetLicenseExpiryPastYears,
-      today.month,
-      today.day,
+    initialDate: BusinessDateDateTimeAdapter.toDateTime(
+      currentValue ?? currentBusinessDate,
     ),
-    lastDate: DateTime(
-      today.year + AppDateConstraints.fleetLicenseExpiryFutureYears,
-      today.month,
-      today.day,
-    ),
+    firstDate: fleetLicenseExpiryFirstDate(currentBusinessDate),
+    lastDate: fleetLicenseExpiryLastDate(currentBusinessDate),
   );
   if (picked == null) return null;
   return FleetLicenseExpirySelection(
     newValue: BusinessDateDateTimeAdapter.fromDateTime(picked),
+  );
+}
+
+DateTime fleetLicenseExpiryFirstDate(BusinessDate currentBusinessDate) {
+  return DateTime(
+    currentBusinessDate.year - AppDateConstraints.fleetLicenseExpiryPastYears,
+    currentBusinessDate.month,
+    currentBusinessDate.day,
+  );
+}
+
+DateTime fleetLicenseExpiryLastDate(BusinessDate currentBusinessDate) {
+  return DateTime(
+    currentBusinessDate.year + AppDateConstraints.fleetLicenseExpiryFutureYears,
+    currentBusinessDate.month,
+    currentBusinessDate.day,
   );
 }
 
