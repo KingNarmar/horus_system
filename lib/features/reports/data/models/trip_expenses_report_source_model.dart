@@ -6,12 +6,14 @@ final class TripExpensesReportSourceModel {
   final ReportSourceMetadataModel metadata;
   final int precisionLossCount;
   final int negativeAmountCount;
+  final int currencyMismatchCount;
   final List<TripExpenseRowModel> rows;
 
   TripExpensesReportSourceModel({
     required this.metadata,
     required this.precisionLossCount,
     required this.negativeAmountCount,
+    required this.currencyMismatchCount,
     required List<TripExpenseRowModel> rows,
   }) : rows = List.unmodifiable(rows);
 
@@ -26,6 +28,10 @@ final class TripExpensesReportSourceModel {
       negativeAmountCount: requiredInt(
         validation['negative_amount_count'],
         'negative_amount_count',
+      ),
+      currencyMismatchCount: requiredInt(
+        validation['currency_mismatch_count'],
+        'currency_mismatch_count',
       ),
       rows: requiredMapList(
         map['rows'],
