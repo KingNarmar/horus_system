@@ -2912,6 +2912,48 @@ abstract class AppLocalizations {
   /// **'Audit description is required.'**
   String get failureValidationAuditDescriptionRequired;
 
+  /// No description provided for @signedInAsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as'**
+  String get signedInAsLabel;
+
+  /// No description provided for @youLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get youLabel;
+
+  /// No description provided for @notProvidedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not provided'**
+  String get notProvidedLabel;
+
+  /// No description provided for @companyEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to continue'**
+  String get companyEntryTitle;
+
+  /// No description provided for @companyEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a company workspace or join one using a company invitation.'**
+  String get companyEntrySubtitle;
+
+  /// No description provided for @createCompanyOptionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a new workspace for your company's operations and settings.'**
+  String get createCompanyOptionDescription;
+
+  /// No description provided for @joinCompanyOptionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Already invited to a company? Open the invitation or enter its code to join with this signed-in account.'**
+  String get joinCompanyOptionDescription;
+
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:

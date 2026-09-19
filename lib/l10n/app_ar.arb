@@ -897,5 +897,13 @@
   "fleetLicenseDocumentSideField": "جانب الرخصة",
   "fleetLicenseDocumentFrontValue": "الوجه الأمامي",
   "fleetLicenseDocumentBackValue": "الوجه الخلفي",
-  "fleetLicenseDocumentCombinedValue": "ملف مجمع"
+  "fleetLicenseDocumentCombinedValue": "ملف مجمع",
+  "signedInAsLabel": "تم تسجيل الدخول باسم",
+  "youLabel": "أنت",
+  "notProvidedLabel": "غير مُدخل",
+  "companyEntryTitle": "اختر كيف تريد المتابعة",
+  "companyEntrySubtitle": "أنشئ مساحة عمل لشركة جديدة أو انضم إلى شركة باستخدام دعوة.",
+  "createCompanyOptionDescription": "أنشئ مساحة عمل جديدة لإدارة عمليات شركتك وإعداداتها.",
+  "joinCompanyOptionDescription": "لديك دعوة بالفعل؟ افتح الدعوة أو أدخل رمزها للانضمام بهذا الحساب."
+
 }

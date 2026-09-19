@@ -893,5 +893,13 @@
   "fleetLicenseDocumentSideField": "License side",
   "fleetLicenseDocumentFrontValue": "Front",
   "fleetLicenseDocumentBackValue": "Back",
-  "fleetLicenseDocumentCombinedValue": "Combined"
+  "fleetLicenseDocumentCombinedValue": "Combined",
+  "signedInAsLabel": "Signed in as",
+  "youLabel": "You",
+  "notProvidedLabel": "Not provided",
+  "companyEntryTitle": "Choose how to continue",
+  "companyEntrySubtitle": "Create a company workspace or join one using a company invitation.",
+  "createCompanyOptionDescription": "Set up a new workspace for your company's operations and settings.",
+  "joinCompanyOptionDescription": "Already invited to a company? Open the invitation or enter its code to join with this signed-in account."
+
 }

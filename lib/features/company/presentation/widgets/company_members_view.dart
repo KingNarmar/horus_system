@@ -78,8 +78,8 @@ class CompanyMembersView extends StatelessWidget {
               .map(
                 (user) => DataRow(
                   cells: [
-                    DataCell(Text(_displayName(context, user))),
-                    DataCell(Text(_phone(context, user))),
+                    DataCell(_memberName(context, user)),
+                    DataCell(Text(_phoneValue(context, user))),
                     DataCell(Text(user.role.localizedLabel(context))),
                     DataCell(Text(_statusLabel(context, user))),
                     DataCell(_actions(context, user)),
@@ -105,22 +105,17 @@ class CompanyMembersView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  child: Text(
-                    user.role.localizedLabel(context).substring(0, 1),
-                  ),
-                ),
+                CircleAvatar(child: _avatarContent(context, user)),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _displayName(context, user),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      _memberName(context, user),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(_phone(context, user)),
+                      Text(
+                        context.l10n.phoneLine(_phoneValue(context, user)),
+                      ),
                       Text(
                         context.l10n.roleLine(
                           user.role.localizedLabel(context),
@@ -254,6 +249,33 @@ class CompanyMembersView extends StatelessWidget {
     };
   }
 
+  Widget _memberName(BuildContext context, CompanyUser user) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.xs,
+      children: [
+        Text(
+          _displayName(context, user),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        if (_isCurrentUser(user)) Chip(label: Text(context.l10n.youLabel)),
+      ],
+    );
+  }
+
+  Widget _avatarContent(BuildContext context, CompanyUser user) {
+    final displayName = user.displayName?.trim();
+    if (displayName == null || displayName.isEmpty) {
+      return const Icon(AppIcons.user);
+    }
+    return Text(String.fromCharCode(displayName.runes.first).toUpperCase());
+  }
+
+  bool _isCurrentUser(CompanyUser user) {
+    return currentUserId != null && user.userId == currentUserId;
+  }
+
   String _displayName(BuildContext context, CompanyUser user) {
     final displayName = user.displayName?.trim();
     return displayName == null || displayName.isEmpty
@@ -261,10 +283,10 @@ class CompanyMembersView extends StatelessWidget {
         : displayName;
   }
 
-  String _phone(BuildContext context, CompanyUser user) {
+  String _phoneValue(BuildContext context, CompanyUser user) {
     final phone = user.phone?.trim();
     return phone == null || phone.isEmpty
-        ? context.l10n.profileDetailsNotSetYet
+        ? context.l10n.notProvidedLabel
         : phone;
   }
 

@@ -1565,6 +1565,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Audit description is required.';
 
   @override
+  String get signedInAsLabel => 'Signed in as';
+
+  @override
+  String get youLabel => 'You';
+
+  @override
+  String get notProvidedLabel => 'Not provided';
+
+  @override
+  String get companyEntryTitle => 'Choose how to continue';
+
+  @override
+  String get companyEntrySubtitle =>
+      'Create a company workspace or join one using a company invitation.';
+
+  @override
+  String get createCompanyOptionDescription =>
+      'Set up a new workspace for your company\'s operations and settings.';
+
+  @override
+  String get joinCompanyOptionDescription =>
+      'Already invited to a company? Open the invitation or enter its code to join with this signed-in account.';
+
+  @override
   String get unknownUser => 'Unknown User';
 
   @override

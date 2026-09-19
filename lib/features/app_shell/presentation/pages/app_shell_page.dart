@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../models/app_shell_destination.dart';
 import '../widgets/app_shell_desktop_layout.dart';
@@ -48,9 +49,13 @@ class _AppShellPageState extends State<AppShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthCubit>().state;
+    final currentUser = authState is AuthAuthenticated ? authState.user : null;
+
     return ResponsiveLayout(
       mobile: AppShellMobileLayout(
         contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
         selected: _selected,
         selectedIndex: _selectedIndex,
         onSelect: _select,
@@ -58,6 +63,7 @@ class _AppShellPageState extends State<AppShellPage> {
       ),
       tablet: AppShellTabletLayout(
         contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
         selected: _selected,
         selectedIndex: _selectedIndex,
         onSelect: _select,
@@ -65,6 +71,7 @@ class _AppShellPageState extends State<AppShellPage> {
       ),
       desktop: AppShellDesktopLayout(
         contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
         selected: _selected,
         selectedIndex: _selectedIndex,
         onSelect: _select,

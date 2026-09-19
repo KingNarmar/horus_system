@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_icons.dart';
@@ -6,6 +7,9 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
 import '../widgets/company_logout_button.dart';
 
 class CompanyEntryPage extends StatelessWidget {
@@ -53,6 +57,8 @@ class _CompanyEntryContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final authState = context.watch<AuthCubit>().state;
+    final currentUser = authState is AuthAuthenticated ? authState.user : null;
 
     return Center(
       child: SingleChildScrollView(
@@ -68,6 +74,26 @@ class _CompanyEntryContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  AuthUserIdentitySummary(user: currentUser),
+                  const SizedBox(height: AppSpacing.lg),
+                  const Divider(),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.companyEntryTitle,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    l10n.companyEntrySubtitle,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    l10n.createCompanyOptionDescription,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
                   FilledButton.icon(
                     onPressed: () => Navigator.of(
                       context,
@@ -75,7 +101,12 @@ class _CompanyEntryContent extends StatelessWidget {
                     icon: const Icon(AppIcons.add),
                     label: Text(l10n.createCompanyTitle),
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.joinCompanyOptionDescription,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
                   OutlinedButton.icon(
                     onPressed: () => Navigator.of(
                       context,
