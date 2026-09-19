@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../entities/operational_trip_report.dart';
 
 final class OperationalReportAggregator {
@@ -35,14 +36,9 @@ final class OperationalReportAggregator {
   List<OperationalTripReportGroup> _groupByDay(
     List<OperationalTripReportRow> rows,
   ) {
-    final grouped = <DateTime, List<OperationalTripReportRow>>{};
+    final grouped = <BusinessDate, List<OperationalTripReportRow>>{};
     for (final row in rows) {
-      final date = DateTime(
-        row.operationalDate.year,
-        row.operationalDate.month,
-        row.operationalDate.day,
-      );
-      (grouped[date] ??= <OperationalTripReportRow>[]).add(row);
+      (grouped[row.operationalDate] ??= <OperationalTripReportRow>[]).add(row);
     }
 
     final dates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
