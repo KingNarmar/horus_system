@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
@@ -18,8 +19,8 @@ void main() {
     test('preserves company/date scope and maps all report sources', () async {
       final dataSource = _FakeReportsRemoteDataSource();
       final repository = ReportsRepositoryImpl(dataSource);
-      final fromDate = DateTime(2026, 8, 1);
-      final toDate = DateTime(2026, 8, 31);
+      final fromDate = BusinessDate(year: 2026, month: 8, day: 1);
+      final toDate = BusinessDate(year: 2026, month: 8, day: 31);
 
       final operational = await repository.getOperationalTripSource(
         companyId: 'company-1',
@@ -200,9 +201,9 @@ ReportSourceMetadataModel _metadata({String currencyCode = 'AED'}) {
     baseCurrencyCode: currencyCode,
     baseCurrencyFractionDigits: 2,
     businessTimezone: 'Asia/Dubai',
-    businessDate: DateTime(2026, 8, 24),
-    fromDate: DateTime(2026, 8, 1),
-    toDate: DateTime(2026, 8, 31),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 24),
+    fromDate: BusinessDate(year: 2026, month: 8, day: 1),
+    toDate: BusinessDate(year: 2026, month: 8, day: 31),
   );
 }
 
@@ -215,6 +216,7 @@ TripExpensesReportSourceModel _tripExpensesModel() {
     metadata: _metadata(),
     precisionLossCount: 0,
     negativeAmountCount: 0,
+    currencyMismatchCount: 0,
     rows: const [],
   );
 }
@@ -226,6 +228,7 @@ TripNetProfitReportSourceModel _tripNetProfitModel() {
     negativeFreightCount: 0,
     expensePrecisionLossCount: 0,
     negativeExpenseCount: 0,
+    expenseCurrencyMismatchCount: 0,
     trips: const [],
     expenses: const [],
   );
@@ -249,8 +252,8 @@ enum _ReportOperation { operational, tripExpenses, tripNetProfit, openInvoices }
 final class _ReportCall {
   final _ReportOperation operation;
   final String companyId;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const _ReportCall({
     required this.operation,
@@ -282,8 +285,8 @@ final class _FakeReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<OperationalReportSourceModel> getOperationalSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     _record(_ReportOperation.operational, companyId, fromDate, toDate);
     _throwIfNeeded();
@@ -293,8 +296,8 @@ final class _FakeReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<TripExpensesReportSourceModel> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     _record(_ReportOperation.tripExpenses, companyId, fromDate, toDate);
     _throwIfNeeded();
@@ -304,8 +307,8 @@ final class _FakeReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<TripNetProfitReportSourceModel> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     _record(_ReportOperation.tripNetProfit, companyId, fromDate, toDate);
     _throwIfNeeded();
@@ -315,8 +318,8 @@ final class _FakeReportsRemoteDataSource implements ReportsRemoteDataSource {
   @override
   Future<OpenInvoicesReportSourceModel> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     _record(_ReportOperation.openInvoices, companyId, fromDate, toDate);
     _throwIfNeeded();
@@ -326,8 +329,8 @@ final class _FakeReportsRemoteDataSource implements ReportsRemoteDataSource {
   void _record(
     _ReportOperation operation,
     String companyId,
-    DateTime? fromDate,
-    DateTime? toDate,
+    BusinessDate? fromDate,
+    BusinessDate? toDate,
   ) {
     calls.add(
       _ReportCall(
