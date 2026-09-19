@@ -12,19 +12,22 @@ import 'package:test/test.dart';
 
 void main() {
   group('customer email validation', () {
-    test('add rejects malformed optional email before repository call', () async {
-      final repository = _FakeCustomersRepository();
-      final result = await AddCustomerUseCase(repository)(
-        AddCustomerParams(
-          currentCompanyContext: _context,
-          name: 'Customer',
-          email: 'invalid-email',
-        ),
-      );
+    test(
+      'add rejects malformed optional email before repository call',
+      () async {
+        final repository = _FakeCustomersRepository();
+        final result = await AddCustomerUseCase(repository)(
+          AddCustomerParams(
+            currentCompanyContext: _context,
+            name: 'Customer',
+            email: 'invalid-email',
+          ),
+        );
 
-      expect(result.failureOrNull?.code, FailureCodes.validationEmailInvalid);
-      expect(repository.addCalls, 0);
-    });
+        expect(result.failureOrNull?.code, FailureCodes.validationEmailInvalid);
+        expect(repository.addCalls, 0);
+      },
+    );
 
     test(
       'update rejects malformed optional email before repository call',
@@ -92,7 +95,9 @@ class _FakeCustomersRepository implements CustomersRepository {
   }
 
   @override
-  Future<Result<List<Customer>>> getCustomers({required String companyId}) async {
+  Future<Result<List<Customer>>> getCustomers({
+    required String companyId,
+  }) async {
     return const Success([]);
   }
 

@@ -362,8 +362,8 @@ class _RouteCardActions extends StatelessWidget {
             onPressed: isChanging
                 ? null
                 : () => route.isActive
-                    ? onDeactivate(route)
-                    : onReactivate(route),
+                      ? onDeactivate(route)
+                      : onReactivate(route),
             icon: isChanging
                 ? const SizedBox.square(
                     dimension: AppSizes.iconSm,
@@ -372,9 +372,7 @@ class _RouteCardActions extends StatelessWidget {
                     ),
                   )
                 : Icon(
-                    route.isActive
-                        ? AppIcons.deactivate
-                        : AppIcons.reactivate,
+                    route.isActive ? AppIcons.deactivate : AppIcons.reactivate,
                   ),
             label: Text(
               route.isActive

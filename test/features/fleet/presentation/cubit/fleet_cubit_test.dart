@@ -60,10 +60,7 @@ void main() {
       await cubit.loadFleet(_ownerContext);
       final result = await cubit.getCurrentBusinessDate();
 
-      expect(
-        result.dataOrNull,
-        BusinessDate(year: 2026, month: 9, day: 19),
-      );
+      expect(result.dataOrNull, BusinessDate(year: 2026, month: 9, day: 19));
     });
 
     test('reload preserves search, status filter, and selected tab', () async {
@@ -446,8 +443,7 @@ class _FakeFleetRepository implements FleetRepository {
   }
 }
 
-class _FakeCompanyBusinessDateProvider
-    implements CompanyBusinessDateProvider {
+class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
   @override
   Future<Result<BusinessDate>> getBusinessDate({
     required String companyId,

@@ -95,7 +95,9 @@ class _FleetPageState extends State<FleetPage> {
 
     if (result is FailureResult<BusinessDate>) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.localizedErrorMessage(result.failure))),
+        SnackBar(
+          content: Text(context.l10n.localizedErrorMessage(result.failure)),
+        ),
       );
       return null;
     }

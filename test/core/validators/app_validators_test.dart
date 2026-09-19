@@ -30,20 +30,17 @@ void main() {
       expect(AppValidators.hasValidEmail('user@'), isFalse);
       expect(AppValidators.hasValidEmail('@example.com'), isFalse);
       expect(AppValidators.hasValidEmail('user@example'), isFalse);
-      expect(
-        AppValidators.hasValidEmail('user example@example.com'),
-        isFalse,
-      );
+      expect(AppValidators.hasValidEmail('user example@example.com'), isFalse);
     });
 
-    test('optional email accepts missing values but rejects malformed text', () {
-      expect(AppValidators.hasValidOptionalEmail(null), isTrue);
-      expect(AppValidators.hasValidOptionalEmail('   '), isTrue);
-      expect(
-        AppValidators.hasValidOptionalEmail('user@example.com'),
-        isTrue,
-      );
-      expect(AppValidators.hasValidOptionalEmail('invalid-email'), isFalse);
-    });
+    test(
+      'optional email accepts missing values but rejects malformed text',
+      () {
+        expect(AppValidators.hasValidOptionalEmail(null), isTrue);
+        expect(AppValidators.hasValidOptionalEmail('   '), isTrue);
+        expect(AppValidators.hasValidOptionalEmail('user@example.com'), isTrue);
+        expect(AppValidators.hasValidOptionalEmail('invalid-email'), isFalse);
+      },
+    );
   });
 }

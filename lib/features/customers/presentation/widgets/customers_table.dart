@@ -90,11 +90,19 @@ class CustomersTable extends StatelessWidget {
                         ),
                       ),
                       DataCell(
-                        Text(customer.contactPerson ?? l10n.customerNotAvailable),
+                        Text(
+                          customer.contactPerson ?? l10n.customerNotAvailable,
+                        ),
                       ),
-                      DataCell(Text(customer.phone ?? l10n.customerNotAvailable)),
-                      DataCell(Text(customer.email ?? l10n.customerNotAvailable)),
-                      DataCell(Text(customer.city ?? l10n.customerNotAvailable)),
+                      DataCell(
+                        Text(customer.phone ?? l10n.customerNotAvailable),
+                      ),
+                      DataCell(
+                        Text(customer.email ?? l10n.customerNotAvailable),
+                      ),
+                      DataCell(
+                        Text(customer.city ?? l10n.customerNotAvailable),
+                      ),
                       DataCell(
                         Text(
                           customer.isActive
