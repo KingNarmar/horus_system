@@ -73,8 +73,20 @@ final class GetTripNetProfitReportUseCase
           source.negativeFreightCount,
           source.expensePrecisionLossCount,
           source.negativeExpenseCount,
-        ]) ||
-        source.freightPrecisionLossCount > 0 ||
+          source.expenseCurrencyMismatchCount,
+        ])) {
+      return const FailureResult(
+        ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
+      );
+    }
+
+    if (source.expenseCurrencyMismatchCount > 0) {
+      return const FailureResult(
+        ConflictFailure(code: ReportsFailureCodes.conflictCurrencyMismatch),
+      );
+    }
+
+    if (source.freightPrecisionLossCount > 0 ||
         source.negativeFreightCount > 0 ||
         source.expensePrecisionLossCount > 0 ||
         source.negativeExpenseCount > 0) {
