@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -132,8 +133,8 @@ final class _ReadinessReportsRepository implements ReportsRepository {
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     operationalCalls++;
     return Success(
@@ -141,7 +142,7 @@ final class _ReadinessReportsRepository implements ReportsRepository {
         metadata: OperationalReportSourceMetadata(
           companyId: companyId,
           businessTimezone: 'Asia/Dubai',
-          businessDate: DateTime(2026, 9, 9),
+          businessDate: BusinessDate(year: 2026, month: 9, day: 9),
           fromDate: fromDate,
           toDate: toDate,
         ),
@@ -153,8 +154,8 @@ final class _ReadinessReportsRepository implements ReportsRepository {
   @override
   Future<Result<TripExpensesReportSource>> getTripExpensesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) async {
     expenseCalls++;
     throw StateError('Financial report repository must not be called.');
@@ -163,8 +164,8 @@ final class _ReadinessReportsRepository implements ReportsRepository {
   @override
   Future<Result<TripNetProfitReportSource>> getTripNetProfitSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     throw StateError('Unexpected net-profit report call.');
   }
@@ -172,8 +173,8 @@ final class _ReadinessReportsRepository implements ReportsRepository {
   @override
   Future<Result<OpenInvoicesReportSource>> getOpenInvoicesSource({
     required String companyId,
-    required DateTime? fromDate,
-    required DateTime? toDate,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
   }) {
     throw StateError('Unexpected open-invoices report call.');
   }
