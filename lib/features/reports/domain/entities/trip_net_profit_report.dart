@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../trips/domain/entities/trip_status.dart';
 import 'report_source_metadata.dart';
@@ -5,7 +6,7 @@ import 'report_source_metadata.dart';
 final class TripNetProfitSourceTrip {
   final String tripId;
   final String? tripNumber;
-  final DateTime operationalDate;
+  final BusinessDate operationalDate;
   final TripStatus status;
   final String customerId;
   final String customerName;
