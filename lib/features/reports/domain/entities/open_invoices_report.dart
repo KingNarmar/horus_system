@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
 import 'report_source_metadata.dart';
@@ -9,8 +10,8 @@ final class OpenInvoiceSourceInvoice {
   final String customerName;
   final InvoiceStatus status;
   final Money total;
-  final DateTime issueDate;
-  final DateTime? dueDate;
+  final BusinessDate issueDate;
+  final BusinessDate? dueDate;
   final DateTime? issuedAt;
 
   const OpenInvoiceSourceInvoice({
@@ -30,7 +31,7 @@ final class OpenInvoiceSourcePayment {
   final String paymentId;
   final String invoiceId;
   final Money amount;
-  final DateTime paymentDate;
+  final BusinessDate paymentDate;
   final DateTime createdAt;
 
   const OpenInvoiceSourcePayment({
