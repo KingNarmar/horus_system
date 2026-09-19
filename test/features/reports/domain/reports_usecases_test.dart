@@ -88,7 +88,7 @@ void main() {
     expect(report, isNotNull);
     expect(report!.groups, hasLength(1));
     expect(report.groups.single.entityId, 'route-1');
-    expect(report.groups.single.entityLabel, 'Dubai → Abu Dhabi');
+    expect(report.groups.single.entityLabel, isNull);
     expect(report.groups.single.tripCount, 2);
   });
 

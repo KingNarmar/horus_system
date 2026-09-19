@@ -40,6 +40,18 @@ String reportTripDisplayValue({
     if (normalized != null) return normalized;
   }
 
+  return reportRouteDisplayValue(
+    loadingLocation: loadingLocation,
+    unloadingLocation: unloadingLocation,
+    emptyValue: emptyValue,
+  );
+}
+
+String reportRouteDisplayValue({
+  required String loadingLocation,
+  required String unloadingLocation,
+  required String emptyValue,
+}) {
   final loading = _normalizedText(loadingLocation);
   final unloading = _normalizedText(unloadingLocation);
   if (loading != null && unloading != null) return '$loading → $unloading';

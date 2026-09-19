@@ -15,11 +15,7 @@ final class OperationalReportAggregator {
         idOf: (row) => row.customerId,
         labelOf: (row) => row.customerName,
       ),
-      OperationalReportDimension.route => _groupByEntity(
-        rows,
-        idOf: (row) => row.routeId,
-        labelOf: (row) => '${row.loadingLocation} → ${row.unloadingLocation}',
-      ),
+      OperationalReportDimension.route => _groupByRoute(rows),
       OperationalReportDimension.driver => _groupByEntity(
         rows,
         idOf: (row) => row.driverId,
@@ -57,6 +53,46 @@ final class OperationalReportAggregator {
         ),
       ),
     );
+  }
+
+  List<OperationalTripReportGroup> _groupByRoute(
+    List<OperationalTripReportRow> rows,
+  ) {
+    final grouped = <String, List<OperationalTripReportRow>>{};
+    final unassigned = <OperationalTripReportRow>[];
+
+    for (final row in rows) {
+      final routeId = row.routeId.trim();
+      if (routeId.isEmpty) {
+        unassigned.add(row);
+        continue;
+      }
+      (grouped[routeId] ??= <OperationalTripReportRow>[]).add(row);
+    }
+
+    final routeIds = grouped.keys.toList()..sort();
+    final result = <OperationalTripReportGroup>[
+      ...routeIds.map(
+        (routeId) => OperationalTripReportGroup(
+          date: null,
+          entityId: routeId,
+          entityLabel: null,
+          rows: grouped[routeId]!,
+        ),
+      ),
+    ];
+
+    if (unassigned.isNotEmpty) {
+      result.add(
+        OperationalTripReportGroup(
+          date: null,
+          entityId: null,
+          entityLabel: null,
+          rows: unassigned,
+        ),
+      );
+    }
+    return List.unmodifiable(result);
   }
 
   List<OperationalTripReportGroup> _groupByEntity(
