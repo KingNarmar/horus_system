@@ -50,29 +50,37 @@ void main() {
   });
 
   group('Finance workspace App Shell integration', () {
-    test('registers one canonical Finance destination and preserves deep links', () {
-      expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.finance));
-      expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.expenses));
-      expect(
-        AppRoutes.companyRequiredRoutes,
-        contains(AppRoutes.driverSettlements),
-      );
-      expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.invoices));
-      expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.payments));
-      expect(
-        AppRoutes.companyRequiredRoutes,
-        contains(AppRoutes.customerStatements),
-      );
+    test(
+      'registers one canonical Finance destination and preserves deep links',
+      () {
+        expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.finance));
+        expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.expenses));
+        expect(
+          AppRoutes.companyRequiredRoutes,
+          contains(AppRoutes.driverSettlements),
+        );
+        expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.invoices));
+        expect(AppRoutes.companyRequiredRoutes, contains(AppRoutes.payments));
+        expect(
+          AppRoutes.companyRequiredRoutes,
+          contains(AppRoutes.customerStatements),
+        );
 
-      final financeDestinations = appShellDestinations
-          .where((destination) => destination.module == AppShellModule.finance)
-          .toList(growable: false);
+        final financeDestinations = appShellDestinations
+            .where(
+              (destination) => destination.module == AppShellModule.finance,
+            )
+            .toList(growable: false);
 
-      expect(financeDestinations, hasLength(1));
-    });
+        expect(financeDestinations, hasLength(1));
+      },
+    );
 
     test('maps legacy finance routes to the correct workspace section', () {
-      expect(AppRouter.moduleForRoute(AppRoutes.expenses), AppShellModule.finance);
+      expect(
+        AppRouter.moduleForRoute(AppRoutes.expenses),
+        AppShellModule.finance,
+      );
       expect(
         AppRouter.financeSectionForRoute(AppRoutes.expenses),
         FinanceWorkspaceSection.companyExpenses,

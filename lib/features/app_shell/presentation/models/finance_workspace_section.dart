@@ -48,8 +48,7 @@ extension FinanceWorkspaceSectionX on FinanceWorkspaceSection {
       FinanceWorkspaceSection.companyExpenses => AppIcons.expenses,
       FinanceWorkspaceSection.invoices => AppIcons.invoices,
       FinanceWorkspaceSection.payments => AppIcons.payments,
-      FinanceWorkspaceSection.customerStatements =>
-        AppIcons.customerStatements,
+      FinanceWorkspaceSection.customerStatements => AppIcons.customerStatements,
     };
   }
 

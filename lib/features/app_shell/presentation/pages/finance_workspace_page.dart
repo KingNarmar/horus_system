@@ -167,9 +167,7 @@ final class _FinanceSectionContent extends StatelessWidget {
     return switch (section) {
       FinanceWorkspaceSection.driverFinance => BlocProvider<DriverFinanceCubit>(
         create: (_) => DriverFinanceDependencies.createCubit(),
-        child: DriverFinancePage(
-          currentCompanyContext: currentCompanyContext,
-        ),
+        child: DriverFinancePage(currentCompanyContext: currentCompanyContext),
       ),
       FinanceWorkspaceSection.driverSettlements =>
         BlocProvider<DriverSettlementsCubit>(

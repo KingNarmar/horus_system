@@ -84,8 +84,7 @@ abstract final class AppRouter {
 
   static FinanceWorkspaceSection financeSectionForRoute(String routeName) {
     return switch (routeName) {
-      AppRoutes.driverSettlements =>
-        FinanceWorkspaceSection.driverSettlements,
+      AppRoutes.driverSettlements => FinanceWorkspaceSection.driverSettlements,
       AppRoutes.expenses => FinanceWorkspaceSection.companyExpenses,
       AppRoutes.invoices => FinanceWorkspaceSection.invoices,
       AppRoutes.payments => FinanceWorkspaceSection.payments,

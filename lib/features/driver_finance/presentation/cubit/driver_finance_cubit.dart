@@ -241,8 +241,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
 
     final result = await action(current.currentCompanyContext, driverId);
     final latest = state;
-    if (latest is! DriverFinanceLoaded ||
-        latest.selectedDriverId != driverId) {
+    if (latest is! DriverFinanceLoaded || latest.selectedDriverId != driverId) {
       return;
     }
 
@@ -262,10 +261,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
     }
   }
 
-  bool _isCurrentLoad(
-    int requestId,
-    CurrentCompanyContext context,
-  ) {
+  bool _isCurrentLoad(int requestId, CurrentCompanyContext context) {
     final current = _currentCompanyContext;
     return !isClosed &&
         requestId == _loadRequestId &&

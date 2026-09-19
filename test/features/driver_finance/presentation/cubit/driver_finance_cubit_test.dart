@@ -28,52 +28,58 @@ import 'package:test/test.dart';
 
 void main() {
   group('DriverFinanceCubit', () {
-    test('loads drivers and derives management permission from Domain policy', () async {
-      final cubit = _createCubit(
-        financeRepository: _FakeDriverFinanceRepository(),
-        balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
-      );
-      addTearDown(cubit.close);
+    test(
+      'loads drivers and derives management permission from Domain policy',
+      () async {
+        final cubit = _createCubit(
+          financeRepository: _FakeDriverFinanceRepository(),
+          balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
+        );
+        addTearDown(cubit.close);
 
-      await cubit.load(_context);
+        await cubit.load(_context);
 
-      final state = cubit.state as DriverFinanceLoaded;
-      expect(state.drivers, [_driver]);
-      expect(state.canManage, isTrue);
-      expect(state.selectedDriverId, isNull);
-    });
+        final state = cubit.state as DriverFinanceLoaded;
+        expect(state.drivers, [_driver]);
+        expect(state.canManage, isTrue);
+        expect(state.selectedDriverId, isNull);
+      },
+    );
 
-    test('loads movements, trip options, and canonical balance for selection', () async {
-      final financeRepository = _FakeDriverFinanceRepository(
-        movements: [_advance(id: 'movement-1', amount: 500)],
-      );
-      final balanceRepository = _FakeDriverBalanceRepository([
-        _balance(-5600),
-      ]);
-      final provider = _FakeCompanyBusinessDateProvider(
-        BusinessDate(year: 2026, month: 9, day: 19),
-      );
-      final cubit = _createCubit(
-        financeRepository: financeRepository,
-        balanceRepository: balanceRepository,
-        businessDateProvider: provider,
-      );
-      addTearDown(cubit.close);
+    test(
+      'loads movements, trip options, and canonical balance for selection',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 500)],
+        );
+        final balanceRepository = _FakeDriverBalanceRepository([
+          _balance(-5600),
+        ]);
+        final provider = _FakeCompanyBusinessDateProvider(
+          BusinessDate(year: 2026, month: 9, day: 19),
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: balanceRepository,
+          businessDateProvider: provider,
+        );
+        addTearDown(cubit.close);
 
-      await cubit.load(_context);
-      await cubit.selectDriver(_driverId);
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
 
-      final state = cubit.state as DriverFinanceLoaded;
-      expect(state.selectedDriverId, _driverId);
-      expect(state.movements, hasLength(1));
-      expect(state.balance?.netBalance, -5600);
-      expect(financeRepository.lastTripOptionsTimeZoneId, _timeZoneId);
-      expect(
-        balanceRepository.beforeExclusiveBoundaries.single,
-        BusinessDate(year: 2026, month: 9, day: 20),
-      );
-      expect(provider.lastCompanyId, _companyId);
-    });
+        final state = cubit.state as DriverFinanceLoaded;
+        expect(state.selectedDriverId, _driverId);
+        expect(state.movements, hasLength(1));
+        expect(state.balance?.netBalance, -5600);
+        expect(financeRepository.lastTripOptionsTimeZoneId, _timeZoneId);
+        expect(
+          balanceRepository.beforeExclusiveBoundaries.single,
+          BusinessDate(year: 2026, month: 9, day: 20),
+        );
+        expect(provider.lastCompanyId, _companyId);
+      },
+    );
 
     test('re-fetches finance details after a successful movement', () async {
       final financeRepository = _FakeDriverFinanceRepository(
@@ -106,22 +112,25 @@ void main() {
       expect(balanceRepository.calls, 2);
     });
 
-    test('returns the trusted company Business Date for movement forms', () async {
-      final businessDate = BusinessDate(year: 2026, month: 9, day: 19);
-      final provider = _FakeCompanyBusinessDateProvider(businessDate);
-      final cubit = _createCubit(
-        financeRepository: _FakeDriverFinanceRepository(),
-        balanceRepository: _FakeDriverBalanceRepository([_balance(0)]),
-        businessDateProvider: provider,
-      );
-      addTearDown(cubit.close);
+    test(
+      'returns the trusted company Business Date for movement forms',
+      () async {
+        final businessDate = BusinessDate(year: 2026, month: 9, day: 19);
+        final provider = _FakeCompanyBusinessDateProvider(businessDate);
+        final cubit = _createCubit(
+          financeRepository: _FakeDriverFinanceRepository(),
+          balanceRepository: _FakeDriverBalanceRepository([_balance(0)]),
+          businessDateProvider: provider,
+        );
+        addTearDown(cubit.close);
 
-      await cubit.load(_context);
-      final result = await cubit.getCurrentBusinessDate();
+        await cubit.load(_context);
+        final result = await cubit.getCurrentBusinessDate();
 
-      expect(result.dataOrNull, businessDate);
-      expect(provider.lastCompanyId, _companyId);
-    });
+        expect(result.dataOrNull, businessDate);
+        expect(provider.lastCompanyId, _companyId);
+      },
+    );
   });
 }
 
@@ -192,10 +201,7 @@ DriverBalance _balance(double closingBalance) {
   );
 }
 
-DriverFinancialMovement _advance({
-  required String id,
-  required double amount,
-}) {
+DriverFinancialMovement _advance({required String id, required double amount}) {
   return DriverFinancialMovement(
     id: id,
     companyId: _companyId,

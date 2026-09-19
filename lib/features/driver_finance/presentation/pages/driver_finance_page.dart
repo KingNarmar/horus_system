@@ -179,10 +179,7 @@ final class _LoadedDriverFinance extends StatelessWidget {
               .map(
                 (driver) => DropdownMenuItem(
                   value: driver.id,
-                  child: Text(
-                    driver.fullName,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Text(driver.fullName, overflow: TextOverflow.ellipsis),
                 ),
               )
               .toList(growable: false),
