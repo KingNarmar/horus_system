@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import 'report_model_parsing.dart';
 import 'report_source_metadata_model.dart';
 
@@ -36,10 +37,10 @@ final class TripExpensesReportSourceModel {
 
 final class TripExpenseRowModel {
   final String expenseId;
-  final DateTime expenseDate;
+  final BusinessDate expenseDate;
   final String tripId;
   final String? tripNumber;
-  final DateTime tripDate;
+  final BusinessDate tripDate;
   final String customerId;
   final String customerName;
   final String loadingLocation;
