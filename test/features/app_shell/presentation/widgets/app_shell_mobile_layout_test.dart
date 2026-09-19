@@ -31,6 +31,7 @@ void main() {
 
       final layout = AppShellMobileLayout(
         contextData: _companyContext,
+        currentUser: null,
         selected: appShellDestinations[dashboardIndex],
         selectedIndex: dashboardIndex,
         onSelect: (_) {},
@@ -58,6 +59,7 @@ void main() {
 
       final layout = AppShellMobileLayout(
         contextData: _companyContext,
+        currentUser: null,
         selected: appShellDestinations[settlementIndex],
         selectedIndex: settlementIndex,
         onSelect: (_) {},
