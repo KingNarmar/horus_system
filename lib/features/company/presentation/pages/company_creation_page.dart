@@ -12,6 +12,7 @@ import '../cubit/company_onboarding_state.dart';
 import '../cubit/company_timezone_cubit.dart';
 import '../cubit/company_timezone_state.dart';
 import '../cubit/current_company_cubit.dart';
+import '../cubit/current_company_state.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
 import '../widgets/company_logout_button.dart';
