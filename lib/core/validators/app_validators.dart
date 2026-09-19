@@ -1,6 +1,6 @@
 abstract final class AppValidators {
   static final RegExp _emailPattern =
-      RegExp(r'^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   static bool hasRequiredText(String? value) {
     return value?.trim().isNotEmpty ?? false;
