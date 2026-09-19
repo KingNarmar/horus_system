@@ -8,6 +8,7 @@ final class TripNetProfitReportSourceModel {
   final int negativeFreightCount;
   final int expensePrecisionLossCount;
   final int negativeExpenseCount;
+  final int expenseCurrencyMismatchCount;
   final List<TripNetProfitTripModel> trips;
   final List<TripNetProfitExpenseModel> expenses;
 
@@ -17,6 +18,7 @@ final class TripNetProfitReportSourceModel {
     required this.negativeFreightCount,
     required this.expensePrecisionLossCount,
     required this.negativeExpenseCount,
+    required this.expenseCurrencyMismatchCount,
     required List<TripNetProfitTripModel> trips,
     required List<TripNetProfitExpenseModel> expenses,
   }) : trips = List.unmodifiable(trips),
@@ -41,6 +43,10 @@ final class TripNetProfitReportSourceModel {
       negativeExpenseCount: requiredInt(
         validation['negative_expense_count'],
         'negative_expense_count',
+      ),
+      expenseCurrencyMismatchCount: requiredInt(
+        validation['expense_currency_mismatch_count'],
+        'expense_currency_mismatch_count',
       ),
       trips: requiredMapList(
         map['trips'],
