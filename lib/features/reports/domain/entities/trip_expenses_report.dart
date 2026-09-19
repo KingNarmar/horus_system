@@ -1,6 +1,6 @@
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
-import '../../../expenses/domain/entities/trip_expense_paid_by.dart';
+import '../../../expenses/domain/entities/expense_funding_source.dart';
 import 'report_source_metadata.dart';
 
 final class TripExpenseReportRow {
@@ -17,7 +17,7 @@ final class TripExpenseReportRow {
   final String? waybillNumber;
   final String? expenseTypeId;
   final String expenseName;
-  final TripExpensePaidBy paidBy;
+  final ExpenseFundingSource fundingSource;
   final Money amount;
 
   const TripExpenseReportRow({
@@ -34,7 +34,7 @@ final class TripExpenseReportRow {
     required this.waybillNumber,
     required this.expenseTypeId,
     required this.expenseName,
-    required this.paidBy,
+    required this.fundingSource,
     required this.amount,
   });
 }

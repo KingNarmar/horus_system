@@ -55,7 +55,7 @@ final class TripExpenseRowModel {
   final String? waybillNumber;
   final String? expenseTypeId;
   final String expenseName;
-  final String paidBy;
+  final String fundingSource;
   final int amountMinorUnits;
 
   const TripExpenseRowModel({
@@ -72,7 +72,7 @@ final class TripExpenseRowModel {
     required this.waybillNumber,
     required this.expenseTypeId,
     required this.expenseName,
-    required this.paidBy,
+    required this.fundingSource,
     required this.amountMinorUnits,
   });
 
@@ -100,7 +100,7 @@ final class TripExpenseRowModel {
       waybillNumber: optionalString(map['waybill_number'], 'waybill_number'),
       expenseTypeId: optionalString(map['expense_type_id'], 'expense_type_id'),
       expenseName: requiredString(map['expense_name'], 'expense_name'),
-      paidBy: requiredString(map['paid_by'], 'paid_by'),
+      fundingSource: requiredString(map['paid_by'], 'paid_by'),
       amountMinorUnits: requiredInt(
         map['amount_minor_units'],
         'amount_minor_units',
