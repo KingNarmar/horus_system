@@ -107,7 +107,7 @@ class CustomerDetailsDialog extends StatelessWidget {
                     label: l10n.creditLimitLabel,
                     value:
                         customer.creditLimit?.toStringAsFixed(2) ??
-                        l10n.customerEmptyValue,
+                        l10n.customerNotAvailable,
                   ),
                   CustomerDetailRow(
                     label: l10n.statusHeader,
@@ -213,7 +213,7 @@ class CustomerDetailsDialog extends StatelessWidget {
   String _optional(String? value, AppLocalizations l10n) {
     final normalized = value?.trim();
     return normalized == null || normalized.isEmpty
-        ? l10n.customerEmptyValue
+        ? l10n.customerNotAvailable
         : normalized;
   }
 }
