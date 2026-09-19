@@ -76,6 +76,7 @@ class FailureCodes {
       'validation_driver_image_type_unsupported';
   static const String validationCustomerNameRequired =
       'validation_customer_name_required';
+  static const String validationEmailInvalid = 'validation_email_invalid';
   static const String validationCreditLimitNegative =
       'validation_credit_limit_negative';
   static const String validationCustomerIdRequired =

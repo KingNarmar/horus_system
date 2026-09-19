@@ -41,6 +41,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationCustomerIdRequired,
       FailureCodes.validationCustomerNameRequired =>
         failureValidationCustomerNameRequired,
+      FailureCodes.validationEmailInvalid => failureAuthInvalidEmail,
       FailureCodes.validationCreditLimitNegative =>
         failureValidationCreditLimitNegative,
       FailureCodes.validationAuditEntityIdRequired =>
