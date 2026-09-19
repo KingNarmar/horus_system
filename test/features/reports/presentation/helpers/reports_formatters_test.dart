@@ -1,8 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/reports/presentation/helpers/reports_formatters.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
+  setUpAll(() async {
+    await initializeDateFormatting('en');
+  });
+
   test('formats BusinessDate without timezone conversion', () {
     expect(
       formatReportDate(BusinessDate(year: 2026, month: 9, day: 7), 'en'),
