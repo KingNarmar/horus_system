@@ -195,10 +195,7 @@ void main() {
 
       final result = await cubit.getCurrentBusinessDate();
 
-      expect(
-        result.dataOrNull,
-        BusinessDate(year: 2026, month: 9, day: 19),
-      );
+      expect(result.dataOrNull, BusinessDate(year: 2026, month: 9, day: 19));
     });
 
     test(
@@ -359,8 +356,7 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
   );
 }
 
-final class _FixedBusinessDateProvider
-    implements CompanyBusinessDateProvider {
+final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
   const _FixedBusinessDateProvider();
 
   @override

@@ -257,10 +257,7 @@ void main() {
 
       final map = data.toVoidMap();
 
-      expect(map, {
-        'is_voided': true,
-        'void_reason': 'duplicate',
-      });
+      expect(map, {'is_voided': true, 'void_reason': 'duplicate'});
       expect(map.containsKey('voided_at'), isFalse);
       expect(map.containsKey('voided_by'), isFalse);
       expect(map.containsKey(DbCommonFields.updatedAt), isFalse);

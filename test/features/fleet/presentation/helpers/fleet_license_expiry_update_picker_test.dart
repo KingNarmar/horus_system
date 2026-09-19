@@ -10,11 +10,7 @@ void main() {
     test('derives the lower bound from the supplied business date', () {
       expect(
         fleetLicenseExpiryFirstDate(businessDate),
-        DateTime(
-          2026 - AppDateConstraints.fleetLicenseExpiryPastYears,
-          9,
-          19,
-        ),
+        DateTime(2026 - AppDateConstraints.fleetLicenseExpiryPastYears, 9, 19),
       );
     });
 
