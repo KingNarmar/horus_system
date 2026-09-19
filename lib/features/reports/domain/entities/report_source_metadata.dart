@@ -1,3 +1,4 @@
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 
 final class ReportSourceMetadata {
@@ -5,9 +6,9 @@ final class ReportSourceMetadata {
   final CurrencyCode currency;
   final int baseCurrencyFractionDigits;
   final String businessTimezone;
-  final DateTime businessDate;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate businessDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const ReportSourceMetadata({
     required this.companyId,
@@ -23,9 +24,9 @@ final class ReportSourceMetadata {
 final class OperationalReportSourceMetadata {
   final String companyId;
   final String businessTimezone;
-  final DateTime businessDate;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate businessDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
 
   const OperationalReportSourceMetadata({
     required this.companyId,
