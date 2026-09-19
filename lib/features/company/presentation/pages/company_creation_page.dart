@@ -93,9 +93,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     FilledButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() => _contextSyncErrorMessage = null);
-                        _openCreatedCompany(state.company.id);
+                        await _openCreatedCompany(state.company.id);
                       },
                       child: Text(l10n.retryButton),
                     ),

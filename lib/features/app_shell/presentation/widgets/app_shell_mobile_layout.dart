@@ -115,8 +115,8 @@ class AppShellMobileLayout extends StatelessWidget {
     );
   }
 
-  void _showIdentityContext(BuildContext context) {
-    showModalBottomSheet<void>(
+  Future<void> _showIdentityContext(BuildContext context) async {
+    await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (_) => SafeArea(
