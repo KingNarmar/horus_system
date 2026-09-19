@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/features/dashboard/data/mappers/dashboard_source_mapper.dart';
 import 'package:horus_system/features/dashboard/data/models/dashboard_source_model.dart';
 import 'package:test/test.dart';
@@ -36,7 +37,7 @@ void main() {
     final source = model.toEntity();
 
     expect(source.companyId, 'company-1');
-    expect(source.businessDate, DateTime(2026, 8, 12));
+    expect(source.businessDate, BusinessDate(year: 2026, month: 8, day: 12));
     expect(source.revenue.minorUnits, 120000);
     expect(source.revenue.currency.value, 'AED');
     expect(source.tripExpenses.minorUnits, 980000);
