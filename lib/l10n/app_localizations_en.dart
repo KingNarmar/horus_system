@@ -1728,6 +1728,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsTypeTripsByCustomer => 'Trips by customer';
 
   @override
+  String get reportsTypeTripsByRoute => 'Trips by route';
+
+  @override
   String get reportsTypeTripsByDriver => 'Trips by driver';
 
   @override
