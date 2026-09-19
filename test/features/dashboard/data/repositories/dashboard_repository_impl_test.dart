@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
@@ -118,7 +119,7 @@ DashboardSourceModel _dashboardModel({String baseCurrencyCode = 'AED'}) {
     baseCurrencyCode: baseCurrencyCode,
     baseCurrencyFractionDigits: 2,
     businessTimezone: 'Asia/Dubai',
-    businessDate: DateTime(2026, 8, 24),
+    businessDate: BusinessDate(year: 2026, month: 8, day: 24),
     todayTrips: 1,
     runningTrips: 2,
     deliveredTrips: 3,
