@@ -5,10 +5,13 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
@@ -185,6 +188,19 @@ void main() {
       },
     );
 
+    test('current business date comes from the trusted provider', () async {
+      final cubit = _buildCubit(_FakeTripsRepository());
+      addTearDown(cubit.close);
+      await cubit.loadTrips(_contextA);
+
+      final result = await cubit.getCurrentBusinessDate();
+
+      expect(
+        result.dataOrNull,
+        BusinessDate(year: 2026, month: 9, day: 19),
+      );
+    });
+
     test(
       'status failure preserves loaded trip and retry clears scoped failure',
       () async {
@@ -319,6 +335,9 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
         const ResolveTripBusinessLocalTimestampsUseCase(converter),
     convertInstantsToBusinessLocalDateTimesUseCase:
         const ConvertInstantsToBusinessLocalDateTimesUseCase(converter),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      const _FixedBusinessDateProvider(),
+    ),
     getTripAuditLogsUseCase: GetEntityAuditLogsUseCase(
       _NoopAuditLogRepository(),
     ),
@@ -338,6 +357,18 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
       expenseRepository,
     ),
   );
+}
+
+final class _FixedBusinessDateProvider
+    implements CompanyBusinessDateProvider {
+  const _FixedBusinessDateProvider();
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(BusinessDate(year: 2026, month: 9, day: 19));
+  }
 }
 
 final class _FakeTripsRepository implements TripsRepository {
