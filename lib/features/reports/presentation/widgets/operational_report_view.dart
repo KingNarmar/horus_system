@@ -113,11 +113,7 @@ final class _GroupedTripsTable extends StatelessWidget {
                   cells: [
                     DataCell(
                       Text(
-                        _groupDisplayLabel(
-                          strings,
-                          report.dimension,
-                          group,
-                        ),
+                        _groupDisplayLabel(strings, report.dimension, group),
                       ),
                     ),
                     DataCell(Text(group.tripCount.toString())),
@@ -158,7 +154,10 @@ final class _GroupedTripsCards extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      _Line(label, _groupDisplayLabel(strings, report.dimension, group)),
+                      _Line(
+                        label,
+                        _groupDisplayLabel(strings, report.dimension, group),
+                      ),
                       _Line(strings.tripsCount, group.tripCount.toString()),
                     ],
                   ),

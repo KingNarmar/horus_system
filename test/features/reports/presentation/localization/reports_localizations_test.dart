@@ -90,13 +90,22 @@ void main() {
     });
 
     test('maps every paid-by value through generated localization', () {
-      expect(english.fundingSourceLabel(ExpenseFundingSource.company), 'Company');
+      expect(
+        english.fundingSourceLabel(ExpenseFundingSource.company),
+        'Company',
+      );
       expect(
         english.fundingSourceLabel(ExpenseFundingSource.driverAdvance),
         'Driver advance',
       );
-      expect(english.fundingSourceLabel(ExpenseFundingSource.driverCash), 'Driver cash');
-      expect(english.fundingSourceLabel(ExpenseFundingSource.customer), 'Customer');
+      expect(
+        english.fundingSourceLabel(ExpenseFundingSource.driverCash),
+        'Driver cash',
+      );
+      expect(
+        english.fundingSourceLabel(ExpenseFundingSource.customer),
+        'Customer',
+      );
       expect(english.fundingSourceLabel(ExpenseFundingSource.other), 'Other');
 
       expect(arabic.fundingSourceLabel(ExpenseFundingSource.company), 'الشركة');
@@ -104,8 +113,14 @@ void main() {
         arabic.fundingSourceLabel(ExpenseFundingSource.driverAdvance),
         'عهدة السائق',
       );
-      expect(arabic.fundingSourceLabel(ExpenseFundingSource.driverCash), 'دفع السائق');
-      expect(arabic.fundingSourceLabel(ExpenseFundingSource.customer), 'العميل');
+      expect(
+        arabic.fundingSourceLabel(ExpenseFundingSource.driverCash),
+        'دفع السائق',
+      );
+      expect(
+        arabic.fundingSourceLabel(ExpenseFundingSource.customer),
+        'العميل',
+      );
       expect(arabic.fundingSourceLabel(ExpenseFundingSource.other), 'أخرى');
     });
 

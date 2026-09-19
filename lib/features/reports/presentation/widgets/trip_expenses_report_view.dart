@@ -88,7 +88,9 @@ final class _ExpensesTable extends StatelessWidget {
                     ),
                     DataCell(Text(row.customerName)),
                     DataCell(Text(row.expenseName)),
-                    DataCell(Text(strings.fundingSourceLabel(row.fundingSource))),
+                    DataCell(
+                      Text(strings.fundingSourceLabel(row.fundingSource)),
+                    ),
                     DataCell(
                       Text(
                         formatReportMoney(
@@ -152,7 +154,10 @@ final class _ExpensesCards extends StatelessWidget {
                         ),
                       ),
                       _Line(strings.customer, row.customerName),
-                      _Line(strings.paidBy, strings.fundingSourceLabel(row.fundingSource)),
+                      _Line(
+                        strings.paidBy,
+                        strings.fundingSourceLabel(row.fundingSource),
+                      ),
                       _Line(
                         strings.amount,
                         formatReportMoney(

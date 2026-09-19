@@ -39,7 +39,10 @@ void main() {
     });
 
     final source = model.toEntity();
-    expect(source.rows.single.fundingSource, ExpenseFundingSource.driverAdvance);
+    expect(
+      source.rows.single.fundingSource,
+      ExpenseFundingSource.driverAdvance,
+    );
     expect(source.rows.single.amount.minorUnits, 2500);
     expect(source.rows.single.amount.currency.value, 'AED');
     expect(
