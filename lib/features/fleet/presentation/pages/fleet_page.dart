@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/trailer_entity.dart';
@@ -32,6 +34,8 @@ class _FleetPageState extends State<FleetPage> {
 
   Future<void> _openTractorHeadForm({TractorHead? tractorHead}) async {
     final l10n = context.l10n;
+    final currentBusinessDate = await _getCurrentBusinessDate();
+    if (currentBusinessDate == null || !mounted) return;
 
     await showDialog<void>(
       context: context,
@@ -39,6 +43,7 @@ class _FleetPageState extends State<FleetPage> {
         title: tractorHead == null
             ? l10n.addTractorHeadButton
             : l10n.editTractorHeadTitle,
+        currentBusinessDate: currentBusinessDate,
         initialPlateNumber: tractorHead?.plateNumber,
         initialStatus: tractorHead?.status ?? VehicleStatus.available,
         initialLicenseExpiryDate: tractorHead?.licenseExpiryDate,
@@ -60,11 +65,14 @@ class _FleetPageState extends State<FleetPage> {
 
   Future<void> _openTrailerForm({TrailerEntity? trailer}) async {
     final l10n = context.l10n;
+    final currentBusinessDate = await _getCurrentBusinessDate();
+    if (currentBusinessDate == null || !mounted) return;
 
     await showDialog<void>(
       context: context,
       builder: (_) => FleetFormDialog(
         title: trailer == null ? l10n.addTrailerButton : l10n.editTrailerTitle,
+        currentBusinessDate: currentBusinessDate,
         initialPlateNumber: trailer?.plateNumber,
         initialStatus: trailer?.status ?? VehicleStatus.available,
         initialLicenseExpiryDate: trailer?.licenseExpiryDate,
@@ -79,6 +87,20 @@ class _FleetPageState extends State<FleetPage> {
         ),
       ),
     );
+  }
+
+  Future<BusinessDate?> _getCurrentBusinessDate() async {
+    final result = await context.read<FleetCubit>().getCurrentBusinessDate();
+    if (!mounted) return null;
+
+    if (result is FailureResult<BusinessDate>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.localizedErrorMessage(result.failure))),
+      );
+      return null;
+    }
+
+    return (result as Success<BusinessDate>).data;
   }
 
   Future<void> _deactivateTractorHead(TractorHead item) async {

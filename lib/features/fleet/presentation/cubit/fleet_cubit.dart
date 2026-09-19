@@ -2,7 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -28,6 +30,7 @@ class FleetCubit extends Cubit<FleetState> {
   final GetEntityAuditLogsUseCase getEntityAuditLogsUseCase;
   final ConvertInstantsToBusinessLocalDateTimesUseCase
   convertInstantsToBusinessLocalDateTimesUseCase;
+  final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
   CurrentCompanyContext? _currentCompanyContext;
 
   FleetCubit({
@@ -42,6 +45,7 @@ class FleetCubit extends Cubit<FleetState> {
     required this.reactivateTrailerUseCase,
     required this.getEntityAuditLogsUseCase,
     required this.convertInstantsToBusinessLocalDateTimesUseCase,
+    required this.getCompanyBusinessDateUseCase,
   }) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
@@ -84,6 +88,18 @@ class FleetCubit extends Cubit<FleetState> {
         statusFilter: filter,
         selectedTab: tab,
       ),
+    );
+  }
+
+  Future<Result<BusinessDate>> getCurrentBusinessDate() {
+    final context = _currentCompanyContext;
+    if (context == null) {
+      return Future.value(
+        const FailureResult<BusinessDate>(UnexpectedFailure()),
+      );
+    }
+    return getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(companyId: context.companyId),
     );
   }
 
