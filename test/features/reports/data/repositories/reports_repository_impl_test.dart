@@ -162,6 +162,7 @@ void main() {
             metadata: _metadata(currencyCode: 'invalid'),
             precisionLossCount: 0,
             negativeAmountCount: 0,
+            currencyMismatchCount: 0,
             rows: const [],
           ),
         ),
