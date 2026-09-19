@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../cubit/report_type.dart';
 import '../localization/reports_localizations.dart';
@@ -11,8 +12,8 @@ import '../helpers/reports_formatters.dart';
 final class ReportFilters extends StatelessWidget {
   final CompanyRole role;
   final ReportType reportType;
-  final DateTime? fromDate;
-  final DateTime? toDate;
+  final BusinessDate? fromDate;
+  final BusinessDate? toDate;
   final ValueChanged<ReportType> onReportChanged;
   final VoidCallback onPickFromDate;
   final VoidCallback onPickToDate;
