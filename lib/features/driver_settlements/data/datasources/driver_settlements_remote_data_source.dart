@@ -336,10 +336,9 @@ class SupabaseDriverSettlementsRemoteDataSource
   Future<DriverSettlementModel> voidSettlement({
     required DriverSettlementVoidData data,
   }) async {
-    final actorUserId = client.auth.currentUser?.id;
     final row = await client
         .from(DriverSettlementsDbTables.driverSettlements)
-        .update(data.toUpdateMap(actorUserId: actorUserId))
+        .update(data.toUpdateMap())
         .eq(DbCommonFields.companyId, data.companyId)
         .eq(DbCommonFields.id, data.settlementId)
         .select(_driverSettlementColumns)
