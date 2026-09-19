@@ -57,8 +57,8 @@ final class OpenInvoiceBalanceResolver {
         taxAmount: zero,
         grandTotal: invoice.total,
       ),
-      createdAt: invoice.issuedAt ?? invoice.issueDate,
-      updatedAt: invoice.issuedAt ?? invoice.issueDate,
+      createdAt: invoice.issuedAt ?? _asUtcInstant(invoice.issueDate),
+      updatedAt: invoice.issuedAt ?? _asUtcInstant(invoice.issueDate),
     );
 
     final balancePayments = payments.map(
@@ -68,7 +68,7 @@ final class OpenInvoiceBalanceResolver {
         invoiceId: payment.invoiceId,
         customerId: invoice.customerId,
         paymentMethodId: payment.paymentId,
-        paymentDate: _businessDateFromLegacyDate(payment.paymentDate),
+        paymentDate: payment.paymentDate,
         amount: payment.amount,
         createdAt: payment.createdAt,
       ),
@@ -89,6 +89,6 @@ final class OpenInvoiceBalanceResolver {
   }
 }
 
-BusinessDate _businessDateFromLegacyDate(DateTime value) {
-  return BusinessDate(year: value.year, month: value.month, day: value.day);
+DateTime _asUtcInstant(BusinessDate value) {
+  return DateTime.utc(value.year, value.month, value.day);
 }
