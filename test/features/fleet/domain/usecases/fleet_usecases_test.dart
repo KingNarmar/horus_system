@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -117,6 +118,28 @@ void main() {
       expect(repository.totalMutationCalls, 0);
     });
 
+    test('rejects tractor license expiry before business date', () async {
+      final repository = _FakeFleetRepository();
+      final useCase = SaveTractorHeadUseCase(repository);
+
+      final result = await useCase(
+        SaveTractorHeadParams(
+          currentCompanyContext: _context(),
+          plateNumber: 'T-100',
+          status: VehicleStatus.available,
+          licenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+          currentBusinessDate: _businessDate,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TractorHead>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
     test('rejects negative expected fuel consumption', () async {
       final repository = _FakeFleetRepository();
       final useCase = SaveTractorHeadUseCase(repository);
@@ -195,6 +218,28 @@ void main() {
   });
 
   group('SaveTrailerUseCase', () {
+    test('rejects trailer license expiry before business date', () async {
+      final repository = _FakeFleetRepository();
+      final useCase = SaveTrailerUseCase(repository);
+
+      final result = await useCase(
+        SaveTrailerParams(
+          currentCompanyContext: _context(role: CompanyRole.operations),
+          plateNumber: 'TR-100',
+          status: VehicleStatus.available,
+          licenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+          currentBusinessDate: _businessDate,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TrailerEntity>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
     test(
       'creates with normalized plate and optional technical notes',
       () async {
