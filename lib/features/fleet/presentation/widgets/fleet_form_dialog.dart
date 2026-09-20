@@ -205,16 +205,15 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
 
   Future<void> _pickDate() async {
     final today = widget.currentBusinessDate;
+    final currentSelection = _selectedDate;
+    final initialBusinessDate =
+        currentSelection == null || currentSelection.isBefore(today)
+        ? today
+        : currentSelection;
     final picked = await showDatePicker(
       context: context,
-      initialDate: BusinessDateDateTimeAdapter.toDateTime(
-        _selectedDate ?? today,
-      ),
-      firstDate: DateTime(
-        today.year - AppDateConstraints.fleetLicenseExpiryPastYears,
-        today.month,
-        today.day,
-      ),
+      initialDate: BusinessDateDateTimeAdapter.toDateTime(initialBusinessDate),
+      firstDate: BusinessDateDateTimeAdapter.toDateTime(today),
       lastDate: DateTime(
         today.year + AppDateConstraints.fleetLicenseExpiryFutureYears,
         today.month,
