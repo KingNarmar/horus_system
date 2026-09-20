@@ -292,9 +292,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   }
 }
 
-
-final class _FixedBusinessDateProvider
-    implements CompanyBusinessDateProvider {
+final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
   const _FixedBusinessDateProvider();
 
   @override
