@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/documents/domain/entities/business_document_access.dart';
 import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/errors/common_failures.dart';
+import '../../../../core/usecases/get_company_business_date_usecase.dart';
+import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/fleet_license_document.dart';
 import '../../domain/entities/fleet_license_document_file.dart';
@@ -23,6 +26,7 @@ final class FleetLicenseDocumentsCubit
   final ReplaceFleetLicenseDocumentFileUseCase replaceFileUseCase;
   final RemoveFleetLicenseDocumentUseCase removeDocumentUseCase;
   final CanManageFleetUseCase canManageFleetUseCase;
+  final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
 
   FleetLicenseDocumentsCubit({
     required this.getDocumentUseCase,
@@ -32,6 +36,7 @@ final class FleetLicenseDocumentsCubit
     required this.replaceFileUseCase,
     required this.removeDocumentUseCase,
     required this.canManageFleetUseCase,
+    required this.getCompanyBusinessDateUseCase,
   }) : super(const FleetLicenseDocumentsInitial());
 
   Future<void> load({
@@ -82,12 +87,36 @@ final class FleetLicenseDocumentsCubit
     }
 
     emit(current.copyWith(isMutating: true, failure: null));
+    final businessDateResult = await _getCurrentBusinessDate(current);
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) {
+      final latest = state;
+      if (latest is FleetLicenseDocumentsLoaded) {
+        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+      }
+      return false;
+    }
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) {
+      final latest = state;
+      if (latest is FleetLicenseDocumentsLoaded) {
+        emit(
+          latest.copyWith(
+            isMutating: false,
+            failure: const UnexpectedFailure(),
+          ),
+        );
+      }
+      return false;
+    }
+
     final result = await uploadFileUseCase(
       UploadFleetLicenseDocumentFileParams(
         currentCompanyContext: current.currentCompanyContext,
         target: current.target,
         side: side,
         file: file,
+        currentBusinessDate: currentBusinessDate,
         newLicenseExpiryDate: newLicenseExpiryDate,
       ),
     );
@@ -122,6 +151,29 @@ final class FleetLicenseDocumentsCubit
     }
 
     emit(current.copyWith(isMutating: true, failure: null));
+    final businessDateResult = await _getCurrentBusinessDate(current);
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) {
+      final latest = state;
+      if (latest is FleetLicenseDocumentsLoaded) {
+        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+      }
+      return false;
+    }
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) {
+      final latest = state;
+      if (latest is FleetLicenseDocumentsLoaded) {
+        emit(
+          latest.copyWith(
+            isMutating: false,
+            failure: const UnexpectedFailure(),
+          ),
+        );
+      }
+      return false;
+    }
+
     final result = await replaceFileUseCase(
       ReplaceFleetLicenseDocumentFileParams(
         currentCompanyContext: current.currentCompanyContext,
@@ -129,6 +181,7 @@ final class FleetLicenseDocumentsCubit
         document: document,
         file: file,
         replacement: replacement,
+        currentBusinessDate: currentBusinessDate,
         newLicenseExpiryDate: newLicenseExpiryDate,
       ),
     );
@@ -201,6 +254,16 @@ final class FleetLicenseDocumentsCubit
 
     emit(current.copyWith(failure: null));
     return result.dataOrNull;
+  }
+
+  Future<Result<BusinessDate>> _getCurrentBusinessDate(
+    FleetLicenseDocumentsLoaded current,
+  ) {
+    return getCompanyBusinessDateUseCase(
+      GetCompanyBusinessDateParams(
+        companyId: current.currentCompanyContext.companyId,
+      ),
+    );
   }
 
   Future<Uint8List?> download(
