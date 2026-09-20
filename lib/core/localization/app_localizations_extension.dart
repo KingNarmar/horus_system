@@ -80,6 +80,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationFleetPlateRequired,
       FailureCodes.validationFleetFuelConsumptionNegative =>
         failureValidationFleetFuelConsumptionNegative,
+      FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate =>
+        licenseExpiryDateMustBeFuture,
       FailureCodes.permissionRoutesManagement =>
         failurePermissionRoutesManagement,
       FailureCodes.permissionRoutesView => failurePermissionRoutesView,
