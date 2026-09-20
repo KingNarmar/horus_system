@@ -84,6 +84,7 @@ void main() {
           currentCompanyContext: _context(role: CompanyRole.accountant),
           plateNumber: 'T-100',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -104,6 +105,7 @@ void main() {
           currentCompanyContext: _context(),
           plateNumber: '   ',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -124,6 +126,7 @@ void main() {
           currentCompanyContext: _context(),
           plateNumber: 'T-100',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
           expectedFuelConsumption: -1,
         ),
       );
@@ -146,6 +149,7 @@ void main() {
           id: '   ',
           plateNumber: '  T-100  ',
           status: VehicleStatus.maintenance,
+          currentBusinessDate: _businessDate,
           expectedFuelConsumption: 32.5,
           notes: '  Workshop  ',
         ),
@@ -175,6 +179,7 @@ void main() {
             id: '  tractor-1  ',
             plateNumber: 'T-200',
             status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
             notes: '   ',
           ),
         );
@@ -201,6 +206,7 @@ void main() {
             currentCompanyContext: _context(role: CompanyRole.operations),
             plateNumber: '  TR-100  ',
             status: VehicleStatus.available,
+            currentBusinessDate: _businessDate,
             technicalNotes: '   ',
           ),
         );
@@ -255,6 +261,7 @@ void main() {
 }
 
 const _companyId = 'company-1';
+final _businessDate = BusinessDate(year: 2026, month: 9, day: 19);
 
 CurrentCompanyContext _context({
   String companyId = _companyId,
