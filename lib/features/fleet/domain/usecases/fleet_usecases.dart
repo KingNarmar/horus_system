@@ -11,6 +11,7 @@ import '../entities/tractor_head_write_data.dart';
 import '../entities/trailer_entity.dart';
 import '../entities/trailer_write_data.dart';
 import '../entities/vehicle_status.dart';
+import '../policies/fleet_license_expiry_policy.dart';
 import '../policies/fleet_permission_policy.dart';
 import '../repositories/fleet_repository.dart';
 
@@ -30,6 +31,7 @@ class SaveTractorHeadParams {
   final String plateNumber;
   final VehicleStatus status;
   final BusinessDate? licenseExpiryDate;
+  final BusinessDate currentBusinessDate;
   final double? expectedFuelConsumption;
   final String? notes;
   const SaveTractorHeadParams({
@@ -38,6 +40,7 @@ class SaveTractorHeadParams {
     required this.plateNumber,
     required this.status,
     this.licenseExpiryDate,
+    required this.currentBusinessDate,
     this.expectedFuelConsumption,
     this.notes,
   });
@@ -49,6 +52,7 @@ class SaveTrailerParams {
   final String plateNumber;
   final VehicleStatus status;
   final BusinessDate? licenseExpiryDate;
+  final BusinessDate currentBusinessDate;
   final String? technicalNotes;
   const SaveTrailerParams({
     required this.currentCompanyContext,
@@ -56,6 +60,7 @@ class SaveTrailerParams {
     required this.plateNumber,
     required this.status,
     this.licenseExpiryDate,
+    required this.currentBusinessDate,
     this.technicalNotes,
   });
 }
@@ -152,6 +157,19 @@ class SaveTractorHeadUseCase
         ),
       );
     }
+    if (!FleetLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: params.licenseExpiryDate,
+      currentBusinessDate: params.currentBusinessDate,
+    )) {
+      return Future.value(
+        const FailureResult<TractorHead>(
+          ValidationFailure(
+            code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+            message: 'Fleet license expiry date is before the business date.',
+          ),
+        ),
+      );
+    }
     final fuel = params.expectedFuelConsumption;
     if (fuel != null && fuel < 0) {
       return Future.value(
@@ -209,6 +227,19 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
           ValidationFailure(
             code: FailureCodes.validationFleetPlateRequired,
             message: 'Plate number is required.',
+          ),
+        ),
+      );
+    }
+    if (!FleetLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: params.licenseExpiryDate,
+      currentBusinessDate: params.currentBusinessDate,
+    )) {
+      return Future.value(
+        const FailureResult<TrailerEntity>(
+          ValidationFailure(
+            code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+            message: 'Fleet license expiry date is before the business date.',
           ),
         ),
       );
