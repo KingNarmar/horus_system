@@ -1,0 +1,1 @@
+enum NetworkConnectionStatus { online, offline }
