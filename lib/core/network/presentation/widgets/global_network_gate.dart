@@ -27,7 +27,6 @@ class GlobalNetworkGate extends StatelessWidget {
               child: AbsorbPointer(absorbing: isBlocked, child: child),
             ),
             if (isBlocked) ...[
-              const ModalBarrier(dismissible: false, color: Colors.transparent),
               Align(
                 alignment: Alignment.topCenter,
                 child: _NetworkGateBanner(state: state),
