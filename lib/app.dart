@@ -10,6 +10,9 @@ import 'core/di/app_dependencies.dart';
 import 'core/localization/app_locale_cubit.dart';
 import 'core/localization/app_locale_storage.dart';
 import 'core/localization/app_localizations_extension.dart';
+import 'core/network/di/network_dependencies.dart';
+import 'core/network/presentation/cubit/network_status_cubit.dart';
+import 'core/network/presentation/widgets/global_network_gate.dart';
 import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_radius.dart';
 import 'core/theme/app_theme.dart';
@@ -32,6 +35,9 @@ class HorusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<NetworkStatusCubit>(
+          create: (_) => NetworkDependencies.createCubit()..startWatching(),
+        ),
         BlocProvider<AppLocaleCubit>(
           create: (_) => AppLocaleCubit(
             storage: const SharedPreferencesAppLocaleStorage(),
@@ -76,7 +82,12 @@ class HorusApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
             locale: locale,
-            builder: DevicePreview.appBuilder,
+            builder: (context, child) => DevicePreview.appBuilder(
+              context,
+              GlobalNetworkGate(
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             initialRoute: AppRoutes.root,
