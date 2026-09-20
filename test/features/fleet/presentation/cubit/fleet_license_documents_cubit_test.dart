@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -174,6 +176,9 @@ FleetLicenseDocumentsCubit _createCubit(
     replaceFileUseCase: ReplaceFleetLicenseDocumentFileUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
     canManageFleetUseCase: const CanManageFleetUseCase(),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      _FakeBusinessDateProvider(),
+    ),
   );
 }
 
@@ -248,5 +253,14 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required String fileId,
   }) async {
     return Success(Uint8List.fromList([1]));
+  }
+}
+
+final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    return Success(BusinessDate(year: 2026, month: 9, day: 19));
   }
 }
