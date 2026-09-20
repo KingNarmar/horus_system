@@ -45,11 +45,13 @@ Future<FleetLicenseExpirySelection?> selectFleetLicenseExpiryUpdate(
     return const FleetLicenseExpirySelection();
   }
 
+  final initialBusinessDate =
+      currentValue == null || currentValue.isBefore(currentBusinessDate)
+      ? currentBusinessDate
+      : currentValue;
   final picked = await showDatePicker(
     context: context,
-    initialDate: BusinessDateDateTimeAdapter.toDateTime(
-      currentValue ?? currentBusinessDate,
-    ),
+    initialDate: BusinessDateDateTimeAdapter.toDateTime(initialBusinessDate),
     firstDate: fleetLicenseExpiryFirstDate(currentBusinessDate),
     lastDate: fleetLicenseExpiryLastDate(currentBusinessDate),
   );
@@ -60,11 +62,7 @@ Future<FleetLicenseExpirySelection?> selectFleetLicenseExpiryUpdate(
 }
 
 DateTime fleetLicenseExpiryFirstDate(BusinessDate currentBusinessDate) {
-  return DateTime(
-    currentBusinessDate.year - AppDateConstraints.fleetLicenseExpiryPastYears,
-    currentBusinessDate.month,
-    currentBusinessDate.day,
-  );
+  return BusinessDateDateTimeAdapter.toDateTime(currentBusinessDate);
 }
 
 DateTime fleetLicenseExpiryLastDate(BusinessDate currentBusinessDate) {
