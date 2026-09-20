@@ -212,6 +212,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   FleetLicenseDocument? activeDocument;
   Result<FleetLicenseDocument> addResult = Success(_frontDocument);
   Result<void> removeResult = const Success<void>(null);
+  int addCalls = 0;
 
   @override
   Future<Result<FleetLicenseDocument?>> getActiveDocument({
@@ -238,6 +239,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) async {
+    addCalls += 1;
     return addResult;
   }
 
