@@ -2686,4 +2686,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'ملف مجمع';
+
+  @override
+  String get networkCheckingTitle => 'جاري التحقق من الاتصال';
+
+  @override
+  String get networkCheckingMessage =>
+      'يتحقق H.O.R.U.S من اتصال الإنترنت قبل السماح بتنفيذ أي إجراء.';
+
+  @override
+  String get networkOfflineTitle => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get networkOfflineMessage =>
+      'تم إيقاف استخدام H.O.R.U.S مؤقتًا حتى يعود اتصال الإنترنت.';
+
+  @override
+  String get networkStatusCheckFailedTitle => 'تعذر التحقق من الاتصال';
+
+  @override
+  String get networkStatusCheckFailedMessage =>
+      'تعذر على H.O.R.U.S التحقق من اتصال الإنترنت. ستظل الإجراءات متوقفة حفاظًا على سلامة البيانات.';
+
+  @override
+  String get networkRetryButton => 'إعادة المحاولة';
+
+  @override
+  String get failureNetworkStatusUnavailable =>
+      'تعذر التحقق من حالة اتصال الإنترنت.';
 }
