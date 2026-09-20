@@ -79,6 +79,31 @@ void main() {
       },
     );
 
+    test('trusted-date failure blocks document upload', () async {
+      const failure = UnexpectedFailure(message: 'offline');
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final cubit = _createCubit(
+        repository,
+        businessDateProvider: _FakeBusinessDateProvider(failure: failure),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+      final changed = await cubit.upload(
+        side: FleetLicenseDocumentFileSide.back,
+        file: _businessFile,
+      );
+
+      final state = cubit.state as FleetLicenseDocumentsLoaded;
+      expect(changed, isFalse);
+      expect(state.failure, same(failure));
+      expect(state.isMutating, isFalse);
+      expect(repository.addCalls, 0);
+    });
+
     test(
       'failed remove preserves document and exposes typed failure',
       () async {
@@ -166,8 +191,9 @@ final _businessFile = BusinessDocumentFile(
 );
 
 FleetLicenseDocumentsCubit _createCubit(
-  FleetLicenseDocumentsRepository repository,
-) {
+  FleetLicenseDocumentsRepository repository, {
+  CompanyBusinessDateProvider? businessDateProvider,
+}) {
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
     uploadFileUseCase: UploadFleetLicenseDocumentFileUseCase(repository),
@@ -177,7 +203,7 @@ FleetLicenseDocumentsCubit _createCubit(
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
     canManageFleetUseCase: const CanManageFleetUseCase(),
     getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
-      _FakeBusinessDateProvider(),
+      businessDateProvider ?? _FakeBusinessDateProvider(),
     ),
   );
 }
@@ -257,10 +283,16 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
 }
 
 final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
+  final UnexpectedFailure? failure;
+
+  _FakeBusinessDateProvider({this.failure});
+
   @override
   Future<Result<BusinessDate>> getBusinessDate({
     required String companyId,
   }) async {
+    final currentFailure = failure;
+    if (currentFailure != null) return FailureResult(currentFailure);
     return Success(BusinessDate(year: 2026, month: 9, day: 19));
   }
 }
