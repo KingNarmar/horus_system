@@ -4,6 +4,7 @@ import 'package:horus_system/core/documents/domain/entities/business_document_ac
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -76,6 +77,30 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(repository.createCalls, 0);
+      expect(repository.addCalls, 0);
+    });
+
+    test('past expiry is rejected before document persistence', () async {
+      final repository = _FakeRepository();
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
+
+      final result = await useCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: _operationsContext,
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
+          currentBusinessDate: _businessDate,
+          newLicenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+      );
       expect(repository.createCalls, 0);
       expect(repository.addCalls, 0);
     });
