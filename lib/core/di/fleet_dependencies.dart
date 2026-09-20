@@ -62,6 +62,9 @@ abstract final class FleetDependencies {
       replaceFileUseCase: ReplaceFleetLicenseDocumentFileUseCase(repository),
       removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
       canManageFleetUseCase: const CanManageFleetUseCase(),
+      getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+        CompanyDependencies.createBusinessDateProvider(),
+      ),
     );
   }
 }
