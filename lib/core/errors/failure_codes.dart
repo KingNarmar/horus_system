@@ -241,6 +241,9 @@ class FailureCodes {
   static const String conflictPaymentMethodDuplicateName =
       'conflict_payment_method_duplicate_name';
 
+  // Network
+  static const String networkStatusUnavailable = 'network_status_unavailable';
+
   // Generic
   static const String serverError = 'server_error';
   static const String unexpectedError = 'unexpected_error';
