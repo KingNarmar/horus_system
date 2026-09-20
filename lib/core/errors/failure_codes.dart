@@ -95,6 +95,8 @@ class FailureCodes {
       'validation_fleet_plate_required';
   static const String validationFleetFuelConsumptionNegative =
       'validation_fleet_fuel_consumption_negative';
+  static const String validationFleetLicenseExpiryBeforeBusinessDate =
+      'validation_fleet_license_expiry_before_business_date';
   static const String validationRouteLoadingLocationRequired =
       'validation_route_loading_location_required';
   static const String validationRouteUnloadingLocationRequired =
