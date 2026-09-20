@@ -42,6 +42,7 @@ abstract final class AppIcons {
   static const IconData login = Icons.login_outlined;
   static const IconData logout = Icons.logout_outlined;
   static const IconData moreActions = Icons.more_vert;
+  static const IconData networkOffline = Icons.cloud_off_outlined;
   static const IconData ownership = Icons.shield_outlined;
   static const IconData password = Icons.lock_outline;
   static const IconData payments = Icons.payments_outlined;
