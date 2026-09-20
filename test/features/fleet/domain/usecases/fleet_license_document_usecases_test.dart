@@ -18,6 +18,8 @@ import 'package:horus_system/features/fleet/domain/repositories/fleet_license_do
 import 'package:horus_system/features/fleet/domain/usecases/fleet_license_document_usecases.dart';
 import 'package:test/test.dart';
 
+final _businessDate = BusinessDate(year: 2026, month: 9, day: 19);
+
 void main() {
   group('Fleet license document use cases', () {
     test('viewer can load active license document', () async {
@@ -69,6 +71,7 @@ void main() {
           ),
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -87,6 +90,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -106,6 +110,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.back,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -126,6 +131,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -149,6 +155,7 @@ void main() {
           document: _frontDocument,
           file: _frontFile,
           replacement: _file,
+          currentBusinessDate: _businessDate,
           newLicenseExpiryDate: newExpiry,
         ),
       );
