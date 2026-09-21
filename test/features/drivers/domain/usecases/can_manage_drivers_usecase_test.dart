@@ -1,7 +1,6 @@
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
-import 'package:horus_system/features/drivers/domain/policies/drivers_permission_policy.dart';
 import 'package:horus_system/features/drivers/domain/usecases/can_manage_drivers_usecase.dart';
 import 'package:test/test.dart';
 
