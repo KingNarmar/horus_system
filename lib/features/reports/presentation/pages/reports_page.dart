@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/report_date_range.dart';
@@ -95,29 +96,32 @@ final class _ReportsPageState extends State<ReportsPage> {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _Title(text: strings.title),
-        const SizedBox(height: AppSpacing.lg),
-        ReportFilters(
-          role: widget.currentCompanyContext.role,
-          reportType: _reportType,
-          fromDate: _fromDate,
-          toDate: _toDate,
-          onReportChanged: _changeReport,
-          onPickFromDate: () => _pickDate(isFrom: true),
-          onPickToDate: () => _pickDate(isFrom: false),
-          onApply: _load,
-          onClearDates: _clearDates,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        BlocBuilder<ReportsCubit, ReportsState>(
-          builder: (context, state) {
-            return _ReportsStateView(state: state, onRetry: _load);
-          },
-        ),
-      ],
+    return NetworkReconnectRefreshBoundary(
+      onReconnect: () async => _load(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Title(text: strings.title),
+          const SizedBox(height: AppSpacing.lg),
+          ReportFilters(
+            role: widget.currentCompanyContext.role,
+            reportType: _reportType,
+            fromDate: _fromDate,
+            toDate: _toDate,
+            onReportChanged: _changeReport,
+            onPickFromDate: () => _pickDate(isFrom: true),
+            onPickToDate: () => _pickDate(isFrom: false),
+            onApply: _load,
+            onClearDates: _clearDates,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          BlocBuilder<ReportsCubit, ReportsState>(
+            builder: (context, state) {
+              return _ReportsStateView(state: state, onRetry: _load);
+            },
+          ),
+        ],
+      ),
     );
   }
 
