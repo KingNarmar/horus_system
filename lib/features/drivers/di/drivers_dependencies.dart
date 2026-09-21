@@ -9,6 +9,7 @@ import '../data/datasources/drivers_remote_data_source.dart';
 import '../data/repositories/drivers_repository_impl.dart';
 import '../domain/repositories/drivers_repository.dart';
 import '../domain/usecases/add_driver_usecase.dart';
+import '../domain/usecases/can_manage_drivers_usecase.dart';
 import '../domain/usecases/deactivate_driver_usecase.dart';
 import '../domain/usecases/get_driver_image_urls_usecase.dart';
 import '../domain/usecases/get_drivers_usecase.dart';
@@ -39,6 +40,7 @@ abstract final class DriversDependencies {
 
     return DriversCubit(
       getDriversUseCase: GetDriversUseCase(repository),
+      canManageDriversUseCase: const CanManageDriversUseCase(),
       getDriverImageUrlsUseCase: GetDriverImageUrlsUseCase(repository),
       addDriverUseCase: AddDriverUseCase(repository),
       updateDriverUseCase: UpdateDriverUseCase(repository),
