@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -104,41 +103,39 @@ class _AppShellPageState extends State<AppShellPage> {
     final currentUser = authState is AuthAuthenticated ? authState.user : null;
     final destinations = _destinations;
 
-    return NetworkReconnectRefreshBoundary(
-      child: ResponsiveLayout(
-        mobile: AppShellMobileLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-        ),
-        tablet: AppShellTabletLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-        ),
-        desktop: AppShellDesktopLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-        ),
+    return ResponsiveLayout(
+      mobile: AppShellMobileLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
+      ),
+      tablet: AppShellTabletLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
+      ),
+      desktop: AppShellDesktopLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
       ),
     );
   }
