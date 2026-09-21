@@ -25,10 +25,7 @@ void main() {
       final result = await repository.getCurrentStatus();
 
       expect(result.failureOrNull, isA<NetworkFailure>());
-      expect(
-        result.failureOrNull?.code,
-        FailureCodes.networkStatusUnavailable,
-      );
+      expect(result.failureOrNull?.code, FailureCodes.networkStatusUnavailable);
     });
 
     test('maps watch exceptions to typed network failure', () async {

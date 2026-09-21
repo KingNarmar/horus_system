@@ -25,13 +25,10 @@ void main() {
 
     final values = await useCase(const NoParams()).take(2).toList();
 
-    expect(
-      values.map((result) => result.dataOrNull),
-      [
-        NetworkConnectionStatus.online,
-        NetworkConnectionStatus.offline,
-      ],
-    );
+    expect(values.map((result) => result.dataOrNull), [
+      NetworkConnectionStatus.online,
+      NetworkConnectionStatus.offline,
+    ]);
     expect(repository.watchCalls, 1);
   });
 }

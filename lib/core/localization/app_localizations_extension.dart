@@ -123,8 +123,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationCompanyExpenseAmountPositive =>
         failureValidationCompanyExpenseAmountPositive,
       FailureCodes.validationCompanyNameRequired => companyNameRequired,
-      FailureCodes.networkStatusUnavailable =>
-        failureNetworkStatusUnavailable,
+      FailureCodes.networkStatusUnavailable => failureNetworkStatusUnavailable,
       FailureCodes.serverError => _genericServerErrorMessage,
       _ => _safeFallbackErrorMessage(failure),
     };

@@ -84,9 +84,7 @@ class HorusApp extends StatelessWidget {
             locale: locale,
             builder: (context, child) => DevicePreview.appBuilder(
               context,
-              GlobalNetworkGate(
-                child: child ?? const SizedBox.shrink(),
-              ),
+              GlobalNetworkGate(child: child ?? const SizedBox.shrink()),
             ),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

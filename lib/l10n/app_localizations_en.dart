@@ -23,6 +23,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Clean Architecture by the book • SOLID Principles';
 
   @override
+  String get networkCheckingTitle => 'Checking connection';
+
+  @override
+  String get networkCheckingMessage =>
+      'H.O.R.U.S is verifying internet connectivity before allowing actions.';
+
+  @override
+  String get networkOfflineTitle => 'No internet connection';
+
+  @override
+  String get networkOfflineMessage =>
+      'H.O.R.U.S is paused until the internet connection returns.';
+
+  @override
+  String get networkStatusCheckFailedTitle => 'Connection check unavailable';
+
+  @override
+  String get networkStatusCheckFailedMessage =>
+      'H.O.R.U.S could not verify internet connectivity. Actions remain blocked for safety.';
+
+  @override
+  String get networkRetryButton => 'Retry';
+
+  @override
+  String get failureNetworkStatusUnavailable =>
+      'Internet connection status could not be verified.';
+
+  @override
   String get appShellDashboardLabel => 'Dashboard';
 
   @override
@@ -2719,32 +2747,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'Combined';
-
-  @override
-  String get networkCheckingTitle => 'Checking connection';
-
-  @override
-  String get networkCheckingMessage =>
-      'H.O.R.U.S is verifying internet connectivity before allowing actions.';
-
-  @override
-  String get networkOfflineTitle => 'No internet connection';
-
-  @override
-  String get networkOfflineMessage =>
-      'H.O.R.U.S is paused until the internet connection returns.';
-
-  @override
-  String get networkStatusCheckFailedTitle => 'Connection check unavailable';
-
-  @override
-  String get networkStatusCheckFailedMessage =>
-      'H.O.R.U.S could not verify internet connectivity. Actions remain blocked for safety.';
-
-  @override
-  String get networkRetryButton => 'Retry';
-
-  @override
-  String get failureNetworkStatusUnavailable =>
-      'Internet connection status could not be verified.';
 }

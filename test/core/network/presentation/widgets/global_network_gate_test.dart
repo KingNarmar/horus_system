@@ -27,10 +27,7 @@ void main() {
     var actionCount = 0;
 
     await tester.pumpWidget(
-      _TestApp(
-        cubit: cubit,
-        onAction: () => actionCount += 1,
-      ),
+      _TestApp(cubit: cubit, onAction: () => actionCount += 1),
     );
     await cubit.startWatching();
 
@@ -38,7 +35,10 @@ void main() {
     await tester.pump();
 
     expect(find.text(AppLocalizationsEn().networkOfflineTitle), findsOneWidget);
-    await tester.tap(find.byKey(const Key('protected-action')), warnIfMissed: false);
+    await tester.tap(
+      find.byKey(const Key('protected-action')),
+      warnIfMissed: false,
+    );
     await tester.pump();
     expect(actionCount, 0);
 
@@ -60,11 +60,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      _TestApp(
-        cubit: cubit,
-        locale: const Locale('ar'),
-        onAction: () {},
-      ),
+      _TestApp(cubit: cubit, locale: const Locale('ar'), onAction: () {}),
     );
     await cubit.startWatching();
     repository.addStatus(NetworkConnectionStatus.offline);
