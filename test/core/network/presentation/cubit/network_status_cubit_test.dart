@@ -13,7 +13,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('NetworkStatusCubit', () {
-    test('emits offline then online from repository watch stream', () async {
+    test('offline then online increments reconnect revision once', () async {
       final repository = _ControllableNetworkStatusRepository();
       final cubit = _createCubit(repository);
       addTearDown(() async {
@@ -26,17 +26,42 @@ void main() {
       addTearDown(subscription.cancel);
 
       await cubit.startWatching();
+
       repository.addStatus(NetworkConnectionStatus.offline);
       await Future<void>.delayed(Duration.zero);
+
+      repository.addStatus(NetworkConnectionStatus.online);
+      await Future<void>.delayed(Duration.zero);
+
       repository.addStatus(NetworkConnectionStatus.online);
       await Future<void>.delayed(Duration.zero);
 
       expect(states.whereType<NetworkStatusChecking>(), hasLength(1));
       expect(states.whereType<NetworkStatusOffline>(), hasLength(1));
-      expect(states.whereType<NetworkStatusOnline>(), hasLength(1));
+
+      final onlineStates = states.whereType<NetworkStatusOnline>().toList();
+      expect(onlineStates, hasLength(1));
+      expect(onlineStates.single.reconnectRevision, 1);
+      expect(cubit.state.reconnectRevision, 1);
     });
 
-    test('watch failure blocks with typed failure', () async {
+    test('initial online state keeps reconnect revision at zero', () async {
+      final repository = _ControllableNetworkStatusRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
+
+      await cubit.startWatching();
+      repository.addStatus(NetworkConnectionStatus.online);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state, isA<NetworkStatusOnline>());
+      expect(cubit.state.reconnectRevision, 0);
+    });
+
+    test('watch failure blocks and marks reconnect refresh pending', () async {
       final repository = _ControllableNetworkStatusRepository();
       final cubit = _createCubit(repository);
       addTearDown(() async {
@@ -54,6 +79,36 @@ void main() {
 
       expect(cubit.state, isA<NetworkStatusFailure>());
       expect(cubit.state.blocksInteraction, isTrue);
+      expect(cubit.state.reconnectRevision, 0);
+
+      repository.addStatus(NetworkConnectionStatus.online);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state, isA<NetworkStatusOnline>());
+      expect(cubit.state.reconnectRevision, 1);
+    });
+
+    test('retry checking preserves pending reconnect refresh', () async {
+      final repository = _ControllableNetworkStatusRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
+
+      await cubit.startWatching();
+      repository.addStatus(NetworkConnectionStatus.offline);
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.retry();
+      expect(cubit.state, isA<NetworkStatusChecking>());
+      expect(cubit.state.reconnectRevision, 0);
+
+      repository.addStatus(NetworkConnectionStatus.online);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state, isA<NetworkStatusOnline>());
+      expect(cubit.state.reconnectRevision, 1);
     });
   });
 }
@@ -62,13 +117,14 @@ NetworkStatusCubit _createCubit(NetworkStatusRepository repository) {
   return NetworkStatusCubit(
     getNetworkStatusUseCase: GetNetworkStatusUseCase(repository),
     watchNetworkStatusUseCase: WatchNetworkStatusUseCase(repository),
+    pollingEnabled: false,
   );
 }
 
 final class _ControllableNetworkStatusRepository
     implements NetworkStatusRepository {
   final _controller =
-      StreamController<Result<NetworkConnectionStatus>>.broadcast();
+      StreamController<Result<NetworkConnectionStatus>>.broadcast(sync: true);
 
   void addStatus(NetworkConnectionStatus status) {
     _controller.add(Success(status));
