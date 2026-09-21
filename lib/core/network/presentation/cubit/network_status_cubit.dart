@@ -37,7 +37,7 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
 
     _subscription = _watchNetworkStatusUseCase(const NoParams()).listen(
       _handleResult,
-      onError: (_, __) {
+      onError: (_, _) {
         if (!isClosed) {
           emit(
             const NetworkStatusFailure(
