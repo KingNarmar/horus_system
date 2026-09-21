@@ -7,10 +7,7 @@ import '../cubit/network_status_state.dart';
 class NetworkReconnectRefreshBoundary extends StatefulWidget {
   final Widget child;
 
-  const NetworkReconnectRefreshBoundary({
-    required this.child,
-    super.key,
-  });
+  const NetworkReconnectRefreshBoundary({required this.child, super.key});
 
   @override
   State<NetworkReconnectRefreshBoundary> createState() =>
@@ -38,10 +35,7 @@ class _NetworkReconnectRefreshBoundaryState
   Widget build(BuildContext context) {
     return BlocListener<NetworkStatusCubit, NetworkStatusState>(
       listener: (_, state) => _handleNetworkState(state),
-      child: KeyedSubtree(
-        key: ValueKey(_revision),
-        child: widget.child,
-      ),
+      child: KeyedSubtree(key: ValueKey(_revision), child: widget.child),
     );
   }
 }

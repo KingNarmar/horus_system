@@ -136,10 +136,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      _RawTestApp(
-        cubit: cubit,
-        child: const _WorkspaceSelectionHarness(),
-      ),
+      _RawTestApp(cubit: cubit, child: const _WorkspaceSelectionHarness()),
     );
     await cubit.startWatching();
 
@@ -176,19 +173,14 @@ class _TestApp extends StatelessWidget {
   final NetworkStatusCubit cubit;
   final Widget child;
 
-  const _TestApp({
-    required this.cubit,
-    required this.child,
-  });
+  const _TestApp({required this.cubit, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cubit,
       child: MaterialApp(
-        home: Scaffold(
-          body: NetworkReconnectRefreshBoundary(child: child),
-        ),
+        home: Scaffold(body: NetworkReconnectRefreshBoundary(child: child)),
       ),
     );
   }
@@ -198,18 +190,13 @@ class _RawTestApp extends StatelessWidget {
   final NetworkStatusCubit cubit;
   final Widget child;
 
-  const _RawTestApp({
-    required this.cubit,
-    required this.child,
-  });
+  const _RawTestApp({required this.cubit, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cubit,
-      child: MaterialApp(
-        home: Scaffold(body: child),
-      ),
+      child: MaterialApp(home: Scaffold(body: child)),
     );
   }
 }
@@ -242,7 +229,8 @@ class _WorkspaceSelectionHarness extends StatefulWidget {
       _WorkspaceSelectionHarnessState();
 }
 
-class _WorkspaceSelectionHarnessState extends State<_WorkspaceSelectionHarness> {
+class _WorkspaceSelectionHarnessState
+    extends State<_WorkspaceSelectionHarness> {
   var _selected = 0;
 
   @override
@@ -255,9 +243,7 @@ class _WorkspaceSelectionHarnessState extends State<_WorkspaceSelectionHarness> 
           onPressed: () => setState(() => _selected = 1),
           child: const Text('Select second'),
         ),
-        NetworkReconnectRefreshBoundary(
-          child: Text('workspace:$_selected'),
-        ),
+        NetworkReconnectRefreshBoundary(child: Text('workspace:$_selected')),
       ],
     );
   }
