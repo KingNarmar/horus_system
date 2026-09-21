@@ -27,8 +27,5 @@ final class NetworkStatusOffline extends NetworkStatusState {
 final class NetworkStatusFailure extends NetworkStatusState {
   final Failure failure;
 
-  const NetworkStatusFailure(
-    this.failure, {
-    super.reconnectRevision,
-  });
+  const NetworkStatusFailure(this.failure, {super.reconnectRevision});
 }

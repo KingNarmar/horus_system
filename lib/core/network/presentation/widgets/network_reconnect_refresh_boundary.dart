@@ -14,10 +14,7 @@ class NetworkReconnectRefreshBoundary extends StatelessWidget {
     return BlocSelector<NetworkStatusCubit, NetworkStatusState, int>(
       selector: (state) => state.reconnectRevision,
       builder: (_, reconnectRevision) {
-        return KeyedSubtree(
-          key: ValueKey(reconnectRevision),
-          child: child,
-        );
+        return KeyedSubtree(key: ValueKey(reconnectRevision), child: child);
       },
     );
   }

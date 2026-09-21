@@ -47,9 +47,7 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
           _markRefreshPending();
           emit(
             NetworkStatusFailure(
-              const NetworkFailure(
-                code: FailureCodes.networkStatusUnavailable,
-              ),
+              const NetworkFailure(code: FailureCodes.networkStatusUnavailable),
               reconnectRevision: _reconnectRevision,
             ),
           );
@@ -79,10 +77,7 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
     if (failure != null) {
       _markRefreshPending();
       emit(
-        NetworkStatusFailure(
-          failure,
-          reconnectRevision: _reconnectRevision,
-        ),
+        NetworkStatusFailure(failure, reconnectRevision: _reconnectRevision),
       );
       return;
     }
@@ -101,9 +96,7 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
         _markRefreshPending();
         emit(
           NetworkStatusFailure(
-            const NetworkFailure(
-              code: FailureCodes.networkStatusUnavailable,
-            ),
+            const NetworkFailure(code: FailureCodes.networkStatusUnavailable),
             reconnectRevision: _reconnectRevision,
           ),
         );
