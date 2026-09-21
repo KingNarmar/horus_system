@@ -4,18 +4,19 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expense_types/domain/policies/expense_type_semantics.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../localization/trips_localizations_x.dart';
 
 class TripExpenseFormDialog extends StatefulWidget {
+  final BusinessDate initialExpenseDate;
   final List<ExpenseType> expenseTypes;
   final Object? expenseTypesFailure;
   final Future<void> Function(TripExpenseFormData data) onSubmit;
 
   const TripExpenseFormDialog({
+    required this.initialExpenseDate,
     required this.expenseTypes,
     required this.expenseTypesFailure,
     required this.onSubmit,
@@ -43,10 +44,9 @@ class _TripExpenseFormDialogState extends State<TripExpenseFormDialog> {
     super.initState();
     _descriptionController = TextEditingController();
     _amountController = TextEditingController();
-    final initialDate = BusinessDateDateTimeAdapter.fromDateTime(
-      DateTime.now(),
+    _dateController = TextEditingController(
+      text: _dateOnly(widget.initialExpenseDate),
     );
-    _dateController = TextEditingController(text: _dateOnly(initialDate));
     _notesController = TextEditingController();
   }
 

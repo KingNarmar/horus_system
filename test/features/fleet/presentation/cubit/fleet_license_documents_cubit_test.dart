@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -76,6 +78,31 @@ void main() {
         expect(state.failure, isNull);
       },
     );
+
+    test('trusted-date failure blocks document upload', () async {
+      const failure = UnexpectedFailure(message: 'offline');
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final cubit = _createCubit(
+        repository,
+        businessDateProvider: _FakeBusinessDateProvider(failure: failure),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+      final changed = await cubit.upload(
+        side: FleetLicenseDocumentFileSide.back,
+        file: _businessFile,
+      );
+
+      final state = cubit.state as FleetLicenseDocumentsLoaded;
+      expect(changed, isFalse);
+      expect(state.failure, same(failure));
+      expect(state.isMutating, isFalse);
+      expect(repository.addCalls, 0);
+    });
 
     test(
       'failed remove preserves document and exposes typed failure',
@@ -164,8 +191,9 @@ final _businessFile = BusinessDocumentFile(
 );
 
 FleetLicenseDocumentsCubit _createCubit(
-  FleetLicenseDocumentsRepository repository,
-) {
+  FleetLicenseDocumentsRepository repository, {
+  CompanyBusinessDateProvider? businessDateProvider,
+}) {
   return FleetLicenseDocumentsCubit(
     getDocumentUseCase: GetFleetLicenseDocumentUseCase(repository),
     uploadFileUseCase: UploadFleetLicenseDocumentFileUseCase(repository),
@@ -174,6 +202,9 @@ FleetLicenseDocumentsCubit _createCubit(
     replaceFileUseCase: ReplaceFleetLicenseDocumentFileUseCase(repository),
     removeDocumentUseCase: RemoveFleetLicenseDocumentUseCase(repository),
     canManageFleetUseCase: const CanManageFleetUseCase(),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      businessDateProvider ?? _FakeBusinessDateProvider(),
+    ),
   );
 }
 
@@ -181,6 +212,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   FleetLicenseDocument? activeDocument;
   Result<FleetLicenseDocument> addResult = Success(_frontDocument);
   Result<void> removeResult = const Success<void>(null);
+  int addCalls = 0;
 
   @override
   Future<Result<FleetLicenseDocument?>> getActiveDocument({
@@ -207,6 +239,7 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required BusinessDocumentFile file,
     BusinessDate? newLicenseExpiryDate,
   }) async {
+    addCalls += 1;
     return addResult;
   }
 
@@ -248,5 +281,20 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     required String fileId,
   }) async {
     return Success(Uint8List.fromList([1]));
+  }
+}
+
+final class _FakeBusinessDateProvider implements CompanyBusinessDateProvider {
+  final UnexpectedFailure? failure;
+
+  _FakeBusinessDateProvider({this.failure});
+
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async {
+    final currentFailure = failure;
+    if (currentFailure != null) return FailureResult(currentFailure);
+    return Success(BusinessDate(year: 2026, month: 9, day: 19));
   }
 }

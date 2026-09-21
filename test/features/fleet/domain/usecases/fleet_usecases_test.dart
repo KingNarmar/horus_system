@@ -1,3 +1,4 @@
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
@@ -84,6 +85,7 @@ void main() {
           currentCompanyContext: _context(role: CompanyRole.accountant),
           plateNumber: 'T-100',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -104,6 +106,7 @@ void main() {
           currentCompanyContext: _context(),
           plateNumber: '   ',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -111,6 +114,28 @@ void main() {
       expect(
         result.failureOrNull?.code,
         FailureCodes.validationFleetPlateRequired,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
+    test('rejects tractor license expiry before business date', () async {
+      final repository = _FakeFleetRepository();
+      final useCase = SaveTractorHeadUseCase(repository);
+
+      final result = await useCase(
+        SaveTractorHeadParams(
+          currentCompanyContext: _context(),
+          plateNumber: 'T-100',
+          status: VehicleStatus.available,
+          licenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+          currentBusinessDate: _businessDate,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TractorHead>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
       );
       expect(repository.totalMutationCalls, 0);
     });
@@ -124,6 +149,7 @@ void main() {
           currentCompanyContext: _context(),
           plateNumber: 'T-100',
           status: VehicleStatus.available,
+          currentBusinessDate: _businessDate,
           expectedFuelConsumption: -1,
         ),
       );
@@ -146,6 +172,7 @@ void main() {
           id: '   ',
           plateNumber: '  T-100  ',
           status: VehicleStatus.maintenance,
+          currentBusinessDate: _businessDate,
           expectedFuelConsumption: 32.5,
           notes: '  Workshop  ',
         ),
@@ -175,6 +202,7 @@ void main() {
             id: '  tractor-1  ',
             plateNumber: 'T-200',
             status: VehicleStatus.available,
+            currentBusinessDate: _businessDate,
             notes: '   ',
           ),
         );
@@ -190,6 +218,28 @@ void main() {
   });
 
   group('SaveTrailerUseCase', () {
+    test('rejects trailer license expiry before business date', () async {
+      final repository = _FakeFleetRepository();
+      final useCase = SaveTrailerUseCase(repository);
+
+      final result = await useCase(
+        SaveTrailerParams(
+          currentCompanyContext: _context(role: CompanyRole.operations),
+          plateNumber: 'TR-100',
+          status: VehicleStatus.available,
+          licenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+          currentBusinessDate: _businessDate,
+        ),
+      );
+
+      expect(result, isA<FailureResult<TrailerEntity>>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
     test(
       'creates with normalized plate and optional technical notes',
       () async {
@@ -201,6 +251,7 @@ void main() {
             currentCompanyContext: _context(role: CompanyRole.operations),
             plateNumber: '  TR-100  ',
             status: VehicleStatus.available,
+            currentBusinessDate: _businessDate,
             technicalNotes: '   ',
           ),
         );
@@ -255,6 +306,7 @@ void main() {
 }
 
 const _companyId = 'company-1';
+final _businessDate = BusinessDate(year: 2026, month: 9, day: 19);
 
 CurrentCompanyContext _context({
   String companyId = _companyId,

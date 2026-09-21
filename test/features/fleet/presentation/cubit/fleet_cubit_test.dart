@@ -63,6 +63,28 @@ void main() {
       expect(result.dataOrNull, BusinessDate(year: 2026, month: 9, day: 19));
     });
 
+    test('trusted-date failure blocks fleet save before persistence', () async {
+      const failure = UnexpectedFailure(message: 'offline');
+      final repository = _FakeFleetRepository();
+      final cubit = _createCubit(
+        repository,
+        businessDateProvider: _FakeCompanyBusinessDateProvider(
+          failure: failure,
+        ),
+      );
+      addTearDown(cubit.close);
+
+      await cubit.loadFleet(_ownerContext);
+      await cubit.saveTractorHead(
+        plateNumber: 'T-200',
+        status: VehicleStatus.available,
+      );
+
+      expect(cubit.state, isA<FleetFailure>());
+      expect((cubit.state as FleetFailure).failure, same(failure));
+      expect(repository.addTractorHeadCalls, 0);
+    });
+
     test('reload preserves search, status filter, and selected tab', () async {
       final repository = _FakeFleetRepository();
       final cubit = _createCubit(repository);
@@ -249,6 +271,7 @@ const _newTrailer = TrailerEntity(
 FleetCubit _createCubit(
   _FakeFleetRepository repository, {
   CanManageFleetUseCase canManageFleetUseCase = const CanManageFleetUseCase(),
+  CompanyBusinessDateProvider? businessDateProvider,
 }) {
   return FleetCubit(
     convertInstantsToBusinessLocalDateTimesUseCase:
@@ -268,7 +291,7 @@ FleetCubit _createCubit(
       _FakeAuditLogRepository(),
     ),
     getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
-      _FakeCompanyBusinessDateProvider(),
+      businessDateProvider ?? _FakeCompanyBusinessDateProvider(),
     ),
   );
 }
@@ -296,6 +319,7 @@ class _FakeFleetRepository implements FleetRepository {
 
   int getTractorHeadsCalls = 0;
   int getTrailersCalls = 0;
+  int addTractorHeadCalls = 0;
   int deactivateTractorHeadCalls = 0;
 
   _FakeFleetRepository({
@@ -330,6 +354,7 @@ class _FakeFleetRepository implements FleetRepository {
     required TractorHeadWriteData data,
     required String actorRole,
   }) async {
+    addTractorHeadCalls += 1;
     return Success<TractorHead>(
       nextAddedTractor ??
           TractorHead(
@@ -444,10 +469,16 @@ class _FakeFleetRepository implements FleetRepository {
 }
 
 class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
+  final UnexpectedFailure? failure;
+
+  _FakeCompanyBusinessDateProvider({this.failure});
+
   @override
   Future<Result<BusinessDate>> getBusinessDate({
     required String companyId,
   }) async {
+    final currentFailure = failure;
+    if (currentFailure != null) return FailureResult(currentFailure);
     return Success(BusinessDate(year: 2026, month: 9, day: 19));
   }
 }

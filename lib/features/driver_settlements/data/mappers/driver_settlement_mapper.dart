@@ -1,6 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
-import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/driver_settlement.dart';
@@ -306,26 +305,18 @@ extension DriverSettlementMoneyItemMapper on DriverSettlementMoneyItem {
 }
 
 extension DriverSettlementFinalizeDataMapper on DriverSettlementFinalizeData {
-  Map<String, dynamic> toUpdateMap({required String? actorUserId}) {
+  Map<String, dynamic> toUpdateMap() {
     return {
       DriverSettlementsDbFields.status: DriverSettlementStatus.finalized.value,
-      DriverSettlementsDbFields.finalizedAt: DbTimestamp.nowUtcIsoString(),
-      DriverSettlementsDbFields.finalizedBy: actorUserId,
-      DriverSettlementsDbFields.updatedBy: actorUserId,
-      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
 }
 
 extension DriverSettlementVoidDataMapper on DriverSettlementVoidData {
-  Map<String, dynamic> toUpdateMap({required String? actorUserId}) {
+  Map<String, dynamic> toUpdateMap() {
     return {
       DriverSettlementsDbFields.status: DriverSettlementStatus.voided.value,
-      DriverSettlementsDbFields.voidedAt: DbTimestamp.nowUtcIsoString(),
-      DriverSettlementsDbFields.voidedBy: actorUserId,
       DriverSettlementsDbFields.voidReason: reason,
-      DriverSettlementsDbFields.updatedBy: actorUserId,
-      DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };
   }
 }

@@ -187,6 +187,28 @@ void main() {
       expect(map['currency_fraction_digits'], 3);
       expect(map['metadata'], {'funding_source': 'driver_cash'});
     });
+
+    test('finalize payload leaves lifecycle metadata to the database', () {
+      const data = DriverSettlementFinalizeData(
+        companyId: _companyId,
+        settlementId: _settlementId,
+      );
+
+      expect(data.toUpdateMap(), {'status': 'finalized'});
+    });
+
+    test('void payload leaves lifecycle metadata to the database', () {
+      const data = DriverSettlementVoidData(
+        companyId: _companyId,
+        settlementId: _settlementId,
+        reason: 'duplicate settlement',
+      );
+
+      expect(data.toUpdateMap(), {
+        'status': 'voided',
+        'void_reason': 'duplicate settlement',
+      });
+    });
   });
 }
 

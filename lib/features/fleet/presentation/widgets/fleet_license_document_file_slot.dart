@@ -6,10 +6,12 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/utils/result.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/fleet_license_document.dart';
 import '../../domain/entities/fleet_license_document_file.dart';
 import '../../domain/entities/fleet_license_document_file_side.dart';
+import '../cubit/fleet_cubit.dart';
 import '../cubit/fleet_license_documents_cubit.dart';
 import '../helpers/fleet_license_document_launcher.dart';
 import '../helpers/fleet_license_document_picker.dart';
@@ -131,9 +133,12 @@ final class _MissingFileActions extends StatelessWidget {
 
     BusinessDate? newExpiry;
     if (document == null) {
+      final currentBusinessDate = await _getCurrentBusinessDate(context);
+      if (currentBusinessDate == null || !context.mounted) return;
       final selection = await selectFleetLicenseExpiryUpdate(
         context,
         currentLicenseExpiryDate,
+        currentBusinessDate: currentBusinessDate,
       );
       if (selection == null || !context.mounted) return;
       newExpiry = selection.newValue;
@@ -246,9 +251,12 @@ final class _ExistingFileActions extends StatelessWidget {
     final replacement = await const FleetLicenseDocumentPicker().pick();
     if (replacement == null || !context.mounted) return;
 
+    final currentBusinessDate = await _getCurrentBusinessDate(context);
+    if (currentBusinessDate == null || !context.mounted) return;
     final selection = await selectFleetLicenseExpiryUpdate(
       context,
       currentLicenseExpiryDate,
+      currentBusinessDate: currentBusinessDate,
     );
     if (selection == null || !context.mounted) return;
 
@@ -262,6 +270,22 @@ final class _ExistingFileActions extends StatelessWidget {
       await onAssetChanged();
     }
   }
+}
+
+Future<BusinessDate?> _getCurrentBusinessDate(BuildContext context) async {
+  final result = await context.read<FleetCubit>().getCurrentBusinessDate();
+  if (!context.mounted) return null;
+
+  if (result is FailureResult<BusinessDate>) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.localizedErrorMessage(result.failure)),
+      ),
+    );
+    return null;
+  }
+
+  return (result as Success<BusinessDate>).data;
 }
 
 String _sideLabel(AppLocalizations l10n, FleetLicenseDocumentFileSide side) {

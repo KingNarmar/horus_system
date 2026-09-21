@@ -80,6 +80,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationFleetPlateRequired,
       FailureCodes.validationFleetFuelConsumptionNegative =>
         failureValidationFleetFuelConsumptionNegative,
+      FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate =>
+        licenseExpiryDateMustBeFuture,
       FailureCodes.permissionRoutesManagement =>
         failurePermissionRoutesManagement,
       FailureCodes.permissionRoutesView => failurePermissionRoutesView,
@@ -121,6 +123,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationCompanyExpenseAmountPositive =>
         failureValidationCompanyExpenseAmountPositive,
       FailureCodes.validationCompanyNameRequired => companyNameRequired,
+      FailureCodes.networkStatusUnavailable => failureNetworkStatusUnavailable,
       FailureCodes.serverError => _genericServerErrorMessage,
       _ => _safeFallbackErrorMessage(failure),
     };

@@ -5,6 +5,7 @@ import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -14,6 +15,7 @@ import '../entities/fleet_license_document_file_side.dart';
 import '../entities/fleet_license_document_target.dart';
 import '../failures/fleet_license_document_failure_codes.dart';
 import '../policies/fleet_license_document_policy.dart';
+import '../policies/fleet_license_expiry_policy.dart';
 import '../policies/fleet_permission_policy.dart';
 import '../repositories/fleet_license_documents_repository.dart';
 
@@ -33,12 +35,14 @@ final class UploadFleetLicenseDocumentFileParams {
   final FleetLicenseDocumentFileSide side;
   final BusinessDocumentFile file;
   final BusinessDate? newLicenseExpiryDate;
+  final BusinessDate currentBusinessDate;
 
   const UploadFleetLicenseDocumentFileParams({
     required this.currentCompanyContext,
     required this.target,
     required this.side,
     required this.file,
+    required this.currentBusinessDate,
     this.newLicenseExpiryDate,
   });
 }
@@ -76,6 +80,7 @@ final class ReplaceFleetLicenseDocumentFileParams {
   final FleetLicenseDocumentFile file;
   final BusinessDocumentFile replacement;
   final BusinessDate? newLicenseExpiryDate;
+  final BusinessDate currentBusinessDate;
 
   const ReplaceFleetLicenseDocumentFileParams({
     required this.currentCompanyContext,
@@ -83,6 +88,7 @@ final class ReplaceFleetLicenseDocumentFileParams {
     required this.document,
     required this.file,
     required this.replacement,
+    required this.currentBusinessDate,
     this.newLicenseExpiryDate,
   });
 }
@@ -130,6 +136,16 @@ final class UploadFleetLicenseDocumentFileUseCase
       manage: true,
     );
     if (validation != null) return FailureResult(validation);
+    if (!FleetLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: params.newLicenseExpiryDate,
+      currentBusinessDate: params.currentBusinessDate,
+    )) {
+      return const FailureResult(
+        ValidationFailure(
+          code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+        ),
+      );
+    }
 
     final currentResult = await _repository.getActiveDocument(
       target: params.target,
@@ -234,6 +250,18 @@ final class ReplaceFleetLicenseDocumentFileUseCase
     );
     final validation = _validateFileAction(action, manage: true);
     if (validation != null) return Future.value(FailureResult(validation));
+    if (!FleetLicenseExpiryPolicy.isValid(
+      licenseExpiryDate: params.newLicenseExpiryDate,
+      currentBusinessDate: params.currentBusinessDate,
+    )) {
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(
+            code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+          ),
+        ),
+      );
+    }
     if (!_policy.canReplaceFile(params.document, params.file)) {
       return Future.value(
         const FailureResult(

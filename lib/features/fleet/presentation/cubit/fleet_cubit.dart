@@ -215,6 +215,19 @@ class FleetCubit extends Cubit<FleetState> {
   }) async {
     final context = _currentCompanyContext;
     if (context == null) return;
+
+    final businessDateResult = await getCurrentBusinessDate();
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) {
+      emit(FleetFailure(businessDateFailure));
+      return;
+    }
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) {
+      emit(const FleetFailure(UnexpectedFailure()));
+      return;
+    }
+
     final result = await saveTractorHeadUseCase(
       SaveTractorHeadParams(
         currentCompanyContext: context,
@@ -222,6 +235,7 @@ class FleetCubit extends Cubit<FleetState> {
         plateNumber: plateNumber,
         status: status,
         licenseExpiryDate: licenseExpiryDate,
+        currentBusinessDate: currentBusinessDate,
         expectedFuelConsumption: expectedFuelConsumption,
         notes: notes,
       ),
@@ -241,6 +255,19 @@ class FleetCubit extends Cubit<FleetState> {
   }) async {
     final context = _currentCompanyContext;
     if (context == null) return;
+
+    final businessDateResult = await getCurrentBusinessDate();
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) {
+      emit(FleetFailure(businessDateFailure));
+      return;
+    }
+    final currentBusinessDate = businessDateResult.dataOrNull;
+    if (currentBusinessDate == null) {
+      emit(const FleetFailure(UnexpectedFailure()));
+      return;
+    }
+
     final result = await saveTrailerUseCase(
       SaveTrailerParams(
         currentCompanyContext: context,
@@ -248,6 +275,7 @@ class FleetCubit extends Cubit<FleetState> {
         plateNumber: plateNumber,
         status: status,
         licenseExpiryDate: licenseExpiryDate,
+        currentBusinessDate: currentBusinessDate,
         technicalNotes: technicalNotes,
       ),
     );

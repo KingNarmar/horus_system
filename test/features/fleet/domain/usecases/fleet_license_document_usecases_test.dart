@@ -4,6 +4,7 @@ import 'package:horus_system/core/documents/domain/entities/business_document_ac
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
@@ -17,6 +18,8 @@ import 'package:horus_system/features/fleet/domain/failures/fleet_license_docume
 import 'package:horus_system/features/fleet/domain/repositories/fleet_license_documents_repository.dart';
 import 'package:horus_system/features/fleet/domain/usecases/fleet_license_document_usecases.dart';
 import 'package:test/test.dart';
+
+final _businessDate = BusinessDate(year: 2026, month: 9, day: 19);
 
 void main() {
   group('Fleet license document use cases', () {
@@ -69,10 +72,35 @@ void main() {
           ),
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
       expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(repository.createCalls, 0);
+      expect(repository.addCalls, 0);
+    });
+
+    test('past expiry is rejected before document persistence', () async {
+      final repository = _FakeRepository();
+      final useCase = UploadFleetLicenseDocumentFileUseCase(repository);
+
+      final result = await useCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: _operationsContext,
+          target: _tractorTarget,
+          side: FleetLicenseDocumentFileSide.front,
+          file: _file,
+          currentBusinessDate: _businessDate,
+          newLicenseExpiryDate: BusinessDate(year: 2026, month: 9, day: 18),
+        ),
+      );
+
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
+      );
       expect(repository.createCalls, 0);
       expect(repository.addCalls, 0);
     });
@@ -87,6 +115,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -106,6 +135,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.back,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -126,6 +156,7 @@ void main() {
           target: _tractorTarget,
           side: FleetLicenseDocumentFileSide.front,
           file: _file,
+          currentBusinessDate: _businessDate,
         ),
       );
 
@@ -149,6 +180,7 @@ void main() {
           document: _frontDocument,
           file: _frontFile,
           replacement: _file,
+          currentBusinessDate: _businessDate,
           newLicenseExpiryDate: newExpiry,
         ),
       );

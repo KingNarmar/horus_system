@@ -187,10 +187,9 @@ class SupabaseCompanyExpensesRemoteDataSource
   Future<CompanyExpenseModel> voidCompanyExpense({
     required CompanyExpenseVoidData data,
   }) async {
-    final actorUserId = client.auth.currentUser?.id;
     final row = await client
         .from(CompanyExpenseDbFields.tableName)
-        .update(data.toVoidMap(actorUserId: actorUserId))
+        .update(data.toVoidMap())
         .eq(DbCommonFields.companyId, data.companyId)
         .eq(DbCommonFields.id, data.expenseId)
         .select(CompanyExpenseDbFields.allColumns)

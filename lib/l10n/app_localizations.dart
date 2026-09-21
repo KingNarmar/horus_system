@@ -122,6 +122,54 @@ abstract class AppLocalizations {
   /// **'Clean Architecture by the book • SOLID Principles'**
   String get architectureBadge;
 
+  /// No description provided for @networkCheckingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking connection'**
+  String get networkCheckingTitle;
+
+  /// No description provided for @networkCheckingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'H.O.R.U.S is verifying internet connectivity before allowing actions.'**
+  String get networkCheckingMessage;
+
+  /// No description provided for @networkOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get networkOfflineTitle;
+
+  /// No description provided for @networkOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'H.O.R.U.S is paused until the internet connection returns.'**
+  String get networkOfflineMessage;
+
+  /// No description provided for @networkStatusCheckFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection check unavailable'**
+  String get networkStatusCheckFailedTitle;
+
+  /// No description provided for @networkStatusCheckFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'H.O.R.U.S could not verify internet connectivity. Actions remain blocked for safety.'**
+  String get networkStatusCheckFailedMessage;
+
+  /// No description provided for @networkRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get networkRetryButton;
+
+  /// No description provided for @failureNetworkStatusUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet connection status could not be verified.'**
+  String get failureNetworkStatusUnavailable;
+
   /// No description provided for @appShellDashboardLabel.
   ///
   /// In en, this message translates to:

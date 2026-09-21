@@ -1,6 +1,5 @@
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
-import '../../../../core/data/utils/db_timestamp.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_void_data.dart';
 import '../../domain/entities/company_expense_write_data.dart';
@@ -73,17 +72,12 @@ extension CompanyExpenseWriteDataMapper on CompanyExpenseWriteData {
     CompanyExpenseDbFields.expenseDate: DbDate.encode(expenseDate),
     CompanyExpenseDbFields.referenceNumber: referenceNumber,
     CompanyExpenseDbFields.notes: notes,
-    DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
   };
 }
 
 extension CompanyExpenseVoidDataMapper on CompanyExpenseVoidData {
-  Map<String, dynamic> toVoidMap({required String? actorUserId}) => {
+  Map<String, dynamic> toVoidMap() => {
     CompanyExpenseDbFields.isVoided: true,
-    CompanyExpenseDbFields.voidedAt: DbTimestamp.nowUtcIsoString(),
-    CompanyExpenseDbFields.voidedBy: actorUserId,
     CompanyExpenseDbFields.voidReason: reason,
-    DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
-    DbCommonFields.updatedBy: actorUserId,
   };
 }

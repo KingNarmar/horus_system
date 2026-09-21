@@ -9,6 +9,7 @@ import '../../../../core/di/fleet_dependencies.dart';
 import '../../../../core/di/routes_dependencies.dart';
 import '../../../../core/di/trips_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -21,10 +22,12 @@ import '../../../company/presentation/cubit/company_timezone_cubit.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
 import '../../../company/presentation/widgets/company_financial_settings_card.dart';
 import '../../../company/presentation/widgets/company_timezone_settings_card.dart';
+import '../../../customers/presentation/cubit/customers_cubit.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../dashboard/di/dashboard_dependencies.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
+import '../../../drivers/presentation/cubit/drivers_cubit.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../expense_types/di/expense_types_dependencies.dart';
 import '../../../expense_types/domain/policies/expense_types_permission_policy.dart';
@@ -91,12 +94,22 @@ class AppShellContent extends StatelessWidget {
     return switch (selected.module) {
       AppShellModule.dashboard => BlocProvider<DashboardCubit>(
         create: (_) => DashboardDependencies.createCubit(),
-        child: DashboardPage(currentCompanyContext: contextData),
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<DashboardCubit>().load(contextData),
+          child: DashboardPage(currentCompanyContext: contextData),
+        ),
       ),
-      AppShellModule.customers => CustomersPage(
-        currentCompanyContext: contextData,
+      AppShellModule.customers => _ReconnectAware(
+        onReconnect: (context) =>
+            context.read<CustomersCubit>().loadCustomers(contextData),
+        child: CustomersPage(currentCompanyContext: contextData),
       ),
-      AppShellModule.drivers => DriversPage(currentCompanyContext: contextData),
+      AppShellModule.drivers => _ReconnectAware(
+        onReconnect: (context) =>
+            context.read<DriversCubit>().loadDrivers(contextData),
+        child: DriversPage(currentCompanyContext: contextData),
+      ),
       AppShellModule.fleet => MultiBlocProvider(
         providers: [
           BlocProvider<FleetCubit>(
@@ -106,15 +119,27 @@ class AppShellContent extends StatelessWidget {
             create: (_) => FleetDependencies.createFleetLicenseDocumentsCubit(),
           ),
         ],
-        child: FleetPage(currentCompanyContext: contextData),
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<FleetCubit>().loadFleet(contextData),
+          child: FleetPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.routes => BlocProvider<RoutesCubit>(
         create: (_) => RoutesDependencies.createRoutesCubit(),
-        child: RoutesPage(currentCompanyContext: contextData),
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<RoutesCubit>().loadRoutes(contextData),
+          child: RoutesPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.trips => BlocProvider<TripsCubit>(
         create: (_) => TripsDependencies.createTripsCubit(),
-        child: TripsPage(currentCompanyContext: contextData),
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<TripsCubit>().loadTrips(contextData),
+          child: TripsPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.finance => FinanceWorkspacePage(
         currentCompanyContext: contextData,
@@ -149,9 +174,46 @@ class AppShellContent extends StatelessWidget {
             },
           ),
         ],
-        child: _SettingsContent(contextData: contextData),
+        child: _ReconnectAware(
+          onReconnect: _refreshSettings,
+          child: _SettingsContent(contextData: contextData),
+        ),
       ),
     };
+  }
+
+  Future<void> _refreshSettings(BuildContext context) async {
+    final refreshes = <Future<void>>[
+      context.read<SubscriptionsCubit>().load(contextData),
+      context.read<PaymentMethodsCubit>().loadPaymentMethods(contextData),
+    ];
+
+    if (ExpenseTypesPermissionPolicy.canViewExpenseTypes(contextData.role)) {
+      refreshes.add(
+        context.read<ExpenseTypesCubit>().loadExpenseTypes(contextData),
+      );
+    }
+
+    if (contextData.canManageCompany) {
+      refreshes.add(context.read<CompanyTimezoneCubit>().loadOptions());
+    }
+
+    await Future.wait(refreshes);
+  }
+}
+
+class _ReconnectAware extends StatelessWidget {
+  final Future<void> Function(BuildContext context) onReconnect;
+  final Widget child;
+
+  const _ReconnectAware({required this.onReconnect, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return NetworkReconnectRefreshBoundary(
+      onReconnect: () => onReconnect(context),
+      child: child,
+    );
   }
 }
 
