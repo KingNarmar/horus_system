@@ -40,8 +40,11 @@ void main() {
       expect(states.whereType<NetworkStatusOffline>(), hasLength(1));
 
       final onlineStates = states.whereType<NetworkStatusOnline>().toList();
-      expect(onlineStates, hasLength(1));
-      expect(onlineStates.single.reconnectRevision, 1);
+      expect(onlineStates, hasLength(2));
+      expect(
+        onlineStates.map((state) => state.reconnectRevision),
+        everyElement(1),
+      );
       expect(cubit.state.reconnectRevision, 1);
     });
 
