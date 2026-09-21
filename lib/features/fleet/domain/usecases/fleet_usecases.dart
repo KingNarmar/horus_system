@@ -165,7 +165,6 @@ class SaveTractorHeadUseCase
         const FailureResult<TractorHead>(
           ValidationFailure(
             code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
-            message: 'Fleet license expiry date is before the business date.',
           ),
         ),
       );
@@ -239,7 +238,6 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
         const FailureResult<TrailerEntity>(
           ValidationFailure(
             code: FailureCodes.validationFleetLicenseExpiryBeforeBusinessDate,
-            message: 'Fleet license expiry date is before the business date.',
           ),
         ),
       );
