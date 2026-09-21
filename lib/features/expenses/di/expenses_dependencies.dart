@@ -2,6 +2,7 @@ import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../data/datasources/expense_ledger_remote_data_source.dart';
 import '../data/repositories/expense_ledger_repository_impl.dart';
 import '../domain/repositories/expense_ledger_repository.dart';
+import '../domain/usecases/can_manage_trip_attributed_expense_usecase.dart';
 import '../domain/usecases/create_expense_ledger_entry_usecase.dart';
 import '../domain/usecases/create_trip_expense_usecase.dart';
 import '../domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
@@ -14,6 +15,11 @@ abstract final class ExpensesDependencies {
         SupabaseClientProvider.client,
       ),
     );
+  }
+
+  static CanManageTripAttributedExpenseUseCase
+  createCanManageTripAttributedExpenseUseCase() {
+    return const CanManageTripAttributedExpenseUseCase();
   }
 
   static GetTripExpenseLedgerEntriesUseCase
