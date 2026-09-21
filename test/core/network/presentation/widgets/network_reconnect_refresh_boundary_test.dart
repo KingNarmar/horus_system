@@ -32,8 +32,11 @@ void main() {
     expect(mounts, 1);
 
     await cubit.startWatching();
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.online,
+    );
 
     expect(mounts, 1);
   });
@@ -57,16 +60,25 @@ void main() {
     );
     await cubit.startWatching();
 
-    repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.offline,
+    );
     expect(mounts, 1);
 
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.online,
+    );
     expect(mounts, 2);
 
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.online,
+    );
     expect(mounts, 2);
   });
 
@@ -89,13 +101,21 @@ void main() {
     );
     await cubit.startWatching();
 
-    repository.addStatus(NetworkConnectionStatus.offline);
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.offline,
+    );
+    final retryFuture = cubit.retry();
     await tester.pump();
-    await cubit.retry();
+    await retryFuture;
     expect(mounts, 1);
 
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.online,
+    );
 
     expect(mounts, 2);
   });
@@ -119,14 +139,30 @@ void main() {
     await tester.pump();
     expect(find.text('selected:1'), findsOneWidget);
 
-    repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.offline,
+    );
 
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await _emitNetworkStatus(
+      tester,
+      repository,
+      NetworkConnectionStatus.online,
+    );
 
     expect(find.text('selected:1'), findsOneWidget);
   });
+}
+
+Future<void> _emitNetworkStatus(
+  WidgetTester tester,
+  _ControllableNetworkStatusRepository repository,
+  NetworkConnectionStatus status,
+) async {
+  repository.addStatus(status);
+  await tester.pump();
+  await tester.pump();
 }
 
 NetworkStatusCubit _createCubit(NetworkStatusRepository repository) {
