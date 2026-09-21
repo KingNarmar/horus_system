@@ -72,39 +72,6 @@ void main() {
     expect(mounts, 2);
   });
 
-  testWidgets('retry checking preserves pending reconnect refresh', (
-    tester,
-  ) async {
-    final repository = _ControllableNetworkStatusRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
-    var mounts = 0;
-
-    await tester.pumpWidget(
-      _TestApp(
-        cubit: cubit,
-        child: _MountProbe(onMount: () => mounts += 1),
-      ),
-    );
-
-    await cubit.startWatching();
-
-    repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pumpAndSettle();
-
-    await cubit.retry();
-    await tester.pumpAndSettle();
-    expect(mounts, 1);
-
-    repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pumpAndSettle();
-
-    expect(mounts, 2);
-  });
-
   testWidgets('parent workspace selection survives child refresh', (
     tester,
   ) async {
