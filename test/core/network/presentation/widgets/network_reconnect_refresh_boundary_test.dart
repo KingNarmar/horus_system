@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,14 +12,6 @@ import 'package:horus_system/core/network/presentation/widgets/network_reconnect
 import 'package:horus_system/core/utils/result.dart';
 
 void main() {
-  setUp(() {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-  });
-
-  tearDown(() {
-    debugDefaultTargetPlatformOverride = null;
-  });
-
   testWidgets('initial online state does not remount the workspace', (
     tester,
   ) async {
@@ -42,7 +33,7 @@ void main() {
 
     await cubit.startWatching();
     repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(mounts, 1);
   });
@@ -69,19 +60,19 @@ void main() {
     await cubit.startWatching();
 
     repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(mounts, 1);
 
     repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(mounts, 2);
 
     repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(mounts, 2);
   });
 
-  testWidgets('retry checking state preserves pending reconnect refresh', (
+  testWidgets('retry checking preserves pending reconnect refresh', (
     tester,
   ) async {
     final repository = _ControllableNetworkStatusRepository();
@@ -102,14 +93,14 @@ void main() {
     await cubit.startWatching();
 
     repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     await cubit.retry();
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(mounts, 1);
 
     repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(mounts, 2);
   });
@@ -131,14 +122,14 @@ void main() {
     await cubit.startWatching();
 
     await tester.tap(find.byKey(const Key('select-second')));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(find.text('selected:1'), findsOneWidget);
 
     repository.addStatus(NetworkConnectionStatus.offline);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     repository.addStatus(NetworkConnectionStatus.online);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('selected:1'), findsOneWidget);
     expect(find.text('workspace:1'), findsOneWidget);
@@ -149,6 +140,7 @@ NetworkStatusCubit _createCubit(NetworkStatusRepository repository) {
   return NetworkStatusCubit(
     getNetworkStatusUseCase: GetNetworkStatusUseCase(repository),
     watchNetworkStatusUseCase: WatchNetworkStatusUseCase(repository),
+    pollingEnabled: false,
   );
 }
 
