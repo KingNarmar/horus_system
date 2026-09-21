@@ -16,15 +16,20 @@ import 'network_status_state.dart';
 final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
   final GetNetworkStatusUseCase _getNetworkStatusUseCase;
   final WatchNetworkStatusUseCase _watchNetworkStatusUseCase;
+  final bool _pollingEnabled;
 
   StreamSubscription<Result<NetworkConnectionStatus>>? _subscription;
   Timer? _pollingTimer;
+  var _reconnectRevision = 0;
+  var _refreshPending = false;
 
   NetworkStatusCubit({
     required GetNetworkStatusUseCase getNetworkStatusUseCase,
     required WatchNetworkStatusUseCase watchNetworkStatusUseCase,
+    bool? pollingEnabled,
   }) : _getNetworkStatusUseCase = getNetworkStatusUseCase,
        _watchNetworkStatusUseCase = watchNetworkStatusUseCase,
+       _pollingEnabled = pollingEnabled ?? _defaultPollingEnabled(),
        super(const NetworkStatusInitial());
 
   Future<void> startWatching() async {
@@ -32,23 +37,27 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
     _pollingTimer?.cancel();
 
     if (!isClosed) {
-      emit(const NetworkStatusChecking());
+      emit(NetworkStatusChecking(reconnectRevision: _reconnectRevision));
     }
 
     _subscription = _watchNetworkStatusUseCase(const NoParams()).listen(
       _handleResult,
       onError: (_, _) {
         if (!isClosed) {
+          _markRefreshPending();
           emit(
-            const NetworkStatusFailure(
-              NetworkFailure(code: FailureCodes.networkStatusUnavailable),
+            NetworkStatusFailure(
+              const NetworkFailure(
+                code: FailureCodes.networkStatusUnavailable,
+              ),
+              reconnectRevision: _reconnectRevision,
             ),
           );
         }
       },
     );
 
-    if (_shouldPoll) {
+    if (_pollingEnabled) {
       _pollingTimer = Timer.periodic(
         AppDurations.networkStatusPollingInterval,
         (_) => unawaited(_refreshSilently()),
@@ -68,26 +77,46 @@ final class NetworkStatusCubit extends Cubit<NetworkStatusState> {
 
     final failure = result.failureOrNull;
     if (failure != null) {
-      emit(NetworkStatusFailure(failure));
+      _markRefreshPending();
+      emit(
+        NetworkStatusFailure(
+          failure,
+          reconnectRevision: _reconnectRevision,
+        ),
+      );
       return;
     }
 
     switch (result.dataOrNull) {
       case NetworkConnectionStatus.online:
-        emit(const NetworkStatusOnline());
+        if (_refreshPending) {
+          _refreshPending = false;
+          _reconnectRevision += 1;
+        }
+        emit(NetworkStatusOnline(reconnectRevision: _reconnectRevision));
       case NetworkConnectionStatus.offline:
-        emit(const NetworkStatusOffline());
+        _markRefreshPending();
+        emit(NetworkStatusOffline(reconnectRevision: _reconnectRevision));
       case null:
+        _markRefreshPending();
         emit(
-          const NetworkStatusFailure(
-            NetworkFailure(code: FailureCodes.networkStatusUnavailable),
+          NetworkStatusFailure(
+            const NetworkFailure(
+              code: FailureCodes.networkStatusUnavailable,
+            ),
+            reconnectRevision: _reconnectRevision,
           ),
         );
     }
   }
 
-  bool get _shouldPoll =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+  void _markRefreshPending() {
+    _refreshPending = true;
+  }
+
+  static bool _defaultPollingEnabled() {
+    return !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+  }
 
   @override
   Future<void> close() async {
