@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company_expenses/di/company_expenses_dependencies.dart';
@@ -167,37 +168,85 @@ final class _FinanceSectionContent extends StatelessWidget {
     return switch (section) {
       FinanceWorkspaceSection.driverFinance => BlocProvider<DriverFinanceCubit>(
         create: (_) => DriverFinanceDependencies.createCubit(),
-        child: DriverFinancePage(currentCompanyContext: currentCompanyContext),
+        child: _FinanceReconnectAware(
+          onReconnect: (context) =>
+              context.read<DriverFinanceCubit>().load(currentCompanyContext),
+          child: DriverFinancePage(
+            currentCompanyContext: currentCompanyContext,
+          ),
+        ),
       ),
       FinanceWorkspaceSection.driverSettlements =>
         BlocProvider<DriverSettlementsCubit>(
           create: (_) => DriverSettlementsDependencies.createCubit(),
-          child: DriverSettlementsPage(
-            currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) => context
+                .read<DriverSettlementsCubit>()
+                .loadDriverSettlements(currentCompanyContext),
+            child: DriverSettlementsPage(
+              currentCompanyContext: currentCompanyContext,
+            ),
           ),
         ),
       FinanceWorkspaceSection.companyExpenses =>
         BlocProvider<CompanyExpensesCubit>(
           create: (_) => CompanyExpensesDependencies.createCubit(),
-          child: CompanyExpensesPage(
-            currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) => context
+                .read<CompanyExpensesCubit>()
+                .loadCompanyExpenses(currentCompanyContext),
+            child: CompanyExpensesPage(
+              currentCompanyContext: currentCompanyContext,
+            ),
           ),
         ),
       FinanceWorkspaceSection.invoices => BlocProvider<InvoicesCubit>(
         create: (_) => InvoicesDependencies.createInvoicesCubit(),
-        child: InvoicesPage(currentCompanyContext: currentCompanyContext),
+        child: _FinanceReconnectAware(
+          onReconnect: (context) =>
+              context.read<InvoicesCubit>().loadInvoices(currentCompanyContext),
+          child: InvoicesPage(currentCompanyContext: currentCompanyContext),
+        ),
       ),
       FinanceWorkspaceSection.payments => BlocProvider<PaymentsCubit>(
         create: (_) => PaymentsDependencies.createPaymentsCubit(),
-        child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+        child: _FinanceReconnectAware(
+          onReconnect: (context) =>
+              context.read<PaymentsCubit>().loadPayments(currentCompanyContext),
+          child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+        ),
       ),
       FinanceWorkspaceSection.customerStatements =>
         BlocProvider<CustomerStatementsCubit>(
           create: (_) => CustomerStatementsDependencies.createCubit(),
-          child: CustomerStatementsPage(
-            currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) =>
+                context.read<CustomerStatementsCubit>().load(
+                  currentCompanyContext,
+                ),
+            child: CustomerStatementsPage(
+              currentCompanyContext: currentCompanyContext,
+            ),
           ),
         ),
     };
   }
 }
+final class _FinanceReconnectAware extends StatelessWidget {
+  final Future<void> Function(BuildContext context) onReconnect;
+  final Widget child;
+
+  const _FinanceReconnectAware({
+    required this.onReconnect,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NetworkReconnectRefreshBoundary(
+      onReconnect: () => onReconnect(context),
+      child: child,
+    );
+  }
+}
+
