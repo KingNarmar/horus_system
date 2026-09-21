@@ -8,6 +8,7 @@ import 'package:horus_system/core/network/domain/repositories/network_status_rep
 import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
 import 'package:horus_system/core/network/domain/usecases/watch_network_status_usecase.dart';
 import 'package:horus_system/core/network/presentation/cubit/network_status_cubit.dart';
+import 'package:horus_system/core/network/presentation/cubit/network_status_state.dart';
 import 'package:horus_system/core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import 'package:horus_system/core/utils/result.dart';
 
@@ -32,7 +33,11 @@ void main() {
     expect(mounts, 1);
 
     await cubit.startWatching();
+    final onlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await onlineState;
     await tester.pump();
 
     expect(mounts, 1);
@@ -57,15 +62,27 @@ void main() {
     );
     await cubit.startWatching();
 
+    final offlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOffline,
+    );
     repository.addStatus(NetworkConnectionStatus.offline);
+    await offlineState;
     await tester.pump();
     expect(mounts, 1);
 
+    final onlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await onlineState;
     await tester.pump();
     expect(mounts, 2);
 
+    final repeatedOnlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await repeatedOnlineState;
     await tester.pump();
     expect(mounts, 2);
   });
@@ -89,12 +106,20 @@ void main() {
     );
     await cubit.startWatching();
 
+    final offlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOffline,
+    );
     repository.addStatus(NetworkConnectionStatus.offline);
+    await offlineState;
     await tester.pump();
     await cubit.retry();
     expect(mounts, 1);
 
+    final onlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await onlineState;
     await tester.pump();
 
     expect(mounts, 2);
@@ -111,7 +136,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      _TestApp(
+      _RawTestApp(
         cubit: cubit,
         child: const _WorkspaceSelectionHarness(),
       ),
@@ -122,9 +147,18 @@ void main() {
     await tester.pump();
     expect(find.text('selected:1'), findsOneWidget);
 
+    final offlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOffline,
+    );
     repository.addStatus(NetworkConnectionStatus.offline);
+    await offlineState;
     await tester.pump();
+
+    final onlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await onlineState;
     await tester.pump();
 
     expect(find.text('selected:1'), findsOneWidget);
@@ -155,6 +189,26 @@ class _TestApp extends StatelessWidget {
         home: Scaffold(
           body: NetworkReconnectRefreshBoundary(child: child),
         ),
+      ),
+    );
+  }
+}
+
+class _RawTestApp extends StatelessWidget {
+  final NetworkStatusCubit cubit;
+  final Widget child;
+
+  const _RawTestApp({
+    required this.cubit,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: cubit,
+      child: MaterialApp(
+        home: Scaffold(body: child),
       ),
     );
   }
@@ -200,6 +254,9 @@ class _WorkspaceSelectionHarnessState extends State<_WorkspaceSelectionHarness> 
           key: const Key('select-second'),
           onPressed: () => setState(() => _selected = 1),
           child: const Text('Select second'),
+        ),
+        NetworkReconnectRefreshBoundary(
+          child: Text('workspace:$_selected'),
         ),
       ],
     );
