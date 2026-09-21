@@ -11,7 +11,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/driver_settlement.dart';
 import '../../domain/entities/driver_settlement_driver_option.dart';
 import '../../domain/entities/driver_settlement_status.dart';
-import '../../domain/policies/driver_settlements_permission_policy.dart';
+import '../../domain/usecases/can_manage_driver_settlements_usecase.dart';
 import '../../domain/usecases/driver_settlement_usecases.dart';
 import 'driver_settlement_form_input.dart';
 import 'driver_settlements_state.dart';
@@ -25,6 +25,7 @@ const _settlementVoidedAtKey = 'settlement_voided_at';
 class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
     with DriverSettlementsFilterActions {
   final GetDriverSettlementsUseCase getDriverSettlementsUseCase;
+  final CanManageDriverSettlementsUseCase canManageDriverSettlementsUseCase;
   final GetDriverSettlementDriverOptionsUseCase getDriverOptionsUseCase;
   final GetDriverSettlementBusinessDateUseCase getBusinessDateUseCase;
   final GetDriverSettlementDetailsUseCase getDriverSettlementDetailsUseCase;
@@ -44,6 +45,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
 
   DriverSettlementsCubit({
     required this.getDriverSettlementsUseCase,
+    required this.canManageDriverSettlementsUseCase,
     required this.getDriverOptionsUseCase,
     required this.getBusinessDateUseCase,
     required this.getDriverSettlementDetailsUseCase,
@@ -106,16 +108,24 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
       return;
     }
 
+    final permissionResult = await canManageDriverSettlementsUseCase(
+      CanManageDriverSettlementsParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(DriverSettlementsFailure(permissionFailure));
+      return;
+    }
+
     emit(
       DriverSettlementsLoaded(
         currentCompanyContext: currentCompanyContext,
         businessDate: (businessDateResult as Success<BusinessDate>).data,
         allSettlements: settlementsResult.dataOrNull ?? const [],
         driverOptions: optionsResult.dataOrNull ?? const [],
-        canManageDriverSettlements:
-            DriverSettlementsPermissionPolicy.canManageDriverSettlements(
-              currentCompanyContext.role,
-            ),
+        canManageDriverSettlements: permissionResult.dataOrNull ?? false,
         searchQuery: previousSearch,
         driverIdFilter: previousDriverFilter,
         statusFilter: previousStatusFilter,

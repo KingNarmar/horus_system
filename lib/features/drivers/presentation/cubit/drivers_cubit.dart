@@ -15,8 +15,8 @@ import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
 import '../../domain/entities/driver_image_urls.dart';
 import '../../domain/entities/driver_status_filter.dart';
-import '../../domain/policies/drivers_permission_policy.dart';
 import '../../domain/usecases/add_driver_usecase.dart';
+import '../../domain/usecases/can_manage_drivers_usecase.dart';
 import '../../domain/usecases/deactivate_driver_usecase.dart';
 import '../../domain/usecases/get_driver_image_urls_usecase.dart';
 import '../../domain/usecases/get_drivers_usecase.dart';
@@ -34,6 +34,7 @@ class DriversCubit extends Cubit<DriversState>
         DriversSelectedDriverActions,
         DriversMutationActions {
   final GetDriversUseCase getDriversUseCase;
+  final CanManageDriversUseCase canManageDriversUseCase;
   final GetDriverImageUrlsUseCase getDriverImageUrlsUseCase;
   final AddDriverUseCase addDriverUseCase;
   final UpdateDriverUseCase updateDriverUseCase;
@@ -48,6 +49,7 @@ class DriversCubit extends Cubit<DriversState>
 
   DriversCubit({
     required this.getDriversUseCase,
+    required this.canManageDriversUseCase,
     required this.getDriverImageUrlsUseCase,
     required this.addDriverUseCase,
     required this.updateDriverUseCase,
@@ -74,19 +76,31 @@ class DriversCubit extends Cubit<DriversState>
       GetDriversParams(currentCompanyContext: currentCompanyContext),
     );
 
-    result.when(
-      success: (drivers) => emit(
-        DriversLoaded(
-          currentCompanyContext: currentCompanyContext,
-          allDrivers: drivers,
-          searchQuery: previousSearchQuery,
-          statusFilter: previousStatusFilter,
-          canManageDrivers: DriversPermissionPolicy.canManageDrivers(
-            currentCompanyContext.role,
-          ),
-        ),
+    final loadFailure = result.failureOrNull;
+    if (loadFailure != null) {
+      emit(DriversFailure(loadFailure));
+      return;
+    }
+
+    final permissionResult = await canManageDriversUseCase(
+      CanManageDriversParams(
+        currentCompanyContext: currentCompanyContext,
       ),
-      failure: (failure) => emit(DriversFailure(failure)),
+    );
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(DriversFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      DriversLoaded(
+        currentCompanyContext: currentCompanyContext,
+        allDrivers: result.dataOrNull ?? const [],
+        searchQuery: previousSearchQuery,
+        statusFilter: previousStatusFilter,
+        canManageDrivers: permissionResult.dataOrNull ?? false,
+      ),
     );
   }
 

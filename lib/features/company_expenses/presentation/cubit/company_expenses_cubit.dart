@@ -12,12 +12,13 @@ import '../../../audit/domain/entities/audit_module.dart';
 import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/company_expense.dart';
-import '../../domain/policies/company_expenses_permission_policy.dart';
+import '../../domain/usecases/can_manage_company_expenses_usecase.dart';
 import '../../domain/usecases/company_expenses_usecases.dart';
 import 'company_expenses_state.dart';
 
 class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   final GetCompanyBusinessDateUseCase getBusinessDateUseCase;
+  final CanManageCompanyExpensesUseCase canManageCompanyExpensesUseCase;
   final GetCompanyExpenseCategoriesUseCase getCategoriesUseCase;
   final GetCompanyExpensesUseCase getExpensesUseCase;
   final GetCompanyExpenseFormLookupsUseCase getFormLookupsUseCase;
@@ -32,6 +33,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
 
   CompanyExpensesCubit({
     required this.getBusinessDateUseCase,
+    required this.canManageCompanyExpensesUseCase,
     required this.getCategoriesUseCase,
     required this.getExpensesUseCase,
     required this.getFormLookupsUseCase,
@@ -85,23 +87,35 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
                   ),
                 );
 
-                expensesResult.when(
-                  success: (expenses) => emit(
-                    CompanyExpensesLoaded(
-                      currentCompanyContext: currentCompanyContext,
-                      currentBusinessDate: businessDate,
-                      categories: categories,
-                      allExpenses: expenses,
-                      formLookups: formLookups,
-                      searchQuery: previousSearchQuery,
-                      includeVoided: previousIncludeVoided,
-                      canManageCompanyExpenses:
-                          CompanyExpensesPermissionPolicy.canManageCompanyExpenses(
-                            currentCompanyContext.role,
-                          ),
-                    ),
+                final expensesFailure = expensesResult.failureOrNull;
+                if (expensesFailure != null) {
+                  emit(CompanyExpensesFailure(expensesFailure));
+                  return;
+                }
+
+                final permissionResult = await canManageCompanyExpensesUseCase(
+                  CanManageCompanyExpensesParams(
+                    currentCompanyContext: currentCompanyContext,
                   ),
-                  failure: (failure) => emit(CompanyExpensesFailure(failure)),
+                );
+                final permissionFailure = permissionResult.failureOrNull;
+                if (permissionFailure != null) {
+                  emit(CompanyExpensesFailure(permissionFailure));
+                  return;
+                }
+
+                emit(
+                  CompanyExpensesLoaded(
+                    currentCompanyContext: currentCompanyContext,
+                    currentBusinessDate: businessDate,
+                    categories: categories,
+                    allExpenses: expensesResult.dataOrNull ?? const [],
+                    formLookups: formLookups,
+                    searchQuery: previousSearchQuery,
+                    includeVoided: previousIncludeVoided,
+                    canManageCompanyExpenses:
+                        permissionResult.dataOrNull ?? false,
+                  ),
                 );
               },
               failure: (failure) async => emit(CompanyExpensesFailure(failure)),

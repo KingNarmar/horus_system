@@ -10,13 +10,14 @@ import '../../../drivers/domain/usecases/get_drivers_usecase.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement.dart';
-import '../../domain/policies/driver_finance_permission_policy.dart';
+import '../../domain/usecases/can_manage_driver_finance_usecase.dart';
 import '../../domain/usecases/driver_finance_usecases.dart';
 import '../../domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'driver_finance_state.dart';
 
 final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
   final GetDriversUseCase getDriversUseCase;
+  final CanManageDriverFinanceUseCase canManageDriverFinanceUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
   final GetDriverMovementsUseCase getDriverMovementsUseCase;
   final GetDriverTripOptionsUseCase getDriverTripOptionsUseCase;
@@ -32,6 +33,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
 
   DriverFinanceCubit({
     required this.getDriversUseCase,
+    required this.canManageDriverFinanceUseCase,
     required this.getCompanyBusinessDateUseCase,
     required this.getDriverMovementsUseCase,
     required this.getDriverTripOptionsUseCase,
@@ -53,17 +55,31 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
 
     if (!_isCurrentLoad(requestId, currentCompanyContext)) return;
 
-    result.when(
-      success: (drivers) => emit(
-        DriverFinanceLoaded(
-          currentCompanyContext: currentCompanyContext,
-          drivers: List.unmodifiable(drivers),
-          canManage: DriverFinancePermissionPolicy.canManageDriverFinance(
-            currentCompanyContext.role,
-          ),
-        ),
+    final loadFailure = result.failureOrNull;
+    if (loadFailure != null) {
+      emit(DriverFinanceFailure(loadFailure));
+      return;
+    }
+
+    final permissionResult = await canManageDriverFinanceUseCase(
+      CanManageDriverFinanceParams(
+        currentCompanyContext: currentCompanyContext,
       ),
-      failure: (failure) => emit(DriverFinanceFailure(failure)),
+    );
+    if (!_isCurrentLoad(requestId, currentCompanyContext)) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(DriverFinanceFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      DriverFinanceLoaded(
+        currentCompanyContext: currentCompanyContext,
+        drivers: List.unmodifiable(result.dataOrNull ?? const []),
+        canManage: permissionResult.dataOrNull ?? false,
+      ),
     );
   }
 
