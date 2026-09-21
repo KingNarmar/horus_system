@@ -8,6 +8,7 @@ import 'package:horus_system/core/network/domain/repositories/network_status_rep
 import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
 import 'package:horus_system/core/network/domain/usecases/watch_network_status_usecase.dart';
 import 'package:horus_system/core/network/presentation/cubit/network_status_cubit.dart';
+import 'package:horus_system/core/network/presentation/cubit/network_status_state.dart';
 import 'package:horus_system/core/network/presentation/widgets/global_network_gate.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
@@ -31,7 +32,11 @@ void main() {
     );
     await cubit.startWatching();
 
+    final offlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOffline,
+    );
     repository.addStatus(NetworkConnectionStatus.offline);
+    await offlineState;
     await tester.pump();
 
     expect(find.text(AppLocalizationsEn().networkOfflineTitle), findsOneWidget);
@@ -42,7 +47,11 @@ void main() {
     await tester.pump();
     expect(actionCount, 0);
 
+    final onlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOnline,
+    );
     repository.addStatus(NetworkConnectionStatus.online);
+    await onlineState;
     await tester.pump();
 
     expect(find.text(AppLocalizationsEn().networkOfflineTitle), findsNothing);
@@ -63,7 +72,11 @@ void main() {
       _TestApp(cubit: cubit, locale: const Locale('ar'), onAction: () {}),
     );
     await cubit.startWatching();
+    final offlineState = cubit.stream.firstWhere(
+      (state) => state is NetworkStatusOffline,
+    );
     repository.addStatus(NetworkConnectionStatus.offline);
+    await offlineState;
     await tester.pump();
 
     final l10n = AppLocalizationsAr();
