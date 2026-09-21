@@ -8,7 +8,6 @@ import 'package:horus_system/core/network/domain/repositories/network_status_rep
 import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
 import 'package:horus_system/core/network/domain/usecases/watch_network_status_usecase.dart';
 import 'package:horus_system/core/network/presentation/cubit/network_status_cubit.dart';
-import 'package:horus_system/core/network/presentation/cubit/network_status_state.dart';
 import 'package:horus_system/core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import 'package:horus_system/core/utils/result.dart';
 
@@ -33,11 +32,7 @@ void main() {
     expect(mounts, 1);
 
     await cubit.startWatching();
-    final onlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOnline,
-    );
     repository.addStatus(NetworkConnectionStatus.online);
-    await onlineState;
     await tester.pump();
 
     expect(mounts, 1);
@@ -62,27 +57,15 @@ void main() {
     );
     await cubit.startWatching();
 
-    final offlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOffline,
-    );
     repository.addStatus(NetworkConnectionStatus.offline);
-    await offlineState;
     await tester.pump();
     expect(mounts, 1);
 
-    final onlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOnline,
-    );
     repository.addStatus(NetworkConnectionStatus.online);
-    await onlineState;
     await tester.pump();
     expect(mounts, 2);
 
-    final repeatedOnlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOnline,
-    );
     repository.addStatus(NetworkConnectionStatus.online);
-    await repeatedOnlineState;
     await tester.pump();
     expect(mounts, 2);
   });
@@ -106,20 +89,12 @@ void main() {
     );
     await cubit.startWatching();
 
-    final offlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOffline,
-    );
     repository.addStatus(NetworkConnectionStatus.offline);
-    await offlineState;
     await tester.pump();
     await cubit.retry();
     expect(mounts, 1);
 
-    final onlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOnline,
-    );
     repository.addStatus(NetworkConnectionStatus.online);
-    await onlineState;
     await tester.pump();
 
     expect(mounts, 2);
@@ -144,18 +119,10 @@ void main() {
     await tester.pump();
     expect(find.text('selected:1'), findsOneWidget);
 
-    final offlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOffline,
-    );
     repository.addStatus(NetworkConnectionStatus.offline);
-    await offlineState;
     await tester.pump();
 
-    final onlineState = cubit.stream.firstWhere(
-      (state) => state is NetworkStatusOnline,
-    );
     repository.addStatus(NetworkConnectionStatus.online);
-    await onlineState;
     await tester.pump();
 
     expect(find.text('selected:1'), findsOneWidget);
@@ -252,7 +219,7 @@ class _WorkspaceSelectionHarnessState
 final class _ControllableNetworkStatusRepository
     implements NetworkStatusRepository {
   final _controller =
-      StreamController<Result<NetworkConnectionStatus>>.broadcast();
+      StreamController<Result<NetworkConnectionStatus>>.broadcast(sync: true);
 
   void addStatus(NetworkConnectionStatus status) {
     _controller.add(Success(status));
