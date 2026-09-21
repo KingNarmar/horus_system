@@ -13,6 +13,7 @@ import 'package:horus_system/features/driver_finance/domain/entities/driver_fina
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_write_data.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_finance_repository.dart';
+import 'package:horus_system/features/driver_finance/domain/usecases/can_manage_driver_finance_usecase.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/driver_finance_usecases.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'package:horus_system/features/driver_finance/presentation/cubit/driver_finance_cubit.dart';
@@ -170,6 +171,7 @@ DriverFinanceCubit _createCubit({
 
   return DriverFinanceCubit(
     getDriversUseCase: GetDriversUseCase(_FakeDriversRepository()),
+    canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
     getCompanyBusinessDateUseCase: businessDateUseCase,
     getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
     getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(financeRepository),
