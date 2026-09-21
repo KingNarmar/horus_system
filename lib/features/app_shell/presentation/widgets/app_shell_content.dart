@@ -206,10 +206,7 @@ class _ReconnectAware extends StatelessWidget {
   final Future<void> Function(BuildContext context) onReconnect;
   final Widget child;
 
-  const _ReconnectAware({
-    required this.onReconnect,
-    required this.child,
-  });
+  const _ReconnectAware({required this.onReconnect, required this.child});
 
   @override
   Widget build(BuildContext context) {

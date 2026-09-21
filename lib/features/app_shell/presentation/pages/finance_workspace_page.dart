@@ -220,10 +220,9 @@ final class _FinanceSectionContent extends StatelessWidget {
         BlocProvider<CustomerStatementsCubit>(
           create: (_) => CustomerStatementsDependencies.createCubit(),
           child: _FinanceReconnectAware(
-            onReconnect: (context) =>
-                context.read<CustomerStatementsCubit>().load(
-                  currentCompanyContext,
-                ),
+            onReconnect: (context) => context
+                .read<CustomerStatementsCubit>()
+                .load(currentCompanyContext),
             child: CustomerStatementsPage(
               currentCompanyContext: currentCompanyContext,
             ),
@@ -232,6 +231,7 @@ final class _FinanceSectionContent extends StatelessWidget {
     };
   }
 }
+
 final class _FinanceReconnectAware extends StatelessWidget {
   final Future<void> Function(BuildContext context) onReconnect;
   final Widget child;
@@ -249,4 +249,3 @@ final class _FinanceReconnectAware extends StatelessWidget {
     );
   }
 }
-
