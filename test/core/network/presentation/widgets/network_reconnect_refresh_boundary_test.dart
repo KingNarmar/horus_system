@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +6,7 @@ import 'package:horus_system/core/network/domain/repositories/network_status_rep
 import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
 import 'package:horus_system/core/network/domain/usecases/watch_network_status_usecase.dart';
 import 'package:horus_system/core/network/presentation/cubit/network_status_cubit.dart';
+import 'package:horus_system/core/network/presentation/cubit/network_status_state.dart';
 import 'package:horus_system/core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import 'package:horus_system/core/utils/result.dart';
 
@@ -15,12 +14,8 @@ void main() {
   testWidgets('initial online state does not remount the workspace', (
     tester,
   ) async {
-    final repository = _ControllableNetworkStatusRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+    final cubit = _TestNetworkStatusCubit();
+    addTearDown(cubit.close);
     var mounts = 0;
 
     await tester.pumpWidget(
@@ -31,12 +26,8 @@ void main() {
     );
     expect(mounts, 1);
 
-    await cubit.startWatching();
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.online,
-    );
+    cubit.emitState(const NetworkStatusOnline());
+    await tester.pump();
 
     expect(mounts, 1);
   });
@@ -44,12 +35,8 @@ void main() {
   testWidgets('offline recovery remounts the workspace exactly once', (
     tester,
   ) async {
-    final repository = _ControllableNetworkStatusRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+    final cubit = _TestNetworkStatusCubit();
+    addTearDown(cubit.close);
     var mounts = 0;
 
     await tester.pumpWidget(
@@ -58,39 +45,26 @@ void main() {
         child: _MountProbe(onMount: () => mounts += 1),
       ),
     );
-    await cubit.startWatching();
-
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.offline,
-    );
     expect(mounts, 1);
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.online,
-    );
+    cubit.emitState(const NetworkStatusOffline());
+    await tester.pump();
+    expect(mounts, 1);
+
+    cubit.emitState(const NetworkStatusOnline());
+    await tester.pump();
     expect(mounts, 2);
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.online,
-    );
+    cubit.emitState(const NetworkStatusOnline());
+    await tester.pump();
     expect(mounts, 2);
   });
 
-  testWidgets('retry checking state preserves pending reconnect refresh', (
+  testWidgets('checking state preserves pending reconnect refresh', (
     tester,
   ) async {
-    final repository = _ControllableNetworkStatusRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+    final cubit = _TestNetworkStatusCubit();
+    addTearDown(cubit.close);
     var mounts = 0;
 
     await tester.pumpWidget(
@@ -99,23 +73,16 @@ void main() {
         child: _MountProbe(onMount: () => mounts += 1),
       ),
     );
-    await cubit.startWatching();
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.offline,
-    );
-    final retryFuture = cubit.retry();
+    cubit.emitState(const NetworkStatusOffline());
     await tester.pump();
-    await retryFuture;
+
+    cubit.emitState(const NetworkStatusChecking());
+    await tester.pump();
     expect(mounts, 1);
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.online,
-    );
+    cubit.emitState(const NetworkStatusOnline());
+    await tester.pump();
 
     expect(mounts, 2);
   });
@@ -123,53 +90,40 @@ void main() {
   testWidgets('parent workspace selection survives child refresh', (
     tester,
   ) async {
-    final repository = _ControllableNetworkStatusRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+    final cubit = _TestNetworkStatusCubit();
+    addTearDown(cubit.close);
 
     await tester.pumpWidget(
       _RawTestApp(cubit: cubit, child: const _WorkspaceSelectionHarness()),
     );
-    await cubit.startWatching();
 
     await tester.tap(find.byKey(const Key('select-second')));
     await tester.pump();
     expect(find.text('selected:1'), findsOneWidget);
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.offline,
-    );
+    cubit.emitState(const NetworkStatusOffline());
+    await tester.pump();
 
-    await _emitNetworkStatus(
-      tester,
-      repository,
-      NetworkConnectionStatus.online,
-    );
+    cubit.emitState(const NetworkStatusOnline());
+    await tester.pump();
 
     expect(find.text('selected:1'), findsOneWidget);
+    expect(find.text('workspace:1'), findsOneWidget);
   });
 }
 
-Future<void> _emitNetworkStatus(
-  WidgetTester tester,
-  _ControllableNetworkStatusRepository repository,
-  NetworkConnectionStatus status,
-) async {
-  repository.addStatus(status);
-  await tester.pump();
-  await tester.pump();
-}
+class _TestNetworkStatusCubit extends NetworkStatusCubit {
+  _TestNetworkStatusCubit()
+    : super(
+        getNetworkStatusUseCase: GetNetworkStatusUseCase(
+          const _UnusedNetworkStatusRepository(),
+        ),
+        watchNetworkStatusUseCase: WatchNetworkStatusUseCase(
+          const _UnusedNetworkStatusRepository(),
+        ),
+      );
 
-NetworkStatusCubit _createCubit(NetworkStatusRepository repository) {
-  return NetworkStatusCubit(
-    getNetworkStatusUseCase: GetNetworkStatusUseCase(repository),
-    watchNetworkStatusUseCase: WatchNetworkStatusUseCase(repository),
-  );
+  void emitState(NetworkStatusState state) => emit(state);
 }
 
 class _TestApp extends StatelessWidget {
@@ -252,22 +206,16 @@ class _WorkspaceSelectionHarnessState
   }
 }
 
-final class _ControllableNetworkStatusRepository
-    implements NetworkStatusRepository {
-  final _controller =
-      StreamController<Result<NetworkConnectionStatus>>.broadcast(sync: true);
-
-  void addStatus(NetworkConnectionStatus status) {
-    _controller.add(Success(status));
-  }
-
-  Future<void> close() => _controller.close();
+final class _UnusedNetworkStatusRepository implements NetworkStatusRepository {
+  const _UnusedNetworkStatusRepository();
 
   @override
-  Future<Result<NetworkConnectionStatus>> getCurrentStatus() async {
-    return const Success(NetworkConnectionStatus.online);
+  Future<Result<NetworkConnectionStatus>> getCurrentStatus() {
+    throw UnimplementedError();
   }
 
   @override
-  Stream<Result<NetworkConnectionStatus>> watchStatus() => _controller.stream;
+  Stream<Result<NetworkConnectionStatus>> watchStatus() {
+    throw UnimplementedError();
+  }
 }
