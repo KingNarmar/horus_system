@@ -34,6 +34,7 @@ import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/usecases/get_trip_permissions_usecase.dart';
+import '../../domain/usecases/has_required_trip_evidence_usecase.dart';
 import '../../domain/usecases/trips_usecases.dart';
 import '../models/trip_mutation_result.dart';
 import 'trips_state.dart';
@@ -64,6 +65,7 @@ class TripsCubit extends Cubit<TripsState>
   final UpdateTripStatusUseCase updateTripStatusUseCase;
   final GetTripStatusHistoryUseCase getTripStatusHistoryUseCase;
   final GetTripDocumentsUseCase getTripDocumentsUseCase;
+  final HasRequiredTripEvidenceUseCase hasRequiredTripEvidenceUseCase;
   final UploadTripDocumentUseCase uploadTripDocumentUseCase;
   final GetTripDocumentAccessUseCase getTripDocumentAccessUseCase;
   final DownloadTripDocumentUseCase downloadTripDocumentUseCase;
@@ -100,6 +102,7 @@ class TripsCubit extends Cubit<TripsState>
     required this.updateTripStatusUseCase,
     required this.getTripStatusHistoryUseCase,
     required this.getTripDocumentsUseCase,
+    required this.hasRequiredTripEvidenceUseCase,
     required this.uploadTripDocumentUseCase,
     required this.getTripDocumentAccessUseCase,
     required this.downloadTripDocumentUseCase,
