@@ -72,6 +72,8 @@ class TripBasicInfoSection extends StatelessWidget {
       items.add(_TripBasicInfoItem(label: label, value: value));
     }
 
+    addRequired(l10n.tripReferenceHeader, trip.tripNumber.value);
+
     addOptional(
       l10n.tripLoadingOrderHeader,
       TripFormatters.optionalText(trip.loadingOrderNumber, l10n.tripEmptyValue),
