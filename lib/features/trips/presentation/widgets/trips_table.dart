@@ -97,7 +97,7 @@ class _TripsTableHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _HeaderCell(label: l10n.tripLoadingOrderHeader, flex: 18),
+          _HeaderCell(label: l10n.tripReferenceHeader, flex: 18),
           if (isWide) ...[
             _HeaderCell(label: l10n.tripCustomerHeader, flex: 16),
             _HeaderCell(label: l10n.tripRouteHeader, flex: 16),
@@ -162,8 +162,11 @@ class _TripsTableRow extends StatelessWidget {
           _PrimaryCell(
             title: trip.displayName,
             subtitle: TripFormatters.optionalText(
-              trip.waybillNumber,
-              l10n.tripEmptyValue,
+              trip.loadingOrderNumber,
+              TripFormatters.optionalText(
+                trip.waybillNumber,
+                l10n.tripEmptyValue,
+              ),
             ),
             flex: 18,
           ),
