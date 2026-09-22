@@ -46,6 +46,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart
 import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/get_trip_permissions_usecase.dart';
+import 'package:horus_system/features/trips/domain/usecases/has_required_trip_evidence_usecase.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart';
@@ -321,6 +322,7 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
     ),
     getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
     getTripDocumentsUseCase: GetTripDocumentsUseCase(documentsRepository),
+    hasRequiredTripEvidenceUseCase: const HasRequiredTripEvidenceUseCase(),
     uploadTripDocumentUseCase: UploadTripDocumentUseCase(documentsRepository),
     getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(
       documentsRepository,
