@@ -62,6 +62,12 @@ void main() {
       expect(tripText.maxLines, 1);
       expect(tripText.overflow, TextOverflow.ellipsis);
       expect(tester.takeException(), isNull);
+
+      await tester.tap(find.text(_tripLabel));
+      await tester.pumpAndSettle();
+
+      expect(find.text(_tripLabel), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 }
