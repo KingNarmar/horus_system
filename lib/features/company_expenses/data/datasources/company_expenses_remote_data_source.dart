@@ -5,10 +5,12 @@ import '../../domain/entities/company_expense_void_data.dart';
 import '../../domain/entities/company_expense_write_data.dart';
 import '../constants/company_expense_db_fields.dart';
 import '../mappers/company_expense_mapper.dart';
+import '../mappers/company_expense_trip_lookup_mapper.dart';
 import '../models/company_expense_category_model.dart';
 import '../models/company_expense_form_lookups_model.dart';
 import '../models/company_expense_link_option_model.dart';
 import '../models/company_expense_model.dart';
+import '../models/company_expense_trip_lookup_model.dart';
 
 abstract class CompanyExpensesRemoteDataSource {
   Future<List<CompanyExpenseCategoryModel>> getCategories({
@@ -233,13 +235,9 @@ class SupabaseCompanyExpensesRemoteDataSource
 
     return rows
         .map(
-          (row) => _lookupOptionFromRow(
+          (row) => CompanyExpenseTripLookupModel.fromMap(
             Map<String, dynamic>.from(row),
-            labelFields: const [
-              CompanyExpenseLookupDbFields.loadingOrderNumber,
-              CompanyExpenseLookupDbFields.waybillNumber,
-            ],
-          ),
+          ).toLinkOption(),
         )
         .toList();
   }

@@ -41,13 +41,25 @@ abstract final class CompanyExpenseLookupDbFields {
   static const tractorHeadsTableName = 'tractor_heads';
   static const trailersTableName = 'trailers';
   static const tripsTableName = 'trips';
+  static const customersTableName = 'customers';
+  static const routesTableName = 'routes';
 
   static const fullName = 'full_name';
   static const plateNumber = 'plate_number';
+  static const name = 'name';
   static const loadingOrderNumber = 'loading_order_number';
   static const waybillNumber = 'waybill_number';
+  static const loadingLocation = 'loading_location';
+  static const unloadingLocation = 'unloading_location';
+
+  static const tripCustomerRelation =
+      '$customersTableName!trips_company_customer_fk($name)';
+  static const tripRouteRelation =
+      '$routesTableName!trips_company_route_fk'
+      '($loadingLocation, $unloadingLocation)';
 
   static const tripColumns =
       '${DbCommonFields.id}, $loadingOrderNumber, $waybillNumber, '
-      '${DbCommonFields.createdAt}';
+      '${DbCommonFields.createdAt}, $tripCustomerRelation, '
+      '$tripRouteRelation';
 }
