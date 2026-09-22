@@ -87,4 +87,4 @@ const _tripOption = CompanyExpenseLinkOption(
 const _tripLabel =
     'TRP-2026-000004 - Mina - DUBAI -> SHARJAH - additional long context';
 
-const _businessDate = BusinessDate(year: 2026, month: 9, day: 22);
+final _businessDate = BusinessDate(year: 2026, month: 9, day: 22);
