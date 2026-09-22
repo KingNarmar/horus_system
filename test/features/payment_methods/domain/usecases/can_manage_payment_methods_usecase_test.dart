@@ -5,22 +5,29 @@ import 'package:horus_system/features/payment_methods/domain/usecases/can_manage
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManagePaymentMethodsUseCase mirrors the established role matrix', () async {
-    const useCase = CanManagePaymentMethodsUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanManagePaymentMethodsUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManagePaymentMethodsUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManagePaymentMethodsParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManagePaymentMethodsParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManagePaymentMethods result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManagePaymentMethods result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

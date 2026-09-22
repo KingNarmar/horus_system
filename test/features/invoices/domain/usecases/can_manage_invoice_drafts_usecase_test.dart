@@ -5,22 +5,29 @@ import 'package:horus_system/features/invoices/domain/usecases/can_manage_invoic
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageInvoiceDraftsUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageInvoiceDraftsUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanManageInvoiceDraftsUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageInvoiceDraftsUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageInvoiceDraftsParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageInvoiceDraftsParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageInvoiceDrafts result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageInvoiceDrafts result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

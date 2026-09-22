@@ -5,22 +5,29 @@ import 'package:horus_system/features/company_expenses/domain/usecases/can_manag
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageCompanyExpensesUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageCompanyExpensesUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanManageCompanyExpensesUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageCompanyExpensesUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageCompanyExpensesParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageCompanyExpensesParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageCompanyExpenses result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageCompanyExpenses result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

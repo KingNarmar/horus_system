@@ -5,22 +5,32 @@ import 'package:horus_system/features/expenses/domain/usecases/can_manage_trip_a
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageTripAttributedExpenseUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageTripAttributedExpenseUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.operations, CompanyRole.accountant};
+  test(
+    'CanManageTripAttributedExpenseUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageTripAttributedExpenseUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.operations,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageTripAttributedExpenseParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageTripAttributedExpenseParams(
+            currentCompanyContext: _context(role),
+          ),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageTripAttributed result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageTripAttributed result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

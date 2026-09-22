@@ -46,8 +46,7 @@ abstract final class TripsDependencies {
       ),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
       getTripDocumentsUseCase: GetTripDocumentsUseCase(tripDocumentsRepository),
-      hasRequiredTripEvidenceUseCase:
-          const HasRequiredTripEvidenceUseCase(),
+      hasRequiredTripEvidenceUseCase: const HasRequiredTripEvidenceUseCase(),
       uploadTripDocumentUseCase: UploadTripDocumentUseCase(
         tripDocumentsRepository,
       ),

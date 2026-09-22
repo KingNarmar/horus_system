@@ -5,22 +5,29 @@ import 'package:horus_system/features/customers/domain/usecases/can_manage_custo
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageCustomersUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageCustomersUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.operations};
+  test(
+    'CanManageCustomersUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageCustomersUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.operations,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageCustomersParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageCustomersParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageCustomers result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageCustomers result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

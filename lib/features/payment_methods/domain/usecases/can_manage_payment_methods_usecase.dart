@@ -6,9 +6,7 @@ import '../policies/payment_methods_permission_policy.dart';
 class CanManagePaymentMethodsParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanManagePaymentMethodsParams({
-    required this.currentCompanyContext,
-  });
+  const CanManagePaymentMethodsParams({required this.currentCompanyContext});
 }
 
 class CanManagePaymentMethodsUseCase

@@ -89,9 +89,7 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     }
 
     final permissionResult = await canRegisterPaymentsUseCase(
-      CanRegisterPaymentsParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      CanRegisterPaymentsParams(currentCompanyContext: currentCompanyContext),
     );
     if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
 

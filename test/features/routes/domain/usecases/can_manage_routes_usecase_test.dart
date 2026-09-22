@@ -7,7 +7,11 @@ import 'package:test/test.dart';
 void main() {
   test('CanManageRoutesUseCase mirrors the established role matrix', () async {
     const useCase = CanManageRoutesUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.operations};
+    const allowed = <CompanyRole>{
+      CompanyRole.owner,
+      CompanyRole.admin,
+      CompanyRole.operations,
+    };
 
     for (final role in CompanyRole.values) {
       final result = await useCase(

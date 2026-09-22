@@ -6,9 +6,7 @@ import '../policies/driver_finance_permission_policy.dart';
 class CanManageDriverFinanceParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanManageDriverFinanceParams({
-    required this.currentCompanyContext,
-  });
+  const CanManageDriverFinanceParams({required this.currentCompanyContext});
 }
 
 class CanManageDriverFinanceUseCase

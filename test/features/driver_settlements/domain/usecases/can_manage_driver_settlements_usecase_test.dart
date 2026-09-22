@@ -5,22 +5,31 @@ import 'package:horus_system/features/driver_settlements/domain/usecases/can_man
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageDriverSettlementsUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageDriverSettlementsUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanManageDriverSettlementsUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageDriverSettlementsUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageDriverSettlementsParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageDriverSettlementsParams(
+            currentCompanyContext: _context(role),
+          ),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageDriverSettlements result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageDriverSettlements result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

@@ -162,9 +162,7 @@ class TripsCubit extends Cubit<TripsState>
     }
 
     final permissionsResult = await getTripPermissionsUseCase(
-      GetTripPermissionsParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      GetTripPermissionsParams(currentCompanyContext: currentCompanyContext),
     );
     if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
     final permissionsFailure = permissionsResult.failureOrNull;
@@ -173,12 +171,11 @@ class TripsCubit extends Cubit<TripsState>
       return;
     }
 
-    final expensePermissionResult =
-        await canManageTripAttributedExpenseUseCase(
-          CanManageTripAttributedExpenseParams(
-            currentCompanyContext: currentCompanyContext,
-          ),
-        );
+    final expensePermissionResult = await canManageTripAttributedExpenseUseCase(
+      CanManageTripAttributedExpenseParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
     if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
     final expensePermissionFailure = expensePermissionResult.failureOrNull;
     if (expensePermissionFailure != null) {

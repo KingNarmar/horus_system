@@ -37,8 +37,7 @@ abstract final class CompanyExpensesDependencies {
       getBusinessDateUseCase: GetCompanyBusinessDateUseCase(
         CompanyDependencies.createBusinessDateProvider(),
       ),
-      canManageCompanyExpensesUseCase:
-          const CanManageCompanyExpensesUseCase(),
+      canManageCompanyExpensesUseCase: const CanManageCompanyExpensesUseCase(),
       getCategoriesUseCase: createGetCategoriesUseCase(repository),
       getExpensesUseCase: createGetExpensesUseCase(repository),
       getFormLookupsUseCase: createGetFormLookupsUseCase(repository),

@@ -42,10 +42,7 @@ void main() {
   });
 }
 
-TripDocument _document({
-  required TripDocumentKind kind,
-  DateTime? removedAt,
-}) {
+TripDocument _document({required TripDocumentKind kind, DateTime? removedAt}) {
   return TripDocument(
     id: 'document-1',
     companyId: 'company-1',

@@ -6,9 +6,7 @@ import '../policies/payments_permission_policy.dart';
 class CanRegisterPaymentsParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanRegisterPaymentsParams({
-    required this.currentCompanyContext,
-  });
+  const CanRegisterPaymentsParams({required this.currentCompanyContext});
 }
 
 class CanRegisterPaymentsUseCase

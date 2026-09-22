@@ -5,22 +5,29 @@ import 'package:horus_system/features/driver_finance/domain/usecases/can_manage_
 import 'package:test/test.dart';
 
 void main() {
-  test('CanManageDriverFinanceUseCase mirrors the established role matrix', () async {
-    const useCase = CanManageDriverFinanceUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanManageDriverFinanceUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanManageDriverFinanceUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanManageDriverFinanceParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanManageDriverFinanceParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canManageDriverFinance result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canManageDriverFinance result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {

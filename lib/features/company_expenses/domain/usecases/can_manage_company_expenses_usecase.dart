@@ -6,9 +6,7 @@ import '../policies/company_expenses_permission_policy.dart';
 class CanManageCompanyExpensesParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanManageCompanyExpensesParams({
-    required this.currentCompanyContext,
-  });
+  const CanManageCompanyExpensesParams({required this.currentCompanyContext});
 }
 
 class CanManageCompanyExpensesUseCase

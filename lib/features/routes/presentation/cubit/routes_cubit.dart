@@ -63,9 +63,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     }
 
     final permissionResult = await canManageRoutesUseCase(
-      CanManageRoutesParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
     );
     if (isClosed || loadRequestId != _loadRequestId) return;
 

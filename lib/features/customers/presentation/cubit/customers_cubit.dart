@@ -72,9 +72,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     }
 
     final permissionResult = await canManageCustomersUseCase(
-      CanManageCustomersParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      CanManageCustomersParams(currentCompanyContext: currentCompanyContext),
     );
     if (isClosed || loadRequestId != _loadRequestId) return;
 

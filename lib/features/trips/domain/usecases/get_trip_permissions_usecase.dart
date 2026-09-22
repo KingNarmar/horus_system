@@ -7,9 +7,7 @@ import '../policies/trips_permission_policy.dart';
 class GetTripPermissionsParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const GetTripPermissionsParams({
-    required this.currentCompanyContext,
-  });
+  const GetTripPermissionsParams({required this.currentCompanyContext});
 }
 
 class GetTripPermissionsUseCase
@@ -23,12 +21,13 @@ class GetTripPermissionsUseCase
       Success<TripPermissions>(
         TripPermissions(
           canManageTrips: TripsPermissionPolicy.canManageTrips(role),
-          canUpdateTripStatus:
-              TripsPermissionPolicy.canUpdateTripStatus(role),
-          canManageTripDocuments:
-              TripsPermissionPolicy.canManageTripDocuments(role),
-          canViewTripFinancials:
-              TripsPermissionPolicy.canViewTripFinancials(role),
+          canUpdateTripStatus: TripsPermissionPolicy.canUpdateTripStatus(role),
+          canManageTripDocuments: TripsPermissionPolicy.canManageTripDocuments(
+            role,
+          ),
+          canViewTripFinancials: TripsPermissionPolicy.canViewTripFinancials(
+            role,
+          ),
         ),
       ),
     );

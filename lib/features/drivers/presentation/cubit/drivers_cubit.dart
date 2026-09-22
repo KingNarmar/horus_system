@@ -83,9 +83,7 @@ class DriversCubit extends Cubit<DriversState>
     }
 
     final permissionResult = await canManageDriversUseCase(
-      CanManageDriversParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      CanManageDriversParams(currentCompanyContext: currentCompanyContext),
     );
     final permissionFailure = permissionResult.failureOrNull;
     if (permissionFailure != null) {

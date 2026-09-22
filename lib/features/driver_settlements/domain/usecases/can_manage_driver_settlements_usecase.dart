@@ -6,9 +6,7 @@ import '../policies/driver_settlements_permission_policy.dart';
 class CanManageDriverSettlementsParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanManageDriverSettlementsParams({
-    required this.currentCompanyContext,
-  });
+  const CanManageDriverSettlementsParams({required this.currentCompanyContext});
 }
 
 class CanManageDriverSettlementsUseCase

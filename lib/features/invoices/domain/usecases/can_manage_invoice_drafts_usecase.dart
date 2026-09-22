@@ -6,9 +6,7 @@ import '../policies/invoices_permission_policy.dart';
 class CanManageInvoiceDraftsParams {
   final CurrentCompanyContext currentCompanyContext;
 
-  const CanManageInvoiceDraftsParams({
-    required this.currentCompanyContext,
-  });
+  const CanManageInvoiceDraftsParams({required this.currentCompanyContext});
 }
 
 class CanManageInvoiceDraftsUseCase

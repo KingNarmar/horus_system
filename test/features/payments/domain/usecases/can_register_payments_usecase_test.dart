@@ -5,22 +5,29 @@ import 'package:horus_system/features/payments/domain/usecases/can_register_paym
 import 'package:test/test.dart';
 
 void main() {
-  test('CanRegisterPaymentsUseCase mirrors the established role matrix', () async {
-    const useCase = CanRegisterPaymentsUseCase();
-    const allowed = <CompanyRole>{CompanyRole.owner, CompanyRole.admin, CompanyRole.accountant};
+  test(
+    'CanRegisterPaymentsUseCase mirrors the established role matrix',
+    () async {
+      const useCase = CanRegisterPaymentsUseCase();
+      const allowed = <CompanyRole>{
+        CompanyRole.owner,
+        CompanyRole.admin,
+        CompanyRole.accountant,
+      };
 
-    for (final role in CompanyRole.values) {
-      final result = await useCase(
-        CanRegisterPaymentsParams(currentCompanyContext: _context(role)),
-      );
+      for (final role in CompanyRole.values) {
+        final result = await useCase(
+          CanRegisterPaymentsParams(currentCompanyContext: _context(role)),
+        );
 
-      expect(
-        result.dataOrNull,
-        allowed.contains(role),
-        reason: 'Unexpected canRegisterPayments result for $role',
-      );
-    }
-  });
+        expect(
+          result.dataOrNull,
+          allowed.contains(role),
+          reason: 'Unexpected canRegisterPayments result for $role',
+        );
+      }
+    },
+  );
 }
 
 CurrentCompanyContext _context(CompanyRole role) {
