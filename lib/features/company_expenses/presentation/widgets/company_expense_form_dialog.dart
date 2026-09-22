@@ -308,13 +308,25 @@ class _OptionalLinkDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String?>(
       initialValue: _hasSelectedOption ? selectedId : null,
+      isExpanded: true,
       decoration: InputDecoration(labelText: label),
       items: [
-        DropdownMenuItem<String?>(value: null, child: Text(noneLabel)),
+        DropdownMenuItem<String?>(
+          value: null,
+          child: Text(
+            noneLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         ...options.map(
           (option) => DropdownMenuItem<String?>(
             value: option.id,
-            child: Text(option.label),
+            child: Text(
+              option.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],
