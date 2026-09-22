@@ -17,7 +17,6 @@ final testFinancialConfiguration = CurrencyConfiguration.tryCreate(
 
 const testTripWriteData = TripWriteData(
   companyId: testCompanyId,
-  tripNumber: 'TRP-2026-000001',
   customerId: 'customer-1',
   routeId: 'route-1',
   driverId: 'driver-1',
