@@ -1,8 +1,7 @@
 import '../models/company_expense_link_option_model.dart';
 import '../models/company_expense_trip_lookup_model.dart';
 
-extension CompanyExpenseTripLookupModelMapper
-    on CompanyExpenseTripLookupModel {
+extension CompanyExpenseTripLookupModelMapper on CompanyExpenseTripLookupModel {
   CompanyExpenseLinkOptionModel toLinkOption() {
     return CompanyExpenseLinkOptionModel(id: id, label: _displayLabel);
   }
