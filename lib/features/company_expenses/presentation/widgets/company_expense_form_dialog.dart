@@ -313,11 +313,7 @@ class _OptionalLinkDropdown extends StatelessWidget {
       items: [
         DropdownMenuItem<String?>(
           value: null,
-          child: Text(
-            noneLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text(noneLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
         ...options.map(
           (option) => DropdownMenuItem<String?>(

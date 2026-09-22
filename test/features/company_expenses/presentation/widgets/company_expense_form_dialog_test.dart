@@ -79,10 +79,7 @@ const _category = CompanyExpenseCategory(
   isActive: true,
 );
 
-const _tripOption = CompanyExpenseLinkOption(
-  id: 'trip-1',
-  label: _tripLabel,
-);
+const _tripOption = CompanyExpenseLinkOption(id: 'trip-1', label: _tripLabel);
 
 const _tripLabel =
     'TRP-2026-000004 - Mina - DUBAI -> SHARJAH - additional long context';
