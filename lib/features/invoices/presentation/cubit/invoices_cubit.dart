@@ -175,6 +175,8 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return null;
     }
 
+    final companyId = context.companyId;
+    final contextGeneration = _loadGeneration;
     final result = await calculateInvoiceDraftPreviewUseCase(
       CalculateInvoiceDraftPreviewParams(
         currentCompanyContext: context,
@@ -182,9 +184,20 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         trips: trips,
       ),
     );
-    if (result is FailureResult<InvoiceTotals>) {
-      emit(currentState.copyWith(mutationFailure: result.failure));
+
+    final latestState = state;
+    if (contextGeneration != _loadGeneration ||
+        latestState is! InvoicesLoaded ||
+        latestState.currentCompanyContext.companyId != companyId) {
       return null;
+    }
+
+    if (result is FailureResult<InvoiceTotals>) {
+      emit(latestState.copyWith(mutationFailure: result.failure));
+      return null;
+    }
+    if (latestState.mutationFailure != null) {
+      emit(latestState.copyWith(mutationFailure: null));
     }
     return result.dataOrNull;
   }
