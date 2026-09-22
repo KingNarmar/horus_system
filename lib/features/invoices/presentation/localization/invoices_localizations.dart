@@ -21,6 +21,15 @@ final class InvoicesLocalizations {
   String get trip => _value('trip');
   String get selectTrip => _value('selectTrip');
   String get tripRequired => _value('tripRequired');
+  String get selectCustomer => _value('selectCustomer');
+  String get billableTrips => _value('billableTrips');
+  String get searchBillableTrips => _value('searchBillableTrips');
+  String get fromDate => _value('fromDate');
+  String get toDate => _value('toDate');
+  String get clearDateFilters => _value('clearDateFilters');
+  String get noTripsForCustomer => _value('noTripsForCustomer');
+  String get draftPreview => _value('draftPreview');
+  String get selectedTrips => _value('selectedTrips');
   String get notes => _value('notes');
   String get saveDraft => _value('saveDraft');
   String get savingDraft => _value('savingDraft');
@@ -103,6 +112,10 @@ final class InvoicesLocalizations {
   String lineReference(String reference) =>
       _value('lineReference').replaceFirst('{reference}', reference);
 
+  String selectedTripsCount(int count) => _value(
+    'selectedTripsCount',
+  ).replaceFirst('{count}', count.toString());
+
   static const Map<String, String> _en = {
     'appShellLabel': 'Invoices',
     'appShellDescription':
@@ -112,7 +125,17 @@ final class InvoicesLocalizations {
     'createDraftTitle': 'Create invoice draft',
     'trip': 'Billable trip',
     'selectTrip': 'Select a trip',
-    'tripRequired': 'Select one billable trip.',
+    'tripRequired': 'Select at least one billable trip.',
+    'selectCustomer': 'Select a customer',
+    'billableTrips': 'Billable trips',
+    'searchBillableTrips': 'Search Trip reference, route, or Waybill',
+    'fromDate': 'From date',
+    'toDate': 'To date',
+    'clearDateFilters': 'Clear date filters',
+    'noTripsForCustomer': 'No billable trips match the current selection.',
+    'draftPreview': 'Invoice preview',
+    'selectedTrips': 'Selected trips',
+    'selectedTripsCount': '{count} selected',
     'notes': 'Notes',
     'saveDraft': 'Save draft',
     'savingDraft': 'Saving...',
@@ -206,7 +229,17 @@ final class InvoicesLocalizations {
     'createDraftTitle': 'إنشاء مسودة فاتورة',
     'trip': 'الرحلة القابلة للفوترة',
     'selectTrip': 'اختر رحلة',
-    'tripRequired': 'اختر رحلة واحدة قابلة للفوترة.',
+    'tripRequired': 'اختر رحلة واحدة قابلة للفوترة على الأقل.',
+    'selectCustomer': 'اختر العميل',
+    'billableTrips': 'الرحلات القابلة للفوترة',
+    'searchBillableTrips': 'ابحث بمرجع الرحلة أو المسار أو البوليصة',
+    'fromDate': 'من تاريخ',
+    'toDate': 'إلى تاريخ',
+    'clearDateFilters': 'مسح فلاتر التاريخ',
+    'noTripsForCustomer': 'لا توجد رحلات قابلة للفوترة تطابق الاختيار الحالي.',
+    'draftPreview': 'معاينة الفاتورة',
+    'selectedTrips': 'الرحلات المحددة',
+    'selectedTripsCount': 'تم تحديد {count}',
     'notes': 'ملاحظات',
     'saveDraft': 'حفظ المسودة',
     'savingDraft': 'جاري الحفظ...',
