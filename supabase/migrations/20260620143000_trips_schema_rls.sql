@@ -38,6 +38,14 @@ ALTER TYPE public.trip_status ADD VALUE IF NOT EXISTS 'cancelled';
 CREATE TABLE IF NOT EXISTS public.trips (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id uuid NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  -- Compatibility fields originated in DATABASE_SCHEMA_V1.sql and are
+  -- consumed by later invoice/report migrations before PC-17 makes the Trip
+  -- reference canonical.
+  trip_number text,
+  trip_date date NOT NULL DEFAULT CURRENT_DATE,
+  loading_location text,
+  unloading_location text,
+  cargo_type text NOT NULL DEFAULT 'Cement',
   customer_id uuid NOT NULL REFERENCES public.customers(id) ON DELETE RESTRICT,
   route_id uuid NOT NULL REFERENCES public.routes(id) ON DELETE RESTRICT,
   driver_id uuid REFERENCES public.drivers(id) ON DELETE SET NULL,
@@ -63,6 +71,11 @@ CREATE TABLE IF NOT EXISTS public.trips (
 ALTER TABLE public.trips
   ADD COLUMN IF NOT EXISTS id uuid DEFAULT gen_random_uuid(),
   ADD COLUMN IF NOT EXISTS company_id uuid,
+  ADD COLUMN IF NOT EXISTS trip_number text,
+  ADD COLUMN IF NOT EXISTS trip_date date DEFAULT CURRENT_DATE,
+  ADD COLUMN IF NOT EXISTS loading_location text,
+  ADD COLUMN IF NOT EXISTS unloading_location text,
+  ADD COLUMN IF NOT EXISTS cargo_type text DEFAULT 'Cement',
   ADD COLUMN IF NOT EXISTS customer_id uuid,
   ADD COLUMN IF NOT EXISTS route_id uuid,
   ADD COLUMN IF NOT EXISTS driver_id uuid,
@@ -87,6 +100,10 @@ ALTER TABLE public.trips
 ALTER TABLE public.trips ALTER COLUMN id SET DEFAULT gen_random_uuid();
 ALTER TABLE public.trips ALTER COLUMN id SET NOT NULL;
 ALTER TABLE public.trips ALTER COLUMN company_id SET NOT NULL;
+ALTER TABLE public.trips ALTER COLUMN trip_date SET NOT NULL;
+ALTER TABLE public.trips ALTER COLUMN trip_date SET DEFAULT CURRENT_DATE;
+ALTER TABLE public.trips ALTER COLUMN cargo_type SET NOT NULL;
+ALTER TABLE public.trips ALTER COLUMN cargo_type SET DEFAULT 'Cement';
 ALTER TABLE public.trips ALTER COLUMN customer_id SET NOT NULL;
 ALTER TABLE public.trips ALTER COLUMN route_id SET NOT NULL;
 ALTER TABLE public.trips ALTER COLUMN status SET NOT NULL;
