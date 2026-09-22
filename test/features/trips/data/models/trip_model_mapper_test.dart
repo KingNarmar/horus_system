@@ -148,7 +148,6 @@ void main() {
     test('writes exact snapshot decimals to compatibility columns', () {
       final data = TripWriteData(
         companyId: 'company-1',
-        tripNumber: 'TRP-2026-000001',
         customerId: 'customer-1',
         routeId: 'route-1',
         quantityTons: QuantityTons.tryParse('15.125'),
