@@ -21,6 +21,7 @@ import 'package:horus_system/features/trips/domain/repositories/trip_documents_r
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trip_status_usecases.dart';
 import 'package:horus_system/features/trips/domain/usecases/trip_usecase_params.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 
 void main() {
   group('UpdateTripStatusUseCase evidence rule', () {
@@ -83,9 +84,10 @@ const _context = CurrentCompanyContext(
   role: CompanyRole.operations,
 );
 
-const _trip = TripEntity(
+final _trip = TripEntity(
   id: 'trip-1',
   companyId: 'company-1',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-1',
   routeId: 'route-1',
   status: TripStatus.delivered,
@@ -111,7 +113,7 @@ final class _FakeTripsRepository implements TripsRepository {
     required String id,
     required CurrencyConfiguration? financialConfiguration,
   }) {
-    return Future.value(const Success(_trip));
+    return Future.value(Success(_trip));
   }
 
   @override
@@ -128,6 +130,7 @@ final class _FakeTripsRepository implements TripsRepository {
         TripEntity(
           id: _trip.id,
           companyId: _trip.companyId,
+          tripNumber: _trip.tripNumber,
           customerId: _trip.customerId,
           routeId: _trip.routeId,
           status: newStatus,
