@@ -1869,6 +1869,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripTrailerLabel => 'المقطورة';
 
   @override
+  String get tripReferenceHeader => 'مرجع الرحلة';
+
+  @override
   String get tripLoadingOrderHeader => 'أمر التحميل';
 
   @override
