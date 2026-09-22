@@ -90,6 +90,47 @@ void main() {
   );
 
   testWidgets(
+    'grouped invoice draft stays responsive in Arabic at narrow width',
+    (tester) async {
+      await _setSurfaceSize(tester, const Size(390, 844));
+      final trips = [
+        _billableTrip(
+          id: 'trip-1',
+          tripNumber: 'TRP-2026-000001',
+        ),
+        _billableTrip(
+          id: 'trip-2',
+          tripNumber: 'TRP-2026-000002',
+        ),
+      ];
+
+      await _pumpLocalized(
+        tester,
+        locale: const Locale('ar'),
+        child: InvoiceDraftDialog(
+          billableTrips: trips,
+          currencyFractionDigits: 2,
+          onCalculatePreview: ({required customerId, required trips}) async {
+            return _previewFor(trips);
+          },
+          onSubmit: (_) async => false,
+        ),
+      );
+
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftCustomerField')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Customer One').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('الرحلات القابلة للفوترة'), findsOneWidget);
+      expect(find.textContaining('TRP-2026-000001'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'invoice details use the app details Dialog pattern and hide raw UUID',
     (tester) async {
       const tripId = '771d829f-fd6e-46cd-bb30-e6ee8cc3a56f';
@@ -281,10 +322,11 @@ Future<void> _setSurfaceSize(WidgetTester tester, Size size) async {
 Future<void> _pumpLocalized(
   WidgetTester tester, {
   required Widget child,
+  Locale locale = const Locale('en'),
 }) async {
   await tester.pumpWidget(
     MaterialApp(
-      locale: const Locale('en'),
+      locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),
