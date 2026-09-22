@@ -12,6 +12,8 @@ void main() {
     test('rejects malformed Trip references', () {
       expect(TripNumber.tryParse('TRP-26-42'), isNull);
       expect(TripNumber.tryParse('INV-2026-000042'), isNull);
+      expect(TripNumber.tryParse('TRP-1999-000001'), isNull);
+      expect(TripNumber.tryParse('TRP-2026-000000'), isNull);
       expect(TripNumber.tryParse('TRP-2026-0000000'), isNull);
     });
 
