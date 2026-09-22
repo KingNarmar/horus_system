@@ -1,10 +1,12 @@
 import '../../../../core/domain/value_objects/money.dart';
 import '../value_objects/quantity_tons.dart';
+import '../value_objects/trip_number.dart';
 import 'trip_status.dart';
 
 class TripEntity {
   final String id;
   final String companyId;
+  final TripNumber tripNumber;
   final String customerId;
   final String routeId;
   final String? driverId;
@@ -33,6 +35,7 @@ class TripEntity {
   const TripEntity({
     required this.id,
     required this.companyId,
+    required this.tripNumber,
     required this.customerId,
     required this.routeId,
     required this.status,
@@ -71,29 +74,6 @@ class TripEntity {
     return commercialAmount != null && agreedFreightRatePerTon == null;
   }
 
-  String get displayName {
-    final orderNumber = _textOrNull(loadingOrderNumber);
-    if (orderNumber != null) return orderNumber;
+  String get displayName => tripNumber.value;
 
-    final waybill = _textOrNull(waybillNumber);
-    if (waybill != null) return waybill;
 
-    final customer = _textOrNull(customerName);
-    final route = _textOrNull(routeName);
-
-    if (customer != null && route != null) {
-      return '$customer - $route';
-    }
-
-    if (customer != null) return customer;
-    if (route != null) return route;
-
-    return id;
-  }
-}
-
-String? _textOrNull(String? value) {
-  final text = value?.trim();
-  if (text == null || text.isEmpty) return null;
-  return text;
-}
