@@ -15,6 +15,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_document_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trip_document_usecases.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 
 void main() {
   group('Trip document use cases', () {
@@ -152,6 +153,7 @@ TripEntity _trip(TripStatus status) {
   return TripEntity(
     id: 'trip-1',
     companyId: 'company-1',
+    tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
     customerId: 'customer-1',
     routeId: 'route-1',
     status: status,
