@@ -11,6 +11,7 @@ import '../../domain/entities/invoice_totals.dart';
 import '../cubit/invoice_draft_form_input.dart';
 import '../helpers/invoice_formatters.dart';
 import '../localization/invoices_localizations.dart';
+import 'invoice_draft_trip_selection.dart';
 
 typedef InvoiceDraftPreviewCallback =
     Future<InvoiceTotals?> Function({
@@ -61,9 +62,6 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    final localeName = Localizations.localeOf(context).toLanguageTag();
-    final visibleTrips = _visibleTrips;
-    final selectedTrips = _selectedTrips;
     final dateRange = _dateRange;
 
     return AlertDialog(
@@ -77,180 +75,33 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                DropdownButtonFormField<String>(
-                  key: const ValueKey('invoiceDraftCustomerField'),
-                  initialValue: _customerId,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: strings.customer,
-                    border: const OutlineInputBorder(),
-                  ),
-                  hint: Text(strings.selectCustomer),
-                  items: _customerOptions
-                      .map(
-                        (option) => DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Text(
-                            option.name ?? strings.unavailableValue,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: _isSubmitting ? null : _onCustomerChanged,
-                  validator: (value) {
-                    return value == null || value.trim().isEmpty
-                        ? strings.customerRequiredFailure
-                        : null;
+                InvoiceDraftTripSelection(
+                  customerOptions: _customerOptions,
+                  customerId: _customerId,
+                  fromDate: _fromDate,
+                  toDate: _toDate,
+                  dateRange: dateRange,
+                  visibleTrips: _visibleTrips,
+                  selectedTripIds: _selectedTripIds,
+                  preview: _preview,
+                  isCalculatingPreview: _isCalculatingPreview,
+                  isSaving: _isSubmitting,
+                  showTripRequired: _showTripRequired,
+                  currencyFractionDigits: widget.currencyFractionDigits,
+                  onCustomerChanged: _onCustomerChanged,
+                  onPickFromDate: dateRange == null
+                      ? () {}
+                      : () => _pickDate(isFrom: true, range: dateRange),
+                  onPickToDate: dateRange == null
+                      ? () {}
+                      : () => _pickDate(isFrom: false, range: dateRange),
+                  onClearDateFilters: _clearDateFilters,
+                  onSearchChanged: (value) {
+                    setState(() => _tripSearch = value);
                   },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final fromButton = OutlinedButton.icon(
-                      key: const ValueKey('invoiceDraftFromDateButton'),
-                      onPressed:
-                          _isSubmitting || dateRange == null
-                          ? null
-                          : () => _pickDate(isFrom: true, range: dateRange),
-                      icon: const Icon(AppIcons.calendar),
-                      label: Text(
-                        _fromDate == null
-                            ? strings.fromDate
-                            : '${strings.fromDate}: '
-                                  '${formatInvoiceDate(_fromDate, localeName, strings.unavailableValue)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                    final toButton = OutlinedButton.icon(
-                      key: const ValueKey('invoiceDraftToDateButton'),
-                      onPressed:
-                          _isSubmitting || dateRange == null
-                          ? null
-                          : () => _pickDate(isFrom: false, range: dateRange),
-                      icon: const Icon(AppIcons.calendar),
-                      label: Text(
-                        _toDate == null
-                            ? strings.toDate
-                            : '${strings.toDate}: '
-                                  '${formatInvoiceDate(_toDate, localeName, strings.unavailableValue)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-
-                    if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          fromButton,
-                          const SizedBox(height: AppSpacing.sm),
-                          toButton,
-                        ],
-                      );
-                    }
-
-                    return Row(
-                      children: [
-                        Expanded(child: fromButton),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(child: toButton),
-                      ],
-                    );
+                  onTripChanged: (trip, selected) {
+                    _toggleTrip(trip, selected: selected);
                   },
-                ),
-                if (_fromDate != null || _toDate != null) ...[
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: TextButton.icon(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () {
-                              setState(() {
-                                _fromDate = null;
-                                _toDate = null;
-                              });
-                            },
-                      icon: const Icon(AppIcons.clear),
-                      label: Text(strings.clearDateFilters),
-                    ),
-                  ),
-                ] else
-                  const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  key: const ValueKey('invoiceDraftTripSearchField'),
-                  enabled: !_isSubmitting && _customerId != null,
-                  decoration: InputDecoration(
-                    labelText: strings.searchBillableTrips,
-                    prefixIcon: const Icon(AppIcons.search),
-                    border: const OutlineInputBorder(),
-                  ),
-                  onChanged: (value) => setState(() => _tripSearch = value),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  strings.billableTrips,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                if (_customerId == null)
-                  _MessageCard(message: strings.selectCustomer)
-                else if (visibleTrips.isEmpty)
-                  _MessageCard(message: strings.noTripsForCustomer)
-                else
-                  Card(
-                    margin: EdgeInsets.zero,
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      children: visibleTrips
-                          .map(
-                            (trip) => CheckboxListTile(
-                              key: ValueKey('invoiceDraftTrip-${trip.id}'),
-                              value: _selectedTripIds.contains(trip.id),
-                              enabled: !_isSubmitting,
-                              controlAffinity: ListTileControlAffinity.leading,
-                              title: Text(
-                                formatBillableTripReference(
-                                  trip,
-                                  localeName: localeName,
-                                  fallback: strings.unavailableValue,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text(
-                                formatInvoiceMoney(
-                                  trip.freightAmount,
-                                  fractionDigits: widget.currencyFractionDigits,
-                                  localeName: localeName,
-                                ),
-                              ),
-                              onChanged: (selected) => _toggleTrip(
-                                trip,
-                                selected: selected ?? false,
-                              ),
-                            ),
-                          )
-                          .toList(growable: false),
-                    ),
-                  ),
-                if (_showTripRequired && selectedTrips.isEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    strings.tripRequired,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.md),
-                _buildPreview(
-                  context,
-                  strings: strings,
-                  localeName: localeName,
-                  selectedTrips: selectedTrips,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
@@ -289,64 +140,18 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     );
   }
 
-  Widget _buildPreview(
-    BuildContext context, {
-    required InvoicesLocalizations strings,
-    required String localeName,
-    required List<BillableTrip> selectedTrips,
-  }) {
-    if (selectedTrips.isEmpty) return const SizedBox.shrink();
-
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              strings.draftPreview,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(strings.selectedTripsCount(selectedTrips.length)),
-            if (_isCalculatingPreview) ...[
-              const SizedBox(height: AppSpacing.sm),
-              const LinearProgressIndicator(),
-            ] else if (_preview != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              _PreviewRow(
-                label: strings.subtotal,
-                value: formatInvoiceMoney(
-                  _preview!.subtotal,
-                  fractionDigits: widget.currencyFractionDigits,
-                  localeName: localeName,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              _PreviewRow(
-                label: strings.total,
-                value: formatInvoiceMoney(
-                  _preview!.grandTotal,
-                  fractionDigits: widget.currencyFractionDigits,
-                  localeName: localeName,
-                ),
-                emphasize: true,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<_CustomerOption> get _customerOptions {
+  List<InvoiceDraftCustomerOption> get _customerOptions {
     final options = <String, String?>{};
     for (final trip in widget.billableTrips) {
       options.putIfAbsent(trip.customerId, () => _nonBlank(trip.customerName));
     }
     final result = options.entries
-        .map((entry) => _CustomerOption(id: entry.key, name: entry.value))
+        .map(
+          (entry) => InvoiceDraftCustomerOption(
+            id: entry.key,
+            name: entry.value,
+          ),
+        )
         .toList(growable: false);
     result.sort(
       (left, right) => (left.name ?? '').toLowerCase().compareTo(
@@ -400,14 +205,14 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
         .toList(growable: false);
   }
 
-  _DateRange? get _dateRange {
+  InvoiceDraftDateRange? get _dateRange {
     final dates = _customerTrips
         .map((trip) => trip.serviceDate)
         .whereType<BusinessDate>()
         .toList(growable: false);
     if (dates.isEmpty) return null;
     dates.sort();
-    return _DateRange(first: dates.first, last: dates.last);
+    return InvoiceDraftDateRange(first: dates.first, last: dates.last);
   }
 
   void _onCustomerChanged(String? customerId) {
@@ -423,9 +228,16 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     });
   }
 
+  void _clearDateFilters() {
+    setState(() {
+      _fromDate = null;
+      _toDate = null;
+    });
+  }
+
   Future<void> _pickDate({
     required bool isFrom,
-    required _DateRange range,
+    required InvoiceDraftDateRange range,
   }) async {
     final current = isFrom ? _fromDate : _toDate;
     final initial = current ?? (isFrom ? range.first : range.last);
@@ -535,64 +347,5 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     final normalized = value?.trim();
     if (normalized == null || normalized.isEmpty) return null;
     return normalized;
-  }
-}
-
-final class _CustomerOption {
-  final String id;
-  final String? name;
-
-  const _CustomerOption({required this.id, required this.name});
-}
-
-final class _DateRange {
-  final BusinessDate first;
-  final BusinessDate last;
-
-  const _DateRange({required this.first, required this.last});
-}
-
-final class _PreviewRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool emphasize;
-
-  const _PreviewRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final style = emphasize
-        ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          )
-        : Theme.of(context).textTheme.bodyMedium;
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: style)),
-        const SizedBox(width: AppSpacing.md),
-        Text(value, style: style),
-      ],
-    );
-  }
-}
-
-final class _MessageCard extends StatelessWidget {
-  final String message;
-
-  const _MessageCard({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Text(message, textAlign: TextAlign.center),
-      ),
-    );
   }
 }
