@@ -70,10 +70,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         _localizedApp(
-          TripBasicInfoSection(
-            trip: _trip,
-            financialConfiguration: null,
-          ),
+          TripBasicInfoSection(trip: _trip, financialConfiguration: null),
           locale: const Locale('ar'),
         ),
       );

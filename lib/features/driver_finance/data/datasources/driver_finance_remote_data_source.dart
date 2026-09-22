@@ -124,9 +124,7 @@ class SupabaseDriverFinanceRemoteDataSource
   }
 
   String _buildTripLabel(Map<String, dynamic> map, String timeZoneId) {
-    final tripReference = _optional(
-      map[DriverFinanceDbFields.tripNumber],
-    );
+    final tripReference = _optional(map[DriverFinanceDbFields.tripNumber]);
     final loadingOrder = _optional(map['loading_order_number']);
     final waybill = _optional(map['waybill_number']);
     final fallbackReference = loadingOrder ?? waybill;

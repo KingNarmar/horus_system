@@ -10,10 +10,10 @@ extension CompanyExpenseTripLookupModelMapper on CompanyExpenseTripLookupModel {
     final reference = _text(tripNumber);
     final customer = _text(customerName);
     final route = _routeLabel;
-    final context = [customer, route]
-        .whereType<String>()
-        .where((value) => value.isNotEmpty)
-        .join(' - ');
+    final context = [
+      customer,
+      route,
+    ].whereType<String>().where((value) => value.isNotEmpty).join(' - ');
 
     if (reference != null && context.isNotEmpty) {
       return '$reference - $context';

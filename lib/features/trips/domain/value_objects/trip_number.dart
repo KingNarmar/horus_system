@@ -1,7 +1,5 @@
 final class TripNumber {
-  static final RegExp _pattern = RegExp(
-    r'^TRP-([0-9]{4})-([0-9]{6})$',
-  );
+  static final RegExp _pattern = RegExp(r'^TRP-([0-9]{4})-([0-9]{6})$');
 
   final String value;
 
