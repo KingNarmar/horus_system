@@ -86,6 +86,8 @@ final class InvoicesLocalizations {
   String get customerRequiredFailure => _value('customerRequiredFailure');
   String get tripsRequiredFailure => _value('tripsRequiredFailure');
   String get singleTripRequiredFailure => _value('singleTripRequiredFailure');
+  String get groupedTripsRequiredFailure =>
+      _value('groupedTripsRequiredFailure');
   String get tripNotBillableFailure => _value('tripNotBillableFailure');
   String get tripAlreadyInvoicedFailure => _value('tripAlreadyInvoicedFailure');
   String get customerInactiveFailure => _value('customerInactiveFailure');
@@ -192,6 +194,8 @@ final class InvoicesLocalizations {
     'customerRequiredFailure': 'An invoice customer is required.',
     'tripsRequiredFailure': 'At least one billable trip is required.',
     'singleTripRequiredFailure': 'Select exactly one trip for this invoice.',
+    'groupedTripsRequiredFailure':
+        'Select at least two trips for a grouped invoice.',
     'tripNotBillableFailure': 'The selected trip is no longer billable.',
     'tripAlreadyInvoicedFailure': 'The selected trip is already invoiced.',
     'customerInactiveFailure': 'The selected customer is inactive.',
@@ -297,6 +301,8 @@ final class InvoicesLocalizations {
     'customerRequiredFailure': 'يجب تحديد عميل الفاتورة.',
     'tripsRequiredFailure': 'يجب تحديد رحلة واحدة قابلة للفوترة على الأقل.',
     'singleTripRequiredFailure': 'اختر رحلة واحدة فقط لهذه الفاتورة.',
+    'groupedTripsRequiredFailure':
+        'اختر رحلتين على الأقل لإنشاء فاتورة مجمعة.',
     'tripNotBillableFailure': 'الرحلة المحددة لم تعد قابلة للفوترة.',
     'tripAlreadyInvoicedFailure': 'تمت فوترة الرحلة المحددة بالفعل.',
     'customerInactiveFailure': 'العميل المحدد غير نشط.',
