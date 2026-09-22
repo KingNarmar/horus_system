@@ -86,7 +86,7 @@ final class InvoiceDraftFormInput {
   ) {
     return CreateInvoiceFromTripParams(
       currentCompanyContext: currentCompanyContext,
-      input: _toDomainInput(),
+      input: toDomainInput(),
     );
   }
 
@@ -97,11 +97,11 @@ final class InvoiceDraftFormInput {
     return UpdateInvoiceDraftParams(
       currentCompanyContext: currentCompanyContext,
       invoiceId: invoiceId,
-      input: _toDomainInput(),
+      input: toDomainInput(),
     );
   }
 
-  InvoiceDraftInput _toDomainInput() {
+  InvoiceDraftInput toDomainInput() {
     return InvoiceDraftInput(
       customerId: customerId,
       tripIds: tripIds,
