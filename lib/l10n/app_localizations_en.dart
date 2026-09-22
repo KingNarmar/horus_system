@@ -1895,6 +1895,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripTrailerLabel => 'Trailer';
 
   @override
+  String get tripReferenceHeader => 'Trip reference';
+
+  @override
   String get tripLoadingOrderHeader => 'Loading order';
 
   @override
