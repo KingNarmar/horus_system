@@ -20,6 +20,7 @@ import 'package:horus_system/features/payment_methods/domain/repositories/paymen
 import 'package:horus_system/features/payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import 'package:horus_system/features/payments/domain/entities/payment.dart';
 import 'package:horus_system/features/payments/domain/repositories/payments_repository.dart';
+import 'package:horus_system/features/payments/domain/usecases/can_register_payments_usecase.dart';
 import 'package:horus_system/features/payments/domain/usecases/payment_usecases.dart';
 import 'package:horus_system/features/payments/presentation/cubit/payments_cubit.dart';
 import 'package:horus_system/features/payments/presentation/cubit/payments_state.dart';
@@ -102,6 +103,7 @@ PaymentsCubit _cubit(
           FakeBusinessTimeZoneConverter(),
         ),
     getPaymentsUseCase: GetPaymentsUseCase(payments),
+    canRegisterPaymentsUseCase: const CanRegisterPaymentsUseCase(),
     getInvoicesUseCase: GetInvoicesUseCase(invoices),
     getPaymentMethodsUseCase: GetPaymentMethodsUseCase(methods),
   );

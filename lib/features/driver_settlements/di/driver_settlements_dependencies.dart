@@ -8,6 +8,7 @@ import '../../drivers/di/driver_compensation_dependencies.dart';
 import '../data/datasources/driver_settlements_remote_data_source.dart';
 import '../data/repositories/driver_settlements_repository_impl.dart';
 import '../domain/repositories/driver_settlements_repository.dart';
+import '../domain/usecases/can_manage_driver_settlements_usecase.dart';
 import '../domain/usecases/driver_settlement_usecases.dart';
 import '../presentation/cubit/driver_settlements_cubit.dart';
 
@@ -48,6 +49,8 @@ abstract final class DriverSettlementsDependencies {
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
     return DriverSettlementsCubit(
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
+      canManageDriverSettlementsUseCase:
+          const CanManageDriverSettlementsUseCase(),
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,
       ),

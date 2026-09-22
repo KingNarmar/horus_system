@@ -6,6 +6,8 @@ import '../../features/trips/data/datasources/trip_documents_remote_data_source.
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
 import '../../features/trips/data/repositories/trip_documents_repository_impl.dart';
 import '../../features/trips/data/repositories/trips_repository_impl.dart';
+import '../../features/trips/domain/usecases/get_trip_permissions_usecase.dart';
+import '../../features/trips/domain/usecases/has_required_trip_evidence_usecase.dart';
 import '../../features/trips/domain/usecases/trips_usecases.dart';
 import '../../features/trips/presentation/cubit/trips_cubit.dart';
 import 'business_document_dependencies.dart';
@@ -31,6 +33,9 @@ abstract final class TripsDependencies {
 
     return TripsCubit(
       getTripsUseCase: GetTripsUseCase(tripsRepository),
+      getTripPermissionsUseCase: const GetTripPermissionsUseCase(),
+      canManageTripAttributedExpenseUseCase:
+          ExpensesDependencies.createCanManageTripAttributedExpenseUseCase(),
       getTripDetailsUseCase: GetTripDetailsUseCase(tripsRepository),
       getTripFormLookupsUseCase: GetTripFormLookupsUseCase(tripsRepository),
       createTripUseCase: CreateTripUseCase(tripsRepository),
@@ -41,6 +46,7 @@ abstract final class TripsDependencies {
       ),
       getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
       getTripDocumentsUseCase: GetTripDocumentsUseCase(tripDocumentsRepository),
+      hasRequiredTripEvidenceUseCase: const HasRequiredTripEvidenceUseCase(),
       uploadTripDocumentUseCase: UploadTripDocumentUseCase(
         tripDocumentsRepository,
       ),

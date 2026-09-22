@@ -8,8 +8,8 @@ import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../../domain/entities/customer_status_filter.dart';
-import '../../domain/policies/customers_permission_policy.dart';
 import '../../domain/usecases/add_customer_usecase.dart';
+import '../../domain/usecases/can_manage_customers_usecase.dart';
 import '../../domain/usecases/deactivate_customer_usecase.dart';
 import '../../domain/usecases/get_customers_usecase.dart';
 import '../../domain/usecases/reactivate_customer_usecase.dart';
@@ -18,6 +18,7 @@ import 'customers_state.dart';
 
 class CustomersCubit extends Cubit<CustomersState> {
   final GetCustomersUseCase getCustomersUseCase;
+  final CanManageCustomersUseCase canManageCustomersUseCase;
   final AddCustomerUseCase addCustomerUseCase;
   final UpdateCustomerUseCase updateCustomerUseCase;
   final DeactivateCustomerUseCase deactivateCustomerUseCase;
@@ -33,6 +34,7 @@ class CustomersCubit extends Cubit<CustomersState> {
 
   CustomersCubit({
     required this.getCustomersUseCase,
+    required this.canManageCustomersUseCase,
     required this.addCustomerUseCase,
     required this.updateCustomerUseCase,
     required this.deactivateCustomerUseCase,
@@ -63,19 +65,31 @@ class CustomersCubit extends Cubit<CustomersState> {
 
     if (isClosed || loadRequestId != _loadRequestId) return;
 
-    result.when(
-      success: (customers) => emit(
-        CustomersLoaded(
-          currentCompanyContext: currentCompanyContext,
-          allCustomers: customers,
-          searchQuery: previousSearchQuery,
-          statusFilter: previousStatusFilter,
-          canManageCustomers: CustomersPermissionPolicy.canManageCustomers(
-            currentCompanyContext.role,
-          ),
-        ),
+    final loadFailure = result.failureOrNull;
+    if (loadFailure != null) {
+      emit(CustomersFailure(loadFailure));
+      return;
+    }
+
+    final permissionResult = await canManageCustomersUseCase(
+      CanManageCustomersParams(currentCompanyContext: currentCompanyContext),
+    );
+    if (isClosed || loadRequestId != _loadRequestId) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(CustomersFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      CustomersLoaded(
+        currentCompanyContext: currentCompanyContext,
+        allCustomers: result.dataOrNull ?? const [],
+        searchQuery: previousSearchQuery,
+        statusFilter: previousStatusFilter,
+        canManageCustomers: permissionResult.dataOrNull ?? false,
       ),
-      failure: (failure) => emit(CustomersFailure(failure)),
     );
   }
 

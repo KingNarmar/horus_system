@@ -31,6 +31,7 @@ import 'package:horus_system/features/driver_settlements/domain/entities/driver_
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlement_money_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlements_repository.dart';
+import 'package:horus_system/features/driver_settlements/domain/usecases/can_manage_driver_settlements_usecase.dart';
 import 'package:horus_system/features/driver_settlements/domain/usecases/driver_settlement_usecases.dart';
 import 'package:horus_system/features/driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver_compensation_revision.dart';
@@ -87,6 +88,8 @@ final class SettlementFormTestHarness {
       moneyRepository: moneyRepository,
       cubit: DriverSettlementsCubit(
         getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
+        canManageDriverSettlementsUseCase:
+            const CanManageDriverSettlementsUseCase(),
         getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
           repository,
         ),

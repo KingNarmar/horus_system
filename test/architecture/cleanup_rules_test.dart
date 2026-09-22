@@ -103,6 +103,26 @@ void main() {
       }
     });
 
+    test('presentation Cubits do not import Domain policies directly', () {
+      final cubitFiles = _dartFilesUnder('lib/features').where((file) {
+        final path = _normalizedPath(file);
+        return path.contains('/presentation/cubit/') &&
+            path.endsWith('_cubit.dart');
+      });
+
+      for (final file in cubitFiles) {
+        for (final importUri in _importUris(file)) {
+          expect(
+            importUri.contains('/domain/policies/'),
+            isFalse,
+            reason:
+                '${file.path} must consume permission and business decisions '
+                'through Domain use cases, not Domain policies directly.',
+          );
+        }
+      }
+    });
+
     test('audit data wiring is centralized in audit dependencies', () {
       final files = _dartFilesUnder(
         'lib',

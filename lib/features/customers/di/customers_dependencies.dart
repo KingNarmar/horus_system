@@ -6,6 +6,7 @@ import '../data/datasources/customers_remote_data_source.dart';
 import '../data/repositories/customers_repository_impl.dart';
 import '../domain/repositories/customers_repository.dart';
 import '../domain/usecases/add_customer_usecase.dart';
+import '../domain/usecases/can_manage_customers_usecase.dart';
 import '../domain/usecases/deactivate_customer_usecase.dart';
 import '../domain/usecases/get_customers_usecase.dart';
 import '../domain/usecases/reactivate_customer_usecase.dart';
@@ -34,6 +35,7 @@ abstract final class CustomersDependencies {
             TimezoneBusinessTimeZoneConverter(),
           ),
       getCustomersUseCase: GetCustomersUseCase(repository),
+      canManageCustomersUseCase: const CanManageCustomersUseCase(),
       addCustomerUseCase: AddCustomerUseCase(repository),
       updateCustomerUseCase: UpdateCustomerUseCase(repository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(repository),

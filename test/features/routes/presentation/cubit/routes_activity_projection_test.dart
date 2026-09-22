@@ -15,6 +15,7 @@ import 'package:horus_system/features/company/domain/entities/current_company_co
 import 'package:horus_system/features/routes/domain/entities/route_entity.dart';
 import 'package:horus_system/features/routes/domain/entities/route_write_data.dart';
 import 'package:horus_system/features/routes/domain/repositories/routes_repository.dart';
+import 'package:horus_system/features/routes/domain/usecases/can_manage_routes_usecase.dart';
 import 'package:horus_system/features/routes/domain/usecases/routes_usecases.dart';
 import 'package:horus_system/features/routes/presentation/cubit/routes_cubit.dart';
 import 'package:horus_system/features/routes/presentation/cubit/routes_state.dart';
@@ -33,6 +34,7 @@ void main() {
     final repository = _Repository();
     cubit = RoutesCubit(
       getRoutesUseCase: GetRoutesUseCase(repository),
+      canManageRoutesUseCase: const CanManageRoutesUseCase(),
       saveRouteUseCase: SaveRouteUseCase(repository),
       deactivateRouteUseCase: DeactivateRouteUseCase(repository),
       reactivateRouteUseCase: ReactivateRouteUseCase(repository),

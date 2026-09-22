@@ -30,6 +30,7 @@ import 'package:horus_system/features/expenses/domain/entities/expense_ledger_en
 import 'package:horus_system/features/expenses/domain/entities/expense_ledger_write_data.dart';
 import 'package:horus_system/features/expenses/domain/repositories/expense_ledger_repository.dart';
 import 'package:horus_system/features/expenses/domain/usecases/create_expense_ledger_entry_usecase.dart';
+import 'package:horus_system/features/expenses/domain/usecases/can_manage_trip_attributed_expense_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/create_trip_expense_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
@@ -44,6 +45,8 @@ import 'package:horus_system/features/trips/domain/entities/trip_status_history.
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
 import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
+import 'package:horus_system/features/trips/domain/usecases/get_trip_permissions_usecase.dart';
+import 'package:horus_system/features/trips/domain/usecases/has_required_trip_evidence_usecase.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart';
@@ -306,6 +309,9 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
 
   return TripsCubit(
     getTripsUseCase: GetTripsUseCase(tripsRepository),
+    getTripPermissionsUseCase: const GetTripPermissionsUseCase(),
+    canManageTripAttributedExpenseUseCase:
+        const CanManageTripAttributedExpenseUseCase(),
     getTripDetailsUseCase: GetTripDetailsUseCase(tripsRepository),
     getTripFormLookupsUseCase: GetTripFormLookupsUseCase(tripsRepository),
     createTripUseCase: CreateTripUseCase(tripsRepository),
@@ -316,6 +322,7 @@ TripsCubit _buildCubit(_FakeTripsRepository tripsRepository) {
     ),
     getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(tripsRepository),
     getTripDocumentsUseCase: GetTripDocumentsUseCase(documentsRepository),
+    hasRequiredTripEvidenceUseCase: const HasRequiredTripEvidenceUseCase(),
     uploadTripDocumentUseCase: UploadTripDocumentUseCase(documentsRepository),
     getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(
       documentsRepository,

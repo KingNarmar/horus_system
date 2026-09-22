@@ -11,6 +11,7 @@ import '../data/repositories/driver_finance_repository_impl.dart';
 import '../domain/repositories/driver_balance_repository.dart';
 import '../domain/repositories/driver_finance_repository.dart';
 import '../domain/repositories/driver_money_balance_repository.dart';
+import '../domain/usecases/can_manage_driver_finance_usecase.dart';
 import '../domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../domain/usecases/driver_finance_usecases.dart';
 import '../domain/usecases/get_canonical_driver_money_balance_usecase.dart';
@@ -25,6 +26,7 @@ abstract final class DriverFinanceDependencies {
 
     return DriverFinanceCubit(
       getDriversUseCase: DriversDependencies.createGetDriversUseCase(),
+      canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
       getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
       getDriverMovementsUseCase: GetDriverMovementsUseCase(repository),
       getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(repository),

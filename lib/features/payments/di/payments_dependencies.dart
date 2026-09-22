@@ -10,6 +10,7 @@ import '../../payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import '../data/datasources/payments_remote_data_source.dart';
 import '../data/repositories/payments_repository_impl.dart';
 import '../domain/repositories/payments_repository.dart';
+import '../domain/usecases/can_register_payments_usecase.dart';
 import '../domain/usecases/get_payable_invoices_usecase.dart';
 import '../domain/usecases/get_payment_business_date_usecase.dart';
 import '../domain/usecases/get_payments_usecase.dart';
@@ -33,6 +34,7 @@ abstract final class PaymentsDependencies {
 
     return PaymentsCubit(
       getPaymentsUseCase: GetPaymentsUseCase(paymentsRepository),
+      canRegisterPaymentsUseCase: const CanRegisterPaymentsUseCase(),
       getInvoicesUseCase: GetInvoicesUseCase(invoicesRepository),
       getPaymentMethodsUseCase: GetPaymentMethodsUseCase(
         paymentMethodsRepository,

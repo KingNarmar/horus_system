@@ -21,7 +21,7 @@ import '../../../expense_types/domain/usecases/get_expense_type_catalog_usecase.
 import '../../../expense_types/domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../expenses/domain/entities/expense_ledger_entry.dart';
-import '../../../expenses/domain/policies/expense_ledger_permission_policy.dart';
+import '../../../expenses/domain/usecases/can_manage_trip_attributed_expense_usecase.dart';
 import '../../../expenses/domain/usecases/create_trip_expense_usecase.dart';
 import '../../../expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
 import '../../../expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
@@ -33,8 +33,8 @@ import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
-import '../../domain/policies/trip_evidence_policy.dart';
-import '../../domain/policies/trips_permission_policy.dart';
+import '../../domain/usecases/get_trip_permissions_usecase.dart';
+import '../../domain/usecases/has_required_trip_evidence_usecase.dart';
 import '../../domain/usecases/trips_usecases.dart';
 import '../models/trip_mutation_result.dart';
 import 'trips_state.dart';
@@ -55,6 +55,9 @@ class TripsCubit extends Cubit<TripsState>
         TripsExpenseActions,
         TripsMutationActions {
   final GetTripsUseCase getTripsUseCase;
+  final GetTripPermissionsUseCase getTripPermissionsUseCase;
+  final CanManageTripAttributedExpenseUseCase
+  canManageTripAttributedExpenseUseCase;
   final GetTripDetailsUseCase getTripDetailsUseCase;
   final GetTripFormLookupsUseCase getTripFormLookupsUseCase;
   final CreateTripUseCase createTripUseCase;
@@ -62,12 +65,12 @@ class TripsCubit extends Cubit<TripsState>
   final UpdateTripStatusUseCase updateTripStatusUseCase;
   final GetTripStatusHistoryUseCase getTripStatusHistoryUseCase;
   final GetTripDocumentsUseCase getTripDocumentsUseCase;
+  final HasRequiredTripEvidenceUseCase hasRequiredTripEvidenceUseCase;
   final UploadTripDocumentUseCase uploadTripDocumentUseCase;
   final GetTripDocumentAccessUseCase getTripDocumentAccessUseCase;
   final DownloadTripDocumentUseCase downloadTripDocumentUseCase;
   final RemoveTripDocumentUseCase removeTripDocumentUseCase;
   final ReplaceTripDocumentUseCase replaceTripDocumentUseCase;
-  final TripEvidencePolicy tripEvidencePolicy;
   final CalculateTripNetProfitUseCase calculateTripNetProfitUseCase;
   final GetTripBusinessLocalTimestampsUseCase
   getTripBusinessLocalTimestampsUseCase;
@@ -90,6 +93,8 @@ class TripsCubit extends Cubit<TripsState>
 
   TripsCubit({
     required this.getTripsUseCase,
+    required this.getTripPermissionsUseCase,
+    required this.canManageTripAttributedExpenseUseCase,
     required this.getTripDetailsUseCase,
     required this.getTripFormLookupsUseCase,
     required this.createTripUseCase,
@@ -97,12 +102,12 @@ class TripsCubit extends Cubit<TripsState>
     required this.updateTripStatusUseCase,
     required this.getTripStatusHistoryUseCase,
     required this.getTripDocumentsUseCase,
+    required this.hasRequiredTripEvidenceUseCase,
     required this.uploadTripDocumentUseCase,
     required this.getTripDocumentAccessUseCase,
     required this.downloadTripDocumentUseCase,
     required this.removeTripDocumentUseCase,
     required this.replaceTripDocumentUseCase,
-    this.tripEvidencePolicy = const TripEvidencePolicy(),
     required this.calculateTripNetProfitUseCase,
     required this.getTripBusinessLocalTimestampsUseCase,
     required this.resolveTripBusinessLocalTimestampsUseCase,
@@ -156,6 +161,34 @@ class TripsCubit extends Cubit<TripsState>
       return;
     }
 
+    final permissionsResult = await getTripPermissionsUseCase(
+      GetTripPermissionsParams(currentCompanyContext: currentCompanyContext),
+    );
+    if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
+    final permissionsFailure = permissionsResult.failureOrNull;
+    if (permissionsFailure != null) {
+      emit(TripsFailure(permissionsFailure));
+      return;
+    }
+
+    final expensePermissionResult = await canManageTripAttributedExpenseUseCase(
+      CanManageTripAttributedExpenseParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (!_isCurrentCompanyRequest(requestGeneration, companyId)) return;
+    final expensePermissionFailure = expensePermissionResult.failureOrNull;
+    if (expensePermissionFailure != null) {
+      emit(TripsFailure(expensePermissionFailure));
+      return;
+    }
+
+    final permissions = permissionsResult.dataOrNull;
+    if (permissions == null) {
+      emit(const TripsFailure(UnexpectedFailure()));
+      return;
+    }
+
     emit(
       TripsLoaded(
         currentCompanyContext: currentCompanyContext,
@@ -164,22 +197,11 @@ class TripsCubit extends Cubit<TripsState>
             (localTimestampsResult
                     as Success<Map<String, TripBusinessLocalTimestamps>>)
                 .data,
-        canManageTrips: TripsPermissionPolicy.canManageTrips(
-          currentCompanyContext.role,
-        ),
-        canUpdateTripStatus: TripsPermissionPolicy.canUpdateTripStatus(
-          currentCompanyContext.role,
-        ),
-        canManageTripDocuments: TripsPermissionPolicy.canManageTripDocuments(
-          currentCompanyContext.role,
-        ),
-        canViewTripFinancials: TripsPermissionPolicy.canViewTripFinancials(
-          currentCompanyContext.role,
-        ),
-        canManageTripExpenses:
-            ExpenseLedgerPermissionPolicy.canManageTripAttributed(
-              currentCompanyContext.role,
-            ),
+        canManageTrips: permissions.canManageTrips,
+        canUpdateTripStatus: permissions.canUpdateTripStatus,
+        canManageTripDocuments: permissions.canManageTripDocuments,
+        canViewTripFinancials: permissions.canViewTripFinancials,
+        canManageTripExpenses: expensePermissionResult.dataOrNull ?? false,
         searchQuery: searchQuery,
         statusFilter: statusFilter,
       ),

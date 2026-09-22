@@ -5,8 +5,8 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/payment_method.dart';
 import '../../domain/entities/payment_method_status_filter.dart';
-import '../../domain/policies/payment_methods_permission_policy.dart';
 import '../../domain/usecases/add_payment_method_usecase.dart';
+import '../../domain/usecases/can_manage_payment_methods_usecase.dart';
 import '../../domain/usecases/deactivate_payment_method_usecase.dart';
 import '../../domain/usecases/get_payment_methods_usecase.dart';
 import '../../domain/usecases/reactivate_payment_method_usecase.dart';
@@ -15,6 +15,7 @@ import 'payment_methods_state.dart';
 
 class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
   final GetPaymentMethodsUseCase getPaymentMethodsUseCase;
+  final CanManagePaymentMethodsUseCase canManagePaymentMethodsUseCase;
   final AddPaymentMethodUseCase addPaymentMethodUseCase;
   final UpdatePaymentMethodUseCase updatePaymentMethodUseCase;
   final DeactivatePaymentMethodUseCase deactivatePaymentMethodUseCase;
@@ -25,6 +26,7 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
 
   PaymentMethodsCubit({
     required this.getPaymentMethodsUseCase,
+    required this.canManagePaymentMethodsUseCase,
     required this.addPaymentMethodUseCase,
     required this.updatePaymentMethodUseCase,
     required this.deactivatePaymentMethodUseCase,
@@ -48,19 +50,32 @@ class PaymentMethodsCubit extends Cubit<PaymentMethodsState> {
 
     if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
 
-    result.when(
-      success: (methods) => emit(
-        PaymentMethodsLoaded(
-          currentCompanyContext: currentCompanyContext,
-          allMethods: _sortMethods(methods),
-          statusFilter: previousFilter,
-          canManagePaymentMethods:
-              PaymentMethodsPermissionPolicy.canManagePaymentMethods(
-                currentCompanyContext.role,
-              ),
-        ),
+    final loadFailure = result.failureOrNull;
+    if (loadFailure != null) {
+      emit(PaymentMethodsFailure(loadFailure));
+      return;
+    }
+
+    final permissionResult = await canManagePaymentMethodsUseCase(
+      CanManagePaymentMethodsParams(
+        currentCompanyContext: currentCompanyContext,
       ),
-      failure: (failure) => emit(PaymentMethodsFailure(failure)),
+    );
+    if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(PaymentMethodsFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      PaymentMethodsLoaded(
+        currentCompanyContext: currentCompanyContext,
+        allMethods: _sortMethods(result.dataOrNull ?? const []),
+        statusFilter: previousFilter,
+        canManagePaymentMethods: permissionResult.dataOrNull ?? false,
+      ),
     );
   }
 

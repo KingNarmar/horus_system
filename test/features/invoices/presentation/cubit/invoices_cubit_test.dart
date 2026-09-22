@@ -16,6 +16,7 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_status.da
 import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
 import 'package:horus_system/features/invoices/domain/repositories/invoices_repository.dart';
+import 'package:horus_system/features/invoices/domain/usecases/can_manage_invoice_drafts_usecase.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_draft_usecases.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_query_usecases.dart';
 import 'package:horus_system/features/invoices/domain/value_objects/invoice_date.dart';
@@ -33,6 +34,7 @@ void main() {
     repository = _FakeInvoicesRepository();
     cubit = InvoicesCubit(
       getInvoicesUseCase: GetInvoicesUseCase(repository),
+      canManageInvoiceDraftsUseCase: const CanManageInvoiceDraftsUseCase(),
       getBillableTripsUseCase: GetBillableTripsUseCase(repository),
       createInvoiceFromTripUseCase: CreateInvoiceFromTripUseCase(repository),
       updateInvoiceDraftUseCase: UpdateInvoiceDraftUseCase(repository),

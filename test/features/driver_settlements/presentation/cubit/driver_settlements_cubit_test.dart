@@ -29,6 +29,7 @@ import 'package:horus_system/features/driver_settlements/domain/entities/driver_
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_status.dart';
+import 'package:horus_system/features/driver_settlements/domain/usecases/can_manage_driver_settlements_usecase.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_write_data.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlement_money_repository.dart';
 import 'package:horus_system/features/driver_settlements/domain/repositories/driver_settlements_repository.dart';
@@ -67,6 +68,8 @@ void main() {
             FakeBusinessTimeZoneConverter(),
           ),
       getDriverSettlementsUseCase: GetDriverSettlementsUseCase(repository),
+      canManageDriverSettlementsUseCase:
+          const CanManageDriverSettlementsUseCase(),
       getDriverOptionsUseCase: GetDriverSettlementDriverOptionsUseCase(
         repository,
       ),

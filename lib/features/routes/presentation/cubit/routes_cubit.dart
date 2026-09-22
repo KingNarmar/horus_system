@@ -8,12 +8,13 @@ import '../../../audit/domain/usecases/get_entity_audit_logs_usecase.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
 import '../../domain/entities/route_status_filter.dart';
-import '../../domain/policies/routes_permission_policy.dart';
+import '../../domain/usecases/can_manage_routes_usecase.dart';
 import '../../domain/usecases/routes_usecases.dart';
 import 'routes_state.dart';
 
 class RoutesCubit extends Cubit<RoutesState> {
   final GetRoutesUseCase getRoutesUseCase;
+  final CanManageRoutesUseCase canManageRoutesUseCase;
   final SaveRouteUseCase saveRouteUseCase;
   final DeactivateRouteUseCase deactivateRouteUseCase;
   final ReactivateRouteUseCase reactivateRouteUseCase;
@@ -28,6 +29,7 @@ class RoutesCubit extends Cubit<RoutesState> {
 
   RoutesCubit({
     required this.getRoutesUseCase,
+    required this.canManageRoutesUseCase,
     required this.saveRouteUseCase,
     required this.deactivateRouteUseCase,
     required this.reactivateRouteUseCase,
@@ -54,21 +56,31 @@ class RoutesCubit extends Cubit<RoutesState> {
 
     if (isClosed || loadRequestId != _loadRequestId) return;
 
-    result.when(
-      success: (routes) {
-        emit(
-          RoutesLoaded(
-            currentCompanyContext: currentCompanyContext,
-            allRoutes: routes,
-            canManageRoutes: RoutesPermissionPolicy.canManageRoutes(
-              currentCompanyContext.role,
-            ),
-            searchQuery: searchQuery,
-            statusFilter: statusFilter,
-          ),
-        );
-      },
-      failure: (failure) => emit(RoutesFailure(failure)),
+    final loadFailure = result.failureOrNull;
+    if (loadFailure != null) {
+      emit(RoutesFailure(loadFailure));
+      return;
+    }
+
+    final permissionResult = await canManageRoutesUseCase(
+      CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
+    );
+    if (isClosed || loadRequestId != _loadRequestId) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(RoutesFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      RoutesLoaded(
+        currentCompanyContext: currentCompanyContext,
+        allRoutes: result.dataOrNull ?? const [],
+        canManageRoutes: permissionResult.dataOrNull ?? false,
+        searchQuery: searchQuery,
+        statusFilter: statusFilter,
+      ),
     );
   }
 

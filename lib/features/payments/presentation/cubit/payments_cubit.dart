@@ -10,13 +10,14 @@ import '../../../invoices/domain/usecases/invoice_query_usecases.dart';
 import '../../../payment_methods/domain/entities/payment_method.dart';
 import '../../../payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import '../../domain/entities/payment.dart';
-import '../../domain/policies/payments_permission_policy.dart';
+import '../../domain/usecases/can_register_payments_usecase.dart';
 import '../../domain/usecases/get_payments_usecase.dart';
 import '../../domain/usecases/payment_params.dart';
 import 'payments_state.dart';
 
 final class PaymentsCubit extends Cubit<PaymentsState> {
   final GetPaymentsUseCase getPaymentsUseCase;
+  final CanRegisterPaymentsUseCase canRegisterPaymentsUseCase;
   final GetInvoicesUseCase getInvoicesUseCase;
   final GetPaymentMethodsUseCase getPaymentMethodsUseCase;
   final ConvertInstantsToBusinessLocalDateTimesUseCase
@@ -27,6 +28,7 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
 
   PaymentsCubit({
     required this.getPaymentsUseCase,
+    required this.canRegisterPaymentsUseCase,
     required this.getInvoicesUseCase,
     required this.getPaymentMethodsUseCase,
     required this.convertInstantsToBusinessLocalDateTimesUseCase,
@@ -86,6 +88,17 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
       return;
     }
 
+    final permissionResult = await canRegisterPaymentsUseCase(
+      CanRegisterPaymentsParams(currentCompanyContext: currentCompanyContext),
+    );
+    if (!_isCurrentLoad(requestId, currentCompanyContext.companyId)) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(PaymentsFailure(permissionFailure));
+      return;
+    }
+
     emit(
       PaymentsLoaded(
         currentCompanyContext: currentCompanyContext,
@@ -96,9 +109,7 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
         ),
         invoices: List.unmodifiable(invoices),
         paymentMethods: List.unmodifiable(methods),
-        canRegisterPayments: PaymentsPermissionPolicy.canRegisterPayments(
-          currentCompanyContext.role,
-        ),
+        canRegisterPayments: permissionResult.dataOrNull ?? false,
         searchQuery: previousSearch,
       ),
     );

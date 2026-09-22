@@ -9,6 +9,7 @@ import 'package:horus_system/features/company/domain/entities/current_company_co
 import 'package:horus_system/features/payment_methods/domain/entities/payment_method.dart';
 import 'package:horus_system/features/payment_methods/domain/entities/payment_method_status_filter.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/add_payment_method_usecase.dart';
+import 'package:horus_system/features/payment_methods/domain/usecases/can_manage_payment_methods_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/deactivate_payment_method_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/get_payment_methods_usecase.dart';
 import 'package:horus_system/features/payment_methods/domain/usecases/reactivate_payment_method_usecase.dart';
@@ -175,6 +176,7 @@ void main() {
 PaymentMethodsCubit _cubit(FakePaymentMethodsRepository repository) {
   return PaymentMethodsCubit(
     getPaymentMethodsUseCase: GetPaymentMethodsUseCase(repository),
+    canManagePaymentMethodsUseCase: const CanManagePaymentMethodsUseCase(),
     addPaymentMethodUseCase: AddPaymentMethodUseCase(repository),
     updatePaymentMethodUseCase: UpdatePaymentMethodUseCase(repository),
     deactivatePaymentMethodUseCase: DeactivatePaymentMethodUseCase(repository),

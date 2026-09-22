@@ -4,7 +4,7 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/invoice.dart';
 import '../../domain/entities/invoice_status.dart';
-import '../../domain/policies/invoices_permission_policy.dart';
+import '../../domain/usecases/can_manage_invoice_drafts_usecase.dart';
 import '../../domain/usecases/invoice_draft_usecases.dart';
 import '../../domain/usecases/invoice_params.dart';
 import '../../domain/usecases/invoice_query_usecases.dart';
@@ -13,6 +13,7 @@ import 'invoices_state.dart';
 
 final class InvoicesCubit extends Cubit<InvoicesState> {
   final GetInvoicesUseCase getInvoicesUseCase;
+  final CanManageInvoiceDraftsUseCase canManageInvoiceDraftsUseCase;
   final GetBillableTripsUseCase getBillableTripsUseCase;
   final CreateInvoiceFromTripUseCase createInvoiceFromTripUseCase;
   final UpdateInvoiceDraftUseCase updateInvoiceDraftUseCase;
@@ -23,6 +24,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
 
   InvoicesCubit({
     required this.getInvoicesUseCase,
+    required this.canManageInvoiceDraftsUseCase,
     required this.getBillableTripsUseCase,
     required this.createInvoiceFromTripUseCase,
     required this.updateInvoiceDraftUseCase,
@@ -55,10 +57,20 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return;
     }
 
-    final canManageInvoiceDrafts =
-        InvoicesPermissionPolicy.canManageInvoiceDrafts(
-          currentCompanyContext.role,
-        );
+    final permissionResult = await canManageInvoiceDraftsUseCase(
+      CanManageInvoiceDraftsParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (!_isCurrentLoad(generation, currentCompanyContext.companyId)) return;
+
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(InvoicesFailure(permissionFailure));
+      return;
+    }
+
+    final canManageInvoiceDrafts = permissionResult.dataOrNull ?? false;
     emit(
       InvoicesLoaded(
         currentCompanyContext: currentCompanyContext,

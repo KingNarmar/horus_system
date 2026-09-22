@@ -15,6 +15,7 @@ import 'package:horus_system/features/customers/domain/entities/customer.dart';
 import 'package:horus_system/features/customers/domain/entities/customer_write_data.dart';
 import 'package:horus_system/features/customers/domain/repositories/customers_repository.dart';
 import 'package:horus_system/features/customers/domain/usecases/add_customer_usecase.dart';
+import 'package:horus_system/features/customers/domain/usecases/can_manage_customers_usecase.dart';
 import 'package:horus_system/features/customers/domain/usecases/deactivate_customer_usecase.dart';
 import 'package:horus_system/features/customers/domain/usecases/get_customers_usecase.dart';
 import 'package:horus_system/features/customers/domain/usecases/reactivate_customer_usecase.dart';
@@ -35,6 +36,7 @@ void main() {
     final repository = _Repository();
     cubit = CustomersCubit(
       getCustomersUseCase: GetCustomersUseCase(repository),
+      canManageCustomersUseCase: const CanManageCustomersUseCase(),
       addCustomerUseCase: AddCustomerUseCase(repository),
       updateCustomerUseCase: UpdateCustomerUseCase(repository),
       deactivateCustomerUseCase: DeactivateCustomerUseCase(repository),
