@@ -6,7 +6,18 @@ import 'package:test/test.dart';
 
 void main() {
   group('CompanyExpenseTripLookupModelMapper', () {
-    test('prefers loading order number', () {
+    test('leads with Trip reference and readable context', () {
+      final option = _model(
+        tripNumber: 'TRP-2026-000004',
+        customerName: 'Mina',
+        routeLoadingLocation: 'DUBAI',
+        routeUnloadingLocation: 'SHARJAH',
+      ).toLinkOption();
+
+      expect(option.label, 'TRP-2026-000004 - Mina - DUBAI -> SHARJAH');
+    });
+
+    test('prefers loading order number when Trip reference is unavailable', () {
       final option = _model(
         loadingOrderNumber: ' LO-100 ',
         waybillNumber: 'WB-200',
@@ -63,6 +74,7 @@ void main() {
     test('reads nested customer and route projection from Supabase row', () {
       final model = CompanyExpenseTripLookupModel.fromMap({
         DbCommonFields.id: _tripId,
+        CompanyExpenseLookupDbFields.tripNumber: 'TRP-2026-000004',
         CompanyExpenseLookupDbFields.loadingOrderNumber: null,
         CompanyExpenseLookupDbFields.waybillNumber: null,
         CompanyExpenseLookupDbFields.customersTableName: {
@@ -74,10 +86,14 @@ void main() {
         },
       });
 
+      expect(model.tripNumber, 'TRP-2026-000004');
       expect(model.customerName, 'Test Customer');
       expect(model.routeLoadingLocation, 'DUBAI');
       expect(model.routeUnloadingLocation, 'SHARJAH');
-      expect(model.toLinkOption().label, 'Test Customer - DUBAI -> SHARJAH');
+      expect(
+        model.toLinkOption().label,
+        'TRP-2026-000004 - Test Customer - DUBAI -> SHARJAH',
+      );
     });
   });
 }
@@ -85,6 +101,7 @@ void main() {
 const _tripId = '60f366ef-cb31-4e48-b249-a7d774f615bc';
 
 CompanyExpenseTripLookupModel _model({
+  String? tripNumber,
   String? loadingOrderNumber,
   String? waybillNumber,
   String? customerName,
@@ -93,6 +110,7 @@ CompanyExpenseTripLookupModel _model({
 }) {
   return CompanyExpenseTripLookupModel(
     id: _tripId,
+    tripNumber: tripNumber,
     loadingOrderNumber: loadingOrderNumber,
     waybillNumber: waybillNumber,
     customerName: customerName,
