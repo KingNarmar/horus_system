@@ -192,6 +192,19 @@ void main() {
       },
     );
 
+    test('searches Trips by canonical Trip reference', () async {
+      final repository = _FakeTripsRepository()
+        ..tripsByCompany['company-a'] = [_tripA, _tripCreated];
+      final cubit = _buildCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.loadTrips(_contextA);
+      cubit.setSearchQuery('000002');
+
+      final loaded = cubit.state as TripsLoaded;
+      expect(loaded.trips, [_tripCreated]);
+    });
+
     test('current business date comes from the trusted provider', () async {
       final cubit = _buildCubit(_FakeTripsRepository());
       addTearDown(cubit.close);
