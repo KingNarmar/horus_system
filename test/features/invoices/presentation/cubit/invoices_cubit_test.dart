@@ -16,6 +16,7 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_status.da
 import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
 import 'package:horus_system/features/invoices/domain/repositories/invoices_repository.dart';
+import 'package:horus_system/features/invoices/domain/usecases/calculate_invoice_draft_preview_usecase.dart';
 import 'package:horus_system/features/invoices/domain/usecases/can_manage_invoice_drafts_usecase.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_draft_usecases.dart';
 import 'package:horus_system/features/invoices/domain/usecases/invoice_query_usecases.dart';
@@ -36,7 +37,10 @@ void main() {
       getInvoicesUseCase: GetInvoicesUseCase(repository),
       canManageInvoiceDraftsUseCase: const CanManageInvoiceDraftsUseCase(),
       getBillableTripsUseCase: GetBillableTripsUseCase(repository),
+      calculateInvoiceDraftPreviewUseCase:
+          const CalculateInvoiceDraftPreviewUseCase(),
       createInvoiceFromTripUseCase: CreateInvoiceFromTripUseCase(repository),
+      createGroupedInvoiceUseCase: CreateGroupedInvoiceUseCase(repository),
       updateInvoiceDraftUseCase: UpdateInvoiceDraftUseCase(repository),
     );
   });
@@ -101,7 +105,7 @@ void main() {
       repository.billableTrips = [trip];
       await cubit.loadInvoices(_context());
 
-      final created = await cubit.createDraftFromTrip(
+      final created = await cubit.createDraft(
         InvoiceDraftFormInput.fromBillableTrip(trip),
       );
 
@@ -112,6 +116,44 @@ void main() {
       expect(state.isCreatingDraft, isFalse);
     },
   );
+
+  test('creating a grouped draft persists all selected Trip lines', () async {
+    final first = _billableTrip(id: 'trip-1');
+    final second = _billableTrip(id: 'trip-2');
+    repository.billableTrips = [first, second];
+    await cubit.loadInvoices(_context());
+
+    final created = await cubit.createDraft(
+      InvoiceDraftFormInput.fromBillableTrips(
+        [first, second],
+        customerId: 'customer-1',
+      ),
+    );
+
+    final state = cubit.state as InvoicesLoaded;
+    expect(created, isTrue);
+    expect(state.allInvoices.single.lines, hasLength(2));
+    expect(
+      state.allInvoices.single.lines.map((line) => line.tripId),
+      containsAll(<String>['trip-1', 'trip-2']),
+    );
+  });
+
+  test('calculates grouped draft preview through Domain use case', () async {
+    final first = _billableTrip(id: 'trip-1');
+    final second = _billableTrip(id: 'trip-2');
+    repository.billableTrips = [first, second];
+    await cubit.loadInvoices(_context());
+
+    final preview = await cubit.calculateDraftPreview(
+      customerId: 'customer-1',
+      trips: [first, second],
+    );
+
+    expect(preview, isNotNull);
+    expect(preview!.subtotal.minorUnits, 20000);
+    expect(preview.grandTotal.minorUnits, 20000);
+  });
 }
 
 CurrentCompanyContext _context({
