@@ -13,37 +13,81 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_customer_
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
+import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
+import 'package:horus_system/features/invoices/domain/services/invoice_totals_calculator.dart';
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 import 'package:horus_system/features/invoices/presentation/cubit/invoice_details_state.dart';
+import 'package:horus_system/features/invoices/presentation/cubit/invoice_draft_form_input.dart';
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_details_dialog.dart';
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_draft_dialog.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('billable trip dropdown never exposes the raw trip UUID', (
-    tester,
-  ) async {
-    const tripId = '771d829f-fd6e-46cd-bb30-e6ee8cc3a56f';
-    await _pumpLocalized(
-      tester,
-      child: InvoiceDraftDialog(
-        billableTrips: [_billableTrip(id: tripId)],
-        currencyFractionDigits: 2,
-        onSubmit: (_) async => false,
-      ),
-    );
+  testWidgets(
+    'grouped invoice draft selects multiple readable Trips without UUID leakage',
+    (tester) async {
+      const firstTripId = '771d829f-fd6e-46cd-bb30-e6ee8cc3a56f';
+      const secondTripId = '60f366ef-cb31-4e48-b249-a7d774f615bc';
+      InvoiceDraftFormInput? submittedInput;
+      final trips = [
+        _billableTrip(id: firstTripId, tripNumber: 'TRP-2026-000001'),
+        _billableTrip(id: secondTripId, tripNumber: 'TRP-2026-000002'),
+      ];
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+      await _pumpLocalized(
+        tester,
+        child: InvoiceDraftDialog(
+          billableTrips: trips,
+          currencyFractionDigits: 2,
+          onCalculatePreview: ({required customerId, required trips}) async {
+            return _previewFor(trips);
+          },
+          onSubmit: (input) async {
+            submittedInput = input;
+            return false;
+          },
+        ),
+      );
 
-    await tester.tap(find.byKey(const ValueKey('invoiceDraftTripField')));
-    await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftCustomerField')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Customer One').last);
+      await tester.pumpAndSettle();
 
-    expect(find.textContaining(tripId), findsNothing);
-    expect(find.textContaining('Customer One'), findsOneWidget);
-    expect(find.textContaining('DUBAI → SHARJAH'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.textContaining(firstTripId), findsNothing);
+      expect(find.textContaining(secondTripId), findsNothing);
+      expect(find.textContaining('TRP-2026-000001'), findsOneWidget);
+      expect(find.textContaining('TRP-2026-000002'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftTrip-$firstTripId')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftTrip-$secondTripId')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('2 selected'), findsOneWidget);
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('invoiceDraftSaveButton')),
+      );
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftSaveButton')));
+      await tester.pumpAndSettle();
+
+      expect(submittedInput, isNotNull);
+      expect(submittedInput!.customerId, 'customer-1');
+      expect(
+        submittedInput!.tripIds,
+        containsAll(<String>[firstTripId, secondTripId]),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'invoice details use the app details Dialog pattern and hide raw UUID',
@@ -148,7 +192,10 @@ void main() {
 final CurrencyCode _currency = CurrencyCode.tryParse('AED')!;
 final TaxRate _zeroTax = TaxRate.tryCreate(0)!;
 
-BillableTrip _billableTrip({required String id}) {
+BillableTrip _billableTrip({
+  required String id,
+  String? tripNumber,
+}) {
   return BillableTrip(
     id: id,
     companyId: 'company-1',
@@ -156,11 +203,23 @@ BillableTrip _billableTrip({required String id}) {
     status: TripStatus.documentsReceived,
     freightAmount: Money(minorUnits: 12000000, currency: _currency),
     isAlreadyInvoiced: false,
+    tripNumber: tripNumber,
     customerName: 'Customer One',
     loadingLocation: 'DUBAI',
     unloadingLocation: 'SHARJAH',
     serviceDate: BusinessDate(year: 2026, month: 6, day: 20),
   );
+}
+
+
+InvoiceTotals _previewFor(List<BillableTrip> trips) {
+  final result = const InvoiceTotalsCalculator().calculate(
+    lineAmounts: trips.map((trip) => trip.freightAmount).toList(growable: false),
+    currency: _currency,
+    discountMinorUnits: 0,
+    taxRateBasisPoints: 0,
+  );
+  return result.dataOrNull!;
 }
 
 InvoiceDetailsLoaded _loadedState({String tripId = 'trip-1'}) {
