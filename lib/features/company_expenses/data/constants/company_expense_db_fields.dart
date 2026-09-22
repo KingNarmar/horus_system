@@ -47,6 +47,7 @@ abstract final class CompanyExpenseLookupDbFields {
   static const fullName = 'full_name';
   static const plateNumber = 'plate_number';
   static const name = 'name';
+  static const tripNumber = 'trip_number';
   static const loadingOrderNumber = 'loading_order_number';
   static const waybillNumber = 'waybill_number';
   static const loadingLocation = 'loading_location';
@@ -59,7 +60,8 @@ abstract final class CompanyExpenseLookupDbFields {
       '($loadingLocation, $unloadingLocation)';
 
   static const tripColumns =
-      '${DbCommonFields.id}, $loadingOrderNumber, $waybillNumber, '
+      '${DbCommonFields.id}, $tripNumber, $loadingOrderNumber, '
+      '$waybillNumber, '
       '${DbCommonFields.createdAt}, $tripCustomerRelation, '
       '$tripRouteRelation';
 }
