@@ -7,6 +7,7 @@ import 'package:horus_system/features/company/domain/entities/current_company_co
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/domain/usecases/trip_business_time_usecases.dart';
 import 'package:test/test.dart';
 
@@ -62,6 +63,7 @@ void main() {
         final trip = TripEntity(
           id: 'trip-1',
           companyId: 'company-1',
+          tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
           customerId: 'customer-1',
           routeId: 'route-1',
           status: TripStatus.created,

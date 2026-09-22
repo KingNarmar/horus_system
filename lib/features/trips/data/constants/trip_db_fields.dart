@@ -3,6 +3,7 @@ import '../../../../core/data/constants/db_common_fields.dart';
 abstract final class TripDbFields {
   static const tableName = 'trips';
 
+  static const tripNumber = 'trip_number';
   static const customerId = 'customer_id';
   static const routeId = 'route_id';
   static const driverId = 'driver_id';
@@ -40,7 +41,8 @@ abstract final class TripDbFields {
       '$status.eq.on_road,$status.eq.arrived';
 
   static const allColumns =
-      '${DbCommonFields.id}, ${DbCommonFields.companyId}, $customerId, $routeId, '
+      '${DbCommonFields.id}, ${DbCommonFields.companyId}, $tripNumber, '
+      '$customerId, $routeId, '
       '$driverId, $tractorHeadId, $trailerId, $status, $loadingOrderNumber, '
       '$waybillNumber, $quantityTons, $agreedFreightRatePerTon, '
       '$commercialAmount, $totalExpenses, $scheduledLoadingAt, '

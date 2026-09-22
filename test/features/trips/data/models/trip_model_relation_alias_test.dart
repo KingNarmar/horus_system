@@ -8,6 +8,7 @@ void main() {
       final model = TripModel.fromMap({
         'id': 'trip-alias',
         'company_id': 'company-1',
+        'trip_number': 'TRP-2026-000001',
         'customer_id': 'customer-1',
         'route_id': 'route-1',
         'status': 'created',

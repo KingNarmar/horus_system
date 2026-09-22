@@ -11,6 +11,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.da
 import 'package:horus_system/features/trips/domain/entities/trip_lookup_option.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_route_lookup_option.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/presentation/models/trip_mutation_result.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_business_date_time_field.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_form_dialog.dart';
@@ -214,9 +215,10 @@ void main() {
   });
 }
 
-const _editableTrip = TripEntity(
+final _editableTrip = TripEntity(
   id: 'trip-1',
   companyId: 'company-1',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-1',
   routeId: 'route-1',
   status: TripStatus.created,
@@ -230,9 +232,10 @@ const _lookups = TripFormLookups(
   trailers: [],
 );
 
-const _longLabelTrip = TripEntity(
+final _longLabelTrip = TripEntity(
   id: 'trip-long',
   companyId: 'company-1',
+  tripNumber: TripNumber.tryParse('TRP-2026-000002')!,
   customerId: 'customer-long',
   routeId: 'route-long',
   status: TripStatus.created,

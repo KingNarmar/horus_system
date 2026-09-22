@@ -7,6 +7,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_document.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_document_kind.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_documents_section.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
@@ -82,9 +83,10 @@ const _context = CurrentCompanyContext(
   company: _company,
   role: CompanyRole.operations,
 );
-const _trip = TripEntity(
+final _trip = TripEntity(
   id: 'trip-1',
   companyId: 'company-1',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-1',
   routeId: 'route-1',
   status: TripStatus.delivered,
@@ -104,7 +106,7 @@ final _waybill = TripDocument(
 TripsLoaded _loadedState({bool canManageDocuments = true}) {
   return TripsLoaded(
     currentCompanyContext: _context,
-    allTrips: const [_trip],
+    allTrips: [_trip],
     canManageTrips: true,
     canUpdateTripStatus: true,
     canManageTripDocuments: canManageDocuments,

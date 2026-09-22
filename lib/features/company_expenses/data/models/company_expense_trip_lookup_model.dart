@@ -3,6 +3,7 @@ import '../constants/company_expense_db_fields.dart';
 
 final class CompanyExpenseTripLookupModel {
   final String id;
+  final String? tripNumber;
   final String? loadingOrderNumber;
   final String? waybillNumber;
   final String? customerName;
@@ -11,6 +12,7 @@ final class CompanyExpenseTripLookupModel {
 
   const CompanyExpenseTripLookupModel({
     required this.id,
+    this.tripNumber,
     this.loadingOrderNumber,
     this.waybillNumber,
     this.customerName,
@@ -26,6 +28,7 @@ final class CompanyExpenseTripLookupModel {
 
     return CompanyExpenseTripLookupModel(
       id: map[DbCommonFields.id] as String,
+      tripNumber: _text(map[CompanyExpenseLookupDbFields.tripNumber]),
       loadingOrderNumber: _text(
         map[CompanyExpenseLookupDbFields.loadingOrderNumber],
       ),

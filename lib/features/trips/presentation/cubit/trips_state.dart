@@ -149,6 +149,7 @@ class TripsLoaded extends TripsState {
       if (!statusFilter.matches(trip.status)) return false;
       if (query.isEmpty) return true;
       return [
+        trip.tripNumber.value,
         trip.displayName,
         trip.loadingOrderNumber,
         trip.waybillNumber,

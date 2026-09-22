@@ -10,6 +10,7 @@ import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_history.dart';
 import '../../domain/entities/trip_write_data.dart';
 import '../../domain/value_objects/quantity_tons.dart';
+import '../../domain/value_objects/trip_number.dart';
 import '../constants/trip_db_contract.dart';
 import '../constants/trip_db_fields.dart';
 import '../models/trip_lookup_models.dart';
@@ -22,6 +23,11 @@ extension TripModelMapper on TripModel {
   TripEntity toEntity({
     required CurrencyConfiguration? financialConfiguration,
   }) {
+    final tripNumberValue = TripNumber.tryParse(tripNumber);
+    if (tripNumberValue == null) {
+      throw FormatException('Invalid persisted Trip number.', tripNumber);
+    }
+
     final quantity = _decodeQuantity(quantityTonsDecimal);
     final rate = _decodeMoney(
       agreedFreightRatePerTonDecimal,
@@ -37,6 +43,7 @@ extension TripModelMapper on TripModel {
     return TripEntity(
       id: id,
       companyId: companyId,
+      tripNumber: tripNumberValue,
       customerId: customerId,
       routeId: routeId,
       driverId: driverId,

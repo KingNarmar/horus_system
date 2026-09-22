@@ -629,6 +629,7 @@
   "tripVehicleHeader": "المركبة",
   "tripTractorHeadLabel": "رأس الجرار",
   "tripTrailerLabel": "المقطورة",
+  "tripReferenceHeader": "مرجع الرحلة",
   "tripLoadingOrderHeader": "أمر التحميل",
   "tripWaybillHeader": "رقم البوليصة",
   "tripQuantityHeader": "الكمية",

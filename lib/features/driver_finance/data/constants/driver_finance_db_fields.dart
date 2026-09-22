@@ -13,6 +13,7 @@ abstract final class DriverFinanceDbFunctions {
 abstract final class DriverFinanceDbFields {
   static const driverId = 'driver_id';
   static const tripId = 'trip_id';
+  static const tripNumber = 'trip_number';
   static const movementType = 'movement_type';
   static const amount = 'amount';
   static const amountMinorUnits = 'amount_minor_units';

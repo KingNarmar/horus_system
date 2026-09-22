@@ -13,6 +13,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/domain/value_objects/quantity_tons.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -211,6 +212,7 @@ void main() {
         currentTrip: TripEntity(
           id: 'trip-1',
           companyId: 'company-1',
+          tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
           customerId: 'customer-1',
           routeId: 'route-1',
           status: TripStatus.delivered,
@@ -245,6 +247,7 @@ void main() {
           currentTrip: TripEntity(
             id: 'trip-1',
             companyId: 'company-1',
+            tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
             customerId: 'customer-1',
             routeId: 'route-1',
             status: TripStatus.delivered,
@@ -286,6 +289,7 @@ class _FakeTripsRepository implements TripsRepository {
     return TripEntity(
       id: id,
       companyId: data.companyId,
+      tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
       customerId: data.customerId,
       routeId: data.routeId,
       status: TripStatus.created,
