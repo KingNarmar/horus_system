@@ -5,6 +5,7 @@ import '../constants/trip_db_fields.dart';
 class TripModel {
   final String id;
   final String companyId;
+  final String tripNumber;
   final String customerId;
   final String routeId;
   final String? driverId;
@@ -33,6 +34,7 @@ class TripModel {
   const TripModel({
     required this.id,
     required this.companyId,
+    required this.tripNumber,
     required this.customerId,
     required this.routeId,
     required this.status,
@@ -63,6 +65,10 @@ class TripModel {
     return TripModel(
       id: map[DbCommonFields.id] as String,
       companyId: map[DbCommonFields.companyId] as String,
+      tripNumber: _requiredText(
+        map[TripDbFields.tripNumber],
+        TripDbFields.tripNumber,
+      ),
       customerId: map[TripDbFields.customerId] as String,
       routeId: map[TripDbFields.routeId] as String,
       driverId: map[TripDbFields.driverId] as String?,
@@ -149,6 +155,14 @@ class TripModel {
         field: DbCommonFields.updatedAt,
       ),
     );
+  }
+
+  static String _requiredText(Object? value, String field) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      throw FormatException('Invalid Trip field: $field.');
+    }
+    return text;
   }
 
   static String? _toDecimalText(Object? value) {
