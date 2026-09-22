@@ -247,6 +247,7 @@ void main() {
           currentTrip: TripEntity(
             id: 'trip-1',
             companyId: 'company-1',
+            tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
             customerId: 'customer-1',
             routeId: 'route-1',
             status: TripStatus.delivered,
