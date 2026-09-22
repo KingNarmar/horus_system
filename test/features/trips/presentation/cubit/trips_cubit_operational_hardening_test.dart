@@ -43,6 +43,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_route_lookup_op
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/get_trip_permissions_usecase.dart';
@@ -62,7 +63,7 @@ void main() {
         final repository = _FakeTripsRepository();
         final oldLoad = Completer<Result<List<TripEntity>>>();
         repository.pendingLoads['company-a'] = oldLoad;
-        repository.tripsByCompany['company-b'] = const [_tripB];
+        repository.tripsByCompany['company-b'] = [_tripB];
 
         final cubit = _buildCubit(repository);
         addTearDown(cubit.close);
@@ -74,14 +75,14 @@ void main() {
 
         final loadedB = cubit.state as TripsLoaded;
         expect(loadedB.currentCompanyContext.companyId, 'company-b');
-        expect(loadedB.allTrips, const [_tripB]);
+        expect(loadedB.allTrips, [_tripB]);
 
-        oldLoad.complete(const Success([_tripA]));
+        oldLoad.complete(Success([_tripA]));
         await oldRequest;
 
         final stillLoadedB = cubit.state as TripsLoaded;
         expect(stillLoadedB.currentCompanyContext.companyId, 'company-b');
-        expect(stillLoadedB.allTrips, const [_tripB]);
+        expect(stillLoadedB.allTrips, [_tripB]);
       },
     );
 
@@ -89,13 +90,13 @@ void main() {
       'failed create preserves loaded state and retry succeeds once',
       () async {
         final repository = _FakeTripsRepository()
-          ..tripsByCompany['company-a'] = const [_tripA]
+          ..tripsByCompany['company-a'] = [_tripA]
           ..createResults.add(
             const FailureResult<TripEntity>(
               ServerFailure(code: FailureCodes.serverError),
             ),
           )
-          ..createResults.add(const Success(_tripCreated));
+          ..createResults.add(Success(_tripCreated));
 
         final cubit = _buildCubit(repository);
         addTearDown(cubit.close);
@@ -108,7 +109,7 @@ void main() {
 
         expect(firstResult, isA<TripMutationFailed>());
         final failedState = cubit.state as TripsLoaded;
-        expect(failedState.allTrips, const [_tripA]);
+        expect(failedState.allTrips, [_tripA]);
         expect(failedState.isTripSaving, isFalse);
         expect(failedState.tripSaveFailure?.code, FailureCodes.serverError);
 
@@ -132,7 +133,7 @@ void main() {
       'duplicate save is ignored while the first mutation is pending',
       () async {
         final repository = _FakeTripsRepository()
-          ..tripsByCompany['company-a'] = const [_tripA];
+          ..tripsByCompany['company-a'] = [_tripA];
         final pendingCreate = Completer<Result<TripEntity>>();
         repository.pendingCreate = pendingCreate;
 
@@ -155,7 +156,7 @@ void main() {
         expect(repository.createCalls, 1);
         expect((cubit.state as TripsLoaded).isTripSaving, isTrue);
 
-        pendingCreate.complete(const Success(_tripCreated));
+        pendingCreate.complete(Success(_tripCreated));
         expect(await first, isA<TripMutationSucceeded>());
         expect(repository.createCalls, 1);
         expect((cubit.state as TripsLoaded).isTripSaving, isFalse);
@@ -166,8 +167,8 @@ void main() {
       'stale mutation completion cannot overwrite a new company context',
       () async {
         final repository = _FakeTripsRepository()
-          ..tripsByCompany['company-a'] = const [_tripA]
-          ..tripsByCompany['company-b'] = const [_tripB];
+          ..tripsByCompany['company-a'] = [_tripA]
+          ..tripsByCompany['company-b'] = [_tripB];
         final pendingCreate = Completer<Result<TripEntity>>();
         repository.pendingCreate = pendingCreate;
 
@@ -182,12 +183,12 @@ void main() {
         await Future<void>.delayed(Duration.zero);
 
         await cubit.loadTrips(_contextB);
-        pendingCreate.complete(const Success(_tripCreated));
+        pendingCreate.complete(Success(_tripCreated));
 
         expect(await pendingMutation, isA<TripMutationIgnored>());
         final current = cubit.state as TripsLoaded;
         expect(current.currentCompanyContext.companyId, 'company-b');
-        expect(current.allTrips, const [_tripB]);
+        expect(current.allTrips, [_tripB]);
       },
     );
 
@@ -205,14 +206,14 @@ void main() {
       'status failure preserves loaded trip and retry clears scoped failure',
       () async {
         final repository = _FakeTripsRepository()
-          ..tripsByCompany['company-a'] = const [_tripA]
+          ..tripsByCompany['company-a'] = [_tripA]
           ..detailsById['trip-a'] = _tripA
           ..statusResults.add(
             const FailureResult<TripEntity>(
               ServerFailure(code: FailureCodes.serverError),
             ),
           )
-          ..statusResults.add(const Success(_tripAssigned));
+          ..statusResults.add(Success(_tripAssigned));
 
         final cubit = _buildCubit(repository);
         addTearDown(cubit.close);
@@ -269,33 +270,37 @@ const _contextB = CurrentCompanyContext(
   role: CompanyRole.operations,
 );
 
-const _tripA = TripEntity(
+final _tripA = TripEntity(
   id: 'trip-a',
   companyId: 'company-a',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-a',
   routeId: 'route-a',
   status: TripStatus.created,
 );
 
-const _tripB = TripEntity(
+final _tripB = TripEntity(
   id: 'trip-b',
   companyId: 'company-b',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-b',
   routeId: 'route-b',
   status: TripStatus.created,
 );
 
-const _tripCreated = TripEntity(
+final _tripCreated = TripEntity(
   id: 'trip-new',
   companyId: 'company-a',
+  tripNumber: TripNumber.tryParse('TRP-2026-000002')!,
   customerId: 'customer-new',
   routeId: 'route-new',
   status: TripStatus.created,
 );
 
-const _tripAssigned = TripEntity(
+final _tripAssigned = TripEntity(
   id: 'trip-a',
   companyId: 'company-a',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
   customerId: 'customer-a',
   routeId: 'route-a',
   status: TripStatus.assigned,
@@ -453,6 +458,7 @@ final class _FakeTripsRepository implements TripsRepository {
         TripEntity(
           id: 'trip-created-$createCalls',
           companyId: data.companyId,
+          tripNumber: TripNumber.tryParse('TRP-2026-000099')!,
           customerId: data.customerId,
           routeId: data.routeId,
           status: TripStatus.created,
@@ -475,6 +481,9 @@ final class _FakeTripsRepository implements TripsRepository {
         TripEntity(
           id: id,
           companyId: data.companyId,
+          tripNumber:
+              detailsById[id]?.tripNumber ??
+              TripNumber.tryParse('TRP-2026-000099')!,
           customerId: data.customerId,
           routeId: data.routeId,
           status: detailsById[id]?.status ?? TripStatus.created,
@@ -501,6 +510,7 @@ final class _FakeTripsRepository implements TripsRepository {
         TripEntity(
           id: current.id,
           companyId: current.companyId,
+          tripNumber: current.tripNumber,
           customerId: current.customerId,
           routeId: current.routeId,
           status: newStatus,
