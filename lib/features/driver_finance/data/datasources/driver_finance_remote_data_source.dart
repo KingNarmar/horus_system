@@ -29,6 +29,7 @@ updated_at
 
 const _driverTripOptionColumns = '''
 id,
+trip_number,
 loading_order_number,
 waybill_number,
 scheduled_loading_at,
@@ -123,9 +124,13 @@ class SupabaseDriverFinanceRemoteDataSource
   }
 
   String _buildTripLabel(Map<String, dynamic> map, String timeZoneId) {
+    final tripReference = _optional(
+      map[DriverFinanceDbFields.tripNumber],
+    );
     final loadingOrder = _optional(map['loading_order_number']);
     final waybill = _optional(map['waybill_number']);
-    final tripNumber = loadingOrder ?? waybill;
+    final fallbackReference = loadingOrder ?? waybill;
+    final tripIdentity = tripReference ?? fallbackReference;
 
     final customer = _nestedValue(map, 'customers', 'name');
     final loading = _nestedValue(map, 'routes', 'loading_location');
@@ -137,7 +142,7 @@ class SupabaseDriverFinanceRemoteDataSource
       timeZoneId,
     );
 
-    final label = _joinNonEmpty([tripNumber, customer, route, date], ' - ');
+    final label = _joinNonEmpty([tripIdentity, customer, route, date], ' - ');
 
     return label.isEmpty ? map[DbCommonFields.id] as String : label;
   }
