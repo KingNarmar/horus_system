@@ -7,21 +7,27 @@ extension CompanyExpenseTripLookupModelMapper on CompanyExpenseTripLookupModel {
   }
 
   String get _displayLabel {
+    final reference = _text(tripNumber);
+    final customer = _text(customerName);
+    final route = _routeLabel;
+    final context = [customer, route]
+        .whereType<String>()
+        .where((value) => value.isNotEmpty)
+        .join(' - ');
+
+    if (reference != null && context.isNotEmpty) {
+      return '$reference - $context';
+    }
+
+    if (reference != null) return reference;
+
     final orderNumber = _text(loadingOrderNumber);
     if (orderNumber != null) return orderNumber;
 
     final waybill = _text(waybillNumber);
     if (waybill != null) return waybill;
 
-    final customer = _text(customerName);
-    final route = _routeLabel;
-
-    if (customer != null && route != null) {
-      return '$customer - $route';
-    }
-
-    if (customer != null) return customer;
-    if (route != null) return route;
+    if (context.isNotEmpty) return context;
 
     return id;
   }
