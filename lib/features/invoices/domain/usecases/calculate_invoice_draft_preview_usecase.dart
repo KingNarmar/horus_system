@@ -8,6 +8,7 @@ import '../../../company/domain/policies/company_financial_readiness_policy.dart
 import '../entities/billable_trip.dart';
 import '../entities/invoice_totals.dart';
 import '../policies/invoice_trip_eligibility_policy.dart';
+import '../policies/invoices_permission_policy.dart';
 import '../services/invoice_totals_calculator.dart';
 
 final class CalculateInvoiceDraftPreviewParams {
@@ -38,6 +39,14 @@ final class CalculateInvoiceDraftPreviewUseCase
   Future<Result<InvoiceTotals>> call(
     CalculateInvoiceDraftPreviewParams params,
   ) async {
+    if (!InvoicesPermissionPolicy.canManageInvoiceDrafts(
+      params.currentCompanyContext.role,
+    )) {
+      return const FailureResult<InvoiceTotals>(
+        PermissionFailure(code: FailureCodes.permissionInvoicesManagement),
+      );
+    }
+
     final customerId = params.customerId.trim();
     if (customerId.isEmpty) {
       return const FailureResult<InvoiceTotals>(
