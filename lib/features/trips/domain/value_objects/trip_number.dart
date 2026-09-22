@@ -1,6 +1,7 @@
 final class TripNumber {
   static final RegExp _pattern = RegExp(
-    r'^TRP-([0-9]{4})-([0-9]{6})
+    r'^TRP-([0-9]{4})-([0-9]{6})$',
+  );
 
   final String value;
 
@@ -13,33 +14,10 @@ final class TripNumber {
 
     final year = int.parse(match.group(1)!);
     final sequence = int.parse(match.group(2)!);
-    if (year < 2000 || sequence < 1) return null;
 
-    return TripNumber._(normalized);
-  }
+    if (year < 2000 || year > 9999) return null;
+    if (sequence < 1 || sequence > 999999) return null;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is TripNumber && other.value == value;
-  }
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
-}
-,
-  );
-
-  final String value;
-
-  const TripNumber._(this.value);
-
-  static TripNumber? tryParse(String rawValue) {
-    final normalized = rawValue.trim().toUpperCase();
-    if (!_pattern.hasMatch(normalized)) return null;
     return TripNumber._(normalized);
   }
 
