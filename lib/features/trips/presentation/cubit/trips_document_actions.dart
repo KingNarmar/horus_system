@@ -259,12 +259,36 @@ mixin TripsDocumentActions on Cubit<TripsState> {
     }
 
     final documents = (result as Success<List<TripDocument>>).data;
-    emit(
-      latest.copyWith(
-        selectedTripDocuments: documents,
-        hasRequiredTripEvidence: owner.tripEvidencePolicy.hasRequiredEvidence(
-          documents,
+    final evidenceResult = await owner.hasRequiredTripEvidenceUseCase(
+      HasRequiredTripEvidenceParams(documents: documents),
+    );
+
+    if (!owner._isCurrentDetailsRequest(
+      companyGeneration: companyGeneration,
+      detailsGeneration: detailsGeneration,
+      companyId: companyId,
+      tripId: trip.id,
+    )) {
+      return;
+    }
+
+    final evidenceFailure = evidenceResult.failureOrNull;
+    if (evidenceFailure != null) {
+      final projected = state as TripsLoaded;
+      emit(
+        projected.copyWith(
+          isDocumentsLoading: false,
+          documentsFailure: evidenceFailure,
         ),
+      );
+      return;
+    }
+
+    final projected = state as TripsLoaded;
+    emit(
+      projected.copyWith(
+        selectedTripDocuments: documents,
+        hasRequiredTripEvidence: evidenceResult.dataOrNull ?? false,
         isDocumentsLoading: false,
         documentsFailure: null,
       ),
