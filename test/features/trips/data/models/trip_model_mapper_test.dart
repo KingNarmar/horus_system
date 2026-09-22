@@ -7,6 +7,7 @@ import 'package:horus_system/features/trips/data/models/trip_model.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
 import 'package:horus_system/features/trips/domain/value_objects/quantity_tons.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -21,6 +22,7 @@ void main() {
       'preserve compatibility columns and commercial snapshot identifiers',
       () {
         expect(TripDbFields.tableName, 'trips');
+        expect(TripDbFields.tripNumber, 'trip_number');
         expect(TripDbFields.quantityTons, 'quantity_tons');
         expect(
           TripDbFields.agreedFreightRatePerTon,
@@ -50,6 +52,7 @@ void main() {
       final model = TripModel.fromMap({
         'id': 'trip-1',
         'company_id': 'company-1',
+        'trip_number': 'TRP-2026-000001',
         'customer_id': 'customer-1',
         'route_id': 'route-1',
         'status': 'on_road',
@@ -71,6 +74,7 @@ void main() {
       expect(model.routeName, 'Dubai -> Abu Dhabi');
 
       final entity = model.toEntity(financialConfiguration: configuration);
+      expect(entity.tripNumber, TripNumber.tryParse('TRP-2026-000001'));
       expect(entity.status, TripStatus.onRoad);
       expect(entity.quantityTons, QuantityTons.tryParse('12.375'));
       expect(
@@ -83,10 +87,27 @@ void main() {
       );
     });
 
+    test('rejects an invalid persisted Trip reference', () {
+      const model = TripModel(
+        id: 'bad-reference',
+        companyId: 'company-1',
+        tripNumber: 'bad-reference',
+        customerId: 'customer-1',
+        routeId: 'route-1',
+        status: 'created',
+      );
+
+      expect(
+        () => model.toEntity(financialConfiguration: configuration),
+        throwsFormatException,
+      );
+    });
+
     test('does not fabricate a legacy rate from a historical amount', () {
       const model = TripModel(
         id: 'legacy-trip',
         companyId: 'company-1',
+        tripNumber: 'TRP-2026-000001',
         customerId: 'customer-1',
         routeId: 'route-1',
         status: 'delivered',
@@ -109,6 +130,7 @@ void main() {
       const model = TripModel(
         id: 'legacy-zero',
         companyId: 'company-1',
+        tripNumber: 'TRP-2026-000001',
         customerId: 'customer-1',
         routeId: 'route-1',
         status: 'created',
@@ -126,6 +148,7 @@ void main() {
     test('writes exact snapshot decimals to compatibility columns', () {
       final data = TripWriteData(
         companyId: 'company-1',
+        tripNumber: 'TRP-2026-000001',
         customerId: 'customer-1',
         routeId: 'route-1',
         quantityTons: QuantityTons.tryParse('15.125'),
