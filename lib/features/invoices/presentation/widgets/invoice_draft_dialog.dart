@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
@@ -91,16 +93,20 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
                   onCustomerChanged: _onCustomerChanged,
                   onPickFromDate: dateRange == null
                       ? () {}
-                      : () => _pickDate(isFrom: true, range: dateRange),
+                      : () => unawaited(
+                          _pickDate(isFrom: true, range: dateRange),
+                        ),
                   onPickToDate: dateRange == null
                       ? () {}
-                      : () => _pickDate(isFrom: false, range: dateRange),
+                      : () => unawaited(
+                          _pickDate(isFrom: false, range: dateRange),
+                        ),
                   onClearDateFilters: _clearDateFilters,
                   onSearchChanged: (value) {
                     setState(() => _tripSearch = value);
                   },
                   onTripChanged: (trip, selected) {
-                    _toggleTrip(trip, selected: selected);
+                    unawaited(_toggleTrip(trip, selected: selected));
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
