@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -13,7 +14,6 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_customer_
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line.dart';
-import 'package:horus_system/features/invoices/domain/entities/invoice_totals.dart';
 import 'package:horus_system/features/invoices/domain/services/invoice_totals_calculator.dart';
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 import 'package:horus_system/features/invoices/presentation/cubit/invoice_details_state.dart';
