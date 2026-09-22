@@ -625,6 +625,7 @@
   "tripVehicleHeader": "Vehicle",
   "tripTractorHeadLabel": "Tractor head",
   "tripTrailerLabel": "Trailer",
+  "tripReferenceHeader": "Trip reference",
   "tripLoadingOrderHeader": "Loading order",
   "tripWaybillHeader": "Waybill",
   "tripQuantityHeader": "Quantity",
