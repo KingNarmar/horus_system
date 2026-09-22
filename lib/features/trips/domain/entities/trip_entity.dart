@@ -75,5 +75,4 @@ class TripEntity {
   }
 
   String get displayName => tripNumber.value;
-
-
+}
