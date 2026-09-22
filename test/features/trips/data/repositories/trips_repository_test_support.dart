@@ -17,6 +17,7 @@ final testFinancialConfiguration = CurrencyConfiguration.tryCreate(
 
 const testTripWriteData = TripWriteData(
   companyId: testCompanyId,
+  tripNumber: 'TRP-2026-000001',
   customerId: 'customer-1',
   routeId: 'route-1',
   driverId: 'driver-1',
@@ -30,6 +31,7 @@ const testTripWriteData = TripWriteData(
 const testCreatedTripModel = TripModel(
   id: testTripId,
   companyId: testCompanyId,
+  tripNumber: 'TRP-2026-000001',
   customerId: 'customer-1',
   routeId: 'route-1',
   driverId: 'driver-1',
@@ -45,6 +47,7 @@ const testCreatedTripModel = TripModel(
 const testOldTripModel = TripModel(
   id: testTripId,
   companyId: testCompanyId,
+  tripNumber: 'TRP-2026-000001',
   customerId: 'customer-1',
   routeId: 'route-1',
   driverId: 'driver-1',
@@ -60,6 +63,7 @@ const testOldTripModel = TripModel(
 const testLoadedTripModel = TripModel(
   id: testTripId,
   companyId: testCompanyId,
+  tripNumber: 'TRP-2026-000001',
   customerId: 'customer-1',
   routeId: 'route-1',
   driverId: 'driver-1',
@@ -91,6 +95,7 @@ class ThrowingTripModel extends TripModel {
     : super(
         id: 'trip-broken',
         companyId: testCompanyId,
+        tripNumber: 'TRP-2026-000099',
         customerId: 'customer-1',
         routeId: 'route-1',
         status: 'created',
