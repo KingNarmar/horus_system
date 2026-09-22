@@ -177,6 +177,7 @@ extension TripsLocalizationsX on AppLocalizations {
 
   String tripAuditFieldLabel(String key) {
     return switch (key) {
+      'trip_number' => tripReferenceHeader,
       'customer_id' => tripCustomerHeader,
       'route_id' => tripRouteHeader,
       'driver_id' => tripDriverHeader,
