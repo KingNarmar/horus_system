@@ -3530,6 +3530,12 @@ abstract class AppLocalizations {
   /// **'Trailer'**
   String get tripTrailerLabel;
 
+  /// No description provided for @tripReferenceHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip reference'**
+  String get tripReferenceHeader;
+
   /// No description provided for @tripLoadingOrderHeader.
   ///
   /// In en, this message translates to:
