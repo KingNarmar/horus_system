@@ -49,9 +49,7 @@ void main() {
         ),
       );
 
-      await tester.tap(
-        find.byKey(const ValueKey('invoiceDraftCustomerField')),
-      );
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftCustomerField')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Customer One').last);
       await tester.pumpAndSettle();
@@ -93,14 +91,8 @@ void main() {
     (tester) async {
       await _setSurfaceSize(tester, const Size(390, 844));
       final trips = [
-        _billableTrip(
-          id: 'trip-1',
-          tripNumber: 'TRP-2026-000001',
-        ),
-        _billableTrip(
-          id: 'trip-2',
-          tripNumber: 'TRP-2026-000002',
-        ),
+        _billableTrip(id: 'trip-1', tripNumber: 'TRP-2026-000001'),
+        _billableTrip(id: 'trip-2', tripNumber: 'TRP-2026-000002'),
       ];
 
       await _pumpLocalized(
@@ -116,9 +108,7 @@ void main() {
         ),
       );
 
-      await tester.tap(
-        find.byKey(const ValueKey('invoiceDraftCustomerField')),
-      );
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftCustomerField')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Customer One').last);
       await tester.pumpAndSettle();
@@ -232,10 +222,7 @@ void main() {
 final CurrencyCode _currency = CurrencyCode.tryParse('AED')!;
 final TaxRate _zeroTax = TaxRate.tryCreate(0)!;
 
-BillableTrip _billableTrip({
-  required String id,
-  String? tripNumber,
-}) {
+BillableTrip _billableTrip({required String id, String? tripNumber}) {
   return BillableTrip(
     id: id,
     companyId: 'company-1',
@@ -251,10 +238,11 @@ BillableTrip _billableTrip({
   );
 }
 
-
 InvoiceTotals _previewFor(List<BillableTrip> trips) {
   final result = const InvoiceTotalsCalculator().calculate(
-    lineAmounts: trips.map((trip) => trip.freightAmount).toList(growable: false),
+    lineAmounts: trips
+        .map((trip) => trip.freightAmount)
+        .toList(growable: false),
     currency: _currency,
     discountMinorUnits: 0,
     taxRateBasisPoints: 0,

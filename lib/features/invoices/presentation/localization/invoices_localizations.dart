@@ -114,9 +114,8 @@ final class InvoicesLocalizations {
   String lineReference(String reference) =>
       _value('lineReference').replaceFirst('{reference}', reference);
 
-  String selectedTripsCount(int count) => _value(
-    'selectedTripsCount',
-  ).replaceFirst('{count}', count.toString());
+  String selectedTripsCount(int count) =>
+      _value('selectedTripsCount').replaceFirst('{count}', count.toString());
 
   static const Map<String, String> _en = {
     'appShellLabel': 'Invoices',
@@ -301,8 +300,7 @@ final class InvoicesLocalizations {
     'customerRequiredFailure': 'يجب تحديد عميل الفاتورة.',
     'tripsRequiredFailure': 'يجب تحديد رحلة واحدة قابلة للفوترة على الأقل.',
     'singleTripRequiredFailure': 'اختر رحلة واحدة فقط لهذه الفاتورة.',
-    'groupedTripsRequiredFailure':
-        'اختر رحلتين على الأقل لإنشاء فاتورة مجمعة.',
+    'groupedTripsRequiredFailure': 'اختر رحلتين على الأقل لإنشاء فاتورة مجمعة.',
     'tripNotBillableFailure': 'الرحلة المحددة لم تعد قابلة للفوترة.',
     'tripAlreadyInvoicedFailure': 'تمت فوترة الرحلة المحددة بالفعل.',
     'customerInactiveFailure': 'العميل المحدد غير نشط.',

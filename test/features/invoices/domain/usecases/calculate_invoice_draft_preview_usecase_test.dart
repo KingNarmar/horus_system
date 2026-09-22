@@ -87,9 +87,7 @@ void main() {
   });
 }
 
-CurrentCompanyContext _context({
-  CompanyRole role = CompanyRole.accountant,
-}) {
+CurrentCompanyContext _context({CompanyRole role = CompanyRole.accountant}) {
   return CurrentCompanyContext(
     company: const Company(
       id: 'company-1',
@@ -113,10 +111,7 @@ BillableTrip _trip({
     companyId: 'company-1',
     customerId: customerId,
     status: TripStatus.documentsReceived,
-    freightAmount: Money(
-      minorUnits: amountMinorUnits,
-      currency: _currency,
-    ),
+    freightAmount: Money(minorUnits: amountMinorUnits, currency: _currency),
     isAlreadyInvoiced: false,
   );
 }

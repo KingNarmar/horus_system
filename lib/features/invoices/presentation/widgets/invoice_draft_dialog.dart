@@ -153,10 +153,8 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     }
     final result = options.entries
         .map(
-          (entry) => InvoiceDraftCustomerOption(
-            id: entry.key,
-            name: entry.value,
-          ),
+          (entry) =>
+              InvoiceDraftCustomerOption(id: entry.key, name: entry.value),
         )
         .toList(growable: false);
     result.sort(
@@ -177,32 +175,36 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
 
   List<BillableTrip> get _visibleTrips {
     final normalizedSearch = normalizeSearchText(_tripSearch);
-    return _customerTrips.where((trip) {
-      final serviceDate = trip.serviceDate;
-      if (_fromDate != null &&
-          (serviceDate == null || serviceDate.isBefore(_fromDate!))) {
-        return false;
-      }
-      if (_toDate != null &&
-          (serviceDate == null || serviceDate.isAfter(_toDate!))) {
-        return false;
-      }
-      if (normalizedSearch.isEmpty) return true;
+    return _customerTrips
+        .where((trip) {
+          final serviceDate = trip.serviceDate;
+          if (_fromDate != null &&
+              (serviceDate == null || serviceDate.isBefore(_fromDate!))) {
+            return false;
+          }
+          if (_toDate != null &&
+              (serviceDate == null || serviceDate.isAfter(_toDate!))) {
+            return false;
+          }
+          if (normalizedSearch.isEmpty) return true;
 
-      final terms = <Object?>[
-        trip.tripNumber,
-        trip.loadingOrderNumber,
-        trip.waybillNumber,
-        trip.loadingLocation,
-        trip.unloadingLocation,
-        trip.customerName,
-        formatInvoiceInputDate(trip.serviceDate),
-      ];
-      return terms.any((term) {
-        if (term == null) return false;
-        return normalizeSearchText(term.toString()).contains(normalizedSearch);
-      });
-    }).toList(growable: false);
+          final terms = <Object?>[
+            trip.tripNumber,
+            trip.loadingOrderNumber,
+            trip.waybillNumber,
+            trip.loadingLocation,
+            trip.unloadingLocation,
+            trip.customerName,
+            formatInvoiceInputDate(trip.serviceDate),
+          ];
+          return terms.any((term) {
+            if (term == null) return false;
+            return normalizeSearchText(
+              term.toString(),
+            ).contains(normalizedSearch);
+          });
+        })
+        .toList(growable: false);
   }
 
   List<BillableTrip> get _selectedTrips {
@@ -269,10 +271,7 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     });
   }
 
-  Future<void> _toggleTrip(
-    BillableTrip trip, {
-    required bool selected,
-  }) async {
+  Future<void> _toggleTrip(BillableTrip trip, {required bool selected}) async {
     if (trip.customerId != _customerId) return;
 
     setState(() {

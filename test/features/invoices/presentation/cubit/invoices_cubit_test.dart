@@ -124,10 +124,10 @@ void main() {
     await cubit.loadInvoices(_context());
 
     final created = await cubit.createDraft(
-      InvoiceDraftFormInput.fromBillableTrips(
-        [first, second],
-        customerId: 'customer-1',
-      ),
+      InvoiceDraftFormInput.fromBillableTrips([
+        first,
+        second,
+      ], customerId: 'customer-1'),
     );
 
     final state = cubit.state as InvoicesLoaded;
