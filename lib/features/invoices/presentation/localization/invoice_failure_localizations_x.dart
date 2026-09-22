@@ -24,9 +24,10 @@ extension InvoiceFailureLocalizationsX on BuildContext {
         strings.customerRequiredFailure,
       FailureCodes.validationInvoiceTripsRequired =>
         strings.tripsRequiredFailure,
-      FailureCodes.validationInvoiceSingleTripRequired ||
-      FailureCodes.validationInvoiceGroupedTripsRequired =>
+      FailureCodes.validationInvoiceSingleTripRequired =>
         strings.singleTripRequiredFailure,
+      FailureCodes.validationInvoiceGroupedTripsRequired =>
+        strings.groupedTripsRequiredFailure,
       FailureCodes.conflictInvoiceTripNotBillable =>
         strings.tripNotBillableFailure,
       FailureCodes.conflictInvoiceTripAlreadyInvoiced =>
