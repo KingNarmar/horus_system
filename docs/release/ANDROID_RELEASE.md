@@ -1,6 +1,6 @@
 # H.O.R.U.S Android Release Foundation
 
-Issue: #192  
+Issue: #192
 Parent: #191
 
 This document defines the Android production-release baseline for H.O.R.U.S.
