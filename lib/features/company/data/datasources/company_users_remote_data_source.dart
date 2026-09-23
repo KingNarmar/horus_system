@@ -1,9 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../constants/company_users_rpc.dart';
 import '../models/company_user_model.dart';
-import '../../../../core/data/constants/db_common_fields.dart';
-import '../../../../core/data/constants/user_profile_db_fields.dart';
-import '../constants/company_db_fields.dart';
 
 abstract class CompanyUsersRemoteDataSource {
   Future<List<CompanyUserModel>> getCompanyUsers({required String companyId});
@@ -19,56 +17,22 @@ class SupabaseCompanyUsersRemoteDataSource
   Future<List<CompanyUserModel>> getCompanyUsers({
     required String companyId,
   }) async {
-    final companyUsersResponse = await _client
-        .from(CompanyDbFields.companyUsersTable)
-        .select('id,company_id,user_id,role,is_active')
-        .eq(DbCommonFields.companyId, companyId)
-        .order(DbCommonFields.createdAt);
+    final response = await _client.rpc(
+      CompanyUsersRpc.list,
+      params: {CompanyUsersRpc.companyIdParam: companyId},
+    );
 
-    final companyUserMaps = companyUsersResponse
-        .map((item) => Map<String, dynamic>.from(item))
-        .toList();
-
-    if (companyUserMaps.isEmpty) {
-      return const [];
+    if (response is! List) {
+      throw const FormatException('Invalid company users RPC response.');
     }
 
-    final userIds = companyUserMaps
-        .map((item) => item[CompanyDbFields.userId] as String)
-        .toSet()
-        .toList();
-
-    final profilesByUserId = await _loadProfilesByUserId(userIds);
-
-    return companyUserMaps.map((companyUserMap) {
-      final userId = companyUserMap[CompanyDbFields.userId] as String;
-
-      return CompanyUserModel.fromMaps(
-        companyUserMap: companyUserMap,
-        userProfileMap: profilesByUserId[userId],
-      );
-    }).toList();
-  }
-
-  Future<Map<String, Map<String, dynamic>>> _loadProfilesByUserId(
-    List<String> userIds,
-  ) async {
-    final userProfilesResponse = await _client
-        .from(UserProfileDbFields.tableName)
-        .select('id,full_name,phone')
-        .inFilter(DbCommonFields.id, userIds);
-
-    final profilesByUserId = <String, Map<String, dynamic>>{};
-
-    for (final item in userProfilesResponse) {
-      final profileMap = Map<String, dynamic>.from(item);
-      final userId = profileMap[DbCommonFields.id] as String?;
-
-      if (userId != null) {
-        profilesByUserId[userId] = profileMap;
-      }
-    }
-
-    return profilesByUserId;
+    return response
+        .map((item) {
+          if (item is! Map) {
+            throw const FormatException('Invalid company user RPC row.');
+          }
+          return CompanyUserModel.fromRpcMap(Map<String, dynamic>.from(item));
+        })
+        .toList(growable: false);
   }
 }
