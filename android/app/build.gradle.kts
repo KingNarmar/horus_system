@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,9 +7,27 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val signingProperties = Properties()
+val signingPropertiesFile = rootProject.file("key.properties")
+val releaseTaskRequested = gradle.startParameter.taskNames.any { taskName ->
+    taskName.contains("release", ignoreCase = true)
+}
+
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.inputStream().use(signingProperties::load)
+} else if (releaseTaskRequested) {
+    throw GradleException(
+        "Missing android/key.properties. Copy android/key.properties.example and configure the release upload keystore.",
+    )
+}
+
+fun Properties.requireSigningValue(key: String): String =
+    getProperty(key)?.takeIf { it.isNotBlank() }
+        ?: throw GradleException("Missing '$key' in android/key.properties.")
+
 android {
-    namespace = "com.example.horus_system"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.kingnarmar.horus"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,21 +40,29 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.horus_system"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.kingnarmar.horus"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (signingPropertiesFile.exists()) {
+            create("release") {
+                keyAlias = signingProperties.requireSigningValue("keyAlias")
+                keyPassword = signingProperties.requireSigningValue("keyPassword")
+                storeFile = file(signingProperties.requireSigningValue("storeFile"))
+                storePassword = signingProperties.requireSigningValue("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            if (signingPropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 }
