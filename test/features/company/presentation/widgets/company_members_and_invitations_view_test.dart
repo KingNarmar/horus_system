@@ -58,6 +58,85 @@ void main() {
       expect(find.text('Member One'), findsOneWidget);
     });
 
+    testWidgets('Arabic narrow card keeps phone value LTR', (tester) async {
+      await _setSurface(tester, const Size(390, 844));
+      await tester.pumpWidget(
+        _localizedApp(
+          CompanyMembersView(
+            users: [_user(role: CompanyRole.viewer)],
+            currentCompanyContext: _context(CompanyRole.owner),
+            currentUserId: 'actor-user',
+            actionInProgress: false,
+            onChangeRole: (_) {},
+            onDeactivate: (_) {},
+            onReactivate: (_) {},
+            onGrantOwnership: (_) {},
+            onTransferOwnership: (_) {},
+          ),
+          locale: const Locale('ar'),
+        ),
+      );
+
+      final phoneElement = tester.element(find.text('+971500000000'));
+      expect(Directionality.of(phoneElement), TextDirection.ltr);
+
+      final roleElement = tester.element(find.textContaining('الدور:'));
+      expect(Directionality.of(roleElement), TextDirection.rtl);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Arabic desktop table keeps phone value LTR', (tester) async {
+      await _setSurface(tester, const Size(1200, 800));
+      await tester.pumpWidget(
+        _localizedApp(
+          CompanyMembersView(
+            users: [_user(role: CompanyRole.viewer)],
+            currentCompanyContext: _context(CompanyRole.owner),
+            currentUserId: 'actor-user',
+            actionInProgress: false,
+            onChangeRole: (_) {},
+            onDeactivate: (_) {},
+            onReactivate: (_) {},
+            onGrantOwnership: (_) {},
+            onTransferOwnership: (_) {},
+          ),
+          locale: const Locale('ar'),
+        ),
+      );
+
+      expect(find.byType(DataTable), findsOneWidget);
+      final phoneElement = tester.element(find.text('+971500000000'));
+      expect(Directionality.of(phoneElement), TextDirection.ltr);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Arabic missing phone fallback remains RTL and localized', (
+      tester,
+    ) async {
+      await _setSurface(tester, const Size(390, 844));
+      await tester.pumpWidget(
+        _localizedApp(
+          CompanyMembersView(
+            users: [_user(role: CompanyRole.viewer, phone: null)],
+            currentCompanyContext: _context(CompanyRole.owner),
+            currentUserId: 'actor-user',
+            actionInProgress: false,
+            onChangeRole: (_) {},
+            onDeactivate: (_) {},
+            onReactivate: (_) {},
+            onGrantOwnership: (_) {},
+            onTransferOwnership: (_) {},
+          ),
+          locale: const Locale('ar'),
+        ),
+      );
+
+      final fallback = find.text('الهاتف: غير مُدخل');
+      expect(fallback, findsOneWidget);
+      expect(Directionality.of(tester.element(fallback)), TextDirection.rtl);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('owner sees role, status and ownership actions', (
       tester,
     ) async {

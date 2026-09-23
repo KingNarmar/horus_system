@@ -79,7 +79,7 @@ class CompanyMembersView extends StatelessWidget {
                 (user) => DataRow(
                   cells: [
                     DataCell(_memberName(context, user)),
-                    DataCell(Text(_phoneValue(context, user))),
+                    DataCell(_phoneValueView(context, user)),
                     DataCell(Text(user.role.localizedLabel(context))),
                     DataCell(Text(_statusLabel(context, user))),
                     DataCell(_actions(context, user)),
@@ -113,7 +113,7 @@ class CompanyMembersView extends StatelessWidget {
                     children: [
                       _memberName(context, user),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(context.l10n.phoneLine(_phoneValue(context, user))),
+                      _phoneLine(context, user),
                       Text(
                         context.l10n.roleLine(
                           user.role.localizedLabel(context),
@@ -281,11 +281,36 @@ class CompanyMembersView extends StatelessWidget {
         : displayName;
   }
 
-  String _phoneValue(BuildContext context, CompanyUser user) {
+  Widget _phoneValueView(BuildContext context, CompanyUser user) {
     final phone = user.phone?.trim();
-    return phone == null || phone.isEmpty
-        ? context.l10n.notProvidedLabel
-        : phone;
+    if (phone == null || phone.isEmpty) {
+      return Text(context.l10n.notProvidedLabel);
+    }
+
+    return Directionality(textDirection: TextDirection.ltr, child: Text(phone));
+  }
+
+  Widget _phoneLine(BuildContext context, CompanyUser user) {
+    final phone = user.phone?.trim();
+    if (phone == null || phone.isEmpty) {
+      return Text(context.l10n.phoneLine(context.l10n.notProvidedLabel));
+    }
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: context.l10n.phoneLine('')),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.baseline,
+            baseline: TextBaseline.alphabetic,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(phone),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _statusLabel(BuildContext context, CompanyUser user) {
