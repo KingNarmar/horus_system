@@ -1,14 +1,13 @@
-gradle-wrapper.jar
 /.gradle
 /captures/
-/gradlew
-/gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
 .cxx/
 
-# Remember to never publicly share your keystore.
-# See https://flutter.dev/to/reference-keystore
+# Gradle wrapper scripts and JAR are intentionally tracked so clean checkouts
+# can reproduce Android builds without relying on locally generated wrapper files.
+
+# Never commit Android release signing material.
 key.properties
 **/*.keystore
 **/*.jks
