@@ -26,11 +26,13 @@ class SupabaseCompanyUsersRemoteDataSource
       throw const FormatException('Invalid company users RPC response.');
     }
 
-    return response.map((item) {
-      if (item is! Map) {
-        throw const FormatException('Invalid company user RPC row.');
-      }
-      return CompanyUserModel.fromRpcMap(Map<String, dynamic>.from(item));
-    }).toList(growable: false);
+    return response
+        .map((item) {
+          if (item is! Map) {
+            throw const FormatException('Invalid company user RPC row.');
+          }
+          return CompanyUserModel.fromRpcMap(Map<String, dynamic>.from(item));
+        })
+        .toList(growable: false);
   }
 }
