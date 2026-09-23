@@ -10,7 +10,7 @@ void main() {
 
   test('maps server permission denial to company users view failure', () {
     final failure = mapper.fromPostgrest(
-      const PostgrestException(message: 'company_users_permission_denied'),
+      PostgrestException(message: 'company_users_permission_denied'),
     );
 
     expect(failure, isA<PermissionFailure>());
@@ -19,7 +19,7 @@ void main() {
 
   test('maps missing auth to sanitized company auth failure', () {
     final failure = mapper.fromPostgrest(
-      const PostgrestException(message: CompanyFailureCodes.authRequired),
+      PostgrestException(message: CompanyFailureCodes.authRequired),
     );
 
     expect(failure, isA<AuthFailure>());
