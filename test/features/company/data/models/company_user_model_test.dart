@@ -3,9 +3,9 @@ import 'package:horus_system/features/company/domain/entities/company_role.dart'
 import 'package:test/test.dart';
 
 void main() {
-  group('CompanyUserModel.fromMaps', () {
-    test('keeps optional profile fields null when profile row is absent', () {
-      final model = CompanyUserModel.fromMaps(companyUserMap: _companyUserMap);
+  group('CompanyUserModel.fromRpcMap', () {
+    test('keeps optional profile fields null when profile data is absent', () {
+      final model = CompanyUserModel.fromRpcMap(_rpcRow);
 
       expect(model.displayName, isNull);
       expect(model.phone, isNull);
@@ -16,29 +16,22 @@ void main() {
       expect(model.isActive, isTrue);
     });
 
-    test('preserves available fields from a partial profile row', () {
-      final model = CompanyUserModel.fromMaps(
-        companyUserMap: _companyUserMap,
-        userProfileMap: const {
-          'id': 'user-1',
-          'full_name': 'Company Admin',
-          'phone': null,
-        },
-      );
+    test('preserves an available display name when phone is absent', () {
+      final model = CompanyUserModel.fromRpcMap({
+        ..._rpcRow,
+        'full_name': 'Company Admin',
+      });
 
       expect(model.displayName, 'Company Admin');
       expect(model.phone, isNull);
     });
 
     test('preserves all available profile fields', () {
-      final model = CompanyUserModel.fromMaps(
-        companyUserMap: _companyUserMap,
-        userProfileMap: const {
-          'id': 'user-1',
-          'full_name': 'Company Admin',
-          'phone': '+971500000001',
-        },
-      );
+      final model = CompanyUserModel.fromRpcMap({
+        ..._rpcRow,
+        'full_name': 'Company Admin',
+        'phone': '+971500000001',
+      });
 
       expect(model.displayName, 'Company Admin');
       expect(model.phone, '+971500000001');
@@ -46,10 +39,12 @@ void main() {
   });
 }
 
-const _companyUserMap = <String, dynamic>{
-  'id': 'company-user-1',
+const _rpcRow = <String, dynamic>{
+  'membership_id': 'company-user-1',
   'company_id': 'company-1',
   'user_id': 'user-1',
-  'role': 'admin',
+  'member_role': 'admin',
   'is_active': true,
+  'full_name': null,
+  'phone': null,
 };
