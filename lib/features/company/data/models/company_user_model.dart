@@ -1,7 +1,6 @@
 import '../../domain/entities/company_role.dart';
+import '../constants/company_users_rpc.dart';
 import '../mappers/company_role_model_mapper.dart';
-import '../../../../core/data/constants/db_common_fields.dart';
-import '../constants/company_db_fields.dart';
 
 class CompanyUserModel {
   final String id;
@@ -22,20 +21,17 @@ class CompanyUserModel {
     this.phone,
   });
 
-  factory CompanyUserModel.fromMaps({
-    required Map<String, dynamic> companyUserMap,
-    Map<String, dynamic>? userProfileMap,
-  }) {
+  factory CompanyUserModel.fromRpcMap(Map<String, dynamic> map) {
     return CompanyUserModel(
-      id: companyUserMap[DbCommonFields.id] as String,
-      companyId: companyUserMap[DbCommonFields.companyId] as String,
-      userId: companyUserMap[CompanyDbFields.userId] as String,
-      displayName: userProfileMap?[CompanyDbFields.fullName] as String?,
-      phone: userProfileMap?['phone'] as String?,
-      role: CompanyRoleModelMapper.fromDatabaseValue(
-        companyUserMap[CompanyDbFields.role] as String?,
+      id: map[CompanyUsersRpc.membershipId] as String,
+      companyId: map[CompanyUsersRpc.companyId] as String,
+      userId: map[CompanyUsersRpc.userId] as String,
+      displayName: map[CompanyUsersRpc.fullName] as String?,
+      phone: map[CompanyUsersRpc.phone] as String?,
+      role: CompanyRoleModelMapper.fromRequiredDatabaseValue(
+        map[CompanyUsersRpc.memberRole] as String?,
       ),
-      isActive: companyUserMap[DbCommonFields.isActive] as bool? ?? true,
+      isActive: map[CompanyUsersRpc.isActive] as bool,
     );
   }
 }
