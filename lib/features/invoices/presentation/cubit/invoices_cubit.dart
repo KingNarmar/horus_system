@@ -2,8 +2,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice.dart';
+import '../../domain/entities/invoice_totals.dart';
 import '../../domain/entities/invoice_status.dart';
+import '../../domain/usecases/calculate_invoice_draft_preview_usecase.dart';
 import '../../domain/usecases/can_manage_invoice_drafts_usecase.dart';
 import '../../domain/usecases/invoice_draft_usecases.dart';
 import '../../domain/usecases/invoice_params.dart';
@@ -15,7 +18,9 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
   final GetInvoicesUseCase getInvoicesUseCase;
   final CanManageInvoiceDraftsUseCase canManageInvoiceDraftsUseCase;
   final GetBillableTripsUseCase getBillableTripsUseCase;
+  final CalculateInvoiceDraftPreviewUseCase calculateInvoiceDraftPreviewUseCase;
   final CreateInvoiceFromTripUseCase createInvoiceFromTripUseCase;
+  final CreateGroupedInvoiceUseCase createGroupedInvoiceUseCase;
   final UpdateInvoiceDraftUseCase updateInvoiceDraftUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
@@ -26,7 +31,9 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     required this.getInvoicesUseCase,
     required this.canManageInvoiceDraftsUseCase,
     required this.getBillableTripsUseCase,
+    required this.calculateInvoiceDraftPreviewUseCase,
     required this.createInvoiceFromTripUseCase,
+    required this.createGroupedInvoiceUseCase,
     required this.updateInvoiceDraftUseCase,
   }) : super(const InvoicesInitial());
 
@@ -156,7 +163,46 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     }
   }
 
-  Future<bool> createDraftFromTrip(InvoiceDraftFormInput input) async {
+  Future<InvoiceTotals?> calculateDraftPreview({
+    required String customerId,
+    required List<BillableTrip> trips,
+  }) async {
+    final currentState = state;
+    final context = _currentCompanyContext;
+    if (currentState is! InvoicesLoaded ||
+        context == null ||
+        !currentState.canManageInvoiceDrafts) {
+      return null;
+    }
+
+    final companyId = context.companyId;
+    final contextGeneration = _loadGeneration;
+    final result = await calculateInvoiceDraftPreviewUseCase(
+      CalculateInvoiceDraftPreviewParams(
+        currentCompanyContext: context,
+        customerId: customerId,
+        trips: trips,
+      ),
+    );
+
+    final latestState = state;
+    if (contextGeneration != _loadGeneration ||
+        latestState is! InvoicesLoaded ||
+        latestState.currentCompanyContext.companyId != companyId) {
+      return null;
+    }
+
+    if (result is FailureResult<InvoiceTotals>) {
+      emit(latestState.copyWith(mutationFailure: result.failure));
+      return null;
+    }
+    if (latestState.mutationFailure != null) {
+      emit(latestState.copyWith(mutationFailure: null));
+    }
+    return result.dataOrNull;
+  }
+
+  Future<bool> createDraft(InvoiceDraftFormInput input) async {
     final currentState = state;
     final context = _currentCompanyContext;
     if (currentState is! InvoicesLoaded ||
@@ -177,9 +223,16 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       ),
     );
 
-    final result = await createInvoiceFromTripUseCase(
-      input.toCreateFromTripParams(context),
-    );
+    final result = input.tripIds.length == 1
+        ? await createInvoiceFromTripUseCase(
+            input.toCreateFromTripParams(context),
+          )
+        : await createGroupedInvoiceUseCase(
+            CreateGroupedInvoiceParams(
+              currentCompanyContext: context,
+              input: input.toDomainInput(),
+            ),
+          );
 
     final latestState = state;
     if (contextGeneration != _loadGeneration ||

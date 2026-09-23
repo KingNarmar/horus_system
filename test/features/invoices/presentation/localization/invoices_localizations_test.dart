@@ -18,7 +18,10 @@ void main() {
     expect(english.invoiceHasPaymentsFailure, contains('payments'));
     expect(arabic.invoiceHasPaymentsFailure, contains('مدفوعات'));
     expect(english.newDraft, 'New invoice');
-    expect(arabic.tripRequired, 'اختر رحلة واحدة قابلة للفوترة.');
+    expect(arabic.tripRequired, 'اختر رحلة واحدة قابلة للفوترة على الأقل.');
+    expect(english.billableTrips, 'Billable trips');
+    expect(arabic.billableTrips, 'الرحلات القابلة للفوترة');
+    expect(english.groupedTripsRequiredFailure, contains('two trips'));
     expect(english.tripOption('LO-1', 'AED 100.00'), 'LO-1 • AED 100.00');
   });
 }

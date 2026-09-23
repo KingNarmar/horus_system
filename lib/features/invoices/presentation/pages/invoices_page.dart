@@ -53,7 +53,8 @@ final class _InvoicesPageState extends State<InvoicesPage> {
         billableTrips: state.billableTrips,
         currencyFractionDigits:
             state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0,
-        onSubmit: cubit.createDraftFromTrip,
+        onCalculatePreview: cubit.calculateDraftPreview,
+        onSubmit: cubit.createDraft,
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../data/repositories/invoice_settings_repository_impl.dart';
 import '../data/repositories/invoices_repository_impl.dart';
 import '../domain/repositories/invoice_settings_repository.dart';
 import '../domain/repositories/invoices_repository.dart';
+import '../domain/usecases/calculate_invoice_draft_preview_usecase.dart';
 import '../domain/usecases/can_manage_invoice_drafts_usecase.dart';
 import '../domain/usecases/invoice_draft_usecases.dart';
 import '../domain/usecases/invoice_lifecycle_usecases.dart';
@@ -97,7 +98,10 @@ abstract final class InvoicesDependencies {
       getInvoicesUseCase: GetInvoicesUseCase(repository),
       canManageInvoiceDraftsUseCase: const CanManageInvoiceDraftsUseCase(),
       getBillableTripsUseCase: GetBillableTripsUseCase(repository),
+      calculateInvoiceDraftPreviewUseCase:
+          const CalculateInvoiceDraftPreviewUseCase(),
       createInvoiceFromTripUseCase: CreateInvoiceFromTripUseCase(repository),
+      createGroupedInvoiceUseCase: CreateGroupedInvoiceUseCase(repository),
       updateInvoiceDraftUseCase: UpdateInvoiceDraftUseCase(repository),
     );
   }

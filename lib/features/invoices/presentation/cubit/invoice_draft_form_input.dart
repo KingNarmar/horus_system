@@ -33,10 +33,33 @@ final class InvoiceDraftFormInput {
     BusinessDate? dueDate,
     String? notes,
   }) {
-    return InvoiceDraftFormInput(
+    return InvoiceDraftFormInput.fromBillableTrips(
+      [trip],
       customerId: trip.customerId,
-      tripIds: [trip.id],
-      currencyCode: trip.freightAmount.currency.value,
+      discountMinorUnits: discountMinorUnits,
+      taxRateBasisPoints: taxRateBasisPoints,
+      issueDate: issueDate,
+      dueDate: dueDate,
+      notes: notes,
+    );
+  }
+
+  factory InvoiceDraftFormInput.fromBillableTrips(
+    List<BillableTrip> trips, {
+    required String customerId,
+    int discountMinorUnits = 0,
+    int taxRateBasisPoints = 0,
+    BusinessDate? issueDate,
+    BusinessDate? dueDate,
+    String? notes,
+  }) {
+    if (trips.isEmpty) {
+      throw ArgumentError.value(trips, 'trips', 'Trips must not be empty.');
+    }
+    return InvoiceDraftFormInput(
+      customerId: customerId,
+      tripIds: trips.map((trip) => trip.id).toList(growable: false),
+      currencyCode: trips.first.freightAmount.currency.value,
       discountMinorUnits: discountMinorUnits,
       taxRateBasisPoints: taxRateBasisPoints,
       issueDate: issueDate,
@@ -63,7 +86,7 @@ final class InvoiceDraftFormInput {
   ) {
     return CreateInvoiceFromTripParams(
       currentCompanyContext: currentCompanyContext,
-      input: _toDomainInput(),
+      input: toDomainInput(),
     );
   }
 
@@ -74,11 +97,11 @@ final class InvoiceDraftFormInput {
     return UpdateInvoiceDraftParams(
       currentCompanyContext: currentCompanyContext,
       invoiceId: invoiceId,
-      input: _toDomainInput(),
+      input: toDomainInput(),
     );
   }
 
-  InvoiceDraftInput _toDomainInput() {
+  InvoiceDraftInput toDomainInput() {
     return InvoiceDraftInput(
       customerId: customerId,
       tripIds: tripIds,
