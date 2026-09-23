@@ -287,10 +287,7 @@ class CompanyMembersView extends StatelessWidget {
       return Text(context.l10n.notProvidedLabel);
     }
 
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Text(phone),
-    );
+    return Directionality(textDirection: TextDirection.ltr, child: Text(phone));
   }
 
   Widget _phoneLine(BuildContext context, CompanyUser user) {
