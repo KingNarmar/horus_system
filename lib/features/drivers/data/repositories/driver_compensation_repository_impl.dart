@@ -32,7 +32,6 @@ final class DriverCompensationRepositoryImpl
     this.failureMapper = const DriverCompensationRepositoryFailureMapper(),
   });
 
-
   @override
   Future<Result<List<DriverCompensationRevision>>> getHistory({
     required String companyId,
