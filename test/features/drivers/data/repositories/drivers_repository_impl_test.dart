@@ -113,9 +113,7 @@ void main() {
       'does not persist when update has no meaningful changes',
       () async {
         final remoteDataSource = _FakeDriversRemoteDataSource(_driverModel);
-        final repository = _repository(
-          remoteDataSource: remoteDataSource,
-        );
+        final repository = _repository(remoteDataSource: remoteDataSource);
 
         final result = await repository.updateDriver(
           driverId: _driverModel.id,
