@@ -95,7 +95,6 @@ class AddDriverUseCase implements UseCase<Driver, AddDriverParams> {
     }
 
     return _repository.addDriver(
-      actorRole: context.role.value,
       imageUploads: params.imageUploads,
       data: DriverWriteData(
         companyId: context.companyId,
