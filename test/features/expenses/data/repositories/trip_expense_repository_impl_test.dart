@@ -32,21 +32,21 @@ void main() {
     test(
       'updates expense without audit-only snapshot or total reads',
       () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeTripExpensesRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(remoteDataSource);
+        final operations = <String>[];
+        final remoteDataSource = _FakeTripExpensesRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.updateTripExpense(
-        id: _expenseId,
-        data: _writeData(amount: 175),
-        actorRole: 'accountant',
-      );
+        final result = await repository.updateTripExpense(
+          id: _expenseId,
+          data: _writeData(amount: 175),
+          actorRole: 'accountant',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.amount, 175);
-      expect(operations, ['update_expense']);
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.amount, 175);
+        expect(operations, ['update_expense']);
       },
     );
 
