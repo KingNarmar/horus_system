@@ -41,7 +41,6 @@ class DeactivateDriverUseCase
     return _repository.deactivateDriver(
       companyId: context.companyId,
       driverId: params.driverId,
-      actorRole: context.role.value,
     );
   }
 }
