@@ -138,7 +138,7 @@ void main() {
 
         expect(result, isA<Success>());
         expect(remoteDataSource.updateCalls, 0);
-        },
+      },
     );
   });
 }
