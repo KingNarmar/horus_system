@@ -46,7 +46,6 @@ class FinalizeDriverSettlementUseCase
     }
 
     return _repository.finalizeSettlement(
-      actorRole: context.role.name,
       data: DriverSettlementFinalizeData(
         companyId: context.companyId,
         settlementId: settlementId,
