@@ -7,6 +7,7 @@ abstract final class AppIcons {
   static const IconData apps = Icons.apps;
   static const IconData appsOutlined = Icons.apps_outlined;
   static const IconData auditHistory = Icons.history;
+  static const IconData bootstrapFailure = Icons.error_outline;
   static const IconData calendar = Icons.calendar_month_outlined;
   static const IconData camera = Icons.photo_camera_outlined;
   static const IconData cashReturn = Icons.keyboard_return;

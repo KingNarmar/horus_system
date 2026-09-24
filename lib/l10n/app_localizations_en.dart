@@ -51,6 +51,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Internet connection status could not be verified.';
 
   @override
+  String get bootstrapFailureTitle => 'H.O.R.U.S could not start';
+
+  @override
+  String get bootstrapInvalidConfigurationMessage =>
+      'The application configuration is unavailable or invalid. Install a correctly configured release or contact support.';
+
+  @override
+  String get bootstrapServiceInitializationFailedMessage =>
+      'The application could not initialize its required services. Restart the app. If the problem continues, contact support.';
+
+  @override
   String get appShellDashboardLabel => 'Dashboard';
 
   @override

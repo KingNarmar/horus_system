@@ -113,9 +113,20 @@ keyAlias=upload
 storeFile=../horus-upload.jks
 ```
 
+## Production environment configuration
+
+Android release builds use the shared configuration contract documented in
+`docs/release/ENVIRONMENT_CONFIGURATION.md`.
+
+The app no longer loads or bundles a runtime `.env` file. A release build must
+provide `APP_ENV=production`, an HTTPS Supabase URL, a publishable/legacy anon
+client key, and disabled debug logging. A release configured as development or
+staging refuses normal startup.
+
 ## Clean release gate
 
-From a clean checkout:
+From a clean checkout with client-safe production values present in the shell
+environment:
 
 ```bash
 flutter pub get
@@ -123,7 +134,11 @@ dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
 flutter clean
-flutter build appbundle --release
+flutter build appbundle --release \
+  --dart-define=APP_ENV=production \
+  --dart-define=SUPABASE_URL="$HORUS_SUPABASE_URL" \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY="$HORUS_SUPABASE_PUBLISHABLE_KEY" \
+  --dart-define=ENABLE_DEBUG_LOGS=false
 git diff --check
 git status --short
 ```
@@ -213,7 +228,7 @@ release or listing scope.
 
 - Never commit keystores, signing passwords, service-role keys, or admin keys.
 - Only client-safe configuration may ship in the Android application.
-- Production environment and configuration hardening belongs to #194.
+- Production environment and configuration follows `docs/release/ENVIRONMENT_CONFIGURATION.md` (#194).
 - Google Play Console compliance, listing, and testing belongs to #199.
 - Permanent CI and protected-main gates belong to #198.
 - Business features, tenant and RLS behavior, billing, and Product Completion

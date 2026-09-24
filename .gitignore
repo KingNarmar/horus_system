@@ -69,10 +69,9 @@ linux/flutter/generated_plugin_registrant.cc
 linux/flutter/generated_plugin_registrant.h
 linux/flutter/generated_plugins.cmake
 
-# Local environment files
+# Local environment files (defense in depth; runtime .env loading is forbidden)
 .env
 .env.*
-!.env.example
 
 # Supabase local files
 supabase/.branches/

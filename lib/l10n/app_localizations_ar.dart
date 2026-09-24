@@ -50,6 +50,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذر التحقق من حالة اتصال الإنترنت.';
 
   @override
+  String get bootstrapFailureTitle => 'تعذر تشغيل نظام حورس';
+
+  @override
+  String get bootstrapInvalidConfigurationMessage =>
+      'إعدادات تشغيل التطبيق غير متاحة أو غير صالحة. استخدم إصدارًا مُعدًا بشكل صحيح أو تواصل مع الدعم.';
+
+  @override
+  String get bootstrapServiceInitializationFailedMessage =>
+      'تعذر تهيئة الخدمات المطلوبة لتشغيل التطبيق. أعد تشغيل التطبيق، وإذا استمرت المشكلة فتواصل مع الدعم.';
+
+  @override
   String get appShellDashboardLabel => 'لوحة التحكم';
 
   @override

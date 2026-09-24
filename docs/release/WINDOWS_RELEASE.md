@@ -137,9 +137,20 @@ Git. It must not be added to this repository or pasted into issue/PR comments.
 
 The Store MSIX configuration intentionally contains no private signing material.
 
+## Production environment configuration
+
+Windows release builds use the shared configuration contract documented in
+`docs/release/ENVIRONMENT_CONFIGURATION.md`.
+
+The app no longer loads or bundles a runtime `.env` file. A release build must
+provide `APP_ENV=production`, an HTTPS Supabase URL, a publishable/legacy anon
+client key, and disabled debug logging. A release configured as development or
+staging refuses normal startup.
+
 ## Clean Windows release build
 
-From a clean checkout of the release branch:
+From a clean checkout of the release branch with client-safe production values
+present in the shell environment:
 
 ```powershell
 flutter clean
@@ -147,7 +158,11 @@ flutter pub get
 dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
-flutter build windows --release
+flutter build windows --release `
+  --dart-define=APP_ENV=production `
+  --dart-define=SUPABASE_URL="$env:HORUS_SUPABASE_URL" `
+  --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:HORUS_SUPABASE_PUBLISHABLE_KEY" `
+  --dart-define=ENABLE_DEBUG_LOGS=false
 ```
 
 The release output must contain:
@@ -260,7 +275,7 @@ It does not change:
 - Supabase, database schema, migrations, RLS, or tenant isolation.
 - Audit behavior.
 - Business features or Product Completion.
-- Production environment handling (#194).
+- Production environment handling documented in `docs/release/ENVIRONMENT_CONFIGURATION.md` (#194).
 - Privacy/legal/support surfaces (#195).
 - Account deletion/data lifecycle (#196).
 - Production Supabase audit (#197).
