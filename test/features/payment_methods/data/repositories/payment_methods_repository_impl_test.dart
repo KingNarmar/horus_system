@@ -23,7 +23,9 @@ void main() {
       expect(events, ['getAll']);
     });
 
-    test('active read forwards exact company scope and maps entities', () async {
+    test(
+      'active read forwards exact company scope and maps entities',
+      () async {
       final events = <String>[];
       final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
       final repository = _repository(dataSource);
@@ -36,7 +38,8 @@ void main() {
       expect(result.dataOrNull, hasLength(1));
       expect(dataSource.lastCompanyId, 'company-1');
       expect(events, ['getActive']);
-    });
+      },
+    );
 
     test('model-to-entity failure stays inside repository boundary', () async {
       final events = <String>[];
