@@ -170,6 +170,24 @@ abstract class AppLocalizations {
   /// **'Internet connection status could not be verified.'**
   String get failureNetworkStatusUnavailable;
 
+  /// Title shown when application bootstrap cannot continue.
+  ///
+  /// In en, this message translates to:
+  /// **'H.O.R.U.S could not start'**
+  String get bootstrapFailureTitle;
+
+  /// Safe message shown when startup configuration is missing or invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The application configuration is unavailable or invalid. Install a correctly configured release or contact support.'**
+  String get bootstrapInvalidConfigurationMessage;
+
+  /// Safe message shown when required startup services cannot initialize.
+  ///
+  /// In en, this message translates to:
+  /// **'The application could not initialize its required services. Restart the app. If the problem continues, contact support.'**
+  String get bootstrapServiceInitializationFailedMessage;
+
   /// No description provided for @appShellDashboardLabel.
   ///
   /// In en, this message translates to:

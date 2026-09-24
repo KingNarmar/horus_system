@@ -6,7 +6,6 @@ import '../../constants/app_sizes.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/app_theme.dart';
 import '../bootstrap_failure.dart';
-import 'bootstrap_failure_localizations.dart';
 
 class BootstrapFailureApp extends StatelessWidget {
   final BootstrapFailure failure;
@@ -19,10 +18,6 @@ class BootstrapFailureApp extends StatelessWidget {
     final locale = platformLocale.languageCode.toLowerCase() == 'ar'
         ? const Locale('ar')
         : const Locale('en');
-    final copy = BootstrapFailureLocalizations.resolve(
-      languageCode: locale.languageCode,
-      code: failure.code,
-    );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -30,20 +25,27 @@ class BootstrapFailureApp extends StatelessWidget {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: _BootstrapFailurePage(copy: copy),
+      home: _BootstrapFailurePage(failure: failure),
     );
   }
 }
 
 class _BootstrapFailurePage extends StatelessWidget {
-  final BootstrapFailureCopy copy;
+  final BootstrapFailure failure;
 
-  const _BootstrapFailurePage({required this.copy});
+  const _BootstrapFailurePage({required this.failure});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final localizations = AppLocalizations.of(context);
+    final message = switch (failure.code) {
+      BootstrapFailureCode.invalidConfiguration =>
+        localizations.bootstrapInvalidConfigurationMessage,
+      BootstrapFailureCode.serviceInitializationFailed =>
+        localizations.bootstrapServiceInitializationFailedMessage,
+    };
 
     return Scaffold(
       body: SafeArea(
@@ -64,7 +66,7 @@ class _BootstrapFailurePage extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    copy.title,
+                    localizations.bootstrapFailureTitle,
                     textAlign: TextAlign.center,
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -72,7 +74,7 @@ class _BootstrapFailurePage extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    copy.message,
+                    message,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyLarge,
                   ),
