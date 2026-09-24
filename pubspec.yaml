@@ -51,7 +51,6 @@ msix_config:
   publisher_display_name: King Narmar
   identity_name: KingNarmar.HORUSSystem
   publisher: CN=E9CE55B8-AEDA-43A1-9E0C-43ADE997A176
-  msix_version: 1.0.0.0
   architecture: x64
   capabilities: internetClient
   output_name: horus-system-store
