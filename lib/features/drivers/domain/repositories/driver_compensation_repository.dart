@@ -13,7 +13,6 @@ abstract class DriverCompensationRepository {
 
   Future<Result<DriverCompensationRevision>> createRevision({
     required DriverCompensationWriteData data,
-    required String actorRole,
     BusinessDocumentFile? contractDocument,
   });
 
@@ -21,13 +20,11 @@ abstract class DriverCompensationRepository {
     required String companyId,
     required String revisionId,
     required String driverId,
-    required String actorRole,
     required BusinessDate effectiveTo,
   });
 
   Future<Result<DriverCompensationRevision>> attachContractDocument({
     required DriverCompensationRevision revision,
-    required String actorRole,
     required BusinessDocumentFile document,
   });
 
