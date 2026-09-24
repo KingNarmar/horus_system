@@ -1,7 +1,4 @@
-enum BootstrapFailureCode {
-  invalidConfiguration,
-  serviceInitializationFailed,
-}
+enum BootstrapFailureCode { invalidConfiguration, serviceInitializationFailed }
 
 final class BootstrapFailure {
   final BootstrapFailureCode code;
@@ -15,7 +12,7 @@ final class AppBootstrapResult {
   const AppBootstrapResult.success() : failure = null;
 
   AppBootstrapResult.failed(BootstrapFailureCode code)
-      : failure = BootstrapFailure(code);
+    : failure = BootstrapFailure(code);
 
   bool get isSuccess => failure == null;
 }

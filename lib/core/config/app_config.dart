@@ -75,23 +75,17 @@ final class AppConfig {
   }) {
     final environmentValue = appEnvironment.trim();
     if (environmentValue.isEmpty) {
-      throw const AppConfigException(
-        AppConfigFailureCode.missingEnvironment,
-      );
+      throw const AppConfigException(AppConfigFailureCode.missingEnvironment);
     }
 
     final environment = AppEnvironment.tryParse(environmentValue);
     if (environment == null) {
-      throw const AppConfigException(
-        AppConfigFailureCode.invalidEnvironment,
-      );
+      throw const AppConfigException(AppConfigFailureCode.invalidEnvironment);
     }
 
     final supabaseUrlValue = supabaseUrl.trim();
     if (supabaseUrlValue.isEmpty) {
-      throw const AppConfigException(
-        AppConfigFailureCode.missingSupabaseUrl,
-      );
+      throw const AppConfigException(AppConfigFailureCode.missingSupabaseUrl);
     }
 
     final parsedSupabaseUrl = Uri.tryParse(supabaseUrlValue);
@@ -99,15 +93,11 @@ final class AppConfig {
     if (parsedSupabaseUrl == null ||
         parsedSupabaseUrl.host.isEmpty ||
         (scheme != 'http' && scheme != 'https')) {
-      throw const AppConfigException(
-        AppConfigFailureCode.invalidSupabaseUrl,
-      );
+      throw const AppConfigException(AppConfigFailureCode.invalidSupabaseUrl);
     }
 
     if (environment != AppEnvironment.development && scheme != 'https') {
-      throw const AppConfigException(
-        AppConfigFailureCode.insecureSupabaseUrl,
-      );
+      throw const AppConfigException(AppConfigFailureCode.insecureSupabaseUrl);
     }
 
     final publishableKey = supabasePublishableKey.trim();
@@ -146,12 +136,7 @@ final class AppConfig {
   }
 }
 
-enum _SupabaseKeyKind {
-  publishable,
-  legacyAnon,
-  privileged,
-  invalid,
-}
+enum _SupabaseKeyKind { publishable, legacyAnon, privileged, invalid }
 
 _SupabaseKeyKind _classifySupabaseKey(String value) {
   final lowerValue = value.toLowerCase();

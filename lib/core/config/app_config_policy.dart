@@ -6,8 +6,7 @@ abstract final class AppConfigPolicy {
     required AppConfig config,
     required bool isReleaseMode,
   }) {
-    if (isReleaseMode &&
-        config.environment != AppEnvironment.production) {
+    if (isReleaseMode && config.environment != AppEnvironment.production) {
       throw const AppConfigException(
         AppConfigFailureCode.releaseBuildRequiresProductionEnvironment,
       );

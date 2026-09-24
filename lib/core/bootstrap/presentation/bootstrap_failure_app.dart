@@ -11,15 +11,11 @@ import 'bootstrap_failure_localizations.dart';
 class BootstrapFailureApp extends StatelessWidget {
   final BootstrapFailure failure;
 
-  const BootstrapFailureApp({
-    required this.failure,
-    super.key,
-  });
+  const BootstrapFailureApp({required this.failure, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final platformLocale =
-        WidgetsBinding.instance.platformDispatcher.locale;
+    final platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
     final locale = platformLocale.languageCode.toLowerCase() == 'ar'
         ? const Locale('ar')
         : const Locale('en');
