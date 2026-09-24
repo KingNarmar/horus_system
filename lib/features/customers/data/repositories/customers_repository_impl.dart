@@ -27,7 +27,6 @@ class CustomersRepositoryImpl implements CustomersRepository {
   @override
   Future<Result<Customer>> addCustomer({
     required CustomerWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addCustomer(data: data);
@@ -39,7 +38,6 @@ class CustomersRepositoryImpl implements CustomersRepository {
   Future<Result<Customer>> updateCustomer({
     required String customerId,
     required CustomerWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.updateCustomer(
@@ -54,7 +52,6 @@ class CustomersRepositoryImpl implements CustomersRepository {
   Future<Result<Customer>> deactivateCustomer({
     required String companyId,
     required String customerId,
-    required String actorRole,
   }) {
     return _changeStatus(
       companyId: companyId,
@@ -67,7 +64,6 @@ class CustomersRepositoryImpl implements CustomersRepository {
   Future<Result<Customer>> reactivateCustomer({
     required String companyId,
     required String customerId,
-    required String actorRole,
   }) {
     return _changeStatus(
       companyId: companyId,
