@@ -52,7 +52,6 @@ final class DriverCompensationRepositoryImpl
   @override
   Future<Result<DriverCompensationRevision>> createRevision({
     required DriverCompensationWriteData data,
-    required String actorRole,
     BusinessDocumentFile? contractDocument,
   }) async {
     final revisionId = newUuidV4();
@@ -112,7 +111,6 @@ final class DriverCompensationRepositoryImpl
     required String companyId,
     required String revisionId,
     required String driverId,
-    required String actorRole,
     required BusinessDate effectiveTo,
   }) {
     return _guard(
@@ -132,7 +130,6 @@ final class DriverCompensationRepositoryImpl
   @override
   Future<Result<DriverCompensationRevision>> attachContractDocument({
     required DriverCompensationRevision revision,
-    required String actorRole,
     required BusinessDocumentFile document,
   }) async {
     final uploadResult = await businessDocumentRepository.upload(
