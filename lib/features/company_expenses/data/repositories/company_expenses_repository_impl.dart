@@ -17,10 +17,8 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   final CompanyExpensesRemoteDataSource remoteDataSource;
   final CompanyExpenseRepositoryFailureMapper _failureMapper;
 
-  const CompanyExpensesRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const CompanyExpenseRepositoryFailureMapper();
-
+  const CompanyExpensesRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const CompanyExpenseRepositoryFailureMapper();
 
   @override
   Future<Result<List<CompanyExpenseCategory>>> getCategories({
