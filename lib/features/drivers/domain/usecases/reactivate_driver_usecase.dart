@@ -41,7 +41,6 @@ class ReactivateDriverUseCase
     return _repository.reactivateDriver(
       companyId: context.companyId,
       driverId: params.driverId,
-      actorRole: context.role.value,
     );
   }
 }
