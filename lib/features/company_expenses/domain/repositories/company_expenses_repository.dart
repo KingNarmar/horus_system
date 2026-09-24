@@ -22,17 +22,14 @@ abstract class CompanyExpensesRepository {
 
   Future<Result<CompanyExpense>> addCompanyExpense({
     required CompanyExpenseWriteData data,
-    required String actorRole,
   });
 
   Future<Result<CompanyExpense>> updateCompanyExpense({
     required String id,
     required CompanyExpenseWriteData data,
-    required String actorRole,
   });
 
   Future<Result<CompanyExpense>> voidCompanyExpense({
     required CompanyExpenseVoidData data,
-    required String actorRole,
   });
 }
