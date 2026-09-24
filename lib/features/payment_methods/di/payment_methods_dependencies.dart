@@ -1,5 +1,4 @@
 import '../../../core/data/supabase/supabase_client_provider.dart';
-import '../../audit/di/audit_dependencies.dart';
 import '../data/datasources/payment_methods_remote_data_source.dart';
 import '../data/repositories/payment_methods_repository_impl.dart';
 import '../domain/repositories/payment_methods_repository.dart';
@@ -19,7 +18,6 @@ abstract final class PaymentMethodsDependencies {
     );
     return PaymentMethodsRepositoryImpl(
       remoteDataSource: remoteDataSource,
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 
