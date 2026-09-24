@@ -34,7 +34,6 @@ class DriversRepositoryImpl implements DriversRepository {
     return DriverImageUploadCoordinator(imagesRemoteDataSource);
   }
 
-
   @override
   Future<Result<List<Driver>>> getDrivers({required String companyId}) {
     return _guard(() async {
