@@ -71,7 +71,6 @@ class UpdatePaymentMethodUseCase
         companyId: context.companyId,
         name: normalizedName,
       ),
-      actorRole: context.role.value,
     );
   }
 }
