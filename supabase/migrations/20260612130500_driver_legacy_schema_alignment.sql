@@ -71,7 +71,7 @@ DROP TRIGGER IF EXISTS sync_driver_name_fields_trigger
 ON public.drivers;
 
 CREATE TRIGGER sync_driver_name_fields_trigger
-BEFORE INSERT OR UPDATE OF name, full_name
+BEFORE INSERT OR UPDATE
 ON public.drivers
 FOR EACH ROW
 EXECUTE FUNCTION public.sync_driver_name_fields();
