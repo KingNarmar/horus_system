@@ -12,10 +12,8 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
   final TripExpensesRemoteDataSource remoteDataSource;
   final TripExpenseRepositoryFailureMapper _failureMapper;
 
-  const TripExpensesRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const TripExpenseRepositoryFailureMapper();
-
+  const TripExpensesRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const TripExpenseRepositoryFailureMapper();
 
   @override
   Future<Result<List<TripExpense>>> getTripExpenses({
