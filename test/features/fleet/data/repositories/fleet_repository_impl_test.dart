@@ -432,4 +432,3 @@ class _ThrowingTrailerModel extends TrailerModel {
   @override
   String get status => throw StateError('internal trailer mapping failure');
 }
-
