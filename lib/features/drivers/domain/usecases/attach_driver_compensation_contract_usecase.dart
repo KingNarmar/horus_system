@@ -75,7 +75,6 @@ final class AttachDriverCompensationContractUseCase
 
     return _repository.attachContractDocument(
       revision: params.revision,
-      actorRole: params.currentCompanyContext.role.value,
       document: params.document,
     );
   }
