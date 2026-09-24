@@ -85,42 +85,42 @@ void main() {
     test(
       'deactivates customer without redundant audit snapshot lookup',
       () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(remoteDataSource);
+        final operations = <String>[];
+        final remoteDataSource = _FakeCustomersRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.deactivateCustomer(
-        companyId: _companyId,
-        customerId: _customerId,
-        actorRole: 'owner',
-      );
+        final result = await repository.deactivateCustomer(
+          companyId: _companyId,
+          customerId: _customerId,
+          actorRole: 'owner',
+        );
 
-      expect(result, isA<Success<Customer>>());
-      expect(result.dataOrNull?.isActive, isFalse);
-      expect(operations, ['deactivate_customer']);
+        expect(result, isA<Success<Customer>>());
+        expect(result.dataOrNull?.isActive, isFalse);
+        expect(operations, ['deactivate_customer']);
       },
     );
 
     test(
       'reactivates customer without redundant audit snapshot lookup',
       () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(remoteDataSource);
+        final operations = <String>[];
+        final remoteDataSource = _FakeCustomersRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.reactivateCustomer(
-        companyId: _companyId,
-        customerId: _customerId,
-        actorRole: 'owner',
-      );
+        final result = await repository.reactivateCustomer(
+          companyId: _companyId,
+          customerId: _customerId,
+          actorRole: 'owner',
+        );
 
-      expect(result, isA<Success<Customer>>());
-      expect(result.dataOrNull?.isActive, isTrue);
-      expect(operations, ['reactivate_customer']);
+        expect(result, isA<Success<Customer>>());
+        expect(result.dataOrNull?.isActive, isTrue);
+        expect(operations, ['reactivate_customer']);
       },
     );
 
