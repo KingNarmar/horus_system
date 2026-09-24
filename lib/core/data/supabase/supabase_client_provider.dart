@@ -1,16 +1,15 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../config/env_config.dart';
-
 abstract final class SupabaseClientProvider {
   static SupabaseClient get client => Supabase.instance.client;
 
-  static Future<void> initialize() async {
-    EnvConfig.validate();
-
+  static Future<void> initialize({
+    required Uri url,
+    required String publishableKey,
+  }) async {
     await Supabase.initialize(
-      url: EnvConfig.supabaseUrl,
-      publishableKey: EnvConfig.supabasePublishableKey,
+      url: url.toString(),
+      publishableKey: publishableKey,
     );
   }
 }
