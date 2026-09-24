@@ -43,7 +43,6 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   @override
   Future<Result<PaymentMethod>> addPaymentMethod({
     required PaymentMethodWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addPaymentMethod(data: data);
@@ -55,7 +54,6 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   Future<Result<PaymentMethod>> updatePaymentMethod({
     required String paymentMethodId,
     required PaymentMethodWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.updatePaymentMethod(
@@ -70,7 +68,6 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   Future<Result<PaymentMethod>> deactivatePaymentMethod({
     required String companyId,
     required String paymentMethodId,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.deactivatePaymentMethod(
@@ -85,7 +82,6 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   Future<Result<PaymentMethod>> reactivatePaymentMethod({
     required String companyId,
     required String paymentMethodId,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.reactivatePaymentMethod(
