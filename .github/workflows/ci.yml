@@ -1,0 +1,142 @@
+name: H.O.R.U.S CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.41.9"
+  CI_SUPABASE_URL: "https://ci.invalid.supabase.co"
+  CI_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ci_only_not_for_runtime"
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed lib test
+
+      - name: Run architecture tests
+        run: flutter test test/architecture
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run full test suite
+        run: flutter test
+
+  android-release:
+    name: Android Release Build
+    needs: quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Create disposable CI signing material
+        shell: bash
+        run: |
+          keytool -genkeypair             -keystore android/ci-upload.jks             -storepass horus-ci-only             -keypass horus-ci-only             -alias upload             -keyalg RSA             -keysize 2048             -validity 1             -dname "CN=HORUS CI, OU=CI, O=King Narmar, L=Dubai, ST=Dubai, C=AE"
+
+          cat > android/key.properties <<'EOF'
+          storePassword=horus-ci-only
+          keyPassword=horus-ci-only
+          keyAlias=upload
+          storeFile=../ci-upload.jks
+          EOF
+
+      - name: Build Android release App Bundle
+        shell: bash
+        run: |
+          flutter build appbundle --release --no-pub             --dart-define=APP_ENV=production             --dart-define=SUPABASE_URL="${CI_SUPABASE_URL}"             --dart-define=SUPABASE_PUBLISHABLE_KEY="${CI_SUPABASE_PUBLISHABLE_KEY}"             --dart-define=ENABLE_DEBUG_LOGS=false
+
+          test -f build/app/outputs/bundle/release/app-release.aab
+
+      - name: Remove disposable CI signing material
+        if: always()
+        shell: bash
+        run: rm -f android/key.properties android/ci-upload.jks
+
+  windows-release:
+    name: Windows Release Build
+    needs: quality
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Build Windows release
+        shell: pwsh
+        run: |
+          flutter build windows --release --no-pub `
+            --dart-define=APP_ENV=production `
+            --dart-define=SUPABASE_URL="${env:CI_SUPABASE_URL}" `
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="${env:CI_SUPABASE_PUBLISHABLE_KEY}" `
+            --dart-define=ENABLE_DEBUG_LOGS=false
+
+          if (-not (Test-Path "build/windows/x64/runner/Release/horus.exe")) {
+            throw "Expected Windows release executable was not generated."
+          }
+
+      - name: Validate Microsoft Store MSIX packaging
+        shell: pwsh
+        run: |
+          dart run msix:create --build-windows false
+
+          if (-not (Test-Path "build/windows/x64/runner/Release/horus-system-store.msix")) {
+            throw "Expected Microsoft Store MSIX package was not generated."
+          }
