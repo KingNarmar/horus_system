@@ -54,7 +54,6 @@ class ReactivateCustomerUseCase
     return _repository.reactivateCustomer(
       companyId: context.companyId,
       customerId: normalizedCustomerId,
-      actorRole: context.role.value,
     );
   }
 }
