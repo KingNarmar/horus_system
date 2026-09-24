@@ -3,7 +3,6 @@ import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../company/di/company_dependencies.dart';
 import '../../drivers/di/drivers_dependencies.dart';
-import '../../audit/di/audit_dependencies.dart';
 import '../data/datasources/canonical_driver_balance_remote_data_source.dart';
 import '../data/datasources/driver_finance_remote_data_source.dart';
 import '../data/repositories/driver_balance_repository_impl.dart';
@@ -46,7 +45,6 @@ abstract final class DriverFinanceDependencies {
         SupabaseClientProvider.client,
         businessTimeZoneConverter: const TimezoneBusinessTimeZoneConverter(),
       ),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 

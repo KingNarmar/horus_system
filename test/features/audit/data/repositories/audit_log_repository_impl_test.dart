@@ -5,25 +5,12 @@ import 'package:horus_system/features/audit/data/models/audit_log_model.dart';
 import 'package:horus_system/features/audit/data/repositories/audit_log_repository_impl.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_action.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('AuditLogRepositoryImpl', () {
-    test('creates an audit log and forwards the same write data', () async {
-      final dataSource = _FakeAuditLogsRemoteDataSource();
-      final repository = AuditLogRepositoryImpl(remoteDataSource: dataSource);
-      const data = _writeData;
-
-      final result = await repository.createAuditLog(data: data);
-
-      expect(result.failureOrNull, isNull);
-      expect(dataSource.createCalls, 1);
-      expect(dataSource.createdData, same(data));
-    });
-
     test('maps read models preserving order and content', () async {
       final dataSource = _FakeAuditLogsRemoteDataSource(
         models: [
@@ -64,18 +51,6 @@ void main() {
       expect(dataSource.entityId, ' entity-1 ');
     });
 
-    test('sanitizes create PostgREST failures', () async {
-      final repository = AuditLogRepositoryImpl(
-        remoteDataSource: _FakeAuditLogsRemoteDataSource(
-          createError: _postgrestException,
-        ),
-      );
-
-      final result = await repository.createAuditLog(data: _writeData);
-
-      _expectSanitizedServerFailure(result.failureOrNull);
-    });
-
     test('sanitizes read PostgREST failures', () async {
       final repository = AuditLogRepositoryImpl(
         remoteDataSource: _FakeAuditLogsRemoteDataSource(
@@ -91,18 +66,6 @@ void main() {
       );
 
       _expectSanitizedServerFailure(result.failureOrNull);
-    });
-
-    test('sanitizes unexpected create failures', () async {
-      final repository = AuditLogRepositoryImpl(
-        remoteDataSource: _FakeAuditLogsRemoteDataSource(
-          createError: StateError('secret create implementation detail'),
-        ),
-      );
-
-      final result = await repository.createAuditLog(data: _writeData);
-
-      _expectSanitizedUnexpectedFailure(result.failureOrNull);
     });
 
     test('sanitizes unexpected read failures', () async {
@@ -140,16 +103,6 @@ void main() {
     });
   });
 }
-
-const _writeData = AuditLogWriteData(
-  companyId: 'company-1',
-  actorRole: 'admin',
-  module: AuditModule.drivers,
-  entityType: AuditEntityType.driver,
-  entityId: 'driver-1',
-  action: AuditAction.updated,
-  description: 'driver_updated',
-);
 
 const _postgrestException = PostgrestException(
   message: 'secret backend message',
@@ -194,30 +147,15 @@ void _expectSanitizedUnexpectedFailure(Object? failure) {
 final class _FakeAuditLogsRemoteDataSource
     implements AuditLogsRemoteDataSource {
   final List<AuditLogModel> models;
-  final Object? createError;
   final Object? readError;
 
-  int createCalls = 0;
   int readCalls = 0;
-  AuditLogWriteData? createdData;
   String? companyId;
   AuditModule? module;
   AuditEntityType? entityType;
   String? entityId;
 
-  _FakeAuditLogsRemoteDataSource({
-    this.models = const [],
-    this.createError,
-    this.readError,
-  });
-
-  @override
-  Future<void> createAuditLog({required AuditLogWriteData data}) async {
-    createCalls += 1;
-    createdData = data;
-    final error = createError;
-    if (error != null) throw error;
-  }
+  _FakeAuditLogsRemoteDataSource({this.models = const [], this.readError});
 
   @override
   Future<List<AuditLogModel>> getEntityAuditLogs({

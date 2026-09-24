@@ -8,7 +8,6 @@ import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 import 'package:horus_system/features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
@@ -484,11 +483,6 @@ class _FakeCompanyBusinessDateProvider implements CompanyBusinessDateProvider {
 }
 
 class _FakeAuditLogRepository implements AuditLogRepository {
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    return const Success<void>(null);
-  }
-
   @override
   Future<Result<List<AuditLog>>> getEntityAuditLogs({
     required String companyId,

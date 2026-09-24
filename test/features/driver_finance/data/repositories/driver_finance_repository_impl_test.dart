@@ -4,12 +4,6 @@ import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_finance/data/datasources/driver_finance_remote_data_source.dart';
 import 'package:horus_system/features/driver_finance/data/models/driver_finance_trip_option_model.dart';
 import 'package:horus_system/features/driver_finance/data/models/driver_financial_movement_model.dart';
@@ -113,16 +107,14 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('adds movement then writes exact audit snapshot', () async {
+    test('adds movement through the server-audited mutation path', () async {
       final operations = <String>[];
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         operations: operations,
         addedMovement: _movementModel(),
       );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = DriverFinanceRepositoryImpl(
         remoteDataSource: dataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
       final writeData = _writeData();
 
@@ -133,37 +125,19 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, _movementId);
-      expect(operations, ['add_movement', 'audit']);
+      expect(operations, ['add_movement']);
       expect(dataSource.addCalls, 1);
       expect(dataSource.lastWriteData, same(writeData));
-      expect(auditRepository.logs.single.companyId, _companyId);
-      expect(auditRepository.logs.single.entityId, _driverId);
-      expect(auditRepository.logs.single.metadata?['movement_id'], _movementId);
-      expect(
-        auditRepository.logs.single.metadata?['amount_minor_units'],
-        12550,
-      );
-      expect(auditRepository.logs.single.metadata?['currency_code'], 'AED');
-      expect(
-        auditRepository.logs.single.metadata?['currency_fraction_digits'],
-        2,
-      );
-      expect(
-        auditRepository.logs.single.newValues?['movement_date'],
-        '2026-08-23',
-      );
     });
 
-    test('does not write audit when movement persistence fails', () async {
+    test('sanitizes unexpected movement persistence failure', () async {
       final operations = <String>[];
       final dataSource = _FakeDriverFinanceRemoteDataSource(
         operations: operations,
         addError: Exception('insert failed'),
       );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = DriverFinanceRepositoryImpl(
         remoteDataSource: dataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
       );
 
       final result = await repository.addDriverMovement(
@@ -177,36 +151,6 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
       expect(dataSource.addCalls, 1);
       expect(operations, ['add_movement']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('propagates audit failure unchanged after persistence', () async {
-      const auditFailure = ServerFailure(
-        code: FailureCodes.serverError,
-        message: 'audit failed',
-      );
-      final operations = <String>[];
-      final dataSource = _FakeDriverFinanceRemoteDataSource(
-        operations: operations,
-        addedMovement: _movementModel(),
-      );
-      final auditRepository = _FakeAuditLogRepository(
-        operations: operations,
-        result: const FailureResult<void>(auditFailure),
-      );
-      final repository = DriverFinanceRepositoryImpl(
-        remoteDataSource: dataSource,
-        createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
-      );
-
-      final result = await repository.addDriverMovement(
-        data: _writeData(),
-        actorRole: 'accountant',
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, same(auditFailure));
-      expect(operations, ['add_movement', 'audit']);
     });
 
     test(
@@ -222,10 +166,8 @@ void main() {
             hint: 'backend hint',
           ),
         );
-        final auditRepository = _FakeAuditLogRepository(operations: operations);
         final repository = DriverFinanceRepositoryImpl(
           remoteDataSource: dataSource,
-          createAuditLogUseCase: CreateAuditLogUseCase(auditRepository),
         );
 
         final result = await repository.addDriverMovement(
@@ -238,7 +180,6 @@ void main() {
         expect(result.failureOrNull?.code, FailureCodes.serverError);
         expect(result.failureOrNull?.message, isNull);
         expect(operations, ['add_movement']);
-        expect(auditRepository.logs, isEmpty);
       },
     );
 
@@ -274,10 +215,7 @@ const _timeZoneId = 'Africa/Tripoli';
 DriverFinanceRepositoryImpl _repository(
   DriverFinanceRemoteDataSource dataSource,
 ) {
-  return DriverFinanceRepositoryImpl(
-    remoteDataSource: dataSource,
-    createAuditLogUseCase: CreateAuditLogUseCase(_FakeAuditLogRepository()),
-  );
+  return DriverFinanceRepositoryImpl(remoteDataSource: dataSource);
 }
 
 DriverFinancialMovementModel _movementModel() {
@@ -393,33 +331,5 @@ class _FakeDriverFinanceRemoteDataSource
     lastWriteData = data;
     if (addError != null) throw addError!;
     return addedMovement ?? _movementModel();
-  }
-}
-
-class _FakeAuditLogRepository implements AuditLogRepository {
-  final List<String>? operations;
-  final Result<void> result;
-  final List<AuditLogWriteData> logs = [];
-
-  _FakeAuditLogRepository({
-    this.operations,
-    this.result = const Success<void>(null),
-  });
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    operations?.add('audit');
-    logs.add(data);
-    return result;
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
   }
 }

@@ -26,7 +26,6 @@ abstract final class DriversDependencies {
       imagesRemoteDataSource: SupabaseDriverImagesRemoteDataSource(
         SupabaseClientProvider.client,
       ),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 
