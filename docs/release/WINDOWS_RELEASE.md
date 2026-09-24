@@ -46,8 +46,8 @@ horus.exe
 User-facing Windows product metadata uses:
 
 ```text
-Display name:     HORUS System
-Product name:     HORUS System
+Display name:      HORUS System
+Product name:      HORUS System
 Publisher display: King Narmar
 ```
 
@@ -78,17 +78,22 @@ verified product requirement.
 
 ## Version policy
 
-Flutter application versioning remains declared in `pubspec.yaml`:
+Flutter application versioning has one tracked source of truth:
 
 ```yaml
 version: 1.0.0+1
 ```
 
-The corresponding first Microsoft Store package version is:
+The `msix` tool derives the Microsoft Store package version from this Flutter
+version by taking `major.minor.patch` and setting the fourth component to
+`0`. The corresponding first Store package version is therefore:
 
 ```text
 1.0.0.0
 ```
+
+Do not duplicate that version in `msix_config`. Keeping it derived prevents
+the Flutter version and the Store package version from drifting apart.
 
 Microsoft Store package versions use four numeric parts. For Windows 10/11
 packages, the fourth part is reserved for Store use and must be `0` when the
@@ -96,14 +101,13 @@ package is built.
 
 The release rule is therefore:
 
-- The first three MSIX components must match the Flutter semantic version
+- The first three MSIX components come from the Flutter semantic version
   `major.minor.patch`.
-- The fourth MSIX component must remain `0`.
+- The fourth MSIX component remains `0`.
 - Increasing only Flutter's `+buildNumber` does not create a new Microsoft
   Store package version.
 - A later Store release must increase at least one of
-  `major.minor.patch`, then update `msix_version` to the matching
-  `major.minor.patch.0`.
+  `major.minor.patch`.
 
 Example:
 
@@ -113,8 +117,8 @@ Flutter 1.0.0+2 -> MSIX 1.0.0.0  (not a new Store package version)
 Flutter 1.0.1+2 -> MSIX 1.0.1.0
 ```
 
-Before every Store package build, verify that the first three MSIX components
-match the current Flutter version.
+Before every Store package build, verify the generated manifest version matches
+the expected derived value.
 
 ## Signing and secret handling
 
