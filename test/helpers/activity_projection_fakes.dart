@@ -32,7 +32,6 @@ final class DeferredActivityRepository implements AuditLogRepository {
     requests.add(request);
     return request.future;
   }
-
 }
 
 final class RecordingActivityConverter implements BusinessTimeZoneConverter {
