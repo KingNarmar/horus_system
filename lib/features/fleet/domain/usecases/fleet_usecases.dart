@@ -192,13 +192,11 @@ class SaveTractorHeadUseCase
     if (id == null) {
       return _repository.addTractorHead(
         data: data,
-        actorRole: context.role.value,
       );
     }
     return _repository.saveTractorHead(
       id: id,
       data: data,
-      actorRole: context.role.value,
     );
   }
 }
@@ -251,12 +249,11 @@ class SaveTrailerUseCase implements UseCase<TrailerEntity, SaveTrailerParams> {
     );
     final id = _normalizeOptional(params.id);
     if (id == null) {
-      return _repository.addTrailer(data: data, actorRole: context.role.value);
+      return _repository.addTrailer(data: data);
     }
     return _repository.editTrailer(
       id: id,
       data: data,
-      actorRole: context.role.value,
     );
   }
 }
@@ -302,7 +299,6 @@ Future<Result<TractorHead>> _changeTractorHeadStatus(
   Future<Result<TractorHead>> Function({
     required String companyId,
     required String id,
-    required String actorRole,
   })
   action,
 ) {
@@ -320,7 +316,6 @@ Future<Result<TractorHead>> _changeTractorHeadStatus(
   return action(
     companyId: context.companyId,
     id: params.id,
-    actorRole: context.role.value,
   );
 }
 
@@ -329,7 +324,6 @@ Future<Result<TrailerEntity>> _changeTrailerStatus(
   Future<Result<TrailerEntity>> Function({
     required String companyId,
     required String id,
-    required String actorRole,
   })
   action,
 ) {
@@ -347,7 +341,6 @@ Future<Result<TrailerEntity>> _changeTrailerStatus(
   return action(
     companyId: context.companyId,
     id: params.id,
-    actorRole: context.role.value,
   );
 }
 
