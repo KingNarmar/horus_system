@@ -53,7 +53,6 @@ class DeactivatePaymentMethodUseCase
     return _repository.deactivatePaymentMethod(
       companyId: context.companyId,
       paymentMethodId: normalizedId,
-      actorRole: context.role.value,
     );
   }
 }
