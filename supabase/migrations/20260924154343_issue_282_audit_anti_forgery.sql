@@ -45,7 +45,7 @@ BEGIN
       )
       || pg_catalog.jsonb_build_object(
         'default_freight_rate_per_ton',
-        p_row -> 'default_freight_price'
+        p_row ->> 'default_freight_price'
       )
 
     WHEN 'drivers' THEN
