@@ -14,10 +14,8 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
   final DriverFinanceRemoteDataSource remoteDataSource;
   final DriverFinanceRepositoryFailureMapper _failureMapper;
 
-  const DriverFinanceRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const DriverFinanceRepositoryFailureMapper();
-
+  const DriverFinanceRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const DriverFinanceRepositoryFailureMapper();
 
   @override
   Future<Result<List<DriverFinancialMovement>>> getDriverMovements({
