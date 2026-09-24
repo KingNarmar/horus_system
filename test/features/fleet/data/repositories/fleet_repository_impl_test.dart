@@ -35,19 +35,19 @@ void main() {
     test(
       'creates tractor head through the server-audited mutation path',
       () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(remoteDataSource);
+        final operations = <String>[];
+        final remoteDataSource = _FakeFleetRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.addTractorHead(
-        data: _tractorWriteData(),
-        actorRole: 'operations',
-      );
+        final result = await repository.addTractorHead(
+          data: _tractorWriteData(),
+          actorRole: 'operations',
+        );
 
-      expect(result, isA<Success<TractorHead>>());
-      expect(operations, ['add_tractor']);
+        expect(result, isA<Success<TractorHead>>());
+        expect(operations, ['add_tractor']);
       },
     );
 
@@ -141,37 +141,37 @@ void main() {
     test(
       'sanitizes Postgrest read failures through repository guard',
       () async {
-      final repository = _repository(
-        _FakeFleetRemoteDataSource(
-          tractorListError: const PostgrestException(
-            message: 'read denied',
-            code: '42501',
+        final repository = _repository(
+          _FakeFleetRemoteDataSource(
+            tractorListError: const PostgrestException(
+              message: 'read denied',
+              code: '42501',
+            ),
           ),
-        ),
-      );
+        );
 
-      final result = await repository.getTractorHeads(companyId: _companyId);
+        final result = await repository.getTractorHeads(companyId: _companyId);
 
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
       },
     );
 
     test(
       'sanitizes unexpected read failures through repository guard',
       () async {
-      final repository = _repository(
-        _FakeFleetRemoteDataSource(
-          trailerListError: StateError('internal trailer read failure'),
-        ),
-      );
+        final repository = _repository(
+          _FakeFleetRemoteDataSource(
+            trailerListError: StateError('internal trailer read failure'),
+          ),
+        );
 
-      final result = await repository.getTrailers(companyId: _companyId);
+        final result = await repository.getTrailers(companyId: _companyId);
 
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
+        expect(result.failureOrNull, isA<UnexpectedFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+        expect(result.failureOrNull?.message, isNull);
       },
     );
 
