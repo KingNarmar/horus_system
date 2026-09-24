@@ -14,10 +14,8 @@ class RoutesRepositoryImpl implements RoutesRepository {
   final RoutesRemoteDataSource remoteDataSource;
   final RouteRepositoryFailureMapper _failureMapper;
 
-  const RoutesRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const RouteRepositoryFailureMapper();
-
+  const RoutesRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const RouteRepositoryFailureMapper();
 
   @override
   Future<Result<List<RouteEntity>>> getRoutes({
