@@ -6,7 +6,6 @@ import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
 import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
 
@@ -34,9 +33,6 @@ final class DeferredActivityRepository implements AuditLogRepository {
     return request.future;
   }
 
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) =>
-      throw UnimplementedError();
 }
 
 final class RecordingActivityConverter implements BusinessTimeZoneConverter {

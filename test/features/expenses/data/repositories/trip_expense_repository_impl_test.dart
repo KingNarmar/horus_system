@@ -204,7 +204,6 @@ class _FakeTripExpensesRemoteDataSource
   final Object? listError;
   final Object? addError;
   final Object? updateError;
-  final Object? totalReadError;
   final List<TripExpenseModel>? listModels;
   String? lastListCompanyId;
   String? lastListTripId;
@@ -216,7 +215,6 @@ class _FakeTripExpensesRemoteDataSource
     this.listError,
     this.addError,
     this.updateError,
-    this.totalReadError,
     this.listModels,
   });
 
@@ -259,7 +257,6 @@ class _FakeTripExpensesRemoteDataSource
     operations?.add('read_total');
     lastTotalReadCompanyId = companyId;
     lastTotalReadTripId = tripId;
-    if (totalReadError != null) throw totalReadError!;
     return _tripTotal;
   }
 }
