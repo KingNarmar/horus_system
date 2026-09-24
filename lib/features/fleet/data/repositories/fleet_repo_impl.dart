@@ -17,10 +17,8 @@ class FleetRepositoryImpl implements FleetRepository {
   final FleetRemoteDataSource remoteDataSource;
   final FleetRepositoryFailureMapper _failureMapper;
 
-  const FleetRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const FleetRepositoryFailureMapper();
-
+  const FleetRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const FleetRepositoryFailureMapper();
 
   @override
   Future<Result<List<TractorHead>>> getTractorHeads({
