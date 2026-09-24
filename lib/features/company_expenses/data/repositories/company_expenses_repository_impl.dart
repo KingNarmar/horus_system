@@ -61,7 +61,6 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   @override
   Future<Result<CompanyExpense>> addCompanyExpense({
     required CompanyExpenseWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addCompanyExpense(data: data);
@@ -73,7 +72,6 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   Future<Result<CompanyExpense>> updateCompanyExpense({
     required String id,
     required CompanyExpenseWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.updateCompanyExpense(
@@ -87,7 +85,6 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   @override
   Future<Result<CompanyExpense>> voidCompanyExpense({
     required CompanyExpenseVoidData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.voidCompanyExpense(data: data);
