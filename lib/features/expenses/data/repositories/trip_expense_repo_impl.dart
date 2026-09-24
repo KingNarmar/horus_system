@@ -32,7 +32,6 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
   @override
   Future<Result<TripExpense>> addTripExpense({
     required TripExpenseWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTripExpense(data: data);
@@ -44,7 +43,6 @@ class TripExpensesRepositoryImpl implements TripExpensesRepository {
   Future<Result<TripExpense>> updateTripExpense({
     required String id,
     required TripExpenseWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.updateTripExpense(
