@@ -13,24 +13,20 @@ abstract interface class PaymentMethodsRepository {
 
   Future<Result<PaymentMethod>> addPaymentMethod({
     required PaymentMethodWriteData data,
-    required String actorRole,
   });
 
   Future<Result<PaymentMethod>> updatePaymentMethod({
     required String paymentMethodId,
     required PaymentMethodWriteData data,
-    required String actorRole,
   });
 
   Future<Result<PaymentMethod>> deactivatePaymentMethod({
     required String companyId,
     required String paymentMethodId,
-    required String actorRole,
   });
 
   Future<Result<PaymentMethod>> reactivatePaymentMethod({
     required String companyId,
     required String paymentMethodId,
-    required String actorRole,
   });
 }
