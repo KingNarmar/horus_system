@@ -17,6 +17,5 @@ abstract class DriverFinanceRepository {
 
   Future<Result<DriverFinancialMovement>> addDriverMovement({
     required DriverFinancialMovementWriteData data,
-    required String actorRole,
   });
 }
