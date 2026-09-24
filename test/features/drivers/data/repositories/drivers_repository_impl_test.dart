@@ -296,3 +296,11 @@ class _FakeDriverImagesRemoteDataSource
   @override
   Future<void> removeImages({required List<String> paths}) async {}
 }
+
+final class _ThrowingDriverModel extends DriverModel {
+  _ThrowingDriverModel()
+    : super(id: 'driver-1', companyId: _companyId, fullName: 'Driver');
+
+  @override
+  String get fullName => throw StateError('secret model mapping detail');
+}
