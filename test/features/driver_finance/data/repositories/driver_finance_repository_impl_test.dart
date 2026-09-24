@@ -333,4 +333,3 @@ class _FakeDriverFinanceRemoteDataSource
     return addedMovement ?? _movementModel();
   }
 }
-
