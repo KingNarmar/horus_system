@@ -17,8 +17,6 @@ concurrency:
 
 env:
   FLUTTER_VERSION: "3.41.9"
-  CI_SUPABASE_URL: "https://ci.invalid.supabase.co"
-  CI_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ci_only_not_for_runtime"
 
 jobs:
   quality:
@@ -27,10 +25,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -55,19 +53,22 @@ jobs:
     name: Android Release Build
     needs: quality
     runs-on: ubuntu-latest
+    env:
+      CI_SUPABASE_URL: "https://ci.invalid.supabase.co"
+      CI_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ci_only_not_for_runtime"
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -79,11 +80,14 @@ jobs:
       - name: Create disposable CI signing material
         shell: bash
         run: |
-          keytool -genkeypair             -keystore android/ci-upload.jks             -storepass horus-ci-only             -keypass horus-ci-only             -alias upload             -keyalg RSA             -keysize 2048             -validity 1             -dname "CN=HORUS CI, OU=CI, O=King Narmar, L=Dubai, ST=Dubai, C=AE"
+          CI_KEYSTORE_PASSWORD="$(openssl rand -hex 16)"
+          echo "::add-mask::$CI_KEYSTORE_PASSWORD"
 
-          cat > android/key.properties <<'EOF'
-          storePassword=horus-ci-only
-          keyPassword=horus-ci-only
+          keytool -genkeypair -keystore android/ci-upload.jks -storepass "$CI_KEYSTORE_PASSWORD" -keypass "$CI_KEYSTORE_PASSWORD" -alias upload -keyalg RSA -keysize 2048 -validity 1 -dname "CN=HORUS CI, OU=CI, O=King Narmar, L=Dubai, ST=Dubai, C=AE"
+
+          cat > android/key.properties <<EOF
+          storePassword=$CI_KEYSTORE_PASSWORD
+          keyPassword=$CI_KEYSTORE_PASSWORD
           keyAlias=upload
           storeFile=../ci-upload.jks
           EOF
@@ -91,7 +95,7 @@ jobs:
       - name: Build Android release App Bundle
         shell: bash
         run: |
-          flutter build appbundle --release --no-pub             --dart-define=APP_ENV=production             --dart-define=SUPABASE_URL="${CI_SUPABASE_URL}"             --dart-define=SUPABASE_PUBLISHABLE_KEY="${CI_SUPABASE_PUBLISHABLE_KEY}"             --dart-define=ENABLE_DEBUG_LOGS=false
+          flutter build appbundle --release --no-pub --dart-define=APP_ENV=production --dart-define=SUPABASE_URL="${CI_SUPABASE_URL}" --dart-define=SUPABASE_PUBLISHABLE_KEY="${CI_SUPABASE_PUBLISHABLE_KEY}" --dart-define=ENABLE_DEBUG_LOGS=false
 
           test -f build/app/outputs/bundle/release/app-release.aab
 
@@ -104,13 +108,16 @@ jobs:
     name: Windows Release Build
     needs: quality
     runs-on: windows-latest
+    env:
+      CI_SUPABASE_URL: "https://ci.invalid.supabase.co"
+      CI_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ci_only_not_for_runtime"
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
