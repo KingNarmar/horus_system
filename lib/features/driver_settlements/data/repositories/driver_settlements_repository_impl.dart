@@ -140,7 +140,6 @@ class DriverSettlementsRepositoryImpl
   @override
   Future<Result<DriverSettlement>> createDraft({
     required DriverSettlementDraftWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.createDraft(data: data);
@@ -151,7 +150,6 @@ class DriverSettlementsRepositoryImpl
   @override
   Future<Result<DriverSettlement>> createMoneyDraft({
     required DriverSettlementMoneyDraftWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await moneyRemoteDataSource.createMoneyDraft(data: data);
@@ -162,7 +160,6 @@ class DriverSettlementsRepositoryImpl
   @override
   Future<Result<DriverSettlement>> finalizeSettlement({
     required DriverSettlementFinalizeData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.finalizeSettlement(data: data);
@@ -173,7 +170,6 @@ class DriverSettlementsRepositoryImpl
   @override
   Future<Result<DriverSettlement>> voidSettlement({
     required DriverSettlementVoidData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.voidSettlement(data: data);
