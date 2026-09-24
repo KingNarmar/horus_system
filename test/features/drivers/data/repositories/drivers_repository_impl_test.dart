@@ -110,32 +110,31 @@ void main() {
     );
 
     test('does not persist when update has no meaningful changes', () async {
-        final remoteDataSource = _FakeDriversRemoteDataSource(_driverModel);
-        final repository = _repository(remoteDataSource: remoteDataSource);
+      final remoteDataSource = _FakeDriversRemoteDataSource(_driverModel);
+      final repository = _repository(remoteDataSource: remoteDataSource);
 
-        final result = await repository.updateDriver(
-          driverId: _driverModel.id,
-          actorRole: 'owner',
-          data: DriverWriteData(
-            companyId: _driverModel.companyId,
-            fullName: _driverModel.fullName,
-            phone: _driverModel.phone,
-            nationalId: _driverModel.nationalId,
-            licenseNumber: _driverModel.licenseNumber,
-            licenseExpiryDate: _driverModel.licenseExpiryDate,
-            profileImagePath: _driverModel.profileImagePath,
-            licenseImagePath: _driverModel.licenseImagePath,
-            licenseBackImagePath: _driverModel.licenseBackImagePath,
-            nationalIdImagePath: _driverModel.nationalIdImagePath,
-            nationalIdBackImagePath: _driverModel.nationalIdBackImagePath,
-            notes: _driverModel.notes,
-          ),
-        );
+      final result = await repository.updateDriver(
+        driverId: _driverModel.id,
+        actorRole: 'owner',
+        data: DriverWriteData(
+          companyId: _driverModel.companyId,
+          fullName: _driverModel.fullName,
+          phone: _driverModel.phone,
+          nationalId: _driverModel.nationalId,
+          licenseNumber: _driverModel.licenseNumber,
+          licenseExpiryDate: _driverModel.licenseExpiryDate,
+          profileImagePath: _driverModel.profileImagePath,
+          licenseImagePath: _driverModel.licenseImagePath,
+          licenseBackImagePath: _driverModel.licenseBackImagePath,
+          nationalIdImagePath: _driverModel.nationalIdImagePath,
+          nationalIdBackImagePath: _driverModel.nationalIdBackImagePath,
+          notes: _driverModel.notes,
+        ),
+      );
 
-        expect(result, isA<Success>());
-        expect(remoteDataSource.updateCalls, 0);
-      },
-    );
+      expect(result, isA<Success>());
+      expect(remoteDataSource.updateCalls, 0);
+    });
   });
 }
 
