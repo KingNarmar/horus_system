@@ -13,10 +13,8 @@ class PaymentMethodsRepositoryImpl implements PaymentMethodsRepository {
   final PaymentMethodsRemoteDataSource remoteDataSource;
   final PaymentMethodRepositoryFailureMapper _failureMapper;
 
-  const PaymentMethodsRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const PaymentMethodRepositoryFailureMapper();
-
+  const PaymentMethodsRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const PaymentMethodRepositoryFailureMapper();
 
   @override
   Future<Result<List<PaymentMethod>>> getPaymentMethods({
