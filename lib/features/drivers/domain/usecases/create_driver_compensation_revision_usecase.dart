@@ -140,7 +140,6 @@ final class CreateDriverCompensationRevisionUseCase
         effectiveTo: params.effectiveTo,
         contractReference: contractReference,
       ),
-      actorRole: params.currentCompanyContext.role.value,
       contractDocument: params.contractDocument,
     );
   }
