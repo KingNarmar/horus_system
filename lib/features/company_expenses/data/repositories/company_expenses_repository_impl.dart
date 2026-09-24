@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/company_expense.dart';
 import '../../domain/entities/company_expense_category.dart';
 import '../../domain/entities/company_expense_form_lookups.dart';
@@ -12,22 +11,14 @@ import '../datasources/company_expenses_remote_data_source.dart';
 import '../mappers/company_expense_category_mapper.dart';
 import '../mappers/company_expense_form_lookups_mapper.dart';
 import '../mappers/company_expense_mapper.dart';
-import 'company_expense_repository_audit_writer.dart';
 import 'company_expense_repository_failure_mapper.dart';
 
 class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   final CompanyExpensesRemoteDataSource remoteDataSource;
-  final CreateAuditLogUseCase createAuditLogUseCase;
   final CompanyExpenseRepositoryFailureMapper _failureMapper;
 
-  const CompanyExpensesRepositoryImpl({
-    required this.remoteDataSource,
-    required this.createAuditLogUseCase,
-  }) : _failureMapper = const CompanyExpenseRepositoryFailureMapper();
-
-  CompanyExpenseRepositoryAuditWriter get _auditWriter {
-    return CompanyExpenseRepositoryAuditWriter(createAuditLogUseCase);
-  }
+  const CompanyExpensesRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const CompanyExpenseRepositoryFailureMapper();
 
   @override
   Future<Result<List<CompanyExpenseCategory>>> getCategories({
@@ -74,15 +65,6 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addCompanyExpense(data: data);
-      final auditFailure = await _auditWriter.writeCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<CompanyExpense>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
@@ -94,24 +76,10 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getCompanyExpenseById(
-        companyId: data.companyId,
-        id: id,
-      );
       final model = await remoteDataSource.updateCompanyExpense(
         id: id,
         data: data,
       );
-      final auditFailure = await _auditWriter.writeUpdated(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<CompanyExpense>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
@@ -122,21 +90,7 @@ class CompanyExpensesRepositoryImpl implements CompanyExpensesRepository {
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getCompanyExpenseById(
-        companyId: data.companyId,
-        id: data.expenseId,
-      );
       final model = await remoteDataSource.voidCompanyExpense(data: data);
-      final auditFailure = await _auditWriter.writeVoided(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<CompanyExpense>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }

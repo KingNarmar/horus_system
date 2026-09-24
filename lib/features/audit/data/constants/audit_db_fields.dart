@@ -1,4 +1,4 @@
-abstract class AuditDbFields {
+abstract final class AuditDbFields {
   static const tableName = 'audit_logs';
 
   static const actorUserId = 'actor_user_id';
