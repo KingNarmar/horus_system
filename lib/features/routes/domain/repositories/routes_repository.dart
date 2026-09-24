@@ -11,28 +11,24 @@ abstract class RoutesRepository {
 
   Future<Result<RouteEntity>> addRoute({
     required RouteWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<RouteEntity>> saveRoute({
     required String id,
     required RouteWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<RouteEntity>> deactivateRoute({
     required String companyId,
     required String id,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<Result<RouteEntity>> reactivateRoute({
     required String companyId,
     required String id,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   });
 }
