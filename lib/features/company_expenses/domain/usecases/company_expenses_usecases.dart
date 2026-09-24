@@ -210,7 +210,6 @@ class AddCompanyExpenseUseCase
     if (failure != null) return Future.value(FailureResult(failure));
 
     return _repository.addCompanyExpense(
-      actorRole: params.currentCompanyContext.role.name,
       data: _writeData(
         context: params.currentCompanyContext,
         categoryId: params.categoryId,
@@ -256,7 +255,6 @@ class UpdateCompanyExpenseUseCase
 
     return _repository.updateCompanyExpense(
       id: expenseId,
-      actorRole: params.currentCompanyContext.role.name,
       data: _writeData(
         context: params.currentCompanyContext,
         categoryId: params.categoryId,
@@ -308,7 +306,6 @@ class VoidCompanyExpenseUseCase
     }
 
     return _repository.voidCompanyExpense(
-      actorRole: context.role.name,
       data: CompanyExpenseVoidData(
         companyId: context.companyId,
         expenseId: expenseId,
