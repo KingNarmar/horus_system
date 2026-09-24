@@ -189,10 +189,11 @@ DisplayName:          HORUS System
 Version:              1.0.0.0
 Architecture:         x64
 Executable:           horus.exe
-Capability:           internetClient
+Capabilities:         internetClient, runFullTrust
 ```
 
-Also confirm that no unexpected restricted capability or private signing
+`runFullTrust` is expected for the packaged Win32 desktop application. Also
+confirm that no additional unexpected restricted capability or private signing
 material is present.
 
 ## Windows App Certification Kit
