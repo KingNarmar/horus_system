@@ -39,7 +39,6 @@ class RoutesRepositoryImpl implements RoutesRepository {
   @override
   Future<Result<RouteEntity>> addRoute({
     required RouteWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
@@ -57,7 +56,6 @@ class RoutesRepositoryImpl implements RoutesRepository {
   Future<Result<RouteEntity>> saveRoute({
     required String id,
     required RouteWriteData data,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
@@ -76,7 +74,6 @@ class RoutesRepositoryImpl implements RoutesRepository {
   Future<Result<RouteEntity>> deactivateRoute({
     required String companyId,
     required String id,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _changeActiveState(
@@ -91,7 +88,6 @@ class RoutesRepositoryImpl implements RoutesRepository {
   Future<Result<RouteEntity>> reactivateRoute({
     required String companyId,
     required String id,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _changeActiveState(
