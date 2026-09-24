@@ -15,7 +15,12 @@ void main() {
     expect(dataSource, isNot(contains('recalculateTripTotalExpenses')));
     expect(repository, isNot(contains('recalculateTripTotalExpenses')));
     expect(dataSource, contains('getTripTotalExpenses'));
-    expect(repository, contains('getTripTotalExpenses'));
+    expect(
+      repository,
+      isNot(contains('recalculateTripTotalExpenses')),
+      reason:
+          'Trip expense repository must not own derived total maintenance.',
+    );
     expect(
       dataSource,
       isNot(contains('DbTimestamp.nowUtcIsoString()')),
