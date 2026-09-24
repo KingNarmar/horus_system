@@ -29,7 +29,9 @@ void main() {
       expect(operations, ['add_expense']);
     });
 
-    test('updates expense without audit-only snapshot or total reads', () async {
+    test(
+      'updates expense without audit-only snapshot or total reads',
+      () async {
       final operations = <String>[];
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
         operations: operations,
@@ -45,7 +47,8 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.amount, 175);
       expect(operations, ['update_expense']);
-    });
+      },
+    );
 
     test('sanitizes unexpected add failure', () async {
       final remoteDataSource = _FakeTripExpensesRemoteDataSource(
