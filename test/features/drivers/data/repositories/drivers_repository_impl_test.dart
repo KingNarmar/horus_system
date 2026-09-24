@@ -109,9 +109,7 @@ void main() {
       },
     );
 
-    test(
-      'does not persist when update has no meaningful changes',
-      () async {
+    test('does not persist when update has no meaningful changes', () async {
         final remoteDataSource = _FakeDriversRemoteDataSource(_driverModel);
         final repository = _repository(remoteDataSource: remoteDataSource);
 
