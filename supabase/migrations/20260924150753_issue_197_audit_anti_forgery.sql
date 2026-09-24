@@ -108,7 +108,7 @@ DECLARE
   v_metadata jsonb := '{}'::jsonb;
 BEGIN
   IF auth.uid() IS NULL THEN
-    RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+    RETURN NEW;
   END IF;
 
   IF TG_OP = 'INSERT' THEN
