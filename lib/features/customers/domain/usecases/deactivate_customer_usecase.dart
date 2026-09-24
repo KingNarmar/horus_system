@@ -54,7 +54,6 @@ class DeactivateCustomerUseCase
     return _repository.deactivateCustomer(
       companyId: context.companyId,
       customerId: normalizedCustomerId,
-      actorRole: context.role.value,
     );
   }
 }
