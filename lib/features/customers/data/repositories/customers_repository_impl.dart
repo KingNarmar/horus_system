@@ -13,10 +13,8 @@ class CustomersRepositoryImpl implements CustomersRepository {
   final CustomersRemoteDataSource remoteDataSource;
   final CustomerRepositoryFailureMapper _failureMapper;
 
-  const CustomersRepositoryImpl({
-    required this.remoteDataSource,
-  }) : _failureMapper = const CustomerRepositoryFailureMapper();
-
+  const CustomersRepositoryImpl({required this.remoteDataSource})
+    : _failureMapper = const CustomerRepositoryFailureMapper();
 
   @override
   Future<Result<List<Customer>>> getCustomers({required String companyId}) {
