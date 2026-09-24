@@ -84,10 +84,7 @@ void main() {
 
     test('history query remains company and driver scoped', () async {
       final remote = _FakeRemoteDataSource();
-      final repository = _repository(
-        remote,
-        _FakeBusinessDocumentRepository(),
-      );
+      final repository = _repository(remote, _FakeBusinessDocumentRepository());
 
       final result = await repository.getHistory(
         companyId: _companyId,
