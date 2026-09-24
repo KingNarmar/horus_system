@@ -45,7 +45,6 @@ class FleetRepositoryImpl implements FleetRepository {
   @override
   Future<Result<TractorHead>> addTractorHead({
     required TractorHeadWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTractorHead(data: data);
@@ -57,7 +56,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TractorHead>> saveTractorHead({
     required String id,
     required TractorHeadWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.saveTractorHead(id: id, data: data);
@@ -69,7 +67,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TractorHead>> deactivateTractorHead({
     required String companyId,
     required String id,
-    required String actorRole,
   }) {
     return _changeTractorHeadActiveState(
       companyId: companyId,
@@ -82,7 +79,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TractorHead>> reactivateTractorHead({
     required String companyId,
     required String id,
-    required String actorRole,
   }) {
     return _changeTractorHeadActiveState(
       companyId: companyId,
@@ -94,7 +90,6 @@ class FleetRepositoryImpl implements FleetRepository {
   @override
   Future<Result<TrailerEntity>> addTrailer({
     required TrailerWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTrailer(data: data);
@@ -106,7 +101,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TrailerEntity>> editTrailer({
     required String id,
     required TrailerWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.editTrailer(id: id, data: data);
@@ -118,7 +112,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TrailerEntity>> deactivateTrailer({
     required String companyId,
     required String id,
-    required String actorRole,
   }) {
     return _changeTrailerActiveState(
       companyId: companyId,
@@ -131,7 +124,6 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TrailerEntity>> reactivateTrailer({
     required String companyId,
     required String id,
-    required String actorRole,
   }) {
     return _changeTrailerActiveState(
       companyId: companyId,
