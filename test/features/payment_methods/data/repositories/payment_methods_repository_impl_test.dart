@@ -26,18 +26,18 @@ void main() {
     test(
       'active read forwards exact company scope and maps entities',
       () async {
-      final events = <String>[];
-      final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
-      final repository = _repository(dataSource);
+        final events = <String>[];
+        final dataSource = _FakePaymentMethodsRemoteDataSource(events: events);
+        final repository = _repository(dataSource);
 
-      final result = await repository.getActivePaymentMethods(
-        companyId: 'company-1',
-      );
+        final result = await repository.getActivePaymentMethods(
+          companyId: 'company-1',
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull, hasLength(1));
-      expect(dataSource.lastCompanyId, 'company-1');
-      expect(events, ['getActive']);
+        expect(result, isA<Success>());
+        expect(result.dataOrNull, hasLength(1));
+        expect(dataSource.lastCompanyId, 'company-1');
+        expect(events, ['getActive']);
       },
     );
 
