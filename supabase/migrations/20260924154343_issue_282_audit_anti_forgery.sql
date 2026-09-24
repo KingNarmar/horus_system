@@ -30,6 +30,31 @@ $function$;
 REVOKE ALL ON FUNCTION private.audit_pick_fields(jsonb, text[])
   FROM PUBLIC;
 
+CREATE OR REPLACE FUNCTION private.mark_fleet_document_audit_context()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  PERFORM pg_catalog.set_config(
+    'horus.fleet_document_mutation',
+    'on',
+    true
+  );
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.mark_fleet_document_audit_context()
+  FROM PUBLIC;
+
+DROP TRIGGER IF EXISTS fleet_license_document_files_mark_audit_context
+ON public.fleet_license_document_files;
+CREATE TRIGGER fleet_license_document_files_mark_audit_context
+AFTER INSERT ON public.fleet_license_document_files
+FOR EACH ROW
+EXECUTE FUNCTION private.mark_fleet_document_audit_context();
+
 CREATE OR REPLACE FUNCTION private.audit_master_data_mutation()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -54,6 +79,14 @@ DECLARE
   v_new_values jsonb;
 BEGIN
   IF auth.uid() IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  IF TG_TABLE_NAME IN ('tractor_heads', 'trailers')
+     AND pg_catalog.current_setting(
+       'horus.fleet_document_mutation',
+       true
+     ) = 'on' THEN
     RETURN NEW;
   END IF;
 
