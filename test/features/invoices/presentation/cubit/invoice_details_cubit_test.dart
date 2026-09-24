@@ -402,9 +402,4 @@ final class _FakeAuditLogRepository implements AuditLogRepository {
           .toList(growable: false),
     );
   }
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    return const Success<void>(null);
-  }
 }
