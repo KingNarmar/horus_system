@@ -9,27 +9,23 @@ abstract class DriversRepository {
 
   Future<Result<Driver>> addDriver({
     required DriverWriteData data,
-    required String actorRole,
     DriverImageUploadSet? imageUploads,
   });
 
   Future<Result<Driver>> updateDriver({
     required String driverId,
     required DriverWriteData data,
-    required String actorRole,
     DriverImageUploadSet? imageUploads,
   });
 
   Future<Result<Driver>> deactivateDriver({
     required String companyId,
     required String driverId,
-    required String actorRole,
   });
 
   Future<Result<Driver>> reactivateDriver({
     required String companyId,
     required String driverId,
-    required String actorRole,
   });
 
   Future<Result<DriverImageUrls>> getDriverImageUrls({required Driver driver});
