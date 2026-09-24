@@ -155,10 +155,7 @@ final class _FakeAuditLogsRemoteDataSource
   AuditEntityType? entityType;
   String? entityId;
 
-  _FakeAuditLogsRemoteDataSource({
-    this.models = const [],
-    this.readError,
-  });
+  _FakeAuditLogsRemoteDataSource({this.models = const [], this.readError});
 
   @override
   Future<List<AuditLogModel>> getEntityAuditLogs({
