@@ -37,7 +37,6 @@ final class CreateDriverSettlementDraftUseCase
 
     final resolved = result.dataOrNull!;
     return _moneyRepository.createMoneyDraft(
-      actorRole: params.currentCompanyContext.role.name,
       data: DriverSettlementMoneyDraftWriteData(
         companyId: resolved.companyId,
         driverId: resolved.driverId,
