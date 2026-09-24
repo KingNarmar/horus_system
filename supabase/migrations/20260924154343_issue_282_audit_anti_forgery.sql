@@ -81,10 +81,7 @@ BEGIN
         'effective_to', p_row -> 'effective_to',
         'contract_reference', p_row -> 'contract_reference',
         'contract_document_attached',
-          pg_catalog.coalesce(
-            (p_row ->> 'contract_document_reference') IS NOT NULL,
-            false
-          )
+          (p_row ->> 'contract_document_reference') IS NOT NULL
       )
 
     WHEN 'driver_settlements' THEN
@@ -350,28 +347,33 @@ BEGIN
         RETURN NEW;
       END IF;
 
-      v_new_values := v_new_values
-        || pg_catalog.jsonb_build_object(
-          'items_count',
-          (
-            SELECT pg_catalog.count(*)
-            FROM public.driver_settlement_items AS item_row
-            WHERE item_row.company_id = NEW.company_id
-              AND item_row.settlement_id = NEW.id
-          )
-        );
-
-      IF v_old_values IS NOT NULL THEN
-        v_old_values := v_old_values
+      -- Settlement items are inserted after the settlement row on create.
+      -- Avoid recording a false zero item count in the creation snapshot.
+      -- On status changes the item set is already complete and stable.
+      IF TG_OP = 'UPDATE' THEN
+        v_new_values := v_new_values
           || pg_catalog.jsonb_build_object(
             'items_count',
             (
               SELECT pg_catalog.count(*)
               FROM public.driver_settlement_items AS item_row
-              WHERE item_row.company_id = OLD.company_id
-                AND item_row.settlement_id = OLD.id
+              WHERE item_row.company_id = NEW.company_id
+                AND item_row.settlement_id = NEW.id
             )
           );
+
+        IF v_old_values IS NOT NULL THEN
+          v_old_values := v_old_values
+            || pg_catalog.jsonb_build_object(
+              'items_count',
+              (
+                SELECT pg_catalog.count(*)
+                FROM public.driver_settlement_items AS item_row
+                WHERE item_row.company_id = OLD.company_id
+                  AND item_row.settlement_id = OLD.id
+              )
+            );
+        END IF;
       END IF;
 
       v_metadata := pg_catalog.jsonb_build_object(
