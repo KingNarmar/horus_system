@@ -6,8 +6,7 @@
 -- - authenticated clients cannot INSERT/UPDATE/DELETE audit rows directly;
 -- - audit actor identity/role/display snapshots come from private.write_audit_event;
 -- - audit semantic fields are derived from successful business mutations;
--- - legacy Flutter audit calls become read-only verification through
---   public.assert_audit_event_recorded;
+-- - Flutter audit access becomes read-only; no client audit-write RPC exists;
 -- - existing audit read policies remain unchanged.
 
 BEGIN;
@@ -661,60 +660,6 @@ CREATE TRIGGER driver_compensation_write_server_audit
 AFTER INSERT OR UPDATE ON public.driver_compensation_revisions
 FOR EACH ROW
 EXECUTE FUNCTION private.audit_driver_compensation_mutation();
-
-CREATE OR REPLACE FUNCTION public.assert_audit_event_recorded(
-  p_company_id uuid,
-  p_module text,
-  p_entity_type text,
-  p_entity_id text,
-  p_action text,
-  p_audit_event text
-)
-RETURNS void
-LANGUAGE plpgsql
-STABLE
-SECURITY DEFINER
-SET search_path = pg_catalog
-AS $function$
-DECLARE
-  v_actor_user_id uuid := auth.uid();
-BEGIN
-  IF v_actor_user_id IS NULL
-     OR NOT private.is_company_member(p_company_id) THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P2821',
-      MESSAGE = 'audit_verification_permission_denied';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1
-    FROM public.audit_logs AS audit_log
-    WHERE audit_log.company_id = p_company_id
-      AND audit_log.actor_user_id = v_actor_user_id
-      AND audit_log.module = p_module
-      AND audit_log.entity_type = p_entity_type
-      AND audit_log.entity_id = p_entity_id
-      AND audit_log.action = p_action
-      AND audit_log.description = p_audit_event
-      AND audit_log.metadata ->> 'audit_event' = p_audit_event
-      AND audit_log.created_at >= pg_catalog.now() - INTERVAL '5 minutes'
-  ) THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P2822',
-      MESSAGE = 'audit_event_not_recorded';
-  END IF;
-END;
-$function$;
-
-REVOKE ALL ON FUNCTION public.assert_audit_event_recorded(
-  uuid, text, text, text, text, text
-) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.assert_audit_event_recorded(
-  uuid, text, text, text, text, text
-) FROM anon;
-GRANT EXECUTE ON FUNCTION public.assert_audit_event_recorded(
-  uuid, text, text, text, text, text
-) TO authenticated;
 
 DROP POLICY IF EXISTS audit_logs_insert_company_members
 ON public.audit_logs;
