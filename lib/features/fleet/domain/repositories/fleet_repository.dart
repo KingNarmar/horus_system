@@ -13,47 +13,39 @@ abstract class FleetRepository {
 
   Future<Result<TractorHead>> addTractorHead({
     required TractorHeadWriteData data,
-    required String actorRole,
   });
 
   Future<Result<TractorHead>> saveTractorHead({
     required String id,
     required TractorHeadWriteData data,
-    required String actorRole,
   });
 
   Future<Result<TractorHead>> deactivateTractorHead({
     required String companyId,
     required String id,
-    required String actorRole,
   });
 
   Future<Result<TractorHead>> reactivateTractorHead({
     required String companyId,
     required String id,
-    required String actorRole,
   });
 
   Future<Result<TrailerEntity>> addTrailer({
     required TrailerWriteData data,
-    required String actorRole,
   });
 
   Future<Result<TrailerEntity>> editTrailer({
     required String id,
     required TrailerWriteData data,
-    required String actorRole,
   });
 
   Future<Result<TrailerEntity>> deactivateTrailer({
     required String companyId,
     required String id,
-    required String actorRole,
   });
 
   Future<Result<TrailerEntity>> reactivateTrailer({
     required String companyId,
     required String id,
-    required String actorRole,
   });
 }
