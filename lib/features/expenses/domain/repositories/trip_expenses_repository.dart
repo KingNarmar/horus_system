@@ -10,12 +10,10 @@ abstract class TripExpensesRepository {
 
   Future<Result<TripExpense>> addTripExpense({
     required TripExpenseWriteData data,
-    required String actorRole,
   });
 
   Future<Result<TripExpense>> updateTripExpense({
     required String id,
     required TripExpenseWriteData data,
-    required String actorRole,
   });
 }
