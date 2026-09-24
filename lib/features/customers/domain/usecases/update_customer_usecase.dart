@@ -107,7 +107,6 @@ class UpdateCustomerUseCase implements UseCase<Customer, UpdateCustomerParams> {
 
     return _repository.updateCustomer(
       customerId: normalizedCustomerId,
-      actorRole: context.role.value,
       data: CustomerWriteData(
         companyId: context.companyId,
         name: normalizedName,
