@@ -52,19 +52,13 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('sanitizes unexpected add failure and stops before audit', () async {
+    test('sanitizes unexpected add mutation failures', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
         addError: Exception('mutation internal detail'),
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.addCompanyExpense(
         data: companyExpenseWriteData(),
@@ -76,10 +70,9 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_expense']);
-      expect(auditRepository.logs, isEmpty);
     });
 
-    test('sanitizes Postgrest add failure and stops before audit', () async {
+    test('sanitizes Postgrest add mutation failures', () async {
       final operations = <String>[];
       const backendError = PostgrestException(
         message: 'permission denied',
@@ -91,13 +84,7 @@ void main() {
         operations: operations,
         addError: backendError,
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.addCompanyExpense(
         data: companyExpenseWriteData(),
@@ -109,50 +96,15 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.serverError);
       expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_expense']);
-      expect(auditRepository.logs, isEmpty);
     });
 
-    test('stops before update when old snapshot lookup fails', () async {
-      final operations = <String>[];
-      final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
-        operations: operations,
-        lookupError: Exception('snapshot internal detail'),
-      );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.updateCompanyExpense(
-        id: testExpenseId,
-        data: companyExpenseWriteData(amount: 175),
-        actorRole: 'accountant',
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_expense']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('stops before audit when update mutation fails', () async {
+    test('sanitizes update mutation failures without an audit lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
         updateError: Exception('update internal detail'),
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.updateCompanyExpense(
         id: testExpenseId,
@@ -164,50 +116,18 @@ void main() {
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_expense', 'update_expense']);
-      expect(auditRepository.logs, isEmpty);
+      expect(operations, ['update_expense']);
+      expect(remoteDataSource.lastLookupCompanyId, isNull);
+      expect(remoteDataSource.lastLookupExpenseId, isNull);
     });
 
-    test('stops before void mutation when old snapshot lookup fails', () async {
-      final operations = <String>[];
-      final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
-        operations: operations,
-        lookupError: Exception('snapshot internal detail'),
-      );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.voidCompanyExpense(
-        data: companyExpenseVoidData,
-        actorRole: 'accountant',
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_expense']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('stops before audit when void mutation fails', () async {
+    test('sanitizes void mutation failures without an audit lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
         voidError: Exception('void internal detail'),
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.voidCompanyExpense(
         data: companyExpenseVoidData,
@@ -218,8 +138,9 @@ void main() {
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_expense', 'void_expense']);
-      expect(auditRepository.logs, isEmpty);
+      expect(operations, ['void_expense']);
+      expect(remoteDataSource.lastLookupCompanyId, isNull);
+      expect(remoteDataSource.lastLookupExpenseId, isNull);
     });
   });
 }

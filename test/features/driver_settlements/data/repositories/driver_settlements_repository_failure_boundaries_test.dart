@@ -191,7 +191,7 @@ void main() {
       },
     );
 
-    test('sanitizes create mutation failure and stops before audit', () async {
+    test('sanitizes create mutation failure', () async {
       final operations = <String>[];
       const backendError = PostgrestException(
         message: 'sensitive create message',
@@ -203,13 +203,7 @@ void main() {
         operations: operations,
         createError: backendError,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.createDraft(
         data: draftWriteData(),
@@ -221,46 +215,9 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.serverError);
       expect(result.failureOrNull?.message, isNull);
       expect(operations, ['create_draft']);
-      expect(auditRepository.logs, isEmpty);
     });
 
-    test(
-      'stops finalize before mutation and audit when old lookup fails',
-      () async {
-        final operations = <String>[];
-        final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
-          operations: operations,
-          lookupError: StateError('old snapshot internal detail'),
-        );
-        final auditRepository = FakeDriverSettlementAuditLogRepository(
-          operations: operations,
-        );
-        final repository = createDriverSettlementsRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
-
-        final result = await repository.finalizeSettlement(
-          data: finalizeData,
-          actorRole: testActorRole,
-        );
-
-        expect(result, isA<FailureResult>());
-        expect(result.failureOrNull, isA<UnexpectedFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastLookupCompanyId, finalizeData.companyId);
-        expect(
-          remoteDataSource.lastLookupSettlementId,
-          finalizeData.settlementId,
-        );
-        expect(remoteDataSource.finalizeCalls, 0);
-        expect(operations, ['get_settlement']);
-        expect(auditRepository.logs, isEmpty);
-      },
-    );
-
-    test('stops finalize before audit when mutation fails', () async {
+    test('sanitizes finalize mutation failure without an audit lookup', () async {
       final operations = <String>[];
       const backendError = PostgrestException(
         message: 'sensitive finalize message',
@@ -270,13 +227,7 @@ void main() {
         operations: operations,
         finalizeError: backendError,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.finalizeSettlement(
         data: finalizeData,
@@ -287,60 +238,17 @@ void main() {
       expect(result.failureOrNull, isA<ServerFailure>());
       expect(result.failureOrNull?.code, FailureCodes.serverError);
       expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_settlement', 'finalize_settlement']);
-      expect(auditRepository.logs, isEmpty);
+      expect(operations, ['finalize_settlement']);
+      expect(remoteDataSource.lookupCalls, 0);
     });
 
-    test(
-      'stops void before mutation and audit when old lookup fails',
-      () async {
-        final operations = <String>[];
-        const backendError = PostgrestException(
-          message: 'sensitive old snapshot message',
-          code: '42501',
-        );
-        final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
-          operations: operations,
-          lookupError: backendError,
-        );
-        final auditRepository = FakeDriverSettlementAuditLogRepository(
-          operations: operations,
-        );
-        final repository = createDriverSettlementsRepository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
-
-        final result = await repository.voidSettlement(
-          data: voidData,
-          actorRole: testActorRole,
-        );
-
-        expect(result, isA<FailureResult>());
-        expect(result.failureOrNull, isA<ServerFailure>());
-        expect(result.failureOrNull?.code, FailureCodes.serverError);
-        expect(result.failureOrNull?.message, isNull);
-        expect(remoteDataSource.lastLookupCompanyId, voidData.companyId);
-        expect(remoteDataSource.lastLookupSettlementId, voidData.settlementId);
-        expect(remoteDataSource.voidCalls, 0);
-        expect(operations, ['get_settlement']);
-        expect(auditRepository.logs, isEmpty);
-      },
-    );
-
-    test('stops void before audit when mutation fails', () async {
+    test('sanitizes void mutation failure without an audit lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         operations: operations,
         voidError: StateError('void internal detail'),
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.voidSettlement(
         data: voidData,
@@ -351,8 +259,8 @@ void main() {
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['get_settlement', 'void_settlement']);
-      expect(auditRepository.logs, isEmpty);
+      expect(operations, ['void_settlement']);
+      expect(remoteDataSource.lookupCalls, 0);
     });
   });
 }
