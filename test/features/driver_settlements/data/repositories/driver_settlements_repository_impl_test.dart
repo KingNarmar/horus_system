@@ -26,7 +26,9 @@ void main() {
       expect(operations, ['create_draft']);
     });
 
-    test('finalizes settlement without redundant audit snapshot lookup', () async {
+    test(
+      'finalizes settlement without redundant audit snapshot lookup',
+      () async {
       final operations = <String>[];
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         operations: operations,
@@ -41,7 +43,8 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.status, DriverSettlementStatus.finalized);
       expect(operations, ['finalize_settlement']);
-    });
+      },
+    );
 
     test('voids settlement without redundant audit snapshot lookup', () async {
       final operations = <String>[];
