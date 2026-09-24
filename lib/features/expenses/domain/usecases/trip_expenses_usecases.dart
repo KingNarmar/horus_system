@@ -140,7 +140,6 @@ class AddTripExpenseUseCase
 
     return _repository.addTripExpense(
       data: data,
-      actorRole: context.role.value,
     );
   }
 }
@@ -188,7 +187,6 @@ class UpdateTripExpenseUseCase
     return _repository.updateTripExpense(
       id: id,
       data: data,
-      actorRole: context.role.value,
     );
   }
 }
