@@ -26,6 +26,10 @@ Flutter 3.41.9 stable
 The repository Dart constraint remains the source-of-truth compatibility
 boundary in `pubspec.yaml`.
 
+Workflow actions are pinned to reviewed full commit SHAs, with the corresponding
+release tag kept as an inline comment. Do not replace them with a floating branch
+or unreviewed mutable tag during unrelated work.
+
 ## Required checks
 
 The stable required check names are:
@@ -58,12 +62,14 @@ CI validates that the Android release App Bundle can be produced from a clean
 checkout while preserving the release-signing fail-closed design from #192.
 
 The job creates a disposable CI-only keystore inside the ephemeral runner,
-writes the temporary `android/key.properties`, builds the release AAB, verifies
-that the expected artifact exists, and removes the temporary signing files.
+generates a random masked password for that disposable keystore, writes the
+temporary `android/key.properties`, builds the release AAB, verifies that the
+expected artifact exists, and removes the temporary signing files.
 
 The generated keystore:
 
 - is created only inside the runner;
+- uses a runtime-generated masked password;
 - is not stored in GitHub Secrets;
 - is not the production Google Play upload key;
 - must never be used to submit a Store artifact.
@@ -86,7 +92,8 @@ Release-build validation must not depend on a real production Supabase project
 until one exists.
 
 The workflow therefore uses synthetic, non-secret, client-safe compile-time
-values only to prove that release compilation and packaging remain healthy.
+values only in the release-build jobs to prove that release compilation and
+packaging remain healthy.
 
 The CI values must never be treated as a deployable environment and the
 resulting Android or Windows artifacts must never be submitted to Google Play or
@@ -107,6 +114,7 @@ Rules:
 - no Android production signing key is required;
 - no Windows private signing key is required;
 - no Partner Center credential is required;
+- synthetic release-build configuration is scoped only to release-build jobs;
 - secret values must never be printed to workflow logs;
 - Store publishing is not automated by this workflow.
 
