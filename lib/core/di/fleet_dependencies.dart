@@ -20,7 +20,6 @@ abstract final class FleetDependencies {
     final remoteDataSource = SupabaseFleetRemoteDataSource(client);
     final repository = FleetRepositoryImpl(
       remoteDataSource: remoteDataSource,
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
     return FleetCubit(
