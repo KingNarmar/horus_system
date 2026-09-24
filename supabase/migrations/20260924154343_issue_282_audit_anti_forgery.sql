@@ -324,8 +324,7 @@ REVOKE ALL ON FUNCTION private.audit_driver_financial_movement_insert()
   FROM PUBLIC;
 
 CREATE OR REPLACE FUNCTION private.driver_settlement_audit_values(
-  p_row jsonb,
-  p_items_count bigint
+  p_row jsonb
 )
 RETURNS jsonb
 LANGUAGE sql
@@ -354,10 +353,10 @@ AS $function$
       'voided_by', 'void_reason', 'created_by', 'updated_by', 'created_at',
       'updated_at'
     ]
-  ) || pg_catalog.jsonb_build_object('items_count', p_items_count);
+  );
 $function$;
 
-REVOKE ALL ON FUNCTION private.driver_settlement_audit_values(jsonb, bigint)
+REVOKE ALL ON FUNCTION private.driver_settlement_audit_values(jsonb)
   FROM PUBLIC;
 
 CREATE OR REPLACE FUNCTION private.audit_driver_settlement_mutation()
@@ -370,19 +369,12 @@ DECLARE
   v_new_row jsonb := pg_catalog.to_jsonb(NEW);
   v_old_row jsonb :=
     CASE WHEN TG_OP = 'UPDATE' THEN pg_catalog.to_jsonb(OLD) END;
-  v_items_count bigint;
   v_action text;
   v_event text;
 BEGIN
   IF auth.uid() IS NULL THEN
     RETURN NEW;
   END IF;
-
-  SELECT pg_catalog.count(*)
-  INTO v_items_count
-  FROM public.driver_settlement_items AS settlement_item
-  WHERE settlement_item.company_id = NEW.company_id
-    AND settlement_item.settlement_id = NEW.id;
 
   IF TG_OP = 'INSERT' THEN
     v_action := 'created';
@@ -409,10 +401,10 @@ BEGIN
     v_event,
     CASE
       WHEN TG_OP = 'UPDATE'
-        THEN private.driver_settlement_audit_values(v_old_row, v_items_count)
+        THEN private.driver_settlement_audit_values(v_old_row)
       ELSE NULL
     END,
-    private.driver_settlement_audit_values(v_new_row, v_items_count),
+    private.driver_settlement_audit_values(v_new_row),
     pg_catalog.jsonb_build_object(
       'audit_event', v_event,
       'settlement_id', NEW.id,
@@ -437,47 +429,6 @@ END;
 $function$;
 
 REVOKE ALL ON FUNCTION private.audit_driver_settlement_mutation()
-  FROM PUBLIC;
-
-CREATE OR REPLACE FUNCTION private.refresh_driver_settlement_audit_items_count()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = pg_catalog
-AS $function$
-DECLARE
-  v_items_count bigint;
-BEGIN
-  IF auth.uid() IS NULL THEN
-    RETURN NEW;
-  END IF;
-
-  SELECT pg_catalog.count(*)
-  INTO v_items_count
-  FROM public.driver_settlement_items AS settlement_item
-  WHERE settlement_item.company_id = NEW.company_id
-    AND settlement_item.settlement_id = NEW.settlement_id;
-
-  UPDATE public.audit_logs AS audit_log
-  SET new_values = pg_catalog.jsonb_set(
-    COALESCE(audit_log.new_values, '{}'::jsonb),
-    '{items_count}',
-    pg_catalog.to_jsonb(v_items_count),
-    true
-  )
-  WHERE audit_log.company_id = NEW.company_id
-    AND audit_log.actor_user_id = auth.uid()
-    AND audit_log.module = 'drivers'
-    AND audit_log.entity_type = 'driver'
-    AND audit_log.action = 'created'
-    AND audit_log.description = 'driver_settlement_created'
-    AND audit_log.metadata ->> 'settlement_id' = NEW.settlement_id::text;
-
-  RETURN NEW;
-END;
-$function$;
-
-REVOKE ALL ON FUNCTION private.refresh_driver_settlement_audit_items_count()
   FROM PUBLIC;
 
 CREATE OR REPLACE FUNCTION private.driver_compensation_audit_values(
@@ -646,13 +597,6 @@ CREATE TRIGGER driver_settlements_write_server_audit
 AFTER INSERT OR UPDATE ON public.driver_settlements
 FOR EACH ROW
 EXECUTE FUNCTION private.audit_driver_settlement_mutation();
-
-DROP TRIGGER IF EXISTS driver_settlement_items_refresh_server_audit
-ON public.driver_settlement_items;
-CREATE TRIGGER driver_settlement_items_refresh_server_audit
-AFTER INSERT ON public.driver_settlement_items
-FOR EACH ROW
-EXECUTE FUNCTION private.refresh_driver_settlement_audit_items_count();
 
 DROP TRIGGER IF EXISTS driver_compensation_write_server_audit
 ON public.driver_compensation_revisions;
