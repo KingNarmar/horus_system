@@ -1,13 +1,6 @@
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
-import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
@@ -36,16 +29,12 @@ DriverSettlementsRepositoryImpl createDriverSettlementsRepository(
   FakeDriverSettlementsRemoteDataSource remoteDataSource, {
   FakeDriverSettlementMoneyRemoteDataSource? moneyRemoteDataSource,
   FakeDriverBalanceRepository? balanceRepository,
-  FakeDriverSettlementAuditLogRepository? auditRepository,
 }) {
   return DriverSettlementsRepositoryImpl(
     remoteDataSource: remoteDataSource,
     moneyRemoteDataSource:
         moneyRemoteDataSource ?? FakeDriverSettlementMoneyRemoteDataSource(),
     driverBalanceRepository: balanceRepository ?? FakeDriverBalanceRepository(),
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? FakeDriverSettlementAuditLogRepository(),
-    ),
   );
 }
 
@@ -352,31 +341,5 @@ class FakeDriverBalanceRepository implements DriverBalanceRepository {
 
     if (error != null) throw error!;
     return result ?? Success(canonicalBalance(0));
-  }
-}
-
-class FakeDriverSettlementAuditLogRepository implements AuditLogRepository {
-  final Failure? failure;
-  final List<String>? operations;
-  final List<AuditLogWriteData> logs = [];
-
-  FakeDriverSettlementAuditLogRepository({this.failure, this.operations});
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    operations?.add('audit');
-    if (failure != null) return FailureResult<void>(failure!);
-    logs.add(data);
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
   }
 }
