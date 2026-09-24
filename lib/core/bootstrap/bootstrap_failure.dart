@@ -14,8 +14,8 @@ final class AppBootstrapResult {
 
   const AppBootstrapResult.success() : failure = null;
 
-  const AppBootstrapResult.failed(BootstrapFailureCode code)
-    : failure = BootstrapFailure(code);
+  AppBootstrapResult.failed(BootstrapFailureCode code)
+      : failure = BootstrapFailure(code);
 
   bool get isSuccess => failure == null;
 }

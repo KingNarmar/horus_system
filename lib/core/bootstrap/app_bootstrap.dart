@@ -28,12 +28,12 @@ abstract final class AppBootstrap {
       AppLogger.debug('bootstrap.services.initialized');
       return const AppBootstrapResult.success();
     } on AppConfigException {
-      return const AppBootstrapResult.failed(
+      return AppBootstrapResult.failed(
         BootstrapFailureCode.invalidConfiguration,
       );
     } catch (_) {
       AppLogger.debug('bootstrap.services.initialization_failed');
-      return const AppBootstrapResult.failed(
+      return AppBootstrapResult.failed(
         BootstrapFailureCode.serviceInitializationFailed,
       );
     }
