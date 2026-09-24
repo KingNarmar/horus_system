@@ -284,4 +284,3 @@ final class _FakeBusinessDocumentRepository
     return Success(Uint8List(0));
   }
 }
-
