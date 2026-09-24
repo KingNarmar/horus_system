@@ -34,16 +34,13 @@ abstract class DriverSettlementsRepository {
 
   Future<Result<DriverSettlement>> createDraft({
     required DriverSettlementDraftWriteData data,
-    required String actorRole,
   });
 
   Future<Result<DriverSettlement>> finalizeSettlement({
     required DriverSettlementFinalizeData data,
-    required String actorRole,
   });
 
   Future<Result<DriverSettlement>> voidSettlement({
     required DriverSettlementVoidData data,
-    required String actorRole,
   });
 }
