@@ -15,7 +15,6 @@ abstract final class RoutesDependencies {
     final routesRemoteDataSource = SupabaseRoutesRemoteDataSource(client);
     final routesRepository = RoutesRepositoryImpl(
       remoteDataSource: routesRemoteDataSource,
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
 
     return RoutesCubit(

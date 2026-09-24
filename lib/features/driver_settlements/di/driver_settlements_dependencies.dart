@@ -22,7 +22,6 @@ abstract final class DriverSettlementsDependencies {
       moneyRemoteDataSource: remoteDataSource,
       driverBalanceRepository:
           DriverFinanceDependencies.createBalanceRepository(),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 

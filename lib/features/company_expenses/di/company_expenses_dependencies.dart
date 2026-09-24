@@ -3,7 +3,6 @@ import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../audit/di/audit_dependencies.dart';
-import '../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../company/di/company_dependencies.dart';
 import '../data/datasources/company_expenses_remote_data_source.dart';
 import '../data/repositories/company_expenses_repository_impl.dart';
@@ -19,13 +18,9 @@ abstract final class CompanyExpensesDependencies {
     );
   }
 
-  static CompanyExpensesRepository createRepository({
-    CreateAuditLogUseCase? createAuditLogUseCase,
-  }) {
+  static CompanyExpensesRepository createRepository() {
     return CompanyExpensesRepositoryImpl(
       remoteDataSource: createRemoteDataSource(),
-      createAuditLogUseCase:
-          createAuditLogUseCase ?? AuditDependencies.createAuditLogUseCase,
     );
   }
 
