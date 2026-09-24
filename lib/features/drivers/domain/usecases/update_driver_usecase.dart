@@ -98,7 +98,6 @@ class UpdateDriverUseCase implements UseCase<Driver, UpdateDriverParams> {
 
     return _repository.updateDriver(
       driverId: params.driverId,
-      actorRole: context.role.value,
       imageUploads: params.imageUploads,
       data: DriverWriteData(
         companyId: context.companyId,
