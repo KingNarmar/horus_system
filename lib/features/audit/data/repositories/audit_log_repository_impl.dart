@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/audit_entity_type.dart';
 import '../../domain/entities/audit_log.dart';
-import '../../domain/entities/audit_log_write_data.dart';
 import '../../domain/entities/audit_module.dart';
 import '../../domain/repositories/audit_log_repository.dart';
 import '../datasources/audit_logs_remote_data_source.dart';
@@ -15,14 +14,6 @@ class AuditLogRepositoryImpl implements AuditLogRepository {
 
   const AuditLogRepositoryImpl({required this.remoteDataSource})
     : _failureMapper = const AuditLogRepositoryFailureMapper();
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) {
-    return _guard(() async {
-      await remoteDataSource.createAuditLog(data: data);
-      return const Success(null);
-    });
-  }
 
   @override
   Future<Result<List<AuditLog>>> getEntityAuditLogs({
