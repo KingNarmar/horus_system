@@ -79,6 +79,17 @@ when Flutter is not running in debug mode.
 - Debug logging must remain disabled.
 - Android and Windows release builds must use this environment.
 
+## Production database provisioning
+
+Client configuration and database provisioning are separate release concerns.
+
+A production client must point only to the dedicated production Supabase
+project after that project has been provisioned and security-verified from the
+canonical repository migration history.
+
+See `docs/release/PRODUCTION_DATABASE_BOOTSTRAP.md` for the migration-history,
+fresh-project bootstrap, and Issue #197 verification contract.
+
 ## Fail-safe startup
 
 Configuration is validated before Supabase initialization.
