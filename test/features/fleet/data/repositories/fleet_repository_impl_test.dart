@@ -32,7 +32,9 @@ void main() {
       expect(remoteDataSource.lastTrailerListCompanyId, _companyId);
     });
 
-    test('creates tractor head through the server-audited mutation path', () async {
+    test(
+      'creates tractor head through the server-audited mutation path',
+      () async {
       final operations = <String>[];
       final remoteDataSource = _FakeFleetRemoteDataSource(
         operations: operations,
@@ -46,7 +48,8 @@ void main() {
 
       expect(result, isA<Success<TractorHead>>());
       expect(operations, ['add_tractor']);
-    });
+      },
+    );
 
     test('creates trailer through the server-audited mutation path', () async {
       final operations = <String>[];
@@ -135,7 +138,9 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('sanitizes Postgrest read failures through repository guard', () async {
+    test(
+      'sanitizes Postgrest read failures through repository guard',
+      () async {
       final repository = _repository(
         _FakeFleetRemoteDataSource(
           tractorListError: const PostgrestException(
@@ -150,9 +155,12 @@ void main() {
       expect(result.failureOrNull, isA<ServerFailure>());
       expect(result.failureOrNull?.code, FailureCodes.serverError);
       expect(result.failureOrNull?.message, isNull);
-    });
+      },
+    );
 
-    test('sanitizes unexpected read failures through repository guard', () async {
+    test(
+      'sanitizes unexpected read failures through repository guard',
+      () async {
       final repository = _repository(
         _FakeFleetRemoteDataSource(
           trailerListError: StateError('internal trailer read failure'),
@@ -164,7 +172,8 @@ void main() {
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
-    });
+      },
+    );
 
     test('keeps tractor model mapping inside the sanitized guard', () async {
       final repository = _repository(
