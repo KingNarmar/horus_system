@@ -263,4 +263,3 @@ class _FakeTripExpensesRemoteDataSource
     return _tripTotal;
   }
 }
-
