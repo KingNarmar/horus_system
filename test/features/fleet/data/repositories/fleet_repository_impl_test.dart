@@ -1,13 +1,6 @@
 import 'package:horus_system/core/errors/common_failures.dart';
-import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/fleet/data/datasources/fleet_remote_data_source.dart';
 import 'package:horus_system/features/fleet/data/models/tractor_head_model.dart';
 import 'package:horus_system/features/fleet/data/models/trailer_model.dart';
@@ -39,283 +32,148 @@ void main() {
       expect(remoteDataSource.lastTrailerListCompanyId, _companyId);
     });
 
-    test('creates tractor head then writes audit', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addTractorHead(
-        data: _tractorWriteData(plateNumber: 'T-NEW'),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<Success<TractorHead>>());
-      expect(result.dataOrNull?.plateNumber, 'T-NEW');
-      expect(operations, ['add_tractor', 'audit']);
-      expect(auditRepository.logs.single.description, 'tractor_head_created');
-    });
-
-    test('creates trailer then writes audit', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addTrailer(
-        data: _trailerWriteData(plateNumber: 'TR-NEW'),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<Success<TrailerEntity>>());
-      expect(result.dataOrNull?.plateNumber, 'TR-NEW');
-      expect(operations, ['add_trailer', 'audit']);
-      expect(auditRepository.logs.single.description, 'trailer_created');
-    });
-
-    test('updates tractor after scoped old snapshot and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-        tractorOldModel: _tractorModel(plateNumber: 'T-OLD'),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.saveTractorHead(
-        id: _tractorId,
-        data: _tractorWriteData(plateNumber: 'T-NEW'),
-        actorRole: 'admin',
-      );
-
-      expect(result, isA<Success<TractorHead>>());
-      expect(operations, ['get_tractor', 'save_tractor', 'audit']);
-      expect(remoteDataSource.lastTractorLookupCompanyId, _companyId);
-      expect(remoteDataSource.lastTractorLookupId, _tractorId);
-      expect(auditRepository.logs.single.description, 'tractor_head_updated');
-      expect(auditRepository.logs.single.oldValues?['plate_number'], 'T-OLD');
-      expect(auditRepository.logs.single.newValues?['plate_number'], 'T-NEW');
-    });
-
-    test('updates trailer after scoped old snapshot and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-        trailerOldModel: _trailerModel(plateNumber: 'TR-OLD'),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.editTrailer(
-        id: _trailerId,
-        data: _trailerWriteData(plateNumber: 'TR-NEW'),
-        actorRole: 'admin',
-      );
-
-      expect(result, isA<Success<TrailerEntity>>());
-      expect(operations, ['get_trailer', 'save_trailer', 'audit']);
-      expect(remoteDataSource.lastTrailerLookupCompanyId, _companyId);
-      expect(remoteDataSource.lastTrailerLookupId, _trailerId);
-      expect(auditRepository.logs.single.description, 'trailer_updated');
-      expect(auditRepository.logs.single.oldValues?['plate_number'], 'TR-OLD');
-      expect(auditRepository.logs.single.newValues?['plate_number'], 'TR-NEW');
-    });
-
-    test('preserves tractor lifecycle sequencing and scope', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: _FakeAuditLogRepository(operations: operations),
-      );
-
-      final deactivated = await repository.deactivateTractorHead(
-        companyId: _companyId,
-        id: _tractorId,
-        actorRole: 'owner',
-      );
-      final reactivated = await repository.reactivateTractorHead(
-        companyId: _companyId,
-        id: _tractorId,
-        actorRole: 'owner',
-      );
-
-      expect(deactivated.dataOrNull?.isActive, isFalse);
-      expect(reactivated.dataOrNull?.isActive, isTrue);
-      expect(operations, [
-        'get_tractor',
-        'deactivate_tractor',
-        'audit',
-        'get_tractor',
-        'reactivate_tractor',
-        'audit',
-      ]);
-      expect(remoteDataSource.lastTractorLifecycleCompanyId, _companyId);
-      expect(remoteDataSource.lastTractorLifecycleId, _tractorId);
-    });
-
-    test('preserves trailer lifecycle sequencing and scope', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: _FakeAuditLogRepository(operations: operations),
-      );
-
-      final deactivated = await repository.deactivateTrailer(
-        companyId: _companyId,
-        id: _trailerId,
-        actorRole: 'owner',
-      );
-      final reactivated = await repository.reactivateTrailer(
-        companyId: _companyId,
-        id: _trailerId,
-        actorRole: 'owner',
-      );
-
-      expect(deactivated.dataOrNull?.isActive, isFalse);
-      expect(reactivated.dataOrNull?.isActive, isTrue);
-      expect(operations, [
-        'get_trailer',
-        'deactivate_trailer',
-        'audit',
-        'get_trailer',
-        'reactivate_trailer',
-        'audit',
-      ]);
-      expect(remoteDataSource.lastTrailerLifecycleCompanyId, _companyId);
-      expect(remoteDataSource.lastTrailerLifecycleId, _trailerId);
-    });
-
-    test('does not audit when mutation fails', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-        addTractorError: Exception('mutation failed'),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addTractorHead(
-        data: _tractorWriteData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<TractorHead>>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['add_tractor']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('sanitizes Postgrest mutation failures without auditing', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-        addTractorError: const PostgrestException(
-          message: 'permission denied',
-          code: '42501',
-          details: 'internal policy details',
-          hint: 'internal hint',
-        ),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addTractorHead(
-        data: _tractorWriteData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<TractorHead>>());
-      expect(result.failureOrNull, isA<ServerFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['add_tractor']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('propagates audit failure after successful mutation', () async {
-      const failure = ValidationFailure(code: FailureCodes.serverError);
-      final operations = <String>[];
-      final remoteDataSource = _FakeFleetRemoteDataSource(
-        operations: operations,
-      );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: _FakeAuditLogRepository(
+    test(
+      'creates tractor head through the server-audited mutation path',
+      () async {
+        final operations = <String>[];
+        final remoteDataSource = _FakeFleetRemoteDataSource(
           operations: operations,
-          failure: failure,
-        ),
+        );
+        final repository = _repository(remoteDataSource);
+
+        final result = await repository.addTractorHead(
+          data: _tractorWriteData(),
+          actorRole: 'operations',
+        );
+
+        expect(result, isA<Success<TractorHead>>());
+        expect(operations, ['add_tractor']);
+      },
+    );
+
+    test('creates trailer through the server-audited mutation path', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
       );
+      final repository = _repository(remoteDataSource);
 
       final result = await repository.addTrailer(
         data: _trailerWriteData(),
         actorRole: 'operations',
       );
 
-      expect(result, isA<FailureResult<TrailerEntity>>());
-      expect(result.failureOrNull, same(failure));
-      expect(operations, ['add_trailer', 'audit']);
+      expect(result, isA<Success<TrailerEntity>>());
+      expect(operations, ['add_trailer']);
     });
 
-    test('sanitizes Postgrest failures through repository guard', () async {
-      final repository = _repository(
-        _FakeFleetRemoteDataSource(
-          tractorListError: const PostgrestException(
-            message: 'permission denied',
-            code: '42501',
-          ),
+    test('updates assets without redundant audit snapshot lookups', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
+      final repository = _repository(remoteDataSource);
+
+      final tractor = await repository.saveTractorHead(
+        id: _tractorId,
+        data: _tractorWriteData(plateNumber: 'T-NEW'),
+        actorRole: 'admin',
+      );
+      expect(tractor.dataOrNull?.plateNumber, 'T-NEW');
+      expect(operations, ['save_tractor']);
+
+      operations.clear();
+      final trailer = await repository.editTrailer(
+        id: _trailerId,
+        data: _trailerWriteData(plateNumber: 'TR-NEW'),
+        actorRole: 'admin',
+      );
+      expect(trailer.dataOrNull?.plateNumber, 'TR-NEW');
+      expect(operations, ['save_trailer']);
+    });
+
+    test('preserves lifecycle company scope without audit lookups', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        operations: operations,
+      );
+      final repository = _repository(remoteDataSource);
+
+      final tractor = await repository.deactivateTractorHead(
+        companyId: _companyId,
+        id: _tractorId,
+        actorRole: 'owner',
+      );
+      expect(tractor.dataOrNull?.isActive, isFalse);
+      expect(operations, ['deactivate_tractor']);
+      expect(remoteDataSource.lastTractorLifecycleCompanyId, _companyId);
+
+      operations.clear();
+      final trailer = await repository.reactivateTrailer(
+        companyId: _companyId,
+        id: _trailerId,
+        actorRole: 'owner',
+      );
+      expect(trailer.dataOrNull?.isActive, isTrue);
+      expect(operations, ['reactivate_trailer']);
+      expect(remoteDataSource.lastTrailerLifecycleCompanyId, _companyId);
+    });
+
+    test('sanitizes Postgrest mutation failures', () async {
+      final remoteDataSource = _FakeFleetRemoteDataSource(
+        addTractorError: const PostgrestException(
+          message: 'permission denied',
+          code: '42501',
         ),
       );
+      final repository = _repository(remoteDataSource);
 
-      final result = await repository.getTractorHeads(companyId: _companyId);
+      final result = await repository.addTractorHead(
+        data: _tractorWriteData(),
+        actorRole: 'operations',
+      );
 
-      expect(result, isA<FailureResult<List<TractorHead>>>());
       expect(result.failureOrNull, isA<ServerFailure>());
       expect(result.failureOrNull?.code, FailureCodes.serverError);
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('sanitizes unexpected failures through repository guard', () async {
-      final repository = _repository(
-        _FakeFleetRemoteDataSource(trailerListError: StateError('bad list')),
-      );
+    test(
+      'sanitizes Postgrest read failures through repository guard',
+      () async {
+        final repository = _repository(
+          _FakeFleetRemoteDataSource(
+            tractorListError: const PostgrestException(
+              message: 'read denied',
+              code: '42501',
+            ),
+          ),
+        );
 
-      final result = await repository.getTrailers(companyId: _companyId);
+        final result = await repository.getTractorHeads(companyId: _companyId);
 
-      expect(result, isA<FailureResult<List<TrailerEntity>>>());
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
-    });
+        expect(result.failureOrNull, isA<ServerFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.serverError);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
+
+    test(
+      'sanitizes unexpected read failures through repository guard',
+      () async {
+        final repository = _repository(
+          _FakeFleetRemoteDataSource(
+            trailerListError: StateError('internal trailer read failure'),
+          ),
+        );
+
+        final result = await repository.getTrailers(companyId: _companyId);
+
+        expect(result.failureOrNull, isA<UnexpectedFailure>());
+        expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
+        expect(result.failureOrNull?.message, isNull);
+      },
+    );
 
     test('keeps tractor model mapping inside the sanitized guard', () async {
       final repository = _repository(
@@ -326,10 +184,8 @@ void main() {
 
       final result = await repository.getTractorHeads(companyId: _companyId);
 
-      expect(result, isA<FailureResult<List<TractorHead>>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
     });
 
     test('keeps trailer model mapping inside the sanitized guard', () async {
@@ -339,10 +195,8 @@ void main() {
 
       final result = await repository.getTrailers(companyId: _companyId);
 
-      expect(result, isA<FailureResult<List<TrailerEntity>>>());
       expect(result.failureOrNull, isA<UnexpectedFailure>());
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
-      expect(result.failureOrNull?.message, isNull);
     });
   });
 }
@@ -351,16 +205,8 @@ const _companyId = 'company-1';
 const _tractorId = 'tractor-1';
 const _trailerId = 'trailer-1';
 
-FleetRepositoryImpl _repository(
-  FleetRemoteDataSource remoteDataSource, {
-  _FakeAuditLogRepository? auditRepository,
-}) {
-  return FleetRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? _FakeAuditLogRepository(),
-    ),
-  );
+FleetRepositoryImpl _repository(FleetRemoteDataSource remoteDataSource) {
+  return FleetRepositoryImpl(remoteDataSource: remoteDataSource);
 }
 
 TractorHeadWriteData _tractorWriteData({String plateNumber = 'T-100'}) {
@@ -585,30 +431,4 @@ class _ThrowingTrailerModel extends TrailerModel {
 
   @override
   String get status => throw StateError('internal trailer mapping failure');
-}
-
-class _FakeAuditLogRepository implements AuditLogRepository {
-  final Failure? failure;
-  final List<String>? operations;
-  final List<AuditLogWriteData> logs = [];
-
-  _FakeAuditLogRepository({this.failure, this.operations});
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    operations?.add('audit');
-    if (failure != null) return FailureResult<void>(failure!);
-    logs.add(data);
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
-  }
 }

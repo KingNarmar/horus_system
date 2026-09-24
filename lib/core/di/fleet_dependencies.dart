@@ -18,10 +18,7 @@ abstract final class FleetDependencies {
   static FleetCubit createFleetCubit() {
     final client = SupabaseClientProvider.client;
     final remoteDataSource = SupabaseFleetRemoteDataSource(client);
-    final repository = FleetRepositoryImpl(
-      remoteDataSource: remoteDataSource,
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
-    );
+    final repository = FleetRepositoryImpl(remoteDataSource: remoteDataSource);
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
     return FleetCubit(
       getTractorHeadsUseCase: GetTractorHeadsUseCase(repository),

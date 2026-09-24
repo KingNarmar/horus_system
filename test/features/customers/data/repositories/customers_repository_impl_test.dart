@@ -1,13 +1,6 @@
 import 'package:horus_system/core/errors/common_failures.dart';
-import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/customers/data/datasources/customers_remote_data_source.dart';
 import 'package:horus_system/features/customers/data/models/customer_model.dart';
 import 'package:horus_system/features/customers/data/repositories/customers_repository_impl.dart';
@@ -52,16 +45,12 @@ void main() {
       expect(result.failureOrNull?.message, isNull);
     });
 
-    test('adds customer then writes audit', () async {
+    test('adds customer through the scoped data source', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeCustomersRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = _repository(remoteDataSource);
 
       final result = await repository.addCustomer(
         data: _writeData(name: 'New Customer'),
@@ -70,106 +59,78 @@ void main() {
 
       expect(result, isA<Success<Customer>>());
       expect(result.dataOrNull?.name, 'New Customer');
-      expect(operations, ['add_customer', 'audit']);
-      expect(auditRepository.logs.single.description, 'customer_created');
+      expect(operations, ['add_customer']);
+    });
+
+    test('updates customer without redundant audit snapshot lookup', () async {
+      final operations = <String>[];
+      final remoteDataSource = _FakeCustomersRemoteDataSource(
+        operations: operations,
+      );
+      final repository = _repository(remoteDataSource);
+
+      final result = await repository.updateCustomer(
+        customerId: _customerId,
+        data: _writeData(name: 'Updated Customer'),
+        actorRole: 'admin',
+      );
+
+      expect(result, isA<Success<Customer>>());
+      expect(result.dataOrNull?.name, 'Updated Customer');
+      expect(operations, ['update_customer']);
+      expect(remoteDataSource.lastLookupCompanyId, isNull);
+      expect(remoteDataSource.lastLookupCustomerId, isNull);
     });
 
     test(
-      'updates after company-scoped old snapshot lookup and audits last',
+      'deactivates customer without redundant audit snapshot lookup',
       () async {
         final operations = <String>[];
         final remoteDataSource = _FakeCustomersRemoteDataSource(
           operations: operations,
-          oldModel: _model(name: 'Old Customer'),
         );
-        final auditRepository = _FakeAuditLogRepository(operations: operations);
-        final repository = _repository(
-          remoteDataSource,
-          auditRepository: auditRepository,
-        );
+        final repository = _repository(remoteDataSource);
 
-        final result = await repository.updateCustomer(
+        final result = await repository.deactivateCustomer(
+          companyId: _companyId,
           customerId: _customerId,
-          data: _writeData(name: 'Updated Customer'),
-          actorRole: 'admin',
+          actorRole: 'owner',
         );
 
         expect(result, isA<Success<Customer>>());
-        expect(operations, ['get_customer', 'update_customer', 'audit']);
-        expect(remoteDataSource.lastLookupCompanyId, _companyId);
-        expect(remoteDataSource.lastLookupCustomerId, _customerId);
-        expect(auditRepository.logs.single.description, 'customer_updated');
-        expect(auditRepository.logs.single.oldValues?['name'], 'Old Customer');
-        expect(
-          auditRepository.logs.single.newValues?['name'],
-          'Updated Customer',
-        );
+        expect(result.dataOrNull?.isActive, isFalse);
+        expect(operations, ['deactivate_customer']);
       },
     );
 
-    test('deactivates after old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-        oldModel: _model(isActive: true),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+    test(
+      'reactivates customer without redundant audit snapshot lookup',
+      () async {
+        final operations = <String>[];
+        final remoteDataSource = _FakeCustomersRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(remoteDataSource);
 
-      final result = await repository.deactivateCustomer(
-        companyId: _companyId,
-        customerId: _customerId,
-        actorRole: 'owner',
-      );
+        final result = await repository.reactivateCustomer(
+          companyId: _companyId,
+          customerId: _customerId,
+          actorRole: 'owner',
+        );
 
-      expect(result, isA<Success<Customer>>());
-      expect(result.dataOrNull?.isActive, isFalse);
-      expect(operations, ['get_customer', 'deactivate_customer', 'audit']);
-      expect(auditRepository.logs.single.description, 'customer_deactivated');
-      expect(auditRepository.logs.single.oldValues?['is_active'], isTrue);
-      expect(auditRepository.logs.single.newValues?['is_active'], isFalse);
-    });
+        expect(result, isA<Success<Customer>>());
+        expect(result.dataOrNull?.isActive, isTrue);
+        expect(operations, ['reactivate_customer']);
+      },
+    );
 
-    test('reactivates after old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-        oldModel: _model(isActive: false),
-      );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.reactivateCustomer(
-        companyId: _companyId,
-        customerId: _customerId,
-        actorRole: 'owner',
-      );
-
-      expect(result, isA<Success<Customer>>());
-      expect(result.dataOrNull?.isActive, isTrue);
-      expect(operations, ['get_customer', 'reactivate_customer', 'audit']);
-      expect(auditRepository.logs.single.description, 'customer_reactivated');
-      expect(auditRepository.logs.single.oldValues?['is_active'], isFalse);
-      expect(auditRepository.logs.single.newValues?['is_active'], isTrue);
-    });
-
-    test('does not audit when mutation fails', () async {
+    test('sanitizes mutation failure', () async {
       final operations = <String>[];
       final remoteDataSource = _FakeCustomersRemoteDataSource(
         operations: operations,
         addError: Exception('mutation failed'),
       );
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = _repository(remoteDataSource);
 
       final result = await repository.addCustomer(
         data: _writeData(),
@@ -181,31 +142,6 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.unexpectedError);
       expect(result.failureOrNull?.message, isNull);
       expect(operations, ['add_customer']);
-      expect(auditRepository.logs, isEmpty);
-    });
-
-    test('propagates audit failure after successful mutation', () async {
-      final operations = <String>[];
-      final remoteDataSource = _FakeCustomersRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = _FakeAuditLogRepository(
-        operations: operations,
-        failure: const ValidationFailure(code: FailureCodes.serverError),
-      );
-      final repository = _repository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addCustomer(
-        data: _writeData(),
-        actorRole: 'operations',
-      );
-
-      expect(result, isA<FailureResult<Customer>>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(operations, ['add_customer', 'audit']);
     });
   });
 }
@@ -221,15 +157,9 @@ const _postgrestException = PostgrestException(
 );
 
 CustomersRepositoryImpl _repository(
-  CustomersRemoteDataSource remoteDataSource, {
-  _FakeAuditLogRepository? auditRepository,
-}) {
-  return CustomersRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? _FakeAuditLogRepository(),
-    ),
-  );
+  CustomersRemoteDataSource remoteDataSource,
+) {
+  return CustomersRepositoryImpl(remoteDataSource: remoteDataSource);
 }
 
 CustomerWriteData _writeData({String name = 'Customer One'}) {
@@ -346,30 +276,4 @@ class _ThrowingCustomerModel extends CustomerModel {
 
   @override
   String get id => throw StateError('secret model mapping detail');
-}
-
-class _FakeAuditLogRepository implements AuditLogRepository {
-  final Failure? failure;
-  final List<String>? operations;
-  final List<AuditLogWriteData> logs = [];
-
-  _FakeAuditLogRepository({this.failure, this.operations});
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    operations?.add('audit');
-    if (failure != null) return FailureResult<void>(failure!);
-    logs.add(data);
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) async {
-    return const Success<List<AuditLog>>([]);
-  }
 }
