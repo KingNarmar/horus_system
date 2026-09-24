@@ -298,4 +298,3 @@ class _FakeDriverImagesRemoteDataSource
   @override
   Future<void> removeImages({required List<String> paths}) async {}
 }
-
