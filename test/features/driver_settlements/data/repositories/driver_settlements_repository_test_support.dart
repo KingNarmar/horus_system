@@ -343,4 +343,3 @@ class FakeDriverBalanceRepository implements DriverBalanceRepository {
     return result ?? Success(canonicalBalance(0));
   }
 }
-
