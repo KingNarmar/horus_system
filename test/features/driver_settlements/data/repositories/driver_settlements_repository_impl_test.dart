@@ -1,4 +1,3 @@
-import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_period.dart';
 import 'package:horus_system/features/driver_settlements/domain/entities/driver_settlement_source_snapshot.dart';
@@ -9,18 +8,12 @@ import 'driver_settlements_repository_test_support.dart';
 
 void main() {
   group('DriverSettlementsRepositoryImpl', () {
-    test('creates draft and writes audit after successful mutation', () async {
+    test('creates draft through the business data source', () async {
       final operations = <String>[];
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.createDraft(
         actorRole: testActorRole,
@@ -30,50 +23,15 @@ void main() {
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, testSettlementId);
       expect(remoteDataSource.createDraftCalls, 1);
-      expect(operations, ['create_draft', 'audit']);
-      expect(auditRepository.logs, hasLength(1));
-      expect(
-        auditRepository.logs.single.description,
-        'driver_settlement_created',
-      );
+      expect(operations, ['create_draft']);
     });
 
-    test('propagates create audit failure unchanged', () async {
-      const auditFailure = ValidationFailure(
-        code: 'audit_blocked',
-        message: 'domain audit failure',
-      );
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource();
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        failure: auditFailure,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.createDraft(
-        actorRole: testActorRole,
-        data: draftWriteData(),
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, same(auditFailure));
-      expect(remoteDataSource.createDraftCalls, 1);
-    });
-
-    test('finalizes after exact old snapshot lookup and audits last', () async {
+    test('finalizes without a client-side audit snapshot lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.finalizeSettlement(
         data: finalizeData,
@@ -82,60 +40,16 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.status, DriverSettlementStatus.finalized);
-      expect(operations, ['get_settlement', 'finalize_settlement', 'audit']);
-      expect(remoteDataSource.lastLookupCompanyId, finalizeData.companyId);
-      expect(
-        remoteDataSource.lastLookupSettlementId,
-        finalizeData.settlementId,
-      );
-      expect(
-        auditRepository.logs.single.description,
-        'driver_settlement_finalized',
-      );
-      expect(auditRepository.logs.single.oldValues?['status'], 'draft');
-      expect(auditRepository.logs.single.newValues?['status'], 'finalized');
+      expect(operations, ['finalize_settlement']);
+      expect(remoteDataSource.lookupCalls, 0);
     });
 
-    test('propagates finalize audit failure unchanged', () async {
-      const auditFailure = ValidationFailure(
-        code: 'audit_blocked',
-        message: 'domain audit failure',
-      );
+    test('voids without a client-side audit snapshot lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        failure: auditFailure,
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.finalizeSettlement(
-        data: finalizeData,
-        actorRole: testActorRole,
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, same(auditFailure));
-      expect(operations, ['get_settlement', 'finalize_settlement', 'audit']);
-    });
-
-    test('voids after exact old snapshot lookup and audits last', () async {
-      final operations = <String>[];
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createDriverSettlementsRepository(remoteDataSource);
 
       final result = await repository.voidSettlement(
         data: voidData,
@@ -144,43 +58,8 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.status, DriverSettlementStatus.voided);
-      expect(operations, ['get_settlement', 'void_settlement', 'audit']);
-      expect(remoteDataSource.lastLookupCompanyId, voidData.companyId);
-      expect(remoteDataSource.lastLookupSettlementId, voidData.settlementId);
-      expect(
-        auditRepository.logs.single.description,
-        'driver_settlement_voided',
-      );
-      expect(auditRepository.logs.single.oldValues?['status'], 'draft');
-      expect(auditRepository.logs.single.newValues?['status'], 'voided');
-    });
-
-    test('propagates void audit failure unchanged', () async {
-      const auditFailure = ValidationFailure(
-        code: 'audit_blocked',
-        message: 'domain audit failure',
-      );
-      final operations = <String>[];
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
-        operations: operations,
-      );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        failure: auditFailure,
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.voidSettlement(
-        data: voidData,
-        actorRole: testActorRole,
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull, same(auditFailure));
-      expect(operations, ['get_settlement', 'void_settlement', 'audit']);
+      expect(operations, ['void_settlement']);
+      expect(remoteDataSource.lookupCalls, 0);
     });
 
     test('uses exact period-bounded canonical balance as opening', () async {

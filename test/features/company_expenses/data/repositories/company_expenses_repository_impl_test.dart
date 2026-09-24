@@ -1,5 +1,3 @@
-import 'package:horus_system/core/errors/common_failures.dart';
-import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:test/test.dart';
 
@@ -7,18 +5,12 @@ import 'company_expenses_repository_test_support.dart';
 
 void main() {
   group('CompanyExpensesRepositoryImpl', () {
-    test('adds expense and writes audit after successful mutation', () async {
+    test('adds expense through the business data source', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.addCompanyExpense(
         data: companyExpenseWriteData(),
@@ -27,45 +19,15 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.id, testExpenseId);
-      expect(operations, ['add_expense', 'audit']);
-      expect(
-        auditRepository.logs.single.description,
-        'company_expense_created',
-      );
+      expect(operations, ['add_expense']);
     });
 
-    test('propagates audit failure after successful mutation', () async {
-      final remoteDataSource = FakeCompanyExpensesRemoteDataSource();
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        failure: const ValidationFailure(code: FailureCodes.serverError),
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
-
-      final result = await repository.addCompanyExpense(
-        data: companyExpenseWriteData(),
-        actorRole: 'accountant',
-      );
-
-      expect(result, isA<FailureResult>());
-      expect(result.failureOrNull?.code, FailureCodes.serverError);
-      expect(remoteDataSource.addCalls, 1);
-    });
-
-    test('updates after old snapshot lookup and audits last', () async {
+    test('updates without a client-side audit snapshot lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.updateCompanyExpense(
         id: testExpenseId,
@@ -75,29 +37,17 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.amount, 175);
-      expect(operations, ['get_expense', 'update_expense', 'audit']);
-      expect(remoteDataSource.lastLookupCompanyId, testCompanyId);
-      expect(remoteDataSource.lastLookupExpenseId, testExpenseId);
-      expect(
-        auditRepository.logs.single.description,
-        'company_expense_updated',
-      );
-      expect(auditRepository.logs.single.oldValues?['amount'], 125.5);
-      expect(auditRepository.logs.single.newValues?['amount'], 175);
+      expect(operations, ['update_expense']);
+      expect(remoteDataSource.lastLookupCompanyId, isNull);
+      expect(remoteDataSource.lastLookupExpenseId, isNull);
     });
 
-    test('voids after old snapshot lookup and audits last', () async {
+    test('voids without a client-side audit snapshot lookup', () async {
       final operations = <String>[];
       final remoteDataSource = FakeCompanyExpensesRemoteDataSource(
         operations: operations,
       );
-      final auditRepository = FakeCompanyExpenseAuditLogRepository(
-        operations: operations,
-      );
-      final repository = createCompanyExpensesRepository(
-        remoteDataSource,
-        auditRepository: auditRepository,
-      );
+      final repository = createCompanyExpensesRepository(remoteDataSource);
 
       final result = await repository.voidCompanyExpense(
         data: companyExpenseVoidData,
@@ -106,12 +56,9 @@ void main() {
 
       expect(result, isA<Success>());
       expect(result.dataOrNull?.isVoided, isTrue);
-      expect(operations, ['get_expense', 'void_expense', 'audit']);
-      expect(remoteDataSource.lastLookupCompanyId, testCompanyId);
-      expect(remoteDataSource.lastLookupExpenseId, testExpenseId);
-      expect(auditRepository.logs.single.description, 'company_expense_voided');
-      expect(auditRepository.logs.single.oldValues?['is_voided'], isFalse);
-      expect(auditRepository.logs.single.newValues?['is_voided'], isTrue);
+      expect(operations, ['void_expense']);
+      expect(remoteDataSource.lastLookupCompanyId, isNull);
+      expect(remoteDataSource.lastLookupExpenseId, isNull);
     });
 
     test('forwards company scope when loading expenses', () async {
