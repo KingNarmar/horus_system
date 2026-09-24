@@ -90,6 +90,97 @@ class DriversRepositoryImpl implements DriversRepository {
     DriverImageUploadSet? imageUploads,
   }) {
     return _guard(() async {
+      final oldModel = await remoteDataSource.getDriverById(
+        companyId: data.companyId,
+        driverId: driverId,
+      );
+      final uploadedPaths = <String>[];
+      try {
+        final dataWithImages = await _imageUploads.dataWithUploadedImages(
+          driverId: driverId,
+          data: data,
+          imageUploads: imageUploads,
+          fallback: oldModel,
+          uploadedPaths: uploadedPaths,
+        );
+        if (!_changeDetector.hasDriverChanges(oldModel, dataWithImages)) {
+          return Success(oldModel.toEntity());
+        }
+        final model = await remoteDataSource.updateDriver(
+          driverId: driverId,
+          data: dataWithImages,
+        );
+        return Success(model.toEntity());
+      } catch (_) {
+        await _imageUploads.removeUploadedImages(paths: uploadedPaths);
+        rethrow;
+      }
+    });
+  }
+
+  String _driverIdForInsert() => newUuidV4();
+
+  @override
+  Future<Result<Driver>> deactivateDriver({
+    required String companyId,
+    required String driverId,
+    required String actorRole,
+  }) {
+    return _changeStatus(
+      companyId: companyId,
+      driverId: driverId,
+      mutate: remoteDataSource.deactivateDriver,
+    );
+  }
+
+  @override
+  Future<Result<Driver>> reactivateDriver({
+    required String companyId,
+    required String driverId,
+    required String actorRole,
+  }) {
+    return _changeStatus(
+      companyId: companyId,
+      driverId: driverId,
+      mutate: remoteDataSource.reactivateDriver,
+    );
+  }
+
+  @override
+  Future<Result<DriverImageUrls>> getDriverImageUrls({required Driver driver}) {
+    return _guard(() async {
+      return Success(
+        DriverImageUrls(
+          profileImageUrl: await _imageUploads.signedUrl(
+            driver.profileImagePath,
+          ),
+          licenseImageUrl: await _imageUploads.signedUrl(
+            driver.licenseImagePath,
+          ),
+          licenseBackImageUrl: await _imageUploads.signedUrl(
+            driver.licenseBackImagePath,
+          ),
+          nationalIdImageUrl: await _imageUploads.signedUrl(
+            driver.nationalIdImagePath,
+          ),
+          nationalIdBackImageUrl: await _imageUploads.signedUrl(
+            driver.nationalIdBackImagePath,
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<Result<Driver>> _changeStatus({
+    required String companyId,
+    required String driverId,
+    required Future<DriverModel> Function({
+      required String companyId,
+      required String driverId,
+    })
+    mutate,
+  }) {
+    return _guard(() async {
       final model = await mutate(companyId: companyId, driverId: driverId);
       return Success(model.toEntity());
     });
