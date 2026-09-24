@@ -244,7 +244,6 @@ Future<Result<DriverFinancialMovement>> _addMovement({
   }
 
   return repository.addDriverMovement(
-    actorRole: context.role.name,
     data: DriverFinancialMovementWriteData(
       companyId: context.companyId,
       driverId: driverId.trim(),
