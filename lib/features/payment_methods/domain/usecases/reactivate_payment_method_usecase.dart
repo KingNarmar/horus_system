@@ -53,7 +53,6 @@ class ReactivatePaymentMethodUseCase
     return _repository.reactivatePaymentMethod(
       companyId: context.companyId,
       paymentMethodId: normalizedId,
-      actorRole: context.role.value,
     );
   }
 }
