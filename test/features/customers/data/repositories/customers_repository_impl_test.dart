@@ -82,7 +82,9 @@ void main() {
       expect(remoteDataSource.lastLookupCustomerId, isNull);
     });
 
-    test('deactivates customer without redundant audit snapshot lookup', () async {
+    test(
+      'deactivates customer without redundant audit snapshot lookup',
+      () async {
       final operations = <String>[];
       final remoteDataSource = _FakeCustomersRemoteDataSource(
         operations: operations,
@@ -98,9 +100,12 @@ void main() {
       expect(result, isA<Success<Customer>>());
       expect(result.dataOrNull?.isActive, isFalse);
       expect(operations, ['deactivate_customer']);
-    });
+      },
+    );
 
-    test('reactivates customer without redundant audit snapshot lookup', () async {
+    test(
+      'reactivates customer without redundant audit snapshot lookup',
+      () async {
       final operations = <String>[];
       final remoteDataSource = _FakeCustomersRemoteDataSource(
         operations: operations,
@@ -116,7 +121,8 @@ void main() {
       expect(result, isA<Success<Customer>>());
       expect(result.dataOrNull?.isActive, isTrue);
       expect(operations, ['reactivate_customer']);
-    });
+      },
+    );
 
     test('sanitizes mutation failure', () async {
       final operations = <String>[];
