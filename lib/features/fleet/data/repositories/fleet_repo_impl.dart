@@ -1,8 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
-import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/tractor_head.dart';
 import '../../domain/entities/tractor_head_write_data.dart';
 import '../../domain/entities/trailer_entity.dart';
@@ -13,22 +11,16 @@ import '../mappers/tractor_mapper.dart';
 import '../mappers/trailers_mapper.dart';
 import '../models/tractor_head_model.dart';
 import '../models/trailer_model.dart';
-import 'fleet_repository_audit_writer.dart';
 import 'fleet_repository_failure_mapper.dart';
 
 class FleetRepositoryImpl implements FleetRepository {
   final FleetRemoteDataSource remoteDataSource;
-  final CreateAuditLogUseCase createAuditLogUseCase;
   final FleetRepositoryFailureMapper _failureMapper;
 
   const FleetRepositoryImpl({
     required this.remoteDataSource,
-    required this.createAuditLogUseCase,
   }) : _failureMapper = const FleetRepositoryFailureMapper();
 
-  FleetRepositoryAuditWriter get _auditWriter {
-    return FleetRepositoryAuditWriter(createAuditLogUseCase);
-  }
 
   @override
   Future<Result<List<TractorHead>>> getTractorHeads({
@@ -59,13 +51,6 @@ class FleetRepositoryImpl implements FleetRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTractorHead(data: data);
-      final auditFailure = await _auditWriter.writeTractorHeadCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TractorHead>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
@@ -77,19 +62,7 @@ class FleetRepositoryImpl implements FleetRepository {
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTractorHeadById(
-        companyId: data.companyId,
-        id: id,
-      );
       final model = await remoteDataSource.saveTractorHead(id: id, data: data);
-      final auditFailure = await _auditWriter.writeTractorHeadUpdated(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TractorHead>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
@@ -103,9 +76,7 @@ class FleetRepositoryImpl implements FleetRepository {
     return _changeTractorHeadActiveState(
       companyId: companyId,
       id: id,
-      actorRole: actorRole,
       change: remoteDataSource.deactivateTractorHead,
-      writeAudit: _auditWriter.writeTractorHeadDeactivated,
     );
   }
 
@@ -118,9 +89,7 @@ class FleetRepositoryImpl implements FleetRepository {
     return _changeTractorHeadActiveState(
       companyId: companyId,
       id: id,
-      actorRole: actorRole,
       change: remoteDataSource.reactivateTractorHead,
-      writeAudit: _auditWriter.writeTractorHeadReactivated,
     );
   }
 
@@ -131,13 +100,6 @@ class FleetRepositoryImpl implements FleetRepository {
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addTrailer(data: data);
-      final auditFailure = await _auditWriter.writeTrailerCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TrailerEntity>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
@@ -149,19 +111,7 @@ class FleetRepositoryImpl implements FleetRepository {
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTrailerById(
-        companyId: data.companyId,
-        id: id,
-      );
       final model = await remoteDataSource.editTrailer(id: id, data: data);
-      final auditFailure = await _auditWriter.writeTrailerUpdated(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TrailerEntity>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
@@ -175,9 +125,7 @@ class FleetRepositoryImpl implements FleetRepository {
     return _changeTrailerActiveState(
       companyId: companyId,
       id: id,
-      actorRole: actorRole,
       change: remoteDataSource.deactivateTrailer,
-      writeAudit: _auditWriter.writeTrailerDeactivated,
     );
   }
 
@@ -190,42 +138,21 @@ class FleetRepositoryImpl implements FleetRepository {
     return _changeTrailerActiveState(
       companyId: companyId,
       id: id,
-      actorRole: actorRole,
       change: remoteDataSource.reactivateTrailer,
-      writeAudit: _auditWriter.writeTrailerReactivated,
     );
   }
 
   Future<Result<TractorHead>> _changeTractorHeadActiveState({
     required String companyId,
     required String id,
-    required String actorRole,
     required Future<TractorHeadModel> Function({
       required String companyId,
       required String id,
     })
     change,
-    required Future<Failure?> Function({
-      required TractorHeadModel oldModel,
-      required TractorHeadModel model,
-      required String actorRole,
-    })
-    writeAudit,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTractorHeadById(
-        companyId: companyId,
-        id: id,
-      );
       final model = await change(companyId: companyId, id: id);
-      final auditFailure = await writeAudit(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TractorHead>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
@@ -233,33 +160,14 @@ class FleetRepositoryImpl implements FleetRepository {
   Future<Result<TrailerEntity>> _changeTrailerActiveState({
     required String companyId,
     required String id,
-    required String actorRole,
     required Future<TrailerModel> Function({
       required String companyId,
       required String id,
     })
     change,
-    required Future<Failure?> Function({
-      required TrailerModel oldModel,
-      required TrailerModel model,
-      required String actorRole,
-    })
-    writeAudit,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getTrailerById(
-        companyId: companyId,
-        id: id,
-      );
       final model = await change(companyId: companyId, id: id);
-      final auditFailure = await writeAudit(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-      if (auditFailure != null) {
-        return FailureResult<TrailerEntity>(auditFailure);
-      }
       return Success(model.toEntity());
     });
   }
