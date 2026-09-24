@@ -177,7 +177,6 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
     if (id == null) {
       return _repository.addRoute(
         data: data,
-        actorRole: context.role.value,
         financialConfiguration: configuration,
       );
     }
@@ -185,7 +184,6 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
     return _repository.saveRoute(
       id: id,
       data: data,
-      actorRole: context.role.value,
       financialConfiguration: configuration,
     );
   }
@@ -226,7 +224,6 @@ Future<Result<RouteEntity>> _changeRouteActiveState({
   required Future<Result<RouteEntity>> Function({
     required String companyId,
     required String id,
-    required String actorRole,
     required CurrencyConfiguration? financialConfiguration,
   })
   action,
@@ -247,7 +244,6 @@ Future<Result<RouteEntity>> _changeRouteActiveState({
   return action(
     companyId: context.companyId,
     id: params.id,
-    actorRole: context.role.value,
     financialConfiguration: _financialConfiguration(context),
   );
 }
