@@ -85,7 +85,6 @@ final class EndDriverCompensationRevisionUseCase
       companyId: params.currentCompanyContext.companyId,
       revisionId: revision.id,
       driverId: revision.driverId,
-      actorRole: params.currentCompanyContext.role.value,
       effectiveTo: params.effectiveTo,
     );
   }
