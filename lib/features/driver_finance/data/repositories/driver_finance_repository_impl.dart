@@ -50,7 +50,6 @@ class DriverFinanceRepositoryImpl implements DriverFinanceRepository {
   @override
   Future<Result<DriverFinancialMovement>> addDriverMovement({
     required DriverFinancialMovementWriteData data,
-    required String actorRole,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.addDriverMovement(data: data);
