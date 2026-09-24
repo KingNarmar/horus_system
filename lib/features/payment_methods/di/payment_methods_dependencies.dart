@@ -16,9 +16,7 @@ abstract final class PaymentMethodsDependencies {
     final remoteDataSource = SupabasePaymentMethodsRemoteDataSource(
       SupabaseClientProvider.client,
     );
-    return PaymentMethodsRepositoryImpl(
-      remoteDataSource: remoteDataSource,
-    );
+    return PaymentMethodsRepositoryImpl(remoteDataSource: remoteDataSource);
   }
 
   static PaymentMethodsCubit createCubit() {
