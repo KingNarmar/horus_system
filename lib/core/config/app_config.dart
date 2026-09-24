@@ -141,7 +141,12 @@ enum _SupabaseKeyKind { publishable, legacyAnon, privileged, invalid }
 _SupabaseKeyKind _classifySupabaseKey(String value) {
   final lowerValue = value.toLowerCase();
 
-  if (lowerValue.startsWith('sb_secret_')) {
+  final structuredKeyParts = lowerValue.split('_');
+  final isSecretKey =
+      structuredKeyParts.length >= 3 &&
+      structuredKeyParts[0] == 'sb' &&
+      structuredKeyParts[1] == 'secret';
+  if (isSecretKey) {
     return _SupabaseKeyKind.privileged;
   }
 

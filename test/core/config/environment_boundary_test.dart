@@ -34,4 +34,12 @@ void main() {
     expect(pubspec, isNot(contains('flutter_dotenv')));
     expect(pubspec, isNot(contains('- .env')));
   });
+
+  test('production config source does not embed secret-key prefix marker', () {
+    final configSource = File(
+      'lib/core/config/app_config.dart',
+    ).readAsStringSync();
+
+    expect(configSource, isNot(contains('sb_secret_')));
+  });
 }
