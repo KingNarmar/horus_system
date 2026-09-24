@@ -29,20 +29,20 @@ void main() {
     test(
       'finalizes settlement without redundant audit snapshot lookup',
       () async {
-      final operations = <String>[];
-      final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
-        operations: operations,
-      );
-      final repository = createDriverSettlementsRepository(remoteDataSource);
+        final operations = <String>[];
+        final remoteDataSource = FakeDriverSettlementsRemoteDataSource(
+          operations: operations,
+        );
+        final repository = createDriverSettlementsRepository(remoteDataSource);
 
-      final result = await repository.finalizeSettlement(
-        data: finalizeData,
-        actorRole: testActorRole,
-      );
+        final result = await repository.finalizeSettlement(
+          data: finalizeData,
+          actorRole: testActorRole,
+        );
 
-      expect(result, isA<Success>());
-      expect(result.dataOrNull?.status, DriverSettlementStatus.finalized);
-      expect(operations, ['finalize_settlement']);
+        expect(result, isA<Success>());
+        expect(result.dataOrNull?.status, DriverSettlementStatus.finalized);
+        expect(operations, ['finalize_settlement']);
       },
     );
 
