@@ -36,6 +36,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  msix: ^3.18.0
   test: ^1.25.15
 
 flutter:
@@ -44,3 +45,13 @@ flutter:
 
   assets:
     - .env
+
+msix_config:
+  display_name: HORUS System
+  publisher_display_name: King Narmar
+  identity_name: KingNarmar.HORUSSystem
+  publisher: CN=E9CE55B8-AEDA-43A1-9E0C-43ADE997A176
+  architecture: x64
+  capabilities: internetClient
+  output_name: horus-system-store
+  store: true

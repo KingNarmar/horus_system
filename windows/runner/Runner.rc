@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "horus_system" "\0"
+            VALUE "CompanyName", "King Narmar" "\0"
+            VALUE "FileDescription", "HORUS System" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "horus_system" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "horus_system.exe" "\0"
-            VALUE "ProductName", "horus_system" "\0"
+            VALUE "InternalName", "horus" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 King Narmar. All rights reserved." "\0"
+            VALUE "OriginalFilename", "horus.exe" "\0"
+            VALUE "ProductName", "HORUS System" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
