@@ -93,7 +93,6 @@ class AddCustomerUseCase implements UseCase<Customer, AddCustomerParams> {
     }
 
     return _repository.addCustomer(
-      actorRole: context.role.value,
       data: CustomerWriteData(
         companyId: context.companyId,
         name: normalizedName,
