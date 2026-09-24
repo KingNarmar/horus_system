@@ -7,6 +7,8 @@
 -- - reports/dashboard read Trip Expense financials from the canonical ledger.
 -- - legacy Company Expense coexistence remains intact for its later retirement issue.
 
+BEGIN;
+
 LOCK TABLE public.trip_expenses IN SHARE ROW EXCLUSIVE MODE;
 LOCK TABLE public.expense_ledger_entries IN SHARE ROW EXCLUSIVE MODE;
 LOCK TABLE public.expense_types IN SHARE ROW EXCLUSIVE MODE;
@@ -1177,3 +1179,5 @@ DROP POLICY IF EXISTS trip_expenses_update ON public.trip_expenses;
 -- name/status lifecycle remains available through the existing update policy.
 REVOKE INSERT ON TABLE public.expense_types FROM authenticated;
 DROP POLICY IF EXISTS expense_types_insert_scoped ON public.expense_types;
+
+COMMIT;
