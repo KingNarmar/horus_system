@@ -2,12 +2,6 @@ import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_log_write_data.dart';
-import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
-import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import 'package:horus_system/features/drivers/data/datasources/drivers_remote_data_source.dart';
 import 'package:horus_system/features/drivers/data/mappers/driver_mapper.dart';
@@ -53,16 +47,14 @@ void main() {
       _expectSanitizedUnexpectedFailure(result.failureOrNull);
     });
 
-    test('sanitizes unexpected mutation failures without auditing', () async {
+    test('sanitizes unexpected mutation failures', () async {
       final operations = <String>[];
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = _repository(
         remoteDataSource: _FakeDriversRemoteDataSource(
           _driverModel,
           addError: StateError('secret mutation detail'),
           operations: operations,
         ),
-        auditRepository: auditRepository,
       );
 
       final result = await repository.addDriver(
@@ -72,18 +64,15 @@ void main() {
 
       _expectSanitizedUnexpectedFailure(result.failureOrNull);
       expect(operations, ['add_driver']);
-      expect(auditRepository.createCalls, 0);
     });
 
-    test('adds a driver before writing its audit log', () async {
+    test('adds a driver through the server-audited mutation path', () async {
       final operations = <String>[];
-      final auditRepository = _FakeAuditLogRepository(operations: operations);
       final repository = _repository(
         remoteDataSource: _FakeDriversRemoteDataSource(
           _driverModel,
           operations: operations,
         ),
-        auditRepository: auditRepository,
       );
 
       final result = await repository.addDriver(
@@ -92,7 +81,7 @@ void main() {
       );
 
       expect(result.failureOrNull, isNull);
-      expect(operations, ['add_driver', 'audit']);
+      expect(operations, ['add_driver']);
     });
 
     test(
@@ -121,14 +110,12 @@ void main() {
     );
 
     test(
-      'does not persist or audit when update has no meaningful changes',
+      'does not persist when update has no meaningful changes',
       () async {
         final remoteDataSource = _FakeDriversRemoteDataSource(_driverModel);
-        final auditRepository = _FakeAuditLogRepository();
         final repository = _repository(
           remoteDataSource: remoteDataSource,
-          auditRepository: auditRepository,
-        );
+          );
 
         final result = await repository.updateDriver(
           driverId: _driverModel.id,
@@ -151,8 +138,7 @@ void main() {
 
         expect(result, isA<Success>());
         expect(remoteDataSource.updateCalls, 0);
-        expect(auditRepository.createCalls, 0);
-      },
+        },
     );
   });
 }
@@ -177,15 +163,11 @@ const _postgrestException = PostgrestException(
 DriversRepositoryImpl _repository({
   required DriversRemoteDataSource remoteDataSource,
   DriverImagesRemoteDataSource? imagesRemoteDataSource,
-  _FakeAuditLogRepository? auditRepository,
 }) {
   return DriversRepositoryImpl(
     remoteDataSource: remoteDataSource,
     imagesRemoteDataSource:
         imagesRemoteDataSource ?? _FakeDriverImagesRemoteDataSource(),
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? _FakeAuditLogRepository(),
-    ),
   );
 }
 
@@ -317,34 +299,3 @@ class _FakeDriverImagesRemoteDataSource
   Future<void> removeImages({required List<String> paths}) async {}
 }
 
-class _FakeAuditLogRepository implements AuditLogRepository {
-  final List<String>? operations;
-  int createCalls = 0;
-
-  _FakeAuditLogRepository({this.operations});
-
-  @override
-  Future<Result<void>> createAuditLog({required AuditLogWriteData data}) async {
-    createCalls++;
-    operations?.add('audit');
-    return const Success<void>(null);
-  }
-
-  @override
-  Future<Result<List<AuditLog>>> getEntityAuditLogs({
-    required String companyId,
-    required AuditModule module,
-    required AuditEntityType entityType,
-    required String entityId,
-  }) {
-    throw UnimplementedError();
-  }
-}
-
-final class _ThrowingDriverModel extends DriverModel {
-  _ThrowingDriverModel()
-    : super(id: 'driver-1', companyId: _companyId, fullName: 'Driver');
-
-  @override
-  String get fullName => throw StateError('secret model mapping detail');
-}
