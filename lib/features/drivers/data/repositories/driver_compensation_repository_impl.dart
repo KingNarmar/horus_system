@@ -9,16 +9,12 @@ import '../../../../core/documents/domain/repositories/business_document_reposit
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/entities/audit_action.dart';
-import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../domain/entities/driver_compensation_revision.dart';
 import '../../domain/entities/driver_compensation_write_data.dart';
 import '../../domain/failures/driver_compensation_failure_codes.dart';
 import '../../domain/repositories/driver_compensation_repository.dart';
 import '../datasources/driver_compensation_remote_data_source.dart';
 import '../mappers/driver_compensation_mapper.dart';
-import '../models/driver_compensation_model.dart';
-import 'driver_compensation_audit_writer.dart';
 import 'driver_compensation_repository_failure_mapper.dart';
 
 final class DriverCompensationRepositoryImpl
@@ -28,18 +24,14 @@ final class DriverCompensationRepositoryImpl
 
   final DriverCompensationRemoteDataSource remoteDataSource;
   final BusinessDocumentRepository businessDocumentRepository;
-  final CreateAuditLogUseCase createAuditLogUseCase;
   final DriverCompensationRepositoryFailureMapper failureMapper;
 
   const DriverCompensationRepositoryImpl({
     required this.remoteDataSource,
     required this.businessDocumentRepository,
-    required this.createAuditLogUseCase,
     this.failureMapper = const DriverCompensationRepositoryFailureMapper(),
   });
 
-  DriverCompensationAuditWriter get _auditWriter =>
-      DriverCompensationAuditWriter(createAuditLogUseCase);
 
   @override
   Future<Result<List<DriverCompensationRevision>>> getHistory({
@@ -95,12 +87,7 @@ final class DriverCompensationRepositoryImpl
         data: data,
         contractDocumentReference: uploadedReference,
       );
-      return _withAudit(
-        model: model,
-        actorRole: actorRole,
-        action: AuditAction.created,
-        event: DriverCompensationAuditWriter.revisionCreatedEvent,
-      );
+      return Success(model.toEntity());
     } on PostgrestException catch (error) {
       await _deleteUploadedReference(
         companyId: data.companyId,
@@ -132,24 +119,13 @@ final class DriverCompensationRepositoryImpl
     return _guard(
       permissionCode: DriverCompensationFailureCodes.permissionManage,
       action: () async {
-        final oldModel = await remoteDataSource.getById(
-          companyId: companyId,
-          revisionId: revisionId,
-          driverId: driverId,
-        );
         final model = await remoteDataSource.endRevision(
           companyId: companyId,
           revisionId: revisionId,
           driverId: driverId,
           effectiveTo: effectiveTo,
         );
-        return _withAudit(
-          model: model,
-          actorRole: actorRole,
-          action: AuditAction.updated,
-          event: DriverCompensationAuditWriter.revisionEndedEvent,
-          oldValues: oldModel.toAuditValues(),
-        );
+        return Success(model.toEntity());
       },
     );
   }
@@ -160,25 +136,6 @@ final class DriverCompensationRepositoryImpl
     required String actorRole,
     required BusinessDocumentFile document,
   }) async {
-    final oldModelResult = await _guard<DriverCompensationModel>(
-      permissionCode: DriverCompensationFailureCodes.permissionManage,
-      action: () async => Success(
-        await remoteDataSource.getById(
-          companyId: revision.companyId,
-          revisionId: revision.id,
-          driverId: revision.driverId,
-        ),
-      ),
-    );
-    final oldModelFailure = oldModelResult.failureOrNull;
-    if (oldModelFailure != null) return FailureResult(oldModelFailure);
-    final oldModel = oldModelResult.dataOrNull;
-    if (oldModel == null) {
-      return const FailureResult(
-        UnexpectedFailure(code: DriverCompensationFailureCodes.unexpectedError),
-      );
-    }
-
     final uploadResult = await businessDocumentRepository.upload(
       location: BusinessDocumentLocation(
         companyId: revision.companyId,
@@ -204,13 +161,7 @@ final class DriverCompensationRepositoryImpl
         driverId: revision.driverId,
         reference: uploadedReference,
       );
-      return _withAudit(
-        model: model,
-        actorRole: actorRole,
-        action: AuditAction.updated,
-        event: DriverCompensationAuditWriter.contractAttachedEvent,
-        oldValues: oldModel.toAuditValues(),
-      );
+      return Success(model.toEntity());
     } on PostgrestException catch (error) {
       await _deleteUploadedReference(
         companyId: revision.companyId,
@@ -246,24 +197,6 @@ final class DriverCompensationRepositoryImpl
       companyId: companyId,
       reference: reference,
     );
-  }
-
-  Future<Result<DriverCompensationRevision>> _withAudit({
-    required DriverCompensationModel model,
-    required String actorRole,
-    required AuditAction action,
-    required String event,
-    Map<String, Object?>? oldValues,
-  }) async {
-    final auditFailure = await _auditWriter.write(
-      model: model,
-      actorRole: actorRole,
-      action: action,
-      event: event,
-      oldValues: oldValues,
-    );
-    if (auditFailure != null) return FailureResult(auditFailure);
-    return Success(model.toEntity());
   }
 
   Future<void> _deleteUploadedReference({
