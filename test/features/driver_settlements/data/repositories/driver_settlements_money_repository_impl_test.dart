@@ -2,7 +2,6 @@ import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
-import 'package:horus_system/features/audit/domain/usecases/create_audit_log_usecase.dart';
 import 'package:horus_system/features/driver_settlements/data/datasources/driver_settlement_money_remote_data_source.dart';
 import 'package:horus_system/features/driver_settlements/data/models/driver_settlement_model.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlements_repository_impl.dart';
@@ -57,7 +56,7 @@ void main() {
       },
     );
 
-    test('creates exact draft then writes enriched audit', () async {
+    test('creates exact draft through the money data source', () async {
       final currency = CurrencyCode.tryParse('AED')!;
       final write = _moneyWriteData(currency);
       final operations = <String>[];
@@ -65,13 +64,7 @@ void main() {
         createModel: _exactModel(),
         operations: operations,
       );
-      final auditRepository = FakeDriverSettlementAuditLogRepository(
-        operations: operations,
-      );
-      final repository = _repository(
-        moneyRemote: moneyRemote,
-        auditRepository: auditRepository,
-      );
+      final repository = _repository(moneyRemote: moneyRemote);
 
       final result = await repository.createMoneyDraft(
         data: write,
@@ -81,31 +74,23 @@ void main() {
       expect(result, isA<Success>());
       expect(moneyRemote.createCalls, 1);
       expect(moneyRemote.lastWriteData, same(write));
-      expect(operations, ['create_money_draft', 'audit']);
-      expect(auditRepository.logs, hasLength(1));
-      final audit = auditRepository.logs.single;
-      expect(audit.description, 'driver_settlement_created');
-      expect(audit.metadata?['compensation_revision_id'], 'revision-1');
-      expect(audit.metadata?['currency_code'], 'AED');
-      expect(audit.metadata?['currency_fraction_digits'], 2);
-      expect(audit.metadata?['gross_salary_minor_units'], 100000);
-      expect(audit.metadata?['net_salary_payable_minor_units'], 85000);
-      expect(audit.metadata?['closing_driver_balance_minor_units'], -7500);
+      expect(operations, ['create_money_draft']);
+      expect(result.dataOrNull?.compensationRevisionId, 'revision-1');
+      expect(result.dataOrNull?.currencyCode, 'AED');
+      expect(result.dataOrNull?.grossSalaryMinorUnits, 100000);
+      expect(result.dataOrNull?.netSalaryPayableMinorUnits, 85000);
+      expect(result.dataOrNull?.closingDriverBalanceMinorUnits, -7500);
     });
   });
 }
 
 DriverSettlementsRepositoryImpl _repository({
   required _FakeMoneyRemoteDataSource moneyRemote,
-  FakeDriverSettlementAuditLogRepository? auditRepository,
 }) {
   return DriverSettlementsRepositoryImpl(
     remoteDataSource: FakeDriverSettlementsRemoteDataSource(),
     moneyRemoteDataSource: moneyRemote,
     driverBalanceRepository: FakeDriverBalanceRepository(),
-    createAuditLogUseCase: CreateAuditLogUseCase(
-      auditRepository ?? FakeDriverSettlementAuditLogRepository(),
-    ),
   );
 }
 
