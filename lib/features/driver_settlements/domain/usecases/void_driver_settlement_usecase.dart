@@ -58,7 +58,6 @@ class VoidDriverSettlementUseCase
     }
 
     return _repository.voidSettlement(
-      actorRole: context.role.name,
       data: DriverSettlementVoidData(
         companyId: context.companyId,
         settlementId: settlementId,
