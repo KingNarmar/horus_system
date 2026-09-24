@@ -31,7 +31,6 @@ class DriverSettlementsRepositoryImpl
     required this.driverBalanceRepository,
   }) : _failureMapper = const DriverSettlementRepositoryFailureMapper();
 
-
   @override
   Future<Result<List<DriverSettlement>>> getDriverSettlements({
     required String companyId,
