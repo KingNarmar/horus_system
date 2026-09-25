@@ -90,6 +90,9 @@ canonical repository migration history.
 See `docs/release/PRODUCTION_DATABASE_BOOTSTRAP.md` for the migration-history,
 fresh-project bootstrap, and Issue #197 verification contract.
 
+See `docs/release/PRODUCTION_BACKUP_RECOVERY.md` for the production backup,
+retention, isolated restore-rehearsal, and recovery-verification contract.
+
 ## Fail-safe startup
 
 Configuration is validated before Supabase initialization.
