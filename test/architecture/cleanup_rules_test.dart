@@ -153,28 +153,24 @@ void main() {
       }
     });
 
-    test('audit domain use cases rely on failure codes, not message strings', () {
-      const paths = [
-        'lib/features/audit/domain/usecases/create_audit_log_usecase.dart',
+    test('audit client contract stays read only and failure-code based', () {
+      final useCase = _read(
         'lib/features/audit/domain/usecases/get_entity_audit_logs_usecase.dart',
-      ];
-      const forbiddenSnippets = [
-        'Company id is required.',
-        'Audit entity id is required.',
-        'Audit description is required.',
-      ];
+      );
+      final repository = _read(
+        'lib/features/audit/domain/repositories/audit_log_repository.dart',
+      );
+      final dataSource = _read(
+        'lib/features/audit/data/datasources/audit_logs_remote_data_source.dart',
+      );
 
-      for (final path in paths) {
-        final content = _read(path);
-        for (final snippet in forbiddenSnippets) {
-          expect(
-            content,
-            isNot(contains(snippet)),
-            reason:
-                '$path must return typed failure codes and keep user-facing messages in localization.',
-          );
-        }
-      }
+      expect(useCase, isNot(contains('Company id is required.')));
+      expect(useCase, isNot(contains('Audit entity id is required.')));
+      expect(repository, isNot(contains('createAuditLog')));
+      expect(dataSource, isNot(contains('createAuditLog')));
+      expect(dataSource, isNot(contains('.insert(')));
+      expect(dataSource, isNot(contains('.update(')));
+      expect(dataSource, isNot(contains('.delete(')));
     });
 
     test('customer filter labels are not hardcoded in Dart extensions', () {

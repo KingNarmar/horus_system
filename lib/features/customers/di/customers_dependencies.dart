@@ -19,7 +19,6 @@ abstract final class CustomersDependencies {
       remoteDataSource: SupabaseCustomersRemoteDataSource(
         SupabaseClientProvider.client,
       ),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 

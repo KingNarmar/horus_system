@@ -1,7 +1,6 @@
 import '../../../core/di/business_document_dependencies.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../../core/usecases/get_company_business_date_usecase.dart';
-import '../../audit/di/audit_dependencies.dart';
 import '../../company/di/company_dependencies.dart';
 import '../data/datasources/driver_compensation_remote_data_source.dart';
 import '../data/repositories/driver_compensation_repository_impl.dart';
@@ -23,7 +22,6 @@ abstract final class DriverCompensationDependencies {
       ),
       businessDocumentRepository:
           BusinessDocumentDependencies.createRepository(),
-      createAuditLogUseCase: AuditDependencies.createAuditLogUseCase,
     );
   }
 

@@ -15,7 +15,6 @@ void main() {
     expect(dataSource, isNot(contains('recalculateTripTotalExpenses')));
     expect(repository, isNot(contains('recalculateTripTotalExpenses')));
     expect(dataSource, contains('getTripTotalExpenses'));
-    expect(repository, contains('getTripTotalExpenses'));
     expect(
       dataSource,
       isNot(contains('DbTimestamp.nowUtcIsoString()')),

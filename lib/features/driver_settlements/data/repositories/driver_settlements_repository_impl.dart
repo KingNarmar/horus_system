@@ -2,7 +2,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/utils/result.dart';
-import '../../../audit/domain/usecases/create_audit_log_usecase.dart';
 import '../../../driver_finance/domain/entities/driver_balance.dart';
 import '../../../driver_finance/domain/repositories/driver_balance_repository.dart';
 import '../../domain/entities/driver_settlement.dart';
@@ -17,7 +16,6 @@ import '../datasources/driver_settlement_money_remote_data_source.dart';
 import '../datasources/driver_settlements_remote_data_source.dart';
 import '../mappers/driver_settlement_driver_option_mapper.dart';
 import '../mappers/driver_settlement_mapper.dart';
-import 'driver_settlement_repository_audit_writer.dart';
 import 'driver_settlement_repository_failure_mapper.dart';
 
 class DriverSettlementsRepositoryImpl
@@ -25,19 +23,13 @@ class DriverSettlementsRepositoryImpl
   final DriverSettlementsRemoteDataSource remoteDataSource;
   final DriverSettlementMoneyRemoteDataSource moneyRemoteDataSource;
   final DriverBalanceRepository driverBalanceRepository;
-  final CreateAuditLogUseCase createAuditLogUseCase;
   final DriverSettlementRepositoryFailureMapper _failureMapper;
 
   const DriverSettlementsRepositoryImpl({
     required this.remoteDataSource,
     required this.moneyRemoteDataSource,
     required this.driverBalanceRepository,
-    required this.createAuditLogUseCase,
   }) : _failureMapper = const DriverSettlementRepositoryFailureMapper();
-
-  DriverSettlementRepositoryAuditWriter get _auditWriter {
-    return DriverSettlementRepositoryAuditWriter(createAuditLogUseCase);
-  }
 
   @override
   Future<Result<List<DriverSettlement>>> getDriverSettlements({
@@ -152,15 +144,6 @@ class DriverSettlementsRepositoryImpl
   }) {
     return _guard(() async {
       final model = await remoteDataSource.createDraft(data: data);
-      final auditFailure = await _auditWriter.writeCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<DriverSettlement>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
@@ -172,15 +155,6 @@ class DriverSettlementsRepositoryImpl
   }) {
     return _guard(() async {
       final model = await moneyRemoteDataSource.createMoneyDraft(data: data);
-      final auditFailure = await _auditWriter.writeCreated(
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<DriverSettlement>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
@@ -191,21 +165,7 @@ class DriverSettlementsRepositoryImpl
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getDriverSettlementById(
-        companyId: data.companyId,
-        settlementId: data.settlementId,
-      );
       final model = await remoteDataSource.finalizeSettlement(data: data);
-      final auditFailure = await _auditWriter.writeFinalized(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<DriverSettlement>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
@@ -216,21 +176,7 @@ class DriverSettlementsRepositoryImpl
     required String actorRole,
   }) {
     return _guard(() async {
-      final oldModel = await remoteDataSource.getDriverSettlementById(
-        companyId: data.companyId,
-        settlementId: data.settlementId,
-      );
       final model = await remoteDataSource.voidSettlement(data: data);
-      final auditFailure = await _auditWriter.writeVoided(
-        oldModel: oldModel,
-        model: model,
-        actorRole: actorRole,
-      );
-
-      if (auditFailure != null) {
-        return FailureResult<DriverSettlement>(auditFailure);
-      }
-
       return Success(model.toEntity());
     });
   }
