@@ -1,4 +1,4 @@
-﻿-- Issue #243: Remove unnecessary direct anonymous access to public tables
+-- Issue #243: Remove unnecessary direct anonymous access to public tables
 -- and sequences.
 --
 -- Application access remains through authenticated RPCs/RLS.
