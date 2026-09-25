@@ -304,6 +304,95 @@ The Issue/PR may record a sanitized summary containing:
 Do not close Issue #287 from documentation alone. At least one real production
 backup and one isolated restore rehearsal must be completed and evidenced.
 
+
+## First production rehearsal evidence — 2026-09-25
+
+The first real production backup and isolated recovery rehearsal used backup set
+`horus-prod-20260925T154336Z`, captured from repository commit
+`fc9a1a980b695c50e06f1b397d3abb39fb58b8f3`. The source migration ledger ended
+at `20260924154343`.
+
+Sanitized evidence:
+
+- `roles.sql`, `schema.sql`, `data.sql`, migration-history evidence,
+  Storage inventory, manifest, and SHA-256 evidence were captured from
+  production. All recorded artifact checksums were reverified before restore.
+- The encrypted recovery archive was created with 7-Zip AES encryption and
+  encrypted headers, passed `7z t`, and had local SHA-256
+  `D74B4AED0556A2877FA3F29E7C048430386EA6182B062D0C3F750D86291E3565`.
+  A restricted off-site copy was placed in the approved Google Drive location.
+  The exact off-site locator and encryption secret are intentionally not stored
+  in Git.
+- At backup time both private document buckets contained zero production
+  objects. Therefore no production Storage object bytes existed to export.
+  Recovery capability for non-empty buckets was nevertheless exercised with
+  synthetic isolated objects as described below.
+- A disposable local Supabase stack was used as the isolated recovery target
+  because the Free organization project limit prevented creation of another
+  cloud project. Neither production nor development was used as the restore
+  target.
+- Roles, schema, and data restored successfully onto a clean Supabase baseline.
+  The restored snapshot contained 35 public tables; all 35 had RLS enabled.
+  Public-table data counts matched the source snapshot, including three
+  `subscription_plans` rows and zero rows in the remaining public business
+  tables.
+- RLS policy definitions matched the source snapshot (73 policy rows), trigger
+  definitions matched (61 rows), and `SECURITY DEFINER` function definitions
+  matched (67 rows).
+- The logical dump did not recreate the Supabase migration ledger. Canonical
+  repository versions through `20260924154343` were marked applied in the
+  isolated target with `supabase migration repair --local --status applied`;
+  migration SQL was not rerun and no version was invented.
+- The raw schema restore exposed a recovery gap: the `ensure_rls` event trigger
+  was not emitted by the logical schema dump, and default function privileges
+  caused API-role EXECUTE drift on protected infrastructure functions. The
+  isolated target was repaired from the canonical repository security contract,
+  including `20260921120000_create_rls_auto_enable_guard.sql` and the expected
+  protected-function revokes. A transactional probe then confirmed that a newly
+  created public table automatically received RLS.
+- After security reconciliation, anonymous DML access to public tables was zero.
+  Production subsequently received canonical migration
+  `20260925174900_issue_243_revoke_anon_public_access`; this migration was
+  applied after the backup snapshot and is therefore not represented by that
+  backup's migration-history evidence.
+- Both expected Storage buckets were private with their expected size and MIME
+  restrictions. Synthetic upload/download/delete byte round trips passed for
+  both `business-documents` and `driver-documents`, including SHA-256 byte
+  equality after download. No synthetic object was written to production.
+- The disposable recovery stack and workspace were removed after evidence was
+  captured, and the repository CLI was returned to the development project.
+
+### Rehearsal limitations and remaining release gates
+
+The 2026-09-25 rehearsal proves recovery of the current empty-customer-data
+snapshot, but it does not justify claiming scenarios that were not exercised:
+
+- the data dump warned about circular foreign-key relationships involving
+  `trip_documents`, `fleet_license_documents`, and
+  `fleet_license_document_files`; those tables were empty in the source
+  snapshot, so restoration of populated circular-FK rows remains unproven;
+- production contained zero Auth users, so non-empty Auth user recovery was not
+  exercised. Auth provider, redirect, SMTP, MFA, secrets, and other project-level
+  configuration remain separate recovery concerns;
+- policy and RLS parity were verified, but a synthetic authenticated
+  cross-company access-denial scenario was not executed;
+- audit schema/security parity was retained, but an isolated authenticated
+  direct-forgery attempt and a successful protected audit-writer scenario were
+  not executed as part of this rehearsal;
+- Storage byte recovery was proven with isolated synthetic objects, but
+  authenticated cross-tenant Storage denial and authorized signed-URL behavior
+  were not exercised;
+- a formal start/end stopwatch was not recorded for the streamlined recovery,
+  so measured RTO cannot be claimed. The 4-hour RTO gate remains open;
+- the 24-hour RPO is the operating target and backup cadence, but this rehearsal
+  did not record sufficient timing evidence to claim a measured RPO.
+
+Issue #287 therefore remains open. Before customer data is introduced, run a
+fresh timed isolated rehearsal that closes the remaining tenant-isolation,
+audit, Auth/configuration, populated-data/constraint, Storage-authorization,
+RPO, and RTO evidence gaps. Do not convert any item above to PASS without
+executing and retaining evidence for that scenario.
+
 ## Failure handling
 
 If any backup component fails:
