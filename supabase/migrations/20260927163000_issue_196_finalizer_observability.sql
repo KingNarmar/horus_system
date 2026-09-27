@@ -70,7 +70,6 @@ BEGIN
 
       PERFORM private.audit_account_deletion_lifecycle(
         v_request.user_id,
-        'finalized',
         'account_deletion_finalized'
       );
 
