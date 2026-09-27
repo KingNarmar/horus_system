@@ -46,9 +46,7 @@ void main() {
   });
 }
 
-const _none = AccountDeletionStatus(
-  state: AccountDeletionRequestState.none,
-);
+const _none = AccountDeletionStatus(state: AccountDeletionRequestState.none);
 
 const _pending = AccountDeletionStatus(
   state: AccountDeletionRequestState.pending,

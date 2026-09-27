@@ -38,10 +38,7 @@ void main() {
 
       final emitted = await states;
       expect(emitted.first, isA<AccountDeletionLoading>());
-      expect(
-        (emitted.last as AccountDeletionReady).status.isPending,
-        isTrue,
-      );
+      expect((emitted.last as AccountDeletionReady).status.isPending, isTrue);
       expect(repository.requestCalls, 1);
     });
 
@@ -69,18 +66,13 @@ void main() {
       await cubit.cancelDeletion();
 
       final emitted = await states;
-      expect(
-        (emitted.last as AccountDeletionReady).status.isPending,
-        isFalse,
-      );
+      expect((emitted.last as AccountDeletionReady).status.isPending, isFalse);
       expect(repository.cancelCalls, 1);
     });
   });
 }
 
-const _none = AccountDeletionStatus(
-  state: AccountDeletionRequestState.none,
-);
+const _none = AccountDeletionStatus(state: AccountDeletionRequestState.none);
 
 const _pending = AccountDeletionStatus(
   state: AccountDeletionRequestState.pending,
