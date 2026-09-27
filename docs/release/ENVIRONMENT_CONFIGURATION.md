@@ -93,6 +93,9 @@ fresh-project bootstrap, and Issue #197 verification contract.
 See `docs/release/PRODUCTION_BACKUP_RECOVERY.md` for the production backup,
 retention, isolated restore-rehearsal, and recovery-verification contract.
 
+See `docs/release/PRODUCTION_SECURITY_AUDIT.md` for the final Issue #197
+production security and data-protection verification record.
+
 ## Fail-safe startup
 
 Configuration is validated before Supabase initialization.
