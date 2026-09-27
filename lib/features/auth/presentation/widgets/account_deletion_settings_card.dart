@@ -21,10 +21,10 @@ final class AccountDeletionSettingsCard extends StatelessWidget {
           builder: (context, state) {
             final isLoading = state is AccountDeletionLoading;
             final ready = state is AccountDeletionReady ? state : null;
+            final failure = state is AccountDeletionFailure ? state : null;
             final pending = ready?.status.isPending ?? false;
             final soleOwner =
-                state is AccountDeletionFailure &&
-                state.failure.code == FailureCodes.accountDeletionSoleOwner;
+                failure?.failure.code == FailureCodes.accountDeletionSoleOwner;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,6 +40,13 @@ final class AccountDeletionSettingsCard extends StatelessWidget {
                 if (soleOwner) ...[
                   const SizedBox(height: AppSpacing.md),
                   Text(l10n.accountDeletionSoleOwner),
+                ] else if (failure != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    failure.failure.code == FailureCodes.serverError
+                        ? l10n.failureServerError
+                        : l10n.failureUnexpectedError,
+                  ),
                 ],
                 if (pending) ...[
                   const SizedBox(height: AppSpacing.md),
