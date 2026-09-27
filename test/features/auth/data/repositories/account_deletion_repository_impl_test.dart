@@ -16,7 +16,7 @@ void main() {
 
       expect(result, isA<Success<AccountDeletionStatus>>());
       expect(
-        (result as Success<AccountDeletionStatus>).value.isPending,
+        (result as Success<AccountDeletionStatus>).data.isPending,
         isFalse,
       );
     });
@@ -29,7 +29,7 @@ void main() {
       final result = await repository.getStatus();
 
       expect(
-        (result as Success<AccountDeletionStatus>).value.isPending,
+        (result as Success<AccountDeletionStatus>).data.isPending,
         isTrue,
       );
     });
