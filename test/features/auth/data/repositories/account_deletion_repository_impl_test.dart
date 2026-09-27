@@ -15,10 +15,7 @@ void main() {
       final result = await repository.getStatus();
 
       expect(result, isA<Success<AccountDeletionStatus>>());
-      expect(
-        (result as Success<AccountDeletionStatus>).data.isPending,
-        isFalse,
-      );
+      expect((result as Success<AccountDeletionStatus>).data.isPending, isFalse);
     });
 
     test('maps pending model to pending domain status', () async {
@@ -28,10 +25,7 @@ void main() {
 
       final result = await repository.getStatus();
 
-      expect(
-        (result as Success<AccountDeletionStatus>).data.isPending,
-        isTrue,
-      );
+      expect((result as Success<AccountDeletionStatus>).data.isPending, isTrue);
     });
 
     test('maps sole-owner database rejection to typed failure code', () async {
