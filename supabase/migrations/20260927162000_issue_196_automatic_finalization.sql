@@ -9,7 +9,6 @@ CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 
 CREATE OR REPLACE FUNCTION private.audit_account_deletion_lifecycle(
   p_user_id uuid,
-  p_action text,
   p_event text
 )
 RETURNS void
@@ -27,11 +26,11 @@ BEGIN
   LOOP
     PERFORM private.write_audit_event(
       v_membership.company_id,
-      'account',
-      'user_account',
+      'company_users',
+      'company_user',
       p_user_id::text,
       NULL,
-      p_action,
+      'status_changed',
       p_event,
       NULL,
       NULL,
@@ -41,7 +40,7 @@ BEGIN
 END;
 $function$;
 
-REVOKE ALL ON FUNCTION private.audit_account_deletion_lifecycle(uuid, text, text)
+REVOKE ALL ON FUNCTION private.audit_account_deletion_lifecycle(uuid, text)
   FROM PUBLIC;
 
 CREATE OR REPLACE FUNCTION public.request_my_account_deletion()
@@ -82,7 +81,6 @@ BEGIN
 
     PERFORM private.audit_account_deletion_lifecycle(
       v_user_id,
-      'requested',
       'account_deletion_requested'
     );
   END IF;
@@ -129,7 +127,6 @@ BEGIN
 
   PERFORM private.audit_account_deletion_lifecycle(
     v_user_id,
-    'cancelled',
     'account_deletion_cancelled'
   );
 
@@ -194,7 +191,6 @@ BEGIN
 
       PERFORM private.audit_account_deletion_lifecycle(
         v_request.user_id,
-        'finalized',
         'account_deletion_finalized'
       );
 
