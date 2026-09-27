@@ -2728,4 +2728,57 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'ملف مجمع';
+  @override
+  String get legalSupportTitle => 'القانون والدعم';
+
+  @override
+  String get legalSupportDescription =>
+      'راجع المعلومات القانونية لنظام H.O.R.U.S أو تواصل مع دعم المنتج الرسمي.';
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get termsOfService => 'شروط الخدمة';
+
+  @override
+  String get productSupport => 'دعم المنتج';
+
+  @override
+  String get emailProductSupport => 'مراسلة دعم المنتج';
+
+  @override
+  String get externalLinkOpenFailed => 'تعذر فتح الرابط المطلوب.';
+
+  @override
+  String get accountDeletionTitle => 'حذف الحساب';
+
+  @override
+  String get accountDeletionDescription =>
+      'اطلب حذف حسابك في H.O.R.U.S وإمكانية وصولك. يتم الاحتفاظ بسجلات الشركة التشغيلية والمالية وسجل التدقيق والمستندات.';
+
+  @override
+  String get accountDeletionSoleOwner =>
+      'أنت المالك النشط الوحيد لشركة واحدة على الأقل. انقل الملكية قبل طلب حذف الحساب.';
+
+  @override
+  String get accountDeletionPending =>
+      'طلب حذف الحساب قيد الانتظار. يمكنك إلغاء الطلب خلال فترة التراجع البالغة 7 أيام.';
+
+  @override
+  String get accountDeletionCancel => 'إلغاء طلب الحذف';
+
+  @override
+  String get accountDeletionRequest => 'طلب حذف الحساب';
+
+  @override
+  String get accountDeletionConfirmTitle => 'طلب حذف الحساب؟';
+
+  @override
+  String get accountDeletionConfirmDescription =>
+      'سيتم جدولة حذف حسابك بعد 7 أيام. تظل سجلات الشركة والمساءلة التاريخية محفوظة. يمكنك الإلغاء خلال فترة التراجع.';
+
+  @override
+  String get accountDeletionConfirm => 'طلب الحذف';
+
 }
