@@ -5,14 +5,17 @@ import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/di/app_dependencies.dart';
 import '../../../../core/di/fleet_dependencies.dart';
 import '../../../../core/di/routes_dependencies.dart';
 import '../../../../core/di/trips_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
 import '../../../../core/responsive/responsive_layout.dart';
+import '../../../auth/presentation/cubit/account_deletion_cubit.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../auth/presentation/widgets/account_deletion_settings_card.dart';
 import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
 import '../../../company/di/company_dependencies.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -153,6 +156,9 @@ class AppShellContent extends StatelessWidget {
       ),
       AppShellModule.settings => MultiBlocProvider(
         providers: [
+          BlocProvider<AccountDeletionCubit>(
+            create: (_) => AppDependencies.createAccountDeletionCubit(),
+          ),
           BlocProvider<SubscriptionsCubit>(
             create: (_) => SubscriptionsDependencies.createCubit(),
           ),
@@ -264,6 +270,8 @@ class _SettingsContent extends StatelessWidget {
         CompanyFinancialSettingsCard(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         CompanyTimezoneSettingsCard(currentCompanyContext: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        const AccountDeletionSettingsCard(),
         const SizedBox(height: AppSpacing.xl),
         const LegalSupportSettingsCard(),
         const SizedBox(height: AppSpacing.xl),
