@@ -15,7 +15,10 @@ void main() {
       final result = await repository.getStatus();
 
       expect(result, isA<Success<AccountDeletionStatus>>());
-      expect((result as Success<AccountDeletionStatus>).data.isPending, isFalse);
+      expect(
+        (result as Success<AccountDeletionStatus>).data.isPending,
+        isFalse,
+      );
     });
 
     test('maps pending model to pending domain status', () async {
