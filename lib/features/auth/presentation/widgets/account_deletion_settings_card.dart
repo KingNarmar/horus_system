@@ -50,9 +50,9 @@ final class AccountDeletionSettingsCard extends StatelessWidget {
                   const Center(child: CircularProgressIndicator())
                 else if (pending)
                   OutlinedButton.icon(
-                    onPressed: () => context
-                        .read<AccountDeletionCubit>()
-                        .cancelDeletion(),
+                    onPressed: () {
+                      context.read<AccountDeletionCubit>().cancelDeletion();
+                    },
                     icon: const Icon(AppIcons.clear),
                     label: Text(l10n.accountDeletionCancel),
                   )
