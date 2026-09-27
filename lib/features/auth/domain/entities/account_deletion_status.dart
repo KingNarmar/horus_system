@@ -1,7 +1,7 @@
-enum AccountDeletionState { none, pending }
+enum AccountDeletionRequestState { none, pending }
 
 final class AccountDeletionStatus {
-  final AccountDeletionState state;
+  final AccountDeletionRequestState state;
   final DateTime? requestedAt;
   final DateTime? scheduledFor;
 
@@ -11,5 +11,5 @@ final class AccountDeletionStatus {
     this.scheduledFor,
   });
 
-  bool get isPending => state == AccountDeletionState.pending;
+  bool get isPending => state == AccountDeletionRequestState.pending;
 }
