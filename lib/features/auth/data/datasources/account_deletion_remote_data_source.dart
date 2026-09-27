@@ -17,9 +17,7 @@ final class SupabaseAccountDeletionRemoteDataSource
 
   @override
   Future<AccountDeletionStatusModel?> getStatus() async {
-    return _readOptional(
-      await _client.rpc(AccountDeletionDbFields.getStatusRpc),
-    );
+    return _readOptional(await _client.rpc(AccountDeletionDbFields.getStatusRpc));
   }
 
   @override
@@ -37,9 +35,7 @@ final class SupabaseAccountDeletionRemoteDataSource
 
   @override
   Future<AccountDeletionStatusModel?> cancelDeletion() async {
-    return _readOptional(
-      await _client.rpc(AccountDeletionDbFields.cancelRpc),
-    );
+    return _readOptional(await _client.rpc(AccountDeletionDbFields.cancelRpc));
   }
 
   AccountDeletionStatusModel? _readOptional(Object? response) {
