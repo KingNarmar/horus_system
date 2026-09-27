@@ -13,11 +13,17 @@
   "networkRetryButton": "Retry",
   "failureNetworkStatusUnavailable": "Internet connection status could not be verified.",
   "bootstrapFailureTitle": "H.O.R.U.S could not start",
-  "@bootstrapFailureTitle": {"description": "Title shown when application bootstrap cannot continue."},
+  "@bootstrapFailureTitle": {
+    "description": "Title shown when application bootstrap cannot continue."
+  },
   "bootstrapInvalidConfigurationMessage": "The application configuration is unavailable or invalid. Install a correctly configured release or contact support.",
-  "@bootstrapInvalidConfigurationMessage": {"description": "Safe message shown when startup configuration is missing or invalid."},
+  "@bootstrapInvalidConfigurationMessage": {
+    "description": "Safe message shown when startup configuration is missing or invalid."
+  },
   "bootstrapServiceInitializationFailedMessage": "The application could not initialize its required services. Restart the app. If the problem continues, contact support.",
-  "@bootstrapServiceInitializationFailedMessage": {"description": "Safe message shown when required startup services cannot initialize."},
+  "@bootstrapServiceInitializationFailedMessage": {
+    "description": "Safe message shown when required startup services cannot initialize."
+  },
   "appShellDashboardLabel": "Dashboard",
   "appShellDashboardDescription": "Live overview for company operations and finance.",
   "appShellCustomersLabel": "Customers",
@@ -43,9 +49,21 @@
   "appShellMoreLabel": "More",
   "logout": "Logout",
   "companyWithName": "Company: {companyName}",
-  "@companyWithName": {"placeholders": {"companyName": {"type": "String"}}},
+  "@companyWithName": {
+    "placeholders": {
+      "companyName": {
+        "type": "String"
+      }
+    }
+  },
   "roleWithName": "Role: {roleName}",
-  "@roleWithName": {"placeholders": {"roleName": {"type": "String"}}},
+  "@roleWithName": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
   "manageUsers": "Manage users",
   "companySettingsTitle": "Company settings",
   "noPermissionManageUsers": "You do not have permission to manage users.",
@@ -84,7 +102,13 @@
   "createAccountButton": "Create account",
   "checkYourEmailTitle": "Check your email",
   "emailConfirmationMessage": "We sent a confirmation link to {email}. Open the email, confirm your account, then return to H.O.R.U.S System and log in.",
-  "@emailConfirmationMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@emailConfirmationMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "backToLoginButton": "Back to login",
   "createCompanyTitle": "Create company",
   "createCompanyFormTitle": "Create your company",
@@ -106,9 +130,21 @@
   "activeStatus": "Active",
   "inactiveStatus": "Inactive",
   "roleLine": "Role: {roleName}",
-  "@roleLine": {"placeholders": {"roleName": {"type": "String"}}},
+  "@roleLine": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
   "statusLine": "Status: {status}",
-  "@statusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@statusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "incompleteProfileMessage": "Profile is incomplete. Ask this user to complete their profile.",
   "customersTitle": "Customers",
   "addCustomerButton": "Add customer",
@@ -139,13 +175,37 @@
   "statusHeader": "Status",
   "actionsHeader": "Actions",
   "contactPersonLine": "Contact: {contactPerson}",
-  "@contactPersonLine": {"placeholders": {"contactPerson": {"type": "String"}}},
+  "@contactPersonLine": {
+    "placeholders": {
+      "contactPerson": {
+        "type": "String"
+      }
+    }
+  },
   "phoneLine": "Phone: {phone}",
-  "@phoneLine": {"placeholders": {"phone": {"type": "String"}}},
+  "@phoneLine": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "emailLine": "Email: {email}",
-  "@emailLine": {"placeholders": {"email": {"type": "String"}}},
+  "@emailLine": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "cityLine": "City: {city}",
-  "@cityLine": {"placeholders": {"city": {"type": "String"}}},
+  "@cityLine": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
   "customerViewDetails": "Details",
   "customerBasicInfo": "Basic information",
   "customerAccountability": "Accountability",
@@ -168,7 +228,13 @@
   "customerConfirmReactivateMessage": "Do you want to reactivate this customer?",
   "customerSearchHintShort": "Search customers",
   "customerDetailsTitle": "Customer details: {name}",
-  "@customerDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@customerDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "customerAuditActionCreated": "Created",
   "customerAuditActionUpdated": "Updated",
   "customerAuditActionDeactivated": "Deactivated",
@@ -227,7 +293,13 @@
   "driverConfirmDeactivateMessage": "Do you want to deactivate this driver?",
   "driverConfirmReactivateMessage": "Do you want to reactivate this driver?",
   "driverDetailsTitle": "Driver details: {name}",
-  "@driverDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@driverDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "driverStatusActiveLabel": "Active",
   "driverStatusInactiveLabel": "Inactive",
   "driverAuditActionCreated": "Created",
@@ -240,17 +312,29 @@
   "auditTimelineHeader": "{actorName} • {role} • {dateTime}",
   "@auditTimelineHeader": {
     "placeholders": {
-      "actorName": {"type": "String"},
-      "role": {"type": "String"},
-      "dateTime": {"type": "String"}
+      "actorName": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "auditChangeLine": "{field}: {oldValue} → {newValue}",
   "@auditChangeLine": {
     "placeholders": {
-      "field": {"type": "String"},
-      "oldValue": {"type": "String"},
-      "newValue": {"type": "String"}
+      "field": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
     }
   },
   "routesTitle": "Routes",
@@ -288,7 +372,13 @@
   "routeEditButton": "Edit",
   "routeViewDetails": "View details",
   "routeDetailsTitle": "Route details: {name}",
-  "@routeDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@routeDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "routeBasicInfo": "Basic information",
   "routeAccountability": "Accountability",
   "routeCreatedBy": "Created by",
@@ -309,9 +399,33 @@
   "routeAuditActionReactivated": "Reactivated",
   "routeAuditActionStatusChanged": "Status changed",
   "routeAuditTimelineHeader": "{actor} ({role}) - {dateTime}",
-  "@routeAuditTimelineHeader": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@routeAuditTimelineHeader": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "routeAuditChangeLine": "{label}: from {oldValue} to {newValue}",
-  "@routeAuditChangeLine": {"placeholders": {"label": {"type": "String"}, "oldValue": {"type": "String"}, "newValue": {"type": "String"}}},
+  "@routeAuditChangeLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
+    }
+  },
   "fleetTitle": "Fleet",
   "tractorHeadsTab": "Tractor heads",
   "trailersTab": "Trailers",
@@ -364,7 +478,13 @@
   "fleetNotAvailable": "Not available",
   "fleetChanges": "Changes",
   "fleetDetailsTitle": "Fleet asset details: {plateNumber}",
-  "@fleetDetailsTitle": {"placeholders": {"plateNumber": {"type": "String"}}},
+  "@fleetDetailsTitle": {
+    "placeholders": {
+      "plateNumber": {
+        "type": "String"
+      }
+    }
+  },
   "fleetAuditActionCreated": "Created",
   "fleetAuditActionUpdated": "Updated",
   "fleetAuditActionDeactivated": "Deactivated",
@@ -431,9 +551,21 @@
   "totalDriverChargesLabel": "Total driver charges",
   "netDriverBalanceLabel": "Current balance",
   "driverBalanceDriverOwesCompany": "Driver owes company: {amount}",
-  "@driverBalanceDriverOwesCompany": {"placeholders": {"amount": {"type": "String"}}},
+  "@driverBalanceDriverOwesCompany": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "driverBalanceCompanyOwesDriver": "Company owes driver: {amount}",
-  "@driverBalanceCompanyOwesDriver": {"placeholders": {"amount": {"type": "String"}}},
+  "@driverBalanceCompanyOwesDriver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "driverBalanceSettled": "Balance settled",
   "noDriverFinancialMovements": "No financial movements yet.",
   "loadingDriverFinancialMovements": "Loading driver financial movements...",
@@ -466,13 +598,37 @@
   "voidReasonLabel": "Void reason",
   "confirmButton": "Confirm",
   "companyExpenseCategoryLine": "Category: {categoryName}",
-  "@companyExpenseCategoryLine": {"placeholders": {"categoryName": {"type": "String"}}},
+  "@companyExpenseCategoryLine": {
+    "placeholders": {
+      "categoryName": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseAmountLine": "Amount: {amount}",
-  "@companyExpenseAmountLine": {"placeholders": {"amount": {"type": "String"}}},
+  "@companyExpenseAmountLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseDateLine": "Date: {date}",
-  "@companyExpenseDateLine": {"placeholders": {"date": {"type": "String"}}},
+  "@companyExpenseDateLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseReferenceLine": "Reference: {reference}",
-  "@companyExpenseReferenceLine": {"placeholders": {"reference": {"type": "String"}}},
+  "@companyExpenseReferenceLine": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseCategoryVehicleMaintenance": "Vehicle maintenance",
   "companyExpenseCategorySpareParts": "Spare parts",
   "companyExpenseCategoryTires": "Tires",
@@ -588,14 +744,20 @@
   "reportsGroupTrips": "{count} trips",
   "@reportsGroupTrips": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "reportsDateRange": "Period: {from} — {to}",
   "@reportsDateRange": {
     "placeholders": {
-      "from": {"type": "String"},
-      "to": {"type": "String"}
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "reportsPaidByCompany": "Company",
@@ -749,21 +911,93 @@
   "tripsStatusPaidFilter": "Paid",
   "tripsStatusCancelledFilter": "Cancelled",
   "tripCurrentStatusLine": "Current status: {status}",
-  "@tripCurrentStatusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@tripCurrentStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "tripStatusHistoryLine": "From {oldStatus} to {newStatus}",
-  "@tripStatusHistoryLine": {"placeholders": {"oldStatus": {"type": "String"}, "newStatus": {"type": "String"}}},
+  "@tripStatusHistoryLine": {
+    "placeholders": {
+      "oldStatus": {
+        "type": "String"
+      },
+      "newStatus": {
+        "type": "String"
+      }
+    }
+  },
   "tripChangedByLine": "{actor} ({role}) - {dateTime}",
-  "@tripChangedByLine": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@tripChangedByLine": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditTimelineHeader": "{actor} ({role}) - {dateTime}",
-  "@tripAuditTimelineHeader": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@tripAuditTimelineHeader": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditChangeLine": "{label}: from {oldValue} to {newValue}",
-  "@tripAuditChangeLine": {"placeholders": {"label": {"type": "String"}, "oldValue": {"type": "String"}, "newValue": {"type": "String"}}},
+  "@tripAuditChangeLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditDetailLine": "{label}: {value}",
-  "@tripAuditDetailLine": {"placeholders": {"label": {"type": "String"}, "value": {"type": "String"}}},
+  "@tripAuditDetailLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "tripDetailsTitleText": "Trip details: {name}",
-  "@tripDetailsTitleText": {"placeholders": {"name": {"type": "String"}}},
+  "@tripDetailsTitleText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripUpdateStatusTitleText": "Update trip status: {name}",
-  "@tripUpdateStatusTitleText": {"placeholders": {"name": {"type": "String"}}},
+  "@tripUpdateStatusTitleText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripExpensePaidByCompany": "Company",
   "tripExpensePaidByDriverAdvance": "Driver advance",
   "tripExpensePaidByDriverCash": "Driver cash",
@@ -816,13 +1050,31 @@
   "companyMemberRoleLabel": "Role",
   "companyMemberDeactivateTitle": "Deactivate member",
   "companyMemberDeactivateMessage": "Deactivate {name}? They will lose access to this company until reactivated.",
-  "@companyMemberDeactivateMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyMemberDeactivateMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyMemberReactivateTitle": "Reactivate member",
   "companyMemberReactivateMessage": "Reactivate {name} and restore access to this company?",
-  "@companyMemberReactivateMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyMemberReactivateMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyOwnershipGrantTitle": "Grant ownership",
   "companyOwnershipGrantMessage": "Grant Owner access to {name}? This adds another active owner.",
-  "@companyOwnershipGrantMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyOwnershipGrantMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyOwnershipTransferTitle": "Transfer ownership",
   "companyOwnershipTransferWarning": "The selected member becomes an Owner and your current Owner role changes to the role selected below. This is applied atomically.",
   "companyOwnershipSourceRoleLabel": "Your role after transfer",
@@ -835,16 +1087,34 @@
   "companyInvitationsLastSentColumn": "Last sent",
   "companyInvitationsActionsColumn": "Actions",
   "companyInvitationLastSentLine": "Last sent: {date}",
-  "@companyInvitationLastSentLine": {"placeholders": {"date": {"type": "String"}}},
+  "@companyInvitationLastSentLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companyInvitationNeverSent": "Not sent yet",
   "companyInvitationResendAction": "Resend",
   "companyInvitationResendTitle": "Resend invitation",
   "companyInvitationResendMessage": "Resend the invitation to {email}? The previous invitation token will stop working.",
-  "@companyInvitationResendMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@companyInvitationResendMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "companyInvitationRevokeAction": "Revoke",
   "companyInvitationRevokeTitle": "Revoke invitation",
   "companyInvitationRevokeMessage": "Revoke the pending invitation for {email}? The invitation link will stop working.",
-  "@companyInvitationRevokeMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@companyInvitationRevokeMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "invitationTitle": "Company invitation",
   "invitationStatusPending": "Pending",
   "invitationStatusAccepted": "Accepted",
@@ -852,15 +1122,45 @@
   "invitationStatusRevoked": "Revoked",
   "invitationPreviewTitle": "Invitation details",
   "invitationCompanyLine": "Company: {company}",
-  "@invitationCompanyLine": {"placeholders": {"company": {"type": "String"}}},
+  "@invitationCompanyLine": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
   "invitationEmailLine": "Email: {email}",
-  "@invitationEmailLine": {"placeholders": {"email": {"type": "String"}}},
+  "@invitationEmailLine": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "invitationRoleLine": "Role: {role}",
-  "@invitationRoleLine": {"placeholders": {"role": {"type": "String"}}},
+  "@invitationRoleLine": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "invitationStatusLine": "Status: {status}",
-  "@invitationStatusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@invitationStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "invitationExpiresLine": "Expires: {date}",
-  "@invitationExpiresLine": {"placeholders": {"date": {"type": "String"}}},
+  "@invitationExpiresLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "invitationAcceptButton": "Accept invitation",
   "invitationManualCodeTitle": "Enter invitation code",
   "invitationManualCodeDescription": "Paste the invitation token from the invitation link if the link did not open automatically.",
@@ -918,5 +1218,12 @@
   "fleetLicenseDocumentSideField": "License side",
   "fleetLicenseDocumentFrontValue": "Front",
   "fleetLicenseDocumentBackValue": "Back",
-  "fleetLicenseDocumentCombinedValue": "Combined"
+  "fleetLicenseDocumentCombinedValue": "Combined",
+  "legalSupportTitle": "Legal & Support",
+  "legalSupportDescription": "Review H.O.R.U.S legal information or contact official product support.",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "productSupport": "Product Support",
+  "emailProductSupport": "Email Product Support",
+  "externalLinkOpenFailed": "The requested link could not be opened."
 }
