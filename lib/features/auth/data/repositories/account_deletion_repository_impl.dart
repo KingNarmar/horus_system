@@ -32,7 +32,9 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
   Future<Result<AccountDeletionStatus>> cancelDeletion() {
     return _guard(() async {
       await _remoteDataSource.cancelDeletion();
-      return const AccountDeletionStatus(state: AccountDeletionRequestState.none);
+      return const AccountDeletionStatus(
+        state: AccountDeletionRequestState.none,
+      );
     });
   }
 
