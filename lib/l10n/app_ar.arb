@@ -1,13 +1,21 @@
 {
   "@@locale": "ar",
   "appTitle": "نظام حورس",
-  "@appTitle": {"description": "The application title."},
+  "@appTitle": {
+    "description": "The application title."
+  },
   "appSubtitle": "نظام موحّد لإدارة عمليات النقل الثقيل والمسارات",
-  "@appSubtitle": {"description": "The application subtitle."},
+  "@appSubtitle": {
+    "description": "The application subtitle."
+  },
   "launchDescription": "منصة SaaS لإدارة عمليات النقل الثقيل.",
-  "@launchDescription": {"description": "Short description displayed on the launch page."},
+  "@launchDescription": {
+    "description": "Short description displayed on the launch page."
+  },
   "architectureBadge": "Clean Architecture كما قال الكتاب • مبادئ SOLID",
-  "@architectureBadge": {"description": "Architecture rule badge displayed on the launch page."},
+  "@architectureBadge": {
+    "description": "Architecture rule badge displayed on the launch page."
+  },
   "networkCheckingTitle": "جاري التحقق من الاتصال",
   "networkCheckingMessage": "يتحقق H.O.R.U.S من اتصال الإنترنت قبل السماح بتنفيذ أي إجراء.",
   "networkOfflineTitle": "لا يوجد اتصال بالإنترنت",
@@ -17,11 +25,17 @@
   "networkRetryButton": "إعادة المحاولة",
   "failureNetworkStatusUnavailable": "تعذر التحقق من حالة اتصال الإنترنت.",
   "bootstrapFailureTitle": "تعذر تشغيل نظام حورس",
-  "@bootstrapFailureTitle": {"description": "Title shown when application bootstrap cannot continue."},
+  "@bootstrapFailureTitle": {
+    "description": "Title shown when application bootstrap cannot continue."
+  },
   "bootstrapInvalidConfigurationMessage": "إعدادات تشغيل التطبيق غير متاحة أو غير صالحة. استخدم إصدارًا مُعدًا بشكل صحيح أو تواصل مع الدعم.",
-  "@bootstrapInvalidConfigurationMessage": {"description": "Safe message shown when startup configuration is missing or invalid."},
+  "@bootstrapInvalidConfigurationMessage": {
+    "description": "Safe message shown when startup configuration is missing or invalid."
+  },
   "bootstrapServiceInitializationFailedMessage": "تعذر تهيئة الخدمات المطلوبة لتشغيل التطبيق. أعد تشغيل التطبيق، وإذا استمرت المشكلة فتواصل مع الدعم.",
-  "@bootstrapServiceInitializationFailedMessage": {"description": "Safe message shown when required startup services cannot initialize."},
+  "@bootstrapServiceInitializationFailedMessage": {
+    "description": "Safe message shown when required startup services cannot initialize."
+  },
   "appShellDashboardLabel": "لوحة التحكم",
   "appShellDashboardDescription": "نظرة مباشرة على عمليات الشركة والماليات.",
   "appShellCustomersLabel": "العملاء",
@@ -47,9 +61,21 @@
   "appShellMoreLabel": "المزيد",
   "logout": "تسجيل الخروج",
   "companyWithName": "الشركة: {companyName}",
-  "@companyWithName": {"placeholders": {"companyName": {"type": "String"}}},
+  "@companyWithName": {
+    "placeholders": {
+      "companyName": {
+        "type": "String"
+      }
+    }
+  },
   "roleWithName": "الدور: {roleName}",
-  "@roleWithName": {"placeholders": {"roleName": {"type": "String"}}},
+  "@roleWithName": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
   "companySettingsTitle": "إعدادات الشركة",
   "manageUsers": "إدارة المستخدمين",
   "noPermissionManageUsers": "ليس لديك صلاحية لإدارة المستخدمين.",
@@ -88,7 +114,13 @@
   "createAccountButton": "إنشاء الحساب",
   "checkYourEmailTitle": "راجع بريدك الإلكتروني",
   "emailConfirmationMessage": "أرسلنا رابط تأكيد إلى {email}. افتح البريد الإلكتروني وأكّد حسابك، ثم ارجع إلى نظام حورس وسجّل الدخول.",
-  "@emailConfirmationMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@emailConfirmationMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "backToLoginButton": "العودة لتسجيل الدخول",
   "createCompanyTitle": "إنشاء شركة",
   "createCompanyFormTitle": "أنشئ شركتك",
@@ -110,9 +142,21 @@
   "activeStatus": "نشط",
   "inactiveStatus": "غير نشط",
   "roleLine": "الدور: {roleName}",
-  "@roleLine": {"placeholders": {"roleName": {"type": "String"}}},
+  "@roleLine": {
+    "placeholders": {
+      "roleName": {
+        "type": "String"
+      }
+    }
+  },
   "statusLine": "الحالة: {status}",
-  "@statusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@statusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "incompleteProfileMessage": "الملف الشخصي غير مكتمل. اطلب من هذا المستخدم استكمال ملفه الشخصي.",
   "customersTitle": "العملاء",
   "addCustomerButton": "إضافة عميل",
@@ -143,13 +187,37 @@
   "statusHeader": "الحالة",
   "actionsHeader": "الإجراءات",
   "contactPersonLine": "المسؤول: {contactPerson}",
-  "@contactPersonLine": {"placeholders": {"contactPerson": {"type": "String"}}},
+  "@contactPersonLine": {
+    "placeholders": {
+      "contactPerson": {
+        "type": "String"
+      }
+    }
+  },
   "phoneLine": "الهاتف: {phone}",
-  "@phoneLine": {"placeholders": {"phone": {"type": "String"}}},
+  "@phoneLine": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "emailLine": "البريد: {email}",
-  "@emailLine": {"placeholders": {"email": {"type": "String"}}},
+  "@emailLine": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "cityLine": "المدينة: {city}",
-  "@cityLine": {"placeholders": {"city": {"type": "String"}}},
+  "@cityLine": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
   "customerViewDetails": "التفاصيل",
   "customerBasicInfo": "البيانات الأساسية",
   "customerAccountability": "المسؤولية والمتابعة",
@@ -172,7 +240,13 @@
   "customerConfirmReactivateMessage": "هل تريد إعادة تفعيل هذا العميل؟",
   "customerSearchHintShort": "ابحث في العملاء",
   "customerDetailsTitle": "تفاصيل {name}",
-  "@customerDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@customerDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "customerAuditActionCreated": "تم الإنشاء",
   "customerAuditActionUpdated": "تم التعديل",
   "customerAuditActionDeactivated": "تم التعطيل",
@@ -231,7 +305,13 @@
   "driverConfirmDeactivateMessage": "هل تريد إيقاف هذا السائق؟",
   "driverConfirmReactivateMessage": "هل تريد إعادة تفعيل هذا السائق؟",
   "driverDetailsTitle": "تفاصيل السائق: {name}",
-  "@driverDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@driverDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "driverStatusActiveLabel": "نشط",
   "driverStatusInactiveLabel": "غير نشط",
   "driverAuditActionCreated": "تم الإنشاء",
@@ -244,17 +324,29 @@
   "auditTimelineHeader": "{actorName} • {role} • {dateTime}",
   "@auditTimelineHeader": {
     "placeholders": {
-      "actorName": {"type": "String"},
-      "role": {"type": "String"},
-      "dateTime": {"type": "String"}
+      "actorName": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "auditChangeLine": "{field}: {oldValue} → {newValue}",
   "@auditChangeLine": {
     "placeholders": {
-      "field": {"type": "String"},
-      "oldValue": {"type": "String"},
-      "newValue": {"type": "String"}
+      "field": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
     }
   },
   "routesTitle": "المسارات",
@@ -292,7 +384,13 @@
   "routeEditButton": "تعديل",
   "routeViewDetails": "عرض التفاصيل",
   "routeDetailsTitle": "تفاصيل المسار: {name}",
-  "@routeDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@routeDetailsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "routeBasicInfo": "البيانات الأساسية",
   "routeAccountability": "المساءلة",
   "routeCreatedBy": "تم الإنشاء بواسطة",
@@ -313,9 +411,33 @@
   "routeAuditActionReactivated": "تمت إعادة التفعيل",
   "routeAuditActionStatusChanged": "تم تغيير الحالة",
   "routeAuditTimelineHeader": "{actor} ({role}) - {dateTime}",
-  "@routeAuditTimelineHeader": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@routeAuditTimelineHeader": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "routeAuditChangeLine": "{label}: من {oldValue} إلى {newValue}",
-  "@routeAuditChangeLine": {"placeholders": {"label": {"type": "String"}, "oldValue": {"type": "String"}, "newValue": {"type": "String"}}},
+  "@routeAuditChangeLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
+    }
+  },
   "fleetTitle": "الأسطول",
   "tractorHeadsTab": "رؤوس الجر",
   "trailersTab": "المقطورات",
@@ -368,7 +490,13 @@
   "fleetNotAvailable": "غير متاح",
   "fleetChanges": "التغييرات",
   "fleetDetailsTitle": "تفاصيل الأصل: {plateNumber}",
-  "@fleetDetailsTitle": {"placeholders": {"plateNumber": {"type": "String"}}},
+  "@fleetDetailsTitle": {
+    "placeholders": {
+      "plateNumber": {
+        "type": "String"
+      }
+    }
+  },
   "fleetAuditActionCreated": "تم الإنشاء",
   "fleetAuditActionUpdated": "تم التعديل",
   "fleetAuditActionDeactivated": "تم التعطيل",
@@ -435,9 +563,21 @@
   "totalDriverChargesLabel": "إجمالي مديونيات السائق",
   "netDriverBalanceLabel": "الرصيد الحالي",
   "driverBalanceDriverOwesCompany": "السائق مدين للشركة: {amount}",
-  "@driverBalanceDriverOwesCompany": {"placeholders": {"amount": {"type": "String"}}},
+  "@driverBalanceDriverOwesCompany": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "driverBalanceCompanyOwesDriver": "الشركة مدينة للسائق: {amount}",
-  "@driverBalanceCompanyOwesDriver": {"placeholders": {"amount": {"type": "String"}}},
+  "@driverBalanceCompanyOwesDriver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "driverBalanceSettled": "الرصيد مسوّى",
   "noDriverFinancialMovements": "لا توجد حركات مالية بعد.",
   "loadingDriverFinancialMovements": "جاري تحميل الحركات المالية...",
@@ -470,13 +610,37 @@
   "voidReasonLabel": "سبب الإلغاء",
   "confirmButton": "تأكيد",
   "companyExpenseCategoryLine": "التصنيف: {categoryName}",
-  "@companyExpenseCategoryLine": {"placeholders": {"categoryName": {"type": "String"}}},
+  "@companyExpenseCategoryLine": {
+    "placeholders": {
+      "categoryName": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseAmountLine": "المبلغ: {amount}",
-  "@companyExpenseAmountLine": {"placeholders": {"amount": {"type": "String"}}},
+  "@companyExpenseAmountLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseDateLine": "التاريخ: {date}",
-  "@companyExpenseDateLine": {"placeholders": {"date": {"type": "String"}}},
+  "@companyExpenseDateLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseReferenceLine": "المرجع: {reference}",
-  "@companyExpenseReferenceLine": {"placeholders": {"reference": {"type": "String"}}},
+  "@companyExpenseReferenceLine": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
   "companyExpenseCategoryVehicleMaintenance": "صيانة المركبات",
   "companyExpenseCategorySpareParts": "قطع الغيار",
   "companyExpenseCategoryTires": "الإطارات",
@@ -592,14 +756,20 @@
   "reportsGroupTrips": "{count} رحلة",
   "@reportsGroupTrips": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "reportsDateRange": "الفترة: {from} — {to}",
   "@reportsDateRange": {
     "placeholders": {
-      "from": {"type": "String"},
-      "to": {"type": "String"}
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "reportsPaidByCompany": "الشركة",
@@ -753,21 +923,93 @@
   "tripsStatusPaidFilter": "مدفوعة",
   "tripsStatusCancelledFilter": "ملغاة",
   "tripCurrentStatusLine": "الحالة الحالية: {status}",
-  "@tripCurrentStatusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@tripCurrentStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "tripStatusHistoryLine": "من {oldStatus} إلى {newStatus}",
-  "@tripStatusHistoryLine": {"placeholders": {"oldStatus": {"type": "String"}, "newStatus": {"type": "String"}}},
+  "@tripStatusHistoryLine": {
+    "placeholders": {
+      "oldStatus": {
+        "type": "String"
+      },
+      "newStatus": {
+        "type": "String"
+      }
+    }
+  },
   "tripChangedByLine": "{actor} ({role}) - {dateTime}",
-  "@tripChangedByLine": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@tripChangedByLine": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditTimelineHeader": "{actor} ({role}) - {dateTime}",
-  "@tripAuditTimelineHeader": {"placeholders": {"actor": {"type": "String"}, "role": {"type": "String"}, "dateTime": {"type": "String"}}},
+  "@tripAuditTimelineHeader": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditChangeLine": "{label}: من {oldValue} إلى {newValue}",
-  "@tripAuditChangeLine": {"placeholders": {"label": {"type": "String"}, "oldValue": {"type": "String"}, "newValue": {"type": "String"}}},
+  "@tripAuditChangeLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "oldValue": {
+        "type": "String"
+      },
+      "newValue": {
+        "type": "String"
+      }
+    }
+  },
   "tripAuditDetailLine": "{label}: {value}",
-  "@tripAuditDetailLine": {"placeholders": {"label": {"type": "String"}, "value": {"type": "String"}}},
+  "@tripAuditDetailLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "tripDetailsTitleText": "تفاصيل الرحلة: {name}",
-  "@tripDetailsTitleText": {"placeholders": {"name": {"type": "String"}}},
+  "@tripDetailsTitleText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripUpdateStatusTitleText": "تحديث حالة الرحلة: {name}",
-  "@tripUpdateStatusTitleText": {"placeholders": {"name": {"type": "String"}}},
+  "@tripUpdateStatusTitleText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripExpensePaidByCompany": "الشركة",
   "tripExpensePaidByDriverAdvance": "عهدة السائق",
   "tripExpensePaidByDriverCash": "دفع السائق",
@@ -820,13 +1062,31 @@
   "companyMemberRoleLabel": "الدور",
   "companyMemberDeactivateTitle": "تعطيل العضو",
   "companyMemberDeactivateMessage": "هل تريد تعطيل {name}؟ سيفقد الوصول إلى هذه الشركة حتى تتم إعادة تفعيله.",
-  "@companyMemberDeactivateMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyMemberDeactivateMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyMemberReactivateTitle": "إعادة تفعيل العضو",
   "companyMemberReactivateMessage": "هل تريد إعادة تفعيل {name} واستعادة وصوله إلى هذه الشركة؟",
-  "@companyMemberReactivateMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyMemberReactivateMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyOwnershipGrantTitle": "منح صلاحية المالك",
   "companyOwnershipGrantMessage": "هل تريد منح {name} صلاحية المالك؟ سيؤدي ذلك إلى إضافة مالك نشط آخر للشركة.",
-  "@companyOwnershipGrantMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@companyOwnershipGrantMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companyOwnershipTransferTitle": "نقل الملكية",
   "companyOwnershipTransferWarning": "سيصبح العضو المحدد مالكًا للشركة، وسيتغير دورك الحالي كمالك إلى الدور الذي تختاره أدناه. يتم تنفيذ العمليتين معًا بشكل ذري.",
   "companyOwnershipSourceRoleLabel": "دورك بعد نقل الملكية",
@@ -839,16 +1099,34 @@
   "companyInvitationsLastSentColumn": "آخر إرسال",
   "companyInvitationsActionsColumn": "الإجراءات",
   "companyInvitationLastSentLine": "آخر إرسال: {date}",
-  "@companyInvitationLastSentLine": {"placeholders": {"date": {"type": "String"}}},
+  "@companyInvitationLastSentLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companyInvitationNeverSent": "لم تُرسل بعد",
   "companyInvitationResendAction": "إعادة الإرسال",
   "companyInvitationResendTitle": "إعادة إرسال الدعوة",
   "companyInvitationResendMessage": "هل تريد إعادة إرسال الدعوة إلى {email}؟ سيتوقف رمز الدعوة السابق عن العمل.",
-  "@companyInvitationResendMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@companyInvitationResendMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "companyInvitationRevokeAction": "إلغاء الدعوة",
   "companyInvitationRevokeTitle": "إلغاء الدعوة",
   "companyInvitationRevokeMessage": "هل تريد إلغاء الدعوة المعلقة الخاصة بـ {email}؟ سيتوقف رابط الدعوة عن العمل.",
-  "@companyInvitationRevokeMessage": {"placeholders": {"email": {"type": "String"}}},
+  "@companyInvitationRevokeMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "invitationTitle": "دعوة الشركة",
   "invitationStatusPending": "قيد الانتظار",
   "invitationStatusAccepted": "مقبولة",
@@ -856,15 +1134,45 @@
   "invitationStatusRevoked": "ملغاة",
   "invitationPreviewTitle": "تفاصيل الدعوة",
   "invitationCompanyLine": "الشركة: {company}",
-  "@invitationCompanyLine": {"placeholders": {"company": {"type": "String"}}},
+  "@invitationCompanyLine": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
   "invitationEmailLine": "البريد الإلكتروني: {email}",
-  "@invitationEmailLine": {"placeholders": {"email": {"type": "String"}}},
+  "@invitationEmailLine": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "invitationRoleLine": "الدور: {role}",
-  "@invitationRoleLine": {"placeholders": {"role": {"type": "String"}}},
+  "@invitationRoleLine": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "invitationStatusLine": "الحالة: {status}",
-  "@invitationStatusLine": {"placeholders": {"status": {"type": "String"}}},
+  "@invitationStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "invitationExpiresLine": "تنتهي في: {date}",
-  "@invitationExpiresLine": {"placeholders": {"date": {"type": "String"}}},
+  "@invitationExpiresLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "invitationAcceptButton": "قبول الدعوة",
   "invitationManualCodeTitle": "إدخال رمز الدعوة",
   "invitationManualCodeDescription": "ألصق رمز الدعوة من رابط الدعوة إذا لم يُفتح الرابط تلقائيًا.",
@@ -922,5 +1230,12 @@
   "fleetLicenseDocumentSideField": "جانب الرخصة",
   "fleetLicenseDocumentFrontValue": "الوجه الأمامي",
   "fleetLicenseDocumentBackValue": "الوجه الخلفي",
-  "fleetLicenseDocumentCombinedValue": "ملف مجمع"
+  "fleetLicenseDocumentCombinedValue": "ملف مجمع",
+  "legalSupportTitle": "القانون والدعم",
+  "legalSupportDescription": "راجع المعلومات القانونية لنظام H.O.R.U.S أو تواصل مع دعم المنتج الرسمي.",
+  "privacyPolicy": "سياسة الخصوصية",
+  "termsOfService": "شروط الخدمة",
+  "productSupport": "دعم المنتج",
+  "emailProductSupport": "مراسلة دعم المنتج",
+  "externalLinkOpenFailed": "تعذر فتح الرابط المطلوب."
 }
