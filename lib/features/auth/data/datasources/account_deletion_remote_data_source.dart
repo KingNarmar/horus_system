@@ -28,7 +28,9 @@ final class SupabaseAccountDeletionRemoteDataSource
       await _client.rpc(AccountDeletionDbFields.requestRpc),
     );
     if (model == null) {
-      throw const PostgrestException(message: 'account_deletion_request_missing');
+      throw const PostgrestException(
+        message: 'account_deletion_request_missing',
+      );
     }
     return model;
   }
