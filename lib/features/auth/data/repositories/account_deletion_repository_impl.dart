@@ -17,9 +17,7 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
     return _guard(() async {
       final model = await _remoteDataSource.getStatus();
       return model?.toEntity() ??
-          const AccountDeletionStatus(
-            state: AccountDeletionRequestState.none,
-          );
+          const AccountDeletionStatus(state: AccountDeletionRequestState.none);
     });
   }
 
@@ -52,9 +50,7 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
           ConflictFailure(code: FailureCodes.accountDeletionSoleOwner),
         );
       }
-      return const FailureResult(
-        ServerFailure(code: FailureCodes.serverError),
-      );
+      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
     } catch (_) {
       return const FailureResult(
         UnexpectedFailure(code: FailureCodes.unexpectedError),
