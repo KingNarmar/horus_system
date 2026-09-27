@@ -53,6 +53,7 @@ import '../models/app_shell_destination.dart';
 import '../models/finance_workspace_section.dart';
 import '../pages/finance_workspace_page.dart';
 import 'adaptive_access_notice.dart';
+import 'legal_support_settings_card.dart';
 
 class AppShellContent extends StatelessWidget {
   final CurrentCompanyContext contextData;
@@ -263,6 +264,8 @@ class _SettingsContent extends StatelessWidget {
         CompanyFinancialSettingsCard(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         CompanyTimezoneSettingsCard(currentCompanyContext: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        const LegalSupportSettingsCard(),
         const SizedBox(height: AppSpacing.xl),
         SubscriptionsPage(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),

@@ -922,5 +922,12 @@
   "fleetLicenseDocumentSideField": "جانب الرخصة",
   "fleetLicenseDocumentFrontValue": "الوجه الأمامي",
   "fleetLicenseDocumentBackValue": "الوجه الخلفي",
-  "fleetLicenseDocumentCombinedValue": "ملف مجمع"
+  "fleetLicenseDocumentCombinedValue": "ملف مجمع",
+  "legalSupportTitle": "القانون والدعم",
+  "legalSupportDescription": "راجع المعلومات القانونية لنظام H.O.R.U.S أو تواصل مع دعم المنتج الرسمي.",
+  "privacyPolicy": "سياسة الخصوصية",
+  "termsOfService": "شروط الخدمة",
+  "productSupport": "دعم المنتج",
+  "emailProductSupport": "مراسلة دعم المنتج",
+  "externalLinkOpenFailed": "تعذر فتح الرابط المطلوب."
 }

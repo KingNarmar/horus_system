@@ -918,5 +918,12 @@
   "fleetLicenseDocumentSideField": "License side",
   "fleetLicenseDocumentFrontValue": "Front",
   "fleetLicenseDocumentBackValue": "Back",
-  "fleetLicenseDocumentCombinedValue": "Combined"
+  "fleetLicenseDocumentCombinedValue": "Combined",
+  "legalSupportTitle": "Legal & Support",
+  "legalSupportDescription": "Review H.O.R.U.S legal information or contact official product support.",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "productSupport": "Product Support",
+  "emailProductSupport": "Email Product Support",
+  "externalLinkOpenFailed": "The requested link could not be opened."
 }
