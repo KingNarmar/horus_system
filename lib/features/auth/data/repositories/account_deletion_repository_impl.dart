@@ -17,7 +17,7 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
     return _guard(() async {
       final model = await _remoteDataSource.getStatus();
       return model?.toEntity() ??
-          const AccountDeletionStatus(state: AccountDeletionState.none);
+          const AccountDeletionStatus(state: AccountDeletionRequestState.none);
     });
   }
 
@@ -32,7 +32,7 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
   Future<Result<AccountDeletionStatus>> cancelDeletion() {
     return _guard(() async {
       await _remoteDataSource.cancelDeletion();
-      return const AccountDeletionStatus(state: AccountDeletionState.none);
+      return const AccountDeletionStatus(state: AccountDeletionRequestState.none);
     });
   }
 
