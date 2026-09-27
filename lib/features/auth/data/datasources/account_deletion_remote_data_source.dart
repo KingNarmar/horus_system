@@ -17,7 +17,9 @@ final class SupabaseAccountDeletionRemoteDataSource
 
   @override
   Future<AccountDeletionStatusModel?> getStatus() async {
-    return _readOptional(await _client.rpc(AccountDeletionDbFields.getStatusRpc));
+    return _readOptional(
+      await _client.rpc(AccountDeletionDbFields.getStatusRpc),
+    );
   }
 
   @override
@@ -42,8 +44,6 @@ final class SupabaseAccountDeletionRemoteDataSource
     if (response is! List || response.isEmpty) return null;
     final row = response.first;
     if (row is! Map) return null;
-    return AccountDeletionStatusModel.fromJson(
-      Map<String, dynamic>.from(row),
-    );
+    return AccountDeletionStatusModel.fromJson(Map<String, dynamic>.from(row));
   }
 }
