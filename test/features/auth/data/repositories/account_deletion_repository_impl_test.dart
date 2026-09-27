@@ -62,10 +62,7 @@ final _pendingModel = AccountDeletionStatusModel(
 );
 
 final class _FakeDataSource implements AccountDeletionRemoteDataSource {
-  _FakeDataSource({
-    this.status,
-    this.requestError,
-  });
+  _FakeDataSource({this.status, this.requestError});
 
   final AccountDeletionStatusModel? status;
   final Object? requestError;
