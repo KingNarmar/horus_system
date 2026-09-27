@@ -362,37 +362,48 @@ Sanitized evidence:
 - The disposable recovery stack and workspace were removed after evidence was
   captured, and the repository CLI was returned to the development project.
 
-### Rehearsal limitations and remaining release gates
+### Final recovery evidence — 2026-09-27
 
-The 2026-09-25 rehearsal proves recovery of the current empty-customer-data
-snapshot, but it does not justify claiming scenarios that were not exercised:
+Follow-up isolated recovery verification closed the functional gaps discovered
+during the first rehearsal:
 
-- the data dump warned about circular foreign-key relationships involving
-  `trip_documents`, `fleet_license_documents`, and
-  `fleet_license_document_files`; those tables were empty in the source
-  snapshot, so restoration of populated circular-FK rows remains unproven;
-- production contained zero Auth users, so non-empty Auth user recovery was not
-  exercised. Auth provider, redirect, SMTP, MFA, secrets, and other project-level
-  configuration remain separate recovery concerns;
-- policy and RLS parity were verified, but a synthetic authenticated
-  cross-company access-denial scenario was not executed;
-- audit schema/security parity was retained, but an isolated authenticated
-  direct-forgery attempt and a successful protected audit-writer scenario were
-  not executed as part of this rehearsal;
-- Storage byte recovery was proven with isolated synthetic objects, but
-  authenticated cross-tenant Storage denial and authorized signed-URL behavior
-  were not exercised;
-- a formal start/end stopwatch was not recorded for the streamlined recovery,
-  so measured RTO cannot be claimed. The 4-hour RTO gate remains open;
-- the 24-hour RPO is the operating target and backup cadence, but this rehearsal
-  did not record sufficient timing evidence to claim a measured RPO.
+- authenticated cross-company RLS isolation passed with synthetic tenant
+  identities and data;
+- direct authenticated audit-log forgery was denied, while a legitimate
+  server-side mutation produced the expected structured audit event;
+- the managed Storage policy set was reconciled from canonical repository
+  migrations and verified with the expected final policy contract;
+- both private document buckets passed isolated Storage API upload, authorized
+  signed-URL, download byte-equality, delete, and cross-tenant denial tests;
+- a non-empty synthetic email/password Auth account and identity were restored,
+  including preservation of the password hash, and post-restore sign-in passed.
+  This proves the current email/password recovery path; MFA, SSO, WebAuthn,
+  OAuth, and SCIM require separate rehearsal if enabled later;
+- the post-snapshot anonymous-access hardening migration was applied to the
+  recovery baseline; anonymous public-table DML and public-sequence privileges
+  verified as zero;
+- populated synthetic rows for `trip_documents`,
+  `fleet_license_documents`, and `fleet_license_document_files` were
+  restored in a clean isolated Supabase target using the tested
+  trigger-suppression recovery path. All three replacement self-references
+  remained intact, no public user trigger remained disabled, and no public
+  foreign key remained unvalidated.
 
-Issue #287 therefore remains open. Before customer data is introduced, run a
-fresh timed isolated rehearsal that closes the remaining tenant-isolation,
-audit, Auth/configuration, populated-data/constraint, Storage-authorization,
-RPO, and RTO evidence gaps. Do not convert any item above to PASS without
-executing and retaining evidence for that scenario.
+The production backup completed at `2026-09-25T16:05:21Z`. Recovery work
+started approximately 2 hours 40 minutes later, so the tested recovery point was
+inside the 24-hour RPO target.
 
+A final uninterrupted timed recovery rehearsal ran on 2026-09-27 from
+`10:25:03.4106819Z` to `10:38:50.9464431Z`. Total measured RTO was
+13 minutes 47.536 seconds (13.79 minutes), comfortably inside the 4-hour launch
+target. The final gate verified 35 public tables, RLS enabled on all 35,
+zero anonymous public-table DML grants, zero disabled public user triggers, and
+zero unvalidated public foreign keys.
+
+The RPO and RTO targets are therefore demonstrated for the current launch
+recovery procedure. This evidence does not remove the requirement for recurring
+backups, retention, integrity checks, and periodic restore rehearsals after
+launch.
 ## Failure handling
 
 If any backup component fails:
