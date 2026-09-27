@@ -22,7 +22,8 @@ final class AccountDeletionSettingsCard extends StatelessWidget {
             final isLoading = state is AccountDeletionLoading;
             final ready = state is AccountDeletionReady ? state : null;
             final pending = ready?.status.isPending ?? false;
-            final soleOwner = state is AccountDeletionFailure &&
+            final soleOwner =
+                state is AccountDeletionFailure &&
                 state.failure.code == FailureCodes.accountDeletionSoleOwner;
 
             return Column(
@@ -49,8 +50,9 @@ final class AccountDeletionSettingsCard extends StatelessWidget {
                   const Center(child: CircularProgressIndicator())
                 else if (pending)
                   OutlinedButton.icon(
-                    onPressed: () =>
-                        context.read<AccountDeletionCubit>().cancelDeletion(),
+                    onPressed: () => context
+                        .read<AccountDeletionCubit>()
+                        .cancelDeletion(),
                     icon: const Icon(AppIcons.clear),
                     label: Text(l10n.accountDeletionCancel),
                   )
