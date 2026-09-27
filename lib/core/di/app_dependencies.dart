@@ -1,9 +1,15 @@
+import '../../features/auth/data/datasources/account_deletion_remote_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/repositories/account_deletion_repository_impl.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/usecases/cancel_account_deletion_usecase.dart';
+import '../../features/auth/domain/usecases/get_account_deletion_status_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
+import '../../features/auth/domain/usecases/request_account_deletion_usecase.dart';
+import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
@@ -53,6 +59,18 @@ abstract final class AppDependencies {
       logoutUseCase: LogoutUseCase(authRepository),
       getCurrentUserUseCase: GetCurrentUserUseCase(authRepository),
     );
+  }
+
+  static AccountDeletionCubit createAccountDeletionCubit() {
+    final dataSource = SupabaseAccountDeletionRemoteDataSource(
+      SupabaseClientProvider.client,
+    );
+    final repository = AccountDeletionRepositoryImpl(dataSource);
+    return AccountDeletionCubit(
+      getStatus: GetAccountDeletionStatusUseCase(repository),
+      requestDeletion: RequestAccountDeletionUseCase(repository),
+      cancelDeletion: CancelAccountDeletionUseCase(repository),
+    )..load();
   }
 
   static CompanyOnboardingCubit createCompanyOnboardingCubit() {
