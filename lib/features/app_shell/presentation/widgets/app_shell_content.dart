@@ -191,6 +191,7 @@ class AppShellContent extends StatelessWidget {
 
   Future<void> _refreshSettings(BuildContext context) async {
     final refreshes = <Future<void>>[
+      context.read<AccountDeletionCubit>().load(),
       context.read<SubscriptionsCubit>().load(contextData),
       context.read<PaymentMethodsCubit>().loadPaymentMethods(contextData),
     ];
