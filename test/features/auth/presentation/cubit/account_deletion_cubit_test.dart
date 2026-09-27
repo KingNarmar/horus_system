@@ -48,8 +48,7 @@ void main() {
     test('request exposes typed domain failure', () async {
       const failure = ConflictFailure(code: 'account_deletion_sole_owner');
       final repository = _FakeRepository(
-        requestResult:
-            const FailureResult<AccountDeletionStatus>(failure),
+        requestResult: const FailureResult<AccountDeletionStatus>(failure),
       );
       final cubit = _createCubit(repository);
       addTearDown(cubit.close);
