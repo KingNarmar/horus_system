@@ -32,23 +32,30 @@ class LegalSupportSettingsCard extends StatelessWidget {
             _LegalSupportAction(
               icon: AppIcons.privacy,
               label: l10n.privacyPolicy,
-              onPressed: () =>
-                  _open(context, AppExternalLinks.horusPrivacyPolicy),
+              onPressed: () {
+                _open(context, AppExternalLinks.horusPrivacyPolicy);
+              },
             ),
             _LegalSupportAction(
               icon: AppIcons.terms,
               label: l10n.termsOfService,
-              onPressed: () => _open(context, AppExternalLinks.horusTerms),
+              onPressed: () {
+                _open(context, AppExternalLinks.horusTerms);
+              },
             ),
             _LegalSupportAction(
               icon: AppIcons.support,
               label: l10n.productSupport,
-              onPressed: () => _open(context, AppExternalLinks.horusSupport),
+              onPressed: () {
+                _open(context, AppExternalLinks.horusSupport);
+              },
             ),
             _LegalSupportAction(
               icon: AppIcons.email,
               label: l10n.emailProductSupport,
-              onPressed: () => _open(context, AppExternalLinks.horusSupportEmail),
+              onPressed: () {
+                _open(context, AppExternalLinks.horusSupportEmail);
+              },
             ),
           ],
         ),
