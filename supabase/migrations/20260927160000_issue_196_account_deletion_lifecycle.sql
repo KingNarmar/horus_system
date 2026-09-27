@@ -9,7 +9,8 @@ CREATE TYPE public.account_deletion_request_status AS ENUM ('pending', 'cancelle
 
 CREATE TABLE public.account_deletion_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  subject_user_id uuid NOT NULL,
   status public.account_deletion_request_status NOT NULL DEFAULT 'pending',
   requested_at timestamptz NOT NULL DEFAULT now(),
   scheduled_for timestamptz NOT NULL,
@@ -65,6 +66,30 @@ ALTER TABLE public.company_invitations
   DROP CONSTRAINT company_invitations_invited_by_user_id_fkey,
   ADD CONSTRAINT company_invitations_invited_by_user_id_fkey
     FOREIGN KEY (invited_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+CREATE OR REPLACE FUNCTION private.snapshot_company_invitation_actor()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  IF NEW.invited_by_display_name IS NULL AND NEW.invited_by_user_id IS NOT NULL THEN
+    SELECT NULLIF(pg_catalog.btrim(profile.full_name), '')
+    INTO NEW.invited_by_display_name
+    FROM public.user_profiles profile
+    WHERE profile.id = NEW.invited_by_user_id;
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.snapshot_company_invitation_actor() FROM PUBLIC;
+
+CREATE TRIGGER company_invitations_snapshot_actor
+BEFORE INSERT ON public.company_invitations
+FOR EACH ROW
+EXECUTE FUNCTION private.snapshot_company_invitation_actor();
 
 CREATE OR REPLACE FUNCTION private.account_deletion_assert_eligible(p_user_id uuid)
 RETURNS void
@@ -138,8 +163,10 @@ BEGIN
   FOR UPDATE;
 
   IF NOT FOUND THEN
-    INSERT INTO public.account_deletion_requests(user_id, scheduled_for)
-    VALUES (v_user_id, pg_catalog.now() + interval '7 days')
+    INSERT INTO public.account_deletion_requests(
+      user_id, subject_user_id, scheduled_for
+    )
+    VALUES (v_user_id, v_user_id, pg_catalog.now() + interval '7 days')
     RETURNING * INTO v_request;
   END IF;
 
@@ -179,6 +206,75 @@ BEGIN
   RETURN QUERY SELECT v_request.status::text, v_request.requested_at, v_request.scheduled_for;
 END;
 $function$;
+
+CREATE OR REPLACE FUNCTION public.prepare_account_deletion_finalization(
+  p_user_id uuid
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  IF current_user NOT IN ('postgres', 'service_role', 'supabase_admin') THEN
+    RAISE EXCEPTION USING ERRCODE = 'P1962', MESSAGE = 'account_deletion_finalizer_forbidden';
+  END IF;
+
+  PERFORM private.account_deletion_assert_eligible(p_user_id);
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.account_deletion_requests request
+    WHERE request.user_id = p_user_id
+      AND request.subject_user_id = p_user_id
+      AND request.status = 'pending'
+      AND request.scheduled_for <= pg_catalog.now()
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE = 'P1963', MESSAGE = 'account_deletion_not_due';
+  END IF;
+
+  UPDATE public.audit_logs
+  SET actor_email = NULL
+  WHERE actor_user_id = p_user_id;
+
+  UPDATE public.company_invitations invitation
+  SET invited_by_display_name = COALESCE(
+    invitation.invited_by_display_name,
+    (
+      SELECT NULLIF(pg_catalog.btrim(profile.full_name), '')
+      FROM public.user_profiles profile
+      WHERE profile.id = p_user_id
+    )
+  )
+  WHERE invitation.invited_by_user_id = p_user_id;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.complete_account_deletion_finalization(
+  p_subject_user_id uuid
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  IF current_user NOT IN ('postgres', 'service_role', 'supabase_admin') THEN
+    RAISE EXCEPTION USING ERRCODE = 'P1962', MESSAGE = 'account_deletion_finalizer_forbidden';
+  END IF;
+
+  UPDATE public.account_deletion_requests request
+  SET status = 'finalized', finalized_at = pg_catalog.now()
+  WHERE request.subject_user_id = p_subject_user_id
+    AND request.status = 'pending'
+    AND request.user_id IS NULL;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION public.prepare_account_deletion_finalization(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.complete_account_deletion_finalization(uuid) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.prepare_account_deletion_finalization(uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION public.complete_account_deletion_finalization(uuid) TO service_role;
 
 REVOKE ALL ON FUNCTION public.get_my_account_deletion_status() FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.request_my_account_deletion() FROM PUBLIC, anon;
