@@ -17,7 +17,9 @@ final class AccountDeletionRepositoryImpl implements AccountDeletionRepository {
     return _guard(() async {
       final model = await _remoteDataSource.getStatus();
       return model?.toEntity() ??
-          const AccountDeletionStatus(state: AccountDeletionRequestState.none);
+          const AccountDeletionStatus(
+            state: AccountDeletionRequestState.none,
+          );
     });
   }
 
