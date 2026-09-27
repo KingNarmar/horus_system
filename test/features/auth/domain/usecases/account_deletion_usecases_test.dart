@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:horus_system/core/usecases/usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/auth/domain/entities/account_deletion_status.dart';
