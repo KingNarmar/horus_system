@@ -23,8 +23,8 @@ final class AccountDeletionStatusModel {
   AccountDeletionStatus toEntity() {
     return AccountDeletionStatus(
       state: status == 'pending'
-          ? AccountDeletionState.pending
-          : AccountDeletionState.none,
+          ? AccountDeletionRequestState.pending
+          : AccountDeletionRequestState.none,
       requestedAt: requestedAt,
       scheduledFor: scheduledFor,
     );
