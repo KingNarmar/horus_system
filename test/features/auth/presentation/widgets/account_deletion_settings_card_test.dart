@@ -13,9 +13,7 @@ import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
   testWidgets('pending request shows cancel action', (tester) async {
-    final cubit = _buildCubit(
-      const Success<AccountDeletionStatus>(_pending),
-    );
+    final cubit = _buildCubit(const Success<AccountDeletionStatus>(_pending));
     addTearDown(cubit.close);
     await cubit.load();
 
