@@ -46,6 +46,10 @@ abstract final class AppIcons {
   static const IconData networkOffline = Icons.cloud_off_outlined;
   static const IconData ownership = Icons.shield_outlined;
   static const IconData password = Icons.lock_outline;
+  static const IconData privacy = Icons.privacy_tip_outlined;
+  static const IconData terms = Icons.description_outlined;
+  static const IconData support = Icons.support_agent_outlined;
+  static const IconData openExternal = Icons.open_in_new;
   static const IconData payments = Icons.payments_outlined;
   static const IconData paymentsSelected = Icons.payments;
   static const IconData phone = Icons.phone_outlined;
