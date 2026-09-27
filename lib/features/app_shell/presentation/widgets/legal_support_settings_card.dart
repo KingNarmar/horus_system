@@ -37,6 +37,13 @@ class LegalSupportSettingsCard extends StatelessWidget {
               },
             ),
             _LegalSupportAction(
+              icon: AppIcons.deactivate,
+              label: l10n.accountDeletionTitle,
+              onPressed: () {
+                _open(context, AppExternalLinks.horusAccountDeletion);
+              },
+            ),
+            _LegalSupportAction(
               icon: AppIcons.terms,
               label: l10n.termsOfService,
               onPressed: () {
