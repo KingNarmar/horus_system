@@ -1,7 +1,11 @@
 name: Format Issue 196
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/196-account-deletion-lifecycle
+    paths:
+      - .github/workflows/format-issue-196.yml
 
 permissions:
   contents: write
