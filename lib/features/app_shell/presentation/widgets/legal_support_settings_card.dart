@@ -32,7 +32,8 @@ class LegalSupportSettingsCard extends StatelessWidget {
             _LegalSupportAction(
               icon: AppIcons.privacy,
               label: l10n.privacyPolicy,
-              onPressed: () => _open(context, AppExternalLinks.horusPrivacyPolicy),
+              onPressed: () =>
+                  _open(context, AppExternalLinks.horusPrivacyPolicy),
             ),
             _LegalSupportAction(
               icon: AppIcons.terms,
@@ -60,7 +61,9 @@ class LegalSupportSettingsCard extends StatelessWidget {
     final l10n = context.l10n;
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && context.mounted) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.externalLinkOpenFailed)));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.externalLinkOpenFailed)),
+      );
     }
   }
 }
