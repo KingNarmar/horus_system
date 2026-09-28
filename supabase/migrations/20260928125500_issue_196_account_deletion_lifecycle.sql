@@ -13,7 +13,7 @@ CREATE TYPE public.account_deletion_status AS ENUM (
 
 CREATE TABLE public.account_deletion_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   status public.account_deletion_status NOT NULL DEFAULT 'pending',
   requested_at timestamptz NOT NULL DEFAULT now(),
   eligible_after timestamptz NOT NULL,
