@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/di/app_dependencies.dart';
 import '../../features/app_shell/presentation/models/app_shell_destination.dart';
 import '../../features/app_shell/presentation/models/finance_workspace_section.dart';
 import '../../features/app_shell/presentation/pages/app_shell_page.dart';
+import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
+import '../../features/auth/presentation/pages/account_deletion_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -40,6 +43,12 @@ abstract final class AppRouter {
       AppRoutes.register => const RegisterPage(),
       AppRoutes.companyInvitation => CompanyInvitationAcceptancePage(
         initialToken: invitationToken,
+      ),
+      AppRoutes.accountDeletion => AuthenticatedRouteGuard(
+        child: BlocProvider<AccountDeletionCubit>(
+          create: (_) => AppDependencies.createAccountDeletionCubit(),
+          child: const AccountDeletionPage(),
+        ),
       ),
       AppRoutes.companyCreation => AuthenticatedRouteGuard(
         child: BlocProvider<CompanyTimezoneCubit>(
