@@ -111,6 +111,18 @@ credentials, or other privileged secrets.
 The script patches only email delivery/template Auth settings and verifies the
 non-secret sender/template configuration after applying it.
 
+
+### Windows PowerShell request encoding
+
+The configuration script validates its generated JSON locally and sends the
+Management API request as explicit UTF-8 bytes. This is required because the
+source-controlled Auth templates include Arabic text and Production setup is
+commonly run from Windows PowerShell 5.1.
+
+If the Management API rejects a request as malformed JSON, stop immediately and
+fix the checked-in script. Do not work around the failure with a Dashboard-only
+template or SMTP change.
+
 ## Production release gate
 
 Before enabling public Production signup:
