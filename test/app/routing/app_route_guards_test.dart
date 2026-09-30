@@ -28,82 +28,76 @@ void main() {
     role: CompanyRole.admin,
   );
 
-  testWidgets(
-    'authenticated route does not require company context',
-    (tester) async {
-      final companyRepository = _FakeCompanyContextRepository(
-        contexts: const [],
-      );
-      final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
-      final authCubit = _buildAuthCubit();
+  testWidgets('authenticated route does not require company context', (
+    tester,
+  ) async {
+    final companyRepository = _FakeCompanyContextRepository(contexts: const []);
+    final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
+    final authCubit = _buildAuthCubit();
 
-      addTearDown(currentCompanyCubit.close);
-      addTearDown(authCubit.close);
+    addTearDown(currentCompanyCubit.close);
+    addTearDown(authCubit.close);
 
-      await authCubit.login(email: 'member@example.com', password: 'password');
+    await authCubit.login(email: 'member@example.com', password: 'password');
 
-      await tester.pumpWidget(
-        MultiBlocProvider(
-          providers: [
-            BlocProvider<AuthCubit>.value(value: authCubit),
-            BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
-          ],
-          child: const MaterialApp(
-            home: AuthenticatedRouteGuard(
-              child: SizedBox(key: Key('authenticated-account-content')),
-            ),
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthCubit>.value(value: authCubit),
+          BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
+        ],
+        child: const MaterialApp(
+          home: AuthenticatedRouteGuard(
+            child: SizedBox(key: Key('authenticated-account-content')),
           ),
         ),
-      );
+      ),
+    );
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.byKey(const Key('authenticated-account-content')),
-        findsOneWidget,
-      );
-      expect(companyRepository.loadCalls, 0);
-    },
-  );
+    expect(
+      find.byKey(const Key('authenticated-account-content')),
+      findsOneWidget,
+    );
+    expect(companyRepository.loadCalls, 0);
+  });
 
-  testWidgets(
-    'company-required route keeps no-company user on company entry',
-    (tester) async {
-      final companyRepository = _FakeCompanyContextRepository(
-        contexts: const [],
-      );
-      final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
-      final authCubit = _buildAuthCubit();
+  testWidgets('company-required route keeps no-company user on company entry', (
+    tester,
+  ) async {
+    final companyRepository = _FakeCompanyContextRepository(contexts: const []);
+    final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
+    final authCubit = _buildAuthCubit();
 
-      addTearDown(currentCompanyCubit.close);
-      addTearDown(authCubit.close);
+    addTearDown(currentCompanyCubit.close);
+    addTearDown(authCubit.close);
 
-      await authCubit.login(email: 'member@example.com', password: 'password');
+    await authCubit.login(email: 'member@example.com', password: 'password');
 
-      await tester.pumpWidget(
-        MultiBlocProvider(
-          providers: [
-            BlocProvider<AuthCubit>.value(value: authCubit),
-            BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
-          ],
-          child: MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: CompanyRequiredRouteGuard(
-              builder: (_) =>
-                  const SizedBox(key: Key('company-required-content')),
-            ),
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthCubit>.value(value: authCubit),
+          BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: CompanyRequiredRouteGuard(
+            builder: (_) =>
+                const SizedBox(key: Key('company-required-content')),
           ),
         ),
-      );
+      ),
+    );
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(find.byType(CompanyEntryPage), findsOneWidget);
-      expect(find.text('Delete account'), findsOneWidget);
-      expect(find.byKey(const Key('company-required-content')), findsNothing);
-    },
-  );
+    expect(find.byType(CompanyEntryPage), findsOneWidget);
+    expect(find.text('Delete account'), findsOneWidget);
+    expect(find.byKey(const Key('company-required-content')), findsNothing);
+  });
 
   testWidgets(
     'reloads company context when authenticated route starts from empty state',
@@ -154,10 +148,12 @@ CurrentCompanyCubit _buildCurrentCompanyCubit(
       repository,
     ),
     selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
-    refreshSelectedCompanyContextUseCase:
-        RefreshSelectedCompanyContextUseCase(repository),
-    clearCurrentCompanyContextUseCase:
-        ClearCurrentCompanyContextUseCase(repository),
+    refreshSelectedCompanyContextUseCase: RefreshSelectedCompanyContextUseCase(
+      repository,
+    ),
+    clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+      repository,
+    ),
   );
 }
 

@@ -2814,5 +2814,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeletionConfirm => 'Request deletion';
-
 }
