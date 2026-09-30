@@ -15,7 +15,6 @@ if ([string]::IsNullOrWhiteSpace($AccessToken)) {
 
 $headers = @{
   Authorization = "Bearer $AccessToken"
-  "Content-Type" = "application/json"
 }
 
 $endpoint = "https://api.supabase.com/v1/projects/$ProjectRef/config/auth"
@@ -96,8 +95,19 @@ $payload = @{
   mailer_templates_reauthentication_content = Read-Template "supabase/templates/horus_reauthentication.html"
 }
 
-$body = $payload | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Patch -Uri $endpoint -Headers $headers -Body $body | Out-Null
+# Windows PowerShell 5.1 can otherwise send non-ASCII template content using
+# an ambiguous request encoding. Build, validate, and send explicit UTF-8 JSON
+# because the H.O.R.U.S templates contain Arabic text.
+$body = $payload | ConvertTo-Json -Depth 5 -Compress
+$null = $body | ConvertFrom-Json
+$bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
+
+Invoke-RestMethod `
+  -Method Patch `
+  -Uri $endpoint `
+  -Headers $headers `
+  -ContentType "application/json; charset=utf-8" `
+  -Body $bodyBytes | Out-Null
 
 $verified = Read-AuthConfig
 
