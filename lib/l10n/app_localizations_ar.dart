@@ -2780,4 +2780,5 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accountDeletionConfirm => 'طلب الحذف';
+
 }
