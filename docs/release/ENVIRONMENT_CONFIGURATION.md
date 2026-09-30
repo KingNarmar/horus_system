@@ -97,6 +97,12 @@ See `docs/release/PRODUCTION_SECURITY_AUDIT.md` for the final Issue #197
 production security and data-protection verification record.
 
 
+Production Auth email delivery, sender identity, credential handling, and
+source-controlled templates are documented separately in
+`docs/release/AUTH_EMAIL_DELIVERY.md`. SMTP credentials are never Flutter
+compile-time values and must never be committed.
+
+
 ## Hosted Supabase Auth URL configuration
 
 Supabase Auth Site URL and redirect allow-list settings are hosted service
