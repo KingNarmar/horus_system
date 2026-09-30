@@ -111,6 +111,21 @@ class _CompanyEntryContent extends StatelessWidget {
                     icon: const Icon(AppIcons.invitations),
                     label: Text(l10n.invitationTitle),
                   ),
+                  const SizedBox(height: AppSpacing.xl),
+                  const Divider(),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.accountDeletionDescription,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.accountDeletion),
+                    icon: const Icon(AppIcons.deactivate),
+                    label: Text(l10n.accountDeletionTitle),
+                  ),
                 ],
               ),
             ),
