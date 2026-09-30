@@ -929,5 +929,14 @@
   "termsOfService": "شروط الخدمة",
   "productSupport": "دعم المنتج",
   "emailProductSupport": "مراسلة دعم المنتج",
-  "externalLinkOpenFailed": "تعذر فتح الرابط المطلوب."
+  "externalLinkOpenFailed": "تعذر فتح الرابط المطلوب.",
+  "accountDeletionTitle": "حذف الحساب",
+  "accountDeletionDescription": "اطلب حذف حسابك في H.O.R.U.S وإمكانية وصولك. يتم الاحتفاظ بسجلات الشركة التشغيلية والمالية وسجل التدقيق والمستندات.",
+  "accountDeletionSoleOwner": "أنت المالك النشط الوحيد لشركة واحدة على الأقل. انقل الملكية قبل طلب حذف الحساب.",
+  "accountDeletionPending": "طلب حذف الحساب قيد الانتظار. يمكنك إلغاء الطلب خلال فترة التراجع البالغة 7 أيام.",
+  "accountDeletionCancel": "إلغاء طلب الحذف",
+  "accountDeletionRequest": "طلب حذف الحساب",
+  "accountDeletionConfirmTitle": "طلب حذف الحساب؟",
+  "accountDeletionConfirmDescription": "سيتم جدولة حذف حسابك بعد 7 أيام. تظل سجلات الشركة والمساءلة التاريخية محفوظة. يمكنك الإلغاء خلال فترة التراجع.",
+  "accountDeletionConfirm": "طلب الحذف"
 }

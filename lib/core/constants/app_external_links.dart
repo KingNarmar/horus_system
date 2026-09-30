@@ -7,6 +7,10 @@ abstract final class AppExternalLinks {
   );
   static final Uri horusTerms = Uri.https('kingnarmar.com', '/horus/terms');
   static final Uri horusSupport = Uri.https('kingnarmar.com', '/horus/support');
+  static final Uri horusAccountDeletion = Uri.https(
+    'kingnarmar.com',
+    '/horus/account-deletion',
+  );
   static final Uri horusSupportEmail = Uri(
     scheme: 'mailto',
     path: 'support.horus@kingnarmar.com',

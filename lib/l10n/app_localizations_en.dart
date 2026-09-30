@@ -2761,4 +2761,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'Combined';
+  @override
+  String get legalSupportTitle => 'Legal & Support';
+
+  @override
+  String get legalSupportDescription =>
+      'Review H.O.R.U.S legal information or contact official product support.';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get productSupport => 'Product Support';
+
+  @override
+  String get emailProductSupport => 'Email Product Support';
+
+  @override
+  String get externalLinkOpenFailed =>
+      'The requested link could not be opened.';
+
+  @override
+  String get accountDeletionTitle => 'Delete account';
+
+  @override
+  String get accountDeletionDescription =>
+      'Request deletion of your H.O.R.U.S account and access. Company operational, financial, audit, and document records are retained.';
+
+  @override
+  String get accountDeletionSoleOwner =>
+      'You are the sole active owner of at least one company. Transfer ownership before requesting account deletion.';
+
+  @override
+  String get accountDeletionPending =>
+      'Account deletion is pending. You can cancel the request during the 7-day cooling-off period.';
+
+  @override
+  String get accountDeletionCancel => 'Cancel deletion request';
+
+  @override
+  String get accountDeletionRequest => 'Request account deletion';
+
+  @override
+  String get accountDeletionConfirmTitle => 'Request account deletion?';
+
+  @override
+  String get accountDeletionConfirmDescription =>
+      'Your account is scheduled for deletion after 7 days. Company records and historical accountability remain. You can cancel during the cooling-off period.';
+
+  @override
+  String get accountDeletionConfirm => 'Request deletion';
+
 }

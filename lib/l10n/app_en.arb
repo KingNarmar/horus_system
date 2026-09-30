@@ -925,5 +925,14 @@
   "termsOfService": "Terms of Service",
   "productSupport": "Product Support",
   "emailProductSupport": "Email Product Support",
-  "externalLinkOpenFailed": "The requested link could not be opened."
+  "externalLinkOpenFailed": "The requested link could not be opened.",
+  "accountDeletionTitle": "Delete account",
+  "accountDeletionDescription": "Request deletion of your H.O.R.U.S account and access. Company operational, financial, audit, and document records are retained.",
+  "accountDeletionSoleOwner": "You are the sole active owner of at least one company. Transfer ownership before requesting account deletion.",
+  "accountDeletionPending": "Account deletion is pending. You can cancel the request during the 7-day cooling-off period.",
+  "accountDeletionCancel": "Cancel deletion request",
+  "accountDeletionRequest": "Request account deletion",
+  "accountDeletionConfirmTitle": "Request account deletion?",
+  "accountDeletionConfirmDescription": "Your account is scheduled for deletion after 7 days. Company records and historical accountability remain. You can cancel during the cooling-off period.",
+  "accountDeletionConfirm": "Request deletion"
 }

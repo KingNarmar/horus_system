@@ -5077,6 +5077,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Combined'**
   String get fleetLicenseDocumentCombinedValue;
+  /// No description provided for @legalSupportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal & Support'**
+  String get legalSupportTitle;
+
+  /// No description provided for @legalSupportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review H.O.R.U.S legal information or contact official product support.'**
+  String get legalSupportDescription;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// No description provided for @productSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Support'**
+  String get productSupport;
+
+  /// No description provided for @emailProductSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Product Support'**
+  String get emailProductSupport;
+
+  /// No description provided for @externalLinkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested link could not be opened.'**
+  String get externalLinkOpenFailed;
+
+  /// No description provided for @accountDeletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDeletionTitle;
+
+  /// No description provided for @accountDeletionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deletion of your H.O.R.U.S account and access. Company operational, financial, audit, and document records are retained.'**
+  String get accountDeletionDescription;
+
+  /// No description provided for @accountDeletionSoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the sole active owner of at least one company. Transfer ownership before requesting account deletion.'**
+  String get accountDeletionSoleOwner;
+
+  /// No description provided for @accountDeletionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion is pending. You can cancel the request during the 7-day cooling-off period.'**
+  String get accountDeletionPending;
+
+  /// No description provided for @accountDeletionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel deletion request'**
+  String get accountDeletionCancel;
+
+  /// No description provided for @accountDeletionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request account deletion'**
+  String get accountDeletionRequest;
+
+  /// No description provided for @accountDeletionConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request account deletion?'**
+  String get accountDeletionConfirmTitle;
+
+  /// No description provided for @accountDeletionConfirmDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is scheduled for deletion after 7 days. Company records and historical accountability remain. You can cancel during the cooling-off period.'**
+  String get accountDeletionConfirmDescription;
+
+  /// No description provided for @accountDeletionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deletion'**
+  String get accountDeletionConfirm;
+
 }
 
 class _AppLocalizationsDelegate

@@ -12,6 +12,7 @@ class FailureCodes {
   static const String authInvalidEmail = 'auth_invalid_email';
   static const String authRateLimited = 'auth_rate_limited';
   static const String authError = 'auth_error';
+  static const String accountDeletionSoleOwner = 'account_deletion_sole_owner';
 
   // Permissions
   static const String permissionDriversManagement =
