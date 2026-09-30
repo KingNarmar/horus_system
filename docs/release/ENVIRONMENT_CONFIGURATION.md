@@ -96,6 +96,20 @@ retention, isolated restore-rehearsal, and recovery-verification contract.
 See `docs/release/PRODUCTION_SECURITY_AUDIT.md` for the final Issue #197
 production security and data-protection verification record.
 
+
+## Hosted Supabase Auth URL configuration
+
+Supabase Auth Site URL and redirect allow-list settings are hosted service
+configuration. They are managed separately from Flutter compile-time values and
+database migrations.
+
+The canonical Development/Production values, read-only verification workflow,
+and explicit apply procedure are documented in
+`docs/release/SUPABASE_AUTH_CONFIGURATION.md`.
+
+Production Auth URL changes must be reproducible from the checked-in script and
+must never be performed as an undocumented Dashboard-only fix.
+
 ## Fail-safe startup
 
 Configuration is validated before Supabase initialization.
