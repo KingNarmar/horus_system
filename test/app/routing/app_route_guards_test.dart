@@ -29,31 +29,90 @@ void main() {
   );
 
   testWidgets(
+    'authenticated route does not require company context',
+    (tester) async {
+      final companyRepository = _FakeCompanyContextRepository(
+        contexts: const [],
+      );
+      final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
+      final authCubit = _buildAuthCubit();
+
+      addTearDown(currentCompanyCubit.close);
+      addTearDown(authCubit.close);
+
+      await authCubit.login(email: 'member@example.com', password: 'password');
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<AuthCubit>.value(value: authCubit),
+            BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
+          ],
+          child: const MaterialApp(
+            home: AuthenticatedRouteGuard(
+              child: SizedBox(key: Key('authenticated-account-content')),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('authenticated-account-content')),
+        findsOneWidget,
+      );
+      expect(companyRepository.loadCalls, 0);
+    },
+  );
+
+  testWidgets(
+    'company-required route keeps no-company user on company entry',
+    (tester) async {
+      final companyRepository = _FakeCompanyContextRepository(
+        contexts: const [],
+      );
+      final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
+      final authCubit = _buildAuthCubit();
+
+      addTearDown(currentCompanyCubit.close);
+      addTearDown(authCubit.close);
+
+      await authCubit.login(email: 'member@example.com', password: 'password');
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<AuthCubit>.value(value: authCubit),
+            BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: CompanyRequiredRouteGuard(
+              builder: (_) =>
+                  const SizedBox(key: Key('company-required-content')),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CompanyEntryPage), findsOneWidget);
+      expect(find.text('Delete account'), findsOneWidget);
+      expect(find.byKey(const Key('company-required-content')), findsNothing);
+    },
+  );
+
+  testWidgets(
     'reloads company context when authenticated route starts from empty state',
     (tester) async {
       final companyRepository = _FakeCompanyContextRepository(
         contexts: const [companyContext],
       );
-      final currentCompanyCubit = CurrentCompanyCubit(
-        loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
-          companyRepository,
-        ),
-        selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
-          companyRepository,
-        ),
-        refreshSelectedCompanyContextUseCase:
-            RefreshSelectedCompanyContextUseCase(companyRepository),
-        clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
-          companyRepository,
-        ),
-      );
-      final authRepository = _FakeAuthRepository();
-      final authCubit = AuthCubit(
-        registerUseCase: RegisterUseCase(authRepository),
-        loginUseCase: LoginUseCase(authRepository),
-        logoutUseCase: LogoutUseCase(authRepository),
-        getCurrentUserUseCase: GetCurrentUserUseCase(authRepository),
-      );
+      final currentCompanyCubit = _buildCurrentCompanyCubit(companyRepository);
+      final authCubit = _buildAuthCubit();
 
       addTearDown(currentCompanyCubit.close);
       addTearDown(authCubit.close);
@@ -84,6 +143,31 @@ void main() {
       expect(find.byKey(const Key('company-required-content')), findsOneWidget);
       expect(find.byType(CompanyEntryPage), findsNothing);
     },
+  );
+}
+
+CurrentCompanyCubit _buildCurrentCompanyCubit(
+  CompanyContextRepository repository,
+) {
+  return CurrentCompanyCubit(
+    loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+      repository,
+    ),
+    selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
+    refreshSelectedCompanyContextUseCase:
+        RefreshSelectedCompanyContextUseCase(repository),
+    clearCurrentCompanyContextUseCase:
+        ClearCurrentCompanyContextUseCase(repository),
+  );
+}
+
+AuthCubit _buildAuthCubit() {
+  final repository = _FakeAuthRepository();
+  return AuthCubit(
+    registerUseCase: RegisterUseCase(repository),
+    loginUseCase: LoginUseCase(repository),
+    logoutUseCase: LogoutUseCase(repository),
+    getCurrentUserUseCase: GetCurrentUserUseCase(repository),
   );
 }
 
