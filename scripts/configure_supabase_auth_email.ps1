@@ -306,4 +306,27 @@ Assert-ConfigValue `
   -ExpectedValue $senderName `
   -FailureMessage "Final SMTP sender name verification failed."
 
+if ($verifiedFinal.external_email_enabled -ne $true) {
+  throw "Final external email verification failed."
+}
+if ($verifiedFinal.mailer_autoconfirm -ne $false) {
+  throw "Final mailer autoconfirm verification failed."
+}
+
+foreach ($templatePayload in $templatePayloads) {
+  $definition = $templatePayload.definition
+
+  Assert-ConfigValue `
+    -Config $verifiedFinal `
+    -PropertyName $definition.subjectProperty `
+    -ExpectedValue $definition.subject `
+    -FailureMessage "Final $($definition.name) email subject verification failed."
+  Assert-ConfigValue `
+    -Config $verifiedFinal `
+    -PropertyName $definition.templateProperty `
+    -ExpectedValue $templatePayload.content `
+    -FailureMessage "Final $($definition.name) email template verification failed."
+}
+
+Write-Output "FINAL_AUTH_EMAIL_CONFIG_VERIFIED=True"
 Write-Output "AUTH_EMAIL_TEMPLATES_VERIFIED=True"
