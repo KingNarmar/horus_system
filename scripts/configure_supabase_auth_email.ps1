@@ -35,7 +35,7 @@ function Read-Template([string]$RelativePath) {
   return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
 }
 
-function Assert-AuthPayloadSerialization {
+function ConvertTo-ValidatedAuthJson {
   param(
     [Parameter(Mandatory = $true)]
     [hashtable]$Payload,
@@ -60,7 +60,7 @@ function Assert-AuthPayloadSerialization {
     }
   }
 
-  return [System.Text.Encoding]::UTF8.GetBytes($body)
+  return $body
 }
 
 function Invoke-AuthPatch {
@@ -75,7 +75,8 @@ function Invoke-AuthPatch {
   # Windows PowerShell 5.1 can otherwise send non-ASCII template content using
   # an ambiguous request encoding. Validate the generated JSON locally and send
   # explicit UTF-8 bytes because H.O.R.U.S templates contain Arabic text.
-  $bodyBytes = Assert-AuthPayloadSerialization -Payload $Payload -StepName $StepName
+  $body = ConvertTo-ValidatedAuthJson -Payload $Payload -StepName $StepName
+  $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
 
   Write-Output "APPLY_STEP=$StepName"
   Write-Output "APPLY_STEP_BYTES=$($bodyBytes.Length)"
@@ -198,9 +199,10 @@ foreach ($definition in $templateDefinitions) {
   $payload[$definition.subjectProperty] = $definition.subject
   $payload[$definition.templateProperty] = $templateContent
 
-  $preflightBytes = Assert-AuthPayloadSerialization `
+  $preflightBody = ConvertTo-ValidatedAuthJson `
     -Payload $payload `
     -StepName "PREFLIGHT_TEMPLATE_$($definition.name)"
+  $preflightBytes = [System.Text.Encoding]::UTF8.GetBytes($preflightBody)
 
   Write-Output "PREFLIGHT_TEMPLATE_$($definition.name)_BYTES=$($preflightBytes.Length)"
   Write-Output "PREFLIGHT_TEMPLATE_$($definition.name)_VERIFIED=True"
