@@ -123,6 +123,20 @@ If the Management API rejects a request as malformed JSON, stop immediately and
 fix the checked-in script. Do not work around the failure with a Dashboard-only
 template or SMTP change.
 
+
+### Management API request sizing and apply order
+
+Supabase Auth configuration supports partial PATCH updates. H.O.R.U.S therefore
+applies each email subject/template pair in a separate small request and verifies
+it before continuing.
+
+Custom SMTP is applied last, only after all templates have been written and read
+back successfully. This ordering prevents a template failure from switching
+Production to the new sender while H.O.R.U.S branding is only partially applied.
+
+If any PATCH fails, stop and investigate the checked-in script or provider
+configuration. Do not continue with manual Dashboard-only changes.
+
 ## Production release gate
 
 Before enabling public Production signup:
