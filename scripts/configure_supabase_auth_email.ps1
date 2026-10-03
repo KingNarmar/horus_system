@@ -35,6 +35,34 @@ function Read-Template([string]$RelativePath) {
   return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
 }
 
+function ConvertTo-ValidatedAuthJson {
+  param(
+    [Parameter(Mandatory = $true)]
+    [hashtable]$Payload,
+
+    [Parameter(Mandatory = $true)]
+    [string]$StepName
+  )
+
+  $body = $Payload | ConvertTo-Json -Depth 5 -Compress
+  $parsedBody = $body | ConvertFrom-Json
+
+  foreach ($key in $Payload.Keys) {
+    $expectedValue = $Payload[$key]
+    if ($expectedValue -is [string]) {
+      $actualValue = $parsedBody.$key
+      if ($actualValue -isnot [string]) {
+        throw "$StepName property '$key' must serialize as a JSON string."
+      }
+      if ($actualValue -ne $expectedValue) {
+        throw "$StepName property '$key' changed during JSON serialization."
+      }
+    }
+  }
+
+  return $body
+}
+
 function Invoke-AuthPatch {
   param(
     [Parameter(Mandatory = $true)]
@@ -47,24 +75,7 @@ function Invoke-AuthPatch {
   # Windows PowerShell 5.1 can otherwise send non-ASCII template content using
   # an ambiguous request encoding. Validate the generated JSON locally and send
   # explicit UTF-8 bytes because H.O.R.U.S templates contain Arabic text.
-  $body = $Payload | ConvertTo-Json -Depth 5 -Compress
-  $parsedBody = $body | ConvertFrom-Json
-
-  # Fail before any Management API request if PowerShell serialized a string
-  # payload value as an object or otherwise changed its content.
-  foreach ($key in $Payload.Keys) {
-    $expectedValue = $Payload[$key]
-    if ($expectedValue -is [string]) {
-      $actualValue = $parsedBody.$key
-      if ($actualValue -isnot [string]) {
-        throw "Auth PATCH property '$key' must serialize as a JSON string."
-      }
-      if ($actualValue -ne $expectedValue) {
-        throw "Auth PATCH property '$key' changed during JSON serialization."
-      }
-    }
-  }
-
+  $body = ConvertTo-ValidatedAuthJson -Payload $Payload -StepName $StepName
   $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
 
   Write-Output "APPLY_STEP=$StepName"
@@ -176,14 +187,89 @@ $templateDefinitions = @(
   }
 )
 
-# Apply and verify templates first. Custom SMTP is deliberately enabled last so
-# a template failure cannot leave Production on a new sender with incomplete
-# H.O.R.U.S branding.
+# Free-tier hosted projects require custom SMTP before Auth email templates can
+# be modified. Validate every template payload locally before changing Production
+# so malformed or oversized template serialization cannot be discovered after
+# switching email delivery.
+$templatePayloads = @()
+
 foreach ($definition in $templateDefinitions) {
   $templateContent = Read-Template $definition.templatePath
   $payload = @{}
   $payload[$definition.subjectProperty] = $definition.subject
   $payload[$definition.templateProperty] = $templateContent
+
+  $preflightBody = ConvertTo-ValidatedAuthJson `
+    -Payload $payload `
+    -StepName "PREFLIGHT_TEMPLATE_$($definition.name)"
+  $preflightBytes = [System.Text.Encoding]::UTF8.GetBytes($preflightBody)
+
+  Write-Output "PREFLIGHT_TEMPLATE_$($definition.name)_BYTES=$($preflightBytes.Length)"
+  Write-Output "PREFLIGHT_TEMPLATE_$($definition.name)_VERIFIED=True"
+
+  $templatePayloads += @{
+    definition = $definition
+    content = $templateContent
+    payload = $payload
+  }
+}
+
+$smtpPayload = @{
+  external_email_enabled = $true
+  mailer_autoconfirm = $false
+  smtp_admin_email = $env:HORUS_SMTP_FROM
+  smtp_host = $env:HORUS_SMTP_HOST
+  smtp_port = $env:HORUS_SMTP_PORT
+  smtp_user = $env:HORUS_SMTP_USER
+  smtp_pass = $env:HORUS_SMTP_PASSWORD
+  smtp_sender_name = $senderName
+}
+
+# Supabase Free-tier hosted projects using the default provider reject template
+# customization. Enable and verify custom SMTP before applying templates.
+Invoke-AuthPatch -Payload $smtpPayload -StepName "CUSTOM_SMTP"
+
+$verifiedSmtp = Read-AuthConfig
+
+Assert-ConfigValue `
+  -Config $verifiedSmtp `
+  -PropertyName "smtp_host" `
+  -ExpectedValue $env:HORUS_SMTP_HOST `
+  -FailureMessage "SMTP host verification failed."
+Assert-ConfigValue `
+  -Config $verifiedSmtp `
+  -PropertyName "smtp_port" `
+  -ExpectedValue $env:HORUS_SMTP_PORT `
+  -FailureMessage "SMTP port verification failed."
+Assert-ConfigValue `
+  -Config $verifiedSmtp `
+  -PropertyName "smtp_user" `
+  -ExpectedValue $env:HORUS_SMTP_USER `
+  -FailureMessage "SMTP user verification failed."
+Assert-ConfigValue `
+  -Config $verifiedSmtp `
+  -PropertyName "smtp_admin_email" `
+  -ExpectedValue $env:HORUS_SMTP_FROM `
+  -FailureMessage "SMTP From address verification failed."
+Assert-ConfigValue `
+  -Config $verifiedSmtp `
+  -PropertyName "smtp_sender_name" `
+  -ExpectedValue $senderName `
+  -FailureMessage "SMTP sender name verification failed."
+
+if ($verifiedSmtp.external_email_enabled -ne $true) {
+  throw "External email verification failed."
+}
+if ($verifiedSmtp.mailer_autoconfirm -ne $false) {
+  throw "Mailer autoconfirm verification failed."
+}
+
+Write-Output "CUSTOM_SMTP_VERIFIED=True"
+
+foreach ($templatePayload in $templatePayloads) {
+  $definition = $templatePayload.definition
+  $templateContent = $templatePayload.content
+  $payload = $templatePayload.payload
 
   Invoke-AuthPatch -Payload $payload -StepName "TEMPLATE_$($definition.name)"
 
@@ -202,53 +288,45 @@ foreach ($definition in $templateDefinitions) {
   Write-Output "TEMPLATE_$($definition.name)_VERIFIED=True"
 }
 
-$smtpPayload = @{
-  external_email_enabled = $true
-  mailer_autoconfirm = $false
-  smtp_admin_email = $env:HORUS_SMTP_FROM
-  smtp_host = $env:HORUS_SMTP_HOST
-  smtp_port = $env:HORUS_SMTP_PORT
-  smtp_user = $env:HORUS_SMTP_USER
-  smtp_pass = $env:HORUS_SMTP_PASSWORD
-  smtp_sender_name = $senderName
-}
-
-Invoke-AuthPatch -Payload $smtpPayload -StepName "CUSTOM_SMTP"
-
-$verified = Read-AuthConfig
+$verifiedFinal = Read-AuthConfig
 
 Assert-ConfigValue `
-  -Config $verified `
+  -Config $verifiedFinal `
   -PropertyName "smtp_host" `
   -ExpectedValue $env:HORUS_SMTP_HOST `
-  -FailureMessage "SMTP host verification failed."
+  -FailureMessage "Final SMTP host verification failed."
 Assert-ConfigValue `
-  -Config $verified `
-  -PropertyName "smtp_port" `
-  -ExpectedValue $env:HORUS_SMTP_PORT `
-  -FailureMessage "SMTP port verification failed."
-Assert-ConfigValue `
-  -Config $verified `
-  -PropertyName "smtp_user" `
-  -ExpectedValue $env:HORUS_SMTP_USER `
-  -FailureMessage "SMTP user verification failed."
-Assert-ConfigValue `
-  -Config $verified `
+  -Config $verifiedFinal `
   -PropertyName "smtp_admin_email" `
   -ExpectedValue $env:HORUS_SMTP_FROM `
-  -FailureMessage "SMTP From address verification failed."
+  -FailureMessage "Final SMTP From address verification failed."
 Assert-ConfigValue `
-  -Config $verified `
+  -Config $verifiedFinal `
   -PropertyName "smtp_sender_name" `
   -ExpectedValue $senderName `
-  -FailureMessage "SMTP sender name verification failed."
+  -FailureMessage "Final SMTP sender name verification failed."
 
-if ($verified.external_email_enabled -ne $true) {
-  throw "External email verification failed."
+if ($verifiedFinal.external_email_enabled -ne $true) {
+  throw "Final external email verification failed."
 }
-if ($verified.mailer_autoconfirm -ne $false) {
-  throw "Mailer autoconfirm verification failed."
+if ($verifiedFinal.mailer_autoconfirm -ne $false) {
+  throw "Final mailer autoconfirm verification failed."
 }
 
-Write-Output "CUSTOM_SMTP_VERIFIED=True"
+foreach ($templatePayload in $templatePayloads) {
+  $definition = $templatePayload.definition
+
+  Assert-ConfigValue `
+    -Config $verifiedFinal `
+    -PropertyName $definition.subjectProperty `
+    -ExpectedValue $definition.subject `
+    -FailureMessage "Final $($definition.name) email subject verification failed."
+  Assert-ConfigValue `
+    -Config $verifiedFinal `
+    -PropertyName $definition.templateProperty `
+    -ExpectedValue $templatePayload.content `
+    -FailureMessage "Final $($definition.name) email template verification failed."
+}
+
+Write-Output "FINAL_AUTH_EMAIL_CONFIG_VERIFIED=True"
 Write-Output "AUTH_EMAIL_TEMPLATES_VERIFIED=True"
