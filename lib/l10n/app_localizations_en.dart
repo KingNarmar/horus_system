@@ -2778,6 +2778,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'Combined';
+
   @override
   String get legalSupportTitle => 'Legal & Support';
 
@@ -2831,5 +2832,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeletionConfirm => 'Request deletion';
-
 }

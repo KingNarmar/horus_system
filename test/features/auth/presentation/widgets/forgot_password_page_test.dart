@@ -21,10 +21,7 @@ void main() {
 
     await tester.pumpWidget(_TestApp(cubit: cubit));
 
-    await tester.enterText(
-      find.byType(TextFormField),
-      '  user@example.com  ',
-    );
+    await tester.enterText(find.byType(TextFormField), '  user@example.com  ');
     await tester.tap(find.text('Send recovery email'));
     await tester.pumpAndSettle();
 
@@ -66,9 +63,7 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      _TestApp(cubit: cubit, locale: const Locale('ar')),
-    );
+    await tester.pumpWidget(_TestApp(cubit: cubit, locale: const Locale('ar')));
 
     expect(find.text('استعادة كلمة المرور'), findsOneWidget);
     expect(find.text('إرسال رسالة الاستعادة'), findsOneWidget);
@@ -90,9 +85,7 @@ class _TestApp extends StatelessWidget {
         locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        routes: {
-          AppRoutes.login: (_) => const Scaffold(body: Text('Login')),
-        },
+        routes: {AppRoutes.login: (_) => const Scaffold(body: Text('Login'))},
         home: const ForgotPasswordPage(),
       ),
     );

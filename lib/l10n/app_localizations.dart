@@ -5107,6 +5107,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Combined'**
   String get fleetLicenseDocumentCombinedValue;
+
   /// No description provided for @legalSupportTitle.
   ///
   /// In en, this message translates to:
@@ -5202,7 +5203,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request deletion'**
   String get accountDeletionConfirm;
-
 }
 
 class _AppLocalizationsDelegate

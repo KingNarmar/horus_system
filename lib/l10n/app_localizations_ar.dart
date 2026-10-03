@@ -2745,6 +2745,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fleetLicenseDocumentCombinedValue => 'ملف مجمع';
+
   @override
   String get legalSupportTitle => 'القانون والدعم';
 
@@ -2797,5 +2798,4 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accountDeletionConfirm => 'طلب الحذف';
-
 }

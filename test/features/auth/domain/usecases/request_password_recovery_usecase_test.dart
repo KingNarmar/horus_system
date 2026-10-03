@@ -37,9 +37,7 @@ void main() {
       final useCase = RequestPasswordRecoveryUseCase(repository);
 
       final result = await useCase(
-        const RequestPasswordRecoveryParams(
-          email: '  user@example.com  ',
-        ),
+        const RequestPasswordRecoveryParams(email: '  user@example.com  '),
       );
 
       expect(result, same(expected));

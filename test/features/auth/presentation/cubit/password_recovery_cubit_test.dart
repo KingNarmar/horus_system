@@ -20,10 +20,10 @@ void main() {
       final states = cubit.stream.take(2).toList();
       await cubit.requestRecovery(email: 'user@example.com');
 
-      expect(
-        (await states).map((state) => state.runtimeType),
-        [PasswordRecoverySubmitting, PasswordRecoverySubmitted],
-      );
+      expect((await states).map((state) => state.runtimeType), [
+        PasswordRecoverySubmitting,
+        PasswordRecoverySubmitted,
+      ]);
       expect(repository.calls, 1);
     });
 
