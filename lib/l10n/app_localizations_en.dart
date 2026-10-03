@@ -214,6 +214,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Login';
 
   @override
+  String get forgotPasswordButton => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Recover your password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your email address to request secure password recovery instructions.';
+
+  @override
+  String get sendPasswordRecoveryButton => 'Send recovery email';
+
+  @override
+  String get passwordRecoverySuccessMessage =>
+      'If an account exists for this email address, password recovery instructions will arrive shortly.';
+
+  @override
   String get createNewAccountButton => 'Create a new account';
 
   @override

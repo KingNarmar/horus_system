@@ -211,6 +211,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginButton => 'تسجيل الدخول';
 
   @override
+  String get forgotPasswordButton => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'أدخل بريدك الإلكتروني لطلب تعليمات آمنة لاستعادة كلمة المرور.';
+
+  @override
+  String get sendPasswordRecoveryButton => 'إرسال رسالة الاستعادة';
+
+  @override
+  String get passwordRecoverySuccessMessage =>
+      'إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فستصلك تعليمات استعادة كلمة المرور قريبًا.';
+
+  @override
   String get createNewAccountButton => 'إنشاء حساب جديد';
 
   @override
