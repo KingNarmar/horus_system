@@ -30,7 +30,9 @@ function Read-Template([string]$RelativePath) {
     throw "Required email template not found: $RelativePath"
   }
 
-  return Get-Content -Raw -Path $path
+  # Read directly through .NET so Windows PowerShell 5.1 does not attach
+  # provider metadata that ConvertTo-Json can serialize as an object.
+  return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
 }
 
 function Invoke-AuthPatch {
@@ -46,7 +48,23 @@ function Invoke-AuthPatch {
   # an ambiguous request encoding. Validate the generated JSON locally and send
   # explicit UTF-8 bytes because H.O.R.U.S templates contain Arabic text.
   $body = $Payload | ConvertTo-Json -Depth 5 -Compress
-  $null = $body | ConvertFrom-Json
+  $parsedBody = $body | ConvertFrom-Json
+
+  # Fail before any Management API request if PowerShell serialized a string
+  # payload value as an object or otherwise changed its content.
+  foreach ($key in $Payload.Keys) {
+    $expectedValue = $Payload[$key]
+    if ($expectedValue -is [string]) {
+      $actualValue = $parsedBody.$key
+      if ($actualValue -isnot [string]) {
+        throw "Auth PATCH property '$key' must serialize as a JSON string."
+      }
+      if ($actualValue -ne $expectedValue) {
+        throw "Auth PATCH property '$key' changed during JSON serialization."
+      }
+    }
+  }
+
   $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
 
   Write-Output "APPLY_STEP=$StepName"
