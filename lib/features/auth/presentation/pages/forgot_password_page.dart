@@ -7,25 +7,24 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
-import '../cubit/auth_cubit.dart';
-import '../cubit/auth_state.dart';
+import '../../../../core/validators/app_validators.dart';
+import '../cubit/password_recovery_cubit.dart';
+import '../cubit/password_recovery_state.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -34,18 +33,13 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    context.read<AuthCubit>().login(
+    context.read<PasswordRecoveryCubit>().requestRecovery(
       email: _emailController.text,
-      password: _passwordController.text,
     );
   }
 
-  void _openRegisterPage() {
-    Navigator.of(context).pushNamed(AppRoutes.register);
-  }
-
-  void _openForgotPasswordPage() {
-    Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
+  void _backToLogin() {
+    Navigator.of(context).pushReplacementNamed(AppRoutes.login);
   }
 
   @override
@@ -53,35 +47,29 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: SafeArea(
         child: ResponsiveLayout(
-          mobile: _LoginLayout(
+          mobile: _ForgotPasswordLayout(
             maxWidth: AppSizes.mobileMaxContentWidth,
             horizontalPadding: AppSpacing.lg,
             formKey: _formKey,
             emailController: _emailController,
-            passwordController: _passwordController,
             onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
+            onBackToLogin: _backToLogin,
           ),
-          tablet: _LoginLayout(
+          tablet: _ForgotPasswordLayout(
             maxWidth: AppSizes.tabletMaxContentWidth,
             horizontalPadding: AppSpacing.xl,
             formKey: _formKey,
             emailController: _emailController,
-            passwordController: _passwordController,
             onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
+            onBackToLogin: _backToLogin,
           ),
-          desktop: _LoginLayout(
+          desktop: _ForgotPasswordLayout(
             maxWidth: AppSizes.desktopAuthFormMaxWidth,
             horizontalPadding: AppSpacing.xxl,
             formKey: _formKey,
             emailController: _emailController,
-            passwordController: _passwordController,
             onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
+            onBackToLogin: _backToLogin,
           ),
         ),
       ),
@@ -89,25 +77,21 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class _LoginLayout extends StatelessWidget {
+class _ForgotPasswordLayout extends StatelessWidget {
   final double maxWidth;
   final double horizontalPadding;
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
-  final TextEditingController passwordController;
   final VoidCallback onSubmit;
-  final VoidCallback onForgotPassword;
-  final VoidCallback onCreateAccount;
+  final VoidCallback onBackToLogin;
 
-  const _LoginLayout({
+  const _ForgotPasswordLayout({
     required this.maxWidth,
     required this.horizontalPadding,
     required this.formKey,
     required this.emailController,
-    required this.passwordController,
     required this.onSubmit,
-    required this.onForgotPassword,
-    required this.onCreateAccount,
+    required this.onBackToLogin,
   });
 
   @override
@@ -122,9 +106,9 @@ class _LoginLayout extends StatelessWidget {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: BlocConsumer<AuthCubit, AuthState>(
+          child: BlocConsumer<PasswordRecoveryCubit, PasswordRecoveryState>(
             listener: (context, state) {
-              if (state is AuthFailureState) {
+              if (state is PasswordRecoveryFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(l10n.localizedErrorMessage(state.failure)),
@@ -133,7 +117,43 @@ class _LoginLayout extends StatelessWidget {
               }
             },
             builder: (context, state) {
-              final isLoading = state is AuthLoading;
+              if (state is PasswordRecoverySubmitted) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Icon(
+                          AppIcons.invitationSent,
+                          size: AppSizes.iconXl,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          l10n.checkYourEmailTitle,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          l10n.passwordRecoverySuccessMessage,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        FilledButton.icon(
+                          onPressed: onBackToLogin,
+                          icon: const Icon(AppIcons.login),
+                          label: Text(l10n.backToLoginButton),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              final isSubmitting = state is PasswordRecoverySubmitting;
 
               return Form(
                 key: formKey,
@@ -141,13 +161,13 @@ class _LoginLayout extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      l10n.loginWelcomeTitle,
+                      l10n.forgotPasswordTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      l10n.loginSubtitle,
+                      l10n.forgotPasswordSubtitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -155,48 +175,28 @@ class _LoginLayout extends StatelessWidget {
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => isSubmitting ? null : onSubmit(),
                       decoration: InputDecoration(
                         labelText: l10n.emailLabel,
                         prefixIcon: const Icon(AppIcons.email),
                       ),
                       validator: (value) {
-                        if ((value ?? '').trim().isEmpty) {
+                        if (!AppValidators.hasRequiredText(value)) {
                           return l10n.emailRequired;
                         }
 
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
-                      decoration: InputDecoration(
-                        labelText: l10n.passwordLabel,
-                        prefixIcon: const Icon(AppIcons.password),
-                      ),
-                      validator: (value) {
-                        if ((value ?? '').isEmpty) {
-                          return l10n.passwordRequired;
+                        if (!AppValidators.hasValidEmail(value)) {
+                          return l10n.failureAuthInvalidEmail;
                         }
 
                         return null;
                       },
                     ),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: TextButton(
-                        onPressed: isLoading ? null : onForgotPassword,
-                        child: Text(l10n.forgotPasswordButton),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.xl),
                     FilledButton(
-                      onPressed: isLoading ? null : onSubmit,
-                      child: isLoading
+                      onPressed: isSubmitting ? null : onSubmit,
+                      child: isSubmitting
                           ? const SizedBox(
                               width: AppSizes.loadingIndicatorSm,
                               height: AppSizes.loadingIndicatorSm,
@@ -205,12 +205,12 @@ class _LoginLayout extends StatelessWidget {
                                     AppSizes.loadingIndicatorStrokeWidth,
                               ),
                             )
-                          : Text(l10n.loginButton),
+                          : Text(l10n.sendPasswordRecoveryButton),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     TextButton(
-                      onPressed: isLoading ? null : onCreateAccount,
-                      child: Text(l10n.createNewAccountButton),
+                      onPressed: isSubmitting ? null : onBackToLogin,
+                      child: Text(l10n.backToLoginButton),
                     ),
                   ],
                 ),

@@ -458,6 +458,36 @@ abstract class AppLocalizations {
   /// **'Login'**
   String get loginButton;
 
+  /// No description provided for @forgotPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPasswordButton;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover your password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address to request secure password recovery instructions.'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendPasswordRecoveryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send recovery email'**
+  String get sendPasswordRecoveryButton;
+
+  /// No description provided for @passwordRecoverySuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for this email address, password recovery instructions will arrive shortly.'**
+  String get passwordRecoverySuccessMessage;
+
   /// No description provided for @createNewAccountButton.
   ///
   /// In en, this message translates to:
@@ -5077,6 +5107,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Combined'**
   String get fleetLicenseDocumentCombinedValue;
+
   /// No description provided for @legalSupportTitle.
   ///
   /// In en, this message translates to:
@@ -5172,7 +5203,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request deletion'**
   String get accountDeletionConfirm;
-
 }
 
 class _AppLocalizationsDelegate
