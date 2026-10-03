@@ -40,6 +40,10 @@ jobs:
       - name: Check formatting
         run: dart format --set-exit-if-changed lib test
 
+      - name: Show formatting diff
+        if: failure()
+        run: git diff -- lib test
+
       - name: Run architecture tests
         run: flutter test test/architecture
 
