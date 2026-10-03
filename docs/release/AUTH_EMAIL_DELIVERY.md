@@ -127,12 +127,24 @@ template or SMTP change.
 ### Management API request sizing and apply order
 
 Supabase Auth configuration supports partial PATCH updates. H.O.R.U.S therefore
-applies each email subject/template pair in a separate small request and verifies
-it before continuing.
+keeps every email subject/template pair in a separate small request and verifies
+each one before continuing.
 
-Custom SMTP is applied last, only after all templates have been written and read
-back successfully. This ordering prevents a template failure from switching
-Production to the new sender while H.O.R.U.S branding is only partially applied.
+On hosted Free-tier projects, Supabase does not allow Auth email template
+customization while the project still uses the default email provider. The
+Production apply order is therefore:
+
+1. locally preflight every subject/template payload and verify safe JSON string
+   serialization before any write;
+2. enable custom SMTP;
+3. read back and verify the custom SMTP configuration;
+4. apply and verify each Auth email template one at a time;
+5. perform a final read-back verification.
+
+Custom SMTP is intentionally not rolled back automatically if a later template
+fails. The custom provider is itself the production-capable delivery path, while
+the Supabase default sender is development/testing-oriented. A failure after SMTP
+activation must be investigated and corrected through the checked-in script.
 
 If any PATCH fails, stop and investigate the checked-in script or provider
 configuration. Do not continue with manual Dashboard-only changes.
