@@ -88,10 +88,7 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
     required String email,
     required String redirectTo,
   }) {
-    return _client.auth.resetPasswordForEmail(
-      email,
-      redirectTo: redirectTo,
-    );
+    return _client.auth.resetPasswordForEmail(email, redirectTo: redirectTo);
   }
 
   @override

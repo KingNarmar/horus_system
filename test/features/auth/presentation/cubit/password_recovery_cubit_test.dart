@@ -49,9 +49,7 @@ void main() {
 
 final class _FakePasswordRecoveryRepository
     implements PasswordRecoveryRepository {
-  _FakePasswordRecoveryRepository({
-    this.result = const Success<void>(null),
-  });
+  _FakePasswordRecoveryRepository({this.result = const Success<void>(null)});
 
   final Result<void> result;
   int calls = 0;

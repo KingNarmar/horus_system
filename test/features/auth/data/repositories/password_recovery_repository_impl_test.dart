@@ -9,10 +9,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('PasswordRecoveryRepositoryImpl', () {
-    final redirectUri = Uri.https(
-      'kingnarmar.com',
-      '/horus/reset-password',
-    );
+    final redirectUri = Uri.https('kingnarmar.com', '/horus/reset-password');
 
     test('forwards email and configured redirect to data source', () async {
       final dataSource = _FakeAuthRemoteDataSource();

@@ -176,8 +176,7 @@ class _ForgotPasswordLayout extends StatelessWidget {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) =>
-                          isSubmitting ? null : onSubmit(),
+                      onFieldSubmitted: (_) => isSubmitting ? null : onSubmit(),
                       decoration: InputDecoration(
                         labelText: l10n.emailLabel,
                         prefixIcon: const Icon(AppIcons.email),

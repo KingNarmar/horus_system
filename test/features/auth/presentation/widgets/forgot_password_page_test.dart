@@ -67,10 +67,7 @@ void main() {
     addTearDown(cubit.close);
 
     await tester.pumpWidget(
-      _TestApp(
-        cubit: cubit,
-        locale: const Locale('ar'),
-      ),
+      _TestApp(cubit: cubit, locale: const Locale('ar')),
     );
 
     expect(find.text('استعادة كلمة المرور'), findsOneWidget);
