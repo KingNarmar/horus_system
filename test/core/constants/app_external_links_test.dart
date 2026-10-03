@@ -16,6 +16,10 @@ void main() {
         AppExternalLinks.horusSupport.toString(),
         'https://kingnarmar.com/horus/support',
       );
+      expect(
+        AppExternalLinks.horusPasswordReset.toString(),
+        'https://kingnarmar.com/horus/reset-password',
+      );
     });
 
     test('uses the dedicated H.O.R.U.S support mailbox', () {

@@ -6,8 +6,10 @@ import '../../features/app_shell/presentation/models/app_shell_destination.dart'
 import '../../features/app_shell/presentation/models/finance_workspace_section.dart';
 import '../../features/app_shell/presentation/pages/app_shell_page.dart';
 import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
+import '../../features/auth/presentation/cubit/password_recovery_cubit.dart';
 import '../../features/auth/presentation/pages/account_deletion_page.dart';
 import '../../features/auth/presentation/pages/auth_gate.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/company/di/company_dependencies.dart';
@@ -41,6 +43,10 @@ abstract final class AppRouter {
       AppRoutes.root => const AuthGate(),
       AppRoutes.login => const LoginPage(),
       AppRoutes.register => const RegisterPage(),
+      AppRoutes.forgotPassword => BlocProvider<PasswordRecoveryCubit>(
+        create: (_) => AppDependencies.createPasswordRecoveryCubit(),
+        child: const ForgotPasswordPage(),
+      ),
       AppRoutes.companyInvitation => CompanyInvitationAcceptancePage(
         initialToken: invitationToken,
       ),
