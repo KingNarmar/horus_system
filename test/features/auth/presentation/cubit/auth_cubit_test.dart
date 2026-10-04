@@ -63,7 +63,7 @@ void main() {
       expect((states[1] as AuthFailureState).failure, same(failure));
     });
 
-    test('login emits loading then authenticated', () async {
+    test('login emits submitting then authenticated', () async {
       final repository = _FakeAuthRepository(
         loginResult: const Success<AuthUser>(_confirmedUser),
       );
@@ -75,12 +75,12 @@ void main() {
         () => cubit.login(email: 'user@example.com', password: 'secret'),
       );
 
-      expect(states[0], isA<AuthLoading>());
+      expect(states[0], isA<AuthLoginSubmitting>());
       expect((states[1] as AuthAuthenticated).user, same(_confirmedUser));
       expect(repository.loginCalls, 1);
     });
 
-    test('login emits failure state when use case fails', () async {
+    test('login emits submitting then failure when use case fails', () async {
       const failure = UnexpectedFailure(message: 'login failed');
       final repository = _FakeAuthRepository(
         loginResult: const FailureResult<AuthUser>(failure),
@@ -93,7 +93,7 @@ void main() {
         () => cubit.login(email: 'user@example.com', password: 'secret'),
       );
 
-      expect(states[0], isA<AuthLoading>());
+      expect(states[0], isA<AuthLoginSubmitting>());
       expect((states[1] as AuthFailureState).failure, same(failure));
     });
 

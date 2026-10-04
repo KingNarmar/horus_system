@@ -44,37 +44,53 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).pushNamed(AppRoutes.register);
   }
 
+  void _openForgotPasswordPage() {
+    Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
+  }
+
+  void _clearPasswordOnFailure(BuildContext context, AuthState state) {
+    if (state is AuthFailureState) {
+      _passwordController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveLayout(
-          mobile: _LoginLayout(
-            maxWidth: AppSizes.mobileMaxContentWidth,
-            horizontalPadding: AppSpacing.lg,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onCreateAccount: _openRegisterPage,
-          ),
-          tablet: _LoginLayout(
-            maxWidth: AppSizes.tabletMaxContentWidth,
-            horizontalPadding: AppSpacing.xl,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onCreateAccount: _openRegisterPage,
-          ),
-          desktop: _LoginLayout(
-            maxWidth: AppSizes.desktopAuthFormMaxWidth,
-            horizontalPadding: AppSpacing.xxl,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onCreateAccount: _openRegisterPage,
+    return BlocListener<AuthCubit, AuthState>(
+      listener: _clearPasswordOnFailure,
+      child: Scaffold(
+        body: SafeArea(
+          child: ResponsiveLayout(
+            mobile: _LoginLayout(
+              maxWidth: AppSizes.mobileMaxContentWidth,
+              horizontalPadding: AppSpacing.lg,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
+            tablet: _LoginLayout(
+              maxWidth: AppSizes.tabletMaxContentWidth,
+              horizontalPadding: AppSpacing.xl,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
+            desktop: _LoginLayout(
+              maxWidth: AppSizes.desktopAuthFormMaxWidth,
+              horizontalPadding: AppSpacing.xxl,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
           ),
         ),
       ),
@@ -89,6 +105,7 @@ class _LoginLayout extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final VoidCallback onSubmit;
+  final VoidCallback onForgotPassword;
   final VoidCallback onCreateAccount;
 
   const _LoginLayout({
@@ -98,6 +115,7 @@ class _LoginLayout extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.onSubmit,
+    required this.onForgotPassword,
     required this.onCreateAccount,
   });
 
@@ -113,18 +131,9 @@ class _LoginLayout extends StatelessWidget {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: BlocConsumer<AuthCubit, AuthState>(
-            listener: (context, state) {
-              if (state is AuthFailureState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.localizedErrorMessage(state.failure)),
-                  ),
-                );
-              }
-            },
+          child: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
-              final isLoading = state is AuthLoading;
+              final isLoading = state is AuthLoginSubmitting;
 
               return Form(
                 key: formKey,
@@ -177,7 +186,14 @@ class _LoginLayout extends StatelessWidget {
                         return null;
                       },
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton(
+                        onPressed: isLoading ? null : onForgotPassword,
+                        child: Text(l10n.forgotPasswordButton),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
                     FilledButton(
                       onPressed: isLoading ? null : onSubmit,
                       child: isLoading

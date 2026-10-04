@@ -261,6 +261,14 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> requestPasswordRecovery({
+    required String email,
+    required String redirectTo,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<AuthUserModel?> getCurrentUser() async {
     if (currentUserError != null) throw currentUserError!;
     return currentUserModel;

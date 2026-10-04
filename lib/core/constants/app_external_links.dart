@@ -11,6 +11,10 @@ abstract final class AppExternalLinks {
     'kingnarmar.com',
     '/horus/account-deletion',
   );
+  static final Uri horusPasswordReset = Uri.https(
+    'kingnarmar.com',
+    '/horus/reset-password',
+  );
   static final Uri horusSupportEmail = Uri(
     scheme: 'mailto',
     path: 'support.horus@kingnarmar.com',

@@ -19,6 +19,11 @@ abstract class AuthRemoteDataSource {
 
   Future<void> logout();
 
+  Future<void> requestPasswordRecovery({
+    required String email,
+    required String redirectTo,
+  });
+
   Future<AuthUserModel?> getCurrentUser();
 }
 
@@ -76,6 +81,14 @@ class SupabaseAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<void> logout() {
     return _client.auth.signOut();
+  }
+
+  @override
+  Future<void> requestPasswordRecovery({
+    required String email,
+    required String redirectTo,
+  }) {
+    return _client.auth.resetPasswordForEmail(email, redirectTo: redirectTo);
   }
 
   @override
