@@ -23,9 +23,7 @@ class AuthGate extends StatelessWidget {
         if (state is AuthFailureState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                context.l10n.localizedErrorMessage(state.failure),
-              ),
+              content: Text(context.l10n.localizedErrorMessage(state.failure)),
             ),
           );
         }
