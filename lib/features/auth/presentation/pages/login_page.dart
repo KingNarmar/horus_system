@@ -48,11 +48,19 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
   }
 
+  void _clearPasswordOnFailure(BuildContext context, AuthState state) {
+    if (state is AuthFailureState) {
+      _passwordController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveLayout(
+    return BlocListener<AuthCubit, AuthState>(
+      listener: _clearPasswordOnFailure,
+      child: Scaffold(
+        body: SafeArea(
+          child: ResponsiveLayout(
           mobile: _LoginLayout(
             maxWidth: AppSizes.mobileMaxContentWidth,
             horizontalPadding: AppSpacing.lg,
@@ -73,15 +81,16 @@ class _LoginPageState extends State<LoginPage> {
             onForgotPassword: _openForgotPasswordPage,
             onCreateAccount: _openRegisterPage,
           ),
-          desktop: _LoginLayout(
-            maxWidth: AppSizes.desktopAuthFormMaxWidth,
-            horizontalPadding: AppSpacing.xxl,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
+            desktop: _LoginLayout(
+              maxWidth: AppSizes.desktopAuthFormMaxWidth,
+              horizontalPadding: AppSpacing.xxl,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
           ),
         ),
       ),
@@ -124,7 +133,7 @@ class _LoginLayout extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
-              final isLoading = state is AuthLoading;
+              final isLoading = state is AuthLoginSubmitting;
 
               return Form(
                 key: formKey,
