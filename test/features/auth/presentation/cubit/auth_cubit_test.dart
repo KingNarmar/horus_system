@@ -28,7 +28,7 @@ void main() {
 
       final states = await _recordStates(cubit, cubit.checkCurrentUser);
 
-      expect(states[0], isA<AuthLoginSubmitting>());
+      expect(states[0], isA<AuthLoading>());
       expect(states[1], isA<AuthAuthenticated>());
       expect((states[1] as AuthAuthenticated).user, same(_confirmedUser));
       expect(repository.getCurrentUserCalls, 1);
@@ -75,7 +75,7 @@ void main() {
         () => cubit.login(email: 'user@example.com', password: 'secret'),
       );
 
-      expect(states[0], isA<AuthLoading>());
+      expect(states[0], isA<AuthLoginSubmitting>());
       expect((states[1] as AuthAuthenticated).user, same(_confirmedUser));
       expect(repository.loginCalls, 1);
     });
@@ -93,7 +93,7 @@ void main() {
         () => cubit.login(email: 'user@example.com', password: 'secret'),
       );
 
-      expect(states[0], isA<AuthLoading>());
+      expect(states[0], isA<AuthLoginSubmitting>());
       expect((states[1] as AuthFailureState).failure, same(failure));
     });
 
