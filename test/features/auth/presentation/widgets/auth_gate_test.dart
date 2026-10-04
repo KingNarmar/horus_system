@@ -44,6 +44,10 @@ void main() {
 
       expect(repository.loginCalls, 1);
       expect(find.text('Incorrect email or password.'), findsOneWidget);
+
+      final fields = tester.widgetList<TextFormField>(find.byType(TextFormField));
+      expect(fields.elementAt(0).controller?.text, 'user@example.com');
+      expect(fields.elementAt(1).controller?.text, isEmpty);
     },
   );
 }
