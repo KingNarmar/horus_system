@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../features/company/presentation/cubit/current_company_cubit.dart';
 import '../../../../features/company/presentation/pages/current_company_gate.dart';
 import '../cubit/auth_cubit.dart';
@@ -16,6 +17,17 @@ class AuthGate extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
           context.read<CurrentCompanyCubit>().clearCurrentCompanyContext();
+          return;
+        }
+
+        if (state is AuthFailureState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.l10n.localizedErrorMessage(state.failure),
+              ),
+            ),
+          );
         }
       },
       builder: (context, state) {
