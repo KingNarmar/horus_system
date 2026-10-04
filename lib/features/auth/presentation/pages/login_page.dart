@@ -61,26 +61,26 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         body: SafeArea(
           child: ResponsiveLayout(
-          mobile: _LoginLayout(
-            maxWidth: AppSizes.mobileMaxContentWidth,
-            horizontalPadding: AppSpacing.lg,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
-          ),
-          tablet: _LoginLayout(
-            maxWidth: AppSizes.tabletMaxContentWidth,
-            horizontalPadding: AppSpacing.xl,
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            onSubmit: _submit,
-            onForgotPassword: _openForgotPasswordPage,
-            onCreateAccount: _openRegisterPage,
-          ),
+            mobile: _LoginLayout(
+              maxWidth: AppSizes.mobileMaxContentWidth,
+              horizontalPadding: AppSpacing.lg,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
+            tablet: _LoginLayout(
+              maxWidth: AppSizes.tabletMaxContentWidth,
+              horizontalPadding: AppSpacing.xl,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController,
+              onSubmit: _submit,
+              onForgotPassword: _openForgotPasswordPage,
+              onCreateAccount: _openRegisterPage,
+            ),
             desktop: _LoginLayout(
               maxWidth: AppSizes.desktopAuthFormMaxWidth,
               horizontalPadding: AppSpacing.xxl,
