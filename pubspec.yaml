@@ -52,3 +52,4 @@ msix_config:
   capabilities: internetClient
   output_name: horus-system-store
   store: true
+  logo_path: windows/runner/resources/app_icon.ico
