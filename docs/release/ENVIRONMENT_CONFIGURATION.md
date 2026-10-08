@@ -173,7 +173,7 @@ flutter run \
 ```
 
 The `HORUS_...` shell variables are only an input convenience. The Flutter
-application reads only the four explicit Dart defines above.
+application reads only the explicit Dart defines above.
 
 ## Production Android build
 
