@@ -141,9 +141,4 @@ jobs:
 
       - name: Validate Microsoft Store MSIX packaging
         shell: pwsh
-        run: |
-          dart run msix:create --build-windows false
-
-          if (-not (Test-Path "build/windows/x64/runner/Release/horus-system-store.msix")) {
-            throw "Expected Microsoft Store MSIX package was not generated."
-          }
+        run: ./scripts/package_windows_store.ps1
