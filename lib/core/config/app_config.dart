@@ -7,6 +7,7 @@ abstract final class AppConfigKeys {
   static const String supabaseUrl = 'SUPABASE_URL';
   static const String supabasePublishableKey = 'SUPABASE_PUBLISHABLE_KEY';
   static const String enableDebugLogs = 'ENABLE_DEBUG_LOGS';
+  static const String enableDevicePreview = 'ENABLE_DEVICE_PREVIEW';
 }
 
 const String _compileTimeAppEnvironment = String.fromEnvironment(

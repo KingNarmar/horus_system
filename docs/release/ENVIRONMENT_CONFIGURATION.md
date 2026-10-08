@@ -18,6 +18,7 @@ APP_ENV
 SUPABASE_URL
 SUPABASE_PUBLISHABLE_KEY
 ENABLE_DEBUG_LOGS
+ENABLE_DEVICE_PREVIEW
 ```
 
 Never ship:
@@ -50,11 +51,17 @@ APP_ENV=development|staging|production
 SUPABASE_URL=<client-safe Supabase URL>
 SUPABASE_PUBLISHABLE_KEY=<sb_publishable_... or legacy anon JWT>
 ENABLE_DEBUG_LOGS=true|false
+ENABLE_DEVICE_PREVIEW=true|false
 ```
 
 `ENABLE_DEBUG_LOGS` defaults to `false`. It may be enabled only for the
 development environment, and application debug logging is additionally disabled
 when Flutter is not running in debug mode.
+
+`ENABLE_DEVICE_PREVIEW` defaults to `true` for non-release builds. It controls
+only the development-time DevicePreview wrapper and is always ignored in release
+mode. Set it to `false` when capturing native Windows screenshots or when testing
+the unwrapped desktop layout.
 
 ## Environment rules
 
@@ -147,7 +154,8 @@ flutter run -d windows `
   --dart-define=APP_ENV=development `
   --dart-define=SUPABASE_URL="$env:HORUS_SUPABASE_URL" `
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$env:HORUS_SUPABASE_PUBLISHABLE_KEY" `
-  --dart-define=ENABLE_DEBUG_LOGS=true
+  --dart-define=ENABLE_DEBUG_LOGS=true `
+  --dart-define=ENABLE_DEVICE_PREVIEW=false
 ```
 
 Bash:
@@ -160,7 +168,8 @@ flutter run \
   --dart-define=APP_ENV=development \
   --dart-define=SUPABASE_URL="$HORUS_SUPABASE_URL" \
   --dart-define=SUPABASE_PUBLISHABLE_KEY="$HORUS_SUPABASE_PUBLISHABLE_KEY" \
-  --dart-define=ENABLE_DEBUG_LOGS=true
+  --dart-define=ENABLE_DEBUG_LOGS=true \
+  --dart-define=ENABLE_DEVICE_PREVIEW=false
 ```
 
 The `HORUS_...` shell variables are only an input convenience. The Flutter

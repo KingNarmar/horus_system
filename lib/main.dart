@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'core/bootstrap/app_bootstrap.dart';
 import 'core/bootstrap/presentation/bootstrap_failure_app.dart';
+import 'core/config/app_config.dart';
+
+const bool _compileTimeEnableDevicePreview = bool.fromEnvironment(
+  AppConfigKeys.enableDevicePreview,
+  defaultValue: true,
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +23,9 @@ Future<void> main() async {
   }
 
   runApp(
-    DevicePreview(enabled: !kReleaseMode, builder: (_) => const HorusApp()),
+    DevicePreview(
+      enabled: !kReleaseMode && _compileTimeEnableDevicePreview,
+      builder: (_) => const HorusApp(),
+    ),
   );
 }
