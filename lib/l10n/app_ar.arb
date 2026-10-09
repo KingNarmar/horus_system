@@ -803,6 +803,7 @@
   "tripAuditFieldTrailerPlate": "رقم المقطورة",
   "companyMembersTab": "الأعضاء",
   "companyInvitationsTab": "الدعوات",
+  "companyInvitationsRefresh": "تحديث الدعوات",
   "companyInvitationActionSucceeded": "تم تحديث الدعوة بنجاح.",
   "companyMemberActionSucceeded": "تم تحديث عضو الشركة بنجاح.",
   "companyMembersNameColumn": "الاسم",
