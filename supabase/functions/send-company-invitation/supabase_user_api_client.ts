@@ -129,6 +129,23 @@ export function prepareResend(input: {
   })
 }
 
+export async function abortResendAfterRejection(input: {
+  environment: EdgeEnvironment
+  authorization: string
+  preparation: PreparedInvitation
+}): Promise<{ ok: true; data: unknown } | { ok: false; status: number; code: string }> {
+  return callRpc({
+    environment: input.environment,
+    authorization: input.authorization,
+    functionName: 'abort_company_invitation_resend',
+    body: {
+      p_company_id: input.preparation.company_id,
+      p_invitation_id: input.preparation.invitation_id,
+      p_delivery_attempt_id: input.preparation.delivery_attempt_id,
+    },
+  })
+}
+
 export async function confirmInvitationDelivery(input: {
   environment: EdgeEnvironment
   authorization: string
