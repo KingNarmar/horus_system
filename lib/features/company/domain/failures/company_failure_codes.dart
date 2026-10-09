@@ -36,6 +36,7 @@ abstract final class CompanyFailureCodes {
   static const invitationAlreadyAccepted =
       'company_invitation_already_accepted';
   static const invitationAlreadyPending = 'company_invitation_already_pending';
+  static const invitationResendPending = 'company_invitation_resend_pending';
   static const invitationEmailMismatch = 'company_invitation_email_mismatch';
   static const invitationEmailNotVerified =
       'company_invitation_email_not_verified';
