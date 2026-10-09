@@ -109,6 +109,27 @@ Deno.test('maps Brevo non-success responses to typed delivery failure', async ()
   assert(!error.message.includes('secret-api-key'), 'Must not expose provider credential')
 })
 
+Deno.test('treats provider 5xx as an uncertain outcome, preserving the candidate token', async () => {
+  const sender = new BrevoCompanyInvitationEmailSender(
+    {
+      apiKey: 'secret-api-key',
+      fromEmail: 'horus@example.com',
+      fromName: 'H.O.R.U.S System',
+    },
+    async () => new Response('provider temporarily unavailable', { status: 503 }),
+    () => {},
+  )
+
+  const error = await assertRejects(
+    () => sender.send(testMessage()),
+    CompanyInvitationDeliveryOutcomeUnknownError,
+  )
+  assert(
+    error.message === 'company_invitation_delivery_confirmation_unknown',
+    'Must not treat a provider 5xx as definitive non-delivery',
+  )
+})
+
 Deno.test('reports only Brevo response status for provider diagnostics', async () => {
   const statuses: number[] = []
   const sender = new BrevoCompanyInvitationEmailSender(
