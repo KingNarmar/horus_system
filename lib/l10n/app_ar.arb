@@ -890,7 +890,7 @@
   "failureCompanyInvitationRoleNotAllowed": "لا يمكن تعيين هذا الدور من خلال دعوة الشركة.",
   "failureCompanyInvitationPermissionDenied": "ليست لديك صلاحية لتنفيذ إجراء الدعوة هذا.",
   "failureCompanyInvitationDeliveryFailed": "الدعوة ما زالت معلقة، لكن تعذر إرسال البريد الإلكتروني. يمكنك إعادة الإرسال.",
-  "failureCompanyInvitationDeliveryConfirmationUnknown": "تم إرسال البريد الإلكتروني، لكن تعذر تأكيد حالة التسليم. حدّث قائمة الدعوات قبل إعادة الإرسال.",
+  "failureCompanyInvitationDeliveryConfirmationUnknown": "نتيجة محاولة إرسال البريد غير مؤكدة. راجع قائمة الدعوات وتجنب إعادة الإرسال حتى يتم التحقق من المحاولة.",
   "failureCompanyInvitationDeliveryNotConfigured": "خدمة إرسال دعوات الشركة عبر البريد الإلكتروني غير مهيأة حاليًا.",
   "failureCompanyMemberAlreadyActive": "هذا المستخدم عضو نشط بالفعل في الشركة.",
   "failureCompanyMemberInactive": "هذا المستخدم عضو غير نشط بالفعل. أعد تفعيل العضوية الحالية بدلًا من إرسال دعوة.",
