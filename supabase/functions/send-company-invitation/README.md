@@ -45,3 +45,7 @@ If any required email-provider setting is missing, the function fails closed wit
 The invitation service only depends on `CompanyInvitationEmailSender` and stable typed delivery failures. A Brevo non-2xx response or network failure is mapped to `company_invitation_delivery_failed`; provider response bodies and credentials are not exposed to Flutter or persisted.
 
 Provider credentials belong only in Supabase Edge Function secrets. Never add them to Flutter `.env`, repository files, audit logs, or database invitation rows.
+
+## Issue #314 release blocker
+
+**Production deployment is blocked** until the resend token-rotation contract is fixed and its negative-path tests pass. The current `prepare_company_invitation_resend` RPC rotates the usable token before Brevo accepts the replacement message. This can invalidate a previously emailed invitation on delivery failure. See [`docs/release/ISSUE_314_RESEND_PROTOCOL_DESIGN.md`](../../../docs/release/ISSUE_314_RESEND_PROTOCOL_DESIGN.md) and [`docs/release/COMPANY_INVITATIONS_DELIVERY.md`](../../../docs/release/COMPANY_INVITATIONS_DELIVERY.md). A green Flutter CI build is not permission to deploy this function.
