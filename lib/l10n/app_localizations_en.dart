@@ -2692,7 +2692,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>
-      'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.';
+      'The email delivery outcome is uncertain. Check the invitations and avoid resending until the attempt is resolved.';
 
   @override
   String get failureCompanyInvitationDeliveryNotConfigured =>
