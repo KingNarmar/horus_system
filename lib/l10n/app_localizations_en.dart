@@ -2671,6 +2671,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A pending invitation already exists for this email in the company.';
 
   @override
+  String get failureCompanyInvitationResendPending =>
+      'An earlier resend attempt is still unresolved. Check its delivery status before trying again.';
+
+  @override
   String get failureCompanyInvitationEmailMismatch =>
       'Sign in with the same email address that received this invitation.';
 
