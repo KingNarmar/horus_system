@@ -62,6 +62,9 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Type-check invitation Edge Function entrypoint
+        run: deno check supabase/functions/send-company-invitation/index.ts
+
       - name: Run invitation Edge Function tests
         run: deno test supabase/functions/send-company-invitation
 
