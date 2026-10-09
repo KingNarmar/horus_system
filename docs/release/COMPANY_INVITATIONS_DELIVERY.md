@@ -57,6 +57,29 @@ a controlled Development-only fixture and two independent authenticated clients.
 5. Record both session transcripts with timestamps and sanitized identifiers,
    never token bytes, JWTs, HMAC keys or recipient information.
 
+An executable two-session harness is provided at
+`scripts/test_issue_314_concurrent_resend.py`. It uses `psycopg` 3 on a
+trusted operator machine, rejects database connection identities that do not
+match the H.O.R.U.S Development project, and commits one synthetic fixture
+before triggering two independent transactions. It asserts exactly one winner,
+`P2816` for the loser, old-token preservation, a single audit event, and
+revokes its test invitation using the standard audited RPC.
+
+Run only with a privately supplied Development database connection string,
+never committed, printed or supplied through chat:
+
+```powershell
+python -m pip install "psycopg[binary]>=3,<4"
+$env:HORUS_DEV_DATABASE_URL = Read-Host "Development PostgreSQL connection URI"
+python scripts/test_issue_314_concurrent_resend.py
+Remove-Item Env:HORUS_DEV_DATABASE_URL
+```
+
+The URI must be verified against the Development project before running.
+This probe executes controlled database writes and leaves audit history; it
+requires explicit authorization to run against the Development database.
+Do not run against Production.
+
 **Not yet executed:** the available SQL execution interface does not retain
 separate live transaction sessions. A static `FOR UPDATE` review or two
 sequential calls must not be reported as equivalent evidence. Do not weaken
