@@ -19,6 +19,20 @@ CREATE UNIQUE INDEX company_invitation_pending_token_hash_uidx
   ON public.company_invitations(pending_token_hash)
   WHERE pending_token_hash IS NOT NULL;
 
+-- A server-only HMAC key hash is provisioned separately through an approved
+-- secure procedure; no credential is committed in migrations or source.
+CREATE TABLE private.company_invitation_confirmation_keys (
+  singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
+  key_hash bytea NOT NULL CHECK (pg_catalog.octet_length(key_hash) = 32)
+);
+ALTER TABLE private.company_invitation_confirmation_keys ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE private.company_invitation_confirmation_keys FROM PUBLIC, anon, authenticated, service_role;
+
+-- The legacy 3-argument RPC is callable by authenticated managers without
+-- provider evidence. Remove it before exposing the proof-required signature.
+REVOKE ALL ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid) FROM PUBLIC, anon, authenticated;
+DROP FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid);
+
 CREATE OR REPLACE FUNCTION public.prepare_company_invitation(
   p_company_id uuid,
   p_email text,
@@ -311,7 +325,8 @@ GRANT EXECUTE ON FUNCTION public.prepare_company_invitation_resend(uuid, uuid, b
 CREATE OR REPLACE FUNCTION public.confirm_company_invitation_delivery(
   p_company_id uuid,
   p_invitation_id uuid,
-  p_delivery_attempt_id uuid
+  p_delivery_attempt_id uuid,
+  p_confirmation_proof bytea
 )
 RETURNS TABLE (
   invitation_id uuid,
@@ -329,7 +344,29 @@ DECLARE
   v_invitation public.company_invitations%ROWTYPE;
   v_previous_send_count integer;
   v_audit_event text;
+  v_key_hash bytea;
+  v_expected_proof bytea;
 BEGIN
+  SELECT guard.key_hash INTO v_key_hash
+  FROM private.company_invitation_confirmation_keys guard
+  WHERE guard.singleton = true;
+
+  IF v_key_hash IS NULL THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2813', MESSAGE = 'company_invitation_delivery_confirmation_invalid';
+  END IF;
+
+  v_expected_proof := extensions.hmac(
+    pg_catalog.convert_to(
+      p_company_id::text || ':' || p_invitation_id::text || ':' ||
+      p_delivery_attempt_id::text || ':confirm', 'UTF8'
+    ),
+    v_key_hash,
+    'sha256'
+  );
+  IF p_confirmation_proof IS DISTINCT FROM v_expected_proof THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2813', MESSAGE = 'company_invitation_delivery_confirmation_invalid';
+  END IF;
+
   IF v_actor_user_id IS NULL THEN
     RAISE EXCEPTION USING ERRCODE = 'P2800', MESSAGE = 'company_auth_required';
   END IF;
@@ -426,13 +463,14 @@ BEGIN
   SELECT v_invitation.id, v_invitation.status, v_invitation.send_count, v_invitation.last_sent_at;
 END;
 $$;
-REVOKE ALL ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid) FROM anon;
-GRANT EXECUTE ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid) TO authenticated;
+REVOKE ALL ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid, bytea) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid, bytea) FROM anon;
+GRANT EXECUTE ON FUNCTION public.confirm_company_invitation_delivery(uuid, uuid, uuid, bytea) TO authenticated;
 CREATE OR REPLACE FUNCTION public.abort_company_invitation_resend(
   p_company_id uuid,
   p_invitation_id uuid,
-  p_delivery_attempt_id uuid
+  p_delivery_attempt_id uuid,
+  p_confirmation_proof bytea
 )
 RETURNS void
 LANGUAGE plpgsql
@@ -443,7 +481,22 @@ DECLARE
   v_actor_id uuid := auth.uid();
   v_role public.company_role;
   v_invitation public.company_invitations%ROWTYPE;
+  v_key_hash bytea;
 BEGIN
+  SELECT guard.key_hash INTO v_key_hash
+  FROM private.company_invitation_confirmation_keys guard
+  WHERE guard.singleton = true;
+
+  IF v_key_hash IS NULL OR p_confirmation_proof IS DISTINCT FROM extensions.hmac(
+    pg_catalog.convert_to(
+      p_company_id::text || ':' || p_invitation_id::text || ':' ||
+      p_delivery_attempt_id::text || ':abort', 'UTF8'
+    ),
+    v_key_hash, 'sha256'
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2813', MESSAGE = 'company_invitation_delivery_confirmation_invalid';
+  END IF;
+
   IF v_actor_id IS NULL THEN
     RAISE EXCEPTION USING ERRCODE = 'P2800', MESSAGE = 'company_auth_required';
   END IF;
@@ -495,9 +548,9 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid) FROM anon;
-GRANT EXECUTE ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid) TO authenticated;
+REVOKE ALL ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid, bytea) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid, bytea) FROM anon;
+GRANT EXECUTE ON FUNCTION public.abort_company_invitation_resend(uuid, uuid, uuid, bytea) TO authenticated;
 CREATE OR REPLACE FUNCTION public.revoke_company_invitation(
   p_company_id uuid,
   p_invitation_id uuid
