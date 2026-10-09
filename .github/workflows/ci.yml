@@ -49,6 +49,25 @@ jobs:
       - name: Run full test suite
         run: flutter test
 
+  invitation-edge-tests:
+    name: Company Invitation Edge Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Check invitation Edge Function formatting
+        run: deno fmt --check supabase/functions/send-company-invitation
+
+      - name: Run invitation Edge Function tests
+        run: deno test --no-check supabase/functions/send-company-invitation
+
   android-release:
     name: Android Release Build
     needs: quality
