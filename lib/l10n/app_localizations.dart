@@ -4934,6 +4934,12 @@ abstract class AppLocalizations {
   /// **'A pending invitation already exists for this email in the company.'**
   String get failureCompanyInvitationAlreadyPending;
 
+  /// No description provided for @failureCompanyInvitationResendPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An earlier resend attempt is still unresolved. Check its delivery status before trying again.'**
+  String get failureCompanyInvitationResendPending;
+
   /// No description provided for @failureCompanyInvitationEmailMismatch.
   ///
   /// In en, this message translates to:
