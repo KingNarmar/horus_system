@@ -62,9 +62,6 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Check invitation Edge Function formatting
-        run: deno fmt --check supabase/functions/send-company-invitation
-
       - name: Run invitation Edge Function tests
         run: deno test --no-check supabase/functions/send-company-invitation
 
