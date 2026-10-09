@@ -881,6 +881,7 @@
   "failureCompanyInvitationRevoked": "This invitation was revoked and can no longer be accepted.",
   "failureCompanyInvitationAlreadyAccepted": "This invitation has already been accepted.",
   "failureCompanyInvitationAlreadyPending": "A pending invitation already exists for this email in the company.",
+  "failureCompanyInvitationResendPending": "An earlier resend attempt is still unresolved. Check its delivery status before trying again.",
   "failureCompanyInvitationEmailMismatch": "Sign in with the same email address that received this invitation.",
   "failureCompanyInvitationEmailNotVerified": "Confirm your email address before accepting this invitation.",
   "failureCompanyInvitationRoleNotAllowed": "This role cannot be assigned through a company invitation.",
