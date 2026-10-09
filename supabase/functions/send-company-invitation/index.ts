@@ -184,7 +184,9 @@ async function sendInvitationEmail(input: {
     if (error instanceof CompanyInvitationDeliveryFailedError) {
       return 'company_invitation_delivery_failed'
     }
-    return 'company_invitation_delivery_failed'
+    // An unexpected sender error is not proof of non-delivery. Never abort a
+    // staged resend token unless the provider explicitly rejected the request.
+    return 'company_invitation_delivery_confirmation_unknown'
   }
 }
 
