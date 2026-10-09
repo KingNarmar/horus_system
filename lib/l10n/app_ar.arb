@@ -885,6 +885,7 @@
   "failureCompanyInvitationRevoked": "تم إلغاء هذه الدعوة ولم يعد من الممكن قبولها.",
   "failureCompanyInvitationAlreadyAccepted": "تم قبول هذه الدعوة بالفعل.",
   "failureCompanyInvitationAlreadyPending": "توجد بالفعل دعوة معلقة لهذا البريد الإلكتروني في هذه الشركة.",
+  "failureCompanyInvitationResendPending": "توجد محاولة سابقة لإعادة إرسال الدعوة لم يتم حسم نتيجتها بعد. تحقق من حالة التسليم قبل المحاولة مرة أخرى.",
   "failureCompanyInvitationEmailMismatch": "سجّل الدخول باستخدام نفس البريد الإلكتروني الذي استلم هذه الدعوة.",
   "failureCompanyInvitationEmailNotVerified": "أكّد بريدك الإلكتروني قبل قبول هذه الدعوة.",
   "failureCompanyInvitationRoleNotAllowed": "لا يمكن تعيين هذا الدور من خلال دعوة الشركة.",
