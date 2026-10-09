@@ -80,10 +80,7 @@ This probe executes controlled database writes and leaves audit history; it
 requires explicit authorization to run against the Development database.
 Do not run against Production.
 
-**Not yet executed:** the available SQL execution interface does not retain
-separate live transaction sessions. A static `FOR UPDATE` review or two
-sequential calls must not be reported as equivalent evidence. Do not weaken
-the requirement or create additional Production test identities.
+**Executed successfully in Development (2026-10-09):** The operator ran the independent-session probe on the Development Session Pooler and supplied the sanitized result: `Issue #314 two-session resend: PASS | outcomes: ['P2816', 'prepared'] | original preserved: True | audit events: 1`, followed by `Fixture revoked via audited RPC.` This is user-reported terminal evidence; the raw connection credentials were not shared or logged in this review. The two-session concurrency acceptance gate is closed. No Production test identity was created.
 
 ## Pre-deployment recovery evidence gate
 
