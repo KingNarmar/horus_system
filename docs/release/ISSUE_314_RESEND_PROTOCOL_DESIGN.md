@@ -61,3 +61,7 @@ Do **not** promote a candidate and immediately invalidate the old token. An over
 A new migration must be created using the repository's Supabase CLI workflow and reviewed offline. The Edge Function should depend on a focused delivery-attempt protocol, not expose DB state transitions to Flutter. Flutter's Domain policies, repositories and current company DI remain unchanged unless explicitly necessary. Add SQL integration and Deno mock-provider tests before deployment.
 
 No SQL change from this proposal may be executed on Production without separate permission.
+
+## Audit anti-forgery amendment
+
+The confirmation and abort RPCs are authenticated-manager commands with HMAC proof requirements. Each proof binds the company ID, invitation ID, delivery attempt ID and action (`confirm` or `abort`) and uses SHA-256 of a server-only secret as the HMAC key. An Owner without the Edge secret must not be able to forge a `sent` audit event. The private database key digest must be securely provisioned before the Edge deployment, and missing configuration must fail closed.
