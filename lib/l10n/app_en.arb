@@ -799,6 +799,7 @@
   "tripAuditFieldTrailerPlate": "Trailer plate",
   "companyMembersTab": "Members",
   "companyInvitationsTab": "Invitations",
+  "companyInvitationsRefresh": "Refresh invitations",
   "companyInvitationActionSucceeded": "Invitation updated successfully.",
   "companyMemberActionSucceeded": "Company member updated successfully.",
   "companyMembersNameColumn": "Name",
