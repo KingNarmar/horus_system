@@ -169,6 +169,16 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps unresolved resend to a typed conflict', () {
+      final failure = mapper.fromCode(
+        CompanyFailureCodes.invitationResendPending,
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, CompanyFailureCodes.invitationResendPending);
+      expect(failure.message, isNull);
+    });
+
     test('maps delivery confirmation uncertainty distinctly', () {
       final failure = mapper.fromCode(
         'company_invitation_delivery_confirmation_invalid',
