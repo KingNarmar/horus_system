@@ -21,13 +21,15 @@ This runbook governs the `send-company-invitation` Edge Function. It does not ch
 6. Inspect production database policies, RPC EXECUTE grants, live SECURITY DEFINER bodies and server-side audit invariants. Run one read-only SQL block at a time.
 7. Obtain separate explicit authorization to deploy the reviewed artifact. Document exact source commit and deployed function version.
 
-## Mandatory unresolved resend gate
+## Resend safety gate — Development evidence and remaining checks
 
-**Do not deploy the current resend implementation before this gate is resolved.**
+Migration `20261009155000_issue_314_staged_invitation_resend.sql` stages the replacement token, preserves the original until confirmed, and adds server-side pending-attempt locking. A definite Brevo rejection invokes a signed abort; network failures and provider 5xx remain indeterminate and do not automatically invalidate the previous token. The confirmation and abort RPCs require Edge-only HMAC proof.
 
-`prepare_company_invitation_resend` immediately replaces `token_hash`, `expires_at` and `delivery_attempt_id`, *before* the Brevo request. On provider rejection or an indeterminate timeout, the previous link can be invalidated even though no usable replacement is confirmed. Concurrent resends may also rotate multiple times.
+**Verified in Development (2026-10-09):** successful initial send, confirmed email signup, acceptance with correct role and audit; successful resend increments `send_count` to 2, old code is rejected after successful rotation, new code previews and accepts, and the relevant created/sent/resend-prepared/resent/accepted audit events exist. Deno failure-classification tests and Flutter CI passed on PR #315 at commit `b75c208e` (Android succeeded on retry following a transient CMake ZIP download failure).
 
-Design and test a server-authoritative state transition that preserves the previously valid token until a replacement is safely committed, or an explicitly reviewed equivalent. A unique client submission alone is not a distributed idempotency guarantee. Confirm callback idempotence, role checks, timeout behavior, recovery and audit semantics. Any database change must be a versioned migration reviewed before applying.
+**Still a release gate:** a definite Brevo 4xx rejection, indeterminate transport timeout, concurrent resend from two sessions, and signed-RPC replay must be exercised with controlled fixtures and assertions for token preservation, tenant isolation and audit behavior. Successful resend does not prove those failure paths. No migration or function has been deployed to Production.
+
+Production currently has no invitation Edge Function and therefore no previous version to roll back to. A production database migration cannot be undone by simply disabling the Edge Function. Verify a fresh complete recovery set with storage inventory before any approved deployment.
 
 ## Acceptance and monitoring
 
