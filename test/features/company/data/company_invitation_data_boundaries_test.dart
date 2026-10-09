@@ -115,8 +115,8 @@ void main() {
   );
 
   group('Company invitation Edge Function transport classification', () {
-    final classify =
-        SupabaseCompanyInvitationDeliveryRemoteDataSource.classifyFunctionFailure;
+    final classify = SupabaseCompanyInvitationDeliveryRemoteDataSource
+        .classifyFunctionFailure;
 
     test('missing deployed function is not treated as sent', () {
       final error = FunctionException(
