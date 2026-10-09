@@ -2639,6 +2639,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'توجد بالفعل دعوة معلقة لهذا البريد الإلكتروني في هذه الشركة.';
 
   @override
+  String get failureCompanyInvitationResendPending =>
+      'توجد محاولة سابقة لإعادة إرسال الدعوة لم يتم حسم نتيجتها بعد. تحقق من حالة التسليم قبل المحاولة مرة أخرى.';
+
+  @override
   String get failureCompanyInvitationEmailMismatch =>
       'سجّل الدخول باستخدام نفس البريد الإلكتروني الذي استلم هذه الدعوة.';
 
