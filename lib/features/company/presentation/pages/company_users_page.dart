@@ -334,6 +334,8 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           _resendInvitation(currentCompanyContext, invitation),
       onRevoke: (invitation) =>
           _revokeInvitation(currentCompanyContext, invitation),
+      onRefresh: () =>
+          context.read<CompanyInvitationsCubit>().load(currentCompanyContext),
     );
   }
 
