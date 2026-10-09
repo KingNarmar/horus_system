@@ -1,8 +1,4 @@
-import {
-  CompanyInvitationDeliveryFailedError,
-  CompanyInvitationDeliveryNotConfiguredError,
-  CompanyInvitationDeliveryOutcomeUnknownError,
-} from './company_invitation_email_sender.ts'
+import { classifyInvitationSendError } from './company_invitation_delivery_failure_classifier.ts'
 import { createCompanyInvitationEmailSender } from './company_invitation_email_sender_factory.ts'
 import {
   buildInvitationUrl,
@@ -175,18 +171,7 @@ async function sendInvitationEmail(input: {
     })
     return null
   } catch (error) {
-    if (error instanceof CompanyInvitationDeliveryNotConfiguredError) {
-      return 'company_invitation_delivery_not_configured'
-    }
-    if (error instanceof CompanyInvitationDeliveryOutcomeUnknownError) {
-      return 'company_invitation_delivery_confirmation_unknown'
-    }
-    if (error instanceof CompanyInvitationDeliveryFailedError) {
-      return 'company_invitation_delivery_failed'
-    }
-    // An unexpected sender error is not proof of non-delivery. Never abort a
-    // staged resend token unless the provider explicitly rejected the request.
-    return 'company_invitation_delivery_confirmation_unknown'
+    return classifyInvitationSendError(error)
   }
 }
 
