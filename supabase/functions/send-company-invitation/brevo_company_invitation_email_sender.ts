@@ -57,6 +57,11 @@ export class BrevoCompanyInvitationEmailSender
 
     if (!response.ok) {
       this.deliveryStatusLogger(response.status)
+      // A provider 5xx does not prove that the message was not queued.
+      // Preserve the staged token until the outcome can be reconciled.
+      if (response.status >= 500) {
+        throw new CompanyInvitationDeliveryOutcomeUnknownError()
+      }
       throw new CompanyInvitationDeliveryFailedError()
     }
   }
