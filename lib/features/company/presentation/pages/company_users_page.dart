@@ -110,6 +110,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
       currentCompanyContext.role,
     );
     final canInvite = assignableRoles.isNotEmpty;
+    final invitationState = context.watch<CompanyInvitationsCubit>().state;
+    final invitationCommandInProgress =
+        invitationState is CompanyInvitationsCommandInProgress &&
+        invitationState.companyId == currentCompanyContext.companyId;
     final isWide =
         MediaQuery.sizeOf(context).width >= AppSizes.dataTableBreakpoint;
     final authState = context.watch<AuthCubit>().state;
@@ -172,8 +176,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             actions: [
               if (canInvite && isWide)
                 TextButton.icon(
-                  onPressed: () =>
-                      _invite(currentCompanyContext, assignableRoles),
+                  onPressed: invitationCommandInProgress
+                      ? null
+                      : () => _invite(currentCompanyContext, assignableRoles),
                   icon: const Icon(AppIcons.userAdd),
                   label: Text(l10n.inviteButton),
                 ),
@@ -201,8 +206,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
           ),
           floatingActionButton: canInvite && !isWide
               ? FloatingActionButton.extended(
-                  onPressed: () =>
-                      _invite(currentCompanyContext, assignableRoles),
+                  onPressed: invitationCommandInProgress
+                      ? null
+                      : () => _invite(currentCompanyContext, assignableRoles),
                   icon: const Icon(AppIcons.userAdd),
                   label: Text(l10n.inviteButton),
                 )
