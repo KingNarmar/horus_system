@@ -27,8 +27,11 @@ try:
 except Exception:
     sys.exit("Invalid Development connection string.")
 host = parsed.get("host", "")
-if DEV_REF not in host and os.environ.get("HORUS_DEV_DB_HOST_VERIFIED") != DEV_REF:
-    sys.exit("Database host cannot be verified as H.O.R.U.S Development. Refusing to connect.")
+user = parsed.get("user", "")
+# Direct hosts embed the ref in the hostname; pooler connections embed it in
+# the username (postgres.<ref>). Fail closed if neither contains the ref.
+if DEV_REF not in host and not user.endswith("." + DEV_REF):
+    sys.exit("Database identity is not H.O.R.U.S Development. Refusing to connect.")
 
 def owner_scope(conn, user_id):
     conn.execute("SELECT set_config('request.jwt.claim.sub', %s, true)", (str(user_id),))
