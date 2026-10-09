@@ -15,7 +15,7 @@ This runbook governs the `send-company-invitation` Edge Function. It does not ch
 
 1. Verify Edge Function bundle imports and Deno tests offline, including token generation, email templates and sender failure behavior.
 2. Verify that the intended Supabase project is `rkhmfbxlduuovlbsxhgy`; do not deploy until explicitly approved.
-3. Confirm server secret **presence**, not values: `HORUS_INVITATION_APP_URL`, `HORUS_INVITATION_BREVO_API_KEY`, `HORUS_INVITATION_EMAIL_FROM_EMAIL`, `HORUS_INVITATION_EMAIL_FROM_NAME`.
+3. Confirm server secret **presence**, not values: `HORUS_INVITATION_APP_URL`, `HORUS_INVITATION_BREVO_API_KEY`, `HORUS_INVITATION_EMAIL_FROM_EMAIL`, `HORUS_INVITATION_EMAIL_FROM_NAME`, `HORUS_INVITATION_CONFIRMATION_SECRET`.
 4. Confirm sender domain and from-address are accepted by Brevo and that Transactional Email API access is active. Auth SMTP credentials must not be substituted for the Brevo API key.
 5. Validate `https://kingnarmar.com/horus/invitation` handoff and its URL-token handling without leaking actual tokens.
 6. Inspect production database policies, RPC EXECUTE grants, live SECURITY DEFINER bodies and server-side audit invariants. Run one read-only SQL block at a time.
@@ -46,3 +46,7 @@ Design and test a server-authoritative state transition that preserves the previ
 - Smoke test uses an approved controlled test mailbox; check Brevo events and DB state.
 - On failure, stop new sends, preserve audit and invitation state, and roll back to the previously reviewed backend version if one exists. As Production currently has no deployed invitation function, disabling/removing this isolated function restores the prior availability state but does not undo any attempted invitations or database migrations.
 - Do not merge PR #315 or close Issue #314 until all quality, security, delivery and acceptance gates have evidence.
+
+## Confirmation proof provisioning gate
+
+The Issue #314 database migration creates `private.company_invitation_confirmation_keys` without inserting any key or secret. Before deploying the Edge Function, independently generate a high-entropy `HORUS_INVITATION_CONFIRMATION_SECRET` (32+ characters) in a secure environment, provision it only in Supabase Edge Function secrets, and store its SHA-256 digest in the private PostgreSQL guard table by an approved, audited administrative operation. Never paste the secret into chats or commit either value. Validate that a signed confirmation succeeds with the test account and an unsigned authenticated RPC call fails. If the values do not match, the function must fail closed before preparing invitations.
