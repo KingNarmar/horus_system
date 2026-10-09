@@ -654,6 +654,17 @@ BEGIN
 
   UPDATE public.company_invitations invitation
   SET status = 'accepted'::public.company_invitation_status,
+      -- Preserve idempotent acceptance when an unconfirmed candidate link wins.
+      token_hash = CASE
+        WHEN invitation.pending_token_hash = p_token_hash
+          THEN invitation.pending_token_hash
+        ELSE invitation.token_hash
+      END,
+      expires_at = CASE
+        WHEN invitation.pending_token_hash = p_token_hash
+          THEN invitation.pending_token_expires_at
+        ELSE invitation.expires_at
+      END,
       pending_token_hash = NULL,
       pending_token_expires_at = NULL,
       pending_delivery_attempt_id = NULL,
