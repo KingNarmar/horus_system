@@ -4502,6 +4502,12 @@ abstract class AppLocalizations {
   /// **'Members'**
   String get companyMembersTab;
 
+  /// No description provided for @companyInvitationsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh invitations'**
+  String get companyInvitationsRefresh;
+
   /// No description provided for @companyInvitationsTab.
   ///
   /// In en, this message translates to:
