@@ -115,56 +115,44 @@ void main() {
   );
 
   group('Company invitation Edge Function transport classification', () {
+    final classify =
+        SupabaseCompanyInvitationDeliveryRemoteDataSource.classifyFunctionFailure;
+
     test('missing deployed function is not treated as sent', () {
-      final code = SupabaseCompanyInvitationDeliveryRemoteDataSource
-          .classifyFunctionFailure(
-            FunctionException(
-              status: 404,
-              details: {
-                'code': 'NOT_FOUND',
-                'message': 'Requested function was not found',
-              },
-            ),
-          );
-      expect(code, CompanyFailureCodes.invitationDeliveryNotConfigured);
+      final error = FunctionException(
+        status: 404,
+        details: {'code': 'NOT_FOUND'},
+      );
+      expect(
+        classify(error),
+        CompanyFailureCodes.invitationDeliveryNotConfigured,
+      );
     });
 
     test('unexpected gateway failure is not confirmation unknown', () {
-      final code = SupabaseCompanyInvitationDeliveryRemoteDataSource
-          .classifyFunctionFailure(
-            FunctionException(
-              status: 502,
-              details: {'message': 'gateway failure'},
-            ),
-          );
-      expect(code, FailureCodes.serverError);
+      final error = FunctionException(status: 502);
+      expect(classify(error), FailureCodes.serverError);
     });
 
     test('explicit server confirmation unknown remains distinct', () {
-      final code = SupabaseCompanyInvitationDeliveryRemoteDataSource
-          .classifyFunctionFailure(
-            FunctionException(
-              status: 502,
-              details: {
-                'code':
-                    CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
-              },
-            ),
-          );
-      expect(code, CompanyFailureCodes.invitationDeliveryConfirmationUnknown);
+      final error = FunctionException(
+        status: 502,
+        details: {
+          'code': CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+        },
+      );
+      expect(
+        classify(error),
+        CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+      );
     });
 
     test('semantic denial is preserved without leaking backend data', () {
-      final code = SupabaseCompanyInvitationDeliveryRemoteDataSource
-          .classifyFunctionFailure(
-            FunctionException(
-              status: 403,
-              details: {
-                'code': CompanyFailureCodes.invitationPermissionDenied,
-              },
-            ),
-          );
-      expect(code, CompanyFailureCodes.invitationPermissionDenied);
+      final error = FunctionException(
+        status: 403,
+        details: {'code': CompanyFailureCodes.invitationPermissionDenied},
+      );
+      expect(classify(error), CompanyFailureCodes.invitationPermissionDenied);
     });
   });
 
