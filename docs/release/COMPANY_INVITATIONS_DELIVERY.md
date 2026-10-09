@@ -33,6 +33,45 @@ Migration `20261009155000_issue_314_staged_invitation_resend.sql` stages the rep
 
 Production currently has no invitation Edge Function and therefore no previous version to roll back to. A production database migration cannot be undone by simply disabling the Edge Function. Verify a fresh complete recovery set with storage inventory before any approved deployment.
 
+## Concurrent resend integration test — two independent database sessions
+
+The existing rollback-only SQL regression deliberately proves the sequential
+state machine, not two-session concurrency. The production release gate requires
+a controlled Development-only fixture and two independent authenticated clients.
+
+1. Provision a disposable **Development** Owner-created pending invitation with
+   a non-deliverable `example.invalid` address. Record the invitation UUID and
+   original token hash as internal test evidence. Do not use Production.
+2. Start two independent PostgreSQL connections authenticated as the same Owner.
+   Arrange for both to request `prepare_company_invitation_resend` for that
+   invitation, each with a distinct random SHA-256 candidate, at the same time.
+   The first transaction must remain open while the second attempts the RPC;
+   then commit the first.
+3. Assert exactly one returned `delivery_attempt_id`; the losing transaction
+   must receive the typed `P2816` rejection after waiting on the locked row.
+   Verify the original token hash is unchanged, there is exactly one pending
+   delivery attempt, and only one resend-prepared audit event was written.
+4. Simulate definite provider rejection via signed abort to restore the pending
+   invitation; assert the previous hash is unchanged. Revoke the fixture
+   through the normal audited RPC, retaining immutable audit history.
+5. Record both session transcripts with timestamps and sanitized identifiers,
+   never token bytes, JWTs, HMAC keys or recipient information.
+
+**Not yet executed:** the available SQL execution interface does not retain
+separate live transaction sessions. A static `FOR UPDATE` review or two
+sequential calls must not be reported as equivalent evidence. Do not weaken
+the requirement or create additional Production test identities.
+
+## Pre-deployment recovery evidence gate
+
+The release requires an additional complete encrypted Production backup set
+following `docs/release/PRODUCTION_BACKUP_RECOVERY.md`. Before approving the
+migration, verify database roles/schema/data dumps, migration-history evidence,
+both business-document Storage buckets and object bytes, SHA-256 manifest,
+offsite copy and recoverability. A prior backup or a SQL row count is not
+a substitute. The backup tooling must run in an authorized environment with
+secure credentials; no secrets or dumps belong in this PR.
+
 ## Acceptance and monitoring
 
 - Owner invites Admin; database shows one pending company-scoped row and expected server audit event.
