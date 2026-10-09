@@ -37,6 +37,9 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
+      - name: Compile invitation concurrency probe
+        run: python -m py_compile scripts/test_issue_314_concurrent_resend.py
+
       - name: Check formatting
         run: |
           dart format --set-exit-if-changed lib test || {
