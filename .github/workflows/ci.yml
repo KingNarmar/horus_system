@@ -38,11 +38,7 @@ jobs:
         run: flutter pub get
 
       - name: Check formatting
-        run: |
-          dart format --set-exit-if-changed lib test || {
-            git diff -- test/features/company/data/company_invitation_data_boundaries_test.dart
-            exit 1
-          }
+        run: dart format --set-exit-if-changed lib test
 
       - name: Run architecture tests
         run: flutter test test/architecture
