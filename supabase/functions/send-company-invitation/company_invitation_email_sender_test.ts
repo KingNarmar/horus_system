@@ -2,6 +2,7 @@ import { BrevoCompanyInvitationEmailSender } from './brevo_company_invitation_em
 import {
   CompanyInvitationDeliveryFailedError,
   CompanyInvitationDeliveryNotConfiguredError,
+  CompanyInvitationDeliveryOutcomeUnknownError,
 } from './company_invitation_email_sender.ts'
 import { createCompanyInvitationEmailSender } from './company_invitation_email_sender_factory.ts'
 
@@ -142,11 +143,11 @@ Deno.test('maps Brevo network failures to typed delivery failure', async () => {
 
   const error = await assertRejects(
     () => sender.send(testMessage()),
-    CompanyInvitationDeliveryFailedError,
+    CompanyInvitationDeliveryOutcomeUnknownError,
   )
   assert(
-    error.message === 'company_invitation_delivery_failed',
-    'Expected stable sanitized failure code',
+    error.message === 'company_invitation_delivery_confirmation_unknown',
+    'Expected uncertain transport outcome rather than definitive rejection',
   )
   assert(!error.message.includes('network details'), 'Must not expose provider failure details')
 })
