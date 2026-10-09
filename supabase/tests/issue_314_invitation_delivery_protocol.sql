@@ -19,6 +19,9 @@ DECLARE
   v_preserved boolean;
   v_send_count integer;
   v_test_suffix text;
+  v_viewer uuid;
+  v_viewer_company uuid;
+  v_unauthorized_rejected boolean := false;
 BEGIN
   SELECT member.company_id, member.user_id
     INTO v_company, v_owner
@@ -44,6 +47,40 @@ BEGIN
 
   PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_owner::text, true);
   PERFORM pg_catalog.set_config('request.jwt.claim.role', 'authenticated', true);
+
+  -- Verify an existing active Viewer cannot prepare a resend. The scope
+  -- check must reject before attempting to resolve the invitation UUID.
+  SELECT member.company_id, member.user_id
+    INTO v_viewer_company, v_viewer
+  FROM public.company_users member
+  WHERE member.role = 'viewer'::public.company_role
+    AND member.is_active = true
+  ORDER BY member.company_id
+  LIMIT 1;
+
+  IF v_viewer IS NULL THEN
+    RAISE EXCEPTION 'Issue 314 fixture missing active Viewer';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_viewer::text, true);
+  BEGIN
+    PERFORM public.prepare_company_invitation_resend(
+      v_viewer_company,
+      extensions.gen_random_uuid(),
+      extensions.digest(
+        pg_catalog.convert_to(extensions.gen_random_uuid()::text, 'UTF8'),
+        'sha256'
+      )
+    );
+  EXCEPTION WHEN SQLSTATE 'P2805' THEN
+    v_unauthorized_rejected := true;
+  END;
+
+  IF NOT v_unauthorized_rejected THEN
+    RAISE EXCEPTION 'Unauthorized Viewer resend was not rejected';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_owner::text, true);
 
   -- Prepare only. No provider is contacted and the generated email cannot
   -- belong to a real recipient.
