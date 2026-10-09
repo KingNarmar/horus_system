@@ -2418,6 +2418,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyMembersTab => 'Members';
 
   @override
+  String get companyInvitationsRefresh => 'Refresh invitations';
+
+  @override
   String get companyInvitationsTab => 'Invitations';
 
   @override
