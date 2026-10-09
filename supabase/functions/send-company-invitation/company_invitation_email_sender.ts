@@ -21,6 +21,12 @@ export class CompanyInvitationDeliveryFailedError extends Error {
   }
 }
 
+export class CompanyInvitationDeliveryOutcomeUnknownError extends Error {
+  constructor() {
+    super('company_invitation_delivery_confirmation_unknown')
+  }
+}
+
 export class UnconfiguredCompanyInvitationEmailSender
   implements CompanyInvitationEmailSender {
   readonly isConfigured = false
