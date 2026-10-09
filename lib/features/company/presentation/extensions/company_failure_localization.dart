@@ -22,6 +22,8 @@ extension CompanyFailureLocalizationX on AppLocalizations {
         failureCompanyInvitationAlreadyAccepted,
       CompanyFailureCodes.invitationAlreadyPending =>
         failureCompanyInvitationAlreadyPending,
+      CompanyFailureCodes.invitationResendPending =>
+        failureCompanyInvitationResendPending,
       CompanyFailureCodes.invitationEmailMismatch =>
         failureCompanyInvitationEmailMismatch,
       CompanyFailureCodes.invitationEmailNotVerified =>
