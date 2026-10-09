@@ -1,5 +1,6 @@
 import {
   CompanyInvitationDeliveryFailedError,
+  CompanyInvitationDeliveryOutcomeUnknownError,
   type CompanyInvitationEmailMessage,
   type CompanyInvitationEmailSender,
 } from './company_invitation_email_sender.ts'
@@ -51,7 +52,7 @@ export class BrevoCompanyInvitationEmailSender
         }),
       })
     } catch {
-      throw new CompanyInvitationDeliveryFailedError()
+      throw new CompanyInvitationDeliveryOutcomeUnknownError()
     }
 
     if (!response.ok) {
