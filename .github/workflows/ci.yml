@@ -63,7 +63,7 @@ jobs:
           deno-version: v2.x
 
       - name: Run invitation Edge Function tests
-        run: deno test --no-check supabase/functions/send-company-invitation
+        run: deno test supabase/functions/send-company-invitation
 
   android-release:
     name: Android Release Build
