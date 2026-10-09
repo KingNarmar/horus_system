@@ -77,9 +77,7 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
     } on CompanyInvitationDeliveryException {
       rethrow;
     } on FunctionException catch (error) {
-      throw CompanyInvitationDeliveryException(
-        classifyFunctionFailure(error),
-      );
+      throw CompanyInvitationDeliveryException(classifyFunctionFailure(error));
     }
   }
 
