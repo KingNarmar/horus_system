@@ -2660,7 +2660,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>
-      'تم إرسال البريد الإلكتروني، لكن تعذر تأكيد حالة التسليم. حدّث قائمة الدعوات قبل إعادة الإرسال.';
+      'نتيجة محاولة إرسال البريد غير مؤكدة. راجع قائمة الدعوات وتجنب إعادة الإرسال حتى يتم التحقق من المحاولة.';
 
   @override
   String get failureCompanyInvitationDeliveryNotConfigured =>
