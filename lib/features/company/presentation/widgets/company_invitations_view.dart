@@ -16,28 +16,42 @@ class CompanyInvitationsView extends StatelessWidget {
   final bool actionInProgress;
   final ValueChanged<CompanyInvitation> onResend;
   final ValueChanged<CompanyInvitation> onRevoke;
+  final VoidCallback onRefresh;
 
   const CompanyInvitationsView({
     required this.invitations,
     required this.actionInProgress,
     required this.onResend,
     required this.onRevoke,
+    required this.onRefresh,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (invitations.isEmpty) {
-      return Center(child: Text(context.l10n.companyInvitationsEmpty));
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
-          return _desktopTable(context);
-        }
-        return _adaptiveCards(context);
-      },
+    return Column(
+      children: [
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: IconButton(
+            onPressed: actionInProgress ? null : onRefresh,
+            tooltip: context.l10n.companyInvitationsRefresh,
+            icon: const Icon(AppIcons.resend),
+          ),
+        ),
+        Expanded(
+          child: invitations.isEmpty
+              ? Center(child: Text(context.l10n.companyInvitationsEmpty))
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
+                      return _desktopTable(context);
+                    }
+                    return _adaptiveCards(context);
+                  },
+                ),
+        ),
+      ],
     );
   }
 
