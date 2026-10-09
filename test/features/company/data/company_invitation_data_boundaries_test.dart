@@ -132,11 +132,11 @@ void main() {
     test('unexpected gateway failure is not confirmation unknown', () {
       final code = SupabaseCompanyInvitationDeliveryRemoteDataSource
           .classifyFunctionFailure(
-                FunctionException(
+            FunctionException(
               status: 502,
               details: {'message': 'gateway failure'},
             ),
-      );
+          );
       expect(code, FailureCodes.serverError);
     });
 
