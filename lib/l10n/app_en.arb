@@ -886,7 +886,7 @@
   "failureCompanyInvitationRoleNotAllowed": "This role cannot be assigned through a company invitation.",
   "failureCompanyInvitationPermissionDenied": "You do not have permission to perform this invitation action.",
   "failureCompanyInvitationDeliveryFailed": "The invitation is pending, but the email could not be sent. You can resend it.",
-  "failureCompanyInvitationDeliveryConfirmationUnknown": "The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.",
+  "failureCompanyInvitationDeliveryConfirmationUnknown": "The email delivery outcome is uncertain. Check the invitations and avoid resending until the attempt is resolved.",
   "failureCompanyInvitationDeliveryNotConfigured": "Company invitation email delivery is not configured yet.",
   "failureCompanyMemberAlreadyActive": "This user is already an active member of the company.",
   "failureCompanyMemberInactive": "This user is already an inactive member. Reactivate the existing membership instead of sending an invitation.",
