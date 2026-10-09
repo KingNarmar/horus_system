@@ -300,7 +300,9 @@ void main() {
       expect(find.text('Revoke'), findsOneWidget);
     });
 
-    testWidgets('empty list exposes authoritative refresh action', (tester) async {
+    testWidgets('empty list exposes authoritative refresh action', (
+      tester,
+    ) async {
       await _setSurface(tester, const Size(390, 844));
       var refreshCount = 0;
       await tester.pumpWidget(
@@ -320,7 +322,9 @@ void main() {
       expect(refreshCount, 1);
     });
 
-    testWidgets('refresh is disabled during invitation command', (tester) async {
+    testWidgets('refresh is disabled during invitation command', (
+      tester,
+    ) async {
       await _setSurface(tester, const Size(390, 844));
       var refreshCount = 0;
       await tester.pumpWidget(
