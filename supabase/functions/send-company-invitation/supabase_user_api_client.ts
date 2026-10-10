@@ -1,7 +1,10 @@
+import { signInvitationConfirmation } from './company_invitation_confirmation_proof.ts'
+
 export type EdgeEnvironment = {
   supabaseUrl: string
   publishableKey: string
   appUrl: string
+  confirmationSecret: string
 }
 
 export type PreparedInvitation = {
@@ -31,9 +34,11 @@ export function readEnvironment(): EdgeEnvironment | null {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')?.trim()
   const publishableKey = readPublishableKey()
   const appUrl = Deno.env.get('HORUS_INVITATION_APP_URL')?.trim()
+  const confirmationSecret = Deno.env.get('HORUS_INVITATION_CONFIRMATION_SECRET')?.trim()
 
-  if (!supabaseUrl || !publishableKey || !appUrl) return null
-  return { supabaseUrl, publishableKey, appUrl }
+  if (!supabaseUrl || !publishableKey || !appUrl ||
+      !confirmationSecret || confirmationSecret.length < 32) return null
+  return { supabaseUrl, publishableKey, appUrl, confirmationSecret }
 }
 
 export async function loadCompanyName(input: {
@@ -129,11 +134,43 @@ export function prepareResend(input: {
   })
 }
 
+export async function abortResendAfterRejection(input: {
+  environment: EdgeEnvironment
+  authorization: string
+  preparation: PreparedInvitation
+}): Promise<RpcResult> {
+  const proof = await signInvitationConfirmation({
+    secret: input.environment.confirmationSecret,
+    companyId: input.preparation.company_id,
+    invitationId: input.preparation.invitation_id,
+    deliveryAttemptId: input.preparation.delivery_attempt_id,
+    action: 'abort',
+  })
+  return callRpc({
+    environment: input.environment,
+    authorization: input.authorization,
+    functionName: 'abort_company_invitation_resend',
+    body: {
+      p_company_id: input.preparation.company_id,
+      p_invitation_id: input.preparation.invitation_id,
+      p_delivery_attempt_id: input.preparation.delivery_attempt_id,
+      p_confirmation_proof: proof,
+    },
+  })
+}
+
 export async function confirmInvitationDelivery(input: {
   environment: EdgeEnvironment
   authorization: string
   preparation: PreparedInvitation
 }): Promise<RpcResult> {
+  const proof = await signInvitationConfirmation({
+    secret: input.environment.confirmationSecret,
+    companyId: input.preparation.company_id,
+    invitationId: input.preparation.invitation_id,
+    deliveryAttemptId: input.preparation.delivery_attempt_id,
+    action: 'confirm',
+  })
   return callRpc({
     environment: input.environment,
     authorization: input.authorization,
@@ -142,6 +179,7 @@ export async function confirmInvitationDelivery(input: {
       p_company_id: input.preparation.company_id,
       p_invitation_id: input.preparation.invitation_id,
       p_delivery_attempt_id: input.preparation.delivery_attempt_id,
+      p_confirmation_proof: proof,
     },
   })
 }

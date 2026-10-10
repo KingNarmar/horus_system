@@ -259,6 +259,7 @@ void main() {
             actionInProgress: false,
             onResend: (_) {},
             onRevoke: (_) {},
+            onRefresh: () {},
           ),
         ),
       );
@@ -286,6 +287,7 @@ void main() {
             actionInProgress: false,
             onResend: (_) {},
             onRevoke: (_) {},
+            onRefresh: () {},
           ),
         ),
       );
@@ -298,6 +300,49 @@ void main() {
       expect(find.text('Revoke'), findsOneWidget);
     });
 
+    testWidgets('empty list exposes authoritative refresh action', (
+      tester,
+    ) async {
+      await _setSurface(tester, const Size(390, 844));
+      var refreshCount = 0;
+      await tester.pumpWidget(
+        _localizedApp(
+          CompanyInvitationsView(
+            invitations: const [],
+            actionInProgress: false,
+            onResend: (_) {},
+            onRevoke: (_) {},
+            onRefresh: () => refreshCount++,
+          ),
+        ),
+      );
+
+      expect(find.text('No company invitations found.'), findsOneWidget);
+      await tester.tap(find.byTooltip('Refresh invitations'));
+      expect(refreshCount, 1);
+    });
+
+    testWidgets('refresh is disabled during invitation command', (
+      tester,
+    ) async {
+      await _setSurface(tester, const Size(390, 844));
+      var refreshCount = 0;
+      await tester.pumpWidget(
+        _localizedApp(
+          CompanyInvitationsView(
+            invitations: const [],
+            actionInProgress: true,
+            onResend: (_) {},
+            onRevoke: (_) {},
+            onRefresh: () => refreshCount++,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byTooltip('Refresh invitations'));
+      expect(refreshCount, 0);
+    });
+
     testWidgets('Arabic locale renders RTL invitation content', (tester) async {
       await _setSurface(tester, const Size(390, 844));
       await tester.pumpWidget(
@@ -307,6 +352,7 @@ void main() {
             actionInProgress: false,
             onResend: (_) {},
             onRevoke: (_) {},
+            onRefresh: () {},
           ),
           locale: const Locale('ar'),
         ),

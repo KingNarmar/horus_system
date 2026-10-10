@@ -2418,6 +2418,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyMembersTab => 'Members';
 
   @override
+  String get companyInvitationsRefresh => 'Refresh invitations';
+
+  @override
   String get companyInvitationsTab => 'Invitations';
 
   @override
@@ -2671,6 +2674,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A pending invitation already exists for this email in the company.';
 
   @override
+  String get failureCompanyInvitationResendPending =>
+      'An earlier resend attempt is still unresolved. Check its delivery status before trying again.';
+
+  @override
   String get failureCompanyInvitationEmailMismatch =>
       'Sign in with the same email address that received this invitation.';
 
@@ -2692,7 +2699,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>
-      'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.';
+      'The email delivery outcome is uncertain. Check the invitations and avoid resending until the attempt is resolved.';
 
   @override
   String get failureCompanyInvitationDeliveryNotConfigured =>

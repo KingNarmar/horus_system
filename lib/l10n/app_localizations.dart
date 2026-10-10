@@ -4502,6 +4502,12 @@ abstract class AppLocalizations {
   /// **'Members'**
   String get companyMembersTab;
 
+  /// No description provided for @companyInvitationsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh invitations'**
+  String get companyInvitationsRefresh;
+
   /// No description provided for @companyInvitationsTab.
   ///
   /// In en, this message translates to:
@@ -4933,6 +4939,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A pending invitation already exists for this email in the company.'**
   String get failureCompanyInvitationAlreadyPending;
+
+  /// No description provided for @failureCompanyInvitationResendPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An earlier resend attempt is still unresolved. Check its delivery status before trying again.'**
+  String get failureCompanyInvitationResendPending;
 
   /// No description provided for @failureCompanyInvitationEmailMismatch.
   ///

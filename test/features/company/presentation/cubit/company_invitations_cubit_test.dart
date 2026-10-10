@@ -60,6 +60,34 @@ void main() {
     },
   );
 
+  test('two concurrent sends execute the use case only once', () async {
+    final repository = _FakeInvitationsRepository(
+      loadResults: {'company-a': const Success(<CompanyInvitation>[])},
+    );
+    final pendingSend = Completer<Result<void>>();
+    repository.pendingSend = pendingSend;
+    final cubit = _buildCubit(repository);
+    addTearDown(cubit.close);
+    final context = _context('company-a');
+
+    await cubit.load(context);
+    final first = cubit.send(
+      currentCompanyContext: context,
+      email: 'user@example.com',
+      role: CompanyRole.admin,
+    );
+    final second = cubit.send(
+      currentCompanyContext: context,
+      email: 'user@example.com',
+      role: CompanyRole.admin,
+    );
+
+    expect(repository.sendCalls, 1);
+    pendingSend.complete(const Success(null));
+    await Future.wait([first, second]);
+    expect(repository.sendCalls, 1);
+  });
+
   test('initial list failure is represented as load failure', () async {
     final repository = _FakeInvitationsRepository(
       loadResults: {'company-a': const FailureResult(UnexpectedFailure())},
@@ -313,6 +341,7 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
   final Map<String, Result<List<CompanyInvitation>>> loadResults;
   final Map<String, Completer<Result<List<CompanyInvitation>>>> _deferredLoads;
   Result<void> sendResult;
+  Completer<Result<void>>? pendingSend;
   Result<void> resendResult;
   int sendCalls = 0;
   int revokeCalls = 0;
@@ -380,6 +409,6 @@ class _FakeInvitationsRepository implements CompanyInvitationsRepository {
     required CompanyRole role,
   }) async {
     sendCalls += 1;
-    return sendResult;
+    return pendingSend?.future ?? sendResult;
   }
 }

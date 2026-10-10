@@ -1,4 +1,7 @@
+import 'package:supabase_flutter/supabase_flutter.dart' show FunctionException;
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/features/company/data/datasources/company_invitation_delivery_remote_data_source.dart';
 import 'package:horus_system/features/company/data/mappers/company_invitation_status_model_mapper.dart';
 import 'package:horus_system/features/company/data/models/company_invitation_model.dart';
 import 'package:horus_system/features/company/data/models/company_invitation_preview_model.dart';
@@ -111,6 +114,48 @@ void main() {
     },
   );
 
+  group('Company invitation Edge Function transport classification', () {
+    final classify = SupabaseCompanyInvitationDeliveryRemoteDataSource
+        .classifyFunctionFailure;
+
+    test('missing deployed function is not treated as sent', () {
+      final error = FunctionException(
+        status: 404,
+        details: {'code': 'NOT_FOUND'},
+      );
+      expect(
+        classify(error),
+        CompanyFailureCodes.invitationDeliveryNotConfigured,
+      );
+    });
+
+    test('unexpected gateway failure is not confirmation unknown', () {
+      final error = FunctionException(status: 502);
+      expect(classify(error), FailureCodes.serverError);
+    });
+
+    test('explicit server confirmation unknown remains distinct', () {
+      final error = FunctionException(
+        status: 502,
+        details: {
+          'code': CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+        },
+      );
+      expect(
+        classify(error),
+        CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+      );
+    });
+
+    test('semantic denial is preserved without leaking backend data', () {
+      final error = FunctionException(
+        status: 403,
+        details: {'code': CompanyFailureCodes.invitationPermissionDenied},
+      );
+      expect(classify(error), CompanyFailureCodes.invitationPermissionDenied);
+    });
+  });
+
   group('CompanyCommandFailureMapper', () {
     const mapper = CompanyCommandFailureMapper();
 
@@ -121,6 +166,16 @@ void main() {
 
       expect(failure, isA<PermissionFailure>());
       expect(failure.code, CompanyFailureCodes.invitationPermissionDenied);
+      expect(failure.message, isNull);
+    });
+
+    test('maps unresolved resend to a typed conflict', () {
+      final failure = mapper.fromCode(
+        CompanyFailureCodes.invitationResendPending,
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, CompanyFailureCodes.invitationResendPending);
       expect(failure.message, isNull);
     });
 

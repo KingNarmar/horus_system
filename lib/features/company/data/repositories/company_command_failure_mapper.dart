@@ -43,6 +43,9 @@ final class CompanyCommandFailureMapper {
       CompanyFailureCodes.invitationAlreadyPending => const ConflictFailure(
         code: CompanyFailureCodes.invitationAlreadyPending,
       ),
+      CompanyFailureCodes.invitationResendPending => const ConflictFailure(
+        code: CompanyFailureCodes.invitationResendPending,
+      ),
       CompanyFailureCodes.invitationEmailMismatch => const PermissionFailure(
         code: CompanyFailureCodes.invitationEmailMismatch,
       ),

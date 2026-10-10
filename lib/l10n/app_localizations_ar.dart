@@ -2390,6 +2390,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get companyMembersTab => 'الأعضاء';
 
   @override
+  String get companyInvitationsRefresh => 'تحديث الدعوات';
+
+  @override
   String get companyInvitationsTab => 'الدعوات';
 
   @override
@@ -2639,6 +2642,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'توجد بالفعل دعوة معلقة لهذا البريد الإلكتروني في هذه الشركة.';
 
   @override
+  String get failureCompanyInvitationResendPending =>
+      'توجد محاولة سابقة لإعادة إرسال الدعوة لم يتم حسم نتيجتها بعد. تحقق من حالة التسليم قبل المحاولة مرة أخرى.';
+
+  @override
   String get failureCompanyInvitationEmailMismatch =>
       'سجّل الدخول باستخدام نفس البريد الإلكتروني الذي استلم هذه الدعوة.';
 
@@ -2660,7 +2667,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>
-      'تم إرسال البريد الإلكتروني، لكن تعذر تأكيد حالة التسليم. حدّث قائمة الدعوات قبل إعادة الإرسال.';
+      'نتيجة محاولة إرسال البريد غير مؤكدة. راجع قائمة الدعوات وتجنب إعادة الإرسال حتى يتم التحقق من المحاولة.';
 
   @override
   String get failureCompanyInvitationDeliveryNotConfigured =>

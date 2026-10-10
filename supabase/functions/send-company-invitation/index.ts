@@ -1,7 +1,4 @@
-import {
-  CompanyInvitationDeliveryFailedError,
-  CompanyInvitationDeliveryNotConfiguredError,
-} from './company_invitation_email_sender.ts'
+import { classifyInvitationSendError } from './company_invitation_delivery_failure_classifier.ts'
 import { createCompanyInvitationEmailSender } from './company_invitation_email_sender_factory.ts'
 import {
   buildInvitationUrl,
@@ -10,6 +7,7 @@ import {
 } from './company_invitation_token.ts'
 import { buildCompanyInvitationEmail } from './invitation_email_template.ts'
 import {
+  abortResendAfterRejection,
   confirmInvitationDelivery,
   loadCompanyName,
   prepareNewInvitation,
@@ -112,6 +110,19 @@ Deno.serve(async (request: Request) => {
     emailContent,
   })
   if (deliveryFailureCode) {
+    // Only a definite provider rejection is safe to abandon. A network
+    // timeout may hide an accepted message, whose token must remain valid.
+    if (action === 'resend' &&
+        deliveryFailureCode === 'company_invitation_delivery_failed') {
+      const aborted = await abortResendAfterRejection({
+        environment,
+        authorization,
+        preparation,
+      })
+      if (!aborted.ok) {
+        return jsonResponse(502, 'company_invitation_delivery_confirmation_unknown')
+      }
+    }
     return jsonResponse(502, deliveryFailureCode)
   }
 
@@ -160,13 +171,7 @@ async function sendInvitationEmail(input: {
     })
     return null
   } catch (error) {
-    if (error instanceof CompanyInvitationDeliveryNotConfiguredError) {
-      return 'company_invitation_delivery_not_configured'
-    }
-    if (error instanceof CompanyInvitationDeliveryFailedError) {
-      return 'company_invitation_delivery_failed'
-    }
-    return 'company_invitation_delivery_failed'
+    return classifyInvitationSendError(error)
   }
 }
 

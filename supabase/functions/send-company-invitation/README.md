@@ -25,6 +25,7 @@ The Supabase runtime supplies `SUPABASE_URL` and a publishable/anon key. Configu
 - `HORUS_INVITATION_BREVO_API_KEY` — Brevo API credential used only by the server-side adapter.
 - `HORUS_INVITATION_EMAIL_FROM_EMAIL` — verified sender email accepted by Brevo.
 - `HORUS_INVITATION_EMAIL_FROM_NAME` — display name for the H.O.R.U.S invitation sender.
+- `HORUS_INVITATION_CONFIRMATION_SECRET` — 32+ character server-only secret used to sign confirmation/rejection attempts. The database stores only its SHA-256 digest in the private confirmation guard table; provision the matching digest securely outside source control.
 
 For the current King Narmar deployment, `HORUS_INVITATION_APP_URL` should be `https://kingnarmar.com`. The public handoff page only presents the invitation token and instructions; invitation authorization and acceptance remain inside H.O.R.U.S System.
 
@@ -45,3 +46,9 @@ If any required email-provider setting is missing, the function fails closed wit
 The invitation service only depends on `CompanyInvitationEmailSender` and stable typed delivery failures. A Brevo non-2xx response or network failure is mapped to `company_invitation_delivery_failed`; provider response bodies and credentials are not exposed to Flutter or persisted.
 
 Provider credentials belong only in Supabase Edge Function secrets. Never add them to Flutter `.env`, repository files, audit logs, or database invitation rows.
+
+## Issue #314 release blocker
+
+**Production deployment is blocked** until the resend token-rotation contract is fixed and its negative-path tests pass. The current `prepare_company_invitation_resend` RPC rotates the usable token before Brevo accepts the replacement message. This can invalidate a previously emailed invitation on delivery failure. See [`docs/release/ISSUE_314_RESEND_PROTOCOL_DESIGN.md`](../../../docs/release/ISSUE_314_RESEND_PROTOCOL_DESIGN.md) and [`docs/release/COMPANY_INVITATIONS_DELIVERY.md`](../../../docs/release/COMPANY_INVITATIONS_DELIVERY.md). A green Flutter CI build is not permission to deploy this function.
+
+Delivery confirmation and definite-rejection RPCs require an action-scoped HMAC proof. Direct authenticated calls without the Edge secret must fail, even for a company owner. Never log the raw secret, signature, or raw invitation token.

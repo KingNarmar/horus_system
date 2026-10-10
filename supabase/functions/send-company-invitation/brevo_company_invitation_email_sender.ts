@@ -1,5 +1,6 @@
 import {
   CompanyInvitationDeliveryFailedError,
+  CompanyInvitationDeliveryOutcomeUnknownError,
   type CompanyInvitationEmailMessage,
   type CompanyInvitationEmailSender,
 } from './company_invitation_email_sender.ts'
@@ -51,11 +52,16 @@ export class BrevoCompanyInvitationEmailSender
         }),
       })
     } catch {
-      throw new CompanyInvitationDeliveryFailedError()
+      throw new CompanyInvitationDeliveryOutcomeUnknownError()
     }
 
     if (!response.ok) {
       this.deliveryStatusLogger(response.status)
+      // A provider 5xx does not prove that the message was not queued.
+      // Preserve the staged token until the outcome can be reconciled.
+      if (response.status >= 500) {
+        throw new CompanyInvitationDeliveryOutcomeUnknownError()
+      }
       throw new CompanyInvitationDeliveryFailedError()
     }
   }
