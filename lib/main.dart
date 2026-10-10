@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'core/bootstrap/app_bootstrap.dart';
 import 'core/bootstrap/presentation/bootstrap_failure_app.dart';
+import 'core/config/app_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ Future<void> main() async {
   }
 
   runApp(
-    DevicePreview(enabled: !kReleaseMode, builder: (_) => const HorusApp()),
+    DevicePreview(
+      enabled: !kReleaseMode && AppConfig.enableDevicePreview,
+      builder: (_) => const HorusApp(),
+    ),
   );
 }
