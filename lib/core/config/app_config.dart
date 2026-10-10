@@ -47,6 +47,12 @@ final class AppConfigException implements Exception {
 }
 
 final class AppConfig {
+  /// Development-only preview toggle; release mode disables the wrapper.
+  static const bool enableDevicePreview = bool.fromEnvironment(
+    AppConfigKeys.enableDevicePreview,
+    defaultValue: true,
+  );
+
   final AppEnvironment environment;
   final Uri supabaseUrl;
   final String supabasePublishableKey;
