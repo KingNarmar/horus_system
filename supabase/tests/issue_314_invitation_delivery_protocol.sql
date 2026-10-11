@@ -188,4 +188,127 @@ BEGIN
 END
 $issue314$;
 
+
+-- Negative authorization matrix. All identities and test addresses are
+-- Development-only fixtures; no email provider is contacted.
+-- These RPC checks use simulated JWT claims in an administrative transaction,
+-- not real HTTP requests carrying signed user JWTs.
+DO $issue314_authorization$
+DECLARE
+  v_viewer uuid;
+  v_viewer_company uuid;
+  v_admin uuid;
+  v_admin_company uuid;
+  v_owner uuid;
+  v_foreign_company uuid;
+  v_denied boolean;
+  v_hash bytea := pg_catalog.decode(pg_catalog.repeat('ab', 32), 'hex');
+BEGIN
+  SELECT member.user_id, member.company_id INTO v_viewer, v_viewer_company
+  FROM public.company_users member
+  JOIN public.companies company ON company.id = member.company_id
+  WHERE member.role = 'viewer'::public.company_role
+    AND member.is_active AND company.is_active
+  LIMIT 1;
+
+  SELECT member.user_id, member.company_id INTO v_admin, v_admin_company
+  FROM public.company_users member
+  JOIN public.companies company ON company.id = member.company_id
+  WHERE member.role = 'admin'::public.company_role
+    AND member.is_active AND company.is_active
+  LIMIT 1;
+
+  SELECT member.user_id, target.id INTO v_owner, v_foreign_company
+  FROM public.company_users member
+  JOIN public.companies source ON source.id = member.company_id
+  JOIN public.companies target ON target.id <> member.company_id
+  WHERE member.role = 'owner'::public.company_role AND member.is_active
+    AND source.is_active AND target.is_active
+    AND NOT EXISTS (
+      SELECT 1 FROM public.company_users membership
+      WHERE membership.company_id = target.id
+        AND membership.user_id = member.user_id
+        AND membership.is_active
+    )
+  LIMIT 1;
+
+  IF v_viewer IS NULL OR v_admin IS NULL OR v_owner IS NULL THEN
+    RAISE EXCEPTION 'Issue 314 negative tests require active Viewer, Admin, and cross-company Owner fixtures';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.role', 'authenticated', true);
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_viewer::text, true);
+  v_denied := false;
+  BEGIN
+    PERFORM public.prepare_company_invitation(
+      v_viewer_company, 'issue314-viewer-create@example.invalid',
+      'viewer'::public.company_role, v_hash
+    );
+  EXCEPTION WHEN SQLSTATE 'P2805' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Viewer invitation creation must fail with P2805';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_admin::text, true);
+  v_denied := false;
+  BEGIN
+    PERFORM public.prepare_company_invitation(
+      v_admin_company, 'issue314-admin-create@example.invalid',
+      'admin'::public.company_role, v_hash
+    );
+  EXCEPTION WHEN SQLSTATE 'P2803' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Admin inviting Admin must fail with P2803';
+  END IF;
+
+  v_denied := false;
+  BEGIN
+    PERFORM public.prepare_company_invitation(
+      v_admin_company, 'issue314-owner-create@example.invalid',
+      'owner'::public.company_role, v_hash
+    );
+  EXCEPTION WHEN SQLSTATE 'P2803' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Inviting an Owner must fail with P2803';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', v_owner::text, true);
+  v_denied := false;
+  BEGIN
+    PERFORM public.prepare_company_invitation(
+      v_foreign_company, 'issue314-cross-company@example.invalid',
+      'viewer'::public.company_role, v_hash
+    );
+  EXCEPTION WHEN SQLSTATE 'P2805' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Cross-company invitation must fail with P2805';
+  END IF;
+
+  PERFORM pg_catalog.set_config('request.jwt.claim.sub', '', true);
+  PERFORM pg_catalog.set_config('request.jwt.claim.role', 'anon', true);
+  v_denied := false;
+  BEGIN
+    PERFORM public.prepare_company_invitation(
+      v_viewer_company, 'issue314-anonymous-create@example.invalid',
+      'viewer'::public.company_role, v_hash
+    );
+  EXCEPTION WHEN SQLSTATE 'P2800' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Unauthenticated invitation must fail with P2800';
+  END IF;
+
+  RAISE NOTICE 'ISSUE314_AUTHORIZATION_NEGATIVE_TESTS_PASSED';
+END
+$issue314_authorization$;
+
 ROLLBACK;
