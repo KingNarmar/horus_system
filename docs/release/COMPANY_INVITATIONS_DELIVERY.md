@@ -11,6 +11,19 @@ This runbook governs the `send-company-invitation` Edge Function. It does not ch
 - `confirm_company_invitation_delivery` marks the attempt as confirmed and increments `send_count`.
 - Token generation and raw token transport stay server-side and email-only.
 
+## Production rollout verification — 2026-10-11
+
+The following is recorded evidence from the approved Issue #314 rollout, not a claim that all negative-path acceptance tests have been executed against Production:
+
+- **Database migration:** the reviewed `20261009155000_issue_314_staged_invitation_resend.sql` was applied to H.O.R.U.S Production (`rkhmfbxlduuovlbsxhgy`) from an isolated Supabase CLI workspace. Migration history showed 122 versions and exactly one record for `20261009155000`. Read-only schema, constraints, RPC signatures, RLS, grants and static audit/tenant checks passed.
+- **Server configuration:** the five required invitation Edge Secrets were verified **present**, without reading their values. The confirmation secret was validated against its locally DPAPI-protected SHA-256 fingerprint, and a single 32-byte digest record was verified in `private.company_invitation_confirmation_keys`. Neither secret nor digest is stored in this repository.
+- **Edge Function:** `send-company-invitation` deployed to Production with `status=ACTIVE`, `version=1`, `verify_jwt=true` from reviewed source commit `d6487f1b911b3c64d1703e31840beaf321d20441`. Supabase reported bundle SHA-256 `362999d977549a5b2051fc8d71669616fd9484dd61fedc80249665288e89c88e`. The original deployment had no preceding Production function version.
+- **Live E2E (controlled test mailbox):** Company Owner invited an Admin using a Windows client configured for Production. Inbox arrival and acceptance were confirmed by the operator. Subsequent read-only DB checks found `status=accepted`, `send_count=1`, last delivery confirmation recorded, no pending delivery attempt, one active matching Admin membership in the same company, and one each of `created`, `sent`, `accepted` audit events. This proves the exercised happy path, not every provider failure mode.
+- **Permission UI:** an accepted Admin account on mobile saw only Operations, Accountant, Viewer and Driver as inviteable roles; Admin and Owner were absent. Server authorization remains the security boundary.
+- **Development protocol:** confirmed original-token preservation during indeterminate resend, signed abort, idempotent confirmation, Viewer resend denial and a successful two-independent-session resend race (`P2816` for the loser). Negative-path SQL regression also passed for Viewer create (`P2805`), Admin inviting Admin (`P2803`), Owner role invitation (`P2803`), cross-tenant create (`P2805`) and unauthenticated create (`P2800`). The full regression runs in an explicit transaction ending in `ROLLBACK`; a separate check showed zero residual negative-test invitations and audit events.
+- **CI evidence for deployed source:** H.O.R.U.S CI run [#302](https://github.com/KingNarmar/horus_system/actions/runs/37975972838) passed the Deno type check/tests, Flutter quality/architecture/analyze/tests, Windows packaging and Android build. Any subsequent PR commit requires its own green CI.
+- **Limitations:** SQL authorization regression simulates JWT claims in an administrative Development transaction; it does not establish live signed-JWT HTTP denial. No Production 5xx/timeout/resend-failure injection was run, and a Brevo 2xx only establishes API acceptance (inbox receipt was separately operator-confirmed). Full cross-platform, negative-path and recovery evidence must be reviewed before merge and issue closure.
+
 ## Required preflight (no secrets in chat, commits, client builds or logs)
 
 1. Verify Edge Function bundle imports and Deno tests offline, including token generation, email templates and sender failure behavior.
@@ -29,9 +42,9 @@ Migration `20261009155000_issue_314_staged_invitation_resend.sql` stages the rep
 
 **Database protocol regression verified (Development, 2026-10-09):** `supabase/tests/issue_314_invitation_delivery_protocol.sql` was executed using one explicit SQL transaction ending with `ROLLBACK`. It asserts unauthorized Viewer resend is rejected (`P2805`), a second sequential resend is blocked (`P2816`), the old token remains intact during an indeterminate attempt, a signed definite-failure abort preserves the original token, and repeated signed confirmation is idempotent (`send_count` stays 1). No synthetic invitation persisted. The corresponding Deno tests exercise explicit provider rejection, provider 5xx, network exceptions and unknown errors. These tests do **not** establish a true two-connection concurrency result or prove provider delivery on timeout.
 
-**Still a release gate:** demonstrate concurrent resend from two independent database sessions, the distinction between definite provider rejection and uncertain transport responses in a controlled deployment, and a production-grade pre-migration backup/recovery check. Signed-RPC replay, tenant isolation and audit must remain part of the final verification. Successful resend does not prove those failure paths. No migration or function has been deployed to Production.
+**Gate update (2026-10-11):** The two-independent-session Development race, provider-error classification unit tests, migration deployment, Edge Function deployment and Production happy-path smoke test have been completed as described above. The remaining verification limitations must remain visible; successful delivery does not establish behavior on live transport timeouts, forged JWTs or all provider failures.
 
-Production currently has no invitation Edge Function and therefore no previous version to roll back to. A production database migration cannot be undone by simply disabling the Edge Function. Verify a fresh complete recovery set with storage inventory before any approved deployment.
+Production now has function version 1, with no earlier deployed function version available to restore. Disabling new invitation sends does not undo the applied migration or any persisted invitation/audit state. Keep the encrypted recovery set and restore evidence available for incident response.
 
 ## Concurrent resend integration test — two independent database sessions
 
@@ -92,6 +105,14 @@ offsite copy and recoverability. A prior backup or a SQL row count is not
 a substitute. The backup tooling must run in an authorized environment with
 secure credentials; no secrets or dumps belong in this PR.
 
+**Recorded operator evidence (2026-10-09):** an encrypted database backup,
+independent migration-history comparison (121/121) and an isolated restore
+rehearsal were completed prior to migration deployment. Off-device backup
+placement was reported by the operator. Do not infer that every Storage
+object's bytes have been restored or that every recovery gate is complete
+without its own verified evidence. The database migration was subsequently
+applied in Production on 2026-10-11.
+
 ## Acceptance and monitoring
 
 - Owner invites Admin; database shows one pending company-scoped row and expected server audit event.
@@ -107,9 +128,11 @@ secure credentials; no secrets or dumps belong in this PR.
 - Roll out to a non-production environment first when available, run Deno/unit/integration tests and read-only verification.
 - Edge Function is deployed with JWT verification enabled and server-only secrets; never deploy by disabling authentication or RLS.
 - Smoke test uses an approved controlled test mailbox; check Brevo events and DB state.
-- On failure, stop new sends, preserve audit and invitation state, and roll back to the previously reviewed backend version if one exists. As Production currently has no deployed invitation function, disabling/removing this isolated function restores the prior availability state but does not undo any attempted invitations or database migrations.
+- On failure, stop new sends, preserve audit and invitation state, and roll back to a previously reviewed backend version if one exists. Production currently has only function version 1: disabling new sends (or removing the function after separate approval) restores the previous *unavailable* invitation-delivery behavior, but does not undo prior sends, database invitations, audit events or migration #314.
 - Do not merge PR #315 or close Issue #314 until all quality, security, delivery and acceptance gates have evidence.
 
 ## Confirmation proof provisioning gate
 
-The Issue #314 database migration creates `private.company_invitation_confirmation_keys` without inserting any key or secret. Before deploying the Edge Function, independently generate a high-entropy `HORUS_INVITATION_CONFIRMATION_SECRET` (32+ characters) in a secure environment, provision it only in Supabase Edge Function secrets, and store its SHA-256 digest in the private PostgreSQL guard table by an approved, audited administrative operation. Never paste the secret into chats or commit either value. Validate that a signed confirmation succeeds with the test account and an unsigned authenticated RPC call fails. If the values do not match, the function must fail closed before preparing invitations.
+The Issue #314 database migration creates `private.company_invitation_confirmation_keys` without inserting any key or secret. Before deploying the Edge Function, independently generate a high-entropy `HORUS_INVITATION_CONFIRMATION_SECRET` (32+ characters) in a secure environment, provision it only in Supabase Edge Function secrets, and store its SHA-256 digest in the private PostgreSQL guard table by an approved administrative operation. Never paste the secret into chats or commit either value. If the values do not match, the function must fail closed before preparing invitations.
+
+**Production provisioned (2026-10-11):** five server-only invitation Secrets are present and the singleton confirmation digest record has the expected 32-byte length; the controlled signed E2E delivery confirmation succeeded. A separate unsigned-authenticated RPC rejection test remains desirable before issue closure.
