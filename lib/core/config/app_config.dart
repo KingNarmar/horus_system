@@ -7,6 +7,7 @@ abstract final class AppConfigKeys {
   static const String supabaseUrl = 'SUPABASE_URL';
   static const String supabasePublishableKey = 'SUPABASE_PUBLISHABLE_KEY';
   static const String enableDebugLogs = 'ENABLE_DEBUG_LOGS';
+  static const String enableDevicePreview = 'ENABLE_DEVICE_PREVIEW';
 }
 
 const String _compileTimeAppEnvironment = String.fromEnvironment(
@@ -46,6 +47,12 @@ final class AppConfigException implements Exception {
 }
 
 final class AppConfig {
+  /// Development-only preview toggle; release mode disables the wrapper.
+  static const bool enableDevicePreview = bool.fromEnvironment(
+    AppConfigKeys.enableDevicePreview,
+    defaultValue: true,
+  );
+
   final AppEnvironment environment;
   final Uri supabaseUrl;
   final String supabasePublishableKey;

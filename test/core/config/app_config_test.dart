@@ -14,6 +14,10 @@ const _legacyServiceRoleKey =
 
 void main() {
   group('AppConfig', () {
+    test('DevicePreview defaults to enabled for non-release builds', () {
+      expect(AppConfig.enableDevicePreview, isTrue);
+    });
+
     test('accepts development config with local HTTP URL', () {
       final config = AppConfig.fromValues(
         appEnvironment: 'development',
