@@ -416,9 +416,10 @@ class CustomersCubit extends Cubit<CustomersState> {
 
     final customers = result.dataOrNull ?? const <Customer>[];
     Customer? selectedCustomer = latest.selectedCustomer;
-    if (selectedCustomer != null) {
+    final selectedCustomerId = selectedCustomer?.id;
+    if (selectedCustomerId != null) {
       for (final item in customers) {
-        if (item.id == selectedCustomer.id) {
+        if (item.id == selectedCustomerId) {
           selectedCustomer = item;
           break;
         }
