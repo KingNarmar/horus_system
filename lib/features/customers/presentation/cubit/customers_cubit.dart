@@ -375,8 +375,7 @@ class CustomersCubit extends Cubit<CustomersState> {
         await _refreshCustomersOnce(currentCompanyContext);
       } while (_realtimeRefreshPending &&
           !isClosed &&
-          _currentCompanyContext?.companyId ==
-              currentCompanyContext.companyId);
+          _currentCompanyContext?.companyId == currentCompanyContext.companyId);
     } finally {
       _isRealtimeRefreshing = false;
     }
@@ -386,8 +385,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     CurrentCompanyContext currentCompanyContext,
   ) async {
     if (isClosed ||
-        _currentCompanyContext?.companyId !=
-            currentCompanyContext.companyId) {
+        _currentCompanyContext?.companyId != currentCompanyContext.companyId) {
       return;
     }
 
