@@ -4502,17 +4502,17 @@ abstract class AppLocalizations {
   /// **'Members'**
   String get companyMembersTab;
 
-  /// No description provided for @companyInvitationsRefresh.
-  ///
-  /// In en, this message translates to:
-  /// **'Refresh invitations'**
-  String get companyInvitationsRefresh;
-
   /// No description provided for @companyInvitationsTab.
   ///
   /// In en, this message translates to:
   /// **'Invitations'**
   String get companyInvitationsTab;
+
+  /// No description provided for @companyInvitationsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh invitations'**
+  String get companyInvitationsRefresh;
 
   /// No description provided for @companyInvitationActionSucceeded.
   ///
@@ -4979,7 +4979,7 @@ abstract class AppLocalizations {
   /// No description provided for @failureCompanyInvitationDeliveryConfirmationUnknown.
   ///
   /// In en, this message translates to:
-  /// **'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.'**
+  /// **'The email delivery outcome is uncertain. Check the invitations and avoid resending until the attempt is resolved.'**
   String get failureCompanyInvitationDeliveryConfirmationUnknown;
 
   /// No description provided for @failureCompanyInvitationDeliveryNotConfigured.

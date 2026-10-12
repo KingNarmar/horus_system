@@ -2390,10 +2390,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get companyMembersTab => 'الأعضاء';
 
   @override
-  String get companyInvitationsRefresh => 'تحديث الدعوات';
+  String get companyInvitationsTab => 'الدعوات';
 
   @override
-  String get companyInvitationsTab => 'الدعوات';
+  String get companyInvitationsRefresh => 'تحديث الدعوات';
 
   @override
   String get companyInvitationActionSucceeded => 'تم تحديث الدعوة بنجاح.';

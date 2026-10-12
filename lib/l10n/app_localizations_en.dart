@@ -2418,10 +2418,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyMembersTab => 'Members';
 
   @override
-  String get companyInvitationsRefresh => 'Refresh invitations';
+  String get companyInvitationsTab => 'Invitations';
 
   @override
-  String get companyInvitationsTab => 'Invitations';
+  String get companyInvitationsRefresh => 'Refresh invitations';
 
   @override
   String get companyInvitationActionSucceeded =>
