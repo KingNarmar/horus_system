@@ -50,6 +50,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذر التحقق من حالة اتصال الإنترنت.';
 
   @override
+  String get failureRealtimeSubscriptionUnavailable =>
+      'التحديثات المباشرة غير متاحة مؤقتًا. يمكنك إعادة المحاولة أو فتح الصفحة مجددًا لتحديث البيانات.';
+
+  @override
   String get bootstrapFailureTitle => 'تعذر تشغيل نظام حورس';
 
   @override
