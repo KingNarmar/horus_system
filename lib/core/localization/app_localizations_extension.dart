@@ -124,7 +124,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationCompanyExpenseAmountPositive,
       FailureCodes.validationCompanyNameRequired => companyNameRequired,
       FailureCodes.networkStatusUnavailable => failureNetworkStatusUnavailable,
-        FailureCodes.realtimeSubscriptionUnavailable =>
+      FailureCodes.realtimeSubscriptionUnavailable =>
         failureRealtimeSubscriptionUnavailable,
       FailureCodes.serverError => _genericServerErrorMessage,
       _ => _safeFallbackErrorMessage(failure),
