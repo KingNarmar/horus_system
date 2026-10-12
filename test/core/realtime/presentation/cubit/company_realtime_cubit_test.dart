@@ -10,31 +10,34 @@ import 'package:horus_system/core/utils/result.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('reacts to current-company events and rejects old session events', () async {
-    final repository = _ControllableRepository();
-    final cubit = CompanyRealtimeCubit(
-      watchChanges: WatchCompanyDataChangesUseCase(repository),
-    );
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+  test(
+    'reacts to current-company events and rejects old session events',
+    () async {
+      final repository = _ControllableRepository();
+      final cubit = CompanyRealtimeCubit(
+        watchChanges: WatchCompanyDataChangesUseCase(repository),
+      );
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
 
-    cubit.watchCompany('company-1');
-    repository.addChange('company-1');
-    await Future<void>.delayed(Duration.zero);
-    expect(cubit.state.customersRevision, 1);
+      cubit.watchCompany('company-1');
+      repository.addChange('company-1');
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.customersRevision, 1);
 
-    cubit.watchCompany('company-2');
-    repository.addChange('company-1');
-    await Future<void>.delayed(Duration.zero);
-    expect(cubit.state.customersRevision, 0);
+      cubit.watchCompany('company-2');
+      repository.addChange('company-1');
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.customersRevision, 0);
 
-    repository.addChange('company-2');
-    await Future<void>.delayed(Duration.zero);
-    expect(cubit.state.companyId, 'company-2');
-    expect(cubit.state.customersRevision, 1);
-  });
+      repository.addChange('company-2');
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.companyId, 'company-2');
+      expect(cubit.state.customersRevision, 1);
+    },
+  );
 
   test('preserves revision across typed subscription failures', () async {
     final repository = _ControllableRepository();
@@ -52,7 +55,10 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(cubit.state.customersRevision, 1);
-    expect(cubit.state.failure?.code, FailureCodes.realtimeSubscriptionUnavailable);
+    expect(
+      cubit.state.failure?.code,
+      FailureCodes.realtimeSubscriptionUnavailable,
+    );
 
     repository.addChange('company-1');
     await Future<void>.delayed(Duration.zero);
@@ -62,12 +68,11 @@ void main() {
 }
 
 final class _ControllableRepository implements CompanyDataChangesRepository {
-  final Map<String, StreamController<Result<CompanyDataChange>>> controllers = {};
+  final Map<String, StreamController<Result<CompanyDataChange>>> controllers =
+      {};
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({
-    required String companyId,
-  }) {
+  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
     final controller = StreamController<Result<CompanyDataChange>>.broadcast(
       sync: true,
     );
@@ -76,10 +81,12 @@ final class _ControllableRepository implements CompanyDataChangesRepository {
   }
 
   void addChange(String companyId) => controllers[companyId]!.add(
-    Success(CompanyDataChange(
-      companyId: companyId,
-      resource: CompanyDataResource.customers,
-    )),
+    Success(
+      CompanyDataChange(
+        companyId: companyId,
+        resource: CompanyDataResource.customers,
+      ),
+    ),
   );
 
   void addFailure(String companyId) => controllers[companyId]!.add(
