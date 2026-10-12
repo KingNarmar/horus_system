@@ -16,9 +16,7 @@ final class SupabaseCompanyDataChangesRemoteDataSource
   const SupabaseCompanyDataChangesRemoteDataSource(this._client);
 
   @override
-  Stream<RealtimeChangeSignal> watchCustomers({
-    required String companyId,
-  }) {
+  Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) {
     late final StreamController<RealtimeChangeSignal> controller;
     RealtimeChannel? channel;
     var disposed = false;
