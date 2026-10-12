@@ -188,39 +188,49 @@ void main() {
     expect(audit.requests, isEmpty);
   });
 
-  test('realtime refresh keeps search and status filter while replacing rows', () async {
-    customers.rows = [_entity()];
-    await cubit.loadCustomers(_context());
-    cubit.setSearchQuery('Customer');
-    cubit.setStatusFilter(CustomerStatusFilter.all);
+  test(
+    'realtime refresh keeps search and status filter while replacing rows',
+    () async {
+      customers.rows = [_entity()];
+      await cubit.loadCustomers(_context());
+      cubit.setSearchQuery('Customer');
+      cubit.setStatusFilter(CustomerStatusFilter.all);
 
-    customers.rows = [
-      Customer(id: 'entity-1', companyId: 'company-1', name: 'Customer Updated'),
-    ];
-    await cubit.refreshCustomers(_context());
+      customers.rows = [
+        Customer(
+          id: 'entity-1',
+          companyId: 'company-1',
+          name: 'Customer Updated',
+        ),
+      ];
+      await cubit.refreshCustomers(_context());
 
-    final state = cubit.state as CustomersLoaded;
-    expect(state.allCustomers.single.name, 'Customer Updated');
-    expect(state.searchQuery, 'Customer');
-    expect(state.statusFilter, CustomerStatusFilter.all);
-    expect(state.refreshFailure, isNull);
-    expect(customers.getCalls, 2);
-  });
+      final state = cubit.state as CustomersLoaded;
+      expect(state.allCustomers.single.name, 'Customer Updated');
+      expect(state.searchQuery, 'Customer');
+      expect(state.statusFilter, CustomerStatusFilter.all);
+      expect(state.refreshFailure, isNull);
+      expect(customers.getCalls, 2);
+    },
+  );
 
-  test('failed realtime refresh retains rows with typed retry failure', () async {
-    customers.rows = [_entity()];
-    await cubit.loadCustomers(_context());
-    customers.readOverride = const FailureResult(
-      ServerFailure(code: FailureCodes.serverError),
-    );
+  test(
+    'failed realtime refresh retains rows with typed retry failure',
+    () async {
+      customers.rows = [_entity()];
+      await cubit.loadCustomers(_context());
+      customers.readOverride = const FailureResult(
+        ServerFailure(code: FailureCodes.serverError),
+      );
 
-    await cubit.refreshCustomers(_context());
+      await cubit.refreshCustomers(_context());
 
-    final state = cubit.state as CustomersLoaded;
-    expect(state.allCustomers.single.id, 'entity-1');
-    expect(state.refreshFailure?.code, FailureCodes.serverError);
-    expect(customers.getCalls, 2);
-  });
+      final state = cubit.state as CustomersLoaded;
+      expect(state.allCustomers.single.id, 'entity-1');
+      expect(state.refreshFailure?.code, FailureCodes.serverError);
+      expect(customers.getCalls, 2);
+    },
+  );
 
   test(
     'closing details during projection does not restore the old selection',
