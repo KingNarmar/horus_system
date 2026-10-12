@@ -244,6 +244,8 @@ class FailureCodes {
 
   // Network
   static const String networkStatusUnavailable = 'network_status_unavailable';
+  static const String realtimeSubscriptionUnavailable =
+      'realtime_subscription_unavailable';
 
   // Generic
   static const String serverError = 'server_error';
