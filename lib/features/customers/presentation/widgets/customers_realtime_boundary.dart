@@ -35,8 +35,9 @@ final class CustomersRealtimeBoundary extends StatelessWidget {
       key: ValueKey(
         '${currentCompanyContext.companyId}:${currentCompanyContext.role.name}',
       ),
-      create: (_) => RealtimeDependencies.createCubit()
-        ..watchCompany(currentCompanyContext.companyId),
+      create: (_) =>
+          RealtimeDependencies.createCubit()
+            ..watchCompany(currentCompanyContext.companyId),
       child: MultiBlocListener(
         listeners: [
           BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
