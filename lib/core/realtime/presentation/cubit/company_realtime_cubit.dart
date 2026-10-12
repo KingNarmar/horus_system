@@ -14,52 +14,59 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
   int _watchGeneration = 0;
 
   CompanyRealtimeCubit({required WatchCompanyDataChangesUseCase watchChanges})
-      : _watchChanges = watchChanges,
-        super(const CompanyRealtimeState(companyId: ''));
+    : _watchChanges = watchChanges,
+      super(const CompanyRealtimeState(companyId: ''));
 
   void watchCompany(String companyId) {
     final generation = ++_watchGeneration;
     unawaited(_subscription?.cancel());
     emit(CompanyRealtimeState(companyId: companyId));
 
-    _subscription = _watchChanges(
-      WatchCompanyDataChangesParams(companyId: companyId),
-    ).listen(
-      (result) {
-        if (isClosed || generation != _watchGeneration) return;
+    _subscription =
+        _watchChanges(
+          WatchCompanyDataChangesParams(companyId: companyId),
+        ).listen(
+          (result) {
+            if (isClosed || generation != _watchGeneration) return;
 
-        final failure = result.failureOrNull;
-        if (failure != null) {
-          emit(CompanyRealtimeState(
-            companyId: companyId,
-            customersRevision: state.customersRevision,
-            failure: failure,
-          ));
-          return;
-        }
+            final failure = result.failureOrNull;
+            if (failure != null) {
+              emit(
+                CompanyRealtimeState(
+                  companyId: companyId,
+                  customersRevision: state.customersRevision,
+                  failure: failure,
+                ),
+              );
+              return;
+            }
 
-        final change = result.dataOrNull;
-        if (change?.companyId != companyId ||
-            change?.resource != CompanyDataResource.customers) {
-          return;
-        }
+            final change = result.dataOrNull;
+            if (change?.companyId != companyId ||
+                change?.resource != CompanyDataResource.customers) {
+              return;
+            }
 
-        emit(CompanyRealtimeState(
-          companyId: companyId,
-          customersRevision: state.customersRevision + 1,
-        ));
-      },
-      onError: (_, _) {
-        if (isClosed || generation != _watchGeneration) return;
-        emit(CompanyRealtimeState(
-          companyId: companyId,
-          customersRevision: state.customersRevision,
-          failure: const NetworkFailure(
-            code: FailureCodes.realtimeSubscriptionUnavailable,
-          ),
-        ));
-      },
-    );
+            emit(
+              CompanyRealtimeState(
+                companyId: companyId,
+                customersRevision: state.customersRevision + 1,
+              ),
+            );
+          },
+          onError: (_, _) {
+            if (isClosed || generation != _watchGeneration) return;
+            emit(
+              CompanyRealtimeState(
+                companyId: companyId,
+                customersRevision: state.customersRevision,
+                failure: const NetworkFailure(
+                  code: FailureCodes.realtimeSubscriptionUnavailable,
+                ),
+              ),
+            );
+          },
+        );
   }
 
   @override
