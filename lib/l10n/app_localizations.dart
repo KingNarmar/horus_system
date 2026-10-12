@@ -4508,6 +4508,12 @@ abstract class AppLocalizations {
   /// **'Invitations'**
   String get companyInvitationsTab;
 
+  /// No description provided for @companyInvitationsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh invitations'**
+  String get companyInvitationsRefresh;
+
   /// No description provided for @companyInvitationActionSucceeded.
   ///
   /// In en, this message translates to:
@@ -4934,6 +4940,12 @@ abstract class AppLocalizations {
   /// **'A pending invitation already exists for this email in the company.'**
   String get failureCompanyInvitationAlreadyPending;
 
+  /// No description provided for @failureCompanyInvitationResendPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An earlier resend attempt is still unresolved. Check its delivery status before trying again.'**
+  String get failureCompanyInvitationResendPending;
+
   /// No description provided for @failureCompanyInvitationEmailMismatch.
   ///
   /// In en, this message translates to:
@@ -4967,7 +4979,7 @@ abstract class AppLocalizations {
   /// No description provided for @failureCompanyInvitationDeliveryConfirmationUnknown.
   ///
   /// In en, this message translates to:
-  /// **'The email was sent, but its delivery state could not be confirmed. Refresh the invitations before resending.'**
+  /// **'The email delivery outcome is uncertain. Check the invitations and avoid resending until the attempt is resolved.'**
   String get failureCompanyInvitationDeliveryConfirmationUnknown;
 
   /// No description provided for @failureCompanyInvitationDeliveryNotConfigured.

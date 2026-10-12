@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/errors/failure_codes.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/failures/company_failure_codes.dart';
 
@@ -71,17 +72,25 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
       }
 
       throw CompanyInvitationDeliveryException(
-        _semanticCode(data) ??
-            CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
+        _semanticCode(data) ?? FailureCodes.serverError,
       );
     } on CompanyInvitationDeliveryException {
       rethrow;
     } on FunctionException catch (error) {
-      throw CompanyInvitationDeliveryException(
-        _semanticCode(error.details) ??
-            CompanyFailureCodes.invitationDeliveryConfirmationUnknown,
-      );
+      throw CompanyInvitationDeliveryException(classifyFunctionFailure(error));
     }
+  }
+
+  /// A missing endpoint is not evidence that an email was sent.
+  /// Only the Edge Function may report a confirmation-unknown outcome.
+  static String classifyFunctionFailure(FunctionException error) {
+    final semanticCode = _semanticCode(error.details);
+    if (semanticCode != null) return semanticCode;
+
+    if (error.status == 404) {
+      return CompanyFailureCodes.invitationDeliveryNotConfigured;
+    }
+    return FailureCodes.serverError;
   }
 
   static String? _semanticCode(Object? payload) {

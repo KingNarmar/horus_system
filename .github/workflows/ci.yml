@@ -37,8 +37,15 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
+      - name: Compile invitation concurrency probe
+        run: python -m py_compile scripts/test_issue_314_concurrent_resend.py
+
       - name: Check formatting
-        run: dart format --set-exit-if-changed lib test
+        run: |
+          dart format --set-exit-if-changed lib test || {
+            git diff -- lib test
+            exit 1
+          }
 
       - name: Run architecture tests
         run: flutter test test/architecture
@@ -49,9 +56,28 @@ jobs:
       - name: Run full test suite
         run: flutter test
 
+  invitation-edge-tests:
+    name: Company Invitation Edge Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check invitation Edge Function entrypoint
+        run: deno check supabase/functions/send-company-invitation/index.ts
+
+      - name: Run invitation Edge Function tests
+        run: deno test supabase/functions/send-company-invitation
+
   android-release:
     name: Android Release Build
-    needs: quality
+    needs: [quality, invitation-edge-tests]
     runs-on: ubuntu-latest
     env:
       CI_SUPABASE_URL: "https://ci.invalid.supabase.co"
@@ -106,7 +132,7 @@ jobs:
 
   windows-release:
     name: Windows Release Build
-    needs: quality
+    needs: [quality, invitation-edge-tests]
     runs-on: windows-latest
     env:
       CI_SUPABASE_URL: "https://ci.invalid.supabase.co"

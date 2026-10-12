@@ -44,6 +44,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     required CompanyRole role,
   }) async {
     final companyId = currentCompanyContext.companyId;
+    if (_commandInProgress(companyId)) return;
     _scopeCompanyId = companyId;
     final invitations = _currentInvitations(companyId);
     emit(
@@ -105,6 +106,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     Future<Result<void>> Function() action,
   ) async {
     final companyId = context.companyId;
+    if (_commandInProgress(companyId)) return;
     _scopeCompanyId = companyId;
     final invitations = _currentInvitations(companyId);
     emit(
@@ -123,6 +125,10 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
           _handleCommandFailure(context, failure, invitations),
     );
   }
+
+  bool _commandInProgress(String companyId) =>
+      state is CompanyInvitationsCommandInProgress &&
+      state.companyId == companyId;
 
   Future<void> _handleCommandSuccess(
     CurrentCompanyContext context,
