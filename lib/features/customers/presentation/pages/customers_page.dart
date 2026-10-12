@@ -28,6 +28,17 @@ class _CustomersPageState extends State<CustomersPage> {
     context.read<CustomersCubit>().loadCustomers(widget.currentCompanyContext);
   }
 
+  @override
+  void didUpdateWidget(covariant CustomersPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final previous = oldWidget.currentCompanyContext;
+    final current = widget.currentCompanyContext;
+    if (previous.companyId != current.companyId ||
+        previous.role != current.role) {
+      context.read<CustomersCubit>().loadCustomers(current);
+    }
+  }
+
   Future<void> _openCustomerForm({Customer? customer}) async {
     await showDialog<void>(
       context: context,
