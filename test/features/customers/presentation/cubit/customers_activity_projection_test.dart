@@ -12,6 +12,7 @@ import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/customers/domain/entities/customer.dart';
+import 'package:horus_system/features/customers/domain/entities/customer_status_filter.dart';
 import 'package:horus_system/features/customers/domain/entities/customer_write_data.dart';
 import 'package:horus_system/features/customers/domain/repositories/customers_repository.dart';
 import 'package:horus_system/features/customers/domain/usecases/add_customer_usecase.dart';
@@ -30,17 +31,18 @@ void main() {
   late DeferredActivityRepository audit;
   late RecordingActivityConverter converter;
   late CustomersCubit cubit;
+  late _Repository customers;
   setUp(() {
     audit = DeferredActivityRepository();
     converter = RecordingActivityConverter();
-    final repository = _Repository();
+    customers = _Repository();
     cubit = CustomersCubit(
-      getCustomersUseCase: GetCustomersUseCase(repository),
+      getCustomersUseCase: GetCustomersUseCase(customers),
       canManageCustomersUseCase: const CanManageCustomersUseCase(),
-      addCustomerUseCase: AddCustomerUseCase(repository),
-      updateCustomerUseCase: UpdateCustomerUseCase(repository),
-      deactivateCustomerUseCase: DeactivateCustomerUseCase(repository),
-      reactivateCustomerUseCase: ReactivateCustomerUseCase(repository),
+      addCustomerUseCase: AddCustomerUseCase(customers),
+      updateCustomerUseCase: UpdateCustomerUseCase(customers),
+      deactivateCustomerUseCase: DeactivateCustomerUseCase(customers),
+      reactivateCustomerUseCase: ReactivateCustomerUseCase(customers),
       getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(audit),
       convertInstantsToBusinessLocalDateTimesUseCase:
           ConvertInstantsToBusinessLocalDateTimesUseCase(converter),
@@ -186,6 +188,40 @@ void main() {
     expect(audit.requests, isEmpty);
   });
 
+  test('realtime refresh keeps search and status filter while replacing rows', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    cubit.setSearchQuery('Customer');
+    cubit.setStatusFilter(CustomerStatusFilter.all);
+
+    customers.rows = [
+      Customer(id: 'entity-1', companyId: 'company-1', name: 'Customer Updated'),
+    ];
+    await cubit.refreshCustomers(_context());
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.allCustomers.single.name, 'Customer Updated');
+    expect(state.searchQuery, 'Customer');
+    expect(state.statusFilter, CustomerStatusFilter.all);
+    expect(state.refreshFailure, isNull);
+    expect(customers.getCalls, 2);
+  });
+
+  test('failed realtime refresh retains rows with typed retry failure', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.readOverride = const FailureResult(
+      ServerFailure(code: FailureCodes.serverError),
+    );
+
+    await cubit.refreshCustomers(_context());
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.allCustomers.single.id, 'entity-1');
+    expect(state.refreshFailure?.code, FailureCodes.serverError);
+    expect(customers.getCalls, 2);
+  });
+
   test(
     'closing details during projection does not restore the old selection',
     () async {
@@ -232,10 +268,17 @@ AuditLog _log({String companyId = 'company-1', String id = 'log-1'}) =>
     );
 
 final class _Repository implements CustomersRepository {
+  List<Customer> rows = [];
+  Result<List<Customer>>? readOverride;
+  int getCalls = 0;
+
   @override
   Future<Result<List<Customer>>> getCustomers({
     required String companyId,
-  }) async => const Success([]);
+  }) async {
+    getCalls++;
+    return readOverride ?? Success(rows);
+  }
 
   @override
   Future<Result<Customer>> addCustomer({
