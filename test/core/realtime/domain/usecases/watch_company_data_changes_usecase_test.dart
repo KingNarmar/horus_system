@@ -12,7 +12,10 @@ void main() {
     final result = await useCase(
       const WatchCompanyDataChangesParams(companyId: '   '),
     ).single;
-    expect(result.failureOrNull?.code, FailureCodes.validationCompanyIdRequired);
+    expect(
+      result.failureOrNull?.code,
+      FailureCodes.validationCompanyIdRequired,
+    );
     expect(repository.watchCount, 0);
   });
 
@@ -33,14 +36,16 @@ final class _FakeChangesRepository implements CompanyDataChangesRepository {
   String? lastCompanyId;
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({
-    required String companyId,
-  }) {
+  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
     watchCount++;
     lastCompanyId = companyId;
-    return Stream.value(Success(CompanyDataChange(
-      companyId: companyId,
-      resource: CompanyDataResource.customers,
-    )));
+    return Stream.value(
+      Success(
+        CompanyDataChange(
+          companyId: companyId,
+          resource: CompanyDataResource.customers,
+        ),
+      ),
+    );
   }
 }
