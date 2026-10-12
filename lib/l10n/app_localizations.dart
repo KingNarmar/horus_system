@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'Internet connection status could not be verified.'**
   String get failureNetworkStatusUnavailable;
 
+  /// No description provided for @failureRealtimeSubscriptionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Live updates are temporarily unavailable. You can retry or reopen this page to refresh.'**
+  String get failureRealtimeSubscriptionUnavailable;
+
   /// Title shown when application bootstrap cannot continue.
   ///
   /// In en, this message translates to:
