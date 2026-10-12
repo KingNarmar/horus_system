@@ -73,7 +73,8 @@ class _CustomersPageState extends State<CustomersPage> {
       builder: (_) => BlocBuilder<CustomersCubit, CustomersState>(
         builder: (context, state) {
           return CustomerDetailsDialog(
-            customer: state is CustomersLoaded &&
+            customer:
+                state is CustomersLoaded &&
                     state.selectedCustomer?.id == customer.id
                 ? state.selectedCustomer!
                 : customer,
@@ -113,17 +114,15 @@ class _CustomersPageState extends State<CustomersPage> {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            if (state is CustomersLoaded &&
-                state.refreshFailure != null) ...[
+            if (state is CustomersLoaded && state.refreshFailure != null) ...[
               MaterialBanner(
                 content: Text(
                   l10n.localizedErrorMessage(state.refreshFailure!),
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () => cubit.refreshCustomers(
-                      widget.currentCompanyContext,
-                    ),
+                    onPressed: () =>
+                        cubit.refreshCustomers(widget.currentCompanyContext),
                     child: Text(l10n.networkRetryButton),
                   ),
                 ],
