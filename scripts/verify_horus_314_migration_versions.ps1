@@ -1,0 +1,179 @@
+# Historical Issue #314 backup migration verification.
+# Compares a supplied migrations.txt file against the 121-version
+# Production snapshot recorded on 2026-10-11.
+# This is NOT a live Production migration-state check.
+#
+# Example:
+# .\scripts\verify_horus_314_migration_versions.ps1 -BackupMigrationsFile "C:\Backups\migrations.txt"
+
+param(
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$BackupMigrationsFile
+)
+
+$ErrorActionPreference = "Stop"
+$backupFile = $BackupMigrationsFile
+
+if (-not (Test-Path -LiteralPath $backupFile -PathType Leaf)) { throw "BACKUP_MIGRATIONS_FILE_NOT_FOUND" }
+
+# Authoritative migration versions obtained read-only from Production on 2026-10-11.
+$productionVersionsText = @'
+20260609065142
+20260609085746
+20260609114730
+20260609115105
+20260609124638
+20260610073840
+20260610112500
+20260610123000
+20260610124500
+20260612073737
+20260612083305
+20260612125900
+20260612130000
+20260619083000
+20260619123000
+20260619124500
+20260619131500
+20260620143000
+20260620170000
+202606260001
+202606260002
+202606260003
+20260629120000
+20260629130000
+20260629133000
+20260629140000
+20260703120000
+20260709150000
+20260709153500
+20260713160000
+20260715060000
+20260715123000
+20260805180000
+20260805181000
+20260805182000
+20260805182100
+20260805182300
+20260805182500
+20260805183000
+20260805184000
+20260805184500
+20260807113000
+20260807165000
+20260810093500
+20260810132000
+20260810174500
+20260810175500
+20260810175600
+20260810175700
+20260810175800
+20260810175900
+20260812003500
+20260812164057
+20260812164356
+20260812164528
+20260813093747
+20260814143655
+20260814162726
+20260814170125
+20260823124123
+20260830120428
+20260830120628
+20260830120930
+20260830121221
+20260830121438
+20260830121509
+20260901162508
+20260902173736
+20260902174021
+20260902192351
+20260902200218
+20260908082613
+20260908132519
+20260913080559
+20260913080709
+20260913153000
+20260913153100
+20260915095000
+20260915102442
+20260915112129
+20260915112143
+20260915113146
+20260915123700
+20260915131259
+20260915152449
+20260915152712
+20260915172914
+20260915200335
+20260915210115
+20260916130728
+20260916133837
+20260916134806
+20260917133125
+20260918095021
+20260918115644
+20260918123825
+20260918172938
+20260918173423
+20260918173503
+20260918180913
+20260918182602
+20260919123618
+20260919163403
+20260921120000
+20260921121342
+20260921150316
+20260922144055
+20260922164351
+20260922170255
+20260922170502
+20260922192748
+20260923102915
+20260924154343
+20260925174900
+20260930162517
+20260930162523
+20260930162529
+20260930162534
+20260930162539
+20260930162553
+20260930162559
+'@
+$productionVersions = @(
+    $productionVersionsText -split '\r?\n' | Where-Object { $_ -match '^\d{12}(?:\d{2})?$' }
+)
+
+# Parse the 'Remote' column of `supabase migration list` output only.
+# Do not scan dates or the entire file: legacy 12-digit versions can appear in both columns.
+$backupVersions = @(
+    foreach ($line in Get-Content -LiteralPath $backupFile) {
+        if ($line -match '\|\s*`?(\d{14}|\d{12})`?\s*\|') {
+            $Matches[1]
+        }
+    }
+)
+
+$expected = @($productionVersions | Sort-Object -Unique)
+$actual = @($backupVersions | Sort-Object -Unique)
+$missing = @($expected | Where-Object { $_ -notin $actual })
+$extra = @($actual | Where-Object { $_ -notin $expected })
+$duplicates = @($backupVersions | Group-Object | Where-Object { $_.Count -gt 1 })
+
+Write-Host "=== MIGRATION VERSION COMPARISON ==="
+Write-Host "PRODUCTION_COUNT=$($expected.Count)"
+Write-Host "BACKUP_PARSED_ROWS=$($backupVersions.Count)"
+Write-Host "BACKUP_UNIQUE_COUNT=$($actual.Count)"
+Write-Host "MISSING_IN_BACKUP=$($missing.Count)"
+Write-Host "EXTRA_IN_BACKUP=$($extra.Count)"
+Write-Host "BACKUP_DUPLICATED_ROWS=$($duplicates.Count)"
+$missing | ForEach-Object { Write-Host "MISSING_VERSION=$_" }
+$extra | ForEach-Object { Write-Host "UNEXPECTED_VERSION=$_" }
+$duplicates | ForEach-Object { Write-Host "DUPLICATE_VERSION=$($_.Name)" }
+
+if ($expected.Count -ne 121 -or $actual.Count -ne 121 -or
+    $missing.Count -ne 0 -or $extra.Count -ne 0 -or
+    $duplicates.Count -ne 0) { throw "BACKUP_MIGRATION_VERSIONS_MISMATCH" }
+Write-Host "BACKUP_MIGRATION_VERSION_SET=PASS"
+Write-Host "PRODUCTION_CHANGES=NONE"
