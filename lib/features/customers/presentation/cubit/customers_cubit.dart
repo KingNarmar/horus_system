@@ -29,6 +29,8 @@ class CustomersCubit extends Cubit<CustomersState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
   int _activityRequestId = 0;
   int _loadRequestId = 0;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -349,6 +351,87 @@ class CustomersCubit extends Cubit<CustomersState> {
       currentState.copyWith(
         allCustomers: updatedCustomers,
         pendingActionCustomerId: null,
+      ),
+    );
+  }
+
+  /// Reloads changed records without resetting the user's search and filters.
+  /// Coalesces simultaneous server signals into at most one follow-up read.
+  Future<void> refreshCustomers(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
+    if (_isRealtimeRefreshing) {
+      if (_currentCompanyContext?.companyId ==
+          currentCompanyContext.companyId) {
+        _realtimeRefreshPending = true;
+      }
+      return;
+    }
+
+    _isRealtimeRefreshing = true;
+    try {
+      do {
+        _realtimeRefreshPending = false;
+        await _refreshCustomersOnce(currentCompanyContext);
+      } while (_realtimeRefreshPending &&
+          !isClosed &&
+          _currentCompanyContext?.companyId ==
+              currentCompanyContext.companyId);
+    } finally {
+      _isRealtimeRefreshing = false;
+    }
+  }
+
+  Future<void> _refreshCustomersOnce(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
+    if (isClosed ||
+        _currentCompanyContext?.companyId !=
+            currentCompanyContext.companyId) {
+      return;
+    }
+
+    final previous = state;
+    if (previous is! CustomersLoaded) {
+      await loadCustomers(currentCompanyContext);
+      return;
+    }
+
+    final requestId = ++_loadRequestId;
+    final result = await getCustomersUseCase(
+      GetCustomersParams(currentCompanyContext: currentCompanyContext),
+    );
+
+    if (isClosed || requestId != _loadRequestId) return;
+    final latest = state;
+    if (latest is! CustomersLoaded ||
+        latest.currentCompanyContext.companyId !=
+            currentCompanyContext.companyId) {
+      return;
+    }
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      emit(latest.copyWith(refreshFailure: failure));
+      return;
+    }
+
+    final customers = result.dataOrNull ?? const <Customer>[];
+    Customer? selectedCustomer = latest.selectedCustomer;
+    if (selectedCustomer != null) {
+      for (final item in customers) {
+        if (item.id == selectedCustomer.id) {
+          selectedCustomer = item;
+          break;
+        }
+      }
+    }
+
+    emit(
+      latest.copyWith(
+        allCustomers: customers,
+        selectedCustomer: selectedCustomer,
+        refreshFailure: null,
       ),
     );
   }
