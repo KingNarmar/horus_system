@@ -26,8 +26,9 @@ void main() {
       return cubit;
     }
 
-    Widget app(String companyId) => MaterialApp(
-      home: CustomersRealtimeBoundary(
+    Widget app(String companyId) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: CustomersRealtimeBoundary(
         currentCompanyContext: _context(companyId),
         realtimeCubitFactory: factory,
         child: const SizedBox.shrink(),
@@ -44,7 +45,12 @@ void main() {
     expect(repository.cancelled, contains('company-a'));
     expect(repository.watched, ['company-a', 'company-b']);
 
-    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: SizedBox.shrink(),
+      ),
+    );
     await tester.pump();
     expect(cubits.last.isClosed, isTrue);
     expect(repository.cancelled, contains('company-b'));
@@ -59,8 +65,9 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: CustomersRealtimeBoundary(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: CustomersRealtimeBoundary(
           currentCompanyContext: _context('company-a'),
           realtimeCubitFactory: () => cubit,
           child: const SizedBox.shrink(),
@@ -69,7 +76,12 @@ void main() {
     );
     expect(repository.watched, ['company-a']);
 
-    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: SizedBox.shrink(),
+      ),
+    );
     await tester.pump();
 
     expect(repository.cancelled, ['company-a']);

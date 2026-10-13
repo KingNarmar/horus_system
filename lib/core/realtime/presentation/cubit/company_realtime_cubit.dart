@@ -89,12 +89,16 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
   @override
   Future<void> close() async {
     ++_watchGeneration;
+    // Stop emitting immediately, without waiting on remote channel cleanup.
+    Future<void>? cancellation;
     try {
-      await _subscription?.cancel();
+      cancellation = _subscription?.cancel().onError((Object _, StackTrace _) {
+        AppLogger.debug('realtime_channel_cleanup_failed');
+      });
     } catch (_) {
-      // Logout must complete even if server-side channel removal fails.
       AppLogger.debug('realtime_channel_cleanup_failed');
     }
     await super.close();
+    await cancellation;
   }
 }
