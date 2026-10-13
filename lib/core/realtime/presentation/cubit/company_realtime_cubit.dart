@@ -23,7 +23,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
     final previousSubscription = _subscription;
     if (previousSubscription != null) {
       unawaited(
-        previousSubscription.cancel().onError((Object _, StackTrace __) {
+        previousSubscription.cancel().onError((Object _, StackTrace _) {
           if (isClosed || generation != _watchGeneration) return;
           emit(
             CompanyRealtimeState(
