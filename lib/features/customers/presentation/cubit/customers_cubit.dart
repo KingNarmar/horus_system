@@ -226,6 +226,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(
       success: _upsertCustomer,
       failure: (failure) => emit(CustomersFailure(failure)),
@@ -263,6 +264,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(
       success: _upsertCustomer,
       failure: (failure) => emit(CustomersFailure(failure)),
@@ -282,6 +284,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
@@ -298,6 +301,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
@@ -318,9 +322,23 @@ class CustomersCubit extends Cubit<CustomersState> {
     emit(CustomersFailure(failure));
   }
 
+  bool _isCurrentMutationContext(CurrentCompanyContext expected) {
+    final current = _currentCompanyContext;
+    return !isClosed &&
+        current?.companyId == expected.companyId &&
+        current?.role == expected.role;
+  }
+
   void _upsertCustomer(Customer customer) {
     final currentState = state;
     final currentCompanyContext = _currentCompanyContext;
+    if (isClosed || customer.companyId != currentCompanyContext?.companyId) {
+      return;
+    }
+    if (currentState is CustomersLoaded &&
+        currentState.currentCompanyContext.companyId != customer.companyId) {
+      return;
+    }
 
     if (currentState is! CustomersLoaded) {
       if (currentCompanyContext != null) loadCustomers(currentCompanyContext);
