@@ -554,6 +554,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get customerDetailsUnavailable =>
+      'Customer details are no longer available.';
+
+  @override
   String get customerAuditActionCreated => 'Created';
 
   @override

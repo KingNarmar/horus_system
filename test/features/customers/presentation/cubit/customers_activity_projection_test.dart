@@ -234,6 +234,42 @@ void main() {
     },
   );
 
+  test('authoritative omission removes selected customer and audit', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    final pending = cubit.loadCustomerActivity(_entity());
+    audit.requests.single.complete(Success([_log()]));
+    await pending;
+    expect((cubit.state as CustomersLoaded).selectedCustomer, isNotNull);
+
+    customers.rows = [];
+    await cubit.refreshCustomers(_context());
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.allCustomers, isEmpty);
+    expect(state.selectedCustomer, isNull);
+    expect(state.selectedCustomerActivity, isEmpty);
+    expect(state.selectedCustomerActivityTimestampsByLogId, isEmpty);
+    expect(state.isActivityLoading, isFalse);
+    expect(state.activityFailure, isNull);
+  });
+
+  test('late audit response cannot restore removed customer', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    final pending = cubit.loadCustomerActivity(_entity());
+
+    customers.rows = [];
+    await cubit.refreshCustomers(_context());
+    audit.requests.single.complete(Success([_log()]));
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.selectedCustomer, isNull);
+    expect(state.selectedCustomerActivity, isEmpty);
+    expect(state.selectedCustomerActivityTimestampsByLogId, isEmpty);
+  });
+
   test('authorization denial removes cached customer records', () async {
     customers.rows = [_entity()];
     await cubit.loadCustomers(_context());

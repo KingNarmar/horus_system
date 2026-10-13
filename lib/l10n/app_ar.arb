@@ -179,6 +179,7 @@
   "customerSearchHintShort": "ابحث في العملاء",
   "customerDetailsTitle": "تفاصيل {name}",
   "@customerDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "customerDetailsUnavailable": "لم تعد تفاصيل هذا العميل متاحة.",
   "customerAuditActionCreated": "تم الإنشاء",
   "customerAuditActionUpdated": "تم التعديل",
   "customerAuditActionDeactivated": "تم التعطيل",

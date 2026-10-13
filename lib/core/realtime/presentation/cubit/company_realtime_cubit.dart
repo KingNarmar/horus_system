@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../errors/common_failures.dart';
 import '../../../errors/failure_codes.dart';
+import '../../../logging/app_logger.dart';
 import '../../domain/entities/company_data_change.dart';
 import '../../domain/usecases/watch_company_data_changes_usecase.dart';
 import 'company_realtime_state.dart';
@@ -19,7 +20,23 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
 
   void watchCompany(String companyId) {
     final generation = ++_watchGeneration;
-    unawaited(_subscription?.cancel());
+    final previousSubscription = _subscription;
+    if (previousSubscription != null) {
+      unawaited(
+        previousSubscription.cancel().onError((Object _, StackTrace __) {
+          if (isClosed || generation != _watchGeneration) return;
+          emit(
+            CompanyRealtimeState(
+              companyId: companyId,
+              customersRevision: state.customersRevision,
+              failure: const NetworkFailure(
+                code: FailureCodes.realtimeSubscriptionUnavailable,
+              ),
+            ),
+          );
+        }),
+      );
+    }
     emit(CompanyRealtimeState(companyId: companyId));
 
     _subscription =
@@ -72,7 +89,12 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
   @override
   Future<void> close() async {
     ++_watchGeneration;
-    await _subscription?.cancel();
+    try {
+      await _subscription?.cancel();
+    } catch (_) {
+      // Logout must complete even if server-side channel removal fails.
+      AppLogger.debug('realtime_channel_cleanup_failed');
+    }
     await super.close();
   }
 }

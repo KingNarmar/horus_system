@@ -439,8 +439,8 @@ class CustomersCubit extends Cubit<CustomersState> {
     }
 
     final customers = result.dataOrNull ?? const <Customer>[];
-    Customer? selectedCustomer = latest.selectedCustomer;
-    final selectedCustomerId = selectedCustomer?.id;
+    final selectedCustomerId = latest.selectedCustomer?.id;
+    Customer? selectedCustomer;
     if (selectedCustomerId != null) {
       for (final item in customers) {
         if (item.id == selectedCustomerId) {
@@ -450,10 +450,24 @@ class CustomersCubit extends Cubit<CustomersState> {
       }
     }
 
+    // Authoritative omission includes rows hidden by a changed RLS policy.
+    // Do not retain details, activity or pending projections for such rows.
+    final selectionRemoved =
+        selectedCustomerId != null && selectedCustomer == null;
+    if (selectionRemoved) ++_activityRequestId;
+
     emit(
       latest.copyWith(
         allCustomers: customers,
         selectedCustomer: selectedCustomer,
+        selectedCustomerActivity: selectionRemoved
+            ? const []
+            : latest.selectedCustomerActivity,
+        selectedCustomerActivityTimestampsByLogId: selectionRemoved
+            ? const {}
+            : latest.selectedCustomerActivityTimestampsByLogId,
+        isActivityLoading: selectionRemoved ? false : latest.isActivityLoading,
+        activityFailure: selectionRemoved ? null : latest.activityFailure,
         refreshFailure: null,
       ),
     );

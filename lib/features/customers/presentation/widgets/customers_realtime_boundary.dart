@@ -16,10 +16,12 @@ import '../cubit/customers_cubit.dart';
 final class CustomersRealtimeBoundary extends StatelessWidget {
   final CurrentCompanyContext currentCompanyContext;
   final Widget child;
+  final CompanyRealtimeCubit Function()? realtimeCubitFactory;
 
   const CustomersRealtimeBoundary({
     required this.currentCompanyContext,
     required this.child,
+    this.realtimeCubitFactory,
     super.key,
   });
 
@@ -36,7 +38,7 @@ final class CustomersRealtimeBoundary extends StatelessWidget {
         '${currentCompanyContext.companyId}:${currentCompanyContext.role.name}',
       ),
       create: (_) =>
-          RealtimeDependencies.createCubit()
+          (realtimeCubitFactory ?? RealtimeDependencies.createCubit)()
             ..watchCompany(currentCompanyContext.companyId),
       child: MultiBlocListener(
         listeners: [

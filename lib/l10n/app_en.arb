@@ -175,6 +175,7 @@
   "customerSearchHintShort": "Search customers",
   "customerDetailsTitle": "Customer details: {name}",
   "@customerDetailsTitle": {"placeholders": {"name": {"type": "String"}}},
+  "customerDetailsUnavailable": "Customer details are no longer available.",
   "customerAuditActionCreated": "Created",
   "customerAuditActionUpdated": "Updated",
   "customerAuditActionDeactivated": "Deactivated",

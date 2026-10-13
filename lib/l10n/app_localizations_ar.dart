@@ -549,6 +549,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get customerDetailsUnavailable => 'لم تعد تفاصيل هذا العميل متاحة.';
+
+  @override
   String get customerAuditActionCreated => 'تم الإنشاء';
 
   @override

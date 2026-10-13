@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 
 import '../constants/realtime_topics.dart';
 import '../mappers/customers_change_message_decoder.dart';
 import '../models/realtime_change_signal.dart';
+import 'realtime_channel_gateway.dart';
 
 abstract interface class CompanyDataChangesRemoteDataSource {
   Stream<RealtimeChangeSignal> watchCustomers({required String companyId});
@@ -12,14 +13,18 @@ abstract interface class CompanyDataChangesRemoteDataSource {
 
 final class SupabaseCompanyDataChangesRemoteDataSource
     implements CompanyDataChangesRemoteDataSource {
-  final SupabaseClient _client;
+  final RealtimeChannelGateway _gateway;
 
-  const SupabaseCompanyDataChangesRemoteDataSource(this._client);
+  SupabaseCompanyDataChangesRemoteDataSource(SupabaseClient client)
+    : _gateway = SupabaseRealtimeChannelGateway(client);
+
+  /// Injectable transport allows deterministic teardown and reconnect tests.
+  const SupabaseCompanyDataChangesRemoteDataSource.withGateway(this._gateway);
 
   @override
   Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) {
     late final StreamController<RealtimeChangeSignal> controller;
-    RealtimeChannel? channel;
+    RealtimeChannelHandle? channel;
     var disposed = false;
 
     void addSignal(RealtimeChangeSignal signal) {
@@ -30,43 +35,35 @@ final class SupabaseCompanyDataChangesRemoteDataSource
 
     Future<void> connect() async {
       try {
-        final token = _client.auth.currentSession?.accessToken;
+        final token = _gateway.accessToken;
         if (token == null) {
           addSignal(RealtimeChangeSignal.unavailable);
           return;
         }
 
-        await _client.realtime.setAuth(token);
+        await _gateway.authenticate(token);
         if (disposed) return;
 
-        final activeChannel = _client.channel(
-          RealtimeTopics.customers(companyId),
-          opts: const RealtimeChannelConfig(private: true),
+        channel = _gateway.subscribe(
+          topic: RealtimeTopics.customers(companyId),
+          event: RealtimeTopics.customersChangedEvent,
+          onMessage: (payload) {
+            if (CustomersChangeMessageDecoder.isForCompany(
+              payload,
+              companyId: companyId,
+            )) {
+              addSignal(RealtimeChangeSignal.changed);
+            }
+          },
+          onStatus: (status) {
+            if (status == RealtimeChannelJoinStatus.subscribed) {
+              // Includes SDK rejoin: fetch authoritative state after missed work.
+              addSignal(RealtimeChangeSignal.subscribed);
+            } else if (status == RealtimeChannelJoinStatus.unavailable) {
+              addSignal(RealtimeChangeSignal.unavailable);
+            }
+          },
         );
-        channel = activeChannel;
-
-        activeChannel
-            .onBroadcast(
-              event: RealtimeTopics.customersChangedEvent,
-              callback: (payload) {
-                if (!CustomersChangeMessageDecoder.isForCompany(
-                  payload,
-                  companyId: companyId,
-                )) {
-                  return;
-                }
-                addSignal(RealtimeChangeSignal.changed);
-              },
-            )
-            .subscribe((status, _) {
-              if (status == RealtimeSubscribeStatus.subscribed) {
-                // A join (including resubscription) must reconcile missed work.
-                addSignal(RealtimeChangeSignal.subscribed);
-              } else if (status == RealtimeSubscribeStatus.channelError ||
-                  status == RealtimeSubscribeStatus.timedOut) {
-                addSignal(RealtimeChangeSignal.unavailable);
-              }
-            });
       } catch (_) {
         addSignal(RealtimeChangeSignal.unavailable);
       }
@@ -78,7 +75,7 @@ final class SupabaseCompanyDataChangesRemoteDataSource
         disposed = true;
         final activeChannel = channel;
         if (activeChannel != null) {
-          await _client.removeChannel(activeChannel);
+          await _gateway.remove(activeChannel);
         }
       },
     );

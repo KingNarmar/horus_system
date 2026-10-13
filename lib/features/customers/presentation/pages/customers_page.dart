@@ -83,13 +83,14 @@ class _CustomersPageState extends State<CustomersPage> {
       context: context,
       builder: (_) => BlocBuilder<CustomersCubit, CustomersState>(
         builder: (context, state) {
+          final loaded = state is CustomersLoaded ? state : null;
+          final selected = loaded?.selectedCustomer;
           return CustomerDetailsDialog(
-            customer:
-                state is CustomersLoaded &&
-                    state.selectedCustomer?.id == customer.id
-                ? state.selectedCustomer!
-                : customer,
-            state: state is CustomersLoaded ? state : null,
+            customer: selected?.id == customer.id &&
+                    loaded?.currentCompanyContext.companyId == customer.companyId
+                ? selected
+                : null,
+            state: loaded,
           );
         },
       ),

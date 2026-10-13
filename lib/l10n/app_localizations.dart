@@ -1070,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'Customer details: {name}'**
   String customerDetailsTitle(String name);
 
+  /// No description provided for @customerDetailsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details are no longer available.'**
+  String get customerDetailsUnavailable;
+
   /// No description provided for @customerAuditActionCreated.
   ///
   /// In en, this message translates to:
