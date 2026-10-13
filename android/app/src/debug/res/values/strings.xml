@@ -1,0 +1,4 @@
+<resources>
+    <!-- Debug builds install alongside the store app and are clearly labeled. -->
+    <string name="app_name" translatable="false">H.O.R.U.S DEV</string>
+</resources>
