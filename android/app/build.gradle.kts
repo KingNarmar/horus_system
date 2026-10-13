@@ -59,6 +59,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Isolate Development smoke builds from the store-installed app.
+            applicationIdSuffix = ".dev"
+        }
+
         release {
             if (signingPropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
