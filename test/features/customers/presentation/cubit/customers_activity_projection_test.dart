@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -232,6 +234,57 @@ void main() {
     },
   );
 
+  test('ignores stale Customer write after a company switch', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.deferredUpdate = Completer<Result<Customer>>();
+
+    final pending = cubit.updateCustomer(
+      customer: _entity(),
+      name: 'Changed in company A',
+    );
+
+    customers.rows = [
+      Customer(id: 'other', companyId: 'company-2', name: 'Company B'),
+    ];
+    await cubit.loadCustomers(_context(companyId: 'company-2'));
+
+    customers.deferredUpdate!.complete(
+      Success(
+        Customer(id: 'entity-1', companyId: 'company-1', name: 'Stale A'),
+      ),
+    );
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.currentCompanyContext.companyId, 'company-2');
+    expect(state.allCustomers, hasLength(1));
+    expect(state.allCustomers.single.companyId, 'company-2');
+    expect(state.allCustomers.single.name, 'Company B');
+  });
+
+  test('ignores stale mutation failure after a company switch', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.deferredUpdate = Completer<Result<Customer>>();
+
+    final pending = cubit.updateCustomer(
+      customer: _entity(),
+      name: 'Changed in company A',
+    );
+
+    customers.rows = [];
+    await cubit.loadCustomers(_context(companyId: 'company-2'));
+    customers.deferredUpdate!.complete(
+      const FailureResult(ServerFailure(code: FailureCodes.serverError)),
+    );
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.currentCompanyContext.companyId, 'company-2');
+    expect(state.allCustomers, isEmpty);
+  });
+
   test(
     'closing details during projection does not restore the old selection',
     () async {
@@ -280,6 +333,7 @@ AuditLog _log({String companyId = 'company-1', String id = 'log-1'}) =>
 final class _Repository implements CustomersRepository {
   List<Customer> rows = [];
   Result<List<Customer>>? readOverride;
+  Completer<Result<Customer>>? deferredUpdate;
   int getCalls = 0;
 
   @override
@@ -301,7 +355,7 @@ final class _Repository implements CustomersRepository {
     required String customerId,
     required CustomerWriteData data,
     required String actorRole,
-  }) => throw UnimplementedError();
+  }) => deferredUpdate?.future ?? Future.error(UnimplementedError());
 
   @override
   Future<Result<Customer>> deactivateCustomer({
