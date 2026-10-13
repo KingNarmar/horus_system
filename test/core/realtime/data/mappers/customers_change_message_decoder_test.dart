@@ -5,33 +5,24 @@ void main() {
   group('CustomersChangeMessageDecoder', () {
     test('accepts a server envelope for the active company', () {
       expect(
-        CustomersChangeMessageDecoder.isForCompany(
-          {
-            'event': 'changed',
-            'type': 'broadcast',
-            'payload': {
-              'company_id': 'company-a',
-              'resource': 'customers',
-              'id': 'server-signal-id',
-            },
+        CustomersChangeMessageDecoder.isForCompany({
+          'event': 'changed',
+          'type': 'broadcast',
+          'payload': {
+            'company_id': 'company-a',
+            'resource': 'customers',
+            'id': 'server-signal-id',
           },
-          companyId: 'company-a',
-        ),
+        }, companyId: 'company-a'),
         isTrue,
       );
     });
 
     test('rejects a message targeting a different company', () {
       expect(
-        CustomersChangeMessageDecoder.isForCompany(
-          {
-            'payload': {
-              'company_id': 'company-b',
-              'resource': 'customers',
-            },
-          },
-          companyId: 'company-a',
-        ),
+        CustomersChangeMessageDecoder.isForCompany({
+          'payload': {'company_id': 'company-b', 'resource': 'customers'},
+        }, companyId: 'company-a'),
         isFalse,
       );
     });
