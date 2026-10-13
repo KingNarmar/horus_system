@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
@@ -428,7 +429,12 @@ class CustomersCubit extends Cubit<CustomersState> {
 
     final failure = result.failureOrNull;
     if (failure != null) {
-      emit(latest.copyWith(refreshFailure: failure));
+      if (failure is PermissionFailure || failure is AuthFailure) {
+        // Never retain stale tenant data after authorization is denied.
+        emit(CustomersFailure(failure));
+      } else {
+        emit(latest.copyWith(refreshFailure: failure));
+      }
       return;
     }
 
