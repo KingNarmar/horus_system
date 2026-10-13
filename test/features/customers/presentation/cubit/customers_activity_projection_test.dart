@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -12,6 +14,7 @@ import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/customers/domain/entities/customer.dart';
+import 'package:horus_system/features/customers/domain/entities/customer_status_filter.dart';
 import 'package:horus_system/features/customers/domain/entities/customer_write_data.dart';
 import 'package:horus_system/features/customers/domain/repositories/customers_repository.dart';
 import 'package:horus_system/features/customers/domain/usecases/add_customer_usecase.dart';
@@ -30,17 +33,18 @@ void main() {
   late DeferredActivityRepository audit;
   late RecordingActivityConverter converter;
   late CustomersCubit cubit;
+  late _Repository customers;
   setUp(() {
     audit = DeferredActivityRepository();
     converter = RecordingActivityConverter();
-    final repository = _Repository();
+    customers = _Repository();
     cubit = CustomersCubit(
-      getCustomersUseCase: GetCustomersUseCase(repository),
+      getCustomersUseCase: GetCustomersUseCase(customers),
       canManageCustomersUseCase: const CanManageCustomersUseCase(),
-      addCustomerUseCase: AddCustomerUseCase(repository),
-      updateCustomerUseCase: UpdateCustomerUseCase(repository),
-      deactivateCustomerUseCase: DeactivateCustomerUseCase(repository),
-      reactivateCustomerUseCase: ReactivateCustomerUseCase(repository),
+      addCustomerUseCase: AddCustomerUseCase(customers),
+      updateCustomerUseCase: UpdateCustomerUseCase(customers),
+      deactivateCustomerUseCase: DeactivateCustomerUseCase(customers),
+      reactivateCustomerUseCase: ReactivateCustomerUseCase(customers),
       getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(audit),
       convertInstantsToBusinessLocalDateTimesUseCase:
           ConvertInstantsToBusinessLocalDateTimesUseCase(converter),
@@ -187,6 +191,153 @@ void main() {
   });
 
   test(
+    'realtime refresh keeps search and status filter while replacing rows',
+    () async {
+      customers.rows = [_entity()];
+      await cubit.loadCustomers(_context());
+      cubit.setSearchQuery('Customer');
+      cubit.setStatusFilter(CustomerStatusFilter.all);
+
+      customers.rows = [
+        Customer(
+          id: 'entity-1',
+          companyId: 'company-1',
+          name: 'Customer Updated',
+        ),
+      ];
+      await cubit.refreshCustomers(_context());
+
+      final state = cubit.state as CustomersLoaded;
+      expect(state.allCustomers.single.name, 'Customer Updated');
+      expect(state.searchQuery, 'Customer');
+      expect(state.statusFilter, CustomerStatusFilter.all);
+      expect(state.refreshFailure, isNull);
+      expect(customers.getCalls, 2);
+    },
+  );
+
+  test(
+    'failed realtime refresh retains rows with typed retry failure',
+    () async {
+      customers.rows = [_entity()];
+      await cubit.loadCustomers(_context());
+      customers.readOverride = const FailureResult(
+        ServerFailure(code: FailureCodes.serverError),
+      );
+
+      await cubit.refreshCustomers(_context());
+
+      final state = cubit.state as CustomersLoaded;
+      expect(state.allCustomers.single.id, 'entity-1');
+      expect(state.refreshFailure?.code, FailureCodes.serverError);
+      expect(customers.getCalls, 2);
+    },
+  );
+
+  test('authoritative omission removes selected customer and audit', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    final pending = cubit.loadCustomerActivity(_entity());
+    audit.requests.single.complete(Success([_log()]));
+    await pending;
+    expect((cubit.state as CustomersLoaded).selectedCustomer, isNotNull);
+
+    customers.rows = [];
+    await cubit.refreshCustomers(_context());
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.allCustomers, isEmpty);
+    expect(state.selectedCustomer, isNull);
+    expect(state.selectedCustomerActivity, isEmpty);
+    expect(state.selectedCustomerActivityTimestampsByLogId, isEmpty);
+    expect(state.isActivityLoading, isFalse);
+    expect(state.activityFailure, isNull);
+  });
+
+  test('late audit response cannot restore removed customer', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    final pending = cubit.loadCustomerActivity(_entity());
+
+    customers.rows = [];
+    await cubit.refreshCustomers(_context());
+    audit.requests.single.complete(Success([_log()]));
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.selectedCustomer, isNull);
+    expect(state.selectedCustomerActivity, isEmpty);
+    expect(state.selectedCustomerActivityTimestampsByLogId, isEmpty);
+  });
+
+  test('authorization denial removes cached customer records', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.readOverride = const FailureResult(
+      PermissionFailure(code: FailureCodes.permissionCustomersView),
+    );
+
+    await cubit.refreshCustomers(_context());
+
+    expect(cubit.state, isA<CustomersFailure>());
+    expect(
+      (cubit.state as CustomersFailure).failure.code,
+      FailureCodes.permissionCustomersView,
+    );
+  });
+
+  test('ignores stale Customer write after a company switch', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.deferredUpdate = Completer<Result<Customer>>();
+
+    final pending = cubit.updateCustomer(
+      customer: _entity(),
+      name: 'Changed in company A',
+    );
+
+    customers.rows = [
+      Customer(id: 'other', companyId: 'company-2', name: 'Company B'),
+    ];
+    await cubit.loadCustomers(_context(companyId: 'company-2'));
+
+    customers.deferredUpdate!.complete(
+      Success(
+        Customer(id: 'entity-1', companyId: 'company-1', name: 'Stale A'),
+      ),
+    );
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.currentCompanyContext.companyId, 'company-2');
+    expect(state.allCustomers, hasLength(1));
+    expect(state.allCustomers.single.companyId, 'company-2');
+    expect(state.allCustomers.single.name, 'Company B');
+  });
+
+  test('ignores stale mutation failure after a company switch', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.deferredUpdate = Completer<Result<Customer>>();
+
+    final pending = cubit.updateCustomer(
+      customer: _entity(),
+      name: 'Changed in company A',
+    );
+
+    customers.rows = [];
+    await cubit.loadCustomers(_context(companyId: 'company-2'));
+    customers.deferredUpdate!.complete(
+      const FailureResult(ServerFailure(code: FailureCodes.serverError)),
+    );
+    await pending;
+
+    final state = cubit.state as CustomersLoaded;
+    expect(state.currentCompanyContext.companyId, 'company-2');
+    expect(state.allCustomers, isEmpty);
+  });
+
+  test(
     'closing details during projection does not restore the old selection',
     () async {
       await cubit.loadCustomers(_context());
@@ -232,10 +383,18 @@ AuditLog _log({String companyId = 'company-1', String id = 'log-1'}) =>
     );
 
 final class _Repository implements CustomersRepository {
+  List<Customer> rows = [];
+  Result<List<Customer>>? readOverride;
+  Completer<Result<Customer>>? deferredUpdate;
+  int getCalls = 0;
+
   @override
   Future<Result<List<Customer>>> getCustomers({
     required String companyId,
-  }) async => const Success([]);
+  }) async {
+    getCalls++;
+    return readOverride ?? Success(rows);
+  }
 
   @override
   Future<Result<Customer>> addCustomer({
@@ -248,7 +407,7 @@ final class _Repository implements CustomersRepository {
     required String customerId,
     required CustomerWriteData data,
     required String actorRole,
-  }) => throw UnimplementedError();
+  }) => deferredUpdate?.future ?? Future.error(UnimplementedError());
 
   @override
   Future<Result<Customer>> deactivateCustomer({

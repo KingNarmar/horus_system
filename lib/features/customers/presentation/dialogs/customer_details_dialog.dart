@@ -16,7 +16,7 @@ import 'customer_detail_row.dart';
 import 'customer_details_section.dart';
 
 class CustomerDetailsDialog extends StatelessWidget {
-  final Customer customer;
+  final Customer? customer;
   final CustomersLoaded? state;
 
   const CustomerDetailsDialog({
@@ -28,6 +28,19 @@ class CustomerDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final customer = this.customer;
+    if (customer == null) {
+      return AlertDialog(
+        title: Text(l10n.customerDetailsUnavailable),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(AppIcons.clear),
+          ),
+        ],
+      );
+    }
+
     final activity = state?.selectedCustomer?.id == customer.id
         ? state!.selectedCustomerActivity
         : const <AuditLog>[];

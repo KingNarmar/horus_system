@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
@@ -29,6 +30,8 @@ class CustomersCubit extends Cubit<CustomersState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
   int _activityRequestId = 0;
   int _loadRequestId = 0;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -224,6 +227,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(
       success: _upsertCustomer,
       failure: (failure) => emit(CustomersFailure(failure)),
@@ -261,6 +265,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(
       success: _upsertCustomer,
       failure: (failure) => emit(CustomersFailure(failure)),
@@ -280,6 +285,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
@@ -296,6 +302,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
+    if (!_isCurrentMutationContext(currentCompanyContext)) return;
     result.when(success: _upsertCustomer, failure: _emitMutationFailure);
   }
 
@@ -316,9 +323,23 @@ class CustomersCubit extends Cubit<CustomersState> {
     emit(CustomersFailure(failure));
   }
 
+  bool _isCurrentMutationContext(CurrentCompanyContext expected) {
+    final current = _currentCompanyContext;
+    return !isClosed &&
+        current?.companyId == expected.companyId &&
+        current?.role == expected.role;
+  }
+
   void _upsertCustomer(Customer customer) {
     final currentState = state;
     final currentCompanyContext = _currentCompanyContext;
+    if (isClosed || customer.companyId != currentCompanyContext?.companyId) {
+      return;
+    }
+    if (currentState is CustomersLoaded &&
+        currentState.currentCompanyContext.companyId != customer.companyId) {
+      return;
+    }
 
     if (currentState is! CustomersLoaded) {
       if (currentCompanyContext != null) loadCustomers(currentCompanyContext);
@@ -349,6 +370,105 @@ class CustomersCubit extends Cubit<CustomersState> {
       currentState.copyWith(
         allCustomers: updatedCustomers,
         pendingActionCustomerId: null,
+      ),
+    );
+  }
+
+  /// Reloads changed records without resetting the user's search and filters.
+  /// Coalesces simultaneous server signals into at most one follow-up read.
+  Future<void> refreshCustomers(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
+    if (_isRealtimeRefreshing) {
+      if (_currentCompanyContext?.companyId ==
+          currentCompanyContext.companyId) {
+        _realtimeRefreshPending = true;
+      }
+      return;
+    }
+
+    _isRealtimeRefreshing = true;
+    try {
+      do {
+        _realtimeRefreshPending = false;
+        await _refreshCustomersOnce(currentCompanyContext);
+      } while (_realtimeRefreshPending &&
+          !isClosed &&
+          _currentCompanyContext?.companyId == currentCompanyContext.companyId);
+    } finally {
+      _isRealtimeRefreshing = false;
+    }
+  }
+
+  Future<void> _refreshCustomersOnce(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
+    if (isClosed ||
+        _currentCompanyContext?.companyId != currentCompanyContext.companyId) {
+      return;
+    }
+
+    final previous = state;
+    if (previous is! CustomersLoaded) {
+      await loadCustomers(currentCompanyContext);
+      return;
+    }
+
+    final requestId = ++_loadRequestId;
+    final result = await getCustomersUseCase(
+      GetCustomersParams(currentCompanyContext: currentCompanyContext),
+    );
+
+    if (isClosed || requestId != _loadRequestId) return;
+    final latest = state;
+    if (latest is! CustomersLoaded ||
+        latest.currentCompanyContext.companyId !=
+            currentCompanyContext.companyId) {
+      return;
+    }
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      if (failure is PermissionFailure || failure is AuthFailure) {
+        // Never retain stale tenant data after authorization is denied.
+        emit(CustomersFailure(failure));
+      } else {
+        emit(latest.copyWith(refreshFailure: failure));
+      }
+      return;
+    }
+
+    final customers = result.dataOrNull ?? const <Customer>[];
+    final selectedCustomerId = latest.selectedCustomer?.id;
+    Customer? selectedCustomer;
+    if (selectedCustomerId != null) {
+      for (final item in customers) {
+        if (item.id == selectedCustomerId) {
+          selectedCustomer = item;
+          break;
+        }
+      }
+    }
+
+    // Authoritative omission includes rows hidden by a changed RLS policy.
+    // Do not retain details, activity or pending projections for such rows.
+    final selectionRemoved =
+        selectedCustomerId != null && selectedCustomer == null;
+    if (selectionRemoved) ++_activityRequestId;
+
+    emit(
+      latest.copyWith(
+        allCustomers: customers,
+        selectedCustomer: selectedCustomer,
+        selectedCustomerActivity: selectionRemoved
+            ? const []
+            : latest.selectedCustomerActivity,
+        selectedCustomerActivityTimestampsByLogId: selectionRemoved
+            ? const {}
+            : latest.selectedCustomerActivityTimestampsByLogId,
+        isActivityLoading: selectionRemoved ? false : latest.isActivityLoading,
+        activityFailure: selectionRemoved ? null : latest.activityFailure,
+        refreshFailure: null,
       ),
     );
   }

@@ -26,6 +26,7 @@ import '../../../company/presentation/extensions/company_role_localization.dart'
 import '../../../company/presentation/widgets/company_financial_settings_card.dart';
 import '../../../company/presentation/widgets/company_timezone_settings_card.dart';
 import '../../../customers/presentation/cubit/customers_cubit.dart';
+import '../../../customers/presentation/widgets/customers_realtime_boundary.dart';
 import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../dashboard/di/dashboard_dependencies.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
@@ -104,10 +105,13 @@ class AppShellContent extends StatelessWidget {
           child: DashboardPage(currentCompanyContext: contextData),
         ),
       ),
-      AppShellModule.customers => _ReconnectAware(
-        onReconnect: (context) =>
-            context.read<CustomersCubit>().loadCustomers(contextData),
-        child: CustomersPage(currentCompanyContext: contextData),
+      AppShellModule.customers => CustomersRealtimeBoundary(
+        currentCompanyContext: contextData,
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<CustomersCubit>().loadCustomers(contextData),
+          child: CustomersPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.drivers => _ReconnectAware(
         onReconnect: (context) =>

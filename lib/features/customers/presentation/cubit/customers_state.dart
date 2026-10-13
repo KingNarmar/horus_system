@@ -32,6 +32,7 @@ class CustomersLoaded extends CustomersState {
   selectedCustomerActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? refreshFailure;
 
   const CustomersLoaded({
     required this.currentCompanyContext,
@@ -45,6 +46,7 @@ class CustomersLoaded extends CustomersState {
     this.selectedCustomerActivityTimestampsByLogId = const {},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.refreshFailure,
   });
 
   List<Customer> get customers {
@@ -84,6 +86,7 @@ class CustomersLoaded extends CustomersState {
     selectedCustomerActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? refreshFailure = _notSet,
   }) {
     return CustomersLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -106,6 +109,9 @@ class CustomersLoaded extends CustomersState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      refreshFailure: refreshFailure == _notSet
+          ? this.refreshFailure
+          : refreshFailure as Failure?,
     );
   }
 }

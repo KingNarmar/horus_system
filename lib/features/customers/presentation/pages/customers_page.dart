@@ -28,6 +28,17 @@ class _CustomersPageState extends State<CustomersPage> {
     context.read<CustomersCubit>().loadCustomers(widget.currentCompanyContext);
   }
 
+  @override
+  void didUpdateWidget(covariant CustomersPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final previous = oldWidget.currentCompanyContext;
+    final current = widget.currentCompanyContext;
+    if (previous.companyId != current.companyId ||
+        previous.role != current.role) {
+      context.read<CustomersCubit>().loadCustomers(current);
+    }
+  }
+
   Future<void> _openCustomerForm({Customer? customer}) async {
     await showDialog<void>(
       context: context,
@@ -72,9 +83,16 @@ class _CustomersPageState extends State<CustomersPage> {
       context: context,
       builder: (_) => BlocBuilder<CustomersCubit, CustomersState>(
         builder: (context, state) {
+          final loaded = state is CustomersLoaded ? state : null;
+          final selected = loaded?.selectedCustomer;
           return CustomerDetailsDialog(
-            customer: customer,
-            state: state is CustomersLoaded ? state : null,
+            customer:
+                selected?.id == customer.id &&
+                    loaded?.currentCompanyContext.companyId ==
+                        customer.companyId
+                ? selected
+                : null,
+            state: loaded,
           );
         },
       ),
@@ -110,6 +128,21 @@ class _CustomersPageState extends State<CustomersPage> {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
+            if (state is CustomersLoaded && state.refreshFailure != null) ...[
+              MaterialBanner(
+                content: Text(
+                  l10n.localizedErrorMessage(state.refreshFailure!),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () =>
+                        cubit.refreshCustomers(widget.currentCompanyContext),
+                    child: Text(l10n.networkRetryButton),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             CustomersStateView(
               state: state,
               onRetry: () => cubit.loadCustomers(widget.currentCompanyContext),

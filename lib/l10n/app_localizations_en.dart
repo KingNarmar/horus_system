@@ -51,6 +51,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Internet connection status could not be verified.';
 
   @override
+  String get failureRealtimeSubscriptionUnavailable =>
+      'Live updates are temporarily unavailable. You can retry or reopen this page to refresh.';
+
+  @override
   String get bootstrapFailureTitle => 'H.O.R.U.S could not start';
 
   @override
@@ -548,6 +552,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String customerDetailsTitle(String name) {
     return 'Customer details: $name';
   }
+
+  @override
+  String get customerDetailsUnavailable =>
+      'Customer details are no longer available.';
 
   @override
   String get customerAuditActionCreated => 'Created';
