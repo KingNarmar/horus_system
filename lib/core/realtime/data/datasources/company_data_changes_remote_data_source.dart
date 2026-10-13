@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/realtime_topics.dart';
+import '../mappers/customers_change_message_decoder.dart';
 import '../models/realtime_change_signal.dart';
 
 abstract interface class CompanyDataChangesRemoteDataSource {
@@ -48,10 +49,10 @@ final class SupabaseCompanyDataChangesRemoteDataSource
             .onBroadcast(
               event: RealtimeTopics.customersChangedEvent,
               callback: (payload) {
-                final body = payload['payload'];
-                if (body is! Map ||
-                    body['company_id'] != companyId ||
-                    body['resource'] != RealtimeTopics.customersResource) {
+                if (!CustomersChangeMessageDecoder.isForCompany(
+                  payload,
+                  companyId: companyId,
+                )) {
                   return;
                 }
                 addSignal(RealtimeChangeSignal.changed);
