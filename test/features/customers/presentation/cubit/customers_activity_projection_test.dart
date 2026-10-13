@@ -234,6 +234,22 @@ void main() {
     },
   );
 
+  test('authorization denial removes cached customer records', () async {
+    customers.rows = [_entity()];
+    await cubit.loadCustomers(_context());
+    customers.readOverride = const FailureResult(
+      PermissionFailure(code: FailureCodes.permissionCustomersView),
+    );
+
+    await cubit.refreshCustomers(_context());
+
+    expect(cubit.state, isA<CustomersFailure>());
+    expect(
+      (cubit.state as CustomersFailure).failure.code,
+      FailureCodes.permissionCustomersView,
+    );
+  });
+
   test('ignores stale Customer write after a company switch', () async {
     customers.rows = [_entity()];
     await cubit.loadCustomers(_context());
