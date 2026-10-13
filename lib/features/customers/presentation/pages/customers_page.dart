@@ -86,8 +86,10 @@ class _CustomersPageState extends State<CustomersPage> {
           final loaded = state is CustomersLoaded ? state : null;
           final selected = loaded?.selectedCustomer;
           return CustomerDetailsDialog(
-            customer: selected?.id == customer.id &&
-                    loaded?.currentCompanyContext.companyId == customer.companyId
+            customer:
+                selected?.id == customer.id &&
+                    loaded?.currentCompanyContext.companyId ==
+                        customer.companyId
                 ? selected
                 : null,
             state: loaded,

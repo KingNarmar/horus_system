@@ -7,90 +7,99 @@ import 'package:horus_system/core/realtime/data/models/realtime_change_signal.da
 import 'package:test/test.dart';
 
 void main() {
-  test('private company subscription only accepts current-tenant changes', () async {
-    final gateway = _FakeGateway();
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
-      gateway,
-    );
-    final received = <RealtimeChangeSignal>[];
-    final subscription = source.watchCustomers(companyId: 'company-a').listen(
-      received.add,
-    );
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'private company subscription only accepts current-tenant changes',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchCustomers(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(gateway.authTokens, ['development-test-token']);
-    expect(gateway.channels, hasLength(1));
-    final channel = gateway.channels.single;
-    expect(channel.topic, RealtimeTopics.customers('company-a'));
-    expect(channel.event, RealtimeTopics.customersChangedEvent);
+      expect(gateway.authTokens, ['development-test-token']);
+      expect(gateway.channels, hasLength(1));
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.customers('company-a'));
+      expect(channel.event, RealtimeTopics.customersChangedEvent);
 
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-b', 'resource': 'customers'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'customers'},
-    });
-    await Future<void>.delayed(Duration.zero);
-    expect(received, [
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-b', 'resource': 'customers'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'customers'},
+      });
+      await Future<void>.delayed(Duration.zero);
+      expect(received, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
 
-    await subscription.cancel();
-    expect(gateway.removed, [channel]);
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'customers'},
-    });
-    await Future<void>.delayed(Duration.zero);
-    expect(received, hasLength(2));
-  });
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'customers'},
+      });
+      await Future<void>.delayed(Duration.zero);
+      expect(received, hasLength(2));
+    },
+  );
 
-  test('cancel before asynchronous authentication never opens channel', () async {
-    final gateway = _FakeGateway()..authBarrier = Completer<void>();
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
-      gateway,
-    );
-    final subscription = source.watchCustomers(companyId: 'company-a').listen(
-      (_) {},
-    );
-    await Future<void>.delayed(Duration.zero);
-    expect(gateway.authTokens, hasLength(1));
+  test(
+    'cancel before asynchronous authentication never opens channel',
+    () async {
+      final gateway = _FakeGateway()..authBarrier = Completer<void>();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final subscription = source
+          .watchCustomers(companyId: 'company-a')
+          .listen((_) {});
+      await Future<void>.delayed(Duration.zero);
+      expect(gateway.authTokens, hasLength(1));
 
-    await subscription.cancel();
-    gateway.authBarrier!.complete();
-    await Future<void>.delayed(Duration.zero);
-    expect(gateway.channels, isEmpty);
-    expect(gateway.removed, isEmpty);
-  });
+      await subscription.cancel();
+      gateway.authBarrier!.complete();
+      await Future<void>.delayed(Duration.zero);
+      expect(gateway.channels, isEmpty);
+      expect(gateway.removed, isEmpty);
+    },
+  );
 
-  test('SDK error then subscribed rejoin requests authoritative refresh', () async {
-    final gateway = _FakeGateway();
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
-      gateway,
-    );
-    final received = <RealtimeChangeSignal>[];
-    final subscription = source.watchCustomers(companyId: 'company-a').listen(
-      received.add,
-    );
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'SDK error then subscribed rejoin requests authoritative refresh',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchCustomers(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
 
-    final channel = gateway.channels.single;
-    channel.onStatus(RealtimeChannelJoinStatus.unavailable);
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'customers'},
-    });
-    await Future<void>.delayed(Duration.zero);
+      final channel = gateway.channels.single;
+      channel.onStatus(RealtimeChannelJoinStatus.unavailable);
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'customers'},
+      });
+      await Future<void>.delayed(Duration.zero);
 
-    expect(received, [
-      RealtimeChangeSignal.unavailable,
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
-    await subscription.cancel();
-  });
+      expect(received, [
+        RealtimeChangeSignal.unavailable,
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+    },
+  );
 
   test('unauthenticated session never subscribes', () async {
     final gateway = _FakeGateway()..accessToken = null;
@@ -102,19 +111,22 @@ void main() {
     expect(gateway.channels, isEmpty);
   });
 
-  test('channel removal failure is propagated, never silently discarded', () async {
-    final gateway = _FakeGateway()..failRemoval = true;
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
-      gateway,
-    );
-    final subscription = source.watchCustomers(companyId: 'company-a').listen(
-      (_) {},
-    );
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'channel removal failure is propagated, never silently discarded',
+    () async {
+      final gateway = _FakeGateway()..failRemoval = true;
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final subscription = source
+          .watchCustomers(companyId: 'company-a')
+          .listen((_) {});
+      await Future<void>.delayed(Duration.zero);
 
-    await expectLater(subscription.cancel(), throwsStateError);
-    expect(gateway.removed, hasLength(1));
-  });
+      await expectLater(subscription.cancel(), throwsStateError);
+      expect(gateway.removed, hasLength(1));
+    },
+  );
 }
 
 final class _FakeGateway implements RealtimeChannelGateway {
