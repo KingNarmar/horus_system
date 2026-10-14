@@ -388,13 +388,13 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
   }
 
   Future<void> deactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item.id, deactivateTractorHeadUseCase.call);
+      _changeTractorHeadActiveState(item, deactivateTractorHeadUseCase.call);
   Future<void> reactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item.id, reactivateTractorHeadUseCase.call);
+      _changeTractorHeadActiveState(item, reactivateTractorHeadUseCase.call);
   Future<void> deactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item.id, deactivateTrailerUseCase.call);
+      _changeTrailerActiveState(item, deactivateTrailerUseCase.call);
   Future<void> reactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item.id, reactivateTrailerUseCase.call);
+      _changeTrailerActiveState(item, reactivateTrailerUseCase.call);
 
   Future<void> refreshAssets() {
     final context = _currentCompanyContext;
@@ -402,15 +402,22 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
   }
 
   Future<void> _changeTractorHeadActiveState(
-    String id,
+    TractorHead item,
     Future<Result<TractorHead>> Function(FleetAssetStatusParams params) useCase,
   ) async {
     final context = _currentCompanyContext;
-    if (context == null || _isAssetActionRunning(id)) return;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        item.companyId != context.companyId ||
+        _isAssetActionRunning(item.id)) {
+      return;
+    }
+    final id = item.id;
     _setAssetActionRunning(id, true);
     final result = await useCase(
       FleetAssetStatusParams(currentCompanyContext: context, id: id),
     );
+    if (!_isCurrentFleetContext(context)) return;
     _setAssetActionRunning(id, false);
     result.when(
       success: _upsertTractorHead,
@@ -419,16 +426,23 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
   }
 
   Future<void> _changeTrailerActiveState(
-    String id,
+    TrailerEntity item,
     Future<Result<TrailerEntity>> Function(FleetAssetStatusParams params)
     useCase,
   ) async {
     final context = _currentCompanyContext;
-    if (context == null || _isAssetActionRunning(id)) return;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        item.companyId != context.companyId ||
+        _isAssetActionRunning(item.id)) {
+      return;
+    }
+    final id = item.id;
     _setAssetActionRunning(id, true);
     final result = await useCase(
       FleetAssetStatusParams(currentCompanyContext: context, id: id),
     );
+    if (!_isCurrentFleetContext(context)) return;
     _setAssetActionRunning(id, false);
     result.when(
       success: _upsertTrailer,
@@ -436,21 +450,51 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
     );
   }
 
-  void _upsertTractorHead(TractorHead item) => _mapLoaded(
-    (s) => s.copyWith(
-      allTractorHeads: _upsertById(
-        s.allTractorHeads,
-        item,
-        (current) => current.id,
+  void _upsertTractorHead(TractorHead item) {
+    final context = _currentCompanyContext;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        item.companyId != context.companyId) {
+      return;
+    }
+    _didApplyLocalAssetMutation();
+    if (state is! FleetLoaded) {
+      unawaited(loadFleet(context));
+      return;
+    }
+    _mapLoaded(
+      (loaded) => loaded.copyWith(
+        allTractorHeads: _upsertById(
+          loaded.allTractorHeads,
+          item,
+          (current) => current.id,
+        ),
       ),
-    ),
-  );
+    );
+  }
 
-  void _upsertTrailer(TrailerEntity item) => _mapLoaded(
-    (s) => s.copyWith(
-      allTrailers: _upsertById(s.allTrailers, item, (current) => current.id),
-    ),
-  );
+  void _upsertTrailer(TrailerEntity item) {
+    final context = _currentCompanyContext;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        item.companyId != context.companyId) {
+      return;
+    }
+    _didApplyLocalAssetMutation();
+    if (state is! FleetLoaded) {
+      unawaited(loadFleet(context));
+      return;
+    }
+    _mapLoaded(
+      (loaded) => loaded.copyWith(
+        allTrailers: _upsertById(
+          loaded.allTrailers,
+          item,
+          (current) => current.id,
+        ),
+      ),
+    );
+  }
 
   bool _isAssetActionRunning(String id) =>
       state is FleetLoaded && (state as FleetLoaded).isActiveStateChanging(id);
