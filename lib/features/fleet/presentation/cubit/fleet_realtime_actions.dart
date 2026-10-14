@@ -21,7 +21,10 @@ mixin FleetRealtimeActions on Cubit<FleetState> {
       return;
     }
 
-    if (state is! FleetLoaded) return;
+    if (state is! FleetLoaded) {
+      await owner.loadFleet(currentCompanyContext);
+      return;
+    }
 
     owner._isRealtimeRefreshing = true;
     try {

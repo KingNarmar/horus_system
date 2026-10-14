@@ -29,7 +29,8 @@ Future<void> _openTractorHeadDetails(
       ],
       child: BlocBuilder<FleetCubit, FleetState>(
         builder: (context, state) {
-          final current = _tractorHeadFromState(state, item);
+          final current = _tractorHeadFromState(state, item.id);
+          if (current == null) return _unavailableFleetDetailsDialog(context);
           return FleetDetailsDialog(
             assetId: current.id,
             plateNumber: current.plateNumber,
@@ -79,7 +80,8 @@ Future<void> _openTrailerDetails(
       ],
       child: BlocBuilder<FleetCubit, FleetState>(
         builder: (context, state) {
-          final current = _trailerFromState(state, item);
+          final current = _trailerFromState(state, item.id);
+          if (current == null) return _unavailableFleetDetailsDialog(context);
           return FleetDetailsDialog(
             assetId: current.id,
             plateNumber: current.plateNumber,
@@ -126,20 +128,27 @@ Future<void> _refreshTrailerDetails(FleetCubit cubit, String assetId) async {
   }
 }
 
-TractorHead _tractorHeadFromState(FleetState state, TractorHead fallback) {
-  if (state is FleetLoaded) {
-    for (final item in state.allTractorHeads) {
-      if (item.id == fallback.id) return item;
-    }
+/// Never render a stale captured asset when RLS removes or changes it.
+Widget _unavailableFleetDetailsDialog(BuildContext context) => Dialog(
+  child: IconButton(
+    onPressed: () => Navigator.of(context).pop(),
+    icon: const Icon(AppIcons.clear),
+    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+  ),
+);
+
+TractorHead? _tractorHeadFromState(FleetState state, String assetId) {
+  if (state is! FleetLoaded) return null;
+  for (final item in state.allTractorHeads) {
+    if (item.id == assetId) return item;
   }
-  return fallback;
+  return null;
 }
 
-TrailerEntity _trailerFromState(FleetState state, TrailerEntity fallback) {
-  if (state is FleetLoaded) {
-    for (final item in state.allTrailers) {
-      if (item.id == fallback.id) return item;
-    }
+TrailerEntity? _trailerFromState(FleetState state, String assetId) {
+  if (state is! FleetLoaded) return null;
+  for (final item in state.allTrailers) {
+    if (item.id == assetId) return item;
   }
-  return fallback;
+  return null;
 }

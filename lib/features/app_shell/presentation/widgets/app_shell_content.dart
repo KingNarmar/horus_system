@@ -41,6 +41,7 @@ import '../../../expense_types/presentation/pages/expense_types_page.dart';
 import '../../../fleet/presentation/cubit/fleet_cubit.dart';
 import '../../../fleet/presentation/cubit/fleet_license_documents_cubit.dart';
 import '../../../fleet/presentation/pages/fleet_page.dart';
+import '../../../fleet/presentation/widgets/fleet_realtime_boundary.dart';
 import '../../../payment_methods/di/payment_methods_dependencies.dart';
 import '../../../payment_methods/presentation/cubit/payment_methods_cubit.dart';
 import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
@@ -131,10 +132,14 @@ class AppShellContent extends StatelessWidget {
             create: (_) => FleetDependencies.createFleetLicenseDocumentsCubit(),
           ),
         ],
-        child: _ReconnectAware(
-          onReconnect: (context) =>
-              context.read<FleetCubit>().loadFleet(contextData),
-          child: FleetPage(currentCompanyContext: contextData),
+        child: FleetRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: _ReconnectAware(
+            onReconnect: (context) => context
+                .read<FleetCubit>()
+                .refreshFleetAssets(contextData),
+            child: FleetPage(currentCompanyContext: contextData),
+          ),
         ),
       ),
       AppShellModule.routes => BlocProvider<RoutesCubit>(
