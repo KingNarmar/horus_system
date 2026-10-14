@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
@@ -17,7 +19,9 @@ import '../../domain/entities/vehicle_status_filter.dart';
 import '../../domain/usecases/fleet_usecases.dart';
 import 'fleet_state.dart';
 
-class FleetCubit extends Cubit<FleetState> {
+part 'fleet_realtime_actions.dart';
+
+class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
   final GetTractorHeadsUseCase getTractorHeadsUseCase;
   final GetTrailersUseCase getTrailersUseCase;
   final CanManageFleetUseCase canManageFleetUseCase;
@@ -32,6 +36,11 @@ class FleetCubit extends Cubit<FleetState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
   CurrentCompanyContext? _currentCompanyContext;
+  int _loadRequestId = 0;
+  int _activityRequestId = 0;
+  bool _initialLoadInProgress = false;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   FleetCubit({
     required this.getTractorHeadsUseCase,
@@ -49,46 +58,98 @@ class FleetCubit extends Cubit<FleetState> {
   }) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
+    if (isClosed) return;
     _currentCompanyContext = currentCompanyContext;
+    final requestId = ++_loadRequestId;
+    ++_activityRequestId;
+
     final previous = state;
-    final query = previous is FleetLoaded ? previous.searchQuery : '';
-    final filter = previous is FleetLoaded
+    final sameCompany = previous is FleetLoaded &&
+        previous.currentCompanyContext.companyId ==
+            currentCompanyContext.companyId;
+    final query = sameCompany ? previous.searchQuery : '';
+    final filter = sameCompany
         ? previous.statusFilter
         : VehicleStatusFilter.active;
-    final tab = previous is FleetLoaded
+    final tab = sameCompany
         ? previous.selectedTab
         : FleetAssetTab.tractorHeads;
+
+    _initialLoadInProgress = true;
     emit(const FleetLoading());
-    final params = GetFleetParams(currentCompanyContext: currentCompanyContext);
-    final tractorHeadsResult = await getTractorHeadsUseCase(params);
-    final trailersResult = await getTrailersUseCase(params);
-    final failure =
-        tractorHeadsResult.failureOrNull ?? trailersResult.failureOrNull;
-    if (failure != null) {
-      emit(FleetFailure(failure));
-      return;
-    }
+    try {
+      final params = GetFleetParams(currentCompanyContext: currentCompanyContext);
+      final tractors = await getTractorHeadsUseCase(params);
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
 
-    final manageResult = await canManageFleetUseCase(
-      CanManageFleetParams(currentCompanyContext: currentCompanyContext),
-    );
-    final manageFailure = manageResult.failureOrNull;
-    if (manageFailure != null) {
-      emit(FleetFailure(manageFailure));
-      return;
-    }
+      final trailers = await getTrailersUseCase(params);
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
 
-    emit(
-      FleetLoaded(
-        currentCompanyContext: currentCompanyContext,
-        allTractorHeads: tractorHeadsResult.dataOrNull ?? const [],
-        allTrailers: trailersResult.dataOrNull ?? const [],
-        canManageFleet: manageResult.dataOrNull ?? false,
-        searchQuery: query,
-        statusFilter: filter,
-        selectedTab: tab,
-      ),
-    );
+      final failure = tractors.failureOrNull ?? trailers.failureOrNull;
+      if (failure != null) {
+        emit(FleetFailure(failure));
+        return;
+      }
+
+      final manage = await canManageFleetUseCase(
+        CanManageFleetParams(currentCompanyContext: currentCompanyContext),
+      );
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
+
+      final permissionFailure = manage.failureOrNull;
+      if (permissionFailure != null) {
+        emit(FleetFailure(permissionFailure));
+        return;
+      }
+
+      emit(
+        FleetLoaded(
+          currentCompanyContext: currentCompanyContext,
+          allTractorHeads: tractors.dataOrNull ?? const [],
+          allTrailers: trailers.dataOrNull ?? const [],
+          canManageFleet: manage.dataOrNull ?? false,
+          searchQuery: query,
+          statusFilter: filter,
+          selectedTab: tab,
+        ),
+      );
+    } finally {
+      if (_isCurrentFleetRequest(currentCompanyContext, requestId)) {
+        _initialLoadInProgress = false;
+        if (_realtimeRefreshPending && state is FleetLoaded) {
+          _realtimeRefreshPending = false;
+          unawaited(refreshFleetAssets(currentCompanyContext));
+        }
+      }
+    }
+  }
+
+  bool _isCurrentFleetContext(CurrentCompanyContext context) =>
+      !isClosed &&
+      _currentCompanyContext?.companyId == context.companyId &&
+      _currentCompanyContext?.role == context.role;
+
+  bool _isCurrentFleetRequest(
+    CurrentCompanyContext context,
+    int requestId,
+  ) => _isCurrentFleetContext(context) && requestId == _loadRequestId;
+
+  bool _isSelectedActivityCurrent(
+    int requestId,
+    CurrentCompanyContext context,
+    String assetId,
+  ) {
+    final current = state;
+    return _isCurrentFleetContext(context) &&
+        requestId == _activityRequestId &&
+        current is FleetLoaded &&
+        current.currentCompanyContext.companyId == context.companyId &&
+        current.selectedAssetId == assetId;
+  }
+
+  void _didApplyLocalAssetMutation() {
+    ++_loadRequestId;
+    if (_isRealtimeRefreshing) _realtimeRefreshPending = true;
   }
 
   Future<Result<BusinessDate>> getCurrentBusinessDate() {
@@ -294,28 +355,9 @@ class FleetCubit extends Cubit<FleetState> {
   Future<void> reactivateTrailer(TrailerEntity item) =>
       _changeTrailerActiveState(item.id, reactivateTrailerUseCase.call);
 
-  Future<void> refreshAssets() async {
+  Future<void> refreshAssets() {
     final context = _currentCompanyContext;
-    final current = state;
-    if (context == null || current is! FleetLoaded) return;
-
-    final params = GetFleetParams(currentCompanyContext: context);
-    final tractorHeadsResult = await getTractorHeadsUseCase(params);
-    final trailersResult = await getTrailersUseCase(params);
-    final failure =
-        tractorHeadsResult.failureOrNull ?? trailersResult.failureOrNull;
-    if (failure != null) {
-      emit(FleetFailure(failure));
-      return;
-    }
-
-    emit(
-      current.copyWith(
-        allTractorHeads:
-            tractorHeadsResult.dataOrNull ?? current.allTractorHeads,
-        allTrailers: trailersResult.dataOrNull ?? current.allTrailers,
-      ),
-    );
+    return context == null ? Future<void>.value() : refreshFleetAssets(context);
   }
 
   Future<void> _changeTractorHeadActiveState(
