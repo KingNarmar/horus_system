@@ -3,6 +3,13 @@ part of 'fleet_cubit.dart';
 /// Coalesces Fleet invalidations while the page is mounted. New data always
 /// comes from RLS-protected Fleet use cases, never from Broadcast payloads.
 mixin FleetRealtimeActions on Cubit<FleetState> {
+  /// Shared by the existing document-detail refresh and Realtime invalidation.
+  Future<void> refreshAssets() {
+    final owner = this as FleetCubit;
+    final context = owner._currentCompanyContext;
+    return context == null ? Future<void>.value() : refreshFleetAssets(context);
+  }
+
   Future<void> refreshFleetAssets(
     CurrentCompanyContext currentCompanyContext,
   ) async {
