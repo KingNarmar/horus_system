@@ -76,20 +76,21 @@ void main() {
     });
 
     var calls = 0;
-    Widget boundary(String companyId) => BlocProvider<CompanyRealtimeCubit>.value(
-      value: cubit,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: CompanyResourceInvalidationBoundary(
-          companyId: companyId,
-          resources: const {CompanyInvalidationResource.customers},
-          onInvalidate: (_) async {
-            calls++;
-          },
-          child: const SizedBox.shrink(),
-        ),
-      ),
-    );
+    Widget boundary(String companyId) =>
+        BlocProvider<CompanyRealtimeCubit>.value(
+          value: cubit,
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: CompanyResourceInvalidationBoundary(
+              companyId: companyId,
+              resources: const {CompanyInvalidationResource.customers},
+              onInvalidate: (_) async {
+                calls++;
+              },
+              child: const SizedBox.shrink(),
+            ),
+          ),
+        );
 
     cubit.watchCompany('company-a');
     await tester.pumpWidget(boundary('company-a'));

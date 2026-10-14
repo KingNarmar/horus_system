@@ -33,9 +33,9 @@ final class CustomersRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.customers},
-      onInvalidate: (context) => context.read<CustomersCubit>().refreshCustomers(
-        currentCompanyContext,
-      ),
+      onInvalidate: (context) => context
+          .read<CustomersCubit>()
+          .refreshCustomers(currentCompanyContext),
       child: BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
         listenWhen: (previous, current) =>
             current.companyId == currentCompanyContext.companyId &&

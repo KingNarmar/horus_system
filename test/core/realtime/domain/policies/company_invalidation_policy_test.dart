@@ -35,7 +35,10 @@ void main() {
     expect(affected, contains(CompanyInvalidationResource.invoices));
     expect(affected, contains(CompanyInvalidationResource.customerStatements));
     expect(affected, contains(CompanyInvalidationResource.openInvoicesReport));
-    expect(affected, isNot(contains(CompanyInvalidationResource.tripFormLookups)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripFormLookups)),
+    );
   });
 
   test('operational lookups change only for their relevant sources', () {

@@ -27,7 +27,10 @@ void main() {
       repository.addChange('company-1');
       await Future<void>.delayed(Duration.zero);
       expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 1);
-      expect(cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups), 1);
+      expect(
+        cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups),
+        1,
+      );
 
       cubit.watchCompany('company-2');
       repository.addChange('company-1');
