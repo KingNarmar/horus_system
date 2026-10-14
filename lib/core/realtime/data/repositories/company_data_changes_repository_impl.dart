@@ -17,9 +17,7 @@ final class CompanyDataChangesRepositoryImpl
   const CompanyDataChangesRepositoryImpl(this._dataSource);
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({
-    required String companyId,
-  }) {
+  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
     late final StreamController<Result<CompanyDataChange>> controller;
     final subscriptions = <StreamSubscription<RealtimeChangeSignal>>[];
     var disposed = false;

@@ -12,12 +12,12 @@ void main() {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
     final changes = <CompanyDataChange>[];
-    final subscription = repository
-        .watchChanges(companyId: 'company-a')
-        .listen((result) {
-          final change = result.dataOrNull;
-          if (change != null) changes.add(change);
-        });
+    final subscription = repository.watchChanges(companyId: 'company-a').listen(
+      (result) {
+        final change = result.dataOrNull;
+        if (change != null) changes.add(change);
+      },
+    );
 
     source.customers.add(RealtimeChangeSignal.changed);
     source.drivers.add(RealtimeChangeSignal.subscribed);
@@ -39,12 +39,12 @@ void main() {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
     final failures = <String>[];
-    final subscription = repository
-        .watchChanges(companyId: 'company-a')
-        .listen((result) {
-          final code = result.failureOrNull?.code;
-          if (code != null) failures.add(code);
-        });
+    final subscription = repository.watchChanges(companyId: 'company-a').listen(
+      (result) {
+        final code = result.failureOrNull?.code;
+        if (code != null) failures.add(code);
+      },
+    );
 
     source.drivers.add(RealtimeChangeSignal.unavailable);
     await Future<void>.delayed(Duration.zero);

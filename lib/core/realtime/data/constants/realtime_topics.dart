@@ -6,6 +6,5 @@ abstract final class RealtimeTopics {
   static String customers(String companyId) =>
       'horus:company:$companyId:customers';
 
-  static String drivers(String companyId) =>
-      'horus:company:$companyId:drivers';
+  static String drivers(String companyId) => 'horus:company:$companyId:drivers';
 }

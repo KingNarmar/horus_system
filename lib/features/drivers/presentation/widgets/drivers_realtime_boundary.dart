@@ -33,9 +33,8 @@ final class DriversRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.drivers},
-      onInvalidate: (context) => context
-          .read<DriversCubit>()
-          .refreshDrivers(currentCompanyContext),
+      onInvalidate: (context) =>
+          context.read<DriversCubit>().refreshDrivers(currentCompanyContext),
       child: MultiBlocListener(
         listeners: [
           BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(

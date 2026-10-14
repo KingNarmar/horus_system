@@ -35,10 +35,10 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     final latestState = state;
     if (latestState is! DriversLoaded ||
         !owner._isCurrentSelectedActivity(
-      requestId,
-      context.companyId,
-      driver.id,
-    )) {
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 
@@ -61,10 +61,10 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     final projectedState = state;
     if (projectedState is! DriversLoaded ||
         !owner._isCurrentSelectedActivity(
-      requestId,
-      context.companyId,
-      driver.id,
-    )) {
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 
@@ -121,10 +121,10 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     final latestState = state;
     if (latestState is! DriversLoaded ||
         !owner._isCurrentSelectedImages(
-      requestId,
-      context.companyId,
-      driver.id,
-    )) {
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 

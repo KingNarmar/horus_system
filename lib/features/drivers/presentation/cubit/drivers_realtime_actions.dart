@@ -96,7 +96,9 @@ mixin DriversRealtimeActions on Cubit<DriversState> {
         selectedDriverImageUrls: selectionRemoved
             ? DriverImageUrls.empty
             : latest.selectedDriverImageUrls,
-        isImageUrlsLoading: selectionRemoved ? false : latest.isImageUrlsLoading,
+        isImageUrlsLoading: selectionRemoved
+            ? false
+            : latest.isImageUrlsLoading,
         imageUrlsFailure: selectionRemoved ? null : latest.imageUrlsFailure,
         refreshFailure: null,
       ),
