@@ -109,7 +109,7 @@ class AppShellContent extends StatelessWidget {
         currentCompanyContext: contextData,
         child: _ReconnectAware(
           onReconnect: (context) =>
-              context.read<CustomersCubit>().loadCustomers(contextData),
+              context.read<CustomersCubit>().refreshCustomers(contextData),
           child: CustomersPage(currentCompanyContext: contextData),
         ),
       ),

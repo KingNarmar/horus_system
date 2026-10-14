@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../errors/common_failures.dart';
 import '../../../errors/failure_codes.dart';
 import '../../../logging/app_logger.dart';
-import '../../domain/entities/company_data_change.dart';
+import '../../domain/policies/company_invalidation_policy.dart';
 import '../../domain/usecases/watch_company_data_changes_usecase.dart';
 import 'company_realtime_state.dart';
 
+/// One source subscription per active company session. It routes typed
+/// invalidations; visible feature boundaries decide when to refresh.
 final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
   final WatchCompanyDataChangesUseCase _watchChanges;
   StreamSubscription? _subscription;
@@ -28,7 +30,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
           emit(
             CompanyRealtimeState(
               companyId: companyId,
-              customersRevision: state.customersRevision,
+              revisions: state.revisions,
               failure: const NetworkFailure(
                 code: FailureCodes.realtimeSubscriptionUnavailable,
               ),
@@ -51,7 +53,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
               emit(
                 CompanyRealtimeState(
                   companyId: companyId,
-                  customersRevision: state.customersRevision,
+                  revisions: state.revisions,
                   failure: failure,
                 ),
               );
@@ -59,15 +61,22 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
             }
 
             final change = result.dataOrNull;
-            if (change?.companyId != companyId ||
-                change?.resource != CompanyDataResource.customers) {
-              return;
+            if (change == null || change.companyId != companyId) return;
+
+            final affected = CompanyInvalidationPolicy.affectedBy(
+              change.resource,
+            );
+            if (affected.isEmpty) return;
+
+            final revisions = {...state.revisions};
+            for (final resource in affected) {
+              revisions[resource] = (revisions[resource] ?? 0) + 1;
             }
 
             emit(
               CompanyRealtimeState(
                 companyId: companyId,
-                customersRevision: state.customersRevision + 1,
+                revisions: Map.unmodifiable(revisions),
               ),
             );
           },
@@ -76,7 +85,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
             emit(
               CompanyRealtimeState(
                 companyId: companyId,
-                customersRevision: state.customersRevision,
+                revisions: state.revisions,
                 failure: const NetworkFailure(
                   code: FailureCodes.realtimeSubscriptionUnavailable,
                 ),
