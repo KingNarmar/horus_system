@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/realtime/domain/entities/company_data_change.dart';
+import 'package:horus_system/core/realtime/domain/entities/company_invalidation_resource.dart';
 import 'package:horus_system/core/realtime/domain/repositories/company_data_changes_repository.dart';
 import 'package:horus_system/core/realtime/domain/usecases/watch_company_data_changes_usecase.dart';
 import 'package:horus_system/core/realtime/presentation/cubit/company_realtime_cubit.dart';
@@ -25,17 +26,18 @@ void main() {
       cubit.watchCompany('company-1');
       repository.addChange('company-1');
       await Future<void>.delayed(Duration.zero);
-      expect(cubit.state.customersRevision, 1);
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 1);
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups), 1);
 
       cubit.watchCompany('company-2');
       repository.addChange('company-1');
       await Future<void>.delayed(Duration.zero);
-      expect(cubit.state.customersRevision, 0);
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
 
       repository.addChange('company-2');
       await Future<void>.delayed(Duration.zero);
       expect(cubit.state.companyId, 'company-2');
-      expect(cubit.state.customersRevision, 1);
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 1);
     },
   );
 
@@ -82,7 +84,7 @@ void main() {
     repository.addFailure('company-1');
     await Future<void>.delayed(Duration.zero);
 
-    expect(cubit.state.customersRevision, 1);
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 1);
     expect(
       cubit.state.failure?.code,
       FailureCodes.realtimeSubscriptionUnavailable,
@@ -90,7 +92,7 @@ void main() {
 
     repository.addChange('company-1');
     await Future<void>.delayed(Duration.zero);
-    expect(cubit.state.customersRevision, 2);
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 2);
     expect(cubit.state.failure, isNull);
   });
 }
