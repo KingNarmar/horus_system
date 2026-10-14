@@ -1,27 +1,24 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../core/realtime/di/realtime_dependencies.dart';
+import '../../../../core/realtime/domain/entities/company_invalidation_resource.dart';
 import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
 import '../../../../core/realtime/presentation/cubit/company_realtime_state.dart';
+import '../../../../core/realtime/presentation/widgets/company_resource_invalidation_boundary.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/policies/customers_permission_policy.dart';
 import '../cubit/customers_cubit.dart';
 
-/// Customers-only pilot. The stream and channel are owned by this subtree
-/// and disposed when the user leaves Customers or changes company.
+/// R1 Customers behavior through the shared company-session subscription.
+/// This boundary owns only its visible resource interest, not the channel.
 final class CustomersRealtimeBoundary extends StatelessWidget {
   final CurrentCompanyContext currentCompanyContext;
   final Widget child;
-  final CompanyRealtimeCubit Function()? realtimeCubitFactory;
 
   const CustomersRealtimeBoundary({
     required this.currentCompanyContext,
     required this.child,
-    this.realtimeCubitFactory,
     super.key,
   });
 
@@ -33,40 +30,26 @@ final class CustomersRealtimeBoundary extends StatelessWidget {
       return child;
     }
 
-    return BlocProvider<CompanyRealtimeCubit>(
-      key: ValueKey(
-        '${currentCompanyContext.companyId}:${currentCompanyContext.role.name}',
+    return CompanyResourceInvalidationBoundary(
+      companyId: currentCompanyContext.companyId,
+      resources: const {CompanyInvalidationResource.customers},
+      onInvalidate: (context) => context.read<CustomersCubit>().refreshCustomers(
+        currentCompanyContext,
       ),
-      create: (_) =>
-          (realtimeCubitFactory ?? RealtimeDependencies.createCubit)()
-            ..watchCompany(currentCompanyContext.companyId),
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
-            listenWhen: (previous, current) =>
-                current.companyId == currentCompanyContext.companyId &&
-                previous.customersRevision != current.customersRevision,
-            listener: (context, _) => unawaited(
-              context.read<CustomersCubit>().refreshCustomers(
-                currentCompanyContext,
-              ),
+      child: BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+        listenWhen: (previous, current) =>
+            current.companyId == currentCompanyContext.companyId &&
+            current.failure != null &&
+            previous.failure?.code != current.failure?.code,
+        listener: (context, state) {
+          final failure = state.failure;
+          if (failure == null) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.localizedErrorMessage(failure)),
             ),
-          ),
-          BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
-            listenWhen: (previous, current) =>
-                current.failure != null &&
-                previous.failure?.code != current.failure?.code,
-            listener: (context, state) {
-              final failure = state.failure;
-              if (failure == null) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.l10n.localizedErrorMessage(failure)),
-                ),
-              );
-            },
-          ),
-        ],
+          );
+        },
         child: child,
       ),
     );

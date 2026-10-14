@@ -1,13 +1,17 @@
 import '../../../errors/failure.dart';
+import '../../domain/entities/company_invalidation_resource.dart';
 
 final class CompanyRealtimeState {
   final String companyId;
-  final int customersRevision;
+  final Map<CompanyInvalidationResource, int> revisions;
   final Failure? failure;
 
   const CompanyRealtimeState({
     required this.companyId,
-    this.customersRevision = 0,
+    this.revisions = const {},
     this.failure,
   });
+
+  int revisionFor(CompanyInvalidationResource resource) =>
+      revisions[resource] ?? 0;
 }
