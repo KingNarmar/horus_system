@@ -33,7 +33,8 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     );
 
     final latestState = state;
-    if (!owner._isCurrentSelectedActivity(
+    if (latestState is! DriversLoaded ||
+        !owner._isCurrentSelectedActivity(
       requestId,
       context.companyId,
       driver.id,
@@ -58,7 +59,8 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     });
 
     final projectedState = state;
-    if (!owner._isCurrentSelectedActivity(
+    if (projectedState is! DriversLoaded ||
+        !owner._isCurrentSelectedActivity(
       requestId,
       context.companyId,
       driver.id,
@@ -117,7 +119,8 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     );
 
     final latestState = state;
-    if (!owner._isCurrentSelectedImages(
+    if (latestState is! DriversLoaded ||
+        !owner._isCurrentSelectedImages(
       requestId,
       context.companyId,
       driver.id,
