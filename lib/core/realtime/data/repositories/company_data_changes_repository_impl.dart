@@ -45,7 +45,7 @@ final class CompanyDataChangesRepositoryImpl
               ),
             );
           },
-          onError: (Object _, StackTrace __) {
+          onError: (Object _, StackTrace _) {
             if (!disposed && !controller.isClosed) {
               controller.add(unavailable);
             }
