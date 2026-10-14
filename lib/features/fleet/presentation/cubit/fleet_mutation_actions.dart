@@ -36,7 +36,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
       return;
     }
 
-    final result = await saveTractorHeadUseCase(
+    final result = await owner.saveTractorHeadUseCase(
       SaveTractorHeadParams(
         currentCompanyContext: context,
         id: tractorHead?.id,
@@ -87,7 +87,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
       return;
     }
 
-    final result = await saveTrailerUseCase(
+    final result = await owner.saveTrailerUseCase(
       SaveTrailerParams(
         currentCompanyContext: context,
         id: trailer?.id,
@@ -105,14 +105,31 @@ mixin FleetMutationActions on Cubit<FleetState> {
     );
   }
 
-  Future<void> deactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item, deactivateTractorHeadUseCase.call);
-  Future<void> reactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item, reactivateTractorHeadUseCase.call);
-  Future<void> deactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item, deactivateTrailerUseCase.call);
-  Future<void> reactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item, reactivateTrailerUseCase.call);
+  Future<void> deactivateTractorHead(TractorHead item) {
+    final owner = this as FleetCubit;
+    return _changeTractorHeadActiveState(
+      item,
+      owner.deactivateTractorHeadUseCase.call,
+    );
+  }
+
+  Future<void> reactivateTractorHead(TractorHead item) {
+    final owner = this as FleetCubit;
+    return _changeTractorHeadActiveState(
+      item,
+      owner.reactivateTractorHeadUseCase.call,
+    );
+  }
+
+  Future<void> deactivateTrailer(TrailerEntity item) {
+    final owner = this as FleetCubit;
+    return _changeTrailerActiveState(item, owner.deactivateTrailerUseCase.call);
+  }
+
+  Future<void> reactivateTrailer(TrailerEntity item) {
+    final owner = this as FleetCubit;
+    return _changeTrailerActiveState(item, owner.reactivateTrailerUseCase.call);
+  }
 
   Future<void> _changeTractorHeadActiveState(
     TractorHead item,
@@ -217,6 +234,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
       state is FleetLoaded && (state as FleetLoaded).isActiveStateChanging(id);
 
   void _setAssetActionRunning(String id, bool isRunning) {
+    final owner = this as FleetCubit;
     owner._mapLoaded((s) {
       final ids = {...s.activeStateChangingAssetIds};
       isRunning ? ids.add(id) : ids.remove(id);
