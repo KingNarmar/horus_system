@@ -47,6 +47,18 @@ class DriverDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // A revoked or removed selection must not continue displaying the
+    // captured Driver record inside an already-open details dialog.
+    if (state?.selectedDriver?.id != driver.id) {
+      return Dialog(
+        child: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(AppIcons.clear),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+        ),
+      );
+    }
+
     final isCompact =
         MediaQuery.sizeOf(context).width <= AppSizes.mobileMaxContentWidth;
     final isSelectedDriver = state?.selectedDriver?.id == driver.id;
