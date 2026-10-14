@@ -36,6 +36,7 @@ class DriversLoaded extends DriversState {
   selectedDriverActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? refreshFailure;
 
   const DriversLoaded({
     required this.currentCompanyContext,
@@ -53,6 +54,7 @@ class DriversLoaded extends DriversState {
         const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.refreshFailure,
   });
 
   BusinessLocalDateTime? activityTimestampFor(String logId) {
@@ -92,6 +94,7 @@ class DriversLoaded extends DriversState {
     Map<String, BusinessLocalDateTime>? selectedDriverActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? refreshFailure = _notSet,
   }) {
     return DriversLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -120,6 +123,9 @@ class DriversLoaded extends DriversState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      refreshFailure: refreshFailure == _notSet
+          ? this.refreshFailure
+          : refreshFailure as Failure?,
     );
   }
 }

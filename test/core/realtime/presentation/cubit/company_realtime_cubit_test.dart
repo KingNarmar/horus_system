@@ -98,6 +98,27 @@ void main() {
     expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 2);
     expect(cubit.state.failure, isNull);
   });
+  test('Drivers changes do not invalidate Customers', () async {
+    final repository = _ControllableRepository();
+    final cubit = CompanyRealtimeCubit(
+      watchChanges: WatchCompanyDataChangesUseCase(repository),
+    );
+    addTearDown(() async {
+      await cubit.close();
+      await repository.close();
+    });
+
+    cubit.watchCompany('company-1');
+    repository.addChange('company-1', resource: CompanyDataResource.drivers);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.drivers), 1);
+    expect(
+      cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups),
+      1,
+    );
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
+  });
 }
 
 final class _ControllableRepository implements CompanyDataChangesRepository {
@@ -113,13 +134,11 @@ final class _ControllableRepository implements CompanyDataChangesRepository {
     return controller.stream;
   }
 
-  void addChange(String companyId) => controllers[companyId]!.add(
-    Success(
-      CompanyDataChange(
-        companyId: companyId,
-        resource: CompanyDataResource.customers,
-      ),
-    ),
+  void addChange(
+    String companyId, {
+    CompanyDataResource resource = CompanyDataResource.customers,
+  }) => controllers[companyId]!.add(
+    Success(CompanyDataChange(companyId: companyId, resource: resource)),
   );
 
   void addFailure(String companyId) => controllers[companyId]!.add(

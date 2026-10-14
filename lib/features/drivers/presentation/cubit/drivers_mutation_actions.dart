@@ -19,6 +19,9 @@ mixin DriversMutationActions on Cubit<DriversState> {
     final businessDateResult = await owner.getCurrentBusinessDate();
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) return businessDateFailure;
+    if (!owner._isCurrentMutationContext(context)) {
+      return const UnexpectedFailure();
+    }
     final currentBusinessDate = businessDateResult.dataOrNull;
     if (currentBusinessDate == null) return const UnexpectedFailure();
 
@@ -35,6 +38,10 @@ mixin DriversMutationActions on Cubit<DriversState> {
         currentBusinessDate: currentBusinessDate,
       ),
     );
+
+    if (!owner._isCurrentMutationContext(context)) {
+      return const UnexpectedFailure();
+    }
 
     if (result is Success<Driver>) {
       _upsertDriver(result.data);
@@ -67,6 +74,9 @@ mixin DriversMutationActions on Cubit<DriversState> {
     final businessDateResult = await owner.getCurrentBusinessDate();
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) return businessDateFailure;
+    if (!owner._isCurrentMutationContext(context)) {
+      return const UnexpectedFailure();
+    }
     final currentBusinessDate = businessDateResult.dataOrNull;
     if (currentBusinessDate == null) return const UnexpectedFailure();
 
@@ -85,6 +95,10 @@ mixin DriversMutationActions on Cubit<DriversState> {
       ),
     );
 
+    if (!owner._isCurrentMutationContext(context)) {
+      return const UnexpectedFailure();
+    }
+
     if (result is Success<Driver>) {
       _upsertDriver(result.data);
       return null;
@@ -100,7 +114,9 @@ mixin DriversMutationActions on Cubit<DriversState> {
   Future<void> deactivateDriver(Driver driver) async {
     final owner = this as DriversCubit;
     final context = owner._currentCompanyContext;
-    if (context == null || !_startPendingAction(driver.id)) {
+    if (context == null ||
+        driver.companyId != context.companyId ||
+        !_startPendingAction(driver.id)) {
       return;
     }
 
@@ -111,13 +127,16 @@ mixin DriversMutationActions on Cubit<DriversState> {
       ),
     );
 
+    if (!owner._isCurrentMutationContext(context)) return;
     result.when(success: _upsertDriver, failure: _emitMutationFailure);
   }
 
   Future<void> reactivateDriver(Driver driver) async {
     final owner = this as DriversCubit;
     final context = owner._currentCompanyContext;
-    if (context == null || !_startPendingAction(driver.id)) {
+    if (context == null ||
+        driver.companyId != context.companyId ||
+        !_startPendingAction(driver.id)) {
       return;
     }
 
@@ -128,6 +147,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
       ),
     );
 
+    if (!owner._isCurrentMutationContext(context)) return;
     result.when(success: _upsertDriver, failure: _emitMutationFailure);
   }
 
@@ -155,10 +175,11 @@ mixin DriversMutationActions on Cubit<DriversState> {
     final owner = this as DriversCubit;
     final currentState = state;
     final context = owner._currentCompanyContext;
+    if (owner.isClosed || context?.companyId != driver.companyId) return;
+    owner._didApplyLocalMutation();
+
     if (currentState is! DriversLoaded) {
-      if (context != null) {
-        owner.loadDrivers(context);
-      }
+      unawaited(owner.loadDrivers(context!));
       return;
     }
 

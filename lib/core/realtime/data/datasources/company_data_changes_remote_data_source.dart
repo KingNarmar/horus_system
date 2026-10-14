@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 
 import '../constants/realtime_topics.dart';
-import '../mappers/customers_change_message_decoder.dart';
+import '../mappers/company_change_message_decoder.dart';
 import '../models/realtime_change_signal.dart';
 import 'realtime_channel_gateway.dart';
 
 abstract interface class CompanyDataChangesRemoteDataSource {
   Stream<RealtimeChangeSignal> watchCustomers({required String companyId});
+
+  Stream<RealtimeChangeSignal> watchDrivers({required String companyId});
 }
 
 final class SupabaseCompanyDataChangesRemoteDataSource
@@ -22,7 +24,26 @@ final class SupabaseCompanyDataChangesRemoteDataSource
   const SupabaseCompanyDataChangesRemoteDataSource.withGateway(this._gateway);
 
   @override
-  Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) {
+  Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) =>
+      _watchResource(
+        companyId: companyId,
+        topic: RealtimeTopics.customers(companyId),
+        resource: RealtimeTopics.customersResource,
+      );
+
+  @override
+  Stream<RealtimeChangeSignal> watchDrivers({required String companyId}) =>
+      _watchResource(
+        companyId: companyId,
+        topic: RealtimeTopics.drivers(companyId),
+        resource: RealtimeTopics.driversResource,
+      );
+
+  Stream<RealtimeChangeSignal> _watchResource({
+    required String companyId,
+    required String topic,
+    required String resource,
+  }) {
     late final StreamController<RealtimeChangeSignal> controller;
     RealtimeChannelHandle? channel;
     var disposed = false;
@@ -45,12 +66,13 @@ final class SupabaseCompanyDataChangesRemoteDataSource
         if (disposed) return;
 
         channel = _gateway.subscribe(
-          topic: RealtimeTopics.customers(companyId),
+          topic: topic,
           event: RealtimeTopics.customersChangedEvent,
           onMessage: (payload) {
-            if (CustomersChangeMessageDecoder.isForCompany(
+            if (CompanyChangeMessageDecoder.isForCompanyAndResource(
               payload,
               companyId: companyId,
+              resource: resource,
             )) {
               addSignal(RealtimeChangeSignal.changed);
             }

@@ -5,9 +5,12 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     final owner = this as DriversCubit;
     final context = owner._currentCompanyContext;
     final currentState = state;
-    if (context == null || currentState is! DriversLoaded) {
+    if (context == null ||
+        driver.companyId != context.companyId ||
+        currentState is! DriversLoaded) {
       return;
     }
+    final requestId = ++owner._activityRequestId;
 
     emit(
       currentState.copyWith(
@@ -31,7 +34,11 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
 
     final latestState = state;
     if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
+        !owner._isCurrentSelectedActivity(
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 
@@ -53,7 +60,11 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
 
     final projectedState = state;
     if (projectedState is! DriversLoaded ||
-        projectedState.selectedDriver?.id != driver.id) {
+        !owner._isCurrentSelectedActivity(
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 
@@ -87,9 +98,12 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
     final owner = this as DriversCubit;
     final context = owner._currentCompanyContext;
     final currentState = state;
-    if (context == null || currentState is! DriversLoaded) {
+    if (context == null ||
+        driver.companyId != context.companyId ||
+        currentState is! DriversLoaded) {
       return;
     }
+    final requestId = ++owner._imageUrlsRequestId;
 
     emit(
       currentState.copyWith(
@@ -106,7 +120,11 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
 
     final latestState = state;
     if (latestState is! DriversLoaded ||
-        latestState.selectedDriver?.id != driver.id) {
+        !owner._isCurrentSelectedImages(
+          requestId,
+          context.companyId,
+          driver.id,
+        )) {
       return;
     }
 
@@ -129,6 +147,9 @@ mixin DriversSelectedDriverActions on Cubit<DriversState> {
   }
 
   void clearDriverActivity() {
+    final owner = this as DriversCubit;
+    ++owner._activityRequestId;
+    ++owner._imageUrlsRequestId;
     final currentState = state;
     if (currentState is DriversLoaded) {
       emit(

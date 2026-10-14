@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
@@ -27,12 +29,14 @@ import 'drivers_state.dart';
 part 'drivers_filter_actions.dart';
 part 'drivers_mutation_actions.dart';
 part 'drivers_selected_driver_actions.dart';
+part 'drivers_realtime_actions.dart';
 
 class DriversCubit extends Cubit<DriversState>
     with
         DriversFilterActions,
         DriversSelectedDriverActions,
-        DriversMutationActions {
+        DriversMutationActions,
+        DriversRealtimeActions {
   final GetDriversUseCase getDriversUseCase;
   final CanManageDriversUseCase canManageDriversUseCase;
   final GetDriverImageUrlsUseCase getDriverImageUrlsUseCase;
@@ -46,6 +50,11 @@ class DriversCubit extends Cubit<DriversState>
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
+  int _loadRequestId = 0;
+  int _activityRequestId = 0;
+  int _imageUrlsRequestId = 0;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   DriversCubit({
     required this.getDriversUseCase,
@@ -61,7 +70,11 @@ class DriversCubit extends Cubit<DriversState>
   }) : super(const DriversInitial());
 
   Future<void> loadDrivers(CurrentCompanyContext currentCompanyContext) async {
+    if (isClosed) return;
     _currentCompanyContext = currentCompanyContext;
+    final requestId = ++_loadRequestId;
+    ++_activityRequestId;
+    ++_imageUrlsRequestId;
     final previousState = state;
     final previousSearchQuery = previousState is DriversLoaded
         ? previousState.searchQuery
@@ -76,6 +89,8 @@ class DriversCubit extends Cubit<DriversState>
       GetDriversParams(currentCompanyContext: currentCompanyContext),
     );
 
+    if (isClosed || requestId != _loadRequestId) return;
+
     final loadFailure = result.failureOrNull;
     if (loadFailure != null) {
       emit(DriversFailure(loadFailure));
@@ -85,6 +100,8 @@ class DriversCubit extends Cubit<DriversState>
     final permissionResult = await canManageDriversUseCase(
       CanManageDriversParams(currentCompanyContext: currentCompanyContext),
     );
+    if (isClosed || requestId != _loadRequestId) return;
+
     final permissionFailure = permissionResult.failureOrNull;
     if (permissionFailure != null) {
       emit(DriversFailure(permissionFailure));
@@ -100,6 +117,44 @@ class DriversCubit extends Cubit<DriversState>
         canManageDrivers: permissionResult.dataOrNull ?? false,
       ),
     );
+  }
+
+  bool _isCurrentMutationContext(CurrentCompanyContext context) =>
+      !isClosed &&
+      _currentCompanyContext?.companyId == context.companyId &&
+      _currentCompanyContext?.role == context.role;
+
+  void _didApplyLocalMutation() {
+    ++_loadRequestId;
+    if (_isRealtimeRefreshing) _realtimeRefreshPending = true;
+  }
+
+  bool _isCurrentSelectedActivity(
+    int requestId,
+    String companyId,
+    String driverId,
+  ) {
+    final current = state;
+    return !isClosed &&
+        requestId == _activityRequestId &&
+        _currentCompanyContext?.companyId == companyId &&
+        current is DriversLoaded &&
+        current.currentCompanyContext.companyId == companyId &&
+        current.selectedDriver?.id == driverId;
+  }
+
+  bool _isCurrentSelectedImages(
+    int requestId,
+    String companyId,
+    String driverId,
+  ) {
+    final current = state;
+    return !isClosed &&
+        requestId == _imageUrlsRequestId &&
+        _currentCompanyContext?.companyId == companyId &&
+        current is DriversLoaded &&
+        current.currentCompanyContext.companyId == companyId &&
+        current.selectedDriver?.id == driverId;
   }
 
   Future<Result<BusinessDate>> getCurrentBusinessDate() {

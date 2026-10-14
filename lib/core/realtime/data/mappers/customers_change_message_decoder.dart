@@ -1,16 +1,14 @@
 import '../constants/realtime_topics.dart';
+import 'company_change_message_decoder.dart';
 
-/// Validates an untrusted Broadcast envelope before it can become an
-/// authoritative reload hint. Never decodes customer records from messages.
+/// Compatibility wrapper for the original Customers-only pilot decoder.
 abstract final class CustomersChangeMessageDecoder {
   static bool isForCompany(
     Map<String, dynamic> envelope, {
     required String companyId,
-  }) {
-    final payload = envelope['payload'];
-    if (payload is! Map) return false;
-
-    return payload['company_id'] == companyId &&
-        payload['resource'] == RealtimeTopics.customersResource;
-  }
+  }) => CompanyChangeMessageDecoder.isForCompanyAndResource(
+    envelope,
+    companyId: companyId,
+    resource: RealtimeTopics.customersResource,
+  );
 }

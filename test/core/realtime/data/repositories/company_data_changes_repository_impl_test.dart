@@ -1,25 +1,84 @@
+import 'dart:async';
+
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/realtime/data/datasources/company_data_changes_remote_data_source.dart';
 import 'package:horus_system/core/realtime/data/models/realtime_change_signal.dart';
 import 'package:horus_system/core/realtime/data/repositories/company_data_changes_repository_impl.dart';
+import 'package:horus_system/core/realtime/domain/entities/company_data_change.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('data errors map to a typed, sanitized failure', () async {
-    final repository = CompanyDataChangesRepositoryImpl(_UnavailableSource());
-    final results = await repository
-        .watchChanges(companyId: 'company-1')
-        .toList();
-    expect(
-      results.single.failureOrNull?.code,
-      FailureCodes.realtimeSubscriptionUnavailable,
+  test('two private sources emit typed, targeted company changes', () async {
+    final source = _Source();
+    final repository = CompanyDataChangesRepositoryImpl(source);
+    final changes = <CompanyDataChange>[];
+    final subscription = repository.watchChanges(companyId: 'company-a').listen(
+      (result) {
+        final change = result.dataOrNull;
+        if (change != null) changes.add(change);
+      },
     );
+
+    source.customers.add(RealtimeChangeSignal.changed);
+    source.drivers.add(RealtimeChangeSignal.subscribed);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(changes.map((item) => item.resource).toList(), [
+      CompanyDataResource.customers,
+      CompanyDataResource.drivers,
+    ]);
+    expect(changes.every((item) => item.companyId == 'company-a'), isTrue);
+
+    await subscription.cancel();
+    expect(source.customerCanceled, isTrue);
+    expect(source.driverCanceled, isTrue);
+    await source.close();
+  });
+
+  test('transport error becomes a sanitized typed failure', () async {
+    final source = _Source();
+    final repository = CompanyDataChangesRepositoryImpl(source);
+    final failures = <String>[];
+    final subscription = repository.watchChanges(companyId: 'company-a').listen(
+      (result) {
+        final code = result.failureOrNull?.code;
+        if (code != null) failures.add(code);
+      },
+    );
+
+    source.drivers.add(RealtimeChangeSignal.unavailable);
+    await Future<void>.delayed(Duration.zero);
+    expect(failures, [FailureCodes.realtimeSubscriptionUnavailable]);
+    await subscription.cancel();
+    await source.close();
   });
 }
 
-final class _UnavailableSource implements CompanyDataChangesRemoteDataSource {
+final class _Source implements CompanyDataChangesRemoteDataSource {
+  bool customerCanceled = false;
+  bool driverCanceled = false;
+
+  late final StreamController<RealtimeChangeSignal> customers =
+      StreamController<RealtimeChangeSignal>(
+        sync: true,
+        onCancel: () => customerCanceled = true,
+      );
+  late final StreamController<RealtimeChangeSignal> drivers =
+      StreamController<RealtimeChangeSignal>(
+        sync: true,
+        onCancel: () => driverCanceled = true,
+      );
+
   @override
-  Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) {
-    return Stream.value(RealtimeChangeSignal.unavailable);
+  Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) =>
+      customers.stream;
+
+  @override
+  Stream<RealtimeChangeSignal> watchDrivers({required String companyId}) =>
+      drivers.stream;
+
+  Future<void> close() async {
+    await customers.close();
+    await drivers.close();
   }
 }
