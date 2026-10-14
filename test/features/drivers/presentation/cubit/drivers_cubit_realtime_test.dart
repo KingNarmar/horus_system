@@ -28,56 +28,62 @@ import 'package:horus_system/features/drivers/presentation/cubit/drivers_state.d
 import 'package:test/test.dart';
 
 void main() {
-  test('refresh preserves visible list, filters and latest authoritative rows', () async {
-    final repository = _QueuedDriversRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'refresh preserves visible list, filters and latest authoritative rows',
+    () async {
+      final repository = _QueuedDriversRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    final initialLoad = cubit.loadDrivers(_companyA);
-    repository.complete(0, [_driver('driver-1', 'Alpha')]);
-    await initialLoad;
-    cubit.setSearchQuery('Bravo');
-    cubit.setStatusFilter(DriverStatusFilter.all);
+      final initialLoad = cubit.loadDrivers(_companyA);
+      repository.complete(0, [_driver('driver-1', 'Alpha')]);
+      await initialLoad;
+      cubit.setSearchQuery('Bravo');
+      cubit.setStatusFilter(DriverStatusFilter.all);
 
-    final refresh = cubit.refreshDrivers(_companyA);
-    final duplicateHint = cubit.refreshDrivers(_companyA);
-    expect(repository.requestedCompanies, ['company-a', 'company-a']);
-    expect(cubit.state, isA<DriversLoaded>());
+      final refresh = cubit.refreshDrivers(_companyA);
+      final duplicateHint = cubit.refreshDrivers(_companyA);
+      expect(repository.requestedCompanies, ['company-a', 'company-a']);
+      expect(cubit.state, isA<DriversLoaded>());
 
-    repository.complete(1, [_driver('driver-1', 'Alpha')]);
-    await Future<void>.delayed(Duration.zero);
-    expect(repository.requestedCompanies, [
-      'company-a',
-      'company-a',
-      'company-a',
-    ]);
-    repository.complete(2, [_driver('driver-2', 'Bravo')]);
-    await refresh;
-    await duplicateHint;
+      repository.complete(1, [_driver('driver-1', 'Alpha')]);
+      await Future<void>.delayed(Duration.zero);
+      expect(repository.requestedCompanies, [
+        'company-a',
+        'company-a',
+        'company-a',
+      ]);
+      repository.complete(2, [_driver('driver-2', 'Bravo')]);
+      await refresh;
+      await duplicateHint;
 
-    final state = cubit.state as DriversLoaded;
-    expect(state.searchQuery, 'Bravo');
-    expect(state.statusFilter, DriverStatusFilter.all);
-    expect(state.allDrivers.single.id, 'driver-2');
-    expect(state.drivers.single.fullName, 'Bravo');
-  });
+      final state = cubit.state as DriversLoaded;
+      expect(state.searchQuery, 'Bravo');
+      expect(state.statusFilter, DriverStatusFilter.all);
+      expect(state.allDrivers.single.id, 'driver-2');
+      expect(state.drivers.single.fullName, 'Bravo');
+    },
+  );
 
-  test('late load from previous company cannot overwrite current company', () async {
-    final repository = _QueuedDriversRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'late load from previous company cannot overwrite current company',
+    () async {
+      final repository = _QueuedDriversRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    final oldLoad = cubit.loadDrivers(_companyA);
-    final newLoad = cubit.loadDrivers(_companyB);
-    repository.complete(1, [_driver('b-1', 'Beta', companyId: 'company-b')]);
-    await newLoad;
-    repository.complete(0, [_driver('a-1', 'Alpha')]);
-    await oldLoad;
+      final oldLoad = cubit.loadDrivers(_companyA);
+      final newLoad = cubit.loadDrivers(_companyB);
+      repository.complete(1, [_driver('b-1', 'Beta', companyId: 'company-b')]);
+      await newLoad;
+      repository.complete(0, [_driver('a-1', 'Alpha')]);
+      await oldLoad;
 
-    final state = cubit.state as DriversLoaded;
-    expect(state.currentCompanyContext.companyId, 'company-b');
-    expect(state.allDrivers.single.companyId, 'company-b');
-  });
+      final state = cubit.state as DriversLoaded;
+      expect(state.currentCompanyContext.companyId, 'company-b');
+      expect(state.allDrivers.single.companyId, 'company-b');
+    },
+  );
 
   test('permission revocation hides previously loaded Drivers data', () async {
     final repository = _QueuedDriversRepository();
@@ -98,30 +104,33 @@ void main() {
     expect(cubit.state, isA<DriversFailure>());
   });
 
-  test('temporary refresh error retains list with typed recoverable failure', () async {
-    final repository = _QueuedDriversRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'temporary refresh error retains list with typed recoverable failure',
+    () async {
+      final repository = _QueuedDriversRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    final initial = cubit.loadDrivers(_companyA);
-    repository.complete(0, [_driver('driver-1', 'Alpha')]);
-    await initial;
-    final refresh = cubit.refreshDrivers(_companyA);
-    repository.completeResult(
-      1,
-      const FailureResult<List<Driver>>(
-        NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
-      ),
-    );
-    await refresh;
+      final initial = cubit.loadDrivers(_companyA);
+      repository.complete(0, [_driver('driver-1', 'Alpha')]);
+      await initial;
+      final refresh = cubit.refreshDrivers(_companyA);
+      repository.completeResult(
+        1,
+        const FailureResult<List<Driver>>(
+          NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
+        ),
+      );
+      await refresh;
 
-    final state = cubit.state as DriversLoaded;
-    expect(state.allDrivers.single.id, 'driver-1');
-    expect(
-      state.refreshFailure?.code,
-      FailureCodes.realtimeSubscriptionUnavailable,
-    );
-  });
+      final state = cubit.state as DriversLoaded;
+      expect(state.allDrivers.single.id, 'driver-1');
+      expect(
+        state.refreshFailure?.code,
+        FailureCodes.realtimeSubscriptionUnavailable,
+      );
+    },
+  );
 
   test('async load completing after Cubit disposal emits no state', () async {
     final repository = _QueuedDriversRepository();
@@ -159,11 +168,14 @@ DriversCubit _createCubit(_QueuedDriversRepository repository) => DriversCubit(
   updateDriverUseCase: UpdateDriverUseCase(repository),
   deactivateDriverUseCase: DeactivateDriverUseCase(repository),
   reactivateDriverUseCase: ReactivateDriverUseCase(repository),
-  getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(_UnusedAuditRepository()),
+  getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
+    _UnusedAuditRepository(),
+  ),
   convertInstantsToBusinessLocalDateTimesUseCase:
       ConvertInstantsToBusinessLocalDateTimesUseCase(_UnusedConverter()),
-  getCompanyBusinessDateUseCase:
-      GetCompanyBusinessDateUseCase(_UnusedDateProvider()),
+  getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+    _UnusedDateProvider(),
+  ),
 );
 
 final class _QueuedDriversRepository implements DriversRepository {

@@ -109,10 +109,7 @@ void main() {
     });
 
     cubit.watchCompany('company-1');
-    repository.addChange(
-      'company-1',
-      resource: CompanyDataResource.drivers,
-    );
+    repository.addChange('company-1', resource: CompanyDataResource.drivers);
     await Future<void>.delayed(Duration.zero);
 
     expect(cubit.state.revisionFor(CompanyInvalidationResource.drivers), 1);
@@ -141,9 +138,7 @@ final class _ControllableRepository implements CompanyDataChangesRepository {
     String companyId, {
     CompanyDataResource resource = CompanyDataResource.customers,
   }) => controllers[companyId]!.add(
-    Success(
-      CompanyDataChange(companyId: companyId, resource: resource),
-    ),
+    Success(CompanyDataChange(companyId: companyId, resource: resource)),
   );
 
   void addFailure(String companyId) => controllers[companyId]!.add(
