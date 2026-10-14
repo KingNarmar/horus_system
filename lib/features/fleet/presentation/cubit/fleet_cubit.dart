@@ -296,9 +296,18 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
     String? notes,
   }) async {
     final context = _currentCompanyContext;
-    if (context == null) return;
+    if (context == null || !_isCurrentFleetContext(context)) return;
+    if (tractorHead != null && tractorHead.companyId != context.companyId) {
+      emit(
+        const FleetFailure(
+          PermissionFailure(code: FailureCodes.permissionFleetManagement),
+        ),
+      );
+      return;
+    }
 
     final businessDateResult = await getCurrentBusinessDate();
+    if (!_isCurrentFleetContext(context)) return;
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) {
       emit(FleetFailure(businessDateFailure));
@@ -322,6 +331,7 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
         notes: notes,
       ),
     );
+    if (!_isCurrentFleetContext(context)) return;
     result.when(
       success: _upsertTractorHead,
       failure: (failure) => emit(FleetFailure(failure)),
@@ -336,9 +346,18 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
     String? technicalNotes,
   }) async {
     final context = _currentCompanyContext;
-    if (context == null) return;
+    if (context == null || !_isCurrentFleetContext(context)) return;
+    if (trailer != null && trailer.companyId != context.companyId) {
+      emit(
+        const FleetFailure(
+          PermissionFailure(code: FailureCodes.permissionFleetManagement),
+        ),
+      );
+      return;
+    }
 
     final businessDateResult = await getCurrentBusinessDate();
+    if (!_isCurrentFleetContext(context)) return;
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) {
       emit(FleetFailure(businessDateFailure));
@@ -361,6 +380,7 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
         technicalNotes: technicalNotes,
       ),
     );
+    if (!_isCurrentFleetContext(context)) return;
     result.when(
       success: _upsertTrailer,
       failure: (failure) => emit(FleetFailure(failure)),
