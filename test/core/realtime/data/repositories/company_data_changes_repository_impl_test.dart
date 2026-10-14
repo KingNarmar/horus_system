@@ -8,7 +8,7 @@ import 'package:horus_system/core/realtime/domain/entities/company_data_change.d
 import 'package:test/test.dart';
 
 void main() {
-  test('two private sources emit typed, targeted company changes', () async {
+  test('three private sources emit typed, targeted company changes', () async {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
     final changes = <CompanyDataChange>[];
@@ -21,17 +21,20 @@ void main() {
 
     source.customers.add(RealtimeChangeSignal.changed);
     source.drivers.add(RealtimeChangeSignal.subscribed);
+    source.fleet.add(RealtimeChangeSignal.changed);
     await Future<void>.delayed(Duration.zero);
 
     expect(changes.map((item) => item.resource).toList(), [
       CompanyDataResource.customers,
       CompanyDataResource.drivers,
+      CompanyDataResource.fleet,
     ]);
     expect(changes.every((item) => item.companyId == 'company-a'), isTrue);
 
     await subscription.cancel();
     expect(source.customerCanceled, isTrue);
     expect(source.driverCanceled, isTrue);
+    expect(source.fleetCanceled, isTrue);
     await source.close();
   });
 
@@ -57,6 +60,7 @@ void main() {
 final class _Source implements CompanyDataChangesRemoteDataSource {
   bool customerCanceled = false;
   bool driverCanceled = false;
+  bool fleetCanceled = false;
 
   late final StreamController<RealtimeChangeSignal> customers =
       StreamController<RealtimeChangeSignal>(
@@ -69,6 +73,12 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
         onCancel: () => driverCanceled = true,
       );
 
+  late final StreamController<RealtimeChangeSignal> fleet =
+      StreamController<RealtimeChangeSignal>(
+        sync: true,
+        onCancel: () => fleetCanceled = true,
+      );
+
   @override
   Stream<RealtimeChangeSignal> watchCustomers({required String companyId}) =>
       customers.stream;
@@ -77,8 +87,13 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   Stream<RealtimeChangeSignal> watchDrivers({required String companyId}) =>
       drivers.stream;
 
+  @override
+  Stream<RealtimeChangeSignal> watchFleet({required String companyId}) =>
+      fleet.stream;
+
   Future<void> close() async {
     await customers.close();
     await drivers.close();
+    await fleet.close();
   }
 }

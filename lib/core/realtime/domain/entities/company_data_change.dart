@@ -1,4 +1,5 @@
-/// Server mutation origins. Only Customers Broadcast is enabled in R2.
+/// Server mutation origins. Enabling an origin requires a reviewed
+/// server-owned Broadcast and a resource-specific subscription.
 /// Additional sources require separately reviewed server-side authorization.
 enum CompanyDataResource {
   customers,

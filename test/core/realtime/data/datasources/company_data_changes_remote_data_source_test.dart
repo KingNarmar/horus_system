@@ -159,6 +159,40 @@ void main() {
     await subscription.cancel();
     expect(gateway.removed, [channel]);
   });
+  test('Fleet private topic accepts only current-company Fleet hints', () async {
+    final gateway = _FakeGateway();
+    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+      gateway,
+    );
+    final events = <RealtimeChangeSignal>[];
+    final subscription = source.watchFleet(companyId: 'company-a').listen(
+      events.add,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final channel = gateway.channels.single;
+    expect(channel.topic, RealtimeTopics.fleet('company-a'));
+    expect(channel.event, RealtimeTopics.customersChangedEvent);
+
+    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+    channel.onMessage({
+      'payload': {'company_id': 'company-b', 'resource': 'fleet'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'drivers'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'fleet'},
+    });
+    await Future<void>.delayed(Duration.zero);
+
+    expect(events, [
+      RealtimeChangeSignal.subscribed,
+      RealtimeChangeSignal.changed,
+    ]);
+    await subscription.cancel();
+    expect(gateway.removed, [channel]);
+  });
 }
 
 final class _FakeGateway implements RealtimeChannelGateway {
