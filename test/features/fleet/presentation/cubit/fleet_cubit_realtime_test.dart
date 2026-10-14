@@ -24,49 +24,52 @@ import 'package:test/test.dart';
 import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
-  test('coalesces hints and keeps filters, tab and latest Fleet rows', () async {
-    final repository = _QueuedFleetRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'coalesces hints and keeps filters, tab and latest Fleet rows',
+    () async {
+      final repository = _QueuedFleetRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    final initial = cubit.loadFleet(_companyA);
-    repository.completeTractors(0, [_tractor('a', 'T-100')]);
-    await Future<void>.delayed(Duration.zero);
-    repository.completeTrailers(0, [_trailer('a', 'TR-100')]);
-    await initial;
+      final initial = cubit.loadFleet(_companyA);
+      repository.completeTractors(0, [_tractor('a', 'T-100')]);
+      await Future<void>.delayed(Duration.zero);
+      repository.completeTrailers(0, [_trailer('a', 'TR-100')]);
+      await initial;
 
-    cubit.setStatusFilter(VehicleStatusFilter.all);
-    cubit.selectTab(FleetAssetTab.trailers);
-    cubit.setSearchQuery('NEW');
+      cubit.setStatusFilter(VehicleStatusFilter.all);
+      cubit.selectTab(FleetAssetTab.trailers);
+      cubit.setSearchQuery('NEW');
 
-    final refresh = cubit.refreshFleetAssets(_companyA);
-    final duplicateHint = cubit.refreshFleetAssets(_companyA);
-    expect(repository.tractorRequests, ['company-a', 'company-a']);
+      final refresh = cubit.refreshFleetAssets(_companyA);
+      final duplicateHint = cubit.refreshFleetAssets(_companyA);
+      expect(repository.tractorRequests, ['company-a', 'company-a']);
 
-    repository.completeTractors(1, [_tractor('a', 'T-OLD')]);
-    await Future<void>.delayed(Duration.zero);
-    repository.completeTrailers(1, [_trailer('a', 'TR-OLD')]);
-    await Future<void>.delayed(Duration.zero);
-    expect(repository.tractorRequests, [
-      'company-a',
-      'company-a',
-      'company-a',
-    ]);
+      repository.completeTractors(1, [_tractor('a', 'T-OLD')]);
+      await Future<void>.delayed(Duration.zero);
+      repository.completeTrailers(1, [_trailer('a', 'TR-OLD')]);
+      await Future<void>.delayed(Duration.zero);
+      expect(repository.tractorRequests, [
+        'company-a',
+        'company-a',
+        'company-a',
+      ]);
 
-    repository.completeTractors(2, [_tractor('a', 'T-NEW')]);
-    await Future<void>.delayed(Duration.zero);
-    repository.completeTrailers(2, [_trailer('a', 'TR-NEW')]);
-    await refresh;
-    await duplicateHint;
+      repository.completeTractors(2, [_tractor('a', 'T-NEW')]);
+      await Future<void>.delayed(Duration.zero);
+      repository.completeTrailers(2, [_trailer('a', 'TR-NEW')]);
+      await refresh;
+      await duplicateHint;
 
-    final state = cubit.state as FleetLoaded;
-    expect(state.searchQuery, 'NEW');
-    expect(state.statusFilter, VehicleStatusFilter.all);
-    expect(state.selectedTab, FleetAssetTab.trailers);
-    expect(state.allTractorHeads.single.plateNumber, 'T-NEW');
-    expect(state.allTrailers.single.plateNumber, 'TR-NEW');
-    expect(state.trailers.single.plateNumber, 'TR-NEW');
-  });
+      final state = cubit.state as FleetLoaded;
+      expect(state.searchQuery, 'NEW');
+      expect(state.statusFilter, VehicleStatusFilter.all);
+      expect(state.selectedTab, FleetAssetTab.trailers);
+      expect(state.allTractorHeads.single.plateNumber, 'T-NEW');
+      expect(state.allTrailers.single.plateNumber, 'TR-NEW');
+      expect(state.trailers.single.plateNumber, 'TR-NEW');
+    },
+  );
 
   test('late tenant-A loads never overwrite tenant-B data', () async {
     final repository = _QueuedFleetRepository();
@@ -117,36 +120,39 @@ void main() {
     expect(cubit.state, isA<FleetFailure>());
   });
 
-  test('temporary refresh failure keeps Fleet list and typed failure', () async {
-    final repository = _QueuedFleetRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'temporary refresh failure keeps Fleet list and typed failure',
+    () async {
+      final repository = _QueuedFleetRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    final initial = cubit.loadFleet(_companyA);
-    repository.completeTractors(0, [_tractor('a', 'T-100')]);
-    await Future<void>.delayed(Duration.zero);
-    repository.completeTrailers(0, [_trailer('a', 'TR-100')]);
-    await initial;
+      final initial = cubit.loadFleet(_companyA);
+      repository.completeTractors(0, [_tractor('a', 'T-100')]);
+      await Future<void>.delayed(Duration.zero);
+      repository.completeTrailers(0, [_trailer('a', 'TR-100')]);
+      await initial;
 
-    final refresh = cubit.refreshFleetAssets(_companyA);
-    repository.completeTractorsResult(
-      1,
-      const FailureResult<List<TractorHead>>(
-        NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
-      ),
-    );
-    await Future<void>.delayed(Duration.zero);
-    repository.completeTrailers(1, []);
-    await refresh;
+      final refresh = cubit.refreshFleetAssets(_companyA);
+      repository.completeTractorsResult(
+        1,
+        const FailureResult<List<TractorHead>>(
+          NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      repository.completeTrailers(1, []);
+      await refresh;
 
-    final state = cubit.state as FleetLoaded;
-    expect(state.allTractorHeads.single.plateNumber, 'T-100');
-    expect(state.allTrailers.single.plateNumber, 'TR-100');
-    expect(
-      state.refreshFailure?.code,
-      FailureCodes.realtimeSubscriptionUnavailable,
-    );
-  });
+      final state = cubit.state as FleetLoaded;
+      expect(state.allTractorHeads.single.plateNumber, 'T-100');
+      expect(state.allTrailers.single.plateNumber, 'TR-100');
+      expect(
+        state.refreshFailure?.code,
+        FailureCodes.realtimeSubscriptionUnavailable,
+      );
+    },
+  );
 
   test('disposed Cubit rejects a late initial Fleet result', () async {
     final repository = _QueuedFleetRepository();
@@ -169,23 +175,29 @@ const _companyB = CurrentCompanyContext(
   role: CompanyRole.owner,
 );
 
-TractorHead _tractor(String id, String plate, {String companyId = 'company-a'}) =>
-    TractorHead(
-      id: id,
-      companyId: companyId,
-      plateNumber: plate,
-      status: VehicleStatus.available,
-      isActive: true,
-    );
+TractorHead _tractor(
+  String id,
+  String plate, {
+  String companyId = 'company-a',
+}) => TractorHead(
+  id: id,
+  companyId: companyId,
+  plateNumber: plate,
+  status: VehicleStatus.available,
+  isActive: true,
+);
 
-TrailerEntity _trailer(String id, String plate, {String companyId = 'company-a'}) =>
-    TrailerEntity(
-      id: id,
-      companyId: companyId,
-      plateNumber: plate,
-      status: VehicleStatus.available,
-      isActive: true,
-    );
+TrailerEntity _trailer(
+  String id,
+  String plate, {
+  String companyId = 'company-a',
+}) => TrailerEntity(
+  id: id,
+  companyId: companyId,
+  plateNumber: plate,
+  status: VehicleStatus.available,
+  isActive: true,
+);
 
 FleetCubit _createCubit(_QueuedFleetRepository repository) => FleetCubit(
   getTractorHeadsUseCase: GetTractorHeadsUseCase(repository),
@@ -197,13 +209,16 @@ FleetCubit _createCubit(_QueuedFleetRepository repository) => FleetCubit(
   reactivateTractorHeadUseCase: ReactivateTractorHeadUseCase(repository),
   deactivateTrailerUseCase: DeactivateTrailerUseCase(repository),
   reactivateTrailerUseCase: ReactivateTrailerUseCase(repository),
-  getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(_UnusedAuditRepository()),
+  getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase(
+    _UnusedAuditRepository(),
+  ),
   convertInstantsToBusinessLocalDateTimesUseCase:
       const ConvertInstantsToBusinessLocalDateTimesUseCase(
         FakeBusinessTimeZoneConverter(),
       ),
-  getCompanyBusinessDateUseCase:
-      GetCompanyBusinessDateUseCase(_UnusedDateProvider()),
+  getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+    _UnusedDateProvider(),
+  ),
 );
 
 final class _QueuedFleetRepository implements FleetRepository {
@@ -213,7 +228,9 @@ final class _QueuedFleetRepository implements FleetRepository {
   final List<Completer<Result<List<TrailerEntity>>>> _trailerCompleters = [];
 
   @override
-  Future<Result<List<TractorHead>>> getTractorHeads({required String companyId}) {
+  Future<Result<List<TractorHead>>> getTractorHeads({
+    required String companyId,
+  }) {
     tractorRequests.add(companyId);
     final completer = Completer<Result<List<TractorHead>>>();
     _tractorCompleters.add(completer);

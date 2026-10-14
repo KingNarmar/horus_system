@@ -71,7 +71,8 @@ class FleetCubit extends Cubit<FleetState>
 
     final previous = state;
     final previousLoaded = previous is FleetLoaded ? previous : null;
-    final sameCompany = previousLoaded?.currentCompanyContext.companyId ==
+    final sameCompany =
+        previousLoaded?.currentCompanyContext.companyId ==
         currentCompanyContext.companyId;
     final query = sameCompany ? previousLoaded!.searchQuery : '';
     final filter = sameCompany
@@ -84,7 +85,9 @@ class FleetCubit extends Cubit<FleetState>
     _initialLoadInProgress = true;
     emit(const FleetLoading());
     try {
-      final params = GetFleetParams(currentCompanyContext: currentCompanyContext);
+      final params = GetFleetParams(
+        currentCompanyContext: currentCompanyContext,
+      );
       final tractors = await getTractorHeadsUseCase(params);
       if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
 
@@ -135,10 +138,8 @@ class FleetCubit extends Cubit<FleetState>
       _currentCompanyContext?.companyId == context.companyId &&
       _currentCompanyContext?.role == context.role;
 
-  bool _isCurrentFleetRequest(
-    CurrentCompanyContext context,
-    int requestId,
-  ) => _isCurrentFleetContext(context) && requestId == _loadRequestId;
+  bool _isCurrentFleetRequest(CurrentCompanyContext context, int requestId) =>
+      _isCurrentFleetContext(context) && requestId == _loadRequestId;
 
   bool _isSelectedActivityCurrent(
     int requestId,

@@ -68,7 +68,8 @@ mixin FleetRealtimeActions on Cubit<FleetState> {
       return;
     }
 
-    final failure = tractorsResult.failureOrNull ?? trailersResult.failureOrNull;
+    final failure =
+        tractorsResult.failureOrNull ?? trailersResult.failureOrNull;
     if (failure != null) {
       if (failure is PermissionFailure || failure is AuthFailure) {
         ++owner._activityRequestId;
@@ -99,7 +100,8 @@ mixin FleetRealtimeActions on Cubit<FleetState> {
         }
       }
     }
-    final selectedRemoved = selectedId != null &&
+    final selectedRemoved =
+        selectedId != null &&
         selectedTractor == null &&
         selectedTrailer == null;
     if (selectedRemoved) ++owner._activityRequestId;
@@ -109,10 +111,12 @@ mixin FleetRealtimeActions on Cubit<FleetState> {
         allTractorHeads: tractors,
         allTrailers: trailers,
         selectedAssetId: selectedRemoved ? null : selectedId,
-        selectedAssetActivity:
-            selectedRemoved ? const [] : latest.selectedAssetActivity,
-        selectedAssetActivityTimestampsByLogId:
-            selectedRemoved ? const {} : latest.selectedAssetActivityTimestampsByLogId,
+        selectedAssetActivity: selectedRemoved
+            ? const []
+            : latest.selectedAssetActivity,
+        selectedAssetActivityTimestampsByLogId: selectedRemoved
+            ? const {}
+            : latest.selectedAssetActivityTimestampsByLogId,
         isActivityLoading: selectedRemoved ? false : latest.isActivityLoading,
         activityFailure: selectedRemoved ? null : latest.activityFailure,
         refreshFailure: null,

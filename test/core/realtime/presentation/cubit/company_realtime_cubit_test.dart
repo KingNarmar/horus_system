@@ -119,32 +119,37 @@ void main() {
     );
     expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
   });
-  test('Fleet only invalidates its selected and derived read projections', () async {
-    final repository = _ControllableRepository();
-    final cubit = CompanyRealtimeCubit(
-      watchChanges: WatchCompanyDataChangesUseCase(repository),
-    );
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+  test(
+    'Fleet only invalidates its selected and derived read projections',
+    () async {
+      final repository = _ControllableRepository();
+      final cubit = CompanyRealtimeCubit(
+        watchChanges: WatchCompanyDataChangesUseCase(repository),
+      );
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
 
-    cubit.watchCompany('company-1');
-    repository.addChange('company-1', resource: CompanyDataResource.fleet);
-    await Future<void>.delayed(Duration.zero);
+      cubit.watchCompany('company-1');
+      repository.addChange('company-1', resource: CompanyDataResource.fleet);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(cubit.state.revisionFor(CompanyInvalidationResource.fleet), 1);
-    expect(
-      cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups),
-      1,
-    );
-    expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
-    expect(cubit.state.revisionFor(CompanyInvalidationResource.drivers), 0);
-    expect(
-      cubit.state.revisionFor(CompanyInvalidationResource.fleetLicenseDocuments),
-      0,
-    );
-  });
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.fleet), 1);
+      expect(
+        cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups),
+        1,
+      );
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
+      expect(cubit.state.revisionFor(CompanyInvalidationResource.drivers), 0);
+      expect(
+        cubit.state.revisionFor(
+          CompanyInvalidationResource.fleetLicenseDocuments,
+        ),
+        0,
+      );
+    },
+  );
 }
 
 final class _ControllableRepository implements CompanyDataChangesRepository {

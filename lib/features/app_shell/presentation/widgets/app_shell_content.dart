@@ -135,9 +135,8 @@ class AppShellContent extends StatelessWidget {
         child: FleetRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(
-            onReconnect: (context) => context
-                .read<FleetCubit>()
-                .refreshFleetAssets(contextData),
+            onReconnect: (context) =>
+                context.read<FleetCubit>().refreshFleetAssets(contextData),
             child: FleetPage(currentCompanyContext: contextData),
           ),
         ),

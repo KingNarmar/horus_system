@@ -241,5 +241,4 @@ mixin FleetMutationActions on Cubit<FleetState> {
       return s.copyWith(activeStateChangingAssetIds: ids);
     });
   }
-
 }
