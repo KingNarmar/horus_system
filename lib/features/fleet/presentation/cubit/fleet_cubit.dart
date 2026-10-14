@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -59,20 +60,23 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
     if (isClosed) return;
+    final companyChanged =
+        _currentCompanyContext?.companyId != currentCompanyContext.companyId;
     _currentCompanyContext = currentCompanyContext;
+    if (companyChanged) _realtimeRefreshPending = false;
     final requestId = ++_loadRequestId;
     ++_activityRequestId;
 
     final previous = state;
-    final sameCompany = previous is FleetLoaded &&
-        previous.currentCompanyContext.companyId ==
-            currentCompanyContext.companyId;
-    final query = sameCompany ? previous.searchQuery : '';
+    final previousLoaded = previous is FleetLoaded ? previous : null;
+    final sameCompany = previousLoaded?.currentCompanyContext.companyId ==
+        currentCompanyContext.companyId;
+    final query = sameCompany ? previousLoaded!.searchQuery : '';
     final filter = sameCompany
-        ? previous.statusFilter
+        ? previousLoaded!.statusFilter
         : VehicleStatusFilter.active;
     final tab = sameCompany
-        ? previous.selectedTab
+        ? previousLoaded!.selectedTab
         : FleetAssetTab.tractorHeads;
 
     _initialLoadInProgress = true;
@@ -172,14 +176,25 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
       _mapLoaded((s) => s.copyWith(selectedTab: tab, searchQuery: ''));
 
   Future<void> loadTractorHeadActivity(TractorHead item) =>
-      _loadActivity(item.id, AuditEntityType.tractorHead);
-  Future<void> loadTrailerActivity(TrailerEntity item) =>
-      _loadActivity(item.id, AuditEntityType.trailer);
+      _loadActivity(item.id, item.companyId, AuditEntityType.tractorHead);
 
-  Future<void> _loadActivity(String assetId, AuditEntityType entityType) async {
+  Future<void> loadTrailerActivity(TrailerEntity item) =>
+      _loadActivity(item.id, item.companyId, AuditEntityType.trailer);
+
+  Future<void> _loadActivity(
+    String assetId,
+    String companyId,
+    AuditEntityType entityType,
+  ) async {
     final context = _currentCompanyContext;
     final current = state;
-    if (context == null || current is! FleetLoaded) return;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        companyId != context.companyId ||
+        current is! FleetLoaded) {
+      return;
+    }
+    final requestId = ++_activityRequestId;
     emit(
       current.copyWith(
         selectedAssetId: assetId,
@@ -199,7 +214,10 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
       ),
     );
     final latest = state;
-    if (latest is! FleetLoaded || latest.selectedAssetId != assetId) return;
+    if (latest is! FleetLoaded ||
+        !_isSelectedActivityCurrent(requestId, context, assetId)) {
+      return;
+    }
 
     final failure = result.failureOrNull;
     if (failure != null) {
@@ -213,7 +231,7 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
     });
     final projectedState = state;
     if (projectedState is! FleetLoaded ||
-        projectedState.selectedAssetId != assetId) {
+        !_isSelectedActivityCurrent(requestId, context, assetId)) {
       return;
     }
 
@@ -255,16 +273,19 @@ class FleetCubit extends Cubit<FleetState> with FleetRealtimeActions {
     );
   }
 
-  void clearFleetAssetActivity() => _mapLoaded(
-    (s) => s.copyWith(
-      selectedAssetId: null,
-      selectedAssetActivity: const [],
-      selectedAssetActivityTimestampsByLogId:
-          const <String, BusinessLocalDateTime>{},
-      isActivityLoading: false,
-      activityFailure: null,
-    ),
-  );
+  void clearFleetAssetActivity() {
+    ++_activityRequestId;
+    _mapLoaded(
+      (loaded) => loaded.copyWith(
+        selectedAssetId: null,
+        selectedAssetActivity: const [],
+        selectedAssetActivityTimestampsByLogId:
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
+      ),
+    );
+  }
 
   Future<void> saveTractorHead({
     TractorHead? tractorHead,
