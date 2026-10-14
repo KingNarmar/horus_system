@@ -5,11 +5,12 @@ import '../../../../core/realtime/di/realtime_dependencies.dart';
 import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../customers/domain/policies/customers_permission_policy.dart';
+import '../../../drivers/domain/policies/drivers_permission_policy.dart';
 
 /// Owns the single R2 Realtime stream for an authenticated company session.
 ///
-/// For now the only enabled server topic is Customers. Other roles must not
-/// subscribe to it, even while navigating through the shell.
+/// R3 enables separate, private Customers and Drivers topics under this
+/// single session lifecycle. Company and role changes replace the subscription.
 final class CompanyRealtimeSessionBoundary extends StatelessWidget {
   final String companyId;
   final CompanyRole role;
@@ -28,7 +29,10 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!CustomersPermissionPolicy.canViewCustomers(role)) return child;
+    if (!CustomersPermissionPolicy.canViewCustomers(role) &&
+        !DriversPermissionPolicy.canViewDrivers(role)) {
+      return child;
+    }
 
     return BlocProvider<CompanyRealtimeCubit>(
       key: ValueKey((companyId, role, userId)),

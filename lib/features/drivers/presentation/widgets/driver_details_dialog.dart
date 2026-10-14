@@ -50,6 +50,8 @@ class DriverDetailsDialog extends StatelessWidget {
     final isCompact =
         MediaQuery.sizeOf(context).width <= AppSizes.mobileMaxContentWidth;
     final isSelectedDriver = state?.selectedDriver?.id == driver.id;
+    // Never reuse a captured record when another session has changed it.
+    final visibleDriver = isSelectedDriver ? state!.selectedDriver! : driver;
     final activity = isSelectedDriver
         ? state!.selectedDriverActivity
         : const <AuditLog>[];
@@ -80,7 +82,7 @@ class DriverDetailsDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      l10n.driverDetailsTitle(driver.fullName),
+                      l10n.driverDetailsTitle(visibleDriver.fullName),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -98,33 +100,33 @@ class DriverDetailsDialog extends StatelessWidget {
                 children: [
                   AdaptiveDetailRow(
                     label: l10n.driverNameLabel,
-                    value: driver.fullName,
+                    value: visibleDriver.fullName,
                   ),
                   AdaptiveDetailRow(
                     label: l10n.phoneLabel,
-                    value: _optional(driver.phone, l10n),
+                    value: _optional(visibleDriver.phone, l10n),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.nationalIdLabel,
-                    value: _optional(driver.nationalId, l10n),
+                    value: _optional(visibleDriver.nationalId, l10n),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.licenseNumberLabel,
-                    value: _optional(driver.licenseNumber, l10n),
+                    value: _optional(visibleDriver.licenseNumber, l10n),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.licenseExpiryDateLabel,
-                    value: driver.licenseExpiryDate == null
+                    value: visibleDriver.licenseExpiryDate == null
                         ? l10n.emptyValue
-                        : _dateOnly(driver.licenseExpiryDate!),
+                        : _dateOnly(visibleDriver.licenseExpiryDate!),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.notesLabel,
-                    value: _optional(driver.notes, l10n),
+                    value: _optional(visibleDriver.notes, l10n),
                   ),
                   AdaptiveDetailRow(
                     label: l10n.statusHeader,
-                    value: l10n.driverStatusLabel(driver.status),
+                    value: l10n.driverStatusLabel(visibleDriver.status),
                   ),
                 ],
               ),

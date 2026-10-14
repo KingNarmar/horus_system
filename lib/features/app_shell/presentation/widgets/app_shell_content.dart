@@ -33,6 +33,7 @@ import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../../../drivers/presentation/cubit/drivers_cubit.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
+import '../../../drivers/presentation/widgets/drivers_realtime_boundary.dart';
 import '../../../expense_types/di/expense_types_dependencies.dart';
 import '../../../expense_types/domain/policies/expense_types_permission_policy.dart';
 import '../../../expense_types/presentation/cubit/expense_types_cubit.dart';
@@ -113,10 +114,13 @@ class AppShellContent extends StatelessWidget {
           child: CustomersPage(currentCompanyContext: contextData),
         ),
       ),
-      AppShellModule.drivers => _ReconnectAware(
-        onReconnect: (context) =>
-            context.read<DriversCubit>().loadDrivers(contextData),
-        child: DriversPage(currentCompanyContext: contextData),
+      AppShellModule.drivers => DriversRealtimeBoundary(
+        currentCompanyContext: contextData,
+        child: _ReconnectAware(
+          onReconnect: (context) =>
+              context.read<DriversCubit>().refreshDrivers(contextData),
+          child: DriversPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.fleet => MultiBlocProvider(
         providers: [
