@@ -62,31 +62,34 @@ void main() {
       expect(repository.readCalls, 2);
     });
 
-    test('duplicate events coalesce while authoritative read is pending', () async {
-      final repository = _FakeRepository()..activeDocument = _frontDocument;
-      final cubit = _createCubit(repository);
-      addTearDown(cubit.close);
-      await cubit.load(
-        currentCompanyContext: _operationsContext,
-        target: _target,
-      );
+    test(
+      'duplicate events coalesce while authoritative read is pending',
+      () async {
+        final repository = _FakeRepository()..activeDocument = _frontDocument;
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
 
-      final pending = Completer<Result<FleetLicenseDocument?>>();
-      repository.readBarrier = pending;
-      final refresh = cubit.refreshActiveDocument();
-      await cubit.refreshActiveDocument();
-      await cubit.refreshActiveDocument();
-      repository.activeDocument = _frontBackDocument;
-      pending.complete(Success(_frontDocument));
-      await refresh;
-      await Future<void>.delayed(Duration.zero);
+        final pending = Completer<Result<FleetLicenseDocument?>>();
+        repository.readBarrier = pending;
+        final refresh = cubit.refreshActiveDocument();
+        await cubit.refreshActiveDocument();
+        await cubit.refreshActiveDocument();
+        repository.activeDocument = _frontBackDocument;
+        pending.complete(Success(_frontDocument));
+        await refresh;
+        await Future<void>.delayed(Duration.zero);
 
-      expect(repository.readCalls, 3);
-      expect(
-        (cubit.state as FleetLicenseDocumentsLoaded).document?.backFile,
-        isNotNull,
-      );
-    });
+        expect(repository.readCalls, 3);
+        expect(
+          (cubit.state as FleetLicenseDocumentsLoaded).document?.backFile,
+          isNotNull,
+        );
+      },
+    );
 
     test('invalidation during upload waits for local mutation', () async {
       final repository = _FakeRepository()..activeDocument = _frontDocument;

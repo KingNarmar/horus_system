@@ -43,36 +43,37 @@ final class FleetRealtimeBoundary extends StatelessWidget {
       child: CompanyResourceInvalidationBoundary(
         companyId: currentCompanyContext.companyId,
         resources: const {CompanyInvalidationResource.fleet},
-      onInvalidate: (context) =>
-          context.read<FleetCubit>().refreshFleetAssets(currentCompanyContext),
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
-            listenWhen: (previous, current) =>
-                current.companyId == currentCompanyContext.companyId &&
-                current.failure != null &&
-                previous.failure?.code != current.failure?.code,
-            listener: (context, state) {
-              final failure = state.failure;
-              if (failure != null) _showFailure(context, failure);
-            },
-          ),
-          BlocListener<FleetCubit, FleetState>(
-            listenWhen: (previous, current) =>
-                current is FleetLoaded &&
-                current.refreshFailure != null &&
-                (previous is! FleetLoaded ||
-                    previous.refreshFailure?.code !=
-                        current.refreshFailure?.code),
-            listener: (context, state) {
-              if (state is FleetLoaded && state.refreshFailure != null) {
-                _showFailure(context, state.refreshFailure!);
-              }
-            },
-          ),
-        ],
-        child: child,
-      ),
+        onInvalidate: (context) => context
+            .read<FleetCubit>()
+            .refreshFleetAssets(currentCompanyContext),
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+              listenWhen: (previous, current) =>
+                  current.companyId == currentCompanyContext.companyId &&
+                  current.failure != null &&
+                  previous.failure?.code != current.failure?.code,
+              listener: (context, state) {
+                final failure = state.failure;
+                if (failure != null) _showFailure(context, failure);
+              },
+            ),
+            BlocListener<FleetCubit, FleetState>(
+              listenWhen: (previous, current) =>
+                  current is FleetLoaded &&
+                  current.refreshFailure != null &&
+                  (previous is! FleetLoaded ||
+                      previous.refreshFailure?.code !=
+                          current.refreshFailure?.code),
+              listener: (context, state) {
+                if (state is FleetLoaded && state.refreshFailure != null) {
+                  _showFailure(context, state.refreshFailure!);
+                }
+              },
+            ),
+          ],
+          child: child,
+        ),
       ),
     );
   }

@@ -195,58 +195,61 @@ final class FleetLicenseDocumentsCubit
     ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
     try {
-    final businessDateResult = await _getCurrentBusinessDate(current);
-    if (!_isCurrentGeneration(generation)) return false;
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+      final businessDateResult = await _getCurrentBusinessDate(current);
+      if (!_isCurrentGeneration(generation)) return false;
+      final businessDateFailure = businessDateResult.failureOrNull;
+      if (businessDateFailure != null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(isMutating: false, failure: businessDateFailure),
+          );
+        }
+        return false;
       }
-      return false;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(
-          latest.copyWith(
-            isMutating: false,
-            failure: const UnexpectedFailure(),
-          ),
-        );
+      final currentBusinessDate = businessDateResult.dataOrNull;
+      if (currentBusinessDate == null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(
+              isMutating: false,
+              failure: const UnexpectedFailure(),
+            ),
+          );
+        }
+        return false;
       }
-      return false;
-    }
 
-    final result = await uploadFileUseCase(
-      UploadFleetLicenseDocumentFileParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        side: side,
-        file: file,
-        currentBusinessDate: currentBusinessDate,
-        newLicenseExpiryDate: newLicenseExpiryDate,
-      ),
-    );
+      final result = await uploadFileUseCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          side: side,
+          file: file,
+          currentBusinessDate: currentBusinessDate,
+          newLicenseExpiryDate: newLicenseExpiryDate,
+        ),
+      );
 
-    final latest = state;
-    if (!_isCurrentGeneration(generation) ||
-        latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
-    }
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded)
+        return false;
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
 
-    emit(
-      latest.copyWith(
-        document: result.dataOrNull,
-        isMutating: false,
-        failure: null,
-      ),
-    );
-    return true;
+      emit(
+        latest.copyWith(
+          document: result.dataOrNull,
+          isMutating: false,
+          failure: null,
+        ),
+      );
+      return true;
     } finally {
       _flushPendingRefresh();
     }
@@ -267,59 +270,62 @@ final class FleetLicenseDocumentsCubit
     ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
     try {
-    final businessDateResult = await _getCurrentBusinessDate(current);
-    if (!_isCurrentGeneration(generation)) return false;
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+      final businessDateResult = await _getCurrentBusinessDate(current);
+      if (!_isCurrentGeneration(generation)) return false;
+      final businessDateFailure = businessDateResult.failureOrNull;
+      if (businessDateFailure != null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(isMutating: false, failure: businessDateFailure),
+          );
+        }
+        return false;
       }
-      return false;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(
-          latest.copyWith(
-            isMutating: false,
-            failure: const UnexpectedFailure(),
-          ),
-        );
+      final currentBusinessDate = businessDateResult.dataOrNull;
+      if (currentBusinessDate == null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(
+              isMutating: false,
+              failure: const UnexpectedFailure(),
+            ),
+          );
+        }
+        return false;
       }
-      return false;
-    }
 
-    final result = await replaceFileUseCase(
-      ReplaceFleetLicenseDocumentFileParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        document: document,
-        file: file,
-        replacement: replacement,
-        currentBusinessDate: currentBusinessDate,
-        newLicenseExpiryDate: newLicenseExpiryDate,
-      ),
-    );
+      final result = await replaceFileUseCase(
+        ReplaceFleetLicenseDocumentFileParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          document: document,
+          file: file,
+          replacement: replacement,
+          currentBusinessDate: currentBusinessDate,
+          newLicenseExpiryDate: newLicenseExpiryDate,
+        ),
+      );
 
-    final latest = state;
-    if (!_isCurrentGeneration(generation) ||
-        latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
-    }
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded)
+        return false;
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
 
-    emit(
-      latest.copyWith(
-        document: result.dataOrNull,
-        isMutating: false,
-        failure: null,
-      ),
-    );
-    return true;
+      emit(
+        latest.copyWith(
+          document: result.dataOrNull,
+          isMutating: false,
+          failure: null,
+        ),
+      );
+      return true;
     } finally {
       _flushPendingRefresh();
     }
@@ -335,25 +341,26 @@ final class FleetLicenseDocumentsCubit
     ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
     try {
-    final result = await removeDocumentUseCase(
-      FleetLicenseDocumentActionParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        document: document,
-      ),
-    );
+      final result = await removeDocumentUseCase(
+        FleetLicenseDocumentActionParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          document: document,
+        ),
+      );
 
-    final latest = state;
-    if (!_isCurrentGeneration(generation) ||
-        latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
-    }
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded)
+        return false;
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
 
-    emit(latest.copyWith(document: null, isMutating: false, failure: null));
-    return true;
+      emit(latest.copyWith(document: null, isMutating: false, failure: null));
+      return true;
     } finally {
       _flushPendingRefresh();
     }
@@ -378,7 +385,8 @@ final class FleetLicenseDocumentsCubit
     );
     if (!_isCurrentGeneration(generation) ||
         fileReadRequestId != _fileReadRequestId ||
-        state is! FleetLicenseDocumentsLoaded) return null;
+        state is! FleetLicenseDocumentsLoaded)
+      return null;
     final failure = result.failureOrNull;
     if (failure != null) {
       emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));
@@ -418,7 +426,8 @@ final class FleetLicenseDocumentsCubit
     );
     if (!_isCurrentGeneration(generation) ||
         fileReadRequestId != _fileReadRequestId ||
-        state is! FleetLicenseDocumentsLoaded) return null;
+        state is! FleetLicenseDocumentsLoaded)
+      return null;
     final failure = result.failureOrNull;
     if (failure != null) {
       emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));

@@ -176,13 +176,19 @@ void main() {
       expect(channel.topic, RealtimeTopics.fleetLicenseDocuments('company-a'));
       channel.onStatus(RealtimeChannelJoinStatus.subscribed);
       channel.onMessage({
-        'payload': {'company_id': 'company-b', 'resource': 'fleet_license_documents'},
+        'payload': {
+          'company_id': 'company-b',
+          'resource': 'fleet_license_documents',
+        },
       });
       channel.onMessage({
         'payload': {'company_id': 'company-a', 'resource': 'fleet'},
       });
       channel.onMessage({
-        'payload': {'company_id': 'company-a', 'resource': 'fleet_license_documents'},
+        'payload': {
+          'company_id': 'company-a',
+          'resource': 'fleet_license_documents',
+        },
       });
       await Future<void>.delayed(Duration.zero);
 
