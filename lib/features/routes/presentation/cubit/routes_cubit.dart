@@ -64,8 +64,9 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
       final result = await getRoutesUseCase(
         GetRoutesParams(currentCompanyContext: currentCompanyContext),
       );
-      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId))
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) {
         return;
+      }
 
       final loadFailure = result.failureOrNull;
       if (loadFailure != null) {
@@ -76,8 +77,9 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
       final permissionResult = await canManageRoutesUseCase(
         CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
       );
-      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId))
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) {
         return;
+      }
 
       final permissionFailure = permissionResult.failureOrNull;
       if (permissionFailure != null) {
