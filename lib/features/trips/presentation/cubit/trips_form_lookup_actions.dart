@@ -43,7 +43,9 @@ mixin TripsFormLookupActions on Cubit<TripsState> {
     final generation = owner._companyRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
     if (current.formLookups == null) {
-      emit(current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null));
+      emit(
+        current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null),
+      );
     }
 
     final result = await owner.getTripFormLookupsUseCase(

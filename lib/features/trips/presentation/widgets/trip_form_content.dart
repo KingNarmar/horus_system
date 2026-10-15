@@ -53,7 +53,9 @@ extension _TripFormContent on _TripFormDialogState {
             ),
             const SizedBox(height: AppSpacing.md),
             _requiredDropdown(
-              fieldKey: ValueKey(lookups.routes.map((route) => route.id).join('|')),
+              fieldKey: ValueKey(
+                lookups.routes.map((route) => route.id).join('|'),
+              ),
               label: l10n.tripRouteHeader,
               value: _validSelectedValue(_routeId, lookups.routes),
               options: lookups.routes,

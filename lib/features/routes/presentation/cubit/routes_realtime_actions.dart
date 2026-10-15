@@ -3,7 +3,9 @@ part of 'routes_cubit.dart';
 /// Authoritative, company-scoped refresh without replacing the loaded page.
 /// One pending refresh is retained while a query or initial load is running.
 mixin RoutesRealtimeActions on Cubit<RoutesState> {
-  Future<void> refreshRoutes(CurrentCompanyContext currentCompanyContext) async {
+  Future<void> refreshRoutes(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
     final owner = this as RoutesCubit;
     if (owner.isClosed ||
         owner._currentCompanyContext?.companyId !=

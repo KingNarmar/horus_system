@@ -64,7 +64,8 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
       final result = await getRoutesUseCase(
         GetRoutesParams(currentCompanyContext: currentCompanyContext),
       );
-      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) return;
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId))
+        return;
 
       final loadFailure = result.failureOrNull;
       if (loadFailure != null) {
@@ -75,7 +76,8 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
       final permissionResult = await canManageRoutesUseCase(
         CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
       );
-      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) return;
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId))
+        return;
 
       final permissionFailure = permissionResult.failureOrNull;
       if (permissionFailure != null) {
@@ -103,10 +105,8 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     }
   }
 
-  bool _isCurrentRoutesRequest(
-    CurrentCompanyContext context,
-    int requestId,
-  ) => !isClosed &&
+  bool _isCurrentRoutesRequest(CurrentCompanyContext context, int requestId) =>
+      !isClosed &&
       requestId == _loadRequestId &&
       _currentCompanyContext?.companyId == context.companyId;
 
@@ -278,10 +278,7 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     }
     _setRouteActionRunning(id, false);
 
-    result.when(
-      success: _upsertRoute,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertRoute, failure: _emitMutationFailure);
   }
 
   void _emitMutationFailure(Failure failure) {

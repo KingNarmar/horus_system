@@ -11,8 +11,7 @@ abstract final class RealtimeTopics {
 
   static String drivers(String companyId) => 'horus:company:$companyId:drivers';
 
-  static String routes(String companyId) =>
-      'horus:company:$companyId:routes';
+  static String routes(String companyId) => 'horus:company:$companyId:routes';
 
   static String fleet(String companyId) => 'horus:company:$companyId:fleet';
 
