@@ -75,6 +75,10 @@ final class CompanyDataChangesRepositoryImpl
             resource: CompanyDataResource.fleet,
           );
           subscribe(
+            stream: _dataSource.watchRoutes(companyId: companyId),
+            resource: CompanyDataResource.routes,
+          );
+          subscribe(
             stream: _dataSource.watchFleetLicenseDocuments(
               companyId: companyId,
             ),
