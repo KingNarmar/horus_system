@@ -145,7 +145,7 @@ final class FleetLicenseDocumentsCubit
 
         final failure = result.failureOrNull;
         if (failure is PermissionFailure || failure is AuthFailure) {
-          emit(FleetLicenseDocumentsFailure(failure));
+          emit(FleetLicenseDocumentsFailure(failure!));
           return;
         }
         emit(
@@ -234,8 +234,9 @@ final class FleetLicenseDocumentsCubit
 
       final latest = state;
       if (!_isCurrentGeneration(generation) ||
-          latest is! FleetLicenseDocumentsLoaded)
+          latest is! FleetLicenseDocumentsLoaded) {
         return false;
+      }
       final failure = result.failureOrNull;
       if (failure != null) {
         emit(latest.copyWith(isMutating: false, failure: failure));
@@ -310,8 +311,9 @@ final class FleetLicenseDocumentsCubit
 
       final latest = state;
       if (!_isCurrentGeneration(generation) ||
-          latest is! FleetLicenseDocumentsLoaded)
+          latest is! FleetLicenseDocumentsLoaded) {
         return false;
+      }
       final failure = result.failureOrNull;
       if (failure != null) {
         emit(latest.copyWith(isMutating: false, failure: failure));
@@ -351,8 +353,9 @@ final class FleetLicenseDocumentsCubit
 
       final latest = state;
       if (!_isCurrentGeneration(generation) ||
-          latest is! FleetLicenseDocumentsLoaded)
+          latest is! FleetLicenseDocumentsLoaded) {
         return false;
+      }
       final failure = result.failureOrNull;
       if (failure != null) {
         emit(latest.copyWith(isMutating: false, failure: failure));
@@ -385,8 +388,9 @@ final class FleetLicenseDocumentsCubit
     );
     if (!_isCurrentGeneration(generation) ||
         fileReadRequestId != _fileReadRequestId ||
-        state is! FleetLicenseDocumentsLoaded)
+        state is! FleetLicenseDocumentsLoaded) {
       return null;
+    }
     final failure = result.failureOrNull;
     if (failure != null) {
       emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));
@@ -426,8 +430,9 @@ final class FleetLicenseDocumentsCubit
     );
     if (!_isCurrentGeneration(generation) ||
         fileReadRequestId != _fileReadRequestId ||
-        state is! FleetLicenseDocumentsLoaded)
+        state is! FleetLicenseDocumentsLoaded) {
       return null;
+    }
     final failure = result.failureOrNull;
     if (failure != null) {
       emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));
