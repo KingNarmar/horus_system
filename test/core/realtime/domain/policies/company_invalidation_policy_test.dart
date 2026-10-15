@@ -55,6 +55,8 @@ void main() {
     );
 
     expect(affected, contains(CompanyInvalidationResource.tripFormLookups));
+    expect(affected, contains(CompanyInvalidationResource.trips));
+    expect(affected, contains(CompanyInvalidationResource.routes));
     expect(affected, contains(CompanyInvalidationResource.operationalReports));
     expect(affected, isNot(contains(CompanyInvalidationResource.payments)));
   });

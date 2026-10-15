@@ -4,9 +4,10 @@ part of 'trips_cubit.dart';
 /// Never reset open details, filters, form inputs or financial snapshots.
 mixin TripsRouteInvalidationActions on Cubit<TripsState> {
   Future<void> refreshRouteReferences() async {
+    final owner = this as TripsCubit;
     await Future.wait([
       refreshTripRouteNames(),
-      refreshTripFormLookups(),
+      owner.refreshTripFormLookups(),
     ]);
   }
 

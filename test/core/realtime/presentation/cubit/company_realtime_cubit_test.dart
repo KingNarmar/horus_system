@@ -119,6 +119,29 @@ void main() {
     );
     expect(cubit.state.revisionFor(CompanyInvalidationResource.customers), 0);
   });
+  test('Routes invalidates list, joined Trip names and form lookups', () async {
+    final repository = _ControllableRepository();
+    final cubit = CompanyRealtimeCubit(
+      watchChanges: WatchCompanyDataChangesUseCase(repository),
+    );
+    addTearDown(() async {
+      await cubit.close();
+      await repository.close();
+    });
+
+    cubit.watchCompany('company-1');
+    repository.addChange('company-1', resource: CompanyDataResource.routes);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.routes), 1);
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.trips), 1);
+    expect(
+      cubit.state.revisionFor(CompanyInvalidationResource.tripFormLookups),
+      1,
+    );
+    expect(cubit.state.revisionFor(CompanyInvalidationResource.payments), 0);
+  });
+
   test(
     'Fleet only invalidates its selected and derived read projections',
     () async {
