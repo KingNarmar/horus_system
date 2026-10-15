@@ -2,20 +2,49 @@ part of 'trips_cubit.dart';
 
 mixin TripsFormLookupActions on Cubit<TripsState> {
   Future<void> loadTripFormLookups() async {
-    final owner = this as TripsCubit;
     final current = state;
-    if (current is! TripsLoaded || current.isFormLookupsLoading) return;
-
+    if (current is! TripsLoaded) return;
     if (current.formLookups != null && current.formLookupsFailure == null) {
       return;
     }
+    await refreshTripFormLookups();
+  }
 
-    final companyGeneration = owner._companyRequestGeneration;
+  /// Refreshes only the form lookups. Keep the open form and its typed values.
+  Future<void> refreshTripFormLookups() async {
+    final owner = this as TripsCubit;
+    if (owner.isClosed || state is! TripsLoaded) {
+      if (!owner.isClosed) owner._lookupsRefreshPending = true;
+      return;
+    }
+    if (owner._lookupsRefreshInProgress) {
+      owner._lookupsRefreshPending = true;
+      return;
+    }
+
+    owner._lookupsRefreshInProgress = true;
+    try {
+      do {
+        owner._lookupsRefreshPending = false;
+        await _refreshTripFormLookupsOnce();
+      } while (owner._lookupsRefreshPending &&
+          !owner.isClosed &&
+          state is TripsLoaded);
+    } finally {
+      owner._lookupsRefreshInProgress = false;
+    }
+  }
+
+  Future<void> _refreshTripFormLookupsOnce() async {
+    final owner = this as TripsCubit;
+    final current = state;
+    if (current is! TripsLoaded) return;
+
+    final generation = owner._companyRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
-
-    emit(
-      current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null),
-    );
+    if (current.formLookups == null) {
+      emit(current.copyWith(isFormLookupsLoading: true, formLookupsFailure: null));
+    }
 
     final result = await owner.getTripFormLookupsUseCase(
       GetTripFormLookupsParams(
@@ -23,15 +52,16 @@ mixin TripsFormLookupActions on Cubit<TripsState> {
       ),
     );
 
-    if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
+    if (owner.isClosed ||
+        !owner._isCurrentLoadedCompanyRequest(generation, companyId)) {
       return;
     }
 
-    final latestState = state as TripsLoaded;
+    final latest = state as TripsLoaded;
     result.when(
       success: (lookups) {
         emit(
-          latestState.copyWith(
+          latest.copyWith(
             formLookups: lookups,
             isFormLookupsLoading: false,
             formLookupsFailure: null,
@@ -40,7 +70,7 @@ mixin TripsFormLookupActions on Cubit<TripsState> {
       },
       failure: (failure) {
         emit(
-          latestState.copyWith(
+          latest.copyWith(
             isFormLookupsLoading: false,
             formLookupsFailure: failure,
           ),
