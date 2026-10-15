@@ -5,9 +5,12 @@ part of 'trips_cubit.dart';
 mixin TripsRouteInvalidationActions on Cubit<TripsState> {
   Future<void> refreshRouteReferences() async {
     final owner = this as TripsCubit;
+    final current = state;
     await Future.wait([
       refreshTripRouteNames(),
-      owner.refreshTripFormLookups(),
+      if (current is TripsLoaded &&
+          (current.formLookups != null || current.isFormLookupsLoading))
+        owner.refreshTripFormLookups(),
     ]);
   }
 

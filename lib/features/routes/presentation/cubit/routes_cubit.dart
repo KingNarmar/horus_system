@@ -306,6 +306,7 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
         selectedRoute: state.selectedRoute?.id == route.id
             ? route
             : state.selectedRoute,
+        refreshFailure: null,
       );
     });
   }
