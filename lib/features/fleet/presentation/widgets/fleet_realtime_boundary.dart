@@ -10,10 +10,11 @@ import '../../../../core/realtime/presentation/widgets/company_resource_invalida
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/policies/fleet_permission_policy.dart';
 import '../cubit/fleet_cubit.dart';
+import '../cubit/fleet_license_documents_cubit.dart';
 import '../cubit/fleet_state.dart';
 
 /// Fleet Assets listens to the company-owned invalidation session, not to
-/// Supabase directly. License documents are a separate R3 source and PR.
+/// Supabase directly. License documents use a separate typed source.
 final class FleetRealtimeBoundary extends StatelessWidget {
   final CurrentCompanyContext currentCompanyContext;
   final Widget child;
@@ -32,7 +33,16 @@ final class FleetRealtimeBoundary extends StatelessWidget {
 
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
-      resources: const {CompanyInvalidationResource.fleet},
+      resources: const {CompanyInvalidationResource.fleetLicenseDocuments},
+      onInvalidate: (context) async {
+        await Future.wait([
+          context.read<FleetLicenseDocumentsCubit>().refreshActiveDocument(),
+          context.read<FleetCubit>().refreshSelectedAssetActivity(),
+        ]);
+      },
+      child: CompanyResourceInvalidationBoundary(
+        companyId: currentCompanyContext.companyId,
+        resources: const {CompanyInvalidationResource.fleet},
       onInvalidate: (context) =>
           context.read<FleetCubit>().refreshFleetAssets(currentCompanyContext),
       child: MultiBlocListener(
@@ -62,6 +72,7 @@ final class FleetRealtimeBoundary extends StatelessWidget {
           ),
         ],
         child: child,
+      ),
       ),
     );
   }

@@ -48,6 +48,7 @@ Future<void> _openTractorHeadDetails(
       ),
     ),
   );
+  documentCubit.dismissDetails();
   fleetCubit.clearFleetAssetActivity();
 }
 

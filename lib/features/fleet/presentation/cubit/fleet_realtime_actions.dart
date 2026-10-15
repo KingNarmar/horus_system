@@ -10,6 +10,30 @@ mixin FleetRealtimeActions on Cubit<FleetState> {
     return context == null ? Future<void>.value() : refreshFleetAssets(context);
   }
 
+  /// Refresh only the currently open Fleet asset audit timeline.
+  Future<void> refreshSelectedAssetActivity() async {
+    final owner = this as FleetCubit;
+    final current = state;
+    if (current is! FleetLoaded ||
+        !owner._isCurrentFleetContext(current.currentCompanyContext)) {
+      return;
+    }
+    final selectedId = current.selectedAssetId;
+    if (selectedId == null) return;
+    for (final asset in current.allTractorHeads) {
+      if (asset.id == selectedId) {
+        await owner.loadTractorHeadActivity(asset);
+        return;
+      }
+    }
+    for (final asset in current.allTrailers) {
+      if (asset.id == selectedId) {
+        await owner.loadTrailerActivity(asset);
+        return;
+      }
+    }
+  }
+
   Future<void> refreshFleetAssets(
     CurrentCompanyContext currentCompanyContext,
   ) async {
