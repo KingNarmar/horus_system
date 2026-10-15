@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +29,13 @@ final class FleetLicenseDocumentsCubit
   final CanManageFleetUseCase canManageFleetUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
 
+  int _generation = 0;
+  int _mutationRevision = 0;
+  int _fileReadRequestId = 0;
+  bool _isLoading = false;
+  bool _isRefreshing = false;
+  bool _refreshPending = false;
+
   FleetLicenseDocumentsCubit({
     required this.getDocumentUseCase,
     required this.uploadFileUseCase,
@@ -43,37 +51,134 @@ final class FleetLicenseDocumentsCubit
     required CurrentCompanyContext currentCompanyContext,
     required FleetLicenseDocumentTarget target,
   }) async {
+    if (isClosed) return;
+    final generation = ++_generation;
+    ++_fileReadRequestId;
+    _refreshPending = false;
+    _isLoading = true;
     emit(const FleetLicenseDocumentsLoading());
 
-    final documentResult = await getDocumentUseCase(
-      GetFleetLicenseDocumentParams(
-        currentCompanyContext: currentCompanyContext,
-        target: target,
-      ),
-    );
-    final documentFailure = documentResult.failureOrNull;
-    if (documentFailure != null) {
-      emit(FleetLicenseDocumentsFailure(documentFailure));
+    try {
+      final documentResult = await getDocumentUseCase(
+        GetFleetLicenseDocumentParams(
+          currentCompanyContext: currentCompanyContext,
+          target: target,
+        ),
+      );
+      if (!_isCurrentGeneration(generation)) return;
+
+      final documentFailure = documentResult.failureOrNull;
+      if (documentFailure != null) {
+        emit(FleetLicenseDocumentsFailure(documentFailure));
+        return;
+      }
+
+      final manageResult = await canManageFleetUseCase(
+        CanManageFleetParams(currentCompanyContext: currentCompanyContext),
+      );
+      if (!_isCurrentGeneration(generation)) return;
+
+      final manageFailure = manageResult.failureOrNull;
+      if (manageFailure != null) {
+        emit(FleetLicenseDocumentsFailure(manageFailure));
+        return;
+      }
+
+      emit(
+        FleetLicenseDocumentsLoaded(
+          currentCompanyContext: currentCompanyContext,
+          target: target,
+          document: documentResult.dataOrNull,
+          canManage: manageResult.dataOrNull ?? false,
+        ),
+      );
+    } finally {
+      if (_isCurrentGeneration(generation)) {
+        _isLoading = false;
+        _flushPendingRefresh();
+      }
+    }
+  }
+
+  /// Authoritative, company-scoped reload. The Broadcast contains no files.
+  /// Requests during an active mutation are coalesced and replayed afterward.
+  Future<void> refreshActiveDocument() async {
+    if (isClosed) return;
+    if (_isLoading || _isRefreshing) {
+      _refreshPending = true;
+      return;
+    }
+    final initial = state;
+    if (initial is! FleetLicenseDocumentsLoaded) return;
+    if (initial.isMutating) {
+      _refreshPending = true;
       return;
     }
 
-    final manageResult = await canManageFleetUseCase(
-      CanManageFleetParams(currentCompanyContext: currentCompanyContext),
-    );
-    final manageFailure = manageResult.failureOrNull;
-    if (manageFailure != null) {
-      emit(FleetLicenseDocumentsFailure(manageFailure));
-      return;
-    }
+    _isRefreshing = true;
+    try {
+      do {
+        _refreshPending = false;
+        final current = state;
+        if (current is! FleetLicenseDocumentsLoaded) return;
+        if (current.isMutating) {
+          _refreshPending = true;
+          return;
+        }
 
-    emit(
-      FleetLicenseDocumentsLoaded(
-        currentCompanyContext: currentCompanyContext,
-        target: target,
-        document: documentResult.dataOrNull,
-        canManage: manageResult.dataOrNull ?? false,
-      ),
-    );
+        final generation = _generation;
+        final mutationRevision = _mutationRevision;
+        final result = await getDocumentUseCase(
+          GetFleetLicenseDocumentParams(
+            currentCompanyContext: current.currentCompanyContext,
+            target: current.target,
+          ),
+        );
+        if (!_isCurrentGeneration(generation)) return;
+
+        final latest = state;
+        if (latest is! FleetLicenseDocumentsLoaded) return;
+        if (latest.isMutating || mutationRevision != _mutationRevision) {
+          _refreshPending = true;
+          return;
+        }
+
+        final failure = result.failureOrNull;
+        if (failure is PermissionFailure || failure is AuthFailure) {
+          emit(FleetLicenseDocumentsFailure(failure!));
+          return;
+        }
+        emit(
+          latest.copyWith(
+            document: failure == null ? result.dataOrNull : latest.document,
+            failure: failure,
+          ),
+        );
+      } while (_refreshPending && state is FleetLicenseDocumentsLoaded);
+    } finally {
+      _isRefreshing = false;
+      _flushPendingRefresh();
+    }
+  }
+
+  /// The page owns this Cubit, but the details route owns its visible target.
+  void dismissDetails() {
+    if (isClosed) return;
+    ++_generation;
+    ++_fileReadRequestId;
+    _refreshPending = false;
+    emit(const FleetLicenseDocumentsInitial());
+  }
+
+  bool _isCurrentGeneration(int generation) =>
+      !isClosed && generation == _generation;
+
+  void _flushPendingRefresh() {
+    if (!_refreshPending || isClosed || _isLoading || _isRefreshing) return;
+    final latest = state;
+    if (latest is FleetLicenseDocumentsLoaded && !latest.isMutating) {
+      unawaited(refreshActiveDocument());
+    }
   }
 
   Future<bool> upload({
@@ -86,57 +191,69 @@ final class FleetLicenseDocumentsCubit
       return false;
     }
 
+    final generation = _generation;
+    ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
-    final businessDateResult = await _getCurrentBusinessDate(current);
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+    try {
+      final businessDateResult = await _getCurrentBusinessDate(current);
+      if (!_isCurrentGeneration(generation)) return false;
+      final businessDateFailure = businessDateResult.failureOrNull;
+      if (businessDateFailure != null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(isMutating: false, failure: businessDateFailure),
+          );
+        }
+        return false;
       }
-      return false;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(
-          latest.copyWith(
-            isMutating: false,
-            failure: const UnexpectedFailure(),
-          ),
-        );
+      final currentBusinessDate = businessDateResult.dataOrNull;
+      if (currentBusinessDate == null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(
+              isMutating: false,
+              failure: const UnexpectedFailure(),
+            ),
+          );
+        }
+        return false;
       }
-      return false;
+
+      final result = await uploadFileUseCase(
+        UploadFleetLicenseDocumentFileParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          side: side,
+          file: file,
+          currentBusinessDate: currentBusinessDate,
+          newLicenseExpiryDate: newLicenseExpiryDate,
+        ),
+      );
+
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded) {
+        return false;
+      }
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
+
+      emit(
+        latest.copyWith(
+          document: result.dataOrNull,
+          isMutating: false,
+          failure: null,
+        ),
+      );
+      return true;
+    } finally {
+      _flushPendingRefresh();
     }
-
-    final result = await uploadFileUseCase(
-      UploadFleetLicenseDocumentFileParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        side: side,
-        file: file,
-        currentBusinessDate: currentBusinessDate,
-        newLicenseExpiryDate: newLicenseExpiryDate,
-      ),
-    );
-
-    final latest = state;
-    if (latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
-    }
-
-    emit(
-      latest.copyWith(
-        document: result.dataOrNull,
-        isMutating: false,
-        failure: null,
-      ),
-    );
-    return true;
   }
 
   Future<bool> replace({
@@ -150,58 +267,70 @@ final class FleetLicenseDocumentsCubit
       return false;
     }
 
+    final generation = _generation;
+    ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
-    final businessDateResult = await _getCurrentBusinessDate(current);
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(latest.copyWith(isMutating: false, failure: businessDateFailure));
+    try {
+      final businessDateResult = await _getCurrentBusinessDate(current);
+      if (!_isCurrentGeneration(generation)) return false;
+      final businessDateFailure = businessDateResult.failureOrNull;
+      if (businessDateFailure != null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(isMutating: false, failure: businessDateFailure),
+          );
+        }
+        return false;
       }
-      return false;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      final latest = state;
-      if (latest is FleetLicenseDocumentsLoaded) {
-        emit(
-          latest.copyWith(
-            isMutating: false,
-            failure: const UnexpectedFailure(),
-          ),
-        );
+      final currentBusinessDate = businessDateResult.dataOrNull;
+      if (currentBusinessDate == null) {
+        final latest = state;
+        if (latest is FleetLicenseDocumentsLoaded) {
+          emit(
+            latest.copyWith(
+              isMutating: false,
+              failure: const UnexpectedFailure(),
+            ),
+          );
+        }
+        return false;
       }
-      return false;
+
+      final result = await replaceFileUseCase(
+        ReplaceFleetLicenseDocumentFileParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          document: document,
+          file: file,
+          replacement: replacement,
+          currentBusinessDate: currentBusinessDate,
+          newLicenseExpiryDate: newLicenseExpiryDate,
+        ),
+      );
+
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded) {
+        return false;
+      }
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
+
+      emit(
+        latest.copyWith(
+          document: result.dataOrNull,
+          isMutating: false,
+          failure: null,
+        ),
+      );
+      return true;
+    } finally {
+      _flushPendingRefresh();
     }
-
-    final result = await replaceFileUseCase(
-      ReplaceFleetLicenseDocumentFileParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        document: document,
-        file: file,
-        replacement: replacement,
-        currentBusinessDate: currentBusinessDate,
-        newLicenseExpiryDate: newLicenseExpiryDate,
-      ),
-    );
-
-    final latest = state;
-    if (latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
-    }
-
-    emit(
-      latest.copyWith(
-        document: result.dataOrNull,
-        isMutating: false,
-        failure: null,
-      ),
-    );
-    return true;
   }
 
   Future<bool> remove(FleetLicenseDocument document) async {
@@ -210,31 +339,42 @@ final class FleetLicenseDocumentsCubit
       return false;
     }
 
+    final generation = _generation;
+    ++_mutationRevision;
     emit(current.copyWith(isMutating: true, failure: null));
-    final result = await removeDocumentUseCase(
-      FleetLicenseDocumentActionParams(
-        currentCompanyContext: current.currentCompanyContext,
-        target: current.target,
-        document: document,
-      ),
-    );
+    try {
+      final result = await removeDocumentUseCase(
+        FleetLicenseDocumentActionParams(
+          currentCompanyContext: current.currentCompanyContext,
+          target: current.target,
+          document: document,
+        ),
+      );
 
-    final latest = state;
-    if (latest is! FleetLicenseDocumentsLoaded) return false;
-    final failure = result.failureOrNull;
-    if (failure != null) {
-      emit(latest.copyWith(isMutating: false, failure: failure));
-      return false;
+      final latest = state;
+      if (!_isCurrentGeneration(generation) ||
+          latest is! FleetLicenseDocumentsLoaded) {
+        return false;
+      }
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        emit(latest.copyWith(isMutating: false, failure: failure));
+        return false;
+      }
+
+      emit(latest.copyWith(document: null, isMutating: false, failure: null));
+      return true;
+    } finally {
+      _flushPendingRefresh();
     }
-
-    emit(latest.copyWith(document: null, isMutating: false, failure: null));
-    return true;
   }
 
   Future<BusinessDocumentAccess?> createAccess(
     FleetLicenseDocument document,
     FleetLicenseDocumentFile file,
   ) async {
+    final generation = _generation;
+    final fileReadRequestId = ++_fileReadRequestId;
     final current = state;
     if (current is! FleetLicenseDocumentsLoaded) return null;
 
@@ -246,13 +386,18 @@ final class FleetLicenseDocumentsCubit
         file: file,
       ),
     );
+    if (!_isCurrentGeneration(generation) ||
+        fileReadRequestId != _fileReadRequestId ||
+        state is! FleetLicenseDocumentsLoaded) {
+      return null;
+    }
     final failure = result.failureOrNull;
     if (failure != null) {
-      emit(current.copyWith(failure: failure));
+      emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));
       return null;
     }
 
-    emit(current.copyWith(failure: null));
+    emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: null));
     return result.dataOrNull;
   }
 
@@ -270,6 +415,8 @@ final class FleetLicenseDocumentsCubit
     FleetLicenseDocument document,
     FleetLicenseDocumentFile file,
   ) async {
+    final generation = _generation;
+    final fileReadRequestId = ++_fileReadRequestId;
     final current = state;
     if (current is! FleetLicenseDocumentsLoaded) return null;
 
@@ -281,13 +428,18 @@ final class FleetLicenseDocumentsCubit
         file: file,
       ),
     );
+    if (!_isCurrentGeneration(generation) ||
+        fileReadRequestId != _fileReadRequestId ||
+        state is! FleetLicenseDocumentsLoaded) {
+      return null;
+    }
     final failure = result.failureOrNull;
     if (failure != null) {
-      emit(current.copyWith(failure: failure));
+      emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: failure));
       return null;
     }
 
-    emit(current.copyWith(failure: null));
+    emit((state as FleetLicenseDocumentsLoaded).copyWith(failure: null));
     return result.dataOrNull;
   }
 }

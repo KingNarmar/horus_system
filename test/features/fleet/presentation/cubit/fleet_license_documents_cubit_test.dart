@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:horus_system/core/documents/domain/entities/business_document_access.dart';
@@ -39,6 +40,105 @@ void main() {
       expect(state.canManage, isTrue);
       expect(state.isMutating, isFalse);
       expect(state.failure, isNull);
+    });
+
+    test('authoritative refresh updates a visible document', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+      repository.activeDocument = _frontBackDocument;
+
+      await cubit.refreshActiveDocument();
+
+      final latest = cubit.state as FleetLicenseDocumentsLoaded;
+      expect(latest.document?.backFile?.id, _backFile.id);
+      expect(latest.isMutating, isFalse);
+      expect(latest.failure, isNull);
+      expect(repository.readCalls, 2);
+    });
+
+    test(
+      'duplicate events coalesce while authoritative read is pending',
+      () async {
+        final repository = _FakeRepository()..activeDocument = _frontDocument;
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
+
+        final pending = Completer<Result<FleetLicenseDocument?>>();
+        repository.readBarrier = pending;
+        final refresh = cubit.refreshActiveDocument();
+        await cubit.refreshActiveDocument();
+        await cubit.refreshActiveDocument();
+        repository.activeDocument = _frontBackDocument;
+        pending.complete(Success(_frontDocument));
+        await refresh;
+        await Future<void>.delayed(Duration.zero);
+
+        expect(repository.readCalls, 3);
+        expect(
+          (cubit.state as FleetLicenseDocumentsLoaded).document?.backFile,
+          isNotNull,
+        );
+      },
+    );
+
+    test('invalidation during upload waits for local mutation', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+
+      final pending = Completer<Result<FleetLicenseDocument>>();
+      repository.addBarrier = pending;
+      final upload = cubit.upload(
+        side: FleetLicenseDocumentFileSide.back,
+        file: _businessFile,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect((cubit.state as FleetLicenseDocumentsLoaded).isMutating, isTrue);
+      await cubit.refreshActiveDocument();
+      repository.activeDocument = _frontBackDocument;
+      pending.complete(Success(_frontBackDocument));
+      expect(await upload, isTrue);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(repository.readCalls, 3);
+      final latest = cubit.state as FleetLicenseDocumentsLoaded;
+      expect(latest.document?.backFile, isNotNull);
+      expect(latest.isMutating, isFalse);
+    });
+
+    test('closing details discards a late document refresh', () async {
+      final repository = _FakeRepository()..activeDocument = _frontDocument;
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.load(
+        currentCompanyContext: _operationsContext,
+        target: _target,
+      );
+
+      final pending = Completer<Result<FleetLicenseDocument?>>();
+      repository.readBarrier = pending;
+      final refresh = cubit.refreshActiveDocument();
+      cubit.dismissDetails();
+      pending.complete(Success(_frontBackDocument));
+      await refresh;
+
+      expect(cubit.state, isA<FleetLicenseDocumentsInitial>());
+      await cubit.refreshActiveDocument();
+      expect(repository.readCalls, 2);
     });
 
     test('viewer load remains read-only', () async {
@@ -213,11 +313,20 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
   Result<FleetLicenseDocument> addResult = Success(_frontDocument);
   Result<void> removeResult = const Success<void>(null);
   int addCalls = 0;
+  int readCalls = 0;
+  Completer<Result<FleetLicenseDocument?>>? readBarrier;
+  Completer<Result<FleetLicenseDocument>>? addBarrier;
 
   @override
   Future<Result<FleetLicenseDocument?>> getActiveDocument({
     required FleetLicenseDocumentTarget target,
   }) async {
+    readCalls += 1;
+    final pending = readBarrier;
+    if (pending != null) {
+      readBarrier = null;
+      return pending.future;
+    }
     return Success(activeDocument);
   }
 
@@ -240,7 +349,8 @@ final class _FakeRepository implements FleetLicenseDocumentsRepository {
     BusinessDate? newLicenseExpiryDate,
   }) async {
     addCalls += 1;
-    return addResult;
+    final pending = addBarrier;
+    return pending == null ? addResult : pending.future;
   }
 
   @override

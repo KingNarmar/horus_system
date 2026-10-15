@@ -74,6 +74,12 @@ final class CompanyDataChangesRepositoryImpl
             stream: _dataSource.watchFleet(companyId: companyId),
             resource: CompanyDataResource.fleet,
           );
+          subscribe(
+            stream: _dataSource.watchFleetLicenseDocuments(
+              companyId: companyId,
+            ),
+            resource: CompanyDataResource.fleetLicenseDocuments,
+          );
         } catch (_) {
           if (!disposed && !controller.isClosed) {
             controller.add(unavailable);

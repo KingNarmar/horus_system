@@ -160,6 +160,48 @@ void main() {
     expect(gateway.removed, [channel]);
   });
   test(
+    'Fleet license documents subscribe privately and reject foreign hints',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final events = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchFleetLicenseDocuments(companyId: 'company-a')
+          .listen(events.add);
+      await Future<void>.delayed(Duration.zero);
+
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.fleetLicenseDocuments('company-a'));
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {
+          'company_id': 'company-b',
+          'resource': 'fleet_license_documents',
+        },
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'fleet'},
+      });
+      channel.onMessage({
+        'payload': {
+          'company_id': 'company-a',
+          'resource': 'fleet_license_documents',
+        },
+      });
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+    },
+  );
+
+  test(
     'Fleet private topic accepts only current-company Fleet hints',
     () async {
       final gateway = _FakeGateway();

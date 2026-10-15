@@ -15,6 +15,14 @@ void main() {
     expect(affected, isNot(contains(CompanyInvalidationResource.payments)));
   });
 
+  test('Fleet license documents only invalidate document projections', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.fleetLicenseDocuments,
+    );
+
+    expect(affected, {CompanyInvalidationResource.fleetLicenseDocuments});
+  });
+
   test('canonical ledger affects trip, driver and financial projections', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.expenseLedger,
