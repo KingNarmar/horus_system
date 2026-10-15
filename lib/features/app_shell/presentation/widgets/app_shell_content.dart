@@ -50,6 +50,7 @@ import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
+import '../../../routes/presentation/widgets/routes_realtime_boundary.dart';
 import '../../../subscriptions/di/subscriptions_dependencies.dart';
 import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
@@ -143,10 +144,13 @@ class AppShellContent extends StatelessWidget {
       ),
       AppShellModule.routes => BlocProvider<RoutesCubit>(
         create: (_) => RoutesDependencies.createRoutesCubit(),
-        child: _ReconnectAware(
-          onReconnect: (context) =>
-              context.read<RoutesCubit>().loadRoutes(contextData),
-          child: RoutesPage(currentCompanyContext: contextData),
+        child: RoutesRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: _ReconnectAware(
+            onReconnect: (context) =>
+                context.read<RoutesCubit>().refreshRoutes(contextData),
+            child: RoutesPage(currentCompanyContext: contextData),
+          ),
         ),
       ),
       AppShellModule.trips => BlocProvider<TripsCubit>(
