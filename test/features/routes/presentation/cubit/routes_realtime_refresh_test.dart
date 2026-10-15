@@ -96,19 +96,22 @@ void main() {
     );
   });
 
-  test('late request from another company never replaces tenant state', () async {
-    final first = cubit.loadRoutes(_company('company-a'));
-    final second = cubit.loadRoutes(_company('company-b'));
+  test(
+    'late request from another company never replaces tenant state',
+    () async {
+      final first = cubit.loadRoutes(_company('company-a'));
+      final second = cubit.loadRoutes(_company('company-b'));
 
-    routes.complete(1, const Success([_foreign]));
-    await second;
-    routes.complete(0, const Success([_original]));
-    await first;
+      routes.complete(1, const Success([_foreign]));
+      await second;
+      routes.complete(0, const Success([_original]));
+      await first;
 
-    final state = cubit.state as RoutesLoaded;
-    expect(state.currentCompanyContext.companyId, 'company-b');
-    expect(state.allRoutes.single.companyId, 'company-b');
-  });
+      final state = cubit.state as RoutesLoaded;
+      expect(state.currentCompanyContext.companyId, 'company-b');
+      expect(state.allRoutes.single.companyId, 'company-b');
+    },
+  );
 }
 
 const _original = RouteEntity(
