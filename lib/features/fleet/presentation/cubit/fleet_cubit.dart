@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -17,7 +20,11 @@ import '../../domain/entities/vehicle_status_filter.dart';
 import '../../domain/usecases/fleet_usecases.dart';
 import 'fleet_state.dart';
 
-class FleetCubit extends Cubit<FleetState> {
+part 'fleet_realtime_actions.dart';
+part 'fleet_mutation_actions.dart';
+
+class FleetCubit extends Cubit<FleetState>
+    with FleetRealtimeActions, FleetMutationActions {
   final GetTractorHeadsUseCase getTractorHeadsUseCase;
   final GetTrailersUseCase getTrailersUseCase;
   final CanManageFleetUseCase canManageFleetUseCase;
@@ -32,6 +39,11 @@ class FleetCubit extends Cubit<FleetState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
   CurrentCompanyContext? _currentCompanyContext;
+  int _loadRequestId = 0;
+  int _activityRequestId = 0;
+  bool _initialLoadInProgress = false;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   FleetCubit({
     required this.getTractorHeadsUseCase,
@@ -49,46 +61,102 @@ class FleetCubit extends Cubit<FleetState> {
   }) : super(const FleetInitial());
 
   Future<void> loadFleet(CurrentCompanyContext currentCompanyContext) async {
+    if (isClosed) return;
+    final companyChanged =
+        _currentCompanyContext?.companyId != currentCompanyContext.companyId;
     _currentCompanyContext = currentCompanyContext;
+    if (companyChanged) _realtimeRefreshPending = false;
+    final requestId = ++_loadRequestId;
+    ++_activityRequestId;
+
     final previous = state;
-    final query = previous is FleetLoaded ? previous.searchQuery : '';
-    final filter = previous is FleetLoaded
-        ? previous.statusFilter
+    final previousLoaded = previous is FleetLoaded ? previous : null;
+    final sameCompany =
+        previousLoaded?.currentCompanyContext.companyId ==
+        currentCompanyContext.companyId;
+    final query = sameCompany ? previousLoaded!.searchQuery : '';
+    final filter = sameCompany
+        ? previousLoaded!.statusFilter
         : VehicleStatusFilter.active;
-    final tab = previous is FleetLoaded
-        ? previous.selectedTab
+    final tab = sameCompany
+        ? previousLoaded!.selectedTab
         : FleetAssetTab.tractorHeads;
+
+    _initialLoadInProgress = true;
     emit(const FleetLoading());
-    final params = GetFleetParams(currentCompanyContext: currentCompanyContext);
-    final tractorHeadsResult = await getTractorHeadsUseCase(params);
-    final trailersResult = await getTrailersUseCase(params);
-    final failure =
-        tractorHeadsResult.failureOrNull ?? trailersResult.failureOrNull;
-    if (failure != null) {
-      emit(FleetFailure(failure));
-      return;
-    }
-
-    final manageResult = await canManageFleetUseCase(
-      CanManageFleetParams(currentCompanyContext: currentCompanyContext),
-    );
-    final manageFailure = manageResult.failureOrNull;
-    if (manageFailure != null) {
-      emit(FleetFailure(manageFailure));
-      return;
-    }
-
-    emit(
-      FleetLoaded(
+    try {
+      final params = GetFleetParams(
         currentCompanyContext: currentCompanyContext,
-        allTractorHeads: tractorHeadsResult.dataOrNull ?? const [],
-        allTrailers: trailersResult.dataOrNull ?? const [],
-        canManageFleet: manageResult.dataOrNull ?? false,
-        searchQuery: query,
-        statusFilter: filter,
-        selectedTab: tab,
-      ),
-    );
+      );
+      final tractors = await getTractorHeadsUseCase(params);
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
+
+      final trailers = await getTrailersUseCase(params);
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
+
+      final failure = tractors.failureOrNull ?? trailers.failureOrNull;
+      if (failure != null) {
+        emit(FleetFailure(failure));
+        return;
+      }
+
+      final manage = await canManageFleetUseCase(
+        CanManageFleetParams(currentCompanyContext: currentCompanyContext),
+      );
+      if (!_isCurrentFleetRequest(currentCompanyContext, requestId)) return;
+
+      final permissionFailure = manage.failureOrNull;
+      if (permissionFailure != null) {
+        emit(FleetFailure(permissionFailure));
+        return;
+      }
+
+      emit(
+        FleetLoaded(
+          currentCompanyContext: currentCompanyContext,
+          allTractorHeads: tractors.dataOrNull ?? const [],
+          allTrailers: trailers.dataOrNull ?? const [],
+          canManageFleet: manage.dataOrNull ?? false,
+          searchQuery: query,
+          statusFilter: filter,
+          selectedTab: tab,
+        ),
+      );
+    } finally {
+      if (_isCurrentFleetRequest(currentCompanyContext, requestId)) {
+        _initialLoadInProgress = false;
+        if (_realtimeRefreshPending && state is FleetLoaded) {
+          _realtimeRefreshPending = false;
+          unawaited(refreshFleetAssets(currentCompanyContext));
+        }
+      }
+    }
+  }
+
+  bool _isCurrentFleetContext(CurrentCompanyContext context) =>
+      !isClosed &&
+      _currentCompanyContext?.companyId == context.companyId &&
+      _currentCompanyContext?.role == context.role;
+
+  bool _isCurrentFleetRequest(CurrentCompanyContext context, int requestId) =>
+      _isCurrentFleetContext(context) && requestId == _loadRequestId;
+
+  bool _isSelectedActivityCurrent(
+    int requestId,
+    CurrentCompanyContext context,
+    String assetId,
+  ) {
+    final current = state;
+    return _isCurrentFleetContext(context) &&
+        requestId == _activityRequestId &&
+        current is FleetLoaded &&
+        current.currentCompanyContext.companyId == context.companyId &&
+        current.selectedAssetId == assetId;
+  }
+
+  void _didApplyLocalAssetMutation() {
+    ++_loadRequestId;
+    if (_isRealtimeRefreshing) _realtimeRefreshPending = true;
   }
 
   Future<Result<BusinessDate>> getCurrentBusinessDate() {
@@ -111,14 +179,25 @@ class FleetCubit extends Cubit<FleetState> {
       _mapLoaded((s) => s.copyWith(selectedTab: tab, searchQuery: ''));
 
   Future<void> loadTractorHeadActivity(TractorHead item) =>
-      _loadActivity(item.id, AuditEntityType.tractorHead);
-  Future<void> loadTrailerActivity(TrailerEntity item) =>
-      _loadActivity(item.id, AuditEntityType.trailer);
+      _loadActivity(item.id, item.companyId, AuditEntityType.tractorHead);
 
-  Future<void> _loadActivity(String assetId, AuditEntityType entityType) async {
+  Future<void> loadTrailerActivity(TrailerEntity item) =>
+      _loadActivity(item.id, item.companyId, AuditEntityType.trailer);
+
+  Future<void> _loadActivity(
+    String assetId,
+    String companyId,
+    AuditEntityType entityType,
+  ) async {
     final context = _currentCompanyContext;
     final current = state;
-    if (context == null || current is! FleetLoaded) return;
+    if (context == null ||
+        !_isCurrentFleetContext(context) ||
+        companyId != context.companyId ||
+        current is! FleetLoaded) {
+      return;
+    }
+    final requestId = ++_activityRequestId;
     emit(
       current.copyWith(
         selectedAssetId: assetId,
@@ -138,7 +217,10 @@ class FleetCubit extends Cubit<FleetState> {
       ),
     );
     final latest = state;
-    if (latest is! FleetLoaded || latest.selectedAssetId != assetId) return;
+    if (latest is! FleetLoaded ||
+        !_isSelectedActivityCurrent(requestId, context, assetId)) {
+      return;
+    }
 
     final failure = result.failureOrNull;
     if (failure != null) {
@@ -152,7 +234,7 @@ class FleetCubit extends Cubit<FleetState> {
     });
     final projectedState = state;
     if (projectedState is! FleetLoaded ||
-        projectedState.selectedAssetId != assetId) {
+        !_isSelectedActivityCurrent(requestId, context, assetId)) {
       return;
     }
 
@@ -194,190 +276,18 @@ class FleetCubit extends Cubit<FleetState> {
     );
   }
 
-  void clearFleetAssetActivity() => _mapLoaded(
-    (s) => s.copyWith(
-      selectedAssetId: null,
-      selectedAssetActivity: const [],
-      selectedAssetActivityTimestampsByLogId:
-          const <String, BusinessLocalDateTime>{},
-      isActivityLoading: false,
-      activityFailure: null,
-    ),
-  );
-
-  Future<void> saveTractorHead({
-    TractorHead? tractorHead,
-    required String plateNumber,
-    required VehicleStatus status,
-    BusinessDate? licenseExpiryDate,
-    double? expectedFuelConsumption,
-    String? notes,
-  }) async {
-    final context = _currentCompanyContext;
-    if (context == null) return;
-
-    final businessDateResult = await getCurrentBusinessDate();
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      emit(FleetFailure(businessDateFailure));
-      return;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      emit(const FleetFailure(UnexpectedFailure()));
-      return;
-    }
-
-    final result = await saveTractorHeadUseCase(
-      SaveTractorHeadParams(
-        currentCompanyContext: context,
-        id: tractorHead?.id,
-        plateNumber: plateNumber,
-        status: status,
-        licenseExpiryDate: licenseExpiryDate,
-        currentBusinessDate: currentBusinessDate,
-        expectedFuelConsumption: expectedFuelConsumption,
-        notes: notes,
+  void clearFleetAssetActivity() {
+    ++_activityRequestId;
+    _mapLoaded(
+      (loaded) => loaded.copyWith(
+        selectedAssetId: null,
+        selectedAssetActivity: const [],
+        selectedAssetActivityTimestampsByLogId:
+            const <String, BusinessLocalDateTime>{},
+        isActivityLoading: false,
+        activityFailure: null,
       ),
     );
-    result.when(
-      success: _upsertTractorHead,
-      failure: (failure) => emit(FleetFailure(failure)),
-    );
-  }
-
-  Future<void> saveTrailer({
-    TrailerEntity? trailer,
-    required String plateNumber,
-    required VehicleStatus status,
-    BusinessDate? licenseExpiryDate,
-    String? technicalNotes,
-  }) async {
-    final context = _currentCompanyContext;
-    if (context == null) return;
-
-    final businessDateResult = await getCurrentBusinessDate();
-    final businessDateFailure = businessDateResult.failureOrNull;
-    if (businessDateFailure != null) {
-      emit(FleetFailure(businessDateFailure));
-      return;
-    }
-    final currentBusinessDate = businessDateResult.dataOrNull;
-    if (currentBusinessDate == null) {
-      emit(const FleetFailure(UnexpectedFailure()));
-      return;
-    }
-
-    final result = await saveTrailerUseCase(
-      SaveTrailerParams(
-        currentCompanyContext: context,
-        id: trailer?.id,
-        plateNumber: plateNumber,
-        status: status,
-        licenseExpiryDate: licenseExpiryDate,
-        currentBusinessDate: currentBusinessDate,
-        technicalNotes: technicalNotes,
-      ),
-    );
-    result.when(
-      success: _upsertTrailer,
-      failure: (failure) => emit(FleetFailure(failure)),
-    );
-  }
-
-  Future<void> deactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item.id, deactivateTractorHeadUseCase.call);
-  Future<void> reactivateTractorHead(TractorHead item) =>
-      _changeTractorHeadActiveState(item.id, reactivateTractorHeadUseCase.call);
-  Future<void> deactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item.id, deactivateTrailerUseCase.call);
-  Future<void> reactivateTrailer(TrailerEntity item) =>
-      _changeTrailerActiveState(item.id, reactivateTrailerUseCase.call);
-
-  Future<void> refreshAssets() async {
-    final context = _currentCompanyContext;
-    final current = state;
-    if (context == null || current is! FleetLoaded) return;
-
-    final params = GetFleetParams(currentCompanyContext: context);
-    final tractorHeadsResult = await getTractorHeadsUseCase(params);
-    final trailersResult = await getTrailersUseCase(params);
-    final failure =
-        tractorHeadsResult.failureOrNull ?? trailersResult.failureOrNull;
-    if (failure != null) {
-      emit(FleetFailure(failure));
-      return;
-    }
-
-    emit(
-      current.copyWith(
-        allTractorHeads:
-            tractorHeadsResult.dataOrNull ?? current.allTractorHeads,
-        allTrailers: trailersResult.dataOrNull ?? current.allTrailers,
-      ),
-    );
-  }
-
-  Future<void> _changeTractorHeadActiveState(
-    String id,
-    Future<Result<TractorHead>> Function(FleetAssetStatusParams params) useCase,
-  ) async {
-    final context = _currentCompanyContext;
-    if (context == null || _isAssetActionRunning(id)) return;
-    _setAssetActionRunning(id, true);
-    final result = await useCase(
-      FleetAssetStatusParams(currentCompanyContext: context, id: id),
-    );
-    _setAssetActionRunning(id, false);
-    result.when(
-      success: _upsertTractorHead,
-      failure: (failure) => emit(FleetFailure(failure)),
-    );
-  }
-
-  Future<void> _changeTrailerActiveState(
-    String id,
-    Future<Result<TrailerEntity>> Function(FleetAssetStatusParams params)
-    useCase,
-  ) async {
-    final context = _currentCompanyContext;
-    if (context == null || _isAssetActionRunning(id)) return;
-    _setAssetActionRunning(id, true);
-    final result = await useCase(
-      FleetAssetStatusParams(currentCompanyContext: context, id: id),
-    );
-    _setAssetActionRunning(id, false);
-    result.when(
-      success: _upsertTrailer,
-      failure: (failure) => emit(FleetFailure(failure)),
-    );
-  }
-
-  void _upsertTractorHead(TractorHead item) => _mapLoaded(
-    (s) => s.copyWith(
-      allTractorHeads: _upsertById(
-        s.allTractorHeads,
-        item,
-        (current) => current.id,
-      ),
-    ),
-  );
-
-  void _upsertTrailer(TrailerEntity item) => _mapLoaded(
-    (s) => s.copyWith(
-      allTrailers: _upsertById(s.allTrailers, item, (current) => current.id),
-    ),
-  );
-
-  bool _isAssetActionRunning(String id) =>
-      state is FleetLoaded && (state as FleetLoaded).isActiveStateChanging(id);
-
-  void _setAssetActionRunning(String id, bool isRunning) {
-    _mapLoaded((s) {
-      final ids = {...s.activeStateChangingAssetIds};
-      isRunning ? ids.add(id) : ids.remove(id);
-      return s.copyWith(activeStateChangingAssetIds: ids);
-    });
   }
 
   void _mapLoaded(FleetLoaded Function(FleetLoaded state) mapper) {

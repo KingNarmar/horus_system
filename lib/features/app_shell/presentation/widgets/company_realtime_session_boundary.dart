@@ -6,11 +6,12 @@ import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart
 import '../../../company/domain/entities/company_role.dart';
 import '../../../customers/domain/policies/customers_permission_policy.dart';
 import '../../../drivers/domain/policies/drivers_permission_policy.dart';
+import '../../../fleet/domain/policies/fleet_permission_policy.dart';
 
 /// Owns the single R2 Realtime stream for an authenticated company session.
 ///
-/// R3 enables separate, private Customers and Drivers topics under this
-/// single session lifecycle. Company and role changes replace the subscription.
+/// Customers, Drivers and Fleet private topics share this single session.
+/// Company, user and role changes dispose the previous subscriptions.
 final class CompanyRealtimeSessionBoundary extends StatelessWidget {
   final String companyId;
   final CompanyRole role;
@@ -30,7 +31,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!CustomersPermissionPolicy.canViewCustomers(role) &&
-        !DriversPermissionPolicy.canViewDrivers(role)) {
+        !DriversPermissionPolicy.canViewDrivers(role) &&
+        !FleetPermissionPolicy.canViewFleet(role)) {
       return child;
     }
 

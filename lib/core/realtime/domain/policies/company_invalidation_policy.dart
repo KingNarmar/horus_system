@@ -4,8 +4,8 @@ import '../entities/company_invalidation_resource.dart';
 /// Maps server-owned mutation sources to authoritative read projections.
 ///
 /// This describes dependencies; it does not enable a Broadcast source.
-/// R2 only receives Customers changes. R3/R4 will enable other sources
-/// independently after their database authorization and mutation review.
+/// Customers, Drivers and Fleet Assets sources are connected independently.
+/// Other sources require separate server authorization and mutation review.
 abstract final class CompanyInvalidationPolicy {
   static const Map<CompanyDataResource, Set<CompanyInvalidationResource>>
   _dependencies = {

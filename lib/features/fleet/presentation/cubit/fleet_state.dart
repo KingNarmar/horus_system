@@ -38,6 +38,7 @@ class FleetLoaded extends FleetState {
   selectedAssetActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? refreshFailure;
 
   const FleetLoaded({
     required this.currentCompanyContext,
@@ -54,6 +55,7 @@ class FleetLoaded extends FleetState {
         const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.refreshFailure,
   });
 
   bool isActiveStateChanging(String id) =>
@@ -103,6 +105,7 @@ class FleetLoaded extends FleetState {
     Map<String, BusinessLocalDateTime>? selectedAssetActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? refreshFailure = _notSet,
   }) {
     return FleetLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -126,6 +129,9 @@ class FleetLoaded extends FleetState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      refreshFailure: refreshFailure == _notSet
+          ? this.refreshFailure
+          : refreshFailure as Failure?,
     );
   }
 }
