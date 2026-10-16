@@ -35,12 +35,17 @@ void main() {
 
       final result = await repository.saveTrip(
         id: testTripId,
+        expectedUpdatedAt: DateTime.utc(2026, 9, 18),
         data: testTripWriteData,
         financialConfiguration: testFinancialConfiguration,
       );
 
       expect(result, isA<Success<TripEntity>>());
       expect(events, ['save']);
+      expect(
+        remoteDataSource.lastExpectedUpdatedAt,
+        DateTime.utc(2026, 9, 18),
+      );
       expect(
         remoteDataSource.lastSaveFinancialConfiguration,
         testFinancialConfiguration,
