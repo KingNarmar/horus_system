@@ -39,7 +39,9 @@ final class TripsRealtimeBoundary extends StatelessWidget {
         companyId: currentCompanyContext.companyId,
         resources: const {CompanyInvalidationResource.tripFormLookups},
         onInvalidate: (context) {
-          if (!TripsPermissionPolicy.canManageTrips(currentCompanyContext.role)) {
+          if (!TripsPermissionPolicy.canManageTrips(
+            currentCompanyContext.role,
+          )) {
             return Future<void>.value();
           }
           final cubit = context.read<TripsCubit>();
