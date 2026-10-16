@@ -96,6 +96,8 @@ class TripsCubit extends Cubit<TripsState>
   CurrentCompanyContext? _currentCompanyContext;
   int _companyRequestGeneration = 0;
   int _detailsRequestGeneration = 0;
+  int _statusHistoryRequestRevision = 0;
+  int _activityRequestRevision = 0;
   int _tripMutationRevision = 0;
   bool _tripsRefreshInProgress = false;
   bool _tripsRefreshPending = false;
