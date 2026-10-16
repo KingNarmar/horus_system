@@ -62,6 +62,7 @@ class CreateTripParams {
 class SaveTripParams {
   final CurrentCompanyContext currentCompanyContext;
   final String id;
+  final DateTime expectedUpdatedAt;
   final String customerId;
   final String routeId;
   final String? driverId;
@@ -80,6 +81,7 @@ class SaveTripParams {
   const SaveTripParams({
     required this.currentCompanyContext,
     required this.id,
+    required this.expectedUpdatedAt,
     required this.customerId,
     required this.routeId,
     this.driverId,
