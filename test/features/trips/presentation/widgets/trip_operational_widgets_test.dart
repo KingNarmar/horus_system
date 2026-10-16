@@ -342,10 +342,7 @@ final _realtimeLookups = TripFormLookups(
         )!.currency,
       ),
     ),
-    const TripRouteLookupOption(
-      id: 'route-2',
-      label: 'Jebel Ali -> Sharjah',
-    ),
+    const TripRouteLookupOption(id: 'route-2', label: 'Jebel Ali -> Sharjah'),
   ],
   drivers: const [],
   tractorHeads: const [],
