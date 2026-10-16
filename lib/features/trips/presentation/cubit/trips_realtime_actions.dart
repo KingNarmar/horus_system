@@ -53,9 +53,7 @@ mixin TripsRealtimeActions on Cubit<TripsState> {
         emit(TripsFailure(failure));
       } else {
         emit(
-          (state as TripsLoaded).copyWith(
-            tripsRealtimeRefreshFailure: failure,
-          ),
+          (state as TripsLoaded).copyWith(tripsRealtimeRefreshFailure: failure),
         );
       }
       return;
