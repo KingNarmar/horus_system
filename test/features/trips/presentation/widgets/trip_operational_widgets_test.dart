@@ -204,8 +204,8 @@ void main() {
         lookups.value = _realtimeLookups;
         await tester.pumpAndSettle();
 
-        final routeField = tester.widget<DropdownButtonFormField<String>>(
-          find.byType(DropdownButtonFormField<String>).at(1),
+        final routeField = tester.widget<DropdownButton<String>>(
+          find.byType(DropdownButton<String>).at(1),
         );
         expect(routeField.items!.map((item) => item.value), [
           'route-1',
@@ -250,8 +250,8 @@ void main() {
         lookups.value = _lookupsWithoutSelectedRoute;
         await tester.pumpAndSettle();
 
-        final routeField = tester.widget<DropdownButtonFormField<String>>(
-          find.byType(DropdownButtonFormField<String>).at(1),
+        final routeField = tester.widget<DropdownButton<String>>(
+          find.byType(DropdownButton<String>).at(1),
         );
         expect(routeField.items!.map((item) => item.value), ['route-2']);
 
