@@ -36,6 +36,7 @@ class RoutesLoaded extends RoutesState {
   selectedRouteActivityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? refreshFailure;
 
   const RoutesLoaded({
     required this.currentCompanyContext,
@@ -49,6 +50,7 @@ class RoutesLoaded extends RoutesState {
     this.selectedRouteActivityTimestampsByLogId = const {},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.refreshFailure,
   });
 
   bool isActiveStateChanging(String id) {
@@ -89,6 +91,7 @@ class RoutesLoaded extends RoutesState {
     Map<String, BusinessLocalDateTime>? selectedRouteActivityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? refreshFailure = _notSet,
   }) {
     return RoutesLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -110,6 +113,9 @@ class RoutesLoaded extends RoutesState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      refreshFailure: refreshFailure == _notSet
+          ? this.refreshFailure
+          : refreshFailure as Failure?,
     );
   }
 

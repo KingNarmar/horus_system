@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
@@ -167,6 +169,100 @@ void main() {
       },
     );
 
+    testWidgets(
+      'live Route lookups update an open Trip form without clearing typed freight',
+      (tester) async {
+        final lookups = ValueNotifier<TripFormLookups>(_lookups);
+        addTearDown(lookups.dispose);
+
+        await tester.pumpWidget(
+          _dialogLauncher(
+            builder: (_) => ValueListenableBuilder<TripFormLookups>(
+              valueListenable: lookups,
+              builder: (_, available, _) => TripFormDialog(
+                title: 'Edit trip',
+                trip: _editableTrip,
+                lookups: available,
+                financialConfiguration: CurrencyConfiguration.tryCreate(
+                  currencyCode: 'AED',
+                  fractionDigits: 2,
+                ),
+                onSubmit: (_) async => const TripMutationSucceeded(),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.byKey(const Key('open-dialog')));
+        await tester.pumpAndSettle();
+
+        final freightField = find.byType(TextFormField).at(3);
+        await tester.ensureVisible(freightField);
+        await tester.enterText(freightField, '123.45');
+        await tester.pump();
+
+        // Simulate both a new Route and a remote default-rate update.
+        lookups.value = _realtimeLookups;
+        await tester.pumpAndSettle();
+
+        final routeField = tester.widget<DropdownButton<String>>(
+          find.byType(DropdownButton<String>).at(1),
+        );
+        expect(routeField.items!.map((item) => item.value), [
+          'route-1',
+          'route-2',
+        ]);
+        expect(
+          tester.widget<TextFormField>(freightField).controller!.text,
+          '123.45',
+        );
+        expect(find.byType(TripFormDialog), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'remotely deactivated Route cannot be submitted from an open Trip form',
+      (tester) async {
+        final lookups = ValueNotifier<TripFormLookups>(_lookups);
+        addTearDown(lookups.dispose);
+        var submitCalls = 0;
+
+        await tester.pumpWidget(
+          _dialogLauncher(
+            builder: (_) => ValueListenableBuilder<TripFormLookups>(
+              valueListenable: lookups,
+              builder: (_, available, _) => TripFormDialog(
+                title: 'Edit trip',
+                trip: _editableTrip,
+                lookups: available,
+                financialConfiguration: null,
+                onSubmit: (_) async {
+                  submitCalls++;
+                  return const TripMutationSucceeded();
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.byKey(const Key('open-dialog')));
+        await tester.pumpAndSettle();
+
+        // The selected route-1 disappears from authoritative active lookups.
+        lookups.value = _lookupsWithoutSelectedRoute;
+        await tester.pumpAndSettle();
+
+        final routeField = tester.widget<DropdownButton<String>>(
+          find.byType(DropdownButton<String>).at(1),
+        );
+        expect(routeField.items!.map((item) => item.value), ['route-2']);
+
+        await tester.tap(find.text(AppLocalizationsEn().saveButton));
+        await tester.pumpAndSettle();
+
+        expect(submitCalls, 0);
+        expect(find.byType(TripFormDialog), findsOneWidget);
+      },
+    );
+
     testWidgets('status dialog blocks duplicate submit while pending', (
       tester,
     ) async {
@@ -227,6 +323,35 @@ final _editableTrip = TripEntity(
 const _lookups = TripFormLookups(
   customers: [TripLookupOption(id: 'customer-1', label: 'Customer One')],
   routes: [TripRouteLookupOption(id: 'route-1', label: 'Dubai -> Abu Dhabi')],
+  drivers: [],
+  tractorHeads: [],
+  trailers: [],
+);
+
+final _realtimeLookups = TripFormLookups(
+  customers: const [TripLookupOption(id: 'customer-1', label: 'Customer One')],
+  routes: [
+    TripRouteLookupOption(
+      id: 'route-1',
+      label: 'Dubai -> Abu Dhabi (updated)',
+      defaultFreightRatePerTon: Money(
+        minorUnits: 20000,
+        currency: CurrencyConfiguration.tryCreate(
+          currencyCode: 'AED',
+          fractionDigits: 2,
+        )!.currency,
+      ),
+    ),
+    const TripRouteLookupOption(id: 'route-2', label: 'Jebel Ali -> Sharjah'),
+  ],
+  drivers: const [],
+  tractorHeads: const [],
+  trailers: const [],
+);
+
+const _lookupsWithoutSelectedRoute = TripFormLookups(
+  customers: [TripLookupOption(id: 'customer-1', label: 'Customer One')],
+  routes: [TripRouteLookupOption(id: 'route-2', label: 'Jebel Ali -> Sharjah')],
   drivers: [],
   tractorHeads: [],
   trailers: [],

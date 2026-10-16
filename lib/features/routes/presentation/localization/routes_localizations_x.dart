@@ -29,7 +29,8 @@ extension RoutesLocalizationsX on AppLocalizations {
       'unloading_location' => unloadingLocationLabel,
       'governorate_from' => governorateFromLabel,
       'governorate_to' => governorateToLabel,
-      'default_freight_price' => routeDefaultFreightRatePerTonLabel,
+      'default_freight_price' ||
+      'default_freight_rate_per_ton' => routeDefaultFreightRatePerTonLabel,
       'notes' => routeNotesLabel,
       'is_active' => routeStatusHeader,
       _ => key,

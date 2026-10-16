@@ -75,6 +75,7 @@ class TripsLoaded extends TripsState {
   final TripFormLookups? formLookups;
   final bool isFormLookupsLoading;
   final Failure? formLookupsFailure;
+  final Failure? routeReferenceRefreshFailure;
 
   const TripsLoaded({
     required this.currentCompanyContext,
@@ -123,6 +124,7 @@ class TripsLoaded extends TripsState {
     this.formLookups,
     this.isFormLookupsLoading = false,
     this.formLookupsFailure,
+    this.routeReferenceRefreshFailure,
   });
 
   bool isStatusChanging(String id) => statusChangingTripIds.contains(id);
@@ -211,6 +213,7 @@ class TripsLoaded extends TripsState {
     Object? formLookups = _notSet,
     bool? isFormLookupsLoading,
     Object? formLookupsFailure = _notSet,
+    Object? routeReferenceRefreshFailure = _notSet,
   }) {
     return TripsLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -299,6 +302,9 @@ class TripsLoaded extends TripsState {
       formLookupsFailure: formLookupsFailure == _notSet
           ? this.formLookupsFailure
           : formLookupsFailure as Failure?,
+      routeReferenceRefreshFailure: routeReferenceRefreshFailure == _notSet
+          ? this.routeReferenceRefreshFailure
+          : routeReferenceRefreshFailure as Failure?,
     );
   }
 }

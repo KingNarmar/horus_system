@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -12,7 +16,9 @@ import '../../domain/usecases/can_manage_routes_usecase.dart';
 import '../../domain/usecases/routes_usecases.dart';
 import 'routes_state.dart';
 
-class RoutesCubit extends Cubit<RoutesState> {
+part 'routes_realtime_actions.dart';
+
+class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
   final GetRoutesUseCase getRoutesUseCase;
   final CanManageRoutesUseCase canManageRoutesUseCase;
   final SaveRouteUseCase saveRouteUseCase;
@@ -24,6 +30,9 @@ class RoutesCubit extends Cubit<RoutesState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
   int _activityRequestId = 0;
   int _loadRequestId = 0;
+  bool _initialLoadInProgress = false;
+  bool _isRealtimeRefreshing = false;
+  bool _realtimeRefreshPending = false;
 
   CurrentCompanyContext? _currentCompanyContext;
 
@@ -41,6 +50,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     _currentCompanyContext = currentCompanyContext;
     final loadRequestId = ++_loadRequestId;
     ++_activityRequestId;
+    _initialLoadInProgress = true;
 
     final previous = state;
     final searchQuery = previous is RoutesLoaded ? previous.searchQuery : '';
@@ -50,39 +60,57 @@ class RoutesCubit extends Cubit<RoutesState> {
 
     emit(const RoutesLoading());
 
-    final result = await getRoutesUseCase(
-      GetRoutesParams(currentCompanyContext: currentCompanyContext),
-    );
+    try {
+      final result = await getRoutesUseCase(
+        GetRoutesParams(currentCompanyContext: currentCompanyContext),
+      );
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) {
+        return;
+      }
 
-    if (isClosed || loadRequestId != _loadRequestId) return;
+      final loadFailure = result.failureOrNull;
+      if (loadFailure != null) {
+        emit(RoutesFailure(loadFailure));
+        return;
+      }
 
-    final loadFailure = result.failureOrNull;
-    if (loadFailure != null) {
-      emit(RoutesFailure(loadFailure));
-      return;
+      final permissionResult = await canManageRoutesUseCase(
+        CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
+      );
+      if (!_isCurrentRoutesRequest(currentCompanyContext, loadRequestId)) {
+        return;
+      }
+
+      final permissionFailure = permissionResult.failureOrNull;
+      if (permissionFailure != null) {
+        emit(RoutesFailure(permissionFailure));
+        return;
+      }
+
+      emit(
+        RoutesLoaded(
+          currentCompanyContext: currentCompanyContext,
+          allRoutes: result.dataOrNull ?? const [],
+          canManageRoutes: permissionResult.dataOrNull ?? false,
+          searchQuery: searchQuery,
+          statusFilter: statusFilter,
+        ),
+      );
+    } finally {
+      if (loadRequestId == _loadRequestId) {
+        _initialLoadInProgress = false;
+        if (_realtimeRefreshPending && !isClosed) {
+          _realtimeRefreshPending = false;
+          unawaited(refreshRoutes(currentCompanyContext));
+        }
+      }
     }
-
-    final permissionResult = await canManageRoutesUseCase(
-      CanManageRoutesParams(currentCompanyContext: currentCompanyContext),
-    );
-    if (isClosed || loadRequestId != _loadRequestId) return;
-
-    final permissionFailure = permissionResult.failureOrNull;
-    if (permissionFailure != null) {
-      emit(RoutesFailure(permissionFailure));
-      return;
-    }
-
-    emit(
-      RoutesLoaded(
-        currentCompanyContext: currentCompanyContext,
-        allRoutes: result.dataOrNull ?? const [],
-        canManageRoutes: permissionResult.dataOrNull ?? false,
-        searchQuery: searchQuery,
-        statusFilter: statusFilter,
-      ),
-    );
   }
+
+  bool _isCurrentRoutesRequest(CurrentCompanyContext context, int requestId) =>
+      !isClosed &&
+      requestId == _loadRequestId &&
+      _currentCompanyContext?.companyId == context.companyId;
 
   void setSearchQuery(String query) {
     _mapLoaded((state) => state.copyWith(searchQuery: query));
@@ -180,7 +208,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     }
   }
 
-  Future<void> saveRoute({
+  Future<bool> saveRoute({
     RouteEntity? route,
     required String loadingLocation,
     required String unloadingLocation,
@@ -190,7 +218,7 @@ class RoutesCubit extends Cubit<RoutesState> {
     String? notes,
   }) async {
     final context = _currentCompanyContext;
-    if (context == null) return;
+    if (context == null || isClosed) return false;
 
     final result = await saveRouteUseCase(
       SaveRouteParams(
@@ -205,10 +233,18 @@ class RoutesCubit extends Cubit<RoutesState> {
       ),
     );
 
-    result.when(
-      success: _upsertRoute,
-      failure: (failure) => emit(RoutesFailure(failure)),
-    );
+    if (isClosed || _currentCompanyContext?.companyId != context.companyId) {
+      return false;
+    }
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      _emitMutationFailure(failure);
+      return false;
+    }
+    final saved = result.dataOrNull;
+    if (saved == null) return false;
+    _upsertRoute(saved);
+    return true;
   }
 
   Future<void> deactivateRoute(RouteEntity route) {
@@ -239,21 +275,38 @@ class RoutesCubit extends Cubit<RoutesState> {
       RouteActiveStateParams(currentCompanyContext: context, id: id),
     );
 
+    if (isClosed || _currentCompanyContext?.companyId != context.companyId) {
+      return;
+    }
     _setRouteActionRunning(id, false);
 
-    result.when(
-      success: _upsertRoute,
-      failure: (failure) => emit(RoutesFailure(failure)),
-    );
+    result.when(success: _upsertRoute, failure: _emitMutationFailure);
+  }
+
+  void _emitMutationFailure(Failure failure) {
+    if (isClosed) return;
+    final current = state;
+    if (current is RoutesLoaded &&
+        failure is! PermissionFailure &&
+        failure is! AuthFailure) {
+      emit(current.copyWith(refreshFailure: failure));
+    } else {
+      emit(RoutesFailure(failure));
+    }
   }
 
   void _upsertRoute(RouteEntity route) {
     _mapLoaded((state) {
+      if (state.currentCompanyContext.companyId != route.companyId) {
+        return state;
+      }
+      if (_isRealtimeRefreshing) _realtimeRefreshPending = true;
       return state.copyWith(
         allRoutes: _upsertRouteInList(state.allRoutes, route),
         selectedRoute: state.selectedRoute?.id == route.id
             ? route
             : state.selectedRoute,
+        refreshFailure: null,
       );
     });
   }

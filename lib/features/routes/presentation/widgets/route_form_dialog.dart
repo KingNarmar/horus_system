@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/services/money_input_parser.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
@@ -31,7 +32,7 @@ class RouteFormDialog extends StatefulWidget {
   final String title;
   final RouteEntity? route;
   final CurrencyConfiguration? financialConfiguration;
-  final Future<void> Function(RouteFormData data) onSubmit;
+  final Future<bool> Function(RouteFormData data) onSubmit;
 
   const RouteFormDialog({
     required this.title,
@@ -102,7 +103,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
-        width: 560,
+        width: AppSizes.formDialogMaxWidth,
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -195,7 +196,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
 
     setState(() => _isSubmitting = true);
 
-    await widget.onSubmit(
+    final saved = await widget.onSubmit(
       RouteFormData(
         loadingLocation: _loadingController.text.trim(),
         unloadingLocation: _unloadingController.text.trim(),
@@ -208,8 +209,11 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
       ),
     );
 
-    if (mounted) {
+    if (!mounted) return;
+    if (saved) {
       Navigator.of(context).pop();
+    } else {
+      setState(() => _isSubmitting = false);
     }
   }
 

@@ -191,6 +191,107 @@ void main() {
       },
     );
 
+    test(
+      'Route hints coalesce into one trailing authoritative Trips refresh',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA];
+        final first = Completer<Result<List<TripEntity>>>();
+        final trailing = Completer<Result<List<TripEntity>>>();
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        cubit.setSearchQuery('000001');
+        repository.routeRefreshLoads.addAll([first, trailing]);
+
+        final active = cubit.refreshTripRouteNames();
+        await cubit.refreshTripRouteNames();
+        await cubit.refreshTripRouteNames();
+        expect(repository.getTripsCalls, 2);
+        expect((cubit.state as TripsLoaded).allTrips, [_tripA]);
+
+        first.complete(Success([_tripA]));
+        await Future<void>.delayed(Duration.zero);
+        expect(repository.getTripsCalls, 3);
+        trailing.complete(Success([_tripARenamed]));
+        await active;
+
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.allTrips.single.routeName, 'Dubai Updated');
+        expect(loaded.searchQuery, '000001');
+        expect(loaded.routeReferenceRefreshFailure, isNull);
+      },
+    );
+
+    test(
+      'Route lookup hints coalesce without dropping last-good form options',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA];
+        final first = Completer<Result<TripFormLookups>>();
+        final trailing = Completer<Result<TripFormLookups>>();
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        await cubit.loadTripFormLookups();
+        expect(repository.lookupCalls, 1);
+        repository.lookupRefreshLoads.addAll([first, trailing]);
+
+        final active = cubit.refreshTripFormLookups();
+        await cubit.refreshTripFormLookups();
+        await cubit.refreshTripFormLookups();
+        expect(repository.lookupCalls, 2);
+        expect(
+          (cubit.state as TripsLoaded).formLookups?.routes.single.id,
+          'route',
+        );
+
+        first.complete(const Success(_initialLookups));
+        await Future<void>.delayed(Duration.zero);
+        expect(repository.lookupCalls, 3);
+        trailing.complete(const Success(_refreshedLookups));
+        await active;
+
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.formLookups?.routeById('route-new'), isNotNull);
+        expect(loaded.isFormLookupsLoading, isFalse);
+        expect(loaded.formLookupsFailure, isNull);
+      },
+    );
+
+    test(
+      'late Route reference responses never replace a switched company',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA]
+          ..tripsByCompany['company-b'] = [_tripB];
+        final pendingTrips = Completer<Result<List<TripEntity>>>();
+        final pendingLookups = Completer<Result<TripFormLookups>>();
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        await cubit.loadTripFormLookups();
+        repository.routeRefreshLoads.add(pendingTrips);
+        repository.lookupRefreshLoads.add(pendingLookups);
+
+        final refreshing = cubit.refreshRouteReferences();
+        await Future<void>.delayed(Duration.zero);
+        await cubit.loadTrips(_contextB);
+
+        pendingTrips.complete(Success([_tripARenamed]));
+        pendingLookups.complete(const Success(_refreshedLookups));
+        await refreshing;
+
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.currentCompanyContext.companyId, 'company-b');
+        expect(loaded.allTrips, [_tripB]);
+        expect(loaded.formLookups, isNull);
+      },
+    );
+
     test('searches Trips by canonical Trip reference', () async {
       final repository = _FakeTripsRepository()
         ..tripsByCompany['company-a'] = [_tripA, _tripCreated];
@@ -300,6 +401,35 @@ final _tripB = TripEntity(
   status: TripStatus.created,
 );
 
+final _tripARenamed = TripEntity(
+  id: 'trip-a',
+  companyId: 'company-a',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
+  customerId: 'customer-a',
+  routeId: 'route-a',
+  routeName: 'Dubai Updated',
+  status: TripStatus.created,
+);
+
+const _initialLookups = TripFormLookups(
+  customers: [TripLookupOption(id: 'customer', label: 'Customer')],
+  routes: [TripRouteLookupOption(id: 'route', label: 'Route')],
+  drivers: [],
+  tractorHeads: [],
+  trailers: [],
+);
+
+const _refreshedLookups = TripFormLookups(
+  customers: [TripLookupOption(id: 'customer', label: 'Customer')],
+  routes: [
+    TripRouteLookupOption(id: 'route', label: 'Route'),
+    TripRouteLookupOption(id: 'route-new', label: 'New Route'),
+  ],
+  drivers: [],
+  tractorHeads: [],
+  trailers: [],
+);
+
 final _tripCreated = TripEntity(
   id: 'trip-new',
   companyId: 'company-a',
@@ -394,6 +524,10 @@ final class _FixedBusinessDateProvider implements CompanyBusinessDateProvider {
 final class _FakeTripsRepository implements TripsRepository {
   final Map<String, List<TripEntity>> tripsByCompany = {};
   final Map<String, Completer<Result<List<TripEntity>>>> pendingLoads = {};
+  final Queue<Completer<Result<List<TripEntity>>>> routeRefreshLoads = Queue();
+  final Queue<Completer<Result<TripFormLookups>>> lookupRefreshLoads = Queue();
+  int getTripsCalls = 0;
+  int lookupCalls = 0;
   final Map<String, TripEntity> detailsById = {};
   final Queue<Result<TripEntity>> createResults = Queue();
   final Queue<Result<TripEntity>> saveResults = Queue();
@@ -407,6 +541,10 @@ final class _FakeTripsRepository implements TripsRepository {
     required String companyId,
     required CurrencyConfiguration? financialConfiguration,
   }) {
+    getTripsCalls++;
+    if (routeRefreshLoads.isNotEmpty) {
+      return routeRefreshLoads.removeFirst().future;
+    }
     final pending = pendingLoads[companyId];
     if (pending != null) return pending.future;
     return Future.value(Success(tripsByCompany[companyId] ?? const []));
@@ -441,17 +579,11 @@ final class _FakeTripsRepository implements TripsRepository {
     required String companyId,
     required CurrencyConfiguration? financialConfiguration,
   }) {
-    return Future.value(
-      const Success(
-        TripFormLookups(
-          customers: [TripLookupOption(id: 'customer', label: 'Customer')],
-          routes: [TripRouteLookupOption(id: 'route', label: 'Route')],
-          drivers: [],
-          tractorHeads: [],
-          trailers: [],
-        ),
-      ),
-    );
+    lookupCalls++;
+    if (lookupRefreshLoads.isNotEmpty) {
+      return lookupRefreshLoads.removeFirst().future;
+    }
+    return Future.value(const Success(_initialLookups));
   }
 
   @override

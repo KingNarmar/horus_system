@@ -2,6 +2,7 @@ part of 'trip_form_dialog.dart';
 
 extension _TripFormFields on _TripFormDialogState {
   Widget _requiredDropdown({
+    Key? fieldKey,
     required String label,
     required String? value,
     required List<TripLookupOption> options,
@@ -9,6 +10,7 @@ extension _TripFormFields on _TripFormDialogState {
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      key: fieldKey,
       isExpanded: true,
       initialValue: value,
       decoration: InputDecoration(

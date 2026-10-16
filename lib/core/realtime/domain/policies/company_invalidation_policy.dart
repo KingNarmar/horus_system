@@ -35,6 +35,7 @@ abstract final class CompanyInvalidationPolicy {
     },
     CompanyDataResource.routes: {
       CompanyInvalidationResource.routes,
+      CompanyInvalidationResource.trips,
       CompanyInvalidationResource.tripFormLookups,
       CompanyInvalidationResource.operationalReports,
       CompanyInvalidationResource.tripExpensesReport,

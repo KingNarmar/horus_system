@@ -50,11 +50,13 @@ import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
+import '../../../routes/presentation/widgets/routes_realtime_boundary.dart';
 import '../../../subscriptions/di/subscriptions_dependencies.dart';
 import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
+import '../../../trips/presentation/widgets/trips_realtime_boundary.dart';
 import '../models/app_shell_destination.dart';
 import '../models/finance_workspace_section.dart';
 import '../pages/finance_workspace_page.dart';
@@ -143,18 +145,24 @@ class AppShellContent extends StatelessWidget {
       ),
       AppShellModule.routes => BlocProvider<RoutesCubit>(
         create: (_) => RoutesDependencies.createRoutesCubit(),
-        child: _ReconnectAware(
-          onReconnect: (context) =>
-              context.read<RoutesCubit>().loadRoutes(contextData),
-          child: RoutesPage(currentCompanyContext: contextData),
+        child: RoutesRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: _ReconnectAware(
+            onReconnect: (context) =>
+                context.read<RoutesCubit>().refreshRoutes(contextData),
+            child: RoutesPage(currentCompanyContext: contextData),
+          ),
         ),
       ),
       AppShellModule.trips => BlocProvider<TripsCubit>(
         create: (_) => TripsDependencies.createTripsCubit(),
-        child: _ReconnectAware(
-          onReconnect: (context) =>
-              context.read<TripsCubit>().loadTrips(contextData),
-          child: TripsPage(currentCompanyContext: contextData),
+        child: TripsRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: _ReconnectAware(
+            onReconnect: (context) =>
+                context.read<TripsCubit>().loadTrips(contextData),
+            child: TripsPage(currentCompanyContext: contextData),
+          ),
         ),
       ),
       AppShellModule.finance => FinanceWorkspacePage(

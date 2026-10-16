@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +46,7 @@ part 'trips_expense_actions.dart';
 part 'trips_filter_actions.dart';
 part 'trips_form_lookup_actions.dart';
 part 'trips_mutation_actions.dart';
+part 'trips_route_invalidation_actions.dart';
 
 class TripsCubit extends Cubit<TripsState>
     with
@@ -53,7 +55,8 @@ class TripsCubit extends Cubit<TripsState>
         TripsDetailsActions,
         TripsDocumentActions,
         TripsExpenseActions,
-        TripsMutationActions {
+        TripsMutationActions,
+        TripsRouteInvalidationActions {
   final GetTripsUseCase getTripsUseCase;
   final GetTripPermissionsUseCase getTripPermissionsUseCase;
   final CanManageTripAttributedExpenseUseCase
@@ -90,6 +93,10 @@ class TripsCubit extends Cubit<TripsState>
   CurrentCompanyContext? _currentCompanyContext;
   int _companyRequestGeneration = 0;
   int _detailsRequestGeneration = 0;
+  bool _routeNamesRefreshInProgress = false;
+  bool _routeNamesRefreshPending = false;
+  bool _lookupsRefreshInProgress = false;
+  bool _lookupsRefreshPending = false;
 
   TripsCubit({
     required this.getTripsUseCase,
@@ -206,6 +213,9 @@ class TripsCubit extends Cubit<TripsState>
         statusFilter: statusFilter,
       ),
     );
+    if (_routeNamesRefreshPending || _lookupsRefreshPending) {
+      unawaited(refreshRouteReferences());
+    }
   }
 
   Future<Result<Map<String, TripBusinessLocalTimestamps>>>

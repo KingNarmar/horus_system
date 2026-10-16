@@ -30,6 +30,10 @@ class RouteDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final selectedRoute = state?.selectedRoute;
+    final visibleRoute = selectedRoute != null && selectedRoute.id == route.id
+        ? selectedRoute
+        : route;
 
     final activity = state?.selectedRoute?.id == route.id
         ? state!.selectedRouteActivity
@@ -61,7 +65,7 @@ class RouteDetailsDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      l10n.routeDetailsTitle(route.displayName),
+                      l10n.routeDetailsTitle(visibleRoute.displayName),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -79,35 +83,35 @@ class RouteDetailsDialog extends StatelessWidget {
                 children: [
                   _RouteDetailRow(
                     label: l10n.loadingLocationLabel,
-                    value: route.loadingLocation,
+                    value: visibleRoute.loadingLocation,
                   ),
                   _RouteDetailRow(
                     label: l10n.unloadingLocationLabel,
-                    value: route.unloadingLocation,
+                    value: visibleRoute.unloadingLocation,
                   ),
                   _RouteDetailRow(
                     label: l10n.governorateFromLabel,
-                    value: _optional(route.governorateFrom, l10n),
+                    value: _optional(visibleRoute.governorateFrom, l10n),
                   ),
                   _RouteDetailRow(
                     label: l10n.governorateToLabel,
-                    value: _optional(route.governorateTo, l10n),
+                    value: _optional(visibleRoute.governorateTo, l10n),
                   ),
                   _RouteDetailRow(
                     label: l10n.routeDefaultFreightRatePerTonLabel,
                     value: _formatDefaultFreightRate(
-                      route,
+                      visibleRoute,
                       state,
                       l10n.routeEmptyValue,
                     ),
                   ),
                   _RouteDetailRow(
                     label: l10n.routeNotesLabel,
-                    value: _optional(route.notes, l10n),
+                    value: _optional(visibleRoute.notes, l10n),
                   ),
                   _RouteDetailRow(
                     label: l10n.routeStatusHeader,
-                    value: route.isActive
+                    value: visibleRoute.isActive
                         ? l10n.activeStatusLabel
                         : l10n.inactiveStatusLabel,
                   ),
@@ -254,6 +258,7 @@ class _RouteActivityTimelineItem extends StatelessWidget {
       'unloading_location',
       'governorate_from',
       'governorate_to',
+      'default_freight_rate_per_ton',
       'default_freight_price',
       'notes',
       'is_active',

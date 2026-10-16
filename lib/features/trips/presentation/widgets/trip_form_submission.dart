@@ -8,6 +8,9 @@ extension _TripFormSubmission on _TripFormDialogState {
     final routeId = _routeId;
 
     if (customerId == null || routeId == null || _isSubmitting) return;
+    // An inactive route may disappear while this form remains open.
+    // Never submit a selection absent from current authoritative lookups.
+    if (widget.lookups?.routeById(routeId) == null) return;
 
     _beginSubmitting();
 
