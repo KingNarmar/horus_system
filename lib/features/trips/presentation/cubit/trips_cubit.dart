@@ -47,6 +47,7 @@ part 'trips_filter_actions.dart';
 part 'trips_form_lookup_actions.dart';
 part 'trips_mutation_actions.dart';
 part 'trips_route_invalidation_actions.dart';
+part 'trips_realtime_actions.dart';
 
 class TripsCubit extends Cubit<TripsState>
     with
@@ -56,7 +57,8 @@ class TripsCubit extends Cubit<TripsState>
         TripsDocumentActions,
         TripsExpenseActions,
         TripsMutationActions,
-        TripsRouteInvalidationActions {
+        TripsRouteInvalidationActions,
+        TripsRealtimeActions {
   final GetTripsUseCase getTripsUseCase;
   final GetTripPermissionsUseCase getTripPermissionsUseCase;
   final CanManageTripAttributedExpenseUseCase
@@ -93,6 +95,9 @@ class TripsCubit extends Cubit<TripsState>
   CurrentCompanyContext? _currentCompanyContext;
   int _companyRequestGeneration = 0;
   int _detailsRequestGeneration = 0;
+  int _tripMutationRevision = 0;
+  bool _tripsRefreshInProgress = false;
+  bool _tripsRefreshPending = false;
   bool _routeNamesRefreshInProgress = false;
   bool _routeNamesRefreshPending = false;
   bool _lookupsRefreshInProgress = false;
@@ -215,6 +220,9 @@ class TripsCubit extends Cubit<TripsState>
     );
     if (_routeNamesRefreshPending || _lookupsRefreshPending) {
       unawaited(refreshRouteReferences());
+    }
+    if (_tripsRefreshPending) {
+      unawaited(refreshTripsFromRealtime());
     }
   }
 

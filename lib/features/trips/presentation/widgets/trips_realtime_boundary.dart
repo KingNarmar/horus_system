@@ -12,7 +12,8 @@ import '../../domain/policies/trips_permission_policy.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
 
-/// Only mounted Trips consumes route-driven lookup and joined-name changes.
+/// Mounted Trips consumes Trip mutations and independent master-data lookups.
+/// Mutations refresh authoritative state without resetting open forms.
 final class TripsRealtimeBoundary extends StatelessWidget {
   final CurrentCompanyContext currentCompanyContext;
   final Widget child;
@@ -31,17 +32,17 @@ final class TripsRealtimeBoundary extends StatelessWidget {
 
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
-      resources: const {
-        CompanyInvalidationResource.trips,
-        CompanyInvalidationResource.tripFormLookups,
-      },
-      onInvalidate: (context) {
-        final cubit = context.read<TripsCubit>();
-        return TripsPermissionPolicy.canManageTrips(currentCompanyContext.role)
-            ? cubit.refreshRouteReferences()
-            : cubit.refreshTripRouteNames();
-      },
-      child: MultiBlocListener(
+      resources: const {CompanyInvalidationResource.trips},
+      onInvalidate: (context) =>
+          context.read<TripsCubit>().refreshTripsFromRealtime(),
+      child: CompanyResourceInvalidationBoundary(
+        companyId: currentCompanyContext.companyId,
+        resources: const {CompanyInvalidationResource.tripFormLookups},
+        onInvalidate: (context) =>
+            TripsPermissionPolicy.canManageTrips(currentCompanyContext.role)
+            ? context.read<TripsCubit>().refreshTripFormLookups()
+            : Future<void>.value(),
+        child: MultiBlocListener(
         listeners: [
           BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
             listenWhen: (previous, current) =>
@@ -68,7 +69,8 @@ final class TripsRealtimeBoundary extends StatelessWidget {
             },
           ),
         ],
-        child: child,
+          child: child,
+        ),
       ),
     );
   }
