@@ -21,7 +21,10 @@ void main() {
     );
     expect(affected, contains(CompanyInvalidationResource.trips));
     expect(affected, contains(CompanyInvalidationResource.tripStatusHistory));
-    expect(affected, isNot(contains(CompanyInvalidationResource.tripDocuments)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripDocuments)),
+    );
   });
 
   test('Fleet license documents only invalidate document projections', () {

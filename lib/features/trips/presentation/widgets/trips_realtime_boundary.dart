@@ -43,32 +43,32 @@ final class TripsRealtimeBoundary extends StatelessWidget {
             ? context.read<TripsCubit>().refreshTripFormLookups()
             : Future<void>.value(),
         child: MultiBlocListener(
-        listeners: [
-          BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
-            listenWhen: (previous, current) =>
-                current.companyId == currentCompanyContext.companyId &&
-                current.failure != null &&
-                previous.failure?.code != current.failure?.code,
-            listener: (context, state) {
-              final failure = state.failure;
-              if (failure != null) _showFailure(context, failure);
-            },
-          ),
-          BlocListener<TripsCubit, TripsState>(
-            listenWhen: (previous, current) =>
-                current is TripsLoaded &&
-                current.routeReferenceRefreshFailure != null &&
-                (previous is! TripsLoaded ||
-                    previous.routeReferenceRefreshFailure?.code !=
-                        current.routeReferenceRefreshFailure?.code),
-            listener: (context, state) {
-              if (state is TripsLoaded &&
-                  state.routeReferenceRefreshFailure != null) {
-                _showFailure(context, state.routeReferenceRefreshFailure!);
-              }
-            },
-          ),
-        ],
+          listeners: [
+            BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+              listenWhen: (previous, current) =>
+                  current.companyId == currentCompanyContext.companyId &&
+                  current.failure != null &&
+                  previous.failure?.code != current.failure?.code,
+              listener: (context, state) {
+                final failure = state.failure;
+                if (failure != null) _showFailure(context, failure);
+              },
+            ),
+            BlocListener<TripsCubit, TripsState>(
+              listenWhen: (previous, current) =>
+                  current is TripsLoaded &&
+                  current.routeReferenceRefreshFailure != null &&
+                  (previous is! TripsLoaded ||
+                      previous.routeReferenceRefreshFailure?.code !=
+                          current.routeReferenceRefreshFailure?.code),
+              listener: (context, state) {
+                if (state is TripsLoaded &&
+                    state.routeReferenceRefreshFailure != null) {
+                  _showFailure(context, state.routeReferenceRefreshFailure!);
+                }
+              },
+            ),
+          ],
           child: child,
         ),
       ),

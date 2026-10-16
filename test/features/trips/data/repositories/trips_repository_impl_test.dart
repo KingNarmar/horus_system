@@ -42,10 +42,7 @@ void main() {
 
       expect(result, isA<Success<TripEntity>>());
       expect(events, ['save']);
-      expect(
-        remoteDataSource.lastExpectedUpdatedAt,
-        DateTime.utc(2026, 9, 18),
-      );
+      expect(remoteDataSource.lastExpectedUpdatedAt, DateTime.utc(2026, 9, 18));
       expect(
         remoteDataSource.lastSaveFinancialConfiguration,
         testFinancialConfiguration,
