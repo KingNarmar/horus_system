@@ -38,10 +38,18 @@ final class TripsRealtimeBoundary extends StatelessWidget {
       child: CompanyResourceInvalidationBoundary(
         companyId: currentCompanyContext.companyId,
         resources: const {CompanyInvalidationResource.tripFormLookups},
-        onInvalidate: (context) =>
-            TripsPermissionPolicy.canManageTrips(currentCompanyContext.role)
-            ? context.read<TripsCubit>().refreshTripFormLookups()
-            : Future<void>.value(),
+        onInvalidate: (context) {
+          if (!TripsPermissionPolicy.canManageTrips(currentCompanyContext.role)) {
+            return Future<void>.value();
+          }
+          final cubit = context.read<TripsCubit>();
+          final current = cubit.state;
+          if (current is! TripsLoaded ||
+              (current.formLookups == null && !current.isFormLookupsLoading)) {
+            return Future<void>.value();
+          }
+          return cubit.refreshTripFormLookups();
+        },
         child: MultiBlocListener(
           listeners: [
             BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
