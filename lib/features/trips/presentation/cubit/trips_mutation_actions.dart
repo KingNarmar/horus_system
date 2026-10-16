@@ -28,8 +28,15 @@ mixin TripsMutationActions on Cubit<TripsState> {
       return const TripMutationIgnored();
     }
 
+    if (trip != null && trip.updatedAt == null) {
+      return const TripMutationFailed(
+        ConflictFailure(code: TripFailureCodes.concurrentModification),
+      );
+    }
+
     final companyGeneration = owner._companyRequestGeneration;
     final companyId = context.companyId;
+    owner._tripMutationRevision++;
     emit(current.copyWith(isTripSaving: true, tripSaveFailure: null));
 
     final timestampsResult = await owner
@@ -82,6 +89,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
             SaveTripParams(
               currentCompanyContext: context,
               id: trip.id,
+              expectedUpdatedAt: trip.updatedAt!,
               customerId: customerId,
               routeId: routeId,
               driverId: driverId,
@@ -99,6 +107,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
             ),
           );
 
+    owner._tripMutationRevision++;
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
       return const TripMutationIgnored();
     }
@@ -145,6 +154,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
 
     final companyGeneration = owner._companyRequestGeneration;
     final companyId = context.companyId;
+    owner._tripMutationRevision++;
     owner._beginTripStatusChange(trip.id);
 
     final result = await owner.updateTripStatusUseCase(
@@ -156,6 +166,7 @@ mixin TripsMutationActions on Cubit<TripsState> {
       ),
     );
 
+    owner._tripMutationRevision++;
     if (!owner._isCurrentLoadedCompanyRequest(companyGeneration, companyId)) {
       return const TripMutationIgnored();
     }

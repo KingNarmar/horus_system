@@ -33,6 +33,7 @@ import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
+import '../../domain/failures/trip_failure_codes.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/usecases/get_trip_permissions_usecase.dart';
 import '../../domain/usecases/has_required_trip_evidence_usecase.dart';
