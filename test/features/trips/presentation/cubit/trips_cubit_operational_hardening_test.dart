@@ -192,6 +192,85 @@ void main() {
     );
 
     test(
+      'Trip hints coalesce without resetting search or last-known list',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA];
+        final first = Completer<Result<List<TripEntity>>>();
+        final trailing = Completer<Result<List<TripEntity>>>();
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        cubit.setSearchQuery('000001');
+        repository.routeRefreshLoads.addAll([first, trailing]);
+
+        final refreshing = cubit.refreshTripsFromRealtime();
+        await cubit.refreshTripsFromRealtime();
+        await cubit.refreshTripsFromRealtime();
+        expect(repository.getTripsCalls, 2);
+        expect((cubit.state as TripsLoaded).allTrips, [_tripA]);
+
+        first.complete(Success([_tripA]));
+        await Future<void>.delayed(Duration.zero);
+        expect(repository.getTripsCalls, 3);
+        trailing.complete(Success([_tripA, _tripCreated]));
+        await refreshing;
+
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.allTrips, hasLength(2));
+        expect(loaded.searchQuery, '000001');
+        expect(loaded.trips.map((item) => item.id), ['trip-a']);
+        expect(loaded.routeReferenceRefreshFailure, isNull);
+      },
+    );
+
+    test(
+      'late Trip invalidation cannot overwrite a switched company',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA]
+          ..tripsByCompany['company-b'] = [_tripB];
+        final oldRefresh = Completer<Result<List<TripEntity>>>();
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        repository.routeRefreshLoads.add(oldRefresh);
+        final refreshing = cubit.refreshTripsFromRealtime();
+        await Future<void>.delayed(Duration.zero);
+        await cubit.loadTrips(_contextB);
+
+        oldRefresh.complete(Success([_tripARenamed]));
+        await refreshing;
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.currentCompanyContext.companyId, 'company-b');
+        expect(loaded.allTrips, [_tripB]);
+      },
+    );
+
+    test(
+      'Trip invalidation updates selected status without closing details',
+      () async {
+        final repository = _FakeTripsRepository()
+          ..tripsByCompany['company-a'] = [_tripA];
+        final cubit = _buildCubit(repository);
+        addTearDown(cubit.close);
+
+        await cubit.loadTrips(_contextA);
+        await cubit.loadTripDetails(_tripA);
+        repository.tripsByCompany['company-a'] = [_tripAssigned];
+
+        await cubit.refreshTripsFromRealtime();
+        final loaded = cubit.state as TripsLoaded;
+        expect(loaded.selectedTrip?.status, TripStatus.assigned);
+        expect(loaded.allTrips.single.status, TripStatus.assigned);
+        expect(loaded.isStatusHistoryLoading, isFalse);
+        expect(loaded.isActivityLoading, isFalse);
+      },
+    );
+
+    test(
       'Route hints coalesce into one trailing authoritative Trips refresh',
       () async {
         final repository = _FakeTripsRepository()
