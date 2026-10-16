@@ -54,7 +54,7 @@ mixin TripsRealtimeActions on Cubit<TripsState> {
       } else {
         emit(
           (state as TripsLoaded).copyWith(
-            routeReferenceRefreshFailure: failure,
+            tripsRealtimeRefreshFailure: failure,
           ),
         );
       }
@@ -96,7 +96,7 @@ mixin TripsRealtimeActions on Cubit<TripsState> {
       if (localFailure != null) {
         emit(
           (state as TripsLoaded).copyWith(
-            routeReferenceRefreshFailure: localFailure,
+            tripsRealtimeRefreshFailure: localFailure,
           ),
         );
         return;
@@ -128,7 +128,7 @@ mixin TripsRealtimeActions on Cubit<TripsState> {
         allTrips: trips,
         businessLocalTimestampsByTripId: localTimes,
         selectedTrip: selected ?? now.selectedTrip,
-        routeReferenceRefreshFailure: null,
+        tripsRealtimeRefreshFailure: null,
       ),
     );
 

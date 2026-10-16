@@ -221,7 +221,7 @@ void main() {
         expect(loaded.allTrips, hasLength(2));
         expect(loaded.searchQuery, '000001');
         expect(loaded.trips.map((item) => item.id), ['trip-a']);
-        expect(loaded.routeReferenceRefreshFailure, isNull);
+        expect(loaded.tripsRealtimeRefreshFailure, isNull);
       },
     );
 

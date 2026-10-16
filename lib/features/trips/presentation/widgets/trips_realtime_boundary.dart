@@ -78,6 +78,20 @@ final class TripsRealtimeBoundary extends StatelessWidget {
                 }
               },
             ),
+            BlocListener<TripsCubit, TripsState>(
+              listenWhen: (previous, current) =>
+                  current is TripsLoaded &&
+                  current.tripsRealtimeRefreshFailure != null &&
+                  (previous is! TripsLoaded ||
+                      previous.tripsRealtimeRefreshFailure?.code !=
+                          current.tripsRealtimeRefreshFailure?.code),
+              listener: (context, state) {
+                if (state is TripsLoaded &&
+                    state.tripsRealtimeRefreshFailure != null) {
+                  _showFailure(context, state.tripsRealtimeRefreshFailure!);
+                }
+              },
+            ),
           ],
           child: child,
         ),
