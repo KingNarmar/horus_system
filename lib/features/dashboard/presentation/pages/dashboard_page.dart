@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../domain/policies/dashboard_permission_policy.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../helpers/dashboard_failure_message.dart';
@@ -55,6 +56,10 @@ final class _DashboardPageState extends State<DashboardPage> {
           builder: (context, state) {
             return _DashboardStateView(
               state: state,
+              canViewFinancialMetrics:
+                  DashboardPermissionPolicy.canViewFinancialMetrics(
+                    widget.currentCompanyContext.role,
+                  ),
               onRetry: () => context.read<DashboardCubit>().load(
                 widget.currentCompanyContext,
               ),
@@ -69,8 +74,13 @@ final class _DashboardPageState extends State<DashboardPage> {
 final class _DashboardStateView extends StatelessWidget {
   final DashboardState state;
   final VoidCallback onRetry;
+  final bool canViewFinancialMetrics;
 
-  const _DashboardStateView({required this.state, required this.onRetry});
+  const _DashboardStateView({
+    required this.state,
+    required this.onRetry,
+    required this.canViewFinancialMetrics,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +106,10 @@ final class _DashboardStateView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          DashboardMetricsGrid(summary: summary),
+          DashboardMetricsGrid(
+            summary: summary,
+            canViewFinancialMetrics: canViewFinancialMetrics,
+          ),
         ],
       ),
     };

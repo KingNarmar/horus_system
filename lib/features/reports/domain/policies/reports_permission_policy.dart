@@ -22,6 +22,6 @@ abstract final class ReportsPermissionPolicy {
   }
 
   static bool canViewOpenInvoicesReport(CompanyRole role) {
-    return canViewOperationalReports(role);
+    return canViewFinancialReports(role);
   }
 }

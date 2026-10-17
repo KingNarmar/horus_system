@@ -2230,6 +2230,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الدور غير مسموح له بتحديث حالة الرحلة.';
 
   @override
+  String get tripFinancialTermsPermissionFailure =>
+      'ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.';
+
+  @override
+  String get tripPricedQuantityFinanceRequired =>
+      'تم تسعير هذه الرحلة بالفعل. يلزم اعتماد مالي لتغيير الكمية.';
+
+  @override
   String get tripStatusEvidenceRequiredFailure =>
       'ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.';
 

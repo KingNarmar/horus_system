@@ -12,7 +12,6 @@ void main() {
       const allowed = <CompanyRole>{
         CompanyRole.owner,
         CompanyRole.admin,
-        CompanyRole.operations,
         CompanyRole.accountant,
       };
 

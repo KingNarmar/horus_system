@@ -746,6 +746,8 @@
   "tripNotFoundFailure": "تعذر العثور على الرحلة.",
   "tripManagementPermissionFailure": "هذا الدور غير مسموح له بإدارة الرحلات.",
   "tripStatusPermissionFailure": "هذا الدور غير مسموح له بتحديث حالة الرحلة.",
+  "tripFinancialTermsPermissionFailure": "ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.",
+  "tripPricedQuantityFinanceRequired": "تم تسعير هذه الرحلة بالفعل. يلزم اعتماد مالي لتغيير الكمية.",
   "tripStatusEvidenceRequiredFailure": "ارفع بوليصة أو إثبات تسليم نشط قبل تغيير حالة الرحلة إلى استلام المستندات.",
   "tripsStatusAllFilter": "الكل",
   "tripsStatusOpenFilter": "المفتوحة",

@@ -28,7 +28,7 @@ void main() {
       final repository = _FakeInvoiceSettingsRepository();
       await GetInvoiceSettingsUseCase(repository)(
         GetInvoiceSettingsParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
+          currentCompanyContext: _context(CompanyRole.accountant),
         ),
       );
 
