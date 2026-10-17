@@ -56,7 +56,7 @@ void main() {
 
         final localization = AppLocalizations.of(
           tester.element(find.byType(TripFormDialog)),
-        )!;
+        );
         final formScroll = tester
             .widget<SingleChildScrollView>(
               find.ancestor(
@@ -73,7 +73,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(formScroll.offset, greaterThan(0));
 
-        await tester.tap(find.text(localization.tripSaveButton));
+        await tester.tap(find.text(localization.saveButton));
         await tester.pumpAndSettle();
 
         final error = find.text(localization.tripConcurrentModificationFailure);
