@@ -4214,6 +4214,18 @@ abstract class AppLocalizations {
   /// **'Trip status update is not allowed for this role.'**
   String get tripStatusPermissionFailure;
 
+  /// No description provided for @tripFinancialTermsPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to change Trip prices or amounts.'**
+  String get tripFinancialTermsPermissionFailure;
+
+  /// No description provided for @tripPricedQuantityFinanceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This Trip is already priced. Finance authorization is required to change its quantity.'**
+  String get tripPricedQuantityFinanceRequired;
+
   /// No description provided for @tripStatusEvidenceRequiredFailure.
   ///
   /// In en, this message translates to:

@@ -2259,6 +2259,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trip status update is not allowed for this role.';
 
   @override
+  String get tripFinancialTermsPermissionFailure =>
+      'You do not have permission to change Trip prices or amounts.';
+
+  @override
+  String get tripPricedQuantityFinanceRequired =>
+      'This Trip is already priced. Finance authorization is required to change its quantity.';
+
+  @override
   String get tripStatusEvidenceRequiredFailure =>
       'Upload an active Waybill or Proof of Delivery before changing the Trip to Documents Received.';
 
