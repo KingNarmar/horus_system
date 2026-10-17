@@ -14,8 +14,13 @@ final class DashboardMetricsGrid extends StatelessWidget {
   static const int _desktopColumns = 3;
 
   final DashboardSummary summary;
+  final bool canViewFinancialMetrics;
 
-  const DashboardMetricsGrid({required this.summary, super.key});
+  const DashboardMetricsGrid({
+    required this.summary,
+    required this.canViewFinancialMetrics,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,38 +52,40 @@ final class DashboardMetricsGrid extends StatelessWidget {
         value: summary.vehiclesOnTrip.toString(),
         icon: AppIcons.fleetSelected,
       ),
-      _DashboardMetricViewData(
-        title: strings.totalRevenue,
-        value: formatDashboardMoney(
-          money: summary.totalRevenue,
-          fractionDigits: summary.baseCurrencyFractionDigits,
-          localeName: localeName,
+      if (canViewFinancialMetrics) ...[
+        _DashboardMetricViewData(
+          title: strings.totalRevenue,
+          value: formatDashboardMoney(
+            money: summary.totalRevenue,
+            fractionDigits: summary.baseCurrencyFractionDigits,
+            localeName: localeName,
+          ),
+          icon: AppIcons.invoices,
         ),
-        icon: AppIcons.invoices,
-      ),
-      _DashboardMetricViewData(
-        title: strings.totalExpenses,
-        value: formatDashboardMoney(
-          money: summary.totalExpenses,
-          fractionDigits: summary.baseCurrencyFractionDigits,
-          localeName: localeName,
+        _DashboardMetricViewData(
+          title: strings.totalExpenses,
+          value: formatDashboardMoney(
+            money: summary.totalExpenses,
+            fractionDigits: summary.baseCurrencyFractionDigits,
+            localeName: localeName,
+          ),
+          icon: AppIcons.expenses,
         ),
-        icon: AppIcons.expenses,
-      ),
-      _DashboardMetricViewData(
-        title: strings.netProfit,
-        value: formatDashboardMoney(
-          money: summary.netProfit,
-          fractionDigits: summary.baseCurrencyFractionDigits,
-          localeName: localeName,
+        _DashboardMetricViewData(
+          title: strings.netProfit,
+          value: formatDashboardMoney(
+            money: summary.netProfit,
+            fractionDigits: summary.baseCurrencyFractionDigits,
+            localeName: localeName,
+          ),
+          icon: AppIcons.reports,
         ),
-        icon: AppIcons.reports,
-      ),
-      _DashboardMetricViewData(
-        title: strings.unpaidInvoices,
-        value: summary.unpaidInvoices.toString(),
-        icon: AppIcons.payments,
-      ),
+        _DashboardMetricViewData(
+          title: strings.unpaidInvoices,
+          value: summary.unpaidInvoices.toString(),
+          icon: AppIcons.payments,
+        ),
+      ],
     ];
 
     return LayoutBuilder(

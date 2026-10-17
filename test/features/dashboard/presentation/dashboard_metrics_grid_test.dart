@@ -16,7 +16,10 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: DashboardMetricsGrid(summary: _summary())),
+          home: Scaffold(body: DashboardMetricsGrid(
+              summary: _summary(),
+              canViewFinancialMetrics: true,
+            )),
         ),
       );
 
@@ -24,6 +27,21 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('operational dashboard hides financial cards', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DashboardMetricsGrid(
+            summary: _summary(),
+            canViewFinancialMetrics: false,
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(DashboardMetricCard), findsNWidgets(5));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('renders Arabic dashboard cards in RTL', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 1000));
@@ -34,7 +52,10 @@ void main() {
         locale: const Locale('ar'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(body: DashboardMetricsGrid(summary: _summary())),
+        home: Scaffold(body: DashboardMetricsGrid(
+              summary: _summary(),
+              canViewFinancialMetrics: true,
+            )),
       ),
     );
 
