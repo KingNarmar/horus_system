@@ -25,23 +25,28 @@ void main() {
       expect(repository.lastIncludeVoided, isTrue);
     });
 
-    test('denies non-finance read access before repository execution', () async {
-      final repository = _FakeExpenseLedgerRepository();
-      for (final role in [
-        CompanyRole.operations,
-        CompanyRole.viewer,
-        CompanyRole.driver,
-      ]) {
-        final result = await GetExpenseLedgerEntriesUseCase(repository)(
-          GetExpenseLedgerEntriesParams(currentCompanyContext: _context(role)),
-        );
-        expect(
-          result.failureOrNull?.code,
-          ExpenseLedgerFailureCodes.permissionView,
-        );
-      }
-      expect(repository.getCalls, 0);
-    });
+    test(
+      'denies non-finance read access before repository execution',
+      () async {
+        final repository = _FakeExpenseLedgerRepository();
+        for (final role in [
+          CompanyRole.operations,
+          CompanyRole.viewer,
+          CompanyRole.driver,
+        ]) {
+          final result = await GetExpenseLedgerEntriesUseCase(repository)(
+            GetExpenseLedgerEntriesParams(
+              currentCompanyContext: _context(role),
+            ),
+          );
+          expect(
+            result.failureOrNull?.code,
+            ExpenseLedgerFailureCodes.permissionView,
+          );
+        }
+        expect(repository.getCalls, 0);
+      },
+    );
   });
 }
 

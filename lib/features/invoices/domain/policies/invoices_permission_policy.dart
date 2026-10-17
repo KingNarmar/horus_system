@@ -3,9 +3,7 @@ import '../../../company/domain/entities/company_role.dart';
 abstract final class InvoicesPermissionPolicy {
   static bool canViewInvoices(CompanyRole role) {
     return switch (role) {
-      CompanyRole.owner ||
-      CompanyRole.admin ||
-      CompanyRole.accountant => true,
+      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
       CompanyRole.operations ||
       CompanyRole.viewer ||
       CompanyRole.driver => false,

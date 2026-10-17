@@ -11,9 +11,7 @@ void main() {
       );
     }
     expect(
-      ReportsPermissionPolicy.canViewOpenInvoicesReport(
-        CompanyRole.operations,
-      ),
+      ReportsPermissionPolicy.canViewOpenInvoicesReport(CompanyRole.operations),
       isFalse,
     );
     expect(
