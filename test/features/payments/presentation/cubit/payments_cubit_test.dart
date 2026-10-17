@@ -48,11 +48,7 @@ void main() {
   test('operations cannot load financial payments in presentation', () async {
     final payments = _FakePaymentsRepository();
     final invoices = _FakeInvoicesRepository();
-    final cubit = _cubit(
-      payments,
-      invoices,
-      _FakePaymentMethodsRepository(),
-    );
+    final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
 
     await cubit.loadPayments(_context(CompanyRole.operations));
 

@@ -60,14 +60,17 @@ void main() {
     expect(repository.billableTripsCalls, 1);
   });
 
-  test('viewer is denied invoice financial data before any repository read', () async {
-    repository.invoices = [_invoice(id: 'invoice-1')];
+  test(
+    'viewer is denied invoice financial data before any repository read',
+    () async {
+      repository.invoices = [_invoice(id: 'invoice-1')];
 
-    await cubit.loadInvoices(_context(role: CompanyRole.viewer));
+      await cubit.loadInvoices(_context(role: CompanyRole.viewer));
 
-    expect(cubit.state, isA<InvoicesFailure>());
-    expect(repository.billableTripsCalls, 0);
-  });
+      expect(cubit.state, isA<InvoicesFailure>());
+      expect(repository.billableTripsCalls, 0);
+    },
+  );
 
   test('a stale company response cannot replace the active tenant', () async {
     final companyAResult = Completer<List<Invoice>>();
