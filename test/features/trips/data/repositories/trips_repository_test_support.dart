@@ -135,6 +135,7 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   String? lastStatusNotes;
   CurrencyConfiguration? lastCreateFinancialConfiguration;
   CurrencyConfiguration? lastSaveFinancialConfiguration;
+  DateTime? lastExpectedUpdatedAt;
 
   FakeTripsRemoteDataSource({
     this.currentModel = testCreatedTripModel,
@@ -193,11 +194,13 @@ class FakeTripsRemoteDataSource implements TripsRemoteDataSource {
   @override
   Future<TripModel> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
     events.add('save');
     lastSaveFinancialConfiguration = financialConfiguration;
+    lastExpectedUpdatedAt = expectedUpdatedAt;
     _throwIfNeeded(TripDataOperation.save);
     return currentModel;
   }

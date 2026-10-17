@@ -25,6 +25,8 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
       l10n.tripManagementPermissionFailure,
     FailureCodes.permissionTripStatusUpdate => l10n.tripStatusPermissionFailure,
     TripFailureCodes.notFound => l10n.tripNotFoundFailure,
+    TripFailureCodes.concurrentModification =>
+      l10n.tripConcurrentModificationFailure,
     TripDocumentFailureCodes.permissionView ||
     TripDocumentFailureCodes.permissionManage =>
       l10n.tripDocumentsPermissionFailure,

@@ -1,5 +1,7 @@
 abstract final class TripFailureCodes {
   static const String notFound = 'trip_not_found';
+  static const String concurrentModification =
+      'conflict_trip_modified_elsewhere';
   static const String financialCurrencyMismatch =
       'validation_trip_financial_currency_mismatch';
   static const String conflictStatusEvidenceRequired =

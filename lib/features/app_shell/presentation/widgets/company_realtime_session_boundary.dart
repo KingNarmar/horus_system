@@ -8,6 +8,7 @@ import '../../../customers/domain/policies/customers_permission_policy.dart';
 import '../../../drivers/domain/policies/drivers_permission_policy.dart';
 import '../../../fleet/domain/policies/fleet_permission_policy.dart';
 import '../../../routes/domain/policies/routes_permission_policy.dart';
+import '../../../trips/domain/policies/trips_permission_policy.dart';
 
 /// Owns the single R2 Realtime stream for an authenticated company session.
 ///
@@ -34,7 +35,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
     if (!CustomersPermissionPolicy.canViewCustomers(role) &&
         !DriversPermissionPolicy.canViewDrivers(role) &&
         !FleetPermissionPolicy.canViewFleet(role) &&
-        !RoutesPermissionPolicy.canViewRoutes(role)) {
+        !RoutesPermissionPolicy.canViewRoutes(role) &&
+        !TripsPermissionPolicy.canViewTrips(role)) {
       return child;
     }
 

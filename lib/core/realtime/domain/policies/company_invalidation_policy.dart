@@ -43,6 +43,7 @@ abstract final class CompanyInvalidationPolicy {
     },
     CompanyDataResource.trips: {
       CompanyInvalidationResource.trips,
+      CompanyInvalidationResource.tripStatusHistory,
       CompanyInvalidationResource.companyExpenseLookups,
       CompanyInvalidationResource.driverFinanceTripOptions,
       CompanyInvalidationResource.driverBalances,

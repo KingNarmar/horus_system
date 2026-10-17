@@ -1,12 +1,14 @@
 abstract final class TripDbRpcs {
   static const create = 'create_trip_atomic';
   static const save = 'save_trip_atomic';
+  static const saveChecked = 'save_trip_checked_atomic';
   static const updateStatus = 'update_trip_status_atomic';
 }
 
 abstract final class TripDbRpcParams {
   static const companyId = 'p_company_id';
   static const tripId = 'p_trip_id';
+  static const expectedUpdatedAt = 'p_expected_updated_at';
   static const customerId = 'p_customer_id';
   static const routeId = 'p_route_id';
   static const driverId = 'p_driver_id';
@@ -29,6 +31,7 @@ abstract final class TripDbErrorCodes {
   static const managementPermissionDenied = 'P3410';
   static const statusPermissionDenied = 'P3411';
   static const notFound = 'P3412';
+  static const concurrentModification = 'P3414';
   static const temporalOrderInvalid = 'P3413';
   static const evidenceRequired = 'P3424';
   static const statusTransitionInvalid = 'P3426';

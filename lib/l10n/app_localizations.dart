@@ -4202,6 +4202,12 @@ abstract class AppLocalizations {
   /// **'The trip could not be found.'**
   String get tripNotFoundFailure;
 
+  /// No description provided for @tripConcurrentModificationFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else changed this trip. Your edits remain in this form but were not saved. Copy them before reopening the trip to review the latest version.'**
+  String get tripConcurrentModificationFailure;
+
   /// No description provided for @tripManagementPermissionFailure.
   ///
   /// In en, this message translates to:

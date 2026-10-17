@@ -2222,6 +2222,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripNotFoundFailure => 'تعذر العثور على الرحلة.';
 
   @override
+  String get tripConcurrentModificationFailure =>
+      'عدّل مستخدم آخر هذه الرحلة. تعديلاتك ما زالت في النموذج لكنها لم تُحفظ. انسخها قبل إعادة فتح الرحلة لمراجعة أحدث البيانات.';
+
+  @override
   String get tripManagementPermissionFailure =>
       'هذا الدور غير مسموح له بإدارة الرحلات.';
 

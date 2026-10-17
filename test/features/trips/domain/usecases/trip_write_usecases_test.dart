@@ -223,9 +223,10 @@ void main() {
       final useCase = SaveTripUseCase(repository);
 
       final result = await useCase(
-        const SaveTripParams(
+        SaveTripParams(
           currentCompanyContext: context,
           id: 'trip-1',
+          expectedUpdatedAt: DateTime.utc(2026, 9, 18),
           customerId: 'customer-1',
           routeId: 'route-1',
           quantityTonsInput: '20.000',
@@ -258,9 +259,10 @@ void main() {
         final useCase = SaveTripUseCase(repository);
 
         final result = await useCase(
-          const SaveTripParams(
+          SaveTripParams(
             currentCompanyContext: context,
             id: 'trip-1',
+            expectedUpdatedAt: DateTime.utc(2026, 9, 18),
             customerId: 'customer-1',
             routeId: 'route-1',
             quantityTonsInput: '21',
@@ -312,6 +314,7 @@ class _FakeTripsRepository implements TripsRepository {
   @override
   Future<Result<TripEntity>> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {

@@ -28,6 +28,7 @@ abstract class TripsRemoteDataSource {
 
   Future<TripModel> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   });
@@ -142,14 +143,18 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   @override
   Future<TripModel> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
-    final params = data.toMutationRpcParams(
-      financialConfiguration: financialConfiguration,
-    )..[TripDbRpcParams.tripId] = id;
+    final params =
+        data.toMutationRpcParams(financialConfiguration: financialConfiguration)
+          ..[TripDbRpcParams.tripId] = id
+          ..[TripDbRpcParams.expectedUpdatedAt] = expectedUpdatedAt
+              .toUtc()
+              .toIso8601String();
 
-    final result = await client.rpc(TripDbRpcs.save, params: params);
+    final result = await client.rpc(TripDbRpcs.saveChecked, params: params);
     return TripModel.fromMap(_rpcMap(result));
   }
 
