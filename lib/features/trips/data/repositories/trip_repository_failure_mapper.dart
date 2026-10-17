@@ -14,6 +14,14 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.managementPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripsManagement,
       ),
+      TripDbErrorCodes.financialTermsPermissionDenied =>
+        const PermissionFailure(
+          code: TripFailureCodes.financialTermsPermissionDenied,
+        ),
+      TripDbErrorCodes.pricedQuantityRequiresFinance =>
+        const ConflictFailure(
+          code: TripFailureCodes.pricedQuantityRequiresFinance,
+        ),
       TripDbErrorCodes.statusPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripStatusUpdate,
       ),

@@ -36,6 +36,29 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps unauthorized price mutation without leaking DB details', () {
+      const error = PostgrestException(
+        message: 'trip_financial_terms_permission_denied',
+        code: TripDbErrorCodes.financialTermsPermissionDenied,
+        details: 'internal SQL context',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, TripFailureCodes.financialTermsPermissionDenied);
+      expect(failure.message, isNull);
+    });
+
+    test('maps locked priced quantity to finance-required conflict', () {
+      const error = PostgrestException(
+        message: 'trip_priced_quantity_requires_finance_authorization',
+        code: TripDbErrorCodes.pricedQuantityRequiresFinance,
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripFailureCodes.pricedQuantityRequiresFinance);
+      expect(failure.message, isNull);
+    });
+
     test('maps missing trip to typed not-found failure', () {
       const error = PostgrestException(
         message: 'trip_not_found',
