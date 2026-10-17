@@ -16,10 +16,12 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: DashboardMetricsGrid(
+          home: Scaffold(
+            body: DashboardMetricsGrid(
               summary: _summary(),
               canViewFinancialMetrics: true,
-            )),
+            ),
+          ),
         ),
       );
 
@@ -52,10 +54,12 @@ void main() {
         locale: const Locale('ar'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(body: DashboardMetricsGrid(
-              summary: _summary(),
-              canViewFinancialMetrics: true,
-            )),
+        home: Scaffold(
+          body: DashboardMetricsGrid(
+            summary: _summary(),
+            canViewFinancialMetrics: true,
+          ),
+        ),
       ),
     );
 

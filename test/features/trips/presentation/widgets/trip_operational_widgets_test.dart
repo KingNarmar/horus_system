@@ -24,7 +24,9 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-10 Trip operational widgets', () {
-    testWidgets('operations Trip details omit financial labels', (tester) async {
+    testWidgets('operations Trip details omit financial labels', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _localizedApp(
           Scaffold(

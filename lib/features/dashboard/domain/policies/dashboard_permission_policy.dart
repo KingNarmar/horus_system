@@ -11,6 +11,7 @@ abstract final class DashboardPermissionPolicy {
       CompanyRole.driver => false,
     };
   }
+
   static bool canViewFinancialMetrics(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,

@@ -56,9 +56,10 @@ final class _DashboardPageState extends State<DashboardPage> {
           builder: (context, state) {
             return _DashboardStateView(
               state: state,
-              canViewFinancialMetrics: DashboardPermissionPolicy.canViewFinancialMetrics(
-                widget.currentCompanyContext.role,
-              ),
+              canViewFinancialMetrics:
+                  DashboardPermissionPolicy.canViewFinancialMetrics(
+                    widget.currentCompanyContext.role,
+                  ),
               onRetry: () => context.read<DashboardCubit>().load(
                 widget.currentCompanyContext,
               ),

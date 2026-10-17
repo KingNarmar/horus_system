@@ -124,7 +124,7 @@ class TripBasicInfoSection extends StatelessWidget {
           l10n.tripEmptyValue,
         ),
       );
-  
+
       addOptional(
         l10n.tripFreightPriceHeader,
         TripFormatters.money(
@@ -133,7 +133,7 @@ class TripBasicInfoSection extends StatelessWidget {
           l10n.tripEmptyValue,
         ),
       );
-  
+
       addRequired(
         l10n.tripTotalExpensesLabel,
         TripFormatters.money(
@@ -142,7 +142,7 @@ class TripBasicInfoSection extends StatelessWidget {
           l10n.tripEmptyValue,
         ),
       );
-  
+
       addRequired(
         l10n.tripNetProfitHeader,
         TripFormatters.money(
