@@ -60,15 +60,12 @@ void main() {
     expect(repository.billableTripsCalls, 1);
   });
 
-  test('viewer loads invoices without requesting draft-only data', () async {
+  test('viewer is denied invoice financial data before any repository read', () async {
     repository.invoices = [_invoice(id: 'invoice-1')];
 
     await cubit.loadInvoices(_context(role: CompanyRole.viewer));
 
-    final state = cubit.state as InvoicesLoaded;
-    expect(state.allInvoices, hasLength(1));
-    expect(state.billableTrips, isEmpty);
-    expect(state.canManageInvoiceDrafts, isFalse);
+    expect(cubit.state, isA<InvoicesFailure>());
     expect(repository.billableTripsCalls, 0);
   });
 

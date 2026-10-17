@@ -45,17 +45,20 @@ void main() {
     await cubit.close();
   });
 
-  test('operations load remains read-only in presentation state', () async {
+  test('operations cannot load financial payments in presentation', () async {
+    final payments = _FakePaymentsRepository();
+    final invoices = _FakeInvoicesRepository();
     final cubit = _cubit(
-      _FakePaymentsRepository(),
-      _FakeInvoicesRepository(),
+      payments,
+      invoices,
       _FakePaymentMethodsRepository(),
     );
 
     await cubit.loadPayments(_context(CompanyRole.operations));
 
-    final state = cubit.state as PaymentsLoaded;
-    expect(state.canRegisterPayments, isFalse);
+    expect(cubit.state, isA<PaymentsFailure>());
+    expect(payments.lastCompanyId, isNull);
+    expect(invoices.lastCompanyId, isNull);
     await cubit.close();
   });
 
