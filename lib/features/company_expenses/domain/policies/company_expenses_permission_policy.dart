@@ -5,9 +5,9 @@ abstract final class CompanyExpensesPermissionPolicy {
     return switch (role) {
       CompanyRole.owner ||
       CompanyRole.admin ||
+      CompanyRole.accountant => true,
       CompanyRole.operations ||
-      CompanyRole.accountant ||
-      CompanyRole.viewer => true,
+      CompanyRole.viewer ||
       CompanyRole.driver => false,
     };
   }
