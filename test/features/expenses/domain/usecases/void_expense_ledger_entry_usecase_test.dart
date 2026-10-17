@@ -62,7 +62,7 @@ void main() {
       expect(repository.voidCalls, 0);
     });
 
-    test('allows operations for trip-attributed expense', () async {
+    test('denies operations for trip-attributed expense', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await VoidExpenseLedgerEntryUseCase(repository)(
         VoidExpenseLedgerEntryParams(
@@ -70,8 +70,11 @@ void main() {
           entry: _entry(tripId: 'trip-1'),
         ),
       );
-      expect(result, isA<Success<ExpenseLedgerEntry>>());
-      expect(repository.voidCalls, 1);
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionManage,
+      );
+      expect(repository.voidCalls, 0);
     });
 
     test('rejects already voided entry before repository execution', () async {

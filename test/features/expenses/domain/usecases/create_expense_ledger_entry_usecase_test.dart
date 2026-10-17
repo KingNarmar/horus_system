@@ -85,7 +85,7 @@ void main() {
       expect(repository.calls, 0);
     });
 
-    test('allows operations for trip-attributed expense', () async {
+    test('denies operations for trip-attributed expense', () async {
       final repository = _FakeExpenseLedgerRepository();
       final result = await CreateExpenseLedgerEntryUseCase(repository)(
         _params(
@@ -93,9 +93,11 @@ void main() {
           attribution: const ExpenseAttribution(tripId: 'trip-1'),
         ),
       );
-      expect(result, isA<Success<ExpenseLedgerEntry>>());
-      expect(repository.calls, 1);
-      expect(repository.data?.attribution.tripId, 'trip-1');
+      expect(
+        result.failureOrNull?.code,
+        ExpenseLedgerFailureCodes.permissionManage,
+      );
+      expect(repository.calls, 0);
     });
   });
 }
