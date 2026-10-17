@@ -15,6 +15,7 @@ class TripBasicInfoSection extends StatelessWidget {
   static const double _twoColumnsBreakpoint = 300;
 
   final TripEntity trip;
+  final bool canViewFinancials;
   final CurrencyConfiguration? financialConfiguration;
   final TripBusinessLocalTimestamps? businessLocalTimestamps;
   final Money? calculatedTotalExpenses;
@@ -22,6 +23,7 @@ class TripBasicInfoSection extends StatelessWidget {
 
   const TripBasicInfoSection({
     required this.trip,
+    required this.canViewFinancials,
     required this.financialConfiguration,
     this.businessLocalTimestamps,
     this.calculatedTotalExpenses,
@@ -113,41 +115,43 @@ class TripBasicInfoSection extends StatelessWidget {
       ),
     );
 
-    addOptional(
-      l10n.tripAgreedFreightRatePerTonLabel,
-      TripFormatters.money(
-        trip.agreedFreightRatePerTon,
-        fractionDigits,
-        l10n.tripEmptyValue,
-      ),
-    );
-
-    addOptional(
-      l10n.tripFreightPriceHeader,
-      TripFormatters.money(
-        trip.commercialAmount,
-        fractionDigits,
-        l10n.tripEmptyValue,
-      ),
-    );
-
-    addRequired(
-      l10n.tripTotalExpensesLabel,
-      TripFormatters.money(
-        calculatedTotalExpenses,
-        fractionDigits,
-        l10n.tripEmptyValue,
-      ),
-    );
-
-    addRequired(
-      l10n.tripNetProfitHeader,
-      TripFormatters.money(
-        calculatedNetProfit,
-        fractionDigits,
-        l10n.tripEmptyValue,
-      ),
-    );
+    if (canViewFinancials) {
+      addOptional(
+        l10n.tripAgreedFreightRatePerTonLabel,
+        TripFormatters.money(
+          trip.agreedFreightRatePerTon,
+          fractionDigits,
+          l10n.tripEmptyValue,
+        ),
+      );
+  
+      addOptional(
+        l10n.tripFreightPriceHeader,
+        TripFormatters.money(
+          trip.commercialAmount,
+          fractionDigits,
+          l10n.tripEmptyValue,
+        ),
+      );
+  
+      addRequired(
+        l10n.tripTotalExpensesLabel,
+        TripFormatters.money(
+          calculatedTotalExpenses,
+          fractionDigits,
+          l10n.tripEmptyValue,
+        ),
+      );
+  
+      addRequired(
+        l10n.tripNetProfitHeader,
+        TripFormatters.money(
+          calculatedNetProfit,
+          fractionDigits,
+          l10n.tripEmptyValue,
+        ),
+      );
+    }
 
     addRequired(l10n.tripStatusHeader, l10n.tripStatusLabel(trip.status));
 

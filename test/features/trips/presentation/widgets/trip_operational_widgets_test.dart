@@ -15,6 +15,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_route_lookup_op
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/presentation/models/trip_mutation_result.dart';
+import 'package:horus_system/features/trips/presentation/widgets/trip_basic_info_section.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_business_date_time_field.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_form_dialog.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_status_update_dialog.dart';
@@ -23,6 +24,24 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-10 Trip operational widgets', () {
+    testWidgets('operations Trip details omit financial labels', (tester) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          Scaffold(
+            body: TripBasicInfoSection(
+              trip: _editableTrip,
+              canViewFinancials: false,
+              financialConfiguration: null,
+            ),
+          ),
+        ),
+      );
+
+      final l10n = AppLocalizationsEn();
+      expect(find.text(l10n.tripTotalExpensesLabel), findsNothing);
+      expect(find.text(l10n.tripNetProfitHeader), findsNothing);
+    });
+
     testWidgets('date-time field is picker-based and not free-typed', (
       tester,
     ) async {
