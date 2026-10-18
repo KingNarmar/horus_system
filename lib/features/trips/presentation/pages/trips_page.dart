@@ -137,11 +137,12 @@ class _TripsPageState extends State<TripsPage> {
                 trip: trip,
                 state: state is TripsLoaded ? state : null,
                 onEditFreightRate: (selectedTrip) async {
+                  final navigator = Navigator.of(context);
                   final updated = await _showTripFreightRateDialog(
                     selectedTrip,
                   );
-                  if (updated != null && mounted) {
-                    Navigator.of(context).pop(true);
+                  if (updated != null && navigator.mounted) {
+                    navigator.pop(true);
                   }
                 },
               );

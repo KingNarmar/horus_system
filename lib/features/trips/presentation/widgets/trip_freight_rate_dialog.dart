@@ -7,6 +7,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trip_freight_rate_cubit.dart';
 import '../helpers/trips_failure_message.dart';
+import '../localization/trips_localizations_x.dart';
 
 final class TripFreightRateDialog extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
