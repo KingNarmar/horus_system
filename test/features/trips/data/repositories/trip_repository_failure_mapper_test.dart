@@ -71,6 +71,29 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps finance-only RPC guard and input failures to stable codes', () {
+      final cases = <String, String>{
+        TripDbErrorCodes.financeSnapshotStale:
+            TripFailureCodes.staleFinancialSnapshot,
+        TripDbErrorCodes.invoiceFinancialTermsLocked:
+            TripFailureCodes.invoicedFinancialTermsLocked,
+        TripDbErrorCodes.financeQuantityRequired:
+            TripFailureCodes.pricingRequiresQuantity,
+        TripDbErrorCodes.financeRateInvalid:
+            FailureCodes.validationTripFreightRateInvalid,
+      };
+      for (final entry in cases.entries) {
+        final failure = mapper.fromPostgrest(
+          PostgrestException(
+            message: 'sensitive backend error',
+            code: entry.key,
+          ),
+        );
+        expect(failure.code, entry.value);
+        expect(failure.message, isNull);
+      }
+    });
+
     test('maps missing trip to typed not-found failure', () {
       const error = PostgrestException(
         message: 'trip_not_found',
