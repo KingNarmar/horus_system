@@ -24,11 +24,7 @@ void main() {
     final repository = _FakeRepository();
     final cubit = TripFreightRateCubit(SetTripFreightRateUseCase(repository));
     await tester.pumpWidget(
-      _app(
-        cubit,
-        role: CompanyRole.accountant,
-        locale: const Locale('en'),
-      ),
+      _app(cubit, role: CompanyRole.accountant, locale: const Locale('en')),
     );
     expect(find.byType(TextFormField), findsOneWidget);
     expect(find.text('Edit freight rate'), findsOneWidget);
@@ -44,11 +40,7 @@ void main() {
     final repository = _FakeRepository();
     final cubit = TripFreightRateCubit(SetTripFreightRateUseCase(repository));
     await tester.pumpWidget(
-      _app(
-        cubit,
-        role: CompanyRole.operations,
-        locale: const Locale('ar'),
-      ),
+      _app(cubit, role: CompanyRole.operations, locale: const Locale('ar')),
     );
 
     expect(find.text('تعديل سعر النقل'), findsOneWidget);
