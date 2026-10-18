@@ -82,10 +82,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         .insert(
           data.toInsertMap(financialConfiguration: financialConfiguration),
         )
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: data.companyId,
+      id: row[DbCommonFields.id] as String,
+    );
   }
 
   @override
@@ -101,10 +104,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         )
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: data.companyId,
+      id: row[DbCommonFields.id] as String,
+    );
   }
 
   @override
@@ -136,10 +142,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         })
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: companyId,
+      id: row[DbCommonFields.id] as String,
+    );
   }
 
   List<Map<String, dynamic>> _rpcRows(Object? value) {
