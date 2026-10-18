@@ -87,7 +87,6 @@ void main() {
       },
     );
 
-
     test('denies roles without management permission', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
