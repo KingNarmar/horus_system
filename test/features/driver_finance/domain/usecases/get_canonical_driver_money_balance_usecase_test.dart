@@ -147,7 +147,7 @@ void main() {
       final result = await useCase(
         GetCanonicalDriverBalanceParams(
           currentCompanyContext: _context(
-            role: CompanyRole.viewer,
+            role: CompanyRole.accountant,
             currencyCode: 'AED',
             fractionDigits: 2,
           ),
