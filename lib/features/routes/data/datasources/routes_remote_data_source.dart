@@ -141,16 +141,18 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
 
     return RouteModel.fromMap(Map<String, dynamic>.from(row));
   }
+
   List<Map<String, dynamic>> _rpcRows(Object? value) {
     if (value is! List) {
       throw const FormatException('Invalid Route read response.');
     }
-    return value.map((record) {
-      if (record is! Map) {
-        throw const FormatException('Invalid Route record.');
-      }
-      return Map<String, dynamic>.from(record);
-    }).toList(growable: false);
+    return value
+        .map((record) {
+          if (record is! Map) {
+            throw const FormatException('Invalid Route record.');
+          }
+          return Map<String, dynamic>.from(record);
+        })
+        .toList(growable: false);
   }
-
 }
