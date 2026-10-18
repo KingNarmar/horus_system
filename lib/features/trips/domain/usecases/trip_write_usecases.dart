@@ -68,9 +68,8 @@ Future<Result<TripEntity>> _createTrip({
   }
 
   final financialConfiguration = tripFinancialConfiguration(context);
-  final commercialResult = TripsPermissionPolicy.canViewTripFinancials(
-    context.role,
-  )
+  final commercialResult =
+      TripsPermissionPolicy.canViewTripFinancials(context.role)
       ? _resolveCommercialWriteValues(
           quantityTonsInput: params.quantityTonsInput,
           agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
@@ -170,9 +169,8 @@ Future<Result<TripEntity>> _saveTrip({
   }
   final existingTrip = existingResult.dataOrNull!;
 
-  final commercialResult = TripsPermissionPolicy.canViewTripFinancials(
-    context.role,
-  )
+  final commercialResult =
+      TripsPermissionPolicy.canViewTripFinancials(context.role)
       ? _resolveCommercialWriteValues(
           quantityTonsInput: params.quantityTonsInput,
           agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,

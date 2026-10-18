@@ -54,7 +54,10 @@ void main() {
         ),
       );
       expect(result, isA<Success<TripEntity>>());
-      expect(repository.lastWriteData?.quantityTons, QuantityTons.tryParse('10.125'));
+      expect(
+        repository.lastWriteData?.quantityTons,
+        QuantityTons.tryParse('10.125'),
+      );
       expect(repository.lastWriteData?.agreedFreightRatePerTon, isNull);
       expect(repository.lastWriteData?.commercialAmount, isNull);
     });
@@ -77,22 +80,28 @@ void main() {
       expect(repository.lastWriteData, isNull);
     });
 
-    test('Operations save only operational quantity with no price write', () async {
-      final repository = _FakeTripsRepository();
-      final result = await SaveTripUseCase(repository)(
-        const SaveTripParams(
-          currentCompanyContext: context,
-          id: 'trip-1',
-          customerId: 'customer-1',
-          routeId: 'route-1',
-          quantityTonsInput: '15.000',
-        ),
-      );
-      expect(result, isA<Success<TripEntity>>());
-      expect(repository.lastWriteData?.quantityTons, QuantityTons.tryParse('15'));
-      expect(repository.lastWriteData?.agreedFreightRatePerTon, isNull);
-      expect(repository.lastWriteData?.commercialAmount, isNull);
-    });
+    test(
+      'Operations save only operational quantity with no price write',
+      () async {
+        final repository = _FakeTripsRepository();
+        final result = await SaveTripUseCase(repository)(
+          const SaveTripParams(
+            currentCompanyContext: context,
+            id: 'trip-1',
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            quantityTonsInput: '15.000',
+          ),
+        );
+        expect(result, isA<Success<TripEntity>>());
+        expect(
+          repository.lastWriteData?.quantityTons,
+          QuantityTons.tryParse('15'),
+        );
+        expect(repository.lastWriteData?.agreedFreightRatePerTon, isNull);
+        expect(repository.lastWriteData?.commercialAmount, isNull);
+      },
+    );
   });
 
   group('CreateTripUseCase commercial snapshot', () {

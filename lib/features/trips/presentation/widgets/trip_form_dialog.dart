@@ -61,6 +61,7 @@ class TripFormData {
 
 class TripFormDialog extends StatefulWidget {
   final String title;
+  final bool canViewFinancials;
   final TripEntity? trip;
   final TripBusinessLocalTimestamps? initialBusinessLocalTimestamps;
   final TripFormLookups? lookups;
@@ -71,6 +72,7 @@ class TripFormDialog extends StatefulWidget {
 
   const TripFormDialog({
     required this.title,
+    required this.canViewFinancials,
     required this.onSubmit,
     required this.financialConfiguration,
     this.trip,
@@ -189,7 +191,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
   void _setRouteId(String? value) {
     setState(() {
       _routeId = value;
-      if (widget.trip != null) return;
+      if (widget.trip != null || !widget.canViewFinancials) return;
 
       final route = widget.lookups?.routeById(value);
       _agreedFreightRateController.text = _formatMoneyInput(

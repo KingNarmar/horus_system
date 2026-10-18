@@ -69,6 +69,7 @@ class _TripsPageState extends State<TripsPage> {
                 title: trip == null ? l10n.addTripTitle : l10n.editTripTitle,
                 trip: trip,
                 financialConfiguration: _financialConfiguration,
+                canViewFinancials: loaded?.canViewTripFinancials ?? false,
                 initialBusinessLocalTimestamps: trip == null
                     ? null
                     : loaded?.businessLocalTimestampsFor(trip.id),

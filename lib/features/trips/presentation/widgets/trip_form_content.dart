@@ -118,26 +118,28 @@ extension _TripFormContent on _TripFormDialogState {
                     : l10n.tripNumberInvalid;
               },
             ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _agreedFreightRateController,
-              enabled: !_isSubmitting,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+            if (widget.canViewFinancials) ...[
+              const SizedBox(height: AppSpacing.md),
+              TextFormField(
+                controller: _agreedFreightRateController,
+                enabled: !_isSubmitting,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: l10n.tripAgreedFreightRatePerTonLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  return _moneyInputValid(
+                        value ?? '',
+                        widget.financialConfiguration,
+                      )
+                      ? null
+                      : l10n.tripNumberInvalid;
+                },
               ),
-              decoration: InputDecoration(
-                labelText: l10n.tripAgreedFreightRatePerTonLabel,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) {
-                return _moneyInputValid(
-                      value ?? '',
-                      widget.financialConfiguration,
-                    )
-                    ? null
-                    : l10n.tripNumberInvalid;
-              },
-            ),
+            ],
             const SizedBox(height: AppSpacing.md),
             TripBusinessDateTimeField(
               label: l10n.tripScheduledLoadingAtLabel,
