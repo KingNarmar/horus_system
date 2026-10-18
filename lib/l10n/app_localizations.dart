@@ -1568,6 +1568,12 @@ abstract class AppLocalizations {
   /// **'Enter a valid non-negative number.'**
   String get defaultFreightPriceInvalid;
 
+  /// No description provided for @routeFreightRatePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to change Route freight rates.'**
+  String get routeFreightRatePermissionDenied;
+
   /// No description provided for @searchRoutesHint.
   ///
   /// In en, this message translates to:

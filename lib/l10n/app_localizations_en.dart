@@ -816,6 +816,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultFreightPriceInvalid => 'Enter a valid non-negative number.';
 
   @override
+  String get routeFreightRatePermissionDenied =>
+      'You do not have permission to change Route freight rates.';
+
+  @override
   String get searchRoutesHint => 'Search routes';
 
   @override

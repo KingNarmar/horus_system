@@ -277,6 +277,7 @@
   "loadingLocationRequired": "مكان التحميل مطلوب.",
   "unloadingLocationRequired": "مكان التفريغ مطلوب.",
   "defaultFreightPriceInvalid": "أدخل رقم صحيح غير سالب.",
+  "routeFreightRatePermissionDenied": "ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.",
   "searchRoutesHint": "ابحث في المسارات",
   "routesStatusAllFilter": "الكل",
   "routesStatusActiveFilter": "النشط",

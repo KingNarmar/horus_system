@@ -808,6 +808,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get defaultFreightPriceInvalid => 'أدخل رقم صحيح غير سالب.';
 
   @override
+  String get routeFreightRatePermissionDenied =>
+      'ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.';
+
+  @override
   String get searchRoutesHint => 'ابحث في المسارات';
 
   @override

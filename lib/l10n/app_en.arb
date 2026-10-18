@@ -273,6 +273,7 @@
   "loadingLocationRequired": "Loading location is required.",
   "unloadingLocationRequired": "Unloading location is required.",
   "defaultFreightPriceInvalid": "Enter a valid non-negative number.",
+  "routeFreightRatePermissionDenied": "You do not have permission to change Route freight rates.",
   "searchRoutesHint": "Search routes",
   "routesStatusAllFilter": "All",
   "routesStatusActiveFilter": "Active",
