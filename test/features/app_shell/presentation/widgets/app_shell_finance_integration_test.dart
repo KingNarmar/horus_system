@@ -145,6 +145,14 @@ void main() {
         operationsSections,
         isNot(contains(FinanceWorkspaceSection.driverSettlements)),
       );
+      expect(
+        operationsSections,
+        isNot(contains(FinanceWorkspaceSection.customerStatements)),
+      );
+      expect(
+        financeWorkspaceSectionsForRole(CompanyRole.viewer),
+        isNot(contains(FinanceWorkspaceSection.customerStatements)),
+      );
       expect(driverSections, isEmpty);
     });
   });

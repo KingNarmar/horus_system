@@ -3,11 +3,16 @@ import 'package:horus_system/features/customer_statements/domain/policies/custom
 import 'package:test/test.dart';
 
 void main() {
-  test('allows all statement read roles except driver', () {
+  test('restricts customer invoice and payment statements to finance roles', () {
+    const financeRoles = <CompanyRole>{
+      CompanyRole.owner,
+      CompanyRole.admin,
+      CompanyRole.accountant,
+    };
     for (final role in CompanyRole.values) {
       expect(
         CustomerStatementsPermissionPolicy.canViewStatements(role),
-        role != CompanyRole.driver,
+        financeRoles.contains(role),
         reason: 'Unexpected customer statement access for ${role.name}.',
       );
     }
