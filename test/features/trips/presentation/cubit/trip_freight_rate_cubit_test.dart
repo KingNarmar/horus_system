@@ -72,7 +72,7 @@ void main() {
 
     expect(cubit.state, isA<TripFreightRateSaving>());
     expect(repository.calls, 1);
-    repository.pending!.complete(const Success(_trip));
+    repository.pending!.complete(Success(_trip));
     await Future.wait([first, second]);
     expect(cubit.state, isA<TripFreightRateSaved>());
     await cubit.close();
