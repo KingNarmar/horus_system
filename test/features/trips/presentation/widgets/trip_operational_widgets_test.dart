@@ -114,7 +114,8 @@ void main() {
         await tester.pumpWidget(
           _dialogLauncher(
             locale: const Locale('ar'),
-            builder: (_) => TripFormDialog(canViewFinancials: true,
+            builder: (_) => TripFormDialog(
+              canViewFinancials: true,
               title: 'تعديل رحلة',
               trip: _longLabelTrip,
               lookups: _longLabelLookups,
@@ -148,7 +149,8 @@ void main() {
 
         await tester.pumpWidget(
           _dialogLauncher(
-            builder: (_) => TripFormDialog(canViewFinancials: true,
+            builder: (_) => TripFormDialog(
+              canViewFinancials: true,
               title: 'Edit trip',
               trip: _editableTrip,
               lookups: _lookups,
@@ -200,7 +202,8 @@ void main() {
           _dialogLauncher(
             builder: (_) => ValueListenableBuilder<TripFormLookups>(
               valueListenable: lookups,
-              builder: (_, available, _) => TripFormDialog(canViewFinancials: true,
+              builder: (_, available, _) => TripFormDialog(
+                canViewFinancials: true,
                 title: 'Edit trip',
                 trip: _editableTrip,
                 lookups: available,
@@ -251,7 +254,8 @@ void main() {
           _dialogLauncher(
             builder: (_) => ValueListenableBuilder<TripFormLookups>(
               valueListenable: lookups,
-              builder: (_, available, _) => TripFormDialog(canViewFinancials: true,
+              builder: (_, available, _) => TripFormDialog(
+                canViewFinancials: true,
                 title: 'Edit trip',
                 trip: _editableTrip,
                 lookups: available,
