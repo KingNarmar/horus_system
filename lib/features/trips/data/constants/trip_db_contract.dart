@@ -2,6 +2,7 @@ abstract final class TripDbRpcs {
   static const create = 'create_trip_atomic';
   static const save = 'save_trip_atomic';
   static const updateStatus = 'update_trip_status_atomic';
+  static const setFreightRate = 'set_trip_freight_rate_atomic';
 }
 
 abstract final class TripDbRpcParams {
@@ -23,6 +24,7 @@ abstract final class TripDbRpcParams {
   static const actualDeliveryAt = 'p_actual_delivery_at';
   static const notes = 'p_notes';
   static const newStatus = 'p_new_status';
+  static const expectedUpdatedAt = 'p_expected_updated_at';
 }
 
 abstract final class TripDbErrorCodes {
@@ -35,6 +37,10 @@ abstract final class TripDbErrorCodes {
   static const statusTransitionInvalid = 'P3426';
   static const financialTermsPermissionDenied = 'P3431';
   static const pricedQuantityRequiresFinance = 'P3432';
+  static const financeSnapshotStale = 'P3414';
+  static const financeRateInvalid = 'P3435';
+  static const invoiceFinancialTermsLocked = 'P3436';
+  static const financeQuantityRequired = 'P3437';
   static const checkViolation = '23514';
 }
 

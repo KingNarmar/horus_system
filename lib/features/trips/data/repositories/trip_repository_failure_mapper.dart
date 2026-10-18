@@ -21,6 +21,18 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.pricedQuantityRequiresFinance => const ConflictFailure(
         code: TripFailureCodes.pricedQuantityRequiresFinance,
       ),
+      TripDbErrorCodes.financeSnapshotStale => const ConflictFailure(
+        code: TripFailureCodes.staleFinancialSnapshot,
+      ),
+      TripDbErrorCodes.financeRateInvalid => const ValidationFailure(
+        code: FailureCodes.validationTripFreightRateInvalid,
+      ),
+      TripDbErrorCodes.invoiceFinancialTermsLocked => const ConflictFailure(
+        code: TripFailureCodes.invoicedFinancialTermsLocked,
+      ),
+      TripDbErrorCodes.financeQuantityRequired => const ConflictFailure(
+        code: TripFailureCodes.pricingRequiresQuantity,
+      ),
       TripDbErrorCodes.readPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripsView,
       ),

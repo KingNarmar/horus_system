@@ -38,6 +38,15 @@ abstract final class TripsPermissionPolicy {
     return canManageTrips(role);
   }
 
+  static bool canManageTripFinancialTerms(CompanyRole role) {
+    return switch (role) {
+      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
+    };
+  }
+
   static bool canViewTripFinancials(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
