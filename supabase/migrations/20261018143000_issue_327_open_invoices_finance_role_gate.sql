@@ -245,7 +245,6 @@ BEGIN
     'payments', v_payments
   );
 END;
-$function$
-
+$function$;
 
 COMMIT;
