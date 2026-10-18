@@ -83,7 +83,16 @@ void main() {
     test(
       'Operations save only operational quantity with no price write',
       () async {
-        final repository = _FakeTripsRepository();
+        final repository = _FakeTripsRepository(
+          currentTrip: TripEntity(
+            id: 'trip-1',
+            companyId: 'company-1',
+            tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            status: TripStatus.created,
+          ),
+        );
         final result = await SaveTripUseCase(repository)(
           const SaveTripParams(
             currentCompanyContext: context,
