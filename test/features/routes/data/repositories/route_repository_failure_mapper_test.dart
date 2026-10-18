@@ -1,12 +1,26 @@
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/routes/data/repositories/route_repository_failure_mapper.dart';
+import 'package:horus_system/features/routes/data/constants/route_db_contract.dart';
+import 'package:horus_system/features/routes/domain/failures/route_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
   group('RouteRepositoryFailureMapper', () {
     const mapper = RouteRepositoryFailureMapper();
+
+    test('maps server Route freight permission without raw details', () {
+      const error = PostgrestException(
+        message: 'route_default_freight_permission_denied',
+        code: RouteDbErrorCodes.financialTermsPermissionDenied,
+        details: 'internal SQL context',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, RouteFailureCodes.financialTermsPermissionDenied);
+      expect(failure.message, isNull);
+    });
 
     test('sanitizes Postgrest failures to stable server error', () {
       const error = PostgrestException(
