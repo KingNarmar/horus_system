@@ -8,11 +8,13 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../cubit/trips_cubit.dart';
+import '../cubit/trip_freight_rate_cubit.dart';
 import '../cubit/trips_state.dart';
 import '../helpers/trips_failure_message.dart';
 import '../localization/trips_localizations_x.dart';
 import '../widgets/trip_details_dialog.dart';
 import '../widgets/trip_form_dialog.dart';
+import '../widgets/trip_freight_rate_dialog.dart';
 import '../widgets/trip_status_update_dialog.dart';
 import '../widgets/trips_filters.dart';
 import '../widgets/trips_list.dart';
@@ -104,12 +106,27 @@ class _TripsPageState extends State<TripsPage> {
     );
   }
 
+  Future<TripEntity?> _showTripFreightRateDialog(TripEntity trip) {
+    final cubit = context.read<TripFreightRateCubit>()..reset();
+
+    return showDialog<TripEntity>(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: TripFreightRateDialog(
+          currentCompanyContext: widget.currentCompanyContext,
+          trip: trip,
+        ),
+      ),
+    );
+  }
+
   Future<void> _openTripDetails(TripEntity trip) async {
     final cubit = context.read<TripsCubit>();
 
     cubit.loadTripDetails(trip);
 
-    await showDialog<void>(
+    final didUpdateFreightRate = await showDialog<bool>(
       context: context,
       builder: (_) {
         return BlocProvider.value(
@@ -119,6 +136,14 @@ class _TripsPageState extends State<TripsPage> {
               return TripDetailsDialog(
                 trip: trip,
                 state: state is TripsLoaded ? state : null,
+                onEditFreightRate: (selectedTrip) async {
+                  final updated = await _showTripFreightRateDialog(
+                    selectedTrip,
+                  );
+                  if (updated != null && mounted) {
+                    Navigator.of(context).pop(true);
+                  }
+                },
               );
             },
           ),
@@ -127,6 +152,9 @@ class _TripsPageState extends State<TripsPage> {
     );
 
     cubit.clearTripDetails();
+    if (didUpdateFreightRate == true && mounted) {
+      await cubit.loadTrips(widget.currentCompanyContext);
+    }
   }
 
   Future<void> _showStatusUpdateDialog(TripEntity trip) {

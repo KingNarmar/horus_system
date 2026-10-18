@@ -17,8 +17,14 @@ import 'trip_status_history_section.dart';
 class TripDetailsDialog extends StatelessWidget {
   final TripEntity trip;
   final TripsLoaded? state;
+  final ValueChanged<TripEntity>? onEditFreightRate;
 
-  const TripDetailsDialog({required this.trip, required this.state, super.key});
+  const TripDetailsDialog({
+    required this.trip,
+    required this.state,
+    this.onEditFreightRate,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +108,18 @@ class TripDetailsDialog extends StatelessWidget {
                   children: [
                     TripDetailsSectionTitle(text: l10n.tripBasicInfo),
                     const SizedBox(height: AppSpacing.sm),
+                    if ((state?.canViewTripFinancials ?? false) &&
+                        onEditFreightRate != null) ...[
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: OutlinedButton.icon(
+                          onPressed: () => onEditFreightRate!(detailsTrip),
+                          icon: const Icon(AppIcons.edit),
+                          label: Text(l10n.tripEditFreightRateTitle),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     TripBasicInfoSection(
                       trip: detailsTrip,
                       canViewFinancials: state?.canViewTripFinancials ?? false,
