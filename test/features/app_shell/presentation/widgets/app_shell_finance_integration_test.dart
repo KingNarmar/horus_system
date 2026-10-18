@@ -139,7 +139,7 @@ void main() {
       expect(ownerSections, FinanceWorkspaceSection.values);
       expect(
         operationsSections,
-        contains(FinanceWorkspaceSection.driverFinance),
+        isNot(contains(FinanceWorkspaceSection.driverFinance)),
       );
       expect(
         operationsSections,
@@ -153,6 +153,8 @@ void main() {
         financeWorkspaceSectionsForRole(CompanyRole.viewer),
         isNot(contains(FinanceWorkspaceSection.customerStatements)),
       );
+      expect(operationsSections, isEmpty);
+      expect(financeWorkspaceSectionsForRole(CompanyRole.viewer), isEmpty);
       expect(driverSections, isEmpty);
     });
   });

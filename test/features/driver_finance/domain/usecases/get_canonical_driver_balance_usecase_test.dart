@@ -99,7 +99,7 @@ void main() {
 
       final result = await useCase(
         GetCanonicalDriverBalanceParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
+          currentCompanyContext: _context(CompanyRole.accountant),
           driverId: '  ',
           beforeExclusive: BusinessDate(year: 2026, month: 9, day: 2),
         ),
