@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/data/constants/authorized_business_records_db_contract.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_status.dart';
@@ -59,15 +60,11 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
 
   @override
   Future<List<TripModel>> getTrips({required String companyId}) async {
-    final rows = await client
-        .from(TripDbFields.tableName)
-        .select(TripDbFields.allColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .order(DbCommonFields.createdAt, ascending: false);
-
-    return rows
-        .map((row) => TripModel.fromMap(Map<String, dynamic>.from(row)))
-        .toList();
+    final result = await client.rpc(
+      AuthorizedBusinessRecordsDbRpcs.trips,
+      params: {AuthorizedBusinessRecordsDbParams.companyId: companyId},
+    );
+    return _rpcRows(result).map(TripModel.fromMap).toList();
   }
 
   @override
@@ -75,14 +72,24 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required String companyId,
     required String id,
   }) async {
-    final row = await client
-        .from(TripDbFields.tableName)
-        .select(TripDbFields.allColumns)
-        .eq(DbCommonFields.id, id)
-        .eq(DbCommonFields.companyId, companyId)
-        .single();
-
-    return TripModel.fromMap(Map<String, dynamic>.from(row));
+    final result = await client.rpc(
+      AuthorizedBusinessRecordsDbRpcs.trips,
+      params: {
+        AuthorizedBusinessRecordsDbParams.companyId: companyId,
+        AuthorizedBusinessRecordsDbParams.tripId: id,
+      },
+    );
+    final records = _rpcRows(result);
+    if (records.isEmpty) {
+      throw const PostgrestException(
+        message: 'trip_not_found',
+        code: TripDbErrorCodes.notFound,
+      );
+    }
+    if (records.length != 1) {
+      throw const FormatException('Duplicate Trip records.');
+    }
+    return TripModel.fromMap(records.single);
   }
 
   @override
@@ -260,12 +267,14 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   Future<List<TripRouteLookupOptionModel>> _getRouteLookupOptions({
     required String companyId,
   }) async {
-    final rows = await client
-        .from(TripLookupDbFields.routesTableName)
-        .select(TripLookupDbFields.routeColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DbCommonFields.isActive, true)
-        .order(TripLookupDbFields.loadingLocation);
+    final result = await client.rpc(
+      AuthorizedBusinessRecordsDbRpcs.routes,
+      params: {
+        AuthorizedBusinessRecordsDbParams.companyId: companyId,
+        AuthorizedBusinessRecordsDbParams.activeOnly: true,
+      },
+    );
+    final rows = _rpcRows(result);
 
     final options = <TripRouteLookupOptionModel>[];
 
@@ -308,6 +317,13 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
         .limit(1);
 
     return rows.isNotEmpty;
+  }
+
+  List<Map<String, dynamic>> _rpcRows(Object? value) {
+    if (value is! List) {
+      throw const FormatException('Invalid Trip read response.');
+    }
+    return value.map(_rpcMap).toList(growable: false);
   }
 
   Map<String, dynamic> _rpcMap(Object? value) {
