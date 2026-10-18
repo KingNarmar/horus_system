@@ -23,9 +23,7 @@ import '../usecases/get_company_business_date_usecase.dart';
 abstract final class TripsDependencies {
   static TripFreightRateCubit createTripFreightRateCubit() {
     final repository = TripFinancialTermsRepositoryImpl(
-      SupabaseTripFinancialTermsRemoteDataSource(
-        SupabaseClientProvider.client,
-      ),
+      SupabaseTripFinancialTermsRemoteDataSource(SupabaseClientProvider.client),
     );
     return TripFreightRateCubit(SetTripFreightRateUseCase(repository));
   }

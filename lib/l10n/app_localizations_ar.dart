@@ -2237,16 +2237,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripFinancialTermsPermissionFailure =>
       'ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.';
   @override
-  String get tripEditFreightRateTitle =>
-      'تعديل سعر النقل';
+  String get tripEditFreightRateTitle => 'تعديل سعر النقل';
 
   @override
-  String get tripSaveRateButton =>
-      'حفظ السعر';
+  String get tripSaveRateButton => 'حفظ السعر';
 
   @override
-  String get tripCancelRateButton =>
-      'إلغاء';
+  String get tripCancelRateButton => 'إلغاء';
 
   @override
   String get tripPricingQuantityRequiredFailure =>
@@ -2259,7 +2256,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tripStaleFinancialSnapshotFailure =>
       'تم تحديث الرحلة من مكان آخر. حدّث البيانات وحاول مرة أخرى.';
-
 
   @override
   String get tripPricedQuantityFinanceRequired =>
