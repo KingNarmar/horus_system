@@ -8,6 +8,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/widgets/active_state_confirmation_dialog.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
+import '../../domain/policies/routes_permission_policy.dart';
 import '../cubit/routes_cubit.dart';
 import '../cubit/routes_state.dart';
 import '../helpers/routes_failure_message.dart';
@@ -51,6 +52,9 @@ class _RoutesPageState extends State<RoutesPage> {
           title: route == null ? l10n.addRouteTitle : l10n.editRouteTitle,
           route: route,
           financialConfiguration: _financialConfiguration,
+          canEditFreightRate: RoutesPermissionPolicy.canEditFreightRate(
+            widget.currentCompanyContext.role,
+          ),
           onSubmit: (data) {
             return cubit.saveRoute(
               route: route,

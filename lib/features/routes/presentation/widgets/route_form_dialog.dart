@@ -30,12 +30,14 @@ class RouteFormData {
 
 class RouteFormDialog extends StatefulWidget {
   final String title;
+  final bool canEditFreightRate;
   final RouteEntity? route;
   final CurrencyConfiguration? financialConfiguration;
   final Future<bool> Function(RouteFormData data) onSubmit;
 
   const RouteFormDialog({
     required this.title,
+    required this.canEditFreightRate,
     required this.onSubmit,
     required this.financialConfiguration,
     this.route,
@@ -151,21 +153,23 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                     labelText: l10n.governorateToLabel,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _defaultFreightRateController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+                if (widget.canEditFreightRate) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  TextFormField(
+                    controller: _defaultFreightRateController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: l10n.routeDefaultFreightRatePerTonLabel,
+                    ),
+                    validator: (_) {
+                      return _defaultFreightRateValid
+                          ? null
+                          : l10n.defaultFreightPriceInvalid;
+                    },
                   ),
-                  decoration: InputDecoration(
-                    labelText: l10n.routeDefaultFreightRatePerTonLabel,
-                  ),
-                  validator: (_) {
-                    return _defaultFreightRateValid
-                        ? null
-                        : l10n.defaultFreightPriceInvalid;
-                  },
-                ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _notesController,
@@ -202,9 +206,9 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
         unloadingLocation: _unloadingController.text.trim(),
         governorateFrom: _optional(_governorateFromController.text),
         governorateTo: _optional(_governorateToController.text),
-        defaultFreightRatePerTonInput: _optional(
-          _defaultFreightRateController.text,
-        ),
+        defaultFreightRatePerTonInput: widget.canEditFreightRate
+            ? _optional(_defaultFreightRateController.text)
+            : null,
         notes: _optional(_notesController.text),
       ),
     );
