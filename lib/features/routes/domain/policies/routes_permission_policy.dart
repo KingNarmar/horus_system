@@ -20,4 +20,13 @@ abstract final class RoutesPermissionPolicy {
       CompanyRole.driver => false,
     };
   }
+  static bool canEditFreightRate(CompanyRole role) {
+    return switch (role) {
+      CompanyRole.owner || CompanyRole.admin => true,
+      CompanyRole.operations ||
+      CompanyRole.accountant ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
+    };
+  }
 }

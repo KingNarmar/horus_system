@@ -8,6 +8,7 @@ import 'package:horus_system/features/company/domain/entities/current_company_co
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/routes/domain/entities/route_entity.dart';
 import 'package:horus_system/features/routes/domain/entities/route_write_data.dart';
+import 'package:horus_system/features/routes/domain/failures/route_failure_codes.dart';
 import 'package:horus_system/features/routes/domain/repositories/routes_repository.dart';
 import 'package:horus_system/features/routes/domain/usecases/routes_usecases.dart';
 import 'package:test/test.dart';
@@ -53,6 +54,37 @@ void main() {
   });
 
   group('SaveRouteUseCase', () {
+    test('Operations cannot set a Route default freight rate', () async {
+      final repository = _FakeRoutesRepository();
+      final result = await SaveRouteUseCase(repository)(
+        SaveRouteParams(
+          currentCompanyContext: _context(role: CompanyRole.operations),
+          loadingLocation: 'Dubai',
+          unloadingLocation: 'Sharjah',
+          defaultFreightRatePerTonInput: '50',
+        ),
+      );
+      expect(
+        result.failureOrNull?.code,
+        RouteFailureCodes.financialTermsPermissionDenied,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
+    test('Operations can save Route operational data without pricing', () async {
+      final repository = _FakeRoutesRepository();
+      final result = await SaveRouteUseCase(repository)(
+        SaveRouteParams(
+          currentCompanyContext: _context(role: CompanyRole.operations),
+          loadingLocation: 'Dubai',
+          unloadingLocation: 'Sharjah',
+        ),
+      );
+      expect(result, isA<Success<RouteEntity>>());
+      expect(repository.lastWriteData?.defaultFreightRatePerTon, isNull);
+    });
+
+
     test('denies roles without management permission', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);
