@@ -31,8 +31,9 @@ final class SupabaseTripFinancialTermsRemoteDataSource
         TripDbRpcParams.companyId: companyId,
         TripDbRpcParams.tripId: tripId,
         TripDbRpcParams.agreedFreightRatePerTon: rateDecimal,
-        TripDbRpcParams.expectedUpdatedAt:
-            expectedUpdatedAt.toUtc().toIso8601String(),
+        TripDbRpcParams.expectedUpdatedAt: expectedUpdatedAt
+            .toUtc()
+            .toIso8601String(),
       },
     );
 

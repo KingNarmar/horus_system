@@ -1,5 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart'
-    show PostgrestException;
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
@@ -52,9 +51,7 @@ final class TripFinancialTermsRepositoryImpl
     } on PostgrestException catch (error) {
       return FailureResult(_failureMapper.fromPostgrest(error));
     } on FormatException {
-      return const FailureResult(
-        ServerFailure(code: FailureCodes.serverError),
-      );
+      return const FailureResult(ServerFailure(code: FailureCodes.serverError));
     } catch (error) {
       return FailureResult(_failureMapper.fromUnexpected(error));
     }

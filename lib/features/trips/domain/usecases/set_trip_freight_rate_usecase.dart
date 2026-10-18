@@ -85,7 +85,9 @@ final class SetTripFreightRateUseCase
     if (minorUnits == null) {
       return Future.value(
         const FailureResult(
-          ValidationFailure(code: FailureCodes.validationTripFreightRateInvalid),
+          ValidationFailure(
+            code: FailureCodes.validationTripFreightRateInvalid,
+          ),
         ),
       );
     }
