@@ -23,6 +23,18 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps secured Trip read denial to view permission, not status', () {
+      const error = PostgrestException(
+        message: 'trip_read_permission_denied',
+        code: TripDbErrorCodes.readPermissionDenied,
+        details: 'do not display this backend detail',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, FailureCodes.permissionTripsView);
+      expect(failure.message, isNull);
+    });
+
     test('maps status permission denial to typed failure', () {
       const error = PostgrestException(
         message: 'trip_status_permission_denied',

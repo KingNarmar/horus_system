@@ -28,6 +28,7 @@ abstract final class TripDbRpcParams {
 abstract final class TripDbErrorCodes {
   static const managementPermissionDenied = 'P3410';
   static const statusPermissionDenied = 'P3411';
+  static const readPermissionDenied = 'P3433';
   static const notFound = 'P3412';
   static const temporalOrderInvalid = 'P3413';
   static const evidenceRequired = 'P3424';

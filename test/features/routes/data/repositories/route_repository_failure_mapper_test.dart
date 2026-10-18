@@ -10,6 +10,18 @@ void main() {
   group('RouteRepositoryFailureMapper', () {
     const mapper = RouteRepositoryFailureMapper();
 
+    test('maps secured Route read denial to view permission', () {
+      const error = PostgrestException(
+        message: 'route_read_permission_denied',
+        code: RouteDbErrorCodes.readPermissionDenied,
+        details: 'do not display this backend detail',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, FailureCodes.permissionRoutesView);
+      expect(failure.message, isNull);
+    });
+
     test('maps server Route freight permission without raw details', () {
       const error = PostgrestException(
         message: 'route_default_freight_permission_denied',

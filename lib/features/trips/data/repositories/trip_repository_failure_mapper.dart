@@ -21,6 +21,9 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.pricedQuantityRequiresFinance => const ConflictFailure(
         code: TripFailureCodes.pricedQuantityRequiresFinance,
       ),
+      TripDbErrorCodes.readPermissionDenied => const PermissionFailure(
+        code: FailureCodes.permissionTripsView,
+      ),
       TripDbErrorCodes.statusPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripStatusUpdate,
       ),

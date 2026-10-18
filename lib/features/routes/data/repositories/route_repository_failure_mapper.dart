@@ -10,6 +10,9 @@ final class RouteRepositoryFailureMapper {
   const RouteRepositoryFailureMapper();
 
   Failure fromPostgrest(PostgrestException error) {
+    if (error.code == RouteDbErrorCodes.readPermissionDenied) {
+      return const PermissionFailure(code: FailureCodes.permissionRoutesView);
+    }
     if (error.code == RouteDbErrorCodes.financialTermsPermissionDenied) {
       return const PermissionFailure(
         code: RouteFailureCodes.financialTermsPermissionDenied,
