@@ -55,6 +55,7 @@ import '../../../subscriptions/di/subscriptions_dependencies.dart';
 import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
+import '../../../trips/presentation/cubit/trip_freight_rate_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
 import '../../../trips/presentation/widgets/trips_realtime_boundary.dart';
 import '../models/app_shell_destination.dart';
@@ -154,8 +155,15 @@ class AppShellContent extends StatelessWidget {
           ),
         ),
       ),
-      AppShellModule.trips => BlocProvider<TripsCubit>(
-        create: (_) => TripsDependencies.createTripsCubit(),
+      AppShellModule.trips => MultiBlocProvider(
+        providers: [
+          BlocProvider<TripsCubit>(
+            create: (_) => TripsDependencies.createTripsCubit(),
+          ),
+          BlocProvider<TripFreightRateCubit>(
+            create: (_) => TripsDependencies.createTripFreightRateCubit(),
+          ),
+        ],
         child: TripsRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(

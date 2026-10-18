@@ -4,6 +4,10 @@ import '../../features/expense_types/di/expense_types_dependencies.dart';
 import '../../features/expenses/di/expenses_dependencies.dart';
 import '../../features/trips/data/datasources/trip_documents_remote_data_source.dart';
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
+import '../../features/trips/data/datasources/trip_financial_terms_remote_data_source.dart';
+import '../../features/trips/data/repositories/trip_financial_terms_repository_impl.dart';
+import '../../features/trips/domain/usecases/set_trip_freight_rate_usecase.dart';
+import '../../features/trips/presentation/cubit/trip_freight_rate_cubit.dart';
 import '../../features/trips/data/repositories/trip_documents_repository_impl.dart';
 import '../../features/trips/data/repositories/trips_repository_impl.dart';
 import '../../features/trips/domain/usecases/get_trip_permissions_usecase.dart';
@@ -17,6 +21,15 @@ import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../usecases/get_company_business_date_usecase.dart';
 
 abstract final class TripsDependencies {
+  static TripFreightRateCubit createTripFreightRateCubit() {
+    final repository = TripFinancialTermsRepositoryImpl(
+      SupabaseTripFinancialTermsRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
+    );
+    return TripFreightRateCubit(SetTripFreightRateUseCase(repository));
+  }
+
   static TripsCubit createTripsCubit() {
     final client = SupabaseClientProvider.client;
     const businessTimeZoneConverter = TimezoneBusinessTimeZoneConverter();
