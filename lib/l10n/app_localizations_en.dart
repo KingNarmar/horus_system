@@ -2265,6 +2265,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripFinancialTermsPermissionFailure =>
       'You do not have permission to change Trip prices or amounts.';
+  @override
+  String get tripEditFreightRateTitle =>
+      'Edit freight rate';
+
+  @override
+  String get tripSaveRateButton =>
+      'Save rate';
+
+  @override
+  String get tripCancelRateButton =>
+      'Cancel';
+
+  @override
+  String get tripPricingQuantityRequiredFailure =>
+      'Add a Trip quantity before setting the freight rate.';
+
+  @override
+  String get tripInvoicedFinancialTermsLockedFailure =>
+      'This Trip is linked to an invoice, so its freight rate cannot be changed.';
+
+  @override
+  String get tripStaleFinancialSnapshotFailure =>
+      'The Trip was updated elsewhere. Refresh it and try again.';
+
 
   @override
   String get tripPricedQuantityFinanceRequired =>

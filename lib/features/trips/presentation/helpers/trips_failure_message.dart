@@ -29,6 +29,12 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
       l10n.tripFinancialTermsPermissionFailure,
     TripFailureCodes.pricedQuantityRequiresFinance =>
       l10n.tripPricedQuantityFinanceRequired,
+    TripFailureCodes.pricingRequiresQuantity =>
+      l10n.tripPricingQuantityRequiredFailure,
+    TripFailureCodes.invoicedFinancialTermsLocked =>
+      l10n.tripInvoicedFinancialTermsLockedFailure,
+    TripFailureCodes.staleFinancialSnapshot =>
+      l10n.tripStaleFinancialSnapshotFailure,
     TripDocumentFailureCodes.permissionView ||
     TripDocumentFailureCodes.permissionManage =>
       l10n.tripDocumentsPermissionFailure,

@@ -4226,6 +4226,42 @@ abstract class AppLocalizations {
   /// **'You do not have permission to change Trip prices or amounts.'**
   String get tripFinancialTermsPermissionFailure;
 
+  /// No description provided for @tripEditFreightRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit freight rate'**
+  String get tripEditFreightRateTitle;
+
+  /// No description provided for @tripSaveRateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save rate'**
+  String get tripSaveRateButton;
+
+  /// No description provided for @tripCancelRateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get tripCancelRateButton;
+
+  /// No description provided for @tripPricingQuantityRequiredFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Trip quantity before setting the freight rate.'**
+  String get tripPricingQuantityRequiredFailure;
+
+  /// No description provided for @tripInvoicedFinancialTermsLockedFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This Trip is linked to an invoice, so its freight rate cannot be changed.'**
+  String get tripInvoicedFinancialTermsLockedFailure;
+
+  /// No description provided for @tripStaleFinancialSnapshotFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The Trip was updated elsewhere. Refresh it and try again.'**
+  String get tripStaleFinancialSnapshotFailure;
+
   /// No description provided for @tripPricedQuantityFinanceRequired.
   ///
   /// In en, this message translates to:
