@@ -2236,6 +2236,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tripFinancialTermsPermissionFailure =>
       'ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.';
+
   @override
   String get tripEditFreightRateTitle => 'تعديل سعر النقل';
 

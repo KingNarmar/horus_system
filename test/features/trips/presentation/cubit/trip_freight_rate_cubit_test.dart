@@ -56,7 +56,9 @@ void main() {
   });
 
   test('rejects duplicate in-flight requests', () async {
-    final repository = _FakeRepository(pending: Completer<Result<TripEntity>>());
+    final repository = _FakeRepository(
+      pending: Completer<Result<TripEntity>>(),
+    );
     final cubit = TripFreightRateCubit(SetTripFreightRateUseCase(repository));
 
     final first = cubit.save(

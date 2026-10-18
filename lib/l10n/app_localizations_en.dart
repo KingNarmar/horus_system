@@ -2265,6 +2265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripFinancialTermsPermissionFailure =>
       'You do not have permission to change Trip prices or amounts.';
+
   @override
   String get tripEditFreightRateTitle => 'Edit freight rate';
 
