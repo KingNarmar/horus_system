@@ -71,18 +71,21 @@ void main() {
       expect(repository.totalMutationCalls, 0);
     });
 
-    test('Operations can save Route operational data without pricing', () async {
-      final repository = _FakeRoutesRepository();
-      final result = await SaveRouteUseCase(repository)(
-        SaveRouteParams(
-          currentCompanyContext: _context(role: CompanyRole.operations),
-          loadingLocation: 'Dubai',
-          unloadingLocation: 'Sharjah',
-        ),
-      );
-      expect(result, isA<Success<RouteEntity>>());
-      expect(repository.lastWriteData?.defaultFreightRatePerTon, isNull);
-    });
+    test(
+      'Operations can save Route operational data without pricing',
+      () async {
+        final repository = _FakeRoutesRepository();
+        final result = await SaveRouteUseCase(repository)(
+          SaveRouteParams(
+            currentCompanyContext: _context(role: CompanyRole.operations),
+            loadingLocation: 'Dubai',
+            unloadingLocation: 'Sharjah',
+          ),
+        );
+        expect(result, isA<Success<RouteEntity>>());
+        expect(repository.lastWriteData?.defaultFreightRatePerTon, isNull);
+      },
+    );
 
 
     test('denies roles without management permission', () async {

@@ -6,9 +6,7 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   for (final roleCanEdit in [false, true]) {
-    testWidgets('Route freight field visibility: $roleCanEdit', (
-      tester,
-    ) async {
+    testWidgets('Route freight field visibility: $roleCanEdit', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,

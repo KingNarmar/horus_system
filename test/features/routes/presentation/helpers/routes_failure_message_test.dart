@@ -27,7 +27,6 @@ void main() {
       );
     });
 
-
     test('labels the persisted default price field as a per-ton rate', () {
       final en = AppLocalizationsEn();
       final ar = AppLocalizationsAr();
