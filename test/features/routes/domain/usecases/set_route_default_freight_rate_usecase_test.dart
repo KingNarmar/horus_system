@@ -124,18 +124,16 @@ void main() {
   });
 }
 
-CurrentCompanyContext _context(
-  CompanyRole role, {
-  bool withSettings = true,
-}) => CurrentCompanyContext(
-  company: Company(
-    id: 'company-1',
-    name: 'Company',
-    baseCurrencyCode: withSettings ? 'AED' : null,
-    baseCurrencyFractionDigits: withSettings ? 2 : null,
-  ),
-  role: role,
-);
+CurrentCompanyContext _context(CompanyRole role, {bool withSettings = true}) =>
+    CurrentCompanyContext(
+      company: Company(
+        id: 'company-1',
+        name: 'Company',
+        baseCurrencyCode: withSettings ? 'AED' : null,
+        baseCurrencyFractionDigits: withSettings ? 2 : null,
+      ),
+      role: role,
+    );
 
 RouteEntity _route({
   String companyId = 'company-1',

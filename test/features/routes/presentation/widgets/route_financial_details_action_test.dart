@@ -14,16 +14,19 @@ void main() {
     CompanyRole.admin,
     CompanyRole.accountant,
   ]) {
-    testWidgets('finance actor ${role.name} can access only Route rate action', (
-      tester,
-    ) async {
-      var pressed = false;
-      await tester.pumpWidget(_app(role: role, onRateEdit: (_) => pressed = true));
-      final rateButton = find.byType(OutlinedButton);
-      expect(rateButton, findsOneWidget);
-      await tester.tap(rateButton);
-      expect(pressed, isTrue);
-    });
+    testWidgets(
+      'finance actor ${role.name} can access only Route rate action',
+      (tester) async {
+        var pressed = false;
+        await tester.pumpWidget(
+          _app(role: role, onRateEdit: (_) => pressed = true),
+        );
+        final rateButton = find.byType(OutlinedButton);
+        expect(rateButton, findsOneWidget);
+        await tester.tap(rateButton);
+        expect(pressed, isTrue);
+      },
+    );
   }
 
   for (final role in [
