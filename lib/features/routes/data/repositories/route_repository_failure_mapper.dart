@@ -10,6 +10,19 @@ final class RouteRepositoryFailureMapper {
   const RouteRepositoryFailureMapper();
 
   Failure fromPostgrest(PostgrestException error) {
+    if (error.code == RouteDbErrorCodes.staleFinancialSnapshot) {
+      return const ConflictFailure(
+        code: RouteFailureCodes.staleFinancialSnapshot,
+      );
+    }
+    if (error.code == RouteDbErrorCodes.financialRateInvalid) {
+      return const ValidationFailure(
+        code: FailureCodes.validationRouteFreightRateInvalid,
+      );
+    }
+    if (error.code == RouteDbErrorCodes.financialRouteNotFound) {
+      return const NotFoundFailure(code: RouteFailureCodes.notFound);
+    }
     if (error.code == RouteDbErrorCodes.readPermissionDenied) {
       return const PermissionFailure(code: FailureCodes.permissionRoutesView);
     }

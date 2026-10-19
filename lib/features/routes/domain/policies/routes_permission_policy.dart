@@ -21,6 +21,15 @@ abstract final class RoutesPermissionPolicy {
     };
   }
 
+  static bool canManageRouteFinancialTerms(CompanyRole role) {
+    return switch (role) {
+      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
+      CompanyRole.operations ||
+      CompanyRole.viewer ||
+      CompanyRole.driver => false,
+    };
+  }
+
   static bool canEditFreightRate(CompanyRole role) {
     return switch (role) {
       CompanyRole.owner || CompanyRole.admin => true,
