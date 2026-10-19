@@ -28,8 +28,7 @@ void main() {
             RouteFailureCodes.staleFinancialSnapshot,
         RouteDbErrorCodes.financialRateInvalid:
             FailureCodes.validationRouteFreightRateInvalid,
-        RouteDbErrorCodes.financialRouteNotFound:
-            RouteFailureCodes.notFound,
+        RouteDbErrorCodes.financialRouteNotFound: RouteFailureCodes.notFound,
       };
       for (final entry in cases.entries) {
         final failure = mapper.fromPostgrest(

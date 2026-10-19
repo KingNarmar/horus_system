@@ -57,7 +57,10 @@ final class _RouteDefaultFreightRateDialogState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return BlocConsumer<RouteDefaultFreightRateCubit, RouteDefaultFreightRateState>(
+    return BlocConsumer<
+      RouteDefaultFreightRateCubit,
+      RouteDefaultFreightRateState
+    >(
       listener: (context, state) {
         if (state is RouteDefaultFreightRateSaved) {
           Navigator.of(context).pop(state.route);

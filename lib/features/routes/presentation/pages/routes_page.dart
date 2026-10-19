@@ -109,7 +109,9 @@ class _RoutesPageState extends State<RoutesPage> {
                     )
                     ? (selectedRoute) async {
                         final parentNavigator = Navigator.of(context);
-                        final updated = await _showRouteRateDialog(selectedRoute);
+                        final updated = await _showRouteRateDialog(
+                          selectedRoute,
+                        );
                         if (updated != null && parentNavigator.mounted) {
                           parentNavigator.pop(true);
                         }

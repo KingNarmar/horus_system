@@ -19,10 +19,7 @@ void main() {
     ) async {
       var pressed = false;
       await tester.pumpWidget(
-        _app(
-          role: role,
-          onRateEdit: (_) => pressed = true,
-        ),
+        _app(role: role, onRateEdit: (_) => pressed = true),
       );
       final rateButton = find.byType(OutlinedButton);
       expect(rateButton, findsOneWidget);
