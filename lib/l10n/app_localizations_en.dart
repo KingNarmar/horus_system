@@ -820,6 +820,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'You do not have permission to change Route freight rates.';
 
   @override
+  String get routeStaleFreightRateSnapshot =>
+      'This Route was updated elsewhere. Refresh it and try again.';
+
+  @override
+  String get routeFinancialRateRouteMissing =>
+      'This Route is no longer available. Refresh the list.';
+
+  @override
   String get searchRoutesHint => 'Search routes';
 
   @override

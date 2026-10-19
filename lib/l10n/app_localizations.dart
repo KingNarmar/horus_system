@@ -1574,6 +1574,18 @@ abstract class AppLocalizations {
   /// **'You do not have permission to change Route freight rates.'**
   String get routeFreightRatePermissionDenied;
 
+  /// No description provided for @routeStaleFreightRateSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'This Route was updated elsewhere. Refresh it and try again.'**
+  String get routeStaleFreightRateSnapshot;
+
+  /// No description provided for @routeFinancialRateRouteMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This Route is no longer available. Refresh the list.'**
+  String get routeFinancialRateRouteMissing;
+
   /// No description provided for @searchRoutesHint.
   ///
   /// In en, this message translates to:

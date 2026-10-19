@@ -13,6 +13,9 @@ String routesFailureMessage(BuildContext context, Failure failure) {
   return switch (failure.code) {
     RouteFailureCodes.financialTermsPermissionDenied =>
       l10n.routeFreightRatePermissionDenied,
+    RouteFailureCodes.staleFinancialSnapshot =>
+      l10n.routeStaleFreightRateSnapshot,
+    RouteFailureCodes.notFound => l10n.routeFinancialRateRouteMissing,
     FailureCodes.validationRouteFreightRateInvalid =>
       l10n.defaultFreightPriceInvalid,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>

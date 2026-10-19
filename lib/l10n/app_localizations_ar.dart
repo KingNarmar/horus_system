@@ -812,6 +812,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.';
 
   @override
+  String get routeStaleFreightRateSnapshot =>
+      'تم تحديث هذا المسار من مكان آخر. حدّث البيانات وحاول مرة أخرى.';
+
+  @override
+  String get routeFinancialRateRouteMissing =>
+      'هذا المسار لم يعد متاحًا. حدّث القائمة.';
+
+  @override
   String get searchRoutesHint => 'ابحث في المسارات';
 
   @override
