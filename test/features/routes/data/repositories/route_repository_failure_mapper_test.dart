@@ -22,6 +22,28 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps finance rate stale, invalid input and missing Route', () {
+      final cases = <String, String>{
+        RouteDbErrorCodes.staleFinancialSnapshot:
+            RouteFailureCodes.staleFinancialSnapshot,
+        RouteDbErrorCodes.financialRateInvalid:
+            FailureCodes.validationRouteFreightRateInvalid,
+        RouteDbErrorCodes.financialRouteNotFound:
+            RouteFailureCodes.notFound,
+      };
+      for (final entry in cases.entries) {
+        final failure = mapper.fromPostgrest(
+          PostgrestException(
+            code: entry.key,
+            message: 'sensitive SQL context',
+            details: 'never show raw',
+          ),
+        );
+        expect(failure.code, entry.value);
+        expect(failure.message, isNull);
+      }
+    });
+
     test('maps server Route freight permission without raw details', () {
       const error = PostgrestException(
         message: 'route_default_freight_permission_denied',
