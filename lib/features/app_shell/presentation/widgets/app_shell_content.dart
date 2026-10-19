@@ -49,6 +49,7 @@ import '../../../reports/di/reports_dependencies.dart';
 import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
+import '../../../routes/presentation/cubit/route_default_freight_rate_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../routes/presentation/widgets/routes_realtime_boundary.dart';
 import '../../../subscriptions/di/subscriptions_dependencies.dart';
@@ -144,8 +145,15 @@ class AppShellContent extends StatelessWidget {
           ),
         ),
       ),
-      AppShellModule.routes => BlocProvider<RoutesCubit>(
-        create: (_) => RoutesDependencies.createRoutesCubit(),
+      AppShellModule.routes => MultiBlocProvider(
+        providers: [
+          BlocProvider<RoutesCubit>(
+            create: (_) => RoutesDependencies.createRoutesCubit(),
+          ),
+          BlocProvider<RouteDefaultFreightRateCubit>(
+            create: (_) => RoutesDependencies.createRateCubit(),
+          ),
+        ],
         child: RoutesRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(
