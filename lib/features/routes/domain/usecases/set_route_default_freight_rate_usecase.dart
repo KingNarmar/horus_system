@@ -79,7 +79,9 @@ final class SetRouteDefaultFreightRateUseCase
     if (minorUnits == null) {
       return Future.value(
         const FailureResult(
-          ValidationFailure(code: FailureCodes.validationRouteFreightRateInvalid),
+          ValidationFailure(
+            code: FailureCodes.validationRouteFreightRateInvalid,
+          ),
         ),
       );
     }

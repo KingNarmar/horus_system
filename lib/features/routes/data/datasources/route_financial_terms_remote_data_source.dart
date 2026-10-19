@@ -31,8 +31,9 @@ final class SupabaseRouteFinancialTermsRemoteDataSource
         RouteFinancialDbRpcParams.companyId: companyId,
         RouteFinancialDbRpcParams.routeId: routeId,
         RouteFinancialDbRpcParams.rate: rateDecimal,
-        RouteFinancialDbRpcParams.expectedUpdatedAt:
-            expectedUpdatedAt.toUtc().toIso8601String(),
+        RouteFinancialDbRpcParams.expectedUpdatedAt: expectedUpdatedAt
+            .toUtc()
+            .toIso8601String(),
       },
     );
     if (result is! Map) {

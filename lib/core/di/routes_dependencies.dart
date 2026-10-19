@@ -15,7 +15,9 @@ import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 abstract final class RoutesDependencies {
   static RouteDefaultFreightRateCubit createRateCubit() {
     final repository = RouteFinancialTermsRepositoryImpl(
-      SupabaseRouteFinancialTermsRemoteDataSource(SupabaseClientProvider.client),
+      SupabaseRouteFinancialTermsRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
     );
     return RouteDefaultFreightRateCubit(
       SetRouteDefaultFreightRateUseCase(repository),

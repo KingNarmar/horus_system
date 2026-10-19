@@ -29,7 +29,8 @@ final class RouteDefaultFreightRateFailure extends RouteDefaultFreightRateState 
   const RouteDefaultFreightRateFailure(this.failure);
 }
 
-final class RouteDefaultFreightRateCubit extends Cubit<RouteDefaultFreightRateState> {
+final class RouteDefaultFreightRateCubit
+    extends Cubit<RouteDefaultFreightRateState> {
   final SetRouteDefaultFreightRateUseCase _useCase;
 
   RouteDefaultFreightRateCubit(this._useCase)
