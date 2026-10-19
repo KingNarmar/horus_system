@@ -9,7 +9,8 @@ sealed class RouteDefaultFreightRateState {
   const RouteDefaultFreightRateState();
 }
 
-final class RouteDefaultFreightRateInitial extends RouteDefaultFreightRateState {
+final class RouteDefaultFreightRateInitial
+    extends RouteDefaultFreightRateState {
   const RouteDefaultFreightRateInitial();
 }
 
@@ -23,7 +24,8 @@ final class RouteDefaultFreightRateSaved extends RouteDefaultFreightRateState {
   const RouteDefaultFreightRateSaved(this.route);
 }
 
-final class RouteDefaultFreightRateFailure extends RouteDefaultFreightRateState {
+final class RouteDefaultFreightRateFailure
+    extends RouteDefaultFreightRateState {
   final Failure failure;
 
   const RouteDefaultFreightRateFailure(this.failure);
