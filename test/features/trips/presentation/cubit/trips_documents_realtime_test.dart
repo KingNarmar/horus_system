@@ -26,9 +26,7 @@ void main() {
       documents.pendingReads.add(delayed);
       final first = cubit.refreshSelectedTripDocumentsFromRealtime();
       await Future<void>.delayed(Duration.zero);
-      expect((cubit.state as TripsLoaded).selectedTripDocuments, [
-        oldDocument,
-      ]);
+      expect((cubit.state as TripsLoaded).selectedTripDocuments, [oldDocument]);
       expect((cubit.state as TripsLoaded).isDocumentsLoading, isFalse);
 
       await cubit.refreshSelectedTripDocumentsFromRealtime();
