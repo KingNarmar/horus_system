@@ -40,7 +40,6 @@ import 'package:horus_system/features/trips/domain/repositories/trip_documents_r
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/get_trip_permissions_usecase.dart';
 import 'package:horus_system/features/trips/domain/usecases/has_required_trip_evidence_usecase.dart';
-import 'package:horus_system/features/trips/domain/usecases/trip_document_usecases.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
