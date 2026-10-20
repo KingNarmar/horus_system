@@ -303,29 +303,17 @@ Future<void> _checkRole(
   stdout.writeln('PASS  $role active role and tenant verified on server');
 
   if (suite == 'financial') {
-    Future<String?> findFixture(String fixture) async {
-      final isCustomer = fixture == FinancialReadFixtures.customer;
-      final reply = await api.table(
-        isCustomer ? 'customers' : 'driver_settlements',
-        {
-          'select': isCustomer ? 'id' : 'driver_id',
-          'company_id': 'eq.$companyId',
-          if (!isCustomer) ...{
-            'status': 'eq.finalized',
-            'closing_driver_balance_minor_units': 'not.is.null',
-            'currency_code': 'not.is.null',
-            'currency_fraction_digits': 'not.is.null',
+    Future<String?> findFixture(String fixture) =>
+        readFinancialFixtureId(
+          fixture: fixture,
+          companyId: companyId,
+          fetch: (table, query) async {
+            final reply = await api.table(table, query, jwt: jwt);
+            return reply.ok && reply.body is List
+                ? (reply.body as List).cast<Object?>()
+                : null;
           },
-          'limit': '1',
-        },
-        jwt: jwt,
-      );
-      if (!reply.ok || reply.body is! List) return null;
-      final rows = reply.body! as List;
-      if (rows.isEmpty || rows.first is! Map) return null;
-      final value = (rows.first as Map)[isCustomer ? 'id' : 'driver_id'];
-      return value is String && _uuidPattern.hasMatch(value) ? value : null;
-    }
+        );
 
     await verifyFinancialReadAccess(
       role: role,
