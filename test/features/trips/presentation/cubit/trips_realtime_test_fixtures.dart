@@ -103,9 +103,10 @@ final newDocument = _document('doc-new');
 TripsCubit buildTripsRealtimeCubit(
   FakeDocumentsRepository documents, {
   FakeExpensesRepository? expenseLedger,
+  FakeTripsRepository? tripsRepository,
 }) {
   const converter = FakeBusinessTimeZoneConverter();
-  final trips = FakeTripsRepository();
+  final trips = tripsRepository ?? FakeTripsRepository();
   final expenses = expenseLedger ?? FakeExpensesRepository();
   final types = FakeExpenseTypesRepository();
 
@@ -153,11 +154,22 @@ TripsCubit buildTripsRealtimeCubit(
 }
 
 final class FakeTripsRepository implements TripsRepository {
+  final Queue<Completer<Result<List<TripEntity>>>> pendingListReads = Queue();
+  int listReads = 0;
+
   @override
   Future<Result<List<TripEntity>>> getTrips({
     required String companyId,
     required CurrencyConfiguration? financialConfiguration,
-  }) async => Success(companyId == 'company-a' ? [tripA] : <TripEntity>[]);
+  }) {
+    listReads++;
+    if (pendingListReads.isNotEmpty) {
+      return pendingListReads.removeFirst().future;
+    }
+    return Future.value(
+      Success(companyId == 'company-a' ? [tripA] : <TripEntity>[]),
+    );
+  }
 
   @override
   Future<Result<TripEntity>> getTripDetails({

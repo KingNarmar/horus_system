@@ -3,6 +3,49 @@ part of 'trips_cubit.dart';
 /// Silent, authoritative reconciliation of Trip projections.
 /// The open form owns its unsaved controllers; no incoming hint modifies them.
 mixin TripsRealtimeActions on Cubit<TripsState> {
+  /// Reconcile missed server changes after an offline interval. The visible
+  /// Trip details dialog must retain its selected Trip and local UI state.
+  Future<void> reconcileTripsAfterReconnect(
+    CurrentCompanyContext currentCompanyContext,
+  ) async {
+    final owner = this as TripsCubit;
+    if (owner.isClosed) return;
+
+    final current = state;
+    if (current is TripsInitial || current is TripsFailure) {
+      await owner.loadTrips(currentCompanyContext);
+      return;
+    }
+    if (current is TripsLoading) {
+      owner._tripsRefreshPending = true;
+      return;
+    }
+    if (current is! TripsLoaded ||
+        current.currentCompanyContext.companyId !=
+            currentCompanyContext.companyId ||
+        current.currentCompanyContext.role != currentCompanyContext.role) {
+      return;
+    }
+
+    final generation = owner._companyRequestGeneration;
+    await refreshTripsFromRealtime();
+
+    if (!owner._isCurrentLoadedCompanyRequest(
+      generation,
+      currentCompanyContext.companyId,
+    )) {
+      return;
+    }
+
+    // A missed financial broadcast is not guaranteed to be replayed by the
+    // socket. Re-read the selected Trip ledger from the server, even when
+    // there was no Trip list change during the offline interval.
+    final latest = state as TripsLoaded;
+    if (latest.selectedTrip != null && latest.canViewTripFinancials) {
+      await owner.refreshSelectedTripFinancialsFromRealtime();
+    }
+  }
+
   Future<void> refreshTripsFromRealtime() async {
     final owner = this as TripsCubit;
     if (owner.isClosed || state is! TripsLoaded) {

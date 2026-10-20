@@ -175,8 +175,9 @@ class AppShellContent extends StatelessWidget {
         child: TripsRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(
-            onReconnect: (context) =>
-                context.read<TripsCubit>().loadTrips(contextData),
+            onReconnect: (context) => context
+                .read<TripsCubit>()
+                .reconcileTripsAfterReconnect(contextData),
             child: TripsPage(currentCompanyContext: contextData),
           ),
         ),
