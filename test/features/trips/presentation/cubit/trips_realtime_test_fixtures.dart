@@ -1,0 +1,288 @@
+import 'dart:async';
+import 'dart:collection';
+import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
+import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
+import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
+import 'package:horus_system/core/utils/result.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_entity_type.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_log.dart';
+import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
+import 'package:horus_system/features/audit/domain/repositories/audit_log_repository.dart';
+import 'package:horus_system/features/audit/domain/usecases/get_entity_audit_logs_usecase.dart';
+import 'package:horus_system/features/company/domain/entities/company.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
+import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/expense_types/domain/entities/expense_type.dart';
+import 'package:horus_system/features/expense_types/domain/repositories/expense_types_repository.dart';
+import 'package:horus_system/features/expense_types/domain/usecases/get_expense_type_catalog_usecase.dart';
+import 'package:horus_system/features/expense_types/domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_attribution.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_ledger_entry.dart';
+import 'package:horus_system/features/expenses/domain/repositories/expense_ledger_repository.dart';
+import 'package:horus_system/features/expenses/domain/usecases/can_manage_trip_attributed_expense_usecase.dart';
+import 'package:horus_system/features/expenses/domain/usecases/create_trip_expense_usecase.dart';
+import 'package:horus_system/features/expenses/domain/usecases/get_trip_expense_ledger_entries_usecase.dart';
+import 'package:horus_system/features/expenses/domain/usecases/void_expense_ledger_entry_usecase.dart';
+import 'package:horus_system/features/expenses/domain/usecases/create_expense_ledger_entry_usecase.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_document.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_document_kind.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
+import 'package:horus_system/features/trips/domain/repositories/trip_documents_repository.dart';
+import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
+import 'package:horus_system/features/trips/domain/usecases/get_trip_permissions_usecase.dart';
+import 'package:horus_system/features/trips/domain/usecases/has_required_trip_evidence_usecase.dart';
+import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
+import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
+import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
+import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart';
+import '../../../../helpers/fake_business_time_zone_converter.dart';
+
+const companyA = CurrentCompanyContext(
+  company: Company(
+    id: 'company-a',
+    name: 'Company A',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+    businessTimezone: 'UTC',
+  ),
+  role: CompanyRole.operations,
+);
+
+const financeCompanyA = CurrentCompanyContext(
+  company: Company(
+    id: 'company-a',
+    name: 'Company A',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+    businessTimezone: 'UTC',
+  ),
+  role: CompanyRole.accountant,
+);
+
+const companyB = CurrentCompanyContext(
+  company: Company(
+    id: 'company-b',
+    name: 'Company B',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+    businessTimezone: 'UTC',
+  ),
+  role: CompanyRole.operations,
+);
+
+final tripA = TripEntity(
+  id: 'trip-a',
+  companyId: 'company-a',
+  tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
+  customerId: 'customer-a',
+  routeId: 'route-a',
+  status: TripStatus.created,
+);
+
+TripDocument _document(String id) => TripDocument(
+  id: id,
+  companyId: 'company-a',
+  tripId: 'trip-a',
+  kind: TripDocumentKind.waybill,
+  originalFileName: '$id.pdf',
+  mimeType: 'application/pdf',
+  sizeBytes: 1024,
+  uploadedAt: DateTime.utc(2026, 10, 20),
+);
+
+final oldDocument = _document('doc-old');
+final newDocument = _document('doc-new');
+
+TripsCubit buildTripsRealtimeCubit(
+  FakeDocumentsRepository documents, {
+  FakeExpensesRepository? expenseLedger,
+}) {
+  const converter = FakeBusinessTimeZoneConverter();
+  final trips = FakeTripsRepository();
+  final expenses = expenseLedger ?? FakeExpensesRepository();
+  final types = FakeExpenseTypesRepository();
+
+  return TripsCubit(
+    getTripsUseCase: GetTripsUseCase(trips),
+    getTripPermissionsUseCase: const GetTripPermissionsUseCase(),
+    canManageTripAttributedExpenseUseCase:
+        const CanManageTripAttributedExpenseUseCase(),
+    getTripDetailsUseCase: GetTripDetailsUseCase(trips),
+    getTripFormLookupsUseCase: GetTripFormLookupsUseCase(trips),
+    createTripUseCase: CreateTripUseCase(trips),
+    saveTripUseCase: SaveTripUseCase(trips),
+    updateTripStatusUseCase: UpdateTripStatusUseCase(trips, documents),
+    getTripStatusHistoryUseCase: GetTripStatusHistoryUseCase(trips),
+    getTripDocumentsUseCase: GetTripDocumentsUseCase(documents),
+    hasRequiredTripEvidenceUseCase: const HasRequiredTripEvidenceUseCase(),
+    uploadTripDocumentUseCase: UploadTripDocumentUseCase(documents),
+    getTripDocumentAccessUseCase: GetTripDocumentAccessUseCase(documents),
+    downloadTripDocumentUseCase: DownloadTripDocumentUseCase(documents),
+    removeTripDocumentUseCase: RemoveTripDocumentUseCase(documents),
+    replaceTripDocumentUseCase: ReplaceTripDocumentUseCase(documents),
+    calculateTripNetProfitUseCase: const CalculateTripNetProfitUseCase(),
+    getTripBusinessLocalTimestampsUseCase:
+        const GetTripBusinessLocalTimestampsUseCase(converter),
+    resolveTripBusinessLocalTimestampsUseCase:
+        const ResolveTripBusinessLocalTimestampsUseCase(converter),
+    convertInstantsToBusinessLocalDateTimesUseCase:
+        const ConvertInstantsToBusinessLocalDateTimesUseCase(converter),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      FakeBusinessDateProvider(),
+    ),
+    getTripAuditLogsUseCase: GetEntityAuditLogsUseCase(FakeAuditRepository()),
+    getTripExpenseLedgerEntriesUseCase: GetTripExpenseLedgerEntriesUseCase(
+      expenses,
+    ),
+    getExpenseTypeCatalogUseCase: GetExpenseTypeCatalogUseCase(types),
+    getLedgerEligibleExpenseTypesUseCase: GetLedgerEligibleExpenseTypesUseCase(
+      types,
+    ),
+    createTripExpenseUseCase: CreateTripExpenseUseCase(
+      CreateExpenseLedgerEntryUseCase(expenses),
+    ),
+    voidExpenseLedgerEntryUseCase: VoidExpenseLedgerEntryUseCase(expenses),
+  );
+}
+
+final class FakeTripsRepository implements TripsRepository {
+  @override
+  Future<Result<List<TripEntity>>> getTrips({
+    required String companyId,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async => Success(companyId == 'company-a' ? [tripA] : <TripEntity>[]);
+
+  @override
+  Future<Result<TripEntity>> getTripDetails({
+    required String companyId,
+    required String id,
+    required CurrencyConfiguration? financialConfiguration,
+  }) async => Success(tripA);
+
+  @override
+  Future<Result<List<TripStatusHistory>>> getTripStatusHistory({
+    required String companyId,
+    required String tripId,
+  }) async => const Success([]);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class FakeDocumentsRepository implements TripDocumentsRepository {
+  List<TripDocument> current = [];
+  final Queue<Completer<Result<List<TripDocument>>>> pendingReads = Queue();
+  final Queue<Result<List<TripDocument>>> results = Queue();
+  Completer<Result<TripDocument>>? pendingUpload;
+  int reads = 0;
+
+  @override
+  Future<Result<List<TripDocument>>> getActiveDocuments({
+    required String companyId,
+    required String tripId,
+  }) {
+    reads++;
+    if (pendingReads.isNotEmpty) return pendingReads.removeFirst().future;
+    if (results.isNotEmpty) return Future.value(results.removeFirst());
+    return Future.value(Success(List<TripDocument>.of(current)));
+  }
+
+  @override
+  Future<Result<TripDocument>> upload({
+    required String companyId,
+    required String tripId,
+    required TripDocumentKind kind,
+    required BusinessDocumentFile document,
+  }) => pendingUpload?.future ?? Future.value(Success(newDocument));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class FakeAuditRepository implements AuditLogRepository {
+  @override
+  Future<Result<List<AuditLog>>> getEntityAuditLogs({
+    required String companyId,
+    required AuditModule module,
+    required AuditEntityType entityType,
+    required String entityId,
+  }) async => const Success([]);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+ExpenseLedgerEntry expense(String id) => ExpenseLedgerEntry(
+  id: id,
+  companyId: 'company-a',
+  expenseTypeId: 'expense-type',
+  amount: Money(minorUnits: 1250, currency: CurrencyCode.tryParse('AED')!),
+  currencyFractionDigits: 2,
+  expenseDate: BusinessDate(year: 2026, month: 10, day: 20),
+  fundingSource: ExpenseFundingSource.company,
+  attribution: const ExpenseAttribution(tripId: 'trip-a'),
+  isVoided: false,
+);
+
+final class FakeExpensesRepository implements ExpenseLedgerRepository {
+  final Queue<Completer<Result<List<ExpenseLedgerEntry>>>> pendingReads =
+      Queue();
+  final Queue<Result<List<ExpenseLedgerEntry>>> pendingResults = Queue();
+  List<ExpenseLedgerEntry> current = [];
+  Completer<Result<ExpenseLedgerEntry>>? pendingVoid;
+  int reads = 0;
+
+  @override
+  Future<Result<ExpenseLedgerEntry>> voidEntry({
+    required String companyId,
+    required String expenseId,
+    String? reason,
+  }) => pendingVoid?.future ?? Future.value(Success(expense(expenseId)));
+
+  @override
+  Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
+    required String companyId,
+    required String tripId,
+    bool includeVoided = false,
+  }) {
+    reads++;
+    if (pendingReads.isNotEmpty) return pendingReads.removeFirst().future;
+    if (pendingResults.isNotEmpty) {
+      return Future.value(pendingResults.removeFirst());
+    }
+    return Future.value(Success(List<ExpenseLedgerEntry>.of(current)));
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class FakeExpenseTypesRepository implements ExpenseTypesRepository {
+  @override
+  Future<Result<List<ExpenseType>>> getExpenseTypes({
+    required String companyId,
+  }) async => const Success([]);
+
+  @override
+  Future<Result<List<ExpenseType>>> getLedgerEligibleExpenseTypes({
+    required String companyId,
+  }) async => const Success([]);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class FakeBusinessDateProvider implements CompanyBusinessDateProvider {
+  @override
+  Future<Result<BusinessDate>> getBusinessDate({
+    required String companyId,
+  }) async => Success(BusinessDate(year: 2026, month: 10, day: 20));
+}

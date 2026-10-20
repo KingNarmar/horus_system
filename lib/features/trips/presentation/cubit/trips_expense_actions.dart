@@ -169,6 +169,9 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       failure: (failure) =>
           owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
+    if (result.failureOrNull != null && owner._tripFinancialRefreshPending) {
+      unawaited(refreshSelectedTripFinancialsFromRealtime());
+    }
   }
 
   Future<void> _refreshSelectedTripExpenseContext(String tripId) async {
