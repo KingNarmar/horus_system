@@ -160,6 +160,7 @@ final class _FakeTripsRepository implements TripsRepository {
   @override
   Future<Result<TripEntity>> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) => throw UnimplementedError();

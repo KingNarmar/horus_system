@@ -94,6 +94,18 @@ void main() {
       }
     });
 
+    test('maps concurrent edits to sanitized, typed conflict', () {
+      const error = PostgrestException(
+        message: 'trip_version_conflict',
+        code: TripDbErrorCodes.concurrentModification,
+        details: 'sensitive SQL information',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripFailureCodes.concurrentModification);
+      expect(failure.message, isNull);
+    });
+
     test('maps missing trip to typed not-found failure', () {
       const error = PostgrestException(
         message: 'trip_not_found',

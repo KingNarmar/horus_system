@@ -55,6 +55,7 @@ void main() {
 
         final result = await repository.saveTrip(
           id: testTripId,
+          expectedUpdatedAt: DateTime.utc(2026, 9, 18),
           data: testTripWriteData,
           financialConfiguration: testFinancialConfiguration,
         );

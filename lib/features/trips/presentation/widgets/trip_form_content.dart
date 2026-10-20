@@ -29,6 +29,7 @@ extension _TripFormContent on _TripFormDialogState {
     }
 
     return SingleChildScrollView(
+      controller: _formScrollController,
       child: Form(
         key: _formKey,
         child: Column(

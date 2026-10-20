@@ -10,6 +10,8 @@ abstract final class TripFailureCodes {
       'conflict_trip_invoiced_financial_terms_locked';
   static const String staleFinancialSnapshot =
       'conflict_trip_financial_snapshot_stale';
+  static const String concurrentModification =
+      'conflict_trip_modified_elsewhere';
   static const String financialCurrencyMismatch =
       'validation_trip_financial_currency_mismatch';
   static const String conflictStatusEvidenceRequired =

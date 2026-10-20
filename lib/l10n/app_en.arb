@@ -743,6 +743,7 @@
   "tripDateTimeInvalid": "Enter a valid date and time.",
   "tripDeliveryBeforeLoadingInvalid": "Delivery cannot be before loading.",
   "tripNotFoundFailure": "The trip could not be found.",
+  "tripConcurrentModificationFailure": "Someone else changed this trip. Your edits remain in this form but were not saved. Copy them before reopening the trip to review the latest version.",
   "tripManagementPermissionFailure": "Trips management is not allowed for this role.",
   "tripStatusPermissionFailure": "Trip status update is not allowed for this role.",
   "tripFinancialTermsPermissionFailure": "You do not have permission to change Trip prices or amounts.",

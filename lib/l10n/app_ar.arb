@@ -747,6 +747,7 @@
   "tripDateTimeInvalid": "أدخل تاريخ ووقت صحيحين.",
   "tripDeliveryBeforeLoadingInvalid": "موعد التسليم لا يمكن أن يكون قبل موعد التحميل.",
   "tripNotFoundFailure": "تعذر العثور على الرحلة.",
+  "tripConcurrentModificationFailure": "عدّل مستخدم آخر هذه الرحلة. تعديلاتك ما زالت في النموذج لكنها لم تُحفظ. انسخها قبل إعادة فتح الرحلة لمراجعة أحدث البيانات.",
   "tripManagementPermissionFailure": "هذا الدور غير مسموح له بإدارة الرحلات.",
   "tripStatusPermissionFailure": "هذا الدور غير مسموح له بتحديث حالة الرحلة.",
   "tripFinancialTermsPermissionFailure": "ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.",

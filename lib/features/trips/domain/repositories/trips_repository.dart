@@ -30,6 +30,7 @@ abstract class TripsRepository {
 
   Future<Result<TripEntity>> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   });

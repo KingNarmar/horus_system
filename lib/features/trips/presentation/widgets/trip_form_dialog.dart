@@ -92,6 +92,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
   static const _moneyInputParser = MoneyInputParser();
 
   final _formKey = GlobalKey<FormState>();
+  final _formScrollController = ScrollController();
 
   late final TextEditingController _loadingOrderController;
   late final TextEditingController _waybillController;
@@ -146,6 +147,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   @override
   void dispose() {
+    _formScrollController.dispose();
     _loadingOrderController.dispose();
     _waybillController.dispose();
     _quantityController.dispose();
@@ -248,6 +250,14 @@ class _TripFormDialogState extends State<TripFormDialog> {
     setState(() {
       _isSubmitting = false;
       _submitFailure = failure;
+    });
+
+    // The error is above the scrollable fields; reveal it after rebuilding.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_formScrollController.hasClients) return;
+      _formScrollController.jumpTo(
+        _formScrollController.position.minScrollExtent,
+      );
     });
   }
 

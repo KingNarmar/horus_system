@@ -35,6 +35,8 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
       l10n.tripInvoicedFinancialTermsLockedFailure,
     TripFailureCodes.staleFinancialSnapshot =>
       l10n.tripStaleFinancialSnapshotFailure,
+    TripFailureCodes.concurrentModification =>
+      l10n.tripConcurrentModificationFailure,
     TripDocumentFailureCodes.permissionView ||
     TripDocumentFailureCodes.permissionManage =>
       l10n.tripDocumentsPermissionFailure,

@@ -219,6 +219,7 @@ Future<Result<TripEntity>> _saveTrip({
 
   return repository.saveTrip(
     id: id,
+    expectedUpdatedAt: params.expectedUpdatedAt,
     data: data,
     financialConfiguration: financialConfiguration,
   );

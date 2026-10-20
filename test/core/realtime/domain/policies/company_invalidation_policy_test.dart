@@ -15,6 +15,18 @@ void main() {
     expect(affected, isNot(contains(CompanyInvalidationResource.payments)));
   });
 
+  test('Trip mutations include status history without Trip Documents', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.trips,
+    );
+    expect(affected, contains(CompanyInvalidationResource.trips));
+    expect(affected, contains(CompanyInvalidationResource.tripStatusHistory));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripDocuments)),
+    );
+  });
+
   test('Fleet license documents only invalidate document projections', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.fleetLicenseDocuments,

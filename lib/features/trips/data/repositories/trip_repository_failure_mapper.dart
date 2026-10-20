@@ -42,6 +42,9 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.notFound => const NotFoundFailure(
         code: TripFailureCodes.notFound,
       ),
+      TripDbErrorCodes.concurrentModification => const ConflictFailure(
+        code: TripFailureCodes.concurrentModification,
+      ),
       TripDbErrorCodes.temporalOrderInvalid => const ValidationFailure(
         code: FailureCodes.validationTripDeliveryBeforeLoading,
       ),

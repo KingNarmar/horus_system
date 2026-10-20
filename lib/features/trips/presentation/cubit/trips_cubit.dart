@@ -33,6 +33,7 @@ import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_status_filter.dart';
 import '../../domain/entities/trip_status_history.dart';
+import '../../domain/failures/trip_failure_codes.dart';
 import '../../domain/entities/trip_timestamp_instants.dart';
 import '../../domain/usecases/get_trip_permissions_usecase.dart';
 import '../../domain/usecases/has_required_trip_evidence_usecase.dart';
@@ -47,6 +48,7 @@ part 'trips_filter_actions.dart';
 part 'trips_form_lookup_actions.dart';
 part 'trips_mutation_actions.dart';
 part 'trips_route_invalidation_actions.dart';
+part 'trips_realtime_actions.dart';
 
 class TripsCubit extends Cubit<TripsState>
     with
@@ -56,7 +58,8 @@ class TripsCubit extends Cubit<TripsState>
         TripsDocumentActions,
         TripsExpenseActions,
         TripsMutationActions,
-        TripsRouteInvalidationActions {
+        TripsRouteInvalidationActions,
+        TripsRealtimeActions {
   final GetTripsUseCase getTripsUseCase;
   final GetTripPermissionsUseCase getTripPermissionsUseCase;
   final CanManageTripAttributedExpenseUseCase
@@ -93,6 +96,11 @@ class TripsCubit extends Cubit<TripsState>
   CurrentCompanyContext? _currentCompanyContext;
   int _companyRequestGeneration = 0;
   int _detailsRequestGeneration = 0;
+  int _statusHistoryRequestRevision = 0;
+  int _activityRequestRevision = 0;
+  int _tripMutationRevision = 0;
+  bool _tripsRefreshInProgress = false;
+  bool _tripsRefreshPending = false;
   bool _routeNamesRefreshInProgress = false;
   bool _routeNamesRefreshPending = false;
   bool _lookupsRefreshInProgress = false;
@@ -215,6 +223,9 @@ class TripsCubit extends Cubit<TripsState>
     );
     if (_routeNamesRefreshPending || _lookupsRefreshPending) {
       unawaited(refreshRouteReferences());
+    }
+    if (_tripsRefreshPending) {
+      unawaited(refreshTripsFromRealtime());
     }
   }
 

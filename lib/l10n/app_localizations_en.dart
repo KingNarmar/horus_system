@@ -2263,6 +2263,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripNotFoundFailure => 'The trip could not be found.';
 
   @override
+  String get tripConcurrentModificationFailure =>
+      'Someone else changed this trip. Your edits remain in this form but were not saved. Copy them before reopening the trip to review the latest version.';
+
+  @override
   String get tripManagementPermissionFailure =>
       'Trips management is not allowed for this role.';
 
