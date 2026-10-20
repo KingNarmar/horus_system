@@ -2,5 +2,8 @@ import '../../../utils/result.dart';
 import '../entities/company_data_change.dart';
 
 abstract interface class CompanyDataChangesRepository {
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId});
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  });
 }

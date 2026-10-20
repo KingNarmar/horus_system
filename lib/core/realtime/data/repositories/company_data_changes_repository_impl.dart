@@ -17,7 +17,10 @@ final class CompanyDataChangesRepositoryImpl
   const CompanyDataChangesRepositoryImpl(this._dataSource);
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
     late final StreamController<Result<CompanyDataChange>> controller;
     final subscriptions = <StreamSubscription<RealtimeChangeSignal>>[];
     var disposed = false;
@@ -92,6 +95,18 @@ final class CompanyDataChangesRepositoryImpl
             ),
             resource: CompanyDataResource.fleetLicenseDocuments,
           );
+          if (additionalResources.contains(CompanyDataResource.expenseLedger)) {
+            subscribe(
+              stream: _dataSource.watchExpenseLedger(companyId: companyId),
+              resource: CompanyDataResource.expenseLedger,
+            );
+          }
+          if (additionalResources.contains(CompanyDataResource.tripExpenses)) {
+            subscribe(
+              stream: _dataSource.watchTripExpenses(companyId: companyId),
+              resource: CompanyDataResource.tripExpenses,
+            );
+          }
         } catch (_) {
           if (!disposed && !controller.isClosed) {
             controller.add(unavailable);

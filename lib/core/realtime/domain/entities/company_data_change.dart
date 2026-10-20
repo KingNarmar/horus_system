@@ -11,6 +11,7 @@ enum CompanyDataResource {
   tripDocuments,
   fleetLicenseDocuments,
   expenseLedger,
+  tripExpenses,
   companyExpenses,
   expenseTypes,
   driverFinance,

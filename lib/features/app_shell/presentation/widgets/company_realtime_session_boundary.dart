@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/realtime/di/realtime_dependencies.dart';
+import '../../../../core/realtime/domain/entities/company_data_change.dart';
 import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../../customers/domain/policies/customers_permission_policy.dart';
@@ -44,7 +45,15 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
       key: ValueKey((companyId, role, userId)),
       create: (_) =>
           (realtimeCubitFactory ?? RealtimeDependencies.createCubit)()
-            ..watchCompany(companyId),
+            ..watchCompany(
+              companyId,
+              additionalResources: TripsPermissionPolicy.canViewTripFinancials(role)
+                  ? const {
+                      CompanyDataResource.expenseLedger,
+                      CompanyDataResource.tripExpenses,
+                    }
+                  : const {},
+            ),
       child: child,
     );
   }
