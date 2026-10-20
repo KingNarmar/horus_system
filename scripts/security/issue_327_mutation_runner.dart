@@ -107,7 +107,7 @@ final class Issue327MutationRunner {
 
     final observerMembership = await _rows(observerJwt, 'company_users', {
       'select': 'company_id,user_id,role,is_active',
-      'user_id': 'eq.${observerId}',
+      'user_id': 'eq.$observerId',
     });
     if (!MutationPreflightChecks.activeAuthorizedMember(
       observerMembership, observerId, fixture.companyId,
@@ -117,7 +117,7 @@ final class Issue327MutationRunner {
     }
     final actorMembership = await _rows(actorJwt, 'company_users', {
       'select': 'company_id,user_id,role,is_active',
-      'user_id': 'eq.${actorId}',
+      'user_id': 'eq.$actorId',
     });
     if (!_actorMembership(
       actorMembership, actorId, fixture, spec.role,
@@ -189,7 +189,7 @@ final class Issue327MutationRunner {
         : await _rows(observerJwt, 'invoices', {
             'select': '*',
             'company_id': 'eq.${fixture.companyId}',
-            'id': 'eq.${invoiceId}',
+            'id': 'eq.$invoiceId',
           });
     if (invoiceId != null && invoiceBefore!.length != 1) {
       throw StateError('Invoiced fixture invoice is not readable.');
@@ -217,7 +217,7 @@ final class Issue327MutationRunner {
         table,
         {
           'company_id': 'eq.${fixture.companyId}',
-          'id': 'eq.${targetId}',
+          'id': 'eq.$targetId',
         },
         {rateField: num.parse(spec.rate)},
       );
@@ -251,7 +251,7 @@ final class Issue327MutationRunner {
       final invoiceAfter = await _rows(observerJwt, 'invoices', {
         'select': '*',
         'company_id': 'eq.${fixture.companyId}',
-        'id': 'eq.${invoiceId}',
+        'id': 'eq.$invoiceId',
       });
       if (!MutationRpcChecks.unchanged(invoiceBefore, invoiceAfter)) {
         return const MutationRunResult(false, 'invoice changed');
@@ -343,7 +343,7 @@ final class Issue327MutationRunner {
     'select': 'id,company_id,module,entity_type,entity_id,action,'
         'actor_user_id,old_values,new_values,metadata',
     'company_id': 'eq.${ids.companyId}',
-    'entity_id': 'eq.${recordId}',
+    'entity_id': 'eq.$recordId',
     'order': 'id.asc',
     'limit': '1000',
   });

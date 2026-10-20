@@ -225,7 +225,7 @@ final class _BoundedDevGateway implements MutationGateway {
     if (jwt.isEmpty || !{'trips', 'routes'}.contains(table) ||
         query.length != 2 ||
         query['company_id'] != 'eq.${fixture.companyId}' ||
-        query['id'] != 'eq.${record}' ||
+        query['id'] != 'eq.$record' ||
         values.length != 1 ||
         values[field] != num.parse(spec.rate)) {
       throw StateError('Direct mutation outside financial fixture.');
