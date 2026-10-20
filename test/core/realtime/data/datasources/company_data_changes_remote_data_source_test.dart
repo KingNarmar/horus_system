@@ -196,6 +196,43 @@ void main() {
     },
   );
 
+  test(
+    'Trip Documents private topic ignores foreign-company and wrong-resource hints',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchTripDocuments(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
+
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.tripDocuments('company-a'));
+      expect(channel.event, RealtimeTopics.customersChangedEvent);
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-b', 'resource': 'trip_documents'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'trips'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'trip_documents'},
+      });
+      await Future<void>.delayed(Duration.zero);
+
+      expect(received, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+    },
+  );
+
   test('Drivers topic accepts only current-company Drivers hints', () async {
     final gateway = _FakeGateway();
     final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(

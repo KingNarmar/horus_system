@@ -8,7 +8,7 @@ import 'package:horus_system/core/realtime/domain/entities/company_data_change.d
 import 'package:test/test.dart';
 
 void main() {
-  test('six private sources emit typed, targeted company changes', () async {
+  test('seven private sources emit typed, targeted company changes', () async {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
     final changes = <CompanyDataChange>[];
@@ -24,6 +24,7 @@ void main() {
     source.fleet.add(RealtimeChangeSignal.changed);
     source.routes.add(RealtimeChangeSignal.changed);
     source.trips.add(RealtimeChangeSignal.changed);
+    source.tripDocuments.add(RealtimeChangeSignal.changed);
     source.documents.add(RealtimeChangeSignal.changed);
     await Future<void>.delayed(Duration.zero);
 
@@ -33,6 +34,7 @@ void main() {
       CompanyDataResource.fleet,
       CompanyDataResource.routes,
       CompanyDataResource.trips,
+      CompanyDataResource.tripDocuments,
       CompanyDataResource.fleetLicenseDocuments,
     ]);
     expect(changes.every((item) => item.companyId == 'company-a'), isTrue);
@@ -43,6 +45,7 @@ void main() {
     expect(source.fleetCanceled, isTrue);
     expect(source.routesCanceled, isTrue);
     expect(source.tripsCanceled, isTrue);
+    expect(source.tripDocumentsCanceled, isTrue);
     expect(source.documentsCanceled, isTrue);
     await source.close();
   });
@@ -72,6 +75,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   bool fleetCanceled = false;
   bool routesCanceled = false;
   bool tripsCanceled = false;
+  bool tripDocumentsCanceled = false;
   bool documentsCanceled = false;
 
   late final StreamController<RealtimeChangeSignal> customers =
@@ -103,6 +107,12 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
         onCancel: () => tripsCanceled = true,
       );
 
+  late final StreamController<RealtimeChangeSignal> tripDocuments =
+      StreamController<RealtimeChangeSignal>(
+        sync: true,
+        onCancel: () => tripDocumentsCanceled = true,
+      );
+
   late final StreamController<RealtimeChangeSignal> documents =
       StreamController<RealtimeChangeSignal>(
         sync: true,
@@ -116,6 +126,11 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   @override
   Stream<RealtimeChangeSignal> watchTrips({required String companyId}) =>
       trips.stream;
+
+  @override
+  Stream<RealtimeChangeSignal> watchTripDocuments({
+    required String companyId,
+  }) => tripDocuments.stream;
 
   @override
   Stream<RealtimeChangeSignal> watchFleetLicenseDocuments({
@@ -140,6 +155,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
     await fleet.close();
     await routes.close();
     await trips.close();
+    await tripDocuments.close();
     await documents.close();
   }
 }
