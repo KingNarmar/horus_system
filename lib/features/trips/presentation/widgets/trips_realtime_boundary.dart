@@ -58,6 +58,25 @@ final class TripsRealtimeBoundary extends StatelessWidget {
           listeners: [
             BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
               listenWhen: (previous, current) =>
+                  TripsPermissionPolicy.canViewTripFinancials(
+                    currentCompanyContext.role,
+                  ) &&
+                  previous.companyId == currentCompanyContext.companyId &&
+                  current.companyId == currentCompanyContext.companyId &&
+                  previous.revisionFor(
+                        CompanyInvalidationResource.tripFinancials,
+                      ) !=
+                      current.revisionFor(
+                        CompanyInvalidationResource.tripFinancials,
+                      ),
+              listener: (context, _) => unawaited(
+                context
+                    .read<TripsCubit>()
+                    .refreshSelectedTripFinancialsFromRealtime(),
+              ),
+            ),
+            BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+              listenWhen: (previous, current) =>
                   previous.companyId == currentCompanyContext.companyId &&
                   current.companyId == currentCompanyContext.companyId &&
                   previous.revisionFor(
