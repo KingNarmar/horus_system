@@ -1568,6 +1568,24 @@ abstract class AppLocalizations {
   /// **'Enter a valid non-negative number.'**
   String get defaultFreightPriceInvalid;
 
+  /// No description provided for @routeFreightRatePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to change Route freight rates.'**
+  String get routeFreightRatePermissionDenied;
+
+  /// No description provided for @routeStaleFreightRateSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'This Route was updated elsewhere. Refresh it and try again.'**
+  String get routeStaleFreightRateSnapshot;
+
+  /// No description provided for @routeFinancialRateRouteMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This Route is no longer available. Refresh the list.'**
+  String get routeFinancialRateRouteMissing;
+
   /// No description provided for @searchRoutesHint.
   ///
   /// In en, this message translates to:
@@ -4202,6 +4220,12 @@ abstract class AppLocalizations {
   /// **'The trip could not be found.'**
   String get tripNotFoundFailure;
 
+  /// No description provided for @tripConcurrentModificationFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else changed this trip. Your edits remain in this form but were not saved. Copy them before reopening the trip to review the latest version.'**
+  String get tripConcurrentModificationFailure;
+
   /// No description provided for @tripManagementPermissionFailure.
   ///
   /// In en, this message translates to:
@@ -4213,6 +4237,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trip status update is not allowed for this role.'**
   String get tripStatusPermissionFailure;
+
+  /// No description provided for @tripFinancialTermsPermissionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to change Trip prices or amounts.'**
+  String get tripFinancialTermsPermissionFailure;
+
+  /// No description provided for @tripEditFreightRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit freight rate'**
+  String get tripEditFreightRateTitle;
+
+  /// No description provided for @tripSaveRateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save rate'**
+  String get tripSaveRateButton;
+
+  /// No description provided for @tripCancelRateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get tripCancelRateButton;
+
+  /// No description provided for @tripPricingQuantityRequiredFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Trip quantity before setting the freight rate.'**
+  String get tripPricingQuantityRequiredFailure;
+
+  /// No description provided for @tripInvoicedFinancialTermsLockedFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This Trip is linked to an invoice, so its freight rate cannot be changed.'**
+  String get tripInvoicedFinancialTermsLockedFailure;
+
+  /// No description provided for @tripStaleFinancialSnapshotFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The Trip was updated elsewhere. Refresh it and try again.'**
+  String get tripStaleFinancialSnapshotFailure;
+
+  /// No description provided for @tripPricedQuantityFinanceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This Trip is already priced. Finance authorization is required to change its quantity.'**
+  String get tripPricedQuantityFinanceRequired;
 
   /// No description provided for @tripStatusEvidenceRequiredFailure.
   ///

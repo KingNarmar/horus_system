@@ -47,22 +47,25 @@ void main() {
     expect(repository.lastCompanyId, 'company-1');
   });
 
-  test('driver is denied before repository access', () async {
-    final repository = _FakeRepository();
-    final useCase = GetCustomerStatementUseCase(repository: repository);
-
-    final result = await useCase(
-      GetCustomerStatementParams(
-        currentCompanyContext: _context(CompanyRole.driver),
-        customerId: 'customer-1',
-      ),
-    );
-
-    expect(
-      result.failureOrNull?.code,
-      CustomerStatementFailureCodes.permissionView,
-    );
-    expect(repository.lastCompanyId, isNull);
+  test('non-finance roles are denied before repository access', () async {
+    for (final role in [
+      CompanyRole.operations,
+      CompanyRole.viewer,
+      CompanyRole.driver,
+    ]) {
+      final repository = _FakeRepository();
+      final result = await GetCustomerStatementUseCase(repository: repository)(
+        GetCustomerStatementParams(
+          currentCompanyContext: _context(role),
+          customerId: 'customer-1',
+        ),
+      );
+      expect(
+        result.failureOrNull?.code,
+        CustomerStatementFailureCodes.permissionView,
+      );
+      expect(repository.lastCompanyId, isNull);
+    }
   });
 
   test('rejects empty customer id', () async {
@@ -70,7 +73,7 @@ void main() {
 
     final result = await useCase(
       GetCustomerStatementParams(
-        currentCompanyContext: _context(CompanyRole.viewer),
+        currentCompanyContext: _context(CompanyRole.accountant),
         customerId: ' ',
       ),
     );

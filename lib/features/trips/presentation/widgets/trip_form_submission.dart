@@ -24,9 +24,9 @@ extension _TripFormSubmission on _TripFormDialogState {
         loadingOrderNumber: _optional(_loadingOrderController.text),
         waybillNumber: _optional(_waybillController.text),
         quantityTonsInput: _optional(_quantityController.text),
-        agreedFreightRatePerTonInput: _optional(
-          _agreedFreightRateController.text,
-        ),
+        agreedFreightRatePerTonInput: widget.canViewFinancials
+            ? _optional(_agreedFreightRateController.text)
+            : null,
         scheduledLoadingAt: _scheduledLoadingAt,
         scheduledDeliveryAt: _scheduledDeliveryAt,
         actualLoadingAt: _actualLoadingAt,

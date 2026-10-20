@@ -808,6 +808,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get defaultFreightPriceInvalid => 'أدخل رقم صحيح غير سالب.';
 
   @override
+  String get routeFreightRatePermissionDenied =>
+      'ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.';
+
+  @override
+  String get routeStaleFreightRateSnapshot =>
+      'تم تحديث هذا المسار من مكان آخر. حدّث البيانات وحاول مرة أخرى.';
+
+  @override
+  String get routeFinancialRateRouteMissing =>
+      'هذا المسار لم يعد متاحًا. حدّث القائمة.';
+
+  @override
   String get searchRoutesHint => 'ابحث في المسارات';
 
   @override
@@ -2222,12 +2234,45 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripNotFoundFailure => 'تعذر العثور على الرحلة.';
 
   @override
+  String get tripConcurrentModificationFailure =>
+      'عدّل مستخدم آخر هذه الرحلة. تعديلاتك ما زالت في النموذج لكنها لم تُحفظ. انسخها قبل إعادة فتح الرحلة لمراجعة أحدث البيانات.';
+
+  @override
   String get tripManagementPermissionFailure =>
       'هذا الدور غير مسموح له بإدارة الرحلات.';
 
   @override
   String get tripStatusPermissionFailure =>
       'هذا الدور غير مسموح له بتحديث حالة الرحلة.';
+
+  @override
+  String get tripFinancialTermsPermissionFailure =>
+      'ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.';
+
+  @override
+  String get tripEditFreightRateTitle => 'تعديل سعر النقل';
+
+  @override
+  String get tripSaveRateButton => 'حفظ السعر';
+
+  @override
+  String get tripCancelRateButton => 'إلغاء';
+
+  @override
+  String get tripPricingQuantityRequiredFailure =>
+      'أضف كمية الرحلة قبل تحديد سعر النقل.';
+
+  @override
+  String get tripInvoicedFinancialTermsLockedFailure =>
+      'هذه الرحلة مرتبطة بفاتورة، لذلك لا يمكن تغيير سعر النقل.';
+
+  @override
+  String get tripStaleFinancialSnapshotFailure =>
+      'تم تحديث الرحلة من مكان آخر. حدّث البيانات وحاول مرة أخرى.';
+
+  @override
+  String get tripPricedQuantityFinanceRequired =>
+      'تم تسعير هذه الرحلة بالفعل. يلزم اعتماد مالي لتغيير الكمية.';
 
   @override
   String get tripStatusEvidenceRequiredFailure =>

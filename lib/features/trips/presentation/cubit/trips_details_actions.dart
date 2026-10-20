@@ -23,7 +23,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
         isActivityLoading: true,
         isDocumentsLoading: true,
         isStatusHistoryLoading: true,
-        isExpensesLoading: true,
+        isExpensesLoading: current.canViewTripFinancials,
         detailsFailure: null,
         activityFailure: null,
         documentsFailure: null,
@@ -33,9 +33,11 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     );
 
     await _loadSelectedTripDetails(trip);
-    await owner._loadSelectedTripExpenses(trip);
+    if (current.canViewTripFinancials) {
+      await owner._loadSelectedTripExpenses(trip);
+      await owner._loadExpenseTypesIfNeeded();
+    }
     await owner._loadSelectedTripDocuments(trip);
-    await owner._loadExpenseTypesIfNeeded();
     await _loadSelectedTripStatusHistory(trip);
     await _loadSelectedTripActivity(trip);
   }
@@ -160,6 +162,8 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     final current = state;
     if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
 
+    final revision = ++owner._statusHistoryRequestRevision;
+
     final companyGeneration = owner._companyRequestGeneration;
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
@@ -178,6 +182,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       ),
     );
 
+    if (revision != owner._statusHistoryRequestRevision) return;
     if (!owner._isCurrentDetailsRequest(
       companyGeneration: companyGeneration,
       detailsGeneration: detailsGeneration,
@@ -203,6 +208,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       {for (final item in history) item.id: item.changedAt},
     );
 
+    if (revision != owner._statusHistoryRequestRevision) return;
     if (!owner._isCurrentDetailsRequest(
       companyGeneration: companyGeneration,
       detailsGeneration: detailsGeneration,
@@ -241,6 +247,8 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     final current = state;
     if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
 
+    final revision = ++owner._activityRequestRevision;
+
     final companyGeneration = owner._companyRequestGeneration;
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
@@ -255,6 +263,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       ),
     );
 
+    if (revision != owner._activityRequestRevision) return;
     if (!owner._isCurrentDetailsRequest(
       companyGeneration: companyGeneration,
       detailsGeneration: detailsGeneration,
@@ -280,6 +289,7 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       {for (final log in activity) log.id: log.createdAt},
     );
 
+    if (revision != owner._activityRequestRevision) return;
     if (!owner._isCurrentDetailsRequest(
       companyGeneration: companyGeneration,
       detailsGeneration: detailsGeneration,

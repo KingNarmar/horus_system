@@ -4,23 +4,15 @@ import '../entities/expense_attribution.dart';
 abstract final class ExpenseLedgerPermissionPolicy {
   static bool canView(CompanyRole role) {
     return switch (role) {
-      CompanyRole.owner ||
-      CompanyRole.admin ||
+      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
       CompanyRole.operations ||
-      CompanyRole.accountant ||
-      CompanyRole.viewer => true,
+      CompanyRole.viewer ||
       CompanyRole.driver => false,
     };
   }
 
   static bool canManageTripAttributed(CompanyRole role) {
-    return switch (role) {
-      CompanyRole.owner ||
-      CompanyRole.admin ||
-      CompanyRole.operations ||
-      CompanyRole.accountant => true,
-      CompanyRole.viewer || CompanyRole.driver => false,
-    };
+    return canView(role);
   }
 
   static bool canManage(
@@ -31,11 +23,6 @@ abstract final class ExpenseLedgerPermissionPolicy {
       return canManageTripAttributed(role);
     }
 
-    return switch (role) {
-      CompanyRole.owner || CompanyRole.admin || CompanyRole.accountant => true,
-      CompanyRole.operations ||
-      CompanyRole.viewer ||
-      CompanyRole.driver => false,
-    };
+    return canView(role);
   }
 }

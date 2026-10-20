@@ -15,7 +15,7 @@ void main() {
       final repository = _FakeRepository();
       final result = await GetTripExpenseLedgerEntriesUseCase(repository)(
         GetTripExpenseLedgerEntriesParams(
-          currentCompanyContext: _context(CompanyRole.viewer),
+          currentCompanyContext: _context(CompanyRole.accountant),
           tripId: '  trip-1  ',
           includeVoided: true,
         ),
@@ -44,19 +44,24 @@ void main() {
       expect(repository.tripCalls, 0);
     });
 
-    test('denies driver read access', () async {
+    test('denies non-finance read access', () async {
       final repository = _FakeRepository();
-      final result = await GetTripExpenseLedgerEntriesUseCase(repository)(
-        GetTripExpenseLedgerEntriesParams(
-          currentCompanyContext: _context(CompanyRole.driver),
-          tripId: 'trip-1',
-        ),
-      );
-
-      expect(
-        result.failureOrNull?.code,
-        ExpenseLedgerFailureCodes.permissionView,
-      );
+      for (final role in [
+        CompanyRole.operations,
+        CompanyRole.viewer,
+        CompanyRole.driver,
+      ]) {
+        final result = await GetTripExpenseLedgerEntriesUseCase(repository)(
+          GetTripExpenseLedgerEntriesParams(
+            currentCompanyContext: _context(role),
+            tripId: 'trip-1',
+          ),
+        );
+        expect(
+          result.failureOrNull?.code,
+          ExpenseLedgerFailureCodes.permissionView,
+        );
+      }
       expect(repository.tripCalls, 0);
     });
   });

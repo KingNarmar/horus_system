@@ -61,6 +61,7 @@ class TripFormData {
 
 class TripFormDialog extends StatefulWidget {
   final String title;
+  final bool canViewFinancials;
   final TripEntity? trip;
   final TripBusinessLocalTimestamps? initialBusinessLocalTimestamps;
   final TripFormLookups? lookups;
@@ -71,6 +72,7 @@ class TripFormDialog extends StatefulWidget {
 
   const TripFormDialog({
     required this.title,
+    required this.canViewFinancials,
     required this.onSubmit,
     required this.financialConfiguration,
     this.trip,
@@ -90,6 +92,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
   static const _moneyInputParser = MoneyInputParser();
 
   final _formKey = GlobalKey<FormState>();
+  final _formScrollController = ScrollController();
 
   late final TextEditingController _loadingOrderController;
   late final TextEditingController _waybillController;
@@ -144,6 +147,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   @override
   void dispose() {
+    _formScrollController.dispose();
     _loadingOrderController.dispose();
     _waybillController.dispose();
     _quantityController.dispose();
@@ -189,7 +193,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
   void _setRouteId(String? value) {
     setState(() {
       _routeId = value;
-      if (widget.trip != null) return;
+      if (widget.trip != null || !widget.canViewFinancials) return;
 
       final route = widget.lookups?.routeById(value);
       _agreedFreightRateController.text = _formatMoneyInput(
@@ -246,6 +250,14 @@ class _TripFormDialogState extends State<TripFormDialog> {
     setState(() {
       _isSubmitting = false;
       _submitFailure = failure;
+    });
+
+    // The error is above the scrollable fields; reveal it after rebuilding.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_formScrollController.hasClients) return;
+      _formScrollController.jumpTo(
+        _formScrollController.position.minScrollExtent,
+      );
     });
   }
 

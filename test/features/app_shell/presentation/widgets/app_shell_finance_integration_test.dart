@@ -139,12 +139,22 @@ void main() {
       expect(ownerSections, FinanceWorkspaceSection.values);
       expect(
         operationsSections,
-        contains(FinanceWorkspaceSection.driverFinance),
+        isNot(contains(FinanceWorkspaceSection.driverFinance)),
       );
       expect(
         operationsSections,
         isNot(contains(FinanceWorkspaceSection.driverSettlements)),
       );
+      expect(
+        operationsSections,
+        isNot(contains(FinanceWorkspaceSection.customerStatements)),
+      );
+      expect(
+        financeWorkspaceSectionsForRole(CompanyRole.viewer),
+        isNot(contains(FinanceWorkspaceSection.customerStatements)),
+      );
+      expect(operationsSections, isEmpty);
+      expect(financeWorkspaceSectionsForRole(CompanyRole.viewer), isEmpty);
       expect(driverSections, isEmpty);
     });
   });

@@ -45,7 +45,9 @@ void main() {
         final repository = _FakeInvoicesRepository();
         final result = await GetInvoicesUseCase(repository)(
           GetInvoicesParams(
-            currentCompanyContext: _contextWithoutCurrency(CompanyRole.viewer),
+            currentCompanyContext: _contextWithoutCurrency(
+              CompanyRole.accountant,
+            ),
           ),
         );
 
@@ -60,7 +62,9 @@ void main() {
     test('authorized reads are scoped to current company', () async {
       final repository = _FakeInvoicesRepository();
       await GetInvoicesUseCase(repository)(
-        GetInvoicesParams(currentCompanyContext: _context(CompanyRole.viewer)),
+        GetInvoicesParams(
+          currentCompanyContext: _context(CompanyRole.accountant),
+        ),
       );
 
       expect(repository.lastCompanyId, 'company-1');

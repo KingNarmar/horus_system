@@ -23,6 +23,18 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps secured Trip read denial to view permission, not status', () {
+      const error = PostgrestException(
+        message: 'trip_read_permission_denied',
+        code: TripDbErrorCodes.readPermissionDenied,
+        details: 'do not display this backend detail',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, FailureCodes.permissionTripsView);
+      expect(failure.message, isNull);
+    });
+
     test('maps status permission denial to typed failure', () {
       const error = PostgrestException(
         message: 'trip_status_permission_denied',
@@ -33,6 +45,64 @@ void main() {
 
       expect(failure, isA<PermissionFailure>());
       expect(failure.code, FailureCodes.permissionTripStatusUpdate);
+      expect(failure.message, isNull);
+    });
+
+    test('maps unauthorized price mutation without leaking DB details', () {
+      const error = PostgrestException(
+        message: 'trip_financial_terms_permission_denied',
+        code: TripDbErrorCodes.financialTermsPermissionDenied,
+        details: 'internal SQL context',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, TripFailureCodes.financialTermsPermissionDenied);
+      expect(failure.message, isNull);
+    });
+
+    test('maps locked priced quantity to finance-required conflict', () {
+      const error = PostgrestException(
+        message: 'trip_priced_quantity_requires_finance_authorization',
+        code: TripDbErrorCodes.pricedQuantityRequiresFinance,
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripFailureCodes.pricedQuantityRequiresFinance);
+      expect(failure.message, isNull);
+    });
+
+    test('maps finance-only RPC guard and input failures to stable codes', () {
+      final cases = <String, String>{
+        TripDbErrorCodes.financeSnapshotStale:
+            TripFailureCodes.staleFinancialSnapshot,
+        TripDbErrorCodes.invoiceFinancialTermsLocked:
+            TripFailureCodes.invoicedFinancialTermsLocked,
+        TripDbErrorCodes.financeQuantityRequired:
+            TripFailureCodes.pricingRequiresQuantity,
+        TripDbErrorCodes.financeRateInvalid:
+            FailureCodes.validationTripFreightRateInvalid,
+      };
+      for (final entry in cases.entries) {
+        final failure = mapper.fromFinancialTermsPostgrest(
+          PostgrestException(
+            message: 'sensitive backend error',
+            code: entry.key,
+          ),
+        );
+        expect(failure.code, entry.value);
+        expect(failure.message, isNull);
+      }
+    });
+
+    test('maps concurrent edits to sanitized, typed conflict', () {
+      const error = PostgrestException(
+        message: 'trip_version_conflict',
+        code: TripDbErrorCodes.concurrentModification,
+        details: 'sensitive SQL information',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, TripFailureCodes.concurrentModification);
       expect(failure.message, isNull);
     });
 

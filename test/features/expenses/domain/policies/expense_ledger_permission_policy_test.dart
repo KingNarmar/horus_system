@@ -4,75 +4,48 @@ import 'package:horus_system/features/expenses/domain/policies/expense_ledger_pe
 import 'package:test/test.dart';
 
 void main() {
-  group('ExpenseLedgerPermissionPolicy', () {
-    test('allows company members except drivers to view', () {
-      for (final role in [
-        CompanyRole.owner,
-        CompanyRole.admin,
-        CompanyRole.operations,
-        CompanyRole.accountant,
-        CompanyRole.viewer,
-      ]) {
-        expect(ExpenseLedgerPermissionPolicy.canView(role), isTrue);
+  group('ExpenseLedgerPermissionPolicy financial access boundary', () {
+    const financeRoles = <CompanyRole>{
+      CompanyRole.owner,
+      CompanyRole.admin,
+      CompanyRole.accountant,
+    };
+
+    test('only finance roles may read ledger amounts', () {
+      for (final role in CompanyRole.values) {
+        expect(
+          ExpenseLedgerPermissionPolicy.canView(role),
+          financeRoles.contains(role),
+          reason: 'Unexpected financial read access for $role',
+        );
       }
-
-      expect(
-        ExpenseLedgerPermissionPolicy.canView(CompanyRole.driver),
-        isFalse,
-      );
     });
 
-    test('allows operations to manage trip expenses only', () {
-      expect(
-        ExpenseLedgerPermissionPolicy.canManage(
-          CompanyRole.operations,
-          attribution: const ExpenseAttribution(tripId: 'trip-1'),
-        ),
-        isTrue,
-      );
-      expect(
-        ExpenseLedgerPermissionPolicy.canManage(
-          CompanyRole.operations,
-          attribution: const ExpenseAttribution(tractorHeadId: 'tractor-1'),
-        ),
-        isFalse,
-      );
-    });
-
-    test(
-      'allows owner admin accountant to manage all expense attributions',
-      () {
-        for (final role in [
-          CompanyRole.owner,
-          CompanyRole.admin,
-          CompanyRole.accountant,
-        ]) {
-          expect(
-            ExpenseLedgerPermissionPolicy.canManage(
-              role,
-              attribution: const ExpenseAttribution(),
-            ),
-            isTrue,
-          );
-          expect(
-            ExpenseLedgerPermissionPolicy.canManage(
-              role,
-              attribution: const ExpenseAttribution(tripId: 'trip-1'),
-            ),
-            isTrue,
-          );
-        }
-      },
-    );
-
-    test('denies viewer and driver mutation access', () {
-      for (final role in [CompanyRole.viewer, CompanyRole.driver]) {
+    test('only finance roles may manage trip-attributed expenses', () {
+      for (final role in CompanyRole.values) {
+        expect(
+          ExpenseLedgerPermissionPolicy.canManageTripAttributed(role),
+          financeRoles.contains(role),
+          reason: 'Unexpected trip expense management for $role',
+        );
         expect(
           ExpenseLedgerPermissionPolicy.canManage(
             role,
             attribution: const ExpenseAttribution(tripId: 'trip-1'),
           ),
-          isFalse,
+          financeRoles.contains(role),
+        );
+      }
+    });
+
+    test('only finance roles may manage general expenses', () {
+      for (final role in CompanyRole.values) {
+        expect(
+          ExpenseLedgerPermissionPolicy.canManage(
+            role,
+            attribution: const ExpenseAttribution(tractorHeadId: 'tractor-1'),
+          ),
+          financeRoles.contains(role),
         );
       }
     });

@@ -7,16 +7,17 @@ void main() {
     for (final role in [
       CompanyRole.owner,
       CompanyRole.admin,
-      CompanyRole.operations,
       CompanyRole.accountant,
-      CompanyRole.viewer,
     ]) {
       expect(PaymentsPermissionPolicy.canViewPayments(role), isTrue);
     }
-    expect(
-      PaymentsPermissionPolicy.canViewPayments(CompanyRole.driver),
-      isFalse,
-    );
+    for (final role in [
+      CompanyRole.operations,
+      CompanyRole.viewer,
+      CompanyRole.driver,
+    ]) {
+      expect(PaymentsPermissionPolicy.canViewPayments(role), isFalse);
+    }
   });
 
   test('only owner admin and accountant can register payments', () {

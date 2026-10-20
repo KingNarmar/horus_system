@@ -7,6 +7,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../entities/trip_entity.dart';
+import '../failures/trip_failure_codes.dart';
 import '../entities/trip_write_data.dart';
 import '../policies/trips_permission_policy.dart';
 import '../repositories/trips_repository.dart';
@@ -67,11 +68,17 @@ Future<Result<TripEntity>> _createTrip({
   }
 
   final financialConfiguration = tripFinancialConfiguration(context);
-  final commercialResult = _resolveCommercialWriteValues(
-    quantityTonsInput: params.quantityTonsInput,
-    agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
-    financialConfiguration: financialConfiguration,
-  );
+  final commercialResult =
+      TripsPermissionPolicy.canViewTripFinancials(context.role)
+      ? _resolveCommercialWriteValues(
+          quantityTonsInput: params.quantityTonsInput,
+          agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
+          financialConfiguration: financialConfiguration,
+        )
+      : _resolveOperationalWriteValues(
+          quantityTonsInput: params.quantityTonsInput,
+          agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
+        );
   if (commercialResult is FailureResult<_TripCommercialWriteValues>) {
     return FailureResult<TripEntity>(commercialResult.failure);
   }
@@ -162,12 +169,18 @@ Future<Result<TripEntity>> _saveTrip({
   }
   final existingTrip = existingResult.dataOrNull!;
 
-  final commercialResult = _resolveCommercialWriteValues(
-    quantityTonsInput: params.quantityTonsInput,
-    agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
-    financialConfiguration: financialConfiguration,
-    existingTrip: existingTrip,
-  );
+  final commercialResult =
+      TripsPermissionPolicy.canViewTripFinancials(context.role)
+      ? _resolveCommercialWriteValues(
+          quantityTonsInput: params.quantityTonsInput,
+          agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
+          financialConfiguration: financialConfiguration,
+          existingTrip: existingTrip,
+        )
+      : _resolveOperationalWriteValues(
+          quantityTonsInput: params.quantityTonsInput,
+          agreedFreightRatePerTonInput: params.agreedFreightRatePerTonInput,
+        );
   if (commercialResult is FailureResult<_TripCommercialWriteValues>) {
     return FailureResult<TripEntity>(commercialResult.failure);
   }
@@ -206,9 +219,35 @@ Future<Result<TripEntity>> _saveTrip({
 
   return repository.saveTrip(
     id: id,
+    expectedUpdatedAt: params.expectedUpdatedAt,
     data: data,
     financialConfiguration: financialConfiguration,
   );
+}
+
+Result<_TripCommercialWriteValues> _resolveOperationalWriteValues({
+  required String? quantityTonsInput,
+  required String? agreedFreightRatePerTonInput,
+}) {
+  if (optionalTripText(agreedFreightRatePerTonInput) != null) {
+    return const FailureResult<_TripCommercialWriteValues>(
+      PermissionFailure(code: TripFailureCodes.financialTermsPermissionDenied),
+    );
+  }
+
+  final quantityInput = optionalTripText(quantityTonsInput);
+  if (quantityInput == null) {
+    return const Success(_TripCommercialWriteValues());
+  }
+
+  final quantity = _parsePositiveQuantity(quantityInput);
+  if (quantity == null) {
+    return const FailureResult<_TripCommercialWriteValues>(
+      ValidationFailure(code: FailureCodes.validationTripQuantityInvalid),
+    );
+  }
+
+  return Success(_TripCommercialWriteValues(quantityTons: quantity));
 }
 
 Result<_TripCommercialWriteValues> _resolveCommercialWriteValues({

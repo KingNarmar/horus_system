@@ -14,11 +14,33 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.managementPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripsManagement,
       ),
+      TripDbErrorCodes.financialTermsPermissionDenied =>
+        const PermissionFailure(
+          code: TripFailureCodes.financialTermsPermissionDenied,
+        ),
+      TripDbErrorCodes.pricedQuantityRequiresFinance => const ConflictFailure(
+        code: TripFailureCodes.pricedQuantityRequiresFinance,
+      ),
+      TripDbErrorCodes.financeRateInvalid => const ValidationFailure(
+        code: FailureCodes.validationTripFreightRateInvalid,
+      ),
+      TripDbErrorCodes.invoiceFinancialTermsLocked => const ConflictFailure(
+        code: TripFailureCodes.invoicedFinancialTermsLocked,
+      ),
+      TripDbErrorCodes.financeQuantityRequired => const ConflictFailure(
+        code: TripFailureCodes.pricingRequiresQuantity,
+      ),
+      TripDbErrorCodes.readPermissionDenied => const PermissionFailure(
+        code: FailureCodes.permissionTripsView,
+      ),
       TripDbErrorCodes.statusPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripStatusUpdate,
       ),
       TripDbErrorCodes.notFound => const NotFoundFailure(
         code: TripFailureCodes.notFound,
+      ),
+      TripDbErrorCodes.concurrentModification => const ConflictFailure(
+        code: TripFailureCodes.concurrentModification,
       ),
       TripDbErrorCodes.temporalOrderInvalid => const ValidationFailure(
         code: FailureCodes.validationTripDeliveryBeforeLoading,
@@ -36,6 +58,17 @@ final class TripRepositoryFailureMapper {
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
+  }
+
+  // P3414 is shared by checked operational saves and financial pricing.
+  // The calling repository distinguishes the two typed conflicts.
+  Failure fromFinancialTermsPostgrest(PostgrestException error) {
+    if (error.code == TripDbErrorCodes.financeSnapshotStale) {
+      return const ConflictFailure(
+        code: TripFailureCodes.staleFinancialSnapshot,
+      );
+    }
+    return fromPostgrest(error);
   }
 
   Failure fromUnexpected(Object error) {

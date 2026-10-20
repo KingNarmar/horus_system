@@ -142,6 +142,34 @@ void main() {
       },
     );
 
+    testWidgets('localizes financial authorization failures EN and AR', (
+      tester,
+    ) async {
+      const denied = PermissionFailure(
+        code: TripFailureCodes.financialTermsPermissionDenied,
+        message: 'sensitive internal message',
+      );
+      const priced = ConflictFailure(
+        code: TripFailureCodes.pricedQuantityRequiresFinance,
+      );
+      expect(
+        await _messageFor(tester, const Locale('en'), denied),
+        'You do not have permission to change Trip prices or amounts.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), denied),
+        'ليس لديك صلاحية تعديل أسعار الرحلة أو المبالغ المالية.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('en'), priced),
+        'This Trip is already priced. Finance authorization is required to change its quantity.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), priced),
+        'تم تسعير هذه الرحلة بالفعل. يلزم اعتماد مالي لتغيير الكمية.',
+      );
+    });
+
     testWidgets('localizes status evidence conflict separately from removal', (
       tester,
     ) async {

@@ -10,7 +10,7 @@ void main() {
     expect(InvoicesPermissionPolicy.canViewInvoices(CompanyRole.admin), isTrue);
     expect(
       InvoicesPermissionPolicy.canViewInvoices(CompanyRole.operations),
-      isTrue,
+      isFalse,
     );
     expect(
       InvoicesPermissionPolicy.canViewInvoices(CompanyRole.accountant),
@@ -18,7 +18,7 @@ void main() {
     );
     expect(
       InvoicesPermissionPolicy.canViewInvoices(CompanyRole.viewer),
-      isTrue,
+      isFalse,
     );
     expect(
       InvoicesPermissionPolicy.canViewInvoices(CompanyRole.driver),

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/data/constants/authorized_business_records_db_contract.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
@@ -45,15 +46,11 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
 
   @override
   Future<List<RouteModel>> getRoutes({required String companyId}) async {
-    final rows = await client
-        .from(RouteDbFields.tableName)
-        .select(RouteDbFields.allColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .order(RouteDbFields.loadingLocation);
-
-    return rows
-        .map((row) => RouteModel.fromMap(Map<String, dynamic>.from(row)))
-        .toList();
+    final result = await client.rpc(
+      AuthorizedBusinessRecordsDbRpcs.routes,
+      params: {AuthorizedBusinessRecordsDbParams.companyId: companyId},
+    );
+    return _rpcRows(result).map(RouteModel.fromMap).toList();
   }
 
   @override
@@ -61,14 +58,18 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
     required String companyId,
     required String id,
   }) async {
-    final row = await client
-        .from(RouteDbFields.tableName)
-        .select(RouteDbFields.allColumns)
-        .eq(DbCommonFields.id, id)
-        .eq(DbCommonFields.companyId, companyId)
-        .single();
-
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    final result = await client.rpc(
+      AuthorizedBusinessRecordsDbRpcs.routes,
+      params: {
+        AuthorizedBusinessRecordsDbParams.companyId: companyId,
+        AuthorizedBusinessRecordsDbParams.routeId: id,
+      },
+    );
+    final records = _rpcRows(result);
+    if (records.length != 1) {
+      throw const FormatException('Route not found or invalid response.');
+    }
+    return RouteModel.fromMap(records.single);
   }
 
   @override
@@ -81,10 +82,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         .insert(
           data.toInsertMap(financialConfiguration: financialConfiguration),
         )
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: data.companyId,
+      id: row[DbCommonFields.id] as String,
+    );
   }
 
   @override
@@ -100,10 +104,13 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         )
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: data.companyId,
+      id: row[DbCommonFields.id] as String,
+    );
   }
 
   @override
@@ -135,9 +142,26 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
         })
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, companyId)
-        .select(RouteDbFields.allColumns)
+        .select(DbCommonFields.id)
         .single();
 
-    return RouteModel.fromMap(Map<String, dynamic>.from(row));
+    return getRouteById(
+      companyId: companyId,
+      id: row[DbCommonFields.id] as String,
+    );
+  }
+
+  List<Map<String, dynamic>> _rpcRows(Object? value) {
+    if (value is! List) {
+      throw const FormatException('Invalid Route read response.');
+    }
+    return value
+        .map((record) {
+          if (record is! Map) {
+            throw const FormatException('Invalid Route record.');
+          }
+          return Map<String, dynamic>.from(record);
+        })
+        .toList(growable: false);
   }
 }

@@ -13,6 +13,7 @@ import '../../../audit/domain/entities/audit_action.dart';
 import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/route_entity.dart';
+import '../../domain/policies/routes_permission_policy.dart';
 import '../cubit/routes_state.dart';
 import '../helpers/routes_failure_message.dart';
 import '../localization/routes_localizations_x.dart';
@@ -20,10 +21,12 @@ import '../localization/routes_localizations_x.dart';
 class RouteDetailsDialog extends StatelessWidget {
   final RouteEntity route;
   final RoutesLoaded? state;
+  final ValueChanged<RouteEntity>? onEditDefaultRate;
 
   const RouteDetailsDialog({
     required this.route,
     required this.state,
+    this.onEditDefaultRate,
     super.key,
   });
 
@@ -78,6 +81,21 @@ class RouteDetailsDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
+              if (onEditDefaultRate != null &&
+                  state != null &&
+                  RoutesPermissionPolicy.canManageRouteFinancialTerms(
+                    state!.currentCompanyContext.role,
+                  )) ...[
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: OutlinedButton.icon(
+                    onPressed: () => onEditDefaultRate!(visibleRoute),
+                    icon: const Icon(AppIcons.edit),
+                    label: Text(l10n.routeDefaultFreightRatePerTonLabel),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
               _RouteDetailsSection(
                 title: l10n.routeBasicInfo,
                 children: [

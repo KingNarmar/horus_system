@@ -310,7 +310,7 @@ void main() {
 
       final result = await useCase(
         ReportParams(
-          currentCompanyContext: _context(CompanyRole.operations),
+          currentCompanyContext: _context(CompanyRole.accountant),
           dateRange: const ReportDateRange(),
         ),
       );

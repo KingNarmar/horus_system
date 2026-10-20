@@ -1,5 +1,9 @@
 import '../../features/audit/di/audit_dependencies.dart';
 import '../../features/routes/data/datasources/routes_remote_data_source.dart';
+import '../../features/routes/data/datasources/route_financial_terms_remote_data_source.dart';
+import '../../features/routes/data/repositories/route_financial_terms_repository_impl.dart';
+import '../../features/routes/domain/usecases/set_route_default_freight_rate_usecase.dart';
+import '../../features/routes/presentation/cubit/route_default_freight_rate_cubit.dart';
 import '../../features/routes/data/repositories/routes_repository_impl.dart';
 import '../../features/routes/domain/usecases/can_manage_routes_usecase.dart';
 import '../../features/routes/domain/usecases/routes_usecases.dart';
@@ -9,6 +13,17 @@ import '../data/supabase/supabase_client_provider.dart';
 import '../usecases/convert_instants_to_business_local_date_times_usecase.dart';
 
 abstract final class RoutesDependencies {
+  static RouteDefaultFreightRateCubit createRateCubit() {
+    final repository = RouteFinancialTermsRepositoryImpl(
+      SupabaseRouteFinancialTermsRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
+    );
+    return RouteDefaultFreightRateCubit(
+      SetRouteDefaultFreightRateUseCase(repository),
+    );
+  }
+
   static RoutesCubit createRoutesCubit() {
     final client = SupabaseClientProvider.client;
 

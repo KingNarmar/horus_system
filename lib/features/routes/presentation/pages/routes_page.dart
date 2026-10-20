@@ -8,11 +8,14 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/widgets/active_state_confirmation_dialog.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/route_entity.dart';
+import '../../domain/policies/routes_permission_policy.dart';
 import '../cubit/routes_cubit.dart';
+import '../cubit/route_default_freight_rate_cubit.dart';
 import '../cubit/routes_state.dart';
 import '../helpers/routes_failure_message.dart';
 import '../widgets/route_activity_dialog.dart';
 import '../widgets/route_form_dialog.dart';
+import '../widgets/route_default_freight_rate_dialog.dart';
 import '../widgets/routes_filters.dart';
 import '../widgets/routes_list.dart';
 
@@ -51,6 +54,9 @@ class _RoutesPageState extends State<RoutesPage> {
           title: route == null ? l10n.addRouteTitle : l10n.editRouteTitle,
           route: route,
           financialConfiguration: _financialConfiguration,
+          canEditFreightRate: RoutesPermissionPolicy.canEditFreightRate(
+            widget.currentCompanyContext.role,
+          ),
           onSubmit: (data) {
             return cubit.saveRoute(
               route: route,
@@ -67,12 +73,27 @@ class _RoutesPageState extends State<RoutesPage> {
     );
   }
 
+  Future<RouteEntity?> _showRouteRateDialog(RouteEntity route) {
+    final rateCubit = context.read<RouteDefaultFreightRateCubit>()..reset();
+    return showDialog<RouteEntity>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => BlocProvider.value(
+        value: rateCubit,
+        child: RouteDefaultFreightRateDialog(
+          currentCompanyContext: widget.currentCompanyContext,
+          route: route,
+        ),
+      ),
+    );
+  }
+
   Future<void> _openRouteDetails(RouteEntity route) async {
     final cubit = context.read<RoutesCubit>();
 
     cubit.loadRouteActivity(route);
 
-    await showDialog<void>(
+    final updatedRate = await showDialog<bool>(
       context: context,
       builder: (_) {
         return BlocProvider.value(
@@ -82,6 +103,20 @@ class _RoutesPageState extends State<RoutesPage> {
               return RouteDetailsDialog(
                 route: route,
                 state: state is RoutesLoaded ? state : null,
+                onEditDefaultRate:
+                    RoutesPermissionPolicy.canManageRouteFinancialTerms(
+                      widget.currentCompanyContext.role,
+                    )
+                    ? (selectedRoute) async {
+                        final parentNavigator = Navigator.of(context);
+                        final updated = await _showRouteRateDialog(
+                          selectedRoute,
+                        );
+                        if (updated != null && parentNavigator.mounted) {
+                          parentNavigator.pop(true);
+                        }
+                      }
+                    : null,
               );
             },
           ),
@@ -90,6 +125,9 @@ class _RoutesPageState extends State<RoutesPage> {
     );
 
     cubit.clearRouteActivity();
+    if (updatedRate == true && mounted) {
+      await cubit.loadRoutes(widget.currentCompanyContext);
+    }
   }
 
   Future<void> _deactivateRoute(RouteEntity route) async {

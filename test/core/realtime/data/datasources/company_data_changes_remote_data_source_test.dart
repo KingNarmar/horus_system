@@ -127,6 +127,38 @@ void main() {
       expect(gateway.removed, hasLength(1));
     },
   );
+  test('Trips topic only accepts current-company Trip hints', () async {
+    final gateway = _FakeGateway();
+    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+      gateway,
+    );
+    final received = <RealtimeChangeSignal>[];
+    final subscription = source
+        .watchTrips(companyId: 'company-a')
+        .listen(received.add);
+    await Future<void>.delayed(Duration.zero);
+
+    final channel = gateway.channels.single;
+    expect(channel.topic, RealtimeTopics.trips('company-a'));
+    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+    channel.onMessage({
+      'payload': {'company_id': 'company-b', 'resource': 'trips'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'routes'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'trips'},
+    });
+    await Future<void>.delayed(Duration.zero);
+    expect(received, [
+      RealtimeChangeSignal.subscribed,
+      RealtimeChangeSignal.changed,
+    ]);
+    await subscription.cancel();
+    expect(gateway.removed, [channel]);
+  });
+
   test(
     'Routes private topic rejects cross-tenant and wrong-resource hints',
     () async {

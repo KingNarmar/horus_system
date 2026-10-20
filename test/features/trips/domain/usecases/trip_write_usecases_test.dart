@@ -10,6 +10,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.da
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status_history.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_write_data.dart';
+import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/repositories/trips_repository.dart';
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/domain/value_objects/quantity_tons.dart';
@@ -26,11 +27,94 @@ void main() {
     ),
     role: CompanyRole.operations,
   );
+  const financeContext = CurrentCompanyContext(
+    company: Company(
+      id: 'company-1',
+      name: 'Company',
+      baseCurrencyCode: 'AED',
+      baseCurrencyFractionDigits: 2,
+    ),
+    role: CompanyRole.owner,
+  );
   final configuration = CurrencyConfiguration.tryCreate(
     currencyCode: 'AED',
     fractionDigits: 2,
   )!;
   final currency = configuration.currency;
+
+  group('Operational Trip financial isolation', () {
+    test('Operations can create a quantity-only Trip', () async {
+      final repository = _FakeTripsRepository();
+      final result = await CreateTripUseCase(repository)(
+        const CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          quantityTonsInput: '10.125',
+        ),
+      );
+      expect(result, isA<Success<TripEntity>>());
+      expect(
+        repository.lastWriteData?.quantityTons,
+        QuantityTons.tryParse('10.125'),
+      );
+      expect(repository.lastWriteData?.agreedFreightRatePerTon, isNull);
+      expect(repository.lastWriteData?.commercialAmount, isNull);
+    });
+
+    test('Operations cannot submit an agreed rate', () async {
+      final repository = _FakeTripsRepository();
+      final result = await CreateTripUseCase(repository)(
+        const CreateTripParams(
+          currentCompanyContext: context,
+          customerId: 'customer-1',
+          routeId: 'route-1',
+          quantityTonsInput: '10',
+          agreedFreightRatePerTonInput: '200',
+        ),
+      );
+      expect(
+        result.failureOrNull?.code,
+        TripFailureCodes.financialTermsPermissionDenied,
+      );
+      expect(repository.lastWriteData, isNull);
+    });
+
+    test(
+      'Operations save only operational quantity with no price write',
+      () async {
+        final snapshotUpdatedAt = DateTime.utc(2026, 10, 20, 9);
+        final repository = _FakeTripsRepository(
+          currentTrip: TripEntity(
+            id: 'trip-1',
+            updatedAt: snapshotUpdatedAt,
+            companyId: 'company-1',
+            tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            status: TripStatus.created,
+          ),
+        );
+        final result = await SaveTripUseCase(repository)(
+          SaveTripParams(
+            currentCompanyContext: context,
+            id: 'trip-1',
+            expectedUpdatedAt: snapshotUpdatedAt,
+            customerId: 'customer-1',
+            routeId: 'route-1',
+            quantityTonsInput: '15.000',
+          ),
+        );
+        expect(result, isA<Success<TripEntity>>());
+        expect(
+          repository.lastWriteData?.quantityTons,
+          QuantityTons.tryParse('15'),
+        );
+        expect(repository.lastWriteData?.agreedFreightRatePerTon, isNull);
+        expect(repository.lastWriteData?.commercialAmount, isNull);
+      },
+    );
+  });
 
   group('CreateTripUseCase commercial snapshot', () {
     test(
@@ -41,7 +125,7 @@ void main() {
 
         final result = await useCase(
           const CreateTripParams(
-            currentCompanyContext: context,
+            currentCompanyContext: financeContext,
             customerId: 'customer-1',
             routeId: 'route-1',
             quantityTonsInput: '10.125',
@@ -70,7 +154,7 @@ void main() {
 
       final result = await useCase(
         const CreateTripParams(
-          currentCompanyContext: context,
+          currentCompanyContext: financeContext,
           customerId: 'customer-1',
           routeId: 'route-1',
           quantityTonsInput: '10',
@@ -223,9 +307,10 @@ void main() {
       final useCase = SaveTripUseCase(repository);
 
       final result = await useCase(
-        const SaveTripParams(
-          currentCompanyContext: context,
+        SaveTripParams(
+          currentCompanyContext: financeContext,
           id: 'trip-1',
+          expectedUpdatedAt: DateTime.utc(2026, 9, 18),
           customerId: 'customer-1',
           routeId: 'route-1',
           quantityTonsInput: '20.000',
@@ -258,9 +343,10 @@ void main() {
         final useCase = SaveTripUseCase(repository);
 
         final result = await useCase(
-          const SaveTripParams(
-            currentCompanyContext: context,
+          SaveTripParams(
+            currentCompanyContext: financeContext,
             id: 'trip-1',
+            expectedUpdatedAt: DateTime.utc(2026, 9, 18),
             customerId: 'customer-1',
             routeId: 'route-1',
             quantityTonsInput: '21',
@@ -312,6 +398,7 @@ class _FakeTripsRepository implements TripsRepository {
   @override
   Future<Result<TripEntity>> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {

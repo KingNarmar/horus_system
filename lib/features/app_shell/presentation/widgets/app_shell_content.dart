@@ -49,12 +49,14 @@ import '../../../reports/di/reports_dependencies.dart';
 import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
+import '../../../routes/presentation/cubit/route_default_freight_rate_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
 import '../../../routes/presentation/widgets/routes_realtime_boundary.dart';
 import '../../../subscriptions/di/subscriptions_dependencies.dart';
 import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
+import '../../../trips/presentation/cubit/trip_freight_rate_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
 import '../../../trips/presentation/widgets/trips_realtime_boundary.dart';
 import '../models/app_shell_destination.dart';
@@ -143,8 +145,15 @@ class AppShellContent extends StatelessWidget {
           ),
         ),
       ),
-      AppShellModule.routes => BlocProvider<RoutesCubit>(
-        create: (_) => RoutesDependencies.createRoutesCubit(),
+      AppShellModule.routes => MultiBlocProvider(
+        providers: [
+          BlocProvider<RoutesCubit>(
+            create: (_) => RoutesDependencies.createRoutesCubit(),
+          ),
+          BlocProvider<RouteDefaultFreightRateCubit>(
+            create: (_) => RoutesDependencies.createRateCubit(),
+          ),
+        ],
         child: RoutesRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(
@@ -154,8 +163,15 @@ class AppShellContent extends StatelessWidget {
           ),
         ),
       ),
-      AppShellModule.trips => BlocProvider<TripsCubit>(
-        create: (_) => TripsDependencies.createTripsCubit(),
+      AppShellModule.trips => MultiBlocProvider(
+        providers: [
+          BlocProvider<TripsCubit>(
+            create: (_) => TripsDependencies.createTripsCubit(),
+          ),
+          BlocProvider<TripFreightRateCubit>(
+            create: (_) => TripsDependencies.createTripFreightRateCubit(),
+          ),
+        ],
         child: TripsRealtimeBoundary(
           currentCompanyContext: contextData,
           child: _ReconnectAware(

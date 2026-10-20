@@ -10,6 +10,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
 import '../entities/route_entity.dart';
 import '../entities/route_write_data.dart';
+import '../failures/route_failure_codes.dart';
 import '../policies/routes_permission_policy.dart';
 import '../repositories/routes_repository.dart';
 
@@ -128,6 +129,16 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
 
     final configuration = _financialConfiguration(context);
     final rateInput = _optional(params.defaultFreightRatePerTonInput);
+    if (rateInput != null &&
+        !RoutesPermissionPolicy.canEditFreightRate(context.role)) {
+      return Future.value(
+        const FailureResult<RouteEntity>(
+          PermissionFailure(
+            code: RouteFailureCodes.financialTermsPermissionDenied,
+          ),
+        ),
+      );
+    }
     Money? defaultFreightRatePerTon;
 
     if (rateInput != null) {

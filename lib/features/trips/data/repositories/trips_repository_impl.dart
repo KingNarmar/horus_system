@@ -92,12 +92,14 @@ class TripsRepositoryImpl implements TripsRepository {
   @override
   Future<Result<TripEntity>> saveTrip({
     required String id,
+    required DateTime expectedUpdatedAt,
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
       final model = await remoteDataSource.saveTrip(
         id: id,
+        expectedUpdatedAt: expectedUpdatedAt,
         data: data,
         financialConfiguration: financialConfiguration,
       );

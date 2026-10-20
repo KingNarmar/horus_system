@@ -816,6 +816,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultFreightPriceInvalid => 'Enter a valid non-negative number.';
 
   @override
+  String get routeFreightRatePermissionDenied =>
+      'You do not have permission to change Route freight rates.';
+
+  @override
+  String get routeStaleFreightRateSnapshot =>
+      'This Route was updated elsewhere. Refresh it and try again.';
+
+  @override
+  String get routeFinancialRateRouteMissing =>
+      'This Route is no longer available. Refresh the list.';
+
+  @override
   String get searchRoutesHint => 'Search routes';
 
   @override
@@ -2251,12 +2263,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripNotFoundFailure => 'The trip could not be found.';
 
   @override
+  String get tripConcurrentModificationFailure =>
+      'Someone else changed this trip. Your edits remain in this form but were not saved. Copy them before reopening the trip to review the latest version.';
+
+  @override
   String get tripManagementPermissionFailure =>
       'Trips management is not allowed for this role.';
 
   @override
   String get tripStatusPermissionFailure =>
       'Trip status update is not allowed for this role.';
+
+  @override
+  String get tripFinancialTermsPermissionFailure =>
+      'You do not have permission to change Trip prices or amounts.';
+
+  @override
+  String get tripEditFreightRateTitle => 'Edit freight rate';
+
+  @override
+  String get tripSaveRateButton => 'Save rate';
+
+  @override
+  String get tripCancelRateButton => 'Cancel';
+
+  @override
+  String get tripPricingQuantityRequiredFailure =>
+      'Add a Trip quantity before setting the freight rate.';
+
+  @override
+  String get tripInvoicedFinancialTermsLockedFailure =>
+      'This Trip is linked to an invoice, so its freight rate cannot be changed.';
+
+  @override
+  String get tripStaleFinancialSnapshotFailure =>
+      'The Trip was updated elsewhere. Refresh it and try again.';
+
+  @override
+  String get tripPricedQuantityFinanceRequired =>
+      'This Trip is already priced. Finance authorization is required to change its quantity.';
 
   @override
   String get tripStatusEvidenceRequiredFailure =>

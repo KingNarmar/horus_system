@@ -4,6 +4,7 @@ import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
+import 'package:horus_system/features/routes/domain/failures/route_failure_codes.dart';
 import 'package:horus_system/features/routes/presentation/helpers/routes_failure_message.dart';
 import 'package:horus_system/features/routes/presentation/localization/routes_localizations_x.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
@@ -12,6 +13,20 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-07 Route presentation hardening', () {
+    testWidgets('localizes Route freight permission denial', (tester) async {
+      const failure = PermissionFailure(
+        code: RouteFailureCodes.financialTermsPermissionDenied,
+      );
+      expect(
+        await _messageFor(tester, const Locale('en'), failure),
+        'You do not have permission to change Route freight rates.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), failure),
+        'ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.',
+      );
+    });
+
     test('labels the persisted default price field as a per-ton rate', () {
       final en = AppLocalizationsEn();
       final ar = AppLocalizationsAr();
