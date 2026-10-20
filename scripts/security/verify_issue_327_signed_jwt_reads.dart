@@ -89,12 +89,7 @@ class _Api {
       send('GET', '/rest/v1/$name', query: query, jwt: jwt);
 
   Future<_Reply> rpc(String name, String companyId, {String? jwt}) =>
-      send(
-        'POST',
-        '/rest/v1/rpc/$name',
-        jwt: jwt,
-        body: {'p_company_id': companyId},
-      );
+      rpcParams(name, {'p_company_id': companyId}, jwt: jwt);
 
   Future<_Reply> rpcParams(
     String name,
