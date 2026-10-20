@@ -290,6 +290,40 @@ void main() {
     expect(gateway.route['default_freight_price'], 11);
   });
 
+  test('Route pricing allows an unset current rate', () async {
+    final gateway = _FakeGateway('owner');
+    gateway.route['default_freight_price'] = null;
+    final result = await _run(
+      gateway,
+      MutationCase.routeRate,
+      'owner',
+      rate: '11.00',
+    );
+    expect(result.passed, isTrue);
+    expect(gateway.writes, 1);
+    expect(gateway.route['default_freight_price'], 11);
+    expect(gateway.audit.length, 2);
+  });
+
+  test('Route pricing rejects a malformed current rate before writing', () async {
+    final gateway = _FakeGateway('owner');
+    gateway.route['default_freight_price'] = 'invalid';
+    await expectLater(
+      _run(gateway, MutationCase.routeRate, 'owner', rate: '11.00'),
+      throwsStateError,
+    );
+    expect(gateway.writes, 0);
+  });
+
+  test('Route pricing refuses a no-op with no mutation', () async {
+    final gateway = _FakeGateway('owner');
+    await expectLater(
+      _run(gateway, MutationCase.routeRate, 'owner', rate: '10.00'),
+      throwsStateError,
+    );
+    expect(gateway.writes, 0);
+  });
+
   test('invoiced lock does not touch trip, invoice or audit', () async {
     final gateway = _FakeGateway('owner');
     final result = await _run(

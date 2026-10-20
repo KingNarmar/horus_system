@@ -173,11 +173,12 @@ final class Issue327MutationRunner {
     );
     final rateField = spec.isTrip
         ? 'agreed_freight_rate_per_ton' : 'default_freight_price';
+    final currentRate = current[rateField];
     if (current['notes'] != fixture.marker ||
         current['updated_at'] is! String ||
         DateTime.tryParse(current['updated_at'] as String) == null ||
-        (current[rateField] != null && current[rateField] is! num) ||
-        (current[rateField] as num) == num.parse(spec.rate)) {
+        (currentRate != null && currentRate is! num) ||
+        currentRate == num.parse(spec.rate)) {
       throw StateError('Target snapshot/rate is not safe for test.');
     }
 
