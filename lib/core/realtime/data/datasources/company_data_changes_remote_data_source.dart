@@ -76,12 +76,13 @@ final class SupabaseCompanyDataChangesRemoteDataSource
       );
 
   @override
-  Stream<RealtimeChangeSignal> watchTripDocuments({required String companyId}) =>
-      _watchResource(
-        companyId: companyId,
-        topic: RealtimeTopics.tripDocuments(companyId),
-        resource: RealtimeTopics.tripDocumentsResource,
-      );
+  Stream<RealtimeChangeSignal> watchTripDocuments({
+    required String companyId,
+  }) => _watchResource(
+    companyId: companyId,
+    topic: RealtimeTopics.tripDocuments(companyId),
+    resource: RealtimeTopics.tripDocumentsResource,
+  );
 
   @override
   Stream<RealtimeChangeSignal> watchFleetLicenseDocuments({

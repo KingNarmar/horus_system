@@ -49,31 +49,36 @@ import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart'
 import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 void main() {
-  test('duplicate document hints coalesce without clearing visible documents', () async {
-    final documents = _DocumentsRepository()..current = [_oldDocument];
-    final cubit = _buildCubit(documents);
-    addTearDown(cubit.close);
-    await cubit.loadTrips(_companyA);
-    await cubit.loadTripDetails(_tripA);
+  test(
+    'duplicate document hints coalesce without clearing visible documents',
+    () async {
+      final documents = _DocumentsRepository()..current = [_oldDocument];
+      final cubit = _buildCubit(documents);
+      addTearDown(cubit.close);
+      await cubit.loadTrips(_companyA);
+      await cubit.loadTripDetails(_tripA);
 
-    final delayed = Completer<Result<List<TripDocument>>>();
-    documents.pendingReads.add(delayed);
-    final first = cubit.refreshSelectedTripDocumentsFromRealtime();
-    await Future<void>.delayed(Duration.zero);
-    expect((cubit.state as TripsLoaded).selectedTripDocuments, [_oldDocument]);
-    expect((cubit.state as TripsLoaded).isDocumentsLoading, isFalse);
+      final delayed = Completer<Result<List<TripDocument>>>();
+      documents.pendingReads.add(delayed);
+      final first = cubit.refreshSelectedTripDocumentsFromRealtime();
+      await Future<void>.delayed(Duration.zero);
+      expect((cubit.state as TripsLoaded).selectedTripDocuments, [
+        _oldDocument,
+      ]);
+      expect((cubit.state as TripsLoaded).isDocumentsLoading, isFalse);
 
-    await cubit.refreshSelectedTripDocumentsFromRealtime();
-    documents.current = [_newDocument];
-    delayed.complete(Success([_oldDocument]));
-    await first;
+      await cubit.refreshSelectedTripDocumentsFromRealtime();
+      documents.current = [_newDocument];
+      delayed.complete(Success([_oldDocument]));
+      await first;
 
-    final latest = cubit.state as TripsLoaded;
-    expect(documents.reads, 3);
-    expect(latest.selectedTripDocuments, [_newDocument]);
-    expect(latest.isDocumentsLoading, isFalse);
-    expect(latest.selectedTrip?.id, _tripA.id);
-  });
+      final latest = cubit.state as TripsLoaded;
+      expect(documents.reads, 3);
+      expect(latest.selectedTripDocuments, [_newDocument]);
+      expect(latest.isDocumentsLoading, isFalse);
+      expect(latest.selectedTrip?.id, _tripA.id);
+    },
+  );
 
   test('late document response cannot cross company boundaries', () async {
     final documents = _DocumentsRepository()..current = [_oldDocument];
@@ -103,15 +108,20 @@ void main() {
     await cubit.loadTrips(_companyA);
     await cubit.loadTripDetails(_tripA);
 
-    documents.results.add(const FailureResult<List<TripDocument>>(
-      PermissionFailure(code: TripDocumentFailureCodes.permissionView),
-    ));
+    documents.results.add(
+      const FailureResult<List<TripDocument>>(
+        PermissionFailure(code: TripDocumentFailureCodes.permissionView),
+      ),
+    );
     await cubit.refreshSelectedTripDocumentsFromRealtime();
 
     final latest = cubit.state as TripsLoaded;
     expect(latest.selectedTripDocuments, isEmpty);
     expect(latest.hasRequiredTripEvidence, isFalse);
-    expect(latest.documentsFailure?.code, TripDocumentFailureCodes.permissionView);
+    expect(
+      latest.documentsFailure?.code,
+      TripDocumentFailureCodes.permissionView,
+    );
   });
 
   test('document hint waits for an active local upload', () async {
@@ -228,14 +238,20 @@ TripsCubit _buildCubit(_DocumentsRepository documents) {
         const ResolveTripBusinessLocalTimestampsUseCase(converter),
     convertInstantsToBusinessLocalDateTimesUseCase:
         const ConvertInstantsToBusinessLocalDateTimesUseCase(converter),
-    getCompanyBusinessDateUseCase:
-        GetCompanyBusinessDateUseCase(_BusinessDateProvider()),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      _BusinessDateProvider(),
+    ),
     getTripAuditLogsUseCase: GetEntityAuditLogsUseCase(_AuditRepository()),
-    getTripExpenseLedgerEntriesUseCase: GetTripExpenseLedgerEntriesUseCase(expenses),
+    getTripExpenseLedgerEntriesUseCase: GetTripExpenseLedgerEntriesUseCase(
+      expenses,
+    ),
     getExpenseTypeCatalogUseCase: GetExpenseTypeCatalogUseCase(types),
-    getLedgerEligibleExpenseTypesUseCase: GetLedgerEligibleExpenseTypesUseCase(types),
-    createTripExpenseUseCase:
-        CreateTripExpenseUseCase(CreateExpenseLedgerEntryUseCase(expenses)),
+    getLedgerEligibleExpenseTypesUseCase: GetLedgerEligibleExpenseTypesUseCase(
+      types,
+    ),
+    createTripExpenseUseCase: CreateTripExpenseUseCase(
+      CreateExpenseLedgerEntryUseCase(expenses),
+    ),
     voidExpenseLedgerEntryUseCase: VoidExpenseLedgerEntryUseCase(expenses),
   );
 }

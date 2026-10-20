@@ -128,8 +128,9 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
       trips.stream;
 
   @override
-  Stream<RealtimeChangeSignal> watchTripDocuments({required String companyId}) =>
-      tripDocuments.stream;
+  Stream<RealtimeChangeSignal> watchTripDocuments({
+    required String companyId,
+  }) => tripDocuments.stream;
 
   @override
   Stream<RealtimeChangeSignal> watchFleetLicenseDocuments({
