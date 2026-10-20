@@ -18,7 +18,6 @@ import 'dart:io';
 import 'issue_327_mutation_checks.dart';
 
 abstract final class _Config {
-  static const developmentHost = 'zwnfmszssxtfxkaofnhq.supabase.co';
   static const required = [
     'SUPABASE_URL',
     'SUPABASE_PUBLISHABLE_KEY',
@@ -39,14 +38,7 @@ abstract final class _Config {
 
   static Uri developmentUrl(String raw) {
     final uri = Uri.tryParse(raw);
-    if (uri == null ||
-        uri.scheme != 'https' ||
-        uri.host != developmentHost ||
-        uri.port != 443 ||
-        uri.userInfo.isNotEmpty ||
-        (uri.path.isNotEmpty && uri.path != '/') ||
-        uri.hasQuery ||
-        uri.hasFragment) {
+    if (uri == null || !MutationPreflightGate.isDevelopmentOrigin(uri)) {
       throw StateError('Only H.O.R.U.S Development is permitted.');
     }
     return uri;
@@ -156,7 +148,7 @@ bool _reportCheck(String label, bool condition) {
 
 Future<void> main(List<String> args) async {
   // Explicit deny-by-default. Even --execute never creates or changes data.
-  if (args.length != 1 || args.single != '--preflight') {
+  if (!MutationPreflightGate.allowsArguments(args)) {
     stderr.writeln(
       'Only --preflight is supported. Mutation execution is NOT enabled.',
     );
