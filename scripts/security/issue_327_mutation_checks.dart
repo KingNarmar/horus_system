@@ -1,6 +1,22 @@
 // Issue #327: pure checks for isolated Development mutation test fixtures.
 // This library never performs I/O or writes to Supabase.
 
+abstract final class MutationPreflightGate {
+  static const developmentHost = 'zwnfmszssxtfxkaofnhq.supabase.co';
+
+  static bool allowsArguments(List<String> arguments) =>
+      arguments.length == 1 && arguments.single == '--preflight';
+
+  static bool isDevelopmentOrigin(Uri uri) =>
+      uri.scheme == 'https' &&
+      uri.host == developmentHost &&
+      uri.port == 443 &&
+      uri.userInfo.isEmpty &&
+      (uri.path.isEmpty || uri.path == '/') &&
+      !uri.hasQuery &&
+      !uri.hasFragment;
+}
+
 abstract final class MutationFixtureContract {
   static const markerPrefix = 'HORUS327-ISOLATED-';
   static const tripMoneyFields = [
