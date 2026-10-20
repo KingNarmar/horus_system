@@ -83,9 +83,11 @@ void main() {
     test(
       'Operations save only operational quantity with no price write',
       () async {
+        final snapshotUpdatedAt = DateTime.utc(2026, 10, 20, 9);
         final repository = _FakeTripsRepository(
           currentTrip: TripEntity(
             id: 'trip-1',
+            updatedAt: snapshotUpdatedAt,
             companyId: 'company-1',
             tripNumber: TripNumber.tryParse('TRP-2026-000001')!,
             customerId: 'customer-1',
@@ -94,9 +96,10 @@ void main() {
           ),
         );
         final result = await SaveTripUseCase(repository)(
-          const SaveTripParams(
+          SaveTripParams(
             currentCompanyContext: context,
             id: 'trip-1',
+            expectedUpdatedAt: snapshotUpdatedAt,
             customerId: 'customer-1',
             routeId: 'route-1',
             quantityTonsInput: '15.000',

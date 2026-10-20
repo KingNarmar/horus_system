@@ -83,7 +83,7 @@ void main() {
             FailureCodes.validationTripFreightRateInvalid,
       };
       for (final entry in cases.entries) {
-        final failure = mapper.fromPostgrest(
+        final failure = mapper.fromFinancialTermsPostgrest(
           PostgrestException(
             message: 'sensitive backend error',
             code: entry.key,

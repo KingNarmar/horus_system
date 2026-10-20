@@ -49,7 +49,7 @@ final class TripFinancialTermsRepositoryImpl
         model.toEntity(financialConfiguration: financialConfiguration),
       );
     } on PostgrestException catch (error) {
-      return FailureResult(_failureMapper.fromPostgrest(error));
+      return FailureResult(_failureMapper.fromFinancialTermsPostgrest(error));
     } on FormatException {
       return const FailureResult(ServerFailure(code: FailureCodes.serverError));
     } catch (error) {

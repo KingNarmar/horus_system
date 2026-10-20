@@ -21,9 +21,6 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.pricedQuantityRequiresFinance => const ConflictFailure(
         code: TripFailureCodes.pricedQuantityRequiresFinance,
       ),
-      TripDbErrorCodes.financeSnapshotStale => const ConflictFailure(
-        code: TripFailureCodes.staleFinancialSnapshot,
-      ),
       TripDbErrorCodes.financeRateInvalid => const ValidationFailure(
         code: FailureCodes.validationTripFreightRateInvalid,
       ),
@@ -61,6 +58,17 @@ final class TripRepositoryFailureMapper {
         ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
+  }
+
+  // P3414 is shared by checked operational saves and financial pricing.
+  // The calling repository distinguishes the two typed conflicts.
+  Failure fromFinancialTermsPostgrest(PostgrestException error) {
+    if (error.code == TripDbErrorCodes.financeSnapshotStale) {
+      return const ConflictFailure(
+        code: TripFailureCodes.staleFinancialSnapshot,
+      );
+    }
+    return fromPostgrest(error);
   }
 
   Failure fromUnexpected(Object error) {

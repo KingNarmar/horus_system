@@ -34,6 +34,7 @@ void main() {
                     context: context,
                     builder: (_) => TripFormDialog(
                       title: 'Edit trip',
+                      canViewFinancials: false,
                       trip: _trip,
                       lookups: _lookups,
                       financialConfiguration: null,

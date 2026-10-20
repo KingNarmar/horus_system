@@ -26,7 +26,6 @@ abstract final class TripDbRpcParams {
   static const actualDeliveryAt = 'p_actual_delivery_at';
   static const notes = 'p_notes';
   static const newStatus = 'p_new_status';
-  static const expectedUpdatedAt = 'p_expected_updated_at';
 }
 
 abstract final class TripDbErrorCodes {
