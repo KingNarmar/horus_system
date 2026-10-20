@@ -131,6 +131,25 @@ void main() {
     expect(outcomes, contains(isFalse));
   });
 
+  test('fixture lookup is company-scoped and requires canonical settlement', () async {
+    final id = await readFinancialFixtureId(
+      fixture: FinancialReadFixtures.finalizedDriver,
+      companyId: ownCompany,
+      fetch: (table, query) async {
+        expect(table, 'driver_settlements');
+        expect(query['company_id'], 'eq.$ownCompany');
+        expect(query['status'], 'eq.finalized');
+        expect(query['closing_driver_balance_minor_units'], 'not.is.null');
+        expect(query['currency_code'], 'not.is.null');
+        expect(query['currency_fraction_digits'], 'not.is.null');
+        return [
+          {'driver_id': driverId},
+        ];
+      },
+    );
+    expect(id, driverId);
+  });
+
   test('missing positive financial fixtures are explicitly skipped', () async {
     final skipped = <String>[];
     final outcomes = await runRole(
