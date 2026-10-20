@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_file.dart';
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/domain/value_objects/currency_configuration.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
@@ -23,7 +25,10 @@ import 'package:horus_system/features/expense_types/domain/entities/expense_type
 import 'package:horus_system/features/expense_types/domain/repositories/expense_types_repository.dart';
 import 'package:horus_system/features/expense_types/domain/usecases/get_expense_type_catalog_usecase.dart';
 import 'package:horus_system/features/expense_types/domain/usecases/get_ledger_eligible_expense_types_usecase.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_attribution.dart';
+import 'package:horus_system/features/expenses/domain/entities/expense_funding_source.dart';
 import 'package:horus_system/features/expenses/domain/entities/expense_ledger_entry.dart';
+import 'package:horus_system/features/expenses/domain/failures/expense_ledger_failure_codes.dart';
 import 'package:horus_system/features/expenses/domain/repositories/expense_ledger_repository.dart';
 import 'package:horus_system/features/expenses/domain/usecases/can_manage_trip_attributed_expense_usecase.dart';
 import 'package:horus_system/features/expenses/domain/usecases/create_trip_expense_usecase.dart';
@@ -159,6 +164,100 @@ void main() {
     expect(latest.selectedTripDocuments, contains(_newDocument));
     expect(documents.reads, greaterThan(readsBeforeHint));
   });
+  test('financial hints coalesce and silently refresh selected ledger', () async {
+    final documents = _DocumentsRepository();
+    final ledger = _ExpensesRepository();
+    final cubit = _buildCubit(documents, expenseLedger: ledger);
+    addTearDown(cubit.close);
+    await cubit.loadTrips(_financeCompanyA);
+    await cubit.loadTripDetails(_tripA);
+
+    final originalReads = ledger.reads;
+    final delayed = Completer<Result<List<ExpenseLedgerEntry>>>();
+    ledger.pendingReads.add(delayed);
+
+    final refresh = cubit.refreshSelectedTripFinancialsFromRealtime();
+    await Future<void>.delayed(Duration.zero);
+    expect((cubit.state as TripsLoaded).isExpensesLoading, isFalse);
+
+    await cubit.refreshSelectedTripFinancialsFromRealtime();
+    final updated = _expense('new-financial-entry');
+    ledger.current = [updated];
+    delayed.complete(const Success([]));
+    await refresh;
+
+    final latest = cubit.state as TripsLoaded;
+    expect(ledger.reads, originalReads + 2);
+    expect(latest.selectedTripExpenses, [updated]);
+    expect(latest.selectedTrip?.id, _tripA.id);
+    expect(latest.isExpensesLoading, isFalse);
+  });
+
+  test('late financial hints cannot update another company session', () async {
+    final documents = _DocumentsRepository();
+    final ledger = _ExpensesRepository()..current = [_expense('old')];
+    final cubit = _buildCubit(documents, expenseLedger: ledger);
+    addTearDown(cubit.close);
+    await cubit.loadTrips(_financeCompanyA);
+    await cubit.loadTripDetails(_tripA);
+
+    final delayed = Completer<Result<List<ExpenseLedgerEntry>>>();
+    ledger.pendingReads.add(delayed);
+    final refresh = cubit.refreshSelectedTripFinancialsFromRealtime();
+    await Future<void>.delayed(Duration.zero);
+
+    await cubit.loadTrips(_companyB);
+    delayed.complete(Success([_expense('stale')]));
+    await refresh;
+
+    final latest = cubit.state as TripsLoaded;
+    expect(latest.currentCompanyContext.companyId, 'company-b');
+    expect(latest.selectedTripExpenses, isEmpty);
+    expect(latest.selectedTrip, isNull);
+  });
+
+  test('financial refresh clears stale entries on permission revocation', () async {
+    final ledger = _ExpensesRepository()..current = [_expense('old')];
+    final cubit = _buildCubit(
+      _DocumentsRepository(),
+      expenseLedger: ledger,
+    );
+    addTearDown(cubit.close);
+    await cubit.loadTrips(_financeCompanyA);
+    await cubit.loadTripDetails(_tripA);
+    expect((cubit.state as TripsLoaded).selectedTripExpenses, hasLength(1));
+
+    ledger.pendingResults.add(
+      const FailureResult<List<ExpenseLedgerEntry>>(
+        PermissionFailure(code: ExpenseLedgerFailureCodes.permissionView),
+      ),
+    );
+    await cubit.refreshSelectedTripFinancialsFromRealtime();
+
+    final current = cubit.state as TripsLoaded;
+    expect(current.selectedTripExpenses, isEmpty);
+    expect(current.selectedTripTotalExpenses, isNull);
+    expect(current.selectedTripNetProfit, isNull);
+    expect(
+      current.expensesFailure?.code,
+      ExpenseLedgerFailureCodes.permissionView,
+    );
+  });
+
+  test('operations never perform financial refresh', () async {
+    final ledger = _ExpensesRepository();
+    final cubit = _buildCubit(
+      _DocumentsRepository(),
+      expenseLedger: ledger,
+    );
+    addTearDown(cubit.close);
+    await cubit.loadTrips(_companyA);
+    await cubit.loadTripDetails(_tripA);
+
+    final reads = ledger.reads;
+    await cubit.refreshSelectedTripFinancialsFromRealtime();
+    expect(ledger.reads, reads);
+  });
 }
 
 const _companyA = CurrentCompanyContext(
@@ -170,6 +269,17 @@ const _companyA = CurrentCompanyContext(
     businessTimezone: 'UTC',
   ),
   role: CompanyRole.operations,
+);
+
+const _financeCompanyA = CurrentCompanyContext(
+  company: Company(
+    id: 'company-a',
+    name: 'Company A',
+    baseCurrencyCode: 'AED',
+    baseCurrencyFractionDigits: 2,
+    businessTimezone: 'UTC',
+  ),
+  role: CompanyRole.accountant,
 );
 
 const _companyB = CurrentCompanyContext(
@@ -206,10 +316,13 @@ TripDocument _document(String id) => TripDocument(
 final _oldDocument = _document('doc-old');
 final _newDocument = _document('doc-new');
 
-TripsCubit _buildCubit(_DocumentsRepository documents) {
+TripsCubit _buildCubit(
+  _DocumentsRepository documents, {
+  _ExpensesRepository? expenseLedger,
+}) {
   const converter = FakeBusinessTimeZoneConverter();
   final trips = _TripsRepository();
-  final expenses = _ExpensesRepository();
+  final expenses = expenseLedger ?? _ExpensesRepository();
   final types = _ExpenseTypesRepository();
 
   return TripsCubit(
@@ -322,13 +435,41 @@ final class _AuditRepository implements AuditLogRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+ExpenseLedgerEntry _expense(String id) => ExpenseLedgerEntry(
+  id: id,
+  companyId: 'company-a',
+  expenseTypeId: 'expense-type',
+  amount: Money(
+    minorUnits: 1250,
+    currency: CurrencyCode.tryParse('AED')!,
+  ),
+  currencyFractionDigits: 2,
+  expenseDate: BusinessDate(year: 2026, month: 10, day: 20),
+  fundingSource: ExpenseFundingSource.company,
+  attribution: const ExpenseAttribution(tripId: 'trip-a'),
+  isVoided: false,
+);
+
 final class _ExpensesRepository implements ExpenseLedgerRepository {
+  final Queue<Completer<Result<List<ExpenseLedgerEntry>>>> pendingReads =
+      Queue();
+  final Queue<Result<List<ExpenseLedgerEntry>>> pendingResults = Queue();
+  List<ExpenseLedgerEntry> current = [];
+  int reads = 0;
+
   @override
   Future<Result<List<ExpenseLedgerEntry>>> getEntriesForTrip({
     required String companyId,
     required String tripId,
     bool includeVoided = false,
-  }) async => const Success([]);
+  }) {
+    reads++;
+    if (pendingReads.isNotEmpty) return pendingReads.removeFirst().future;
+    if (pendingResults.isNotEmpty) {
+      return Future.value(pendingResults.removeFirst());
+    }
+    return Future.value(Success(List<ExpenseLedgerEntry>.of(current)));
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
