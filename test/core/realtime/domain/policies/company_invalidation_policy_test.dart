@@ -41,6 +41,8 @@ void main() {
     );
 
     expect(affected, contains(CompanyInvalidationResource.expenseLedger));
+    expect(affected, contains(CompanyInvalidationResource.driverBalances));
+    expect(affected, contains(CompanyInvalidationResource.settlementSources));
     expect(affected, contains(CompanyInvalidationResource.dashboard));
     expect(affected, contains(CompanyInvalidationResource.tripNetProfitReport));
     expect(affected, isNot(contains(CompanyInvalidationResource.trips)));
@@ -57,8 +59,8 @@ void main() {
 
     expect(affected, contains(CompanyInvalidationResource.tripFinancials));
     expect(affected, contains(CompanyInvalidationResource.trips));
-    expect(affected, contains(CompanyInvalidationResource.driverBalances));
-    expect(affected, contains(CompanyInvalidationResource.settlementSources));
+    expect(affected, isNot(contains(CompanyInvalidationResource.driverBalances)));
+    expect(affected, isNot(contains(CompanyInvalidationResource.settlementSources)));
     expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
   });
 

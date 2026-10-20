@@ -66,6 +66,8 @@ abstract final class CompanyInvalidationPolicy {
     },
     CompanyDataResource.expenseLedger: {
       CompanyInvalidationResource.expenseLedger,
+      CompanyInvalidationResource.driverBalances,
+      CompanyInvalidationResource.settlementSources,
       CompanyInvalidationResource.dashboard,
       CompanyInvalidationResource.tripExpensesReport,
       CompanyInvalidationResource.tripNetProfitReport,
@@ -73,8 +75,6 @@ abstract final class CompanyInvalidationPolicy {
     CompanyDataResource.tripExpenses: {
       CompanyInvalidationResource.tripFinancials,
       CompanyInvalidationResource.trips,
-      CompanyInvalidationResource.driverBalances,
-      CompanyInvalidationResource.settlementSources,
     },
     CompanyDataResource.companyExpenses: {
       CompanyInvalidationResource.companyExpenses,
