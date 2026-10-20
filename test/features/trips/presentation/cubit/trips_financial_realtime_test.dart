@@ -70,9 +70,9 @@ void main() {
     () async {
       final ledger = FakeExpensesRepository()..current = [expense('old')];
       final cubit = buildTripsRealtimeCubit(
-      FakeDocumentsRepository(),
-      expenseLedger: ledger,
-    );
+        FakeDocumentsRepository(),
+        expenseLedger: ledger,
+      );
       addTearDown(cubit.close);
       await cubit.loadTrips(financeCompanyA);
       await cubit.loadTripDetails(tripA);
@@ -99,9 +99,9 @@ void main() {
   test('operations never perform financial refresh', () async {
     final ledger = FakeExpensesRepository();
     final cubit = buildTripsRealtimeCubit(
-        FakeDocumentsRepository(),
-        expenseLedger: ledger,
-      );
+      FakeDocumentsRepository(),
+      expenseLedger: ledger,
+    );
     addTearDown(cubit.close);
     await cubit.loadTrips(companyA);
     await cubit.loadTripDetails(tripA);
