@@ -59,8 +59,14 @@ void main() {
 
     expect(affected, contains(CompanyInvalidationResource.tripFinancials));
     expect(affected, contains(CompanyInvalidationResource.trips));
-    expect(affected, isNot(contains(CompanyInvalidationResource.driverBalances)));
-    expect(affected, isNot(contains(CompanyInvalidationResource.settlementSources)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.driverBalances)),
+    );
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.settlementSources)),
+    );
     expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
   });
 
