@@ -29,6 +29,39 @@ abstract final class FinancialReadFixtures {
   static const finalizedDriver = 'finalized_driver';
 }
 
+typedef FinancialFixtureFetch = Future<List<Object?>?> Function(
+  String table,
+  Map<String, String> query,
+);
+
+// Resolve only IDs of existing, company-scoped Development fixtures.
+// Missing fixtures remain SKIP, not false security-test successes.
+Future<String?> readFinancialFixtureId({
+  required String fixture,
+  required String companyId,
+  required FinancialFixtureFetch fetch,
+}) async {
+  if (fixture != FinancialReadFixtures.customer &&
+      fixture != FinancialReadFixtures.finalizedDriver) {
+    return null;
+  }
+  final customer = fixture == FinancialReadFixtures.customer;
+  final rows = await fetch(customer ? 'customers' : 'driver_settlements', {
+    'select': customer ? 'id' : 'driver_id',
+    'company_id': 'eq.$companyId',
+    if (!customer) ...{
+      'status': 'eq.finalized',
+      'closing_driver_balance_minor_units': 'not.is.null',
+      'currency_code': 'not.is.null',
+      'currency_fraction_digits': 'not.is.null',
+    },
+    'limit': '1',
+  });
+  if (rows == null || rows.isEmpty || rows.first is! Map) return null;
+  final id = (rows.first as Map)[customer ? 'id' : 'driver_id'];
+  return id is String && id.isNotEmpty ? id : null;
+}
+
 abstract final class _RpcNames {
   static const operational = 'get_operational_trip_reports_source';
   static const expenses = 'get_trip_expenses_report_source';
