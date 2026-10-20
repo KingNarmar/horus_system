@@ -80,12 +80,13 @@ final class SupabaseCompanyDataChangesRemoteDataSource
       );
 
   @override
-  Stream<RealtimeChangeSignal> watchExpenseLedger({required String companyId}) =>
-      _watchResource(
-        companyId: companyId,
-        topic: RealtimeTopics.expenseLedger(companyId),
-        resource: RealtimeTopics.expenseLedgerResource,
-      );
+  Stream<RealtimeChangeSignal> watchExpenseLedger({
+    required String companyId,
+  }) => _watchResource(
+    companyId: companyId,
+    topic: RealtimeTopics.expenseLedger(companyId),
+    resource: RealtimeTopics.expenseLedgerResource,
+  );
 
   @override
   Stream<RealtimeChangeSignal> watchTripExpenses({required String companyId}) =>

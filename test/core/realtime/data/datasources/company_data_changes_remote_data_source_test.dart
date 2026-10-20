@@ -240,12 +240,12 @@ void main() {
     );
     final ledgerSignals = <RealtimeChangeSignal>[];
     final tripSignals = <RealtimeChangeSignal>[];
-    final ledgerSubscription = source.watchExpenseLedger(
-      companyId: 'company-a',
-    ).listen(ledgerSignals.add);
-    final tripSubscription = source.watchTripExpenses(
-      companyId: 'company-a',
-    ).listen(tripSignals.add);
+    final ledgerSubscription = source
+        .watchExpenseLedger(companyId: 'company-a')
+        .listen(ledgerSignals.add);
+    final tripSubscription = source
+        .watchTripExpenses(companyId: 'company-a')
+        .listen(tripSignals.add);
     await Future<void>.delayed(Duration.zero);
 
     expect(gateway.channels, hasLength(2));

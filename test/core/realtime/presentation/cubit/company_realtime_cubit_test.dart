@@ -44,26 +44,29 @@ void main() {
     },
   );
 
-  test('new session drops previously requested finance subscriptions', () async {
-    final repository = _ControllableRepository();
-    final cubit = CompanyRealtimeCubit(
-      watchChanges: WatchCompanyDataChangesUseCase(repository),
-    );
-    addTearDown(() async {
-      await cubit.close();
-      await repository.close();
-    });
+  test(
+    'new session drops previously requested finance subscriptions',
+    () async {
+      final repository = _ControllableRepository();
+      final cubit = CompanyRealtimeCubit(
+        watchChanges: WatchCompanyDataChangesUseCase(repository),
+      );
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
 
-    cubit.watchCompany(
-      'company-1',
-      additionalResources: const {CompanyDataResource.tripExpenses},
-    );
-    expect(repository.additionalResourcesByCompany['company-1'], {
-      CompanyDataResource.tripExpenses,
-    });
-    cubit.watchCompany('company-2');
-    expect(repository.additionalResourcesByCompany['company-2'], isEmpty);
-  });
+      cubit.watchCompany(
+        'company-1',
+        additionalResources: const {CompanyDataResource.tripExpenses},
+      );
+      expect(repository.additionalResourcesByCompany['company-1'], {
+        CompanyDataResource.tripExpenses,
+      });
+      cubit.watchCompany('company-2');
+      expect(repository.additionalResourcesByCompany['company-2'], isEmpty);
+    },
+  );
 
   test('failed prior channel cleanup emits typed failure', () async {
     final repository = _FailingCancellationRepository();
@@ -199,8 +202,7 @@ void main() {
 final class _ControllableRepository implements CompanyDataChangesRepository {
   final Map<String, StreamController<Result<CompanyDataChange>>> controllers =
       {};
-  final Map<String, Set<CompanyDataResource>> additionalResourcesByCompany =
-      {};
+  final Map<String, Set<CompanyDataResource>> additionalResourcesByCompany = {};
 
   @override
   Stream<Result<CompanyDataChange>> watchChanges({

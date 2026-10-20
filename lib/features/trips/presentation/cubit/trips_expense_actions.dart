@@ -124,8 +124,7 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       failure: (failure) =>
           owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
-    if (result.failureOrNull != null &&
-        owner._tripFinancialRefreshPending) {
+    if (result.failureOrNull != null && owner._tripFinancialRefreshPending) {
       unawaited(refreshSelectedTripFinancialsFromRealtime());
     }
   }
@@ -225,7 +224,8 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       return;
     }
     if (result is FailureResult<List<ExpenseLedgerEntry>>) {
-      final revoked = silent &&
+      final revoked =
+          silent &&
           (result.failure is AuthFailure ||
               result.failure is PermissionFailure);
       emit(

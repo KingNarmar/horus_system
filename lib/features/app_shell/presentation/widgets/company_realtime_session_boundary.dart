@@ -47,7 +47,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
           (realtimeCubitFactory ?? RealtimeDependencies.createCubit)()
             ..watchCompany(
               companyId,
-              additionalResources: TripsPermissionPolicy.canViewTripFinancials(role)
+              additionalResources:
+                  TripsPermissionPolicy.canViewTripFinancials(role)
                   ? const {
                       CompanyDataResource.expenseLedger,
                       CompanyDataResource.tripExpenses,

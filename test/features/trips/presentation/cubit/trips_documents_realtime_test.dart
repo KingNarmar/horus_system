@@ -164,34 +164,37 @@ void main() {
     expect(latest.selectedTripDocuments, contains(_newDocument));
     expect(documents.reads, greaterThan(readsBeforeHint));
   });
-  test('financial hints coalesce and silently refresh selected ledger', () async {
-    final documents = _DocumentsRepository();
-    final ledger = _ExpensesRepository();
-    final cubit = _buildCubit(documents, expenseLedger: ledger);
-    addTearDown(cubit.close);
-    await cubit.loadTrips(_financeCompanyA);
-    await cubit.loadTripDetails(_tripA);
+  test(
+    'financial hints coalesce and silently refresh selected ledger',
+    () async {
+      final documents = _DocumentsRepository();
+      final ledger = _ExpensesRepository();
+      final cubit = _buildCubit(documents, expenseLedger: ledger);
+      addTearDown(cubit.close);
+      await cubit.loadTrips(_financeCompanyA);
+      await cubit.loadTripDetails(_tripA);
 
-    final originalReads = ledger.reads;
-    final delayed = Completer<Result<List<ExpenseLedgerEntry>>>();
-    ledger.pendingReads.add(delayed);
+      final originalReads = ledger.reads;
+      final delayed = Completer<Result<List<ExpenseLedgerEntry>>>();
+      ledger.pendingReads.add(delayed);
 
-    final refresh = cubit.refreshSelectedTripFinancialsFromRealtime();
-    await Future<void>.delayed(Duration.zero);
-    expect((cubit.state as TripsLoaded).isExpensesLoading, isFalse);
+      final refresh = cubit.refreshSelectedTripFinancialsFromRealtime();
+      await Future<void>.delayed(Duration.zero);
+      expect((cubit.state as TripsLoaded).isExpensesLoading, isFalse);
 
-    await cubit.refreshSelectedTripFinancialsFromRealtime();
-    final updated = _expense('new-financial-entry');
-    ledger.current = [updated];
-    delayed.complete(const Success([]));
-    await refresh;
+      await cubit.refreshSelectedTripFinancialsFromRealtime();
+      final updated = _expense('new-financial-entry');
+      ledger.current = [updated];
+      delayed.complete(const Success([]));
+      await refresh;
 
-    final latest = cubit.state as TripsLoaded;
-    expect(ledger.reads, originalReads + 2);
-    expect(latest.selectedTripExpenses, [updated]);
-    expect(latest.selectedTrip?.id, _tripA.id);
-    expect(latest.isExpensesLoading, isFalse);
-  });
+      final latest = cubit.state as TripsLoaded;
+      expect(ledger.reads, originalReads + 2);
+      expect(latest.selectedTripExpenses, [updated]);
+      expect(latest.selectedTrip?.id, _tripA.id);
+      expect(latest.isExpensesLoading, isFalse);
+    },
+  );
 
   test('late financial hints cannot update another company session', () async {
     final documents = _DocumentsRepository();
@@ -216,40 +219,37 @@ void main() {
     expect(latest.selectedTrip, isNull);
   });
 
-  test('financial refresh clears stale entries on permission revocation', () async {
-    final ledger = _ExpensesRepository()..current = [_expense('old')];
-    final cubit = _buildCubit(
-      _DocumentsRepository(),
-      expenseLedger: ledger,
-    );
-    addTearDown(cubit.close);
-    await cubit.loadTrips(_financeCompanyA);
-    await cubit.loadTripDetails(_tripA);
-    expect((cubit.state as TripsLoaded).selectedTripExpenses, hasLength(1));
+  test(
+    'financial refresh clears stale entries on permission revocation',
+    () async {
+      final ledger = _ExpensesRepository()..current = [_expense('old')];
+      final cubit = _buildCubit(_DocumentsRepository(), expenseLedger: ledger);
+      addTearDown(cubit.close);
+      await cubit.loadTrips(_financeCompanyA);
+      await cubit.loadTripDetails(_tripA);
+      expect((cubit.state as TripsLoaded).selectedTripExpenses, hasLength(1));
 
-    ledger.pendingResults.add(
-      const FailureResult<List<ExpenseLedgerEntry>>(
-        PermissionFailure(code: ExpenseLedgerFailureCodes.permissionView),
-      ),
-    );
-    await cubit.refreshSelectedTripFinancialsFromRealtime();
+      ledger.pendingResults.add(
+        const FailureResult<List<ExpenseLedgerEntry>>(
+          PermissionFailure(code: ExpenseLedgerFailureCodes.permissionView),
+        ),
+      );
+      await cubit.refreshSelectedTripFinancialsFromRealtime();
 
-    final current = cubit.state as TripsLoaded;
-    expect(current.selectedTripExpenses, isEmpty);
-    expect(current.selectedTripTotalExpenses, isNull);
-    expect(current.selectedTripNetProfit, isNull);
-    expect(
-      current.expensesFailure?.code,
-      ExpenseLedgerFailureCodes.permissionView,
-    );
-  });
+      final current = cubit.state as TripsLoaded;
+      expect(current.selectedTripExpenses, isEmpty);
+      expect(current.selectedTripTotalExpenses, isNull);
+      expect(current.selectedTripNetProfit, isNull);
+      expect(
+        current.expensesFailure?.code,
+        ExpenseLedgerFailureCodes.permissionView,
+      );
+    },
+  );
 
   test('operations never perform financial refresh', () async {
     final ledger = _ExpensesRepository();
-    final cubit = _buildCubit(
-      _DocumentsRepository(),
-      expenseLedger: ledger,
-    );
+    final cubit = _buildCubit(_DocumentsRepository(), expenseLedger: ledger);
     addTearDown(cubit.close);
     await cubit.loadTrips(_companyA);
     await cubit.loadTripDetails(_tripA);
@@ -439,10 +439,7 @@ ExpenseLedgerEntry _expense(String id) => ExpenseLedgerEntry(
   id: id,
   companyId: 'company-a',
   expenseTypeId: 'expense-type',
-  amount: Money(
-    minorUnits: 1250,
-    currency: CurrencyCode.tryParse('AED')!,
-  ),
+  amount: Money(minorUnits: 1250, currency: CurrencyCode.tryParse('AED')!),
   currencyFractionDigits: 2,
   expenseDate: BusinessDate(year: 2026, month: 10, day: 20),
   fundingSource: ExpenseFundingSource.company,

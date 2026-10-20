@@ -44,7 +44,10 @@ void main() {
     expect(affected, contains(CompanyInvalidationResource.dashboard));
     expect(affected, contains(CompanyInvalidationResource.tripNetProfitReport));
     expect(affected, isNot(contains(CompanyInvalidationResource.trips)));
-    expect(affected, isNot(contains(CompanyInvalidationResource.tripFinancials)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripFinancials)),
+    );
   });
 
   test('trip-attributed Ledger mutation invalidates dependent Trip views', () {
