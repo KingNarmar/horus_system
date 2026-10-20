@@ -98,7 +98,10 @@ class TripsCubit extends Cubit<TripsState>
   int _detailsRequestGeneration = 0;
   int _statusHistoryRequestRevision = 0;
   int _activityRequestRevision = 0;
+  int _documentsLoadRevision = 0;
   int _tripMutationRevision = 0;
+  bool _documentsRealtimeRefreshInProgress = false;
+  bool _documentsRealtimeRefreshPending = false;
   bool _tripsRefreshInProgress = false;
   bool _tripsRefreshPending = false;
   bool _routeNamesRefreshInProgress = false;
@@ -139,6 +142,8 @@ class TripsCubit extends Cubit<TripsState>
   Future<void> loadTrips(CurrentCompanyContext currentCompanyContext) async {
     final requestGeneration = ++_companyRequestGeneration;
     _detailsRequestGeneration++;
+    _documentsLoadRevision++;
+    _documentsRealtimeRefreshPending = false;
     _currentCompanyContext = currentCompanyContext;
     final companyId = currentCompanyContext.companyId;
 

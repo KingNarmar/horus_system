@@ -7,6 +7,8 @@ mixin TripsDetailsActions on Cubit<TripsState> {
     if (current is! TripsLoaded) return;
 
     owner._beginDetailsRequest();
+    owner._documentsLoadRevision++;
+    owner._documentsRealtimeRefreshPending = false;
     emit(
       current.copyWith(
         selectedTrip: trip,
@@ -38,6 +40,9 @@ mixin TripsDetailsActions on Cubit<TripsState> {
       await owner._loadExpenseTypesIfNeeded();
     }
     await owner._loadSelectedTripDocuments(trip);
+    if (owner._documentsRealtimeRefreshPending) {
+      unawaited(owner.refreshSelectedTripDocumentsFromRealtime());
+    }
     await _loadSelectedTripStatusHistory(trip);
     await _loadSelectedTripActivity(trip);
   }
@@ -45,6 +50,8 @@ mixin TripsDetailsActions on Cubit<TripsState> {
   void clearTripDetails() {
     final owner = this as TripsCubit;
     owner._beginDetailsRequest();
+    owner._documentsLoadRevision++;
+    owner._documentsRealtimeRefreshPending = false;
 
     final current = state;
     if (current is TripsLoaded) {

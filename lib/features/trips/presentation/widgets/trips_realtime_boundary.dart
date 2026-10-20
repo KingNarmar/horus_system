@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,6 +56,22 @@ final class TripsRealtimeBoundary extends StatelessWidget {
         },
         child: MultiBlocListener(
           listeners: [
+            BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+              listenWhen: (previous, current) =>
+                  previous.companyId == currentCompanyContext.companyId &&
+                  current.companyId == currentCompanyContext.companyId &&
+                  previous.revisionFor(
+                        CompanyInvalidationResource.tripDocuments,
+                      ) !=
+                      current.revisionFor(
+                        CompanyInvalidationResource.tripDocuments,
+                      ),
+              listener: (context, _) => unawaited(
+                context
+                    .read<TripsCubit>()
+                    .refreshSelectedTripDocumentsFromRealtime(),
+              ),
+            ),
             BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
               listenWhen: (previous, current) =>
                   current.companyId == currentCompanyContext.companyId &&
