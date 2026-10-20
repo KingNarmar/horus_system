@@ -42,7 +42,6 @@ import 'package:horus_system/features/trips/domain/usecases/has_required_trip_ev
 import 'package:horus_system/features/trips/domain/usecases/trips_usecases.dart';
 import 'package:horus_system/features/trips/domain/value_objects/trip_number.dart';
 import 'package:horus_system/features/trips/presentation/cubit/trips_cubit.dart';
-import 'package:horus_system/features/trips/presentation/cubit/trips_state.dart';
 import '../../../../helpers/fake_business_time_zone_converter.dart';
 
 const companyA = CurrentCompanyContext(
