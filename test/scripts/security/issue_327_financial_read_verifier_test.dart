@@ -131,7 +131,7 @@ void main() {
     expect(outcomes, contains(isFalse));
   });
 
-  test('fixture lookup is company-scoped and requires canonical settlement', () async {
+  test('fixture lookup requires canonical settlement', () async {
     final id = await readFinancialFixtureId(
       fixture: FinancialReadFixtures.finalizedDriver,
       companyId: ownCompany,
