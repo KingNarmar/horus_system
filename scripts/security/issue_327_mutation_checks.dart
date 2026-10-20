@@ -89,18 +89,50 @@ abstract final class MutationPreflightChecks {
   static bool isolatedRoute(
     Object? rows,
     MutationFixtureIds ids,
+    String expectedCreator, {
+    required Object? creationAudits,
+  }) {
+    if (rows is! List || rows.length != 1 || rows.single is! Map) {
+      return false;
+    }
+    final row = rows.single as Map;
+    final createdBy = row['created_by'];
+    return row['id'] == ids.routeId &&
+        row['company_id'] == ids.companyId &&
+        row['notes'] == ids.marker &&
+        (createdBy == null || createdBy == expectedCreator) &&
+        row['is_active'] == true &&
+        _timestamp(row['updated_at']) &&
+        _routeCreationAudit(creationAudits, ids, expectedCreator);
+  }
+
+  static bool _routeCreationAudit(
+    Object? rows,
+    MutationFixtureIds ids,
     String expectedCreator,
   ) {
     if (rows is! List || rows.length != 1 || rows.single is! Map) {
       return false;
     }
-    final row = rows.single as Map;
-    return row['id'] == ids.routeId &&
-        row['company_id'] == ids.companyId &&
-        row['notes'] == ids.marker &&
-        row['created_by'] == expectedCreator &&
-        row['is_active'] == true &&
-        _timestamp(row['updated_at']);
+    final audit = rows.single as Map;
+    final newValues = audit['new_values'];
+    final metadata = audit['metadata'];
+    return audit['company_id'] == ids.companyId &&
+        audit['module'] == 'routes' &&
+        audit['entity_type'] == 'route' &&
+        audit['entity_id'] == ids.routeId &&
+        audit['action'] == 'created' &&
+        audit['actor_user_id'] == expectedCreator &&
+        (audit['actor_role'] == 'owner' ||
+            audit['actor_role'] == 'admin') &&
+        audit['old_values'] == null &&
+        newValues is Map &&
+        newValues['id'] == ids.routeId &&
+        newValues['company_id'] == ids.companyId &&
+        newValues['notes'] == ids.marker &&
+        metadata is Map &&
+        metadata['audit_event'] == 'route_created' &&
+        _timestamp(audit['created_at']);
   }
 
   static bool isolatedTrip(

@@ -212,6 +212,17 @@ Future<void> main(List<String> args) async {
         'company_id': 'eq.${ids.companyId}',
         'id': 'eq.${ids.routeId}',
       }, jwt);
+      final routeCreationAudits = await client.read('audit_logs', {
+        'select': 'company_id,module,entity_type,entity_id,action,'
+            'actor_user_id,actor_role,old_values,new_values,metadata,'
+            'created_at',
+        'company_id': 'eq.${ids.companyId}',
+        'entity_id': 'eq.${ids.routeId}',
+        'module': 'eq.routes',
+        'entity_type': 'eq.route',
+        'action': 'eq.created',
+        'limit': '2',
+      }, jwt);
       final tripColumns = 'id,company_id,route_id,notes,created_by,'
           'invoice_id,quantity_tons,updated_at';
       final trip = await client.read('trips', {
@@ -226,10 +237,14 @@ Future<void> main(List<String> args) async {
       }, jwt);
 
       final routeOk = _reportCheck(
-        'isolated tagged Route belongs to signed-in creator',
+        'isolated tagged Route has verified server creation audit',
         route.ok &&
+            routeCreationAudits.ok &&
             MutationPreflightChecks.isolatedRoute(
-              route.body, ids, userId,
+              route.body,
+              ids,
+              userId,
+              creationAudits: routeCreationAudits.body,
             ),
       );
       final tripOk = _reportCheck(
