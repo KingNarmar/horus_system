@@ -78,11 +78,7 @@ final class _FakeGateway implements MutationGateway {
       'actor_user_id': _owner,
       'actor_role': 'owner',
       'old_values': null,
-      'new_values': {
-        'id': _route,
-        'company_id': _company,
-        'notes': _marker,
-      },
+      'new_values': {'id': _route, 'company_id': _company, 'notes': _marker},
       'metadata': {'audit_event': 'route_created'},
       'created_at': '2026-10-20T08:00:00+00:00',
     },
@@ -92,38 +88,44 @@ final class _FakeGateway implements MutationGateway {
 
   @override
   Future<MutationRpcReply> get(
-    String jwt, String table, Map<String, String> query,
+    String jwt,
+    String table,
+    Map<String, String> query,
   ) async {
     final List<Object?> rows;
     switch (table) {
       case 'company_users':
         rows = [
           {
-            'user_id': _owner, 'role': 'owner',
-            'company_id': _company, 'is_active': true,
+            'user_id': _owner,
+            'role': 'owner',
+            'company_id': _company,
+            'is_active': true,
           },
           if (role != 'owner')
             {
-              'user_id': _actor, 'role': role,
-              'company_id': _company, 'is_active': true,
+              'user_id': _actor,
+              'role': role,
+              'company_id': _company,
+              'is_active': true,
             },
-        ].where((r) => r['user_id'] == query['user_id']?.substring(3))
-            .toList();
+        ].where((r) => r['user_id'] == query['user_id']?.substring(3)).toList();
       case 'routes':
         rows = [route];
       case 'trips':
-        rows = [
-          if (query['id'] == 'eq.' + _trip) trip else billed,
-        ];
+        rows = [if (query['id'] == 'eq.' + _trip) trip else billed];
       case 'invoices':
         rows = [
           {'id': _invoice, 'company_id': _company, 'status': 'issued'},
         ];
       case 'audit_logs':
-        rows = audit.where((r) =>
-            r['entity_id'] == query['entity_id']?.substring(3) &&
-            (query['action'] == null ||
-             r['action'] == query['action']?.substring(3)))
+        rows = audit
+            .where(
+              (r) =>
+                  r['entity_id'] == query['entity_id']?.substring(3) &&
+                  (query['action'] == null ||
+                      r['action'] == query['action']?.substring(3)),
+            )
             .toList();
       default:
         throw StateError('Fake received unsupported table.');
@@ -138,13 +140,14 @@ final class _FakeGateway implements MutationGateway {
 
   @override
   Future<MutationRpcReply> rpc(
-    String jwt, String function, Map<String, Object?> arguments,
+    String jwt,
+    String function,
+    Map<String, Object?> arguments,
   ) async {
     if (function == 'get_authorized_trip_records') {
-      return MutationRpcReply(
-        200,
-        [_clone(arguments['p_trip_id'] == _trip ? trip : billed)],
-      );
+      return MutationRpcReply(200, [
+        _clone(arguments['p_trip_id'] == _trip ? trip : billed),
+      ]);
     }
     if (function == 'get_authorized_route_records') {
       return MutationRpcReply(200, [_clone(route)]);
@@ -154,26 +157,26 @@ final class _FakeGateway implements MutationGateway {
     final target = isTrip ? trip : route;
     final requested = num.parse(
       (arguments[isTrip
-          ? 'p_agreed_freight_rate_per_ton'
-          : 'p_default_freight_rate'] as String),
+              ? 'p_agreed_freight_rate_per_ton'
+              : 'p_default_freight_rate']
+          as String),
     );
 
-    if (arguments['p_company_id'] == _foreign || role == 'operations' ||
-        role == 'viewer' || role == 'driver') {
+    if (arguments['p_company_id'] == _foreign ||
+        role == 'operations' ||
+        role == 'viewer' ||
+        role == 'driver') {
       return const MutationRpcReply(403, {'code': 'P3431'});
     }
     if (arguments['p_trip_id'] == _billed) {
       return const MutationRpcReply(409, {'code': 'P3436'});
     }
     if (arguments['p_expected_updated_at'] != target['updated_at']) {
-      return MutationRpcReply(
-        409, {'code': isTrip ? 'P3414' : 'P3440'},
-      );
+      return MutationRpcReply(409, {'code': isTrip ? 'P3414' : 'P3440'});
     }
     final old = Map<String, Object?>.from(target);
-    target[isTrip
-        ? 'agreed_freight_rate_per_ton'
-        : 'default_freight_price'] = requested;
+    target[isTrip ? 'agreed_freight_rate_per_ton' : 'default_freight_price'] =
+        requested;
     if (isTrip) target['freight_price'] = requested * 10;
     target['updated_at'] = '2026-10-20T09:01:00+00:00';
     audit.add({
@@ -190,8 +193,7 @@ final class _FakeGateway implements MutationGateway {
     });
     return MutationRpcReply(
       200,
-      _clone(maliciousResponse
-          ? {...target, 'company_id': _foreign} : target),
+      _clone(maliciousResponse ? {...target, 'company_id': _foreign} : target),
     );
   }
 
@@ -223,24 +225,30 @@ Future<MutationRunResult> _run(
 
 void main() {
   test('roles and amounts are fixed to explicit case matrix', () {
-    expect(const MutationRunSpec(
-      MutationCase.tripRate, 'accountant', '26.00',
-    ).valid, isTrue);
-    expect(const MutationRunSpec(
-      MutationCase.deniedTrip, 'owner', '26.00',
-    ).valid, isFalse);
-    expect(const MutationRunSpec(
-      MutationCase.tripRate, 'operations', '26.00',
-    ).valid, isFalse);
-    expect(const MutationRunSpec(
-      MutationCase.tripRate, 'owner', '1000',
-    ).valid, isFalse);
-    expect(const MutationRunSpec(
-      MutationCase.tripRate, 'owner', '-1',
-    ).valid, isFalse);
-    expect(const MutationRunSpec(
-      MutationCase.tripRate, 'owner', '1.234',
-    ).valid, isFalse);
+    expect(
+      const MutationRunSpec(MutationCase.tripRate, 'accountant', '26.00').valid,
+      isTrue,
+    );
+    expect(
+      const MutationRunSpec(MutationCase.deniedTrip, 'owner', '26.00').valid,
+      isFalse,
+    );
+    expect(
+      const MutationRunSpec(MutationCase.tripRate, 'operations', '26.00').valid,
+      isFalse,
+    );
+    expect(
+      const MutationRunSpec(MutationCase.tripRate, 'owner', '1000').valid,
+      isFalse,
+    );
+    expect(
+      const MutationRunSpec(MutationCase.tripRate, 'owner', '-1').valid,
+      isFalse,
+    );
+    expect(
+      const MutationRunSpec(MutationCase.tripRate, 'owner', '1.234').valid,
+      isFalse,
+    );
   });
 
   test('unsafe fixture prevents all mutations', () async {
@@ -263,9 +271,7 @@ void main() {
 
   test('signed-JWT owner pricing checks response, state and audit', () async {
     final gateway = _FakeGateway('owner');
-    final result = await _run(
-      gateway, MutationCase.tripRate, 'owner',
-    );
+    final result = await _run(gateway, MutationCase.tripRate, 'owner');
     expect(result.passed, isTrue);
     expect(gateway.writes, 1);
     expect(gateway.trip['agreed_freight_rate_per_ton'], 26);
@@ -274,7 +280,9 @@ void main() {
   test('accountant Route pricing uses finance-only RPC', () async {
     final gateway = _FakeGateway('accountant');
     final result = await _run(
-      gateway, MutationCase.routeRate, 'accountant',
+      gateway,
+      MutationCase.routeRate,
+      'accountant',
       rate: '11.00',
     );
     expect(result.passed, isTrue);
@@ -285,7 +293,9 @@ void main() {
   test('invoiced lock does not touch trip, invoice or audit', () async {
     final gateway = _FakeGateway('owner');
     final result = await _run(
-      gateway, MutationCase.invoicedTrip, 'owner',
+      gateway,
+      MutationCase.invoicedTrip,
+      'owner',
       rate: '31.00',
     );
     expect(result.passed, isTrue);
@@ -294,14 +304,9 @@ void main() {
   });
 
   test('stale Trip and Route fail without audit writes', () async {
-    for (final testCase in [
-      MutationCase.staleTrip, MutationCase.staleRoute,
-    ]) {
+    for (final testCase in [MutationCase.staleTrip, MutationCase.staleRoute]) {
       final gateway = _FakeGateway('owner');
-      final result = await _run(
-        gateway, testCase, 'owner',
-        rate: '11.00',
-      );
+      final result = await _run(gateway, testCase, 'owner', rate: '11.00');
       expect(result.passed, isTrue);
       expect(gateway.writes, 1);
       expect(gateway.audit.length, 1);
@@ -316,38 +321,28 @@ void main() {
       MutationCase.directRoute,
     ]) {
       final gateway = _FakeGateway('operations');
-      final result = await _run(
-        gateway, testCase, 'operations',
-        rate: '11.00',
-      );
+      final result = await _run(gateway, testCase, 'operations', rate: '11.00');
       expect(result.passed, isTrue);
       expect(gateway.writes, 1);
       expect(gateway.audit.length, 1);
     }
   });
 
-  test('foreign-tenant company argument is rejected before changes',
-      () async {
+  test('foreign-tenant company argument is rejected before changes', () async {
     for (final testCase in [
-      MutationCase.foreignTrip, MutationCase.foreignRoute,
+      MutationCase.foreignTrip,
+      MutationCase.foreignRoute,
     ]) {
       final gateway = _FakeGateway('owner');
-      final result = await _run(
-        gateway, testCase, 'owner',
-        rate: '11.00',
-      );
+      final result = await _run(gateway, testCase, 'owner', rate: '11.00');
       expect(result.passed, isTrue);
       expect(gateway.audit.length, 1);
     }
   });
 
-  test('forged success response fails even when server changed data',
-      () async {
-    final gateway = _FakeGateway('owner')
-      ..maliciousResponse = true;
-    final result = await _run(
-      gateway, MutationCase.tripRate, 'owner',
-    );
+  test('forged success response fails even when server changed data', () async {
+    final gateway = _FakeGateway('owner')..maliciousResponse = true;
+    final result = await _run(gateway, MutationCase.tripRate, 'owner');
     expect(result.passed, isFalse);
   });
 }
