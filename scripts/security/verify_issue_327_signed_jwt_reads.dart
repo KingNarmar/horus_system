@@ -3,11 +3,11 @@
 // Run with real role-specific users. No requests modify business data.
 //
 // Required environment: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
-// HORUS_327_COMPANY_ID, HORUS_327_FOREIGN_COMPANY_ID.
+// HORUS_327_COMPANY_A_ID, HORUS_327_COMPANY_B_ID.
 // Run: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart
 //
-// The six accounts must be active in the first company, and NOT members of
-// the foreign company. Existing priced Trips/Routes are required for positive
+// Each account must be active in exactly one of the two test companies, and
+// not a member of the other. Existing priced Trips/Routes are required for positive
 // finance-read assertions. No passwords, JWTs, amounts or responses are logged.
 
 import 'dart:convert';
@@ -203,32 +203,45 @@ bool _projectionAllowed(
   ); // Positive financial visibility must be demonstrated.
 }
 
-Future<bool> _verifyActiveMembership(
+Future<String?> _activeCompanyForRole(
   _Api api,
   String jwt,
   String userId,
-  String companyId,
   String expectedRole,
+  String companyAId,
+  String companyBId,
 ) async {
   final reply = await api.table('company_users', {
-    'select': 'role,is_active',
-    'company_id': 'eq.$companyId',
+    'select': 'role,is_active,company_id',
     'user_id': 'eq.$userId',
   }, jwt: jwt);
-  if (!reply.ok || reply.body is! List) return false;
-  final rows = reply.body! as List;
-  return rows.length == 1 &&
-      rows.single is Map &&
-      rows.single['role'] == expectedRole &&
-      rows.single['is_active'] == true;
+  if (!reply.ok || reply.body is! List) return null;
+
+  final members = (reply.body! as List).whereType<Map>().where(
+    (row) => row['is_active'] == true,
+  ).toList();
+  final expected = members.where(
+    (row) =>
+        row['role'] == expectedRole &&
+        (row['company_id'] == companyAId ||
+            row['company_id'] == companyBId),
+  ).toList();
+  if (expected.length != 1) return null;
+
+  final companyId = expected.single['company_id'] as String;
+  final foreignId = companyId == companyAId ? companyBId : companyAId;
+  if (members.any((row) => row['company_id'] == foreignId)) {
+    return null; // A cross-tenant negative test requires no foreign membership.
+  }
+  return companyId;
 }
 
 Future<void> _checkRole(
   _Api api,
   _Results results,
   String role,
-  String companyId,
-  String foreignCompanyId,
+  String companyAId,
+  String companyBId,
 ) async {
   final email = _readEmail(role);
   if (email == null) {
@@ -255,20 +268,25 @@ Future<void> _checkRole(
     stdout.writeln('FAIL  $role session missing signed user JWT');
     return;
   }
-  final member = await _verifyActiveMembership(
+  final companyId = await _activeCompanyForRole(
     api,
     jwt,
     user['id'] as String,
-    companyId,
     role,
+    companyAId,
+    companyBId,
   );
-  if (!member) {
+  if (companyId == null) {
     results.failed++;
-    stdout.writeln('FAIL  $role identity/active membership mismatch');
+    stdout.writeln(
+      'FAIL  $role role or company membership unsuitable for isolation test',
+    );
     return;
   }
+  final foreignCompanyId =
+      companyId == companyAId ? companyBId : companyAId;
   results.passed++;
-  stdout.writeln('PASS  $role active role validated against database');
+  stdout.writeln('PASS  $role active role and tenant verified on server');
 
   final finance = role == 'owner' || role == 'admin' || role == 'accountant';
   final driver = role == 'driver';
@@ -340,11 +358,11 @@ Future<void> main() async {
     throw StateError('Refusing any target other than H.O.R.U.S Development.');
   }
   final key = _requiredEnv('SUPABASE_PUBLISHABLE_KEY');
-  final companyId = _requiredEnv('HORUS_327_COMPANY_ID');
-  final foreignId = _requiredEnv('HORUS_327_FOREIGN_COMPANY_ID');
-  if (!_uuidPattern.hasMatch(companyId) ||
-      !_uuidPattern.hasMatch(foreignId) ||
-      companyId.toLowerCase() == foreignId.toLowerCase()) {
+  final companyAId = _requiredEnv('HORUS_327_COMPANY_A_ID');
+  final companyBId = _requiredEnv('HORUS_327_COMPANY_B_ID');
+  if (!_uuidPattern.hasMatch(companyAId) ||
+      !_uuidPattern.hasMatch(companyBId) ||
+      companyAId.toLowerCase() == companyBId.toLowerCase()) {
     throw StateError('Valid, distinct Development company UUIDs required.');
   }
   if (!stdin.hasTerminal) {
@@ -360,12 +378,12 @@ Future<void> main() async {
           'limit': '1',
         })));
     await results.check('anonymous Trip RPC denied', () async {
-      final response = await api.rpc('get_authorized_trip_records', companyId);
+      final response = await api.rpc('get_authorized_trip_records', companyAId);
       return response.status == 401 || response.status == 403;
     });
     for (final role in _roles) {
       try {
-        await _checkRole(api, results, role, companyId, foreignId);
+        await _checkRole(api, results, role, companyAId, companyBId);
       } catch (_) {
         results.failed++;
         stdout.writeln('FAIL  $role unexpected request error (details suppressed)');
