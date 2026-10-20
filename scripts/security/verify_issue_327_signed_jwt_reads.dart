@@ -175,10 +175,17 @@ bool _directDenied(_Reply reply) =>
     reply.body is Map &&
     (reply.body! as Map)['code'] == '42501';
 
-bool _rpcDenied(_Reply reply) =>
-    !reply.ok &&
-    reply.body is Map &&
-    (reply.body! as Map)['code'] == 'P3411';
+bool _rpcDenied(_Reply reply, String rpcName) {
+  final expectedCode = switch (rpcName) {
+    'get_authorized_trip_records' => 'P3433',
+    'get_authorized_route_records' => 'P3434',
+    _ => null,
+  };
+  return expectedCode != null &&
+      !reply.ok &&
+      reply.body is Map &&
+      (reply.body! as Map)['code'] == expectedCode;
+}
 
 bool _projectionAllowed(
   _Reply reply,
@@ -324,7 +331,7 @@ Future<void> _checkRole(
     await results.check('$role ${entry.key} projection', () async {
       final response = await api.rpc(entry.key, companyId, jwt: jwt);
       return driver
-          ? _rpcDenied(response)
+          ? _rpcDenied(response, entry.key)
           : _projectionAllowed(response, companyId, finance, entry.value);
     });
     await results.check('$role ${entry.key} foreign tenant denial', () async {
@@ -333,7 +340,7 @@ Future<void> _checkRole(
         foreignCompanyId,
         jwt: jwt,
       );
-      return _rpcDenied(response);
+      return _rpcDenied(response, entry.key);
     });
   }
 
