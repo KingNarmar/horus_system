@@ -113,7 +113,10 @@ void main() {
     ];
     expect(
       MutationPreflightChecks.activeAuthorizedMember(
-        membership, actorId, companyId, foreignId,
+        membership,
+        actorId,
+        companyId,
+        foreignId,
       ),
       isTrue,
     );
@@ -132,11 +135,7 @@ void main() {
       MutationPreflightChecks.activeAuthorizedMember(
         [
           ...membership,
-          {
-            ...membership.single,
-            'company_id': foreignId,
-            'role': 'viewer',
-          },
+          {...membership.single, 'company_id': foreignId, 'role': 'viewer'},
         ],
         actorId,
         companyId,
@@ -200,7 +199,9 @@ void main() {
     );
     expect(
       MutationPreflightChecks.isolatedTrip(
-        [trip(billed: true)], fixtures, actorId,
+        [trip(billed: true)],
+        fixtures,
+        actorId,
       ),
       isFalse,
     );
@@ -299,7 +300,9 @@ void main() {
     };
     expect(
       MutationRpcChecks.operationalSnapshot(
-        MutationRpcReply(200, redacted), companyId, tripId,
+        MutationRpcReply(200, redacted),
+        companyId,
+        tripId,
       ),
       isTrue,
     );
@@ -331,15 +334,18 @@ void main() {
     };
     expect(
       MutationRpcChecks.financeSnapshot(
-        MutationRpcReply(200, response), companyId, tripId,
+        MutationRpcReply(200, response),
+        companyId,
+        tripId,
       ),
       isTrue,
     );
     expect(
       MutationRpcChecks.financeSnapshot(
-        MutationRpcReply(
-          200, {...response, 'agreed_freight_rate_per_ton': null},
-        ),
+        MutationRpcReply(200, {
+          ...response,
+          'agreed_freight_rate_per_ton': null,
+        }),
         companyId,
         tripId,
       ),
@@ -350,26 +356,29 @@ void main() {
   test('read-after-denial must detect nested data changes', () {
     final before = {
       'updated_at': 'old',
-      'financial': {'rate': 10, 'expenses': [1, 2]},
+      'financial': {
+        'rate': 10,
+        'expenses': [1, 2],
+      },
     };
     expect(
-      MutationRpcChecks.unchanged(
-        before,
-        {
-          'financial': {'expenses': [1, 2], 'rate': 10},
-          'updated_at': 'old',
+      MutationRpcChecks.unchanged(before, {
+        'financial': {
+          'expenses': [1, 2],
+          'rate': 10,
         },
-      ),
+        'updated_at': 'old',
+      }),
       isTrue,
     );
     expect(
-      MutationRpcChecks.unchanged(
-        before,
-        {
-          'updated_at': 'new',
-          'financial': {'rate': 10, 'expenses': [1, 2]},
+      MutationRpcChecks.unchanged(before, {
+        'updated_at': 'new',
+        'financial': {
+          'rate': 10,
+          'expenses': [1, 2],
         },
-      ),
+      }),
       isFalse,
     );
   });
@@ -409,7 +418,10 @@ void main() {
     expect(
       MutationRpcChecks.financialAudit(
         [
-          {...audit, 'new_values': {'commercial_amount': 10}},
+          {
+            ...audit,
+            'new_values': {'commercial_amount': 10},
+          },
         ],
         companyId: companyId,
         tripId: tripId,
