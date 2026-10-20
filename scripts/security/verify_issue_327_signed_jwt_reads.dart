@@ -310,7 +310,12 @@ Future<void> _checkRole(
         {
           'select': isCustomer ? 'id' : 'driver_id',
           'company_id': 'eq.$companyId',
-          if (!isCustomer) 'status': 'eq.finalized',
+          if (!isCustomer) ...{
+            'status': 'eq.finalized',
+            'closing_driver_balance_minor_units': 'not.is.null',
+            'currency_code': 'not.is.null',
+            'currency_fraction_digits': 'not.is.null',
+          },
           'limit': '1',
         },
         jwt: jwt,
