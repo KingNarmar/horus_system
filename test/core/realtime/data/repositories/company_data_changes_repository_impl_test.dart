@@ -150,13 +150,13 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
       );
 
   late final StreamController<RealtimeChangeSignal> expenseLedger =
-      StreamController<RealtimeChangeSignal>(
+      StreamController<RealtimeChangeSignal>.broadcast(
         sync: true,
         onCancel: () => expenseLedgerCanceled = true,
       );
 
   late final StreamController<RealtimeChangeSignal> tripExpenses =
-      StreamController<RealtimeChangeSignal>(
+      StreamController<RealtimeChangeSignal>.broadcast(
         sync: true,
         onCancel: () => tripExpensesCanceled = true,
       );
