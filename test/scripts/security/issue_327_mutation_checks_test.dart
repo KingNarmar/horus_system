@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../scripts/security/issue_327_mutation_checks.dart';
+import '../../../scripts/security/verify_issue_327_mutations.dart' as preflight;
 
 void main() {
   const companyId = '00000000-0000-0000-0000-000000000001';
@@ -40,6 +41,40 @@ void main() {
     'invoice_id': billed ? invoiceId : null,
     'updated_at': '2026-10-20T09:00:00+00:00',
   };
+
+  test('preflight has no executable write mode', () {
+    expect(preflight.main, isNotNull); // Compiles the network CLI in CI.
+    expect(MutationPreflightGate.allowsArguments(['--preflight']), isTrue);
+    expect(MutationPreflightGate.allowsArguments(['--execute']), isFalse);
+    expect(MutationPreflightGate.allowsArguments([]), isFalse);
+    expect(
+      MutationPreflightGate.allowsArguments(['--preflight', '--execute']),
+      isFalse,
+    );
+  });
+
+  test('host guard rejects Production, lookalikes and URL tricks', () {
+    expect(
+      MutationPreflightGate.isDevelopmentOrigin(
+        Uri.parse('https://zwnfmszssxtfxkaofnhq.supabase.co'),
+      ),
+      isTrue,
+    );
+    for (final url in [
+      'https://rkhmfbxlduuovlbsxhgy.supabase.co',
+      'https://zwnfmszssxtfxkaofnhq.supabase.co.evil.example',
+      'http://zwnfmszssxtfxkaofnhq.supabase.co',
+      'https://zwnfmszssxtfxkaofnhq.supabase.co:444',
+      'https://user@zwnfmszssxtfxkaofnhq.supabase.co',
+      'https://zwnfmszssxtfxkaofnhq.supabase.co/auth/v1',
+      'https://zwnfmszssxtfxkaofnhq.supabase.co?redirect=1',
+    ]) {
+      expect(
+        MutationPreflightGate.isDevelopmentOrigin(Uri.parse(url)),
+        isFalse,
+      );
+    }
+  });
 
   test('requires distinct valid tenant and fixture IDs with unique marker', () {
     expect(fixtures.valid, isTrue);
