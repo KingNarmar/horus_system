@@ -4,7 +4,8 @@
 //
 // Required environment: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
 // HORUS_327_COMPANY_A_ID, HORUS_327_COMPANY_B_ID.
-// Run: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart
+// Run all: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart
+// Run one: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart --role=owner
 //
 // Each account must be active in exactly one of the two test companies, and
 // not a member of the other. Existing priced Trips/Routes are required for positive
@@ -357,7 +358,20 @@ Future<void> _checkRole(
   }
 }
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  if (args.length > 1 ||
+      (args.isNotEmpty && !args.single.startsWith('--role='))) {
+    stderr.writeln('Usage: verify_issue_327_signed_jwt_reads.dart [--role=<role>]');
+    exitCode = 64;
+    return;
+  }
+  final selectedRole = args.isEmpty ? null : args.single.substring(7);
+  if (selectedRole != null && !_roles.contains(selectedRole)) {
+    stderr.writeln('Unknown test role. Use one of: ${_roles.join(', ')}');
+    exitCode = 64;
+    return;
+  }
+
   final url = Uri.parse(_requiredEnv('SUPABASE_URL'));
   if (url.scheme != 'https' || url.host != _devHost ||
       (url.path.isNotEmpty && url.path != '/') ||
@@ -389,6 +403,7 @@ Future<void> main() async {
       return response.status == 401 || response.status == 403;
     });
     for (final role in _roles) {
+      if (selectedRole != null && role != selectedRole) continue;
       try {
         await _checkRole(api, results, role, companyAId, companyBId);
       } catch (_) {
