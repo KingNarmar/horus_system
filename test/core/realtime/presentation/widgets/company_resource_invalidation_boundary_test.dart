@@ -112,7 +112,10 @@ final class _ChangeRepository implements CompanyDataChangesRepository {
       {};
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
     final controller = StreamController<Result<CompanyDataChange>>.broadcast(
       sync: true,
     );
