@@ -99,8 +99,8 @@ void main() {
     return outcomes;
   }
 
-  test('owner and accountant can read authorized financial RPC contracts', () async {
-    for (final role in ['owner', 'accountant']) {
+  test('finance roles can read authorized financial RPCs', () async {
+    for (final role in ['owner', 'admin', 'accountant']) {
       final outcomes = await runRole(role);
       expect(outcomes, hasLength(16));
       expect(outcomes, everyElement(isTrue));
