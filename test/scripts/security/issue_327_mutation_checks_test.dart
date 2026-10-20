@@ -240,7 +240,9 @@ void main() {
   test('invoiced fixture must be separately tagged and actually linked', () {
     expect(
       MutationPreflightChecks.isolatedInvoicedTrip(
-        [trip(billed: true)], fixtures, actorId,
+        [trip(billed: true)],
+        fixtures,
+        actorId,
       ),
       isTrue,
     );
