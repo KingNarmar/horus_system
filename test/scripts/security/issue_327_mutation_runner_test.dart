@@ -113,7 +113,7 @@ final class _FakeGateway implements MutationGateway {
       case 'routes':
         rows = [route];
       case 'trips':
-        rows = [if (query['id'] == 'eq.' + _trip) trip else billed];
+        rows = [if (query['id'] == 'eq.${_trip}') trip else billed];
       case 'invoices':
         rows = [
           {'id': _invoice, 'company_id': _company, 'status': 'issued'},

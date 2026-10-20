@@ -107,7 +107,7 @@ final class Issue327MutationRunner {
 
     final observerMembership = await _rows(observerJwt, 'company_users', {
       'select': 'company_id,user_id,role,is_active',
-      'user_id': 'eq.' + observerId,
+      'user_id': 'eq.${observerId}',
     });
     if (!MutationPreflightChecks.activeAuthorizedMember(
       observerMembership, observerId, fixture.companyId,
@@ -117,7 +117,7 @@ final class Issue327MutationRunner {
     }
     final actorMembership = await _rows(actorJwt, 'company_users', {
       'select': 'company_id,user_id,role,is_active',
-      'user_id': 'eq.' + actorId,
+      'user_id': 'eq.${actorId}',
     });
     if (!_actorMembership(
       actorMembership, actorId, fixture, spec.role,
@@ -127,14 +127,14 @@ final class Issue327MutationRunner {
 
     final route = await _rows(observerJwt, 'routes', {
       'select': 'id,company_id,notes,created_by,is_active,updated_at',
-      'company_id': 'eq.' + fixture.companyId,
-      'id': 'eq.' + fixture.routeId,
+      'company_id': 'eq.${fixture.companyId}',
+      'id': 'eq.${fixture.routeId}',
     });
     final routeAudits = await _rows(observerJwt, 'audit_logs', {
       'select': 'company_id,module,entity_type,entity_id,action,'
           'actor_user_id,actor_role,old_values,new_values,metadata,created_at',
-      'company_id': 'eq.' + fixture.companyId,
-      'entity_id': 'eq.' + fixture.routeId,
+      'company_id': 'eq.${fixture.companyId}',
+      'entity_id': 'eq.${fixture.routeId}',
       'module': 'eq.routes',
       'entity_type': 'eq.route',
       'action': 'eq.created',
@@ -144,13 +144,13 @@ final class Issue327MutationRunner {
         'invoice_id,quantity_tons,updated_at';
     final trip = await _rows(observerJwt, 'trips', {
       'select': tripColumns,
-      'company_id': 'eq.' + fixture.companyId,
-      'id': 'eq.' + fixture.tripId,
+      'company_id': 'eq.${fixture.companyId}',
+      'id': 'eq.${fixture.tripId}',
     });
     final invoicedTrip = await _rows(observerJwt, 'trips', {
       'select': tripColumns,
-      'company_id': 'eq.' + fixture.companyId,
-      'id': 'eq.' + fixture.invoicedTripId,
+      'company_id': 'eq.${fixture.companyId}',
+      'id': 'eq.${fixture.invoicedTripId}',
     });
     if (!MutationPreflightChecks.isolatedRoute(
           route, fixture, observerId, creationAudits: routeAudits,
@@ -182,14 +182,14 @@ final class Issue327MutationRunner {
     }
 
     final invoiceId = spec.testCase == MutationCase.invoicedTrip
-        ? (invoicedTrip.single as Map)['invoice_id'] as String
+        ? invoicedTrip.single['invoice_id'] as String
         : null;
     final invoiceBefore = invoiceId == null
         ? null
         : await _rows(observerJwt, 'invoices', {
             'select': '*',
-            'company_id': 'eq.' + fixture.companyId,
-            'id': 'eq.' + invoiceId,
+            'company_id': 'eq.${fixture.companyId}',
+            'id': 'eq.${invoiceId}',
           });
     if (invoiceId != null && invoiceBefore!.length != 1) {
       throw StateError('Invoiced fixture invoice is not readable.');
@@ -216,8 +216,8 @@ final class Issue327MutationRunner {
         actorJwt,
         table,
         {
-          'company_id': 'eq.' + fixture.companyId,
-          'id': 'eq.' + targetId,
+          'company_id': 'eq.${fixture.companyId}',
+          'id': 'eq.${targetId}',
         },
         {rateField: num.parse(spec.rate)},
       );
@@ -250,8 +250,8 @@ final class Issue327MutationRunner {
     if (invoiceId != null) {
       final invoiceAfter = await _rows(observerJwt, 'invoices', {
         'select': '*',
-        'company_id': 'eq.' + fixture.companyId,
-        'id': 'eq.' + invoiceId,
+        'company_id': 'eq.${fixture.companyId}',
+        'id': 'eq.${invoiceId}',
       });
       if (!MutationRpcChecks.unchanged(invoiceBefore, invoiceAfter)) {
         return const MutationRunResult(false, 'invoice changed');
@@ -342,8 +342,8 @@ final class Issue327MutationRunner {
   ) => _rows(jwt, 'audit_logs', {
     'select': 'id,company_id,module,entity_type,entity_id,action,'
         'actor_user_id,old_values,new_values,metadata',
-    'company_id': 'eq.' + ids.companyId,
-    'entity_id': 'eq.' + recordId,
+    'company_id': 'eq.${ids.companyId}',
+    'entity_id': 'eq.${recordId}',
     'order': 'id.asc',
     'limit': '1000',
   });

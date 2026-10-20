@@ -113,7 +113,7 @@ final class _BoundedDevGateway implements MutationGateway {
     request.headers.set('apikey', publishableKey);
     request.headers.set('Accept', 'application/json');
     if (jwt != null) {
-      request.headers.set('Authorization', 'Bearer ' + jwt);
+      request.headers.set('Authorization', 'Bearer $jwt');
     }
     if (data != null) {
       request.headers.contentType = ContentType.json;
@@ -160,7 +160,7 @@ final class _BoundedDevGateway implements MutationGateway {
     }.contains(table) || jwt.isEmpty) {
       throw StateError('Read not explicitly allowed.');
     }
-    return _send('GET', '/rest/v1/' + table, jwt: jwt, query: query);
+    return _send('GET', '/rest/v1/$table', jwt: jwt, query: query);
   }
 
   @override
@@ -207,7 +207,7 @@ final class _BoundedDevGateway implements MutationGateway {
       throw StateError('RPC is not allowed.');
     }
     return _send(
-      'POST', '/rest/v1/rpc/' + function,
+      'POST', '/rest/v1/rpc/$function',
       jwt: jwt, data: arguments,
     );
   }
@@ -224,14 +224,14 @@ final class _BoundedDevGateway implements MutationGateway {
     final record = table == 'trips' ? fixture.tripId : fixture.routeId;
     if (jwt.isEmpty || !{'trips', 'routes'}.contains(table) ||
         query.length != 2 ||
-        query['company_id'] != 'eq.' + fixture.companyId ||
-        query['id'] != 'eq.' + record ||
+        query['company_id'] != 'eq.${fixture.companyId}' ||
+        query['id'] != 'eq.${record}' ||
         values.length != 1 ||
         values[field] != num.parse(spec.rate)) {
       throw StateError('Direct mutation outside financial fixture.');
     }
     return _send(
-      'PATCH', '/rest/v1/' + table,
+      'PATCH', '/rest/v1/$table',
       jwt: jwt, query: query, data: values,
     );
   }
@@ -272,12 +272,12 @@ Future<void> main(List<String> args) async {
     }
 
     stdout.writeln('DEVELOPMENT MUTATION TEST — explicit approval required');
-    stdout.writeln('Case: ' + spec.testCase.name + ', role: ' + spec.role);
+    stdout.writeln('Case: ${spec.testCase.name}, role: ${spec.role}');
     final confirmation = _readLine(
       'Type EXECUTE + fixture marker + case name, separated by spaces: ',
     );
     if (confirmation !=
-        'EXECUTE ' + fixture.marker + ' ' + spec.testCase.name) {
+        'EXECUTE ${fixture.marker} ${spec.testCase.name}') {
       throw StateError('Operator confirmation missing.');
     }
 
@@ -291,7 +291,7 @@ Future<void> main(List<String> args) async {
     if (spec.role == 'owner' || spec.role == 'admin') {
       actor = observer;
     } else {
-      final actorEmail = _readLine('Actor ' + spec.role + ' email: ');
+      final actorEmail = _readLine('Actor ${spec.role} email: ');
       if (actorEmail.isEmpty) throw StateError('Actor required.');
       actor = await gateway.signIn(actorEmail, _secret());
     }
@@ -305,7 +305,7 @@ Future<void> main(List<String> args) async {
       actorId: actor.id,
     );
     stdout.writeln(
-      (result.passed ? 'PASS  ' : 'FAIL  ') + result.check,
+      '${result.passed ? 'PASS  ' : 'FAIL  '}${result.check}',
     );
     if (!result.passed) exitCode = 1;
   } catch (_) {
