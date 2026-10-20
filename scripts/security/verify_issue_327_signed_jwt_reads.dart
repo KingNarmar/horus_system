@@ -6,6 +6,7 @@
 // HORUS_327_COMPANY_A_ID, HORUS_327_COMPANY_B_ID.
 // Run all: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart
 // Run one: dart run scripts/security/verify_issue_327_signed_jwt_reads.dart --role=owner
+// Financial RPCs only: append --suite=financial (does not rerun Trip/Route tests).
 //
 // Each account must be active in exactly one of the two test companies, and
 // not a member of the other. Existing priced Trips/Routes are required for positive
@@ -13,6 +14,8 @@
 
 import 'dart:convert';
 import 'dart:io';
+
+import 'issue_327_financial_read_verifier.dart';
 
 const _devHost = 'zwnfmszssxtfxkaofnhq.supabase.co';
 const _roles = [
@@ -92,6 +95,13 @@ class _Api {
         jwt: jwt,
         body: {'p_company_id': companyId},
       );
+
+  Future<_Reply> rpcParams(
+    String name,
+    Map<String, Object?> params, {
+    String? jwt,
+  }) =>
+      send('POST', '/rest/v1/rpc/$name', jwt: jwt, body: params);
 
   void close() => _client.close(force: true);
 }
@@ -250,6 +260,7 @@ Future<void> _checkRole(
   String role,
   String companyAId,
   String companyBId,
+  String suite,
 ) async {
   final email = _readEmail(role);
   if (email == null) {
@@ -295,6 +306,41 @@ Future<void> _checkRole(
       companyId == companyAId ? companyBId : companyAId;
   results.passed++;
   stdout.writeln('PASS  $role active role and tenant verified on server');
+
+  if (suite == 'financial') {
+    Future<String?> findFixture(String fixture) async {
+      final isCustomer = fixture == FinancialReadFixtures.customer;
+      final reply = await api.table(
+        isCustomer ? 'customers' : 'driver_settlements',
+        {
+          'select': isCustomer ? 'id' : 'driver_id',
+          'company_id': 'eq.$companyId',
+          if (!isCustomer) 'status': 'eq.finalized',
+          'limit': '1',
+        },
+        jwt: jwt,
+      );
+      if (!reply.ok || reply.body is! List) return null;
+      final rows = reply.body! as List;
+      if (rows.isEmpty || rows.first is! Map) return null;
+      final value = (rows.first as Map)[isCustomer ? 'id' : 'driver_id'];
+      return value is String && _uuidPattern.hasMatch(value) ? value : null;
+    }
+
+    await verifyFinancialReadAccess(
+      role: role,
+      companyId: companyId,
+      foreignCompanyId: foreignCompanyId,
+      rpc: (name, params) async {
+        final response = await api.rpcParams(name, params, jwt: jwt);
+        return FinancialRpcReply(response.status, response.body);
+      },
+      check: results.check,
+      skip: results.skip,
+      fixtureId: findFixture,
+    );
+    return;
+  }
 
   final finance = role == 'owner' || role == 'admin' || role == 'accountant';
   final driver = role == 'driver';
@@ -359,13 +405,32 @@ Future<void> _checkRole(
 }
 
 Future<void> main(List<String> args) async {
-  if (args.length > 1 ||
-      (args.isNotEmpty && !args.single.startsWith('--role='))) {
-    stderr.writeln('Usage: verify_issue_327_signed_jwt_reads.dart [--role=<role>]');
+  String? selectedRole;
+  var suite = 'trip-route';
+  for (final arg in args) {
+    if (arg.startsWith('--role=')) {
+      if (selectedRole != null) {
+        stderr.writeln('Role may only be selected once.');
+        exitCode = 64;
+        return;
+      }
+      selectedRole = arg.substring('--role='.length);
+    } else if (arg.startsWith('--suite=')) {
+      suite = arg.substring('--suite='.length);
+    } else {
+      stderr.writeln(
+        'Usage: verify_issue_327_signed_jwt_reads.dart '
+        '[--role=<role>] [--suite=trip-route|financial]',
+      );
+      exitCode = 64;
+      return;
+    }
+  }
+  if (suite != 'trip-route' && suite != 'financial') {
+    stderr.writeln('Unknown suite. Use trip-route or financial.');
     exitCode = 64;
     return;
   }
-  final selectedRole = args.isEmpty ? null : args.single.substring(7);
   if (selectedRole != null && !_roles.contains(selectedRole)) {
     stderr.writeln('Unknown test role. Use one of: ${_roles.join(', ')}');
     exitCode = 64;
@@ -393,19 +458,38 @@ Future<void> main(List<String> args) async {
   final api = _Api(url, key);
   final results = _Results();
   try {
-    await results.check('anonymous Trip projection denied', () async =>
-        _directDenied(await api.table('trips', {
-          'select': 'freight_price',
-          'limit': '1',
-        })));
-    await results.check('anonymous Trip RPC denied', () async {
-      final response = await api.rpc('get_authorized_trip_records', companyAId);
-      return response.status == 401 || response.status == 403;
-    });
+    if (suite == 'financial') {
+      for (final name in [
+        'get_dashboard_source',
+        'get_operational_trip_reports_source',
+        'get_trip_net_profit_report_source',
+      ]) {
+        await results.check('anonymous $name denied', () async {
+          final response = await api.rpcParams(name, {
+            'p_company_id': companyAId,
+            if (name != 'get_dashboard_source') ...{
+              'p_from_date': null,
+              'p_to_date': null,
+            },
+          });
+          return response.status == 401 || response.status == 403;
+        });
+      }
+    } else {
+      await results.check('anonymous Trip projection denied', () async =>
+          _directDenied(await api.table('trips', {
+            'select': 'freight_price',
+            'limit': '1',
+          })));
+      await results.check('anonymous Trip RPC denied', () async {
+        final response = await api.rpc('get_authorized_trip_records', companyAId);
+        return response.status == 401 || response.status == 403;
+      });
+    }
     for (final role in _roles) {
       if (selectedRole != null && role != selectedRole) continue;
       try {
-        await _checkRole(api, results, role, companyAId, companyBId);
+        await _checkRole(api, results, role, companyAId, companyBId, suite);
       } catch (_) {
         results.failed++;
         stdout.writeln('FAIL  $role unexpected request error (details suppressed)');
