@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -177,6 +178,40 @@ void main() {
         expect(latest.selectedDriverId, _driverId);
         expect(latest.movements, hasLength(2));
         expect(latest.balance?.netBalance, -5700);
+      },
+    );
+
+    test(
+      'transient realtime error keeps selected balances and form failures',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        financeRepository.movementsFailure = const UnexpectedFailure();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final failed = cubit.state as DriverFinanceLoaded;
+        expect(failed.movements.single.id, 'movement-1');
+        expect(failed.balance?.netBalance, -5600);
+        expect(failed.failure, isNull);
+        expect(failed.realtimeRefreshFailure?.code, 'unexpected_error');
+
+        financeRepository.movementsFailure = null;
+        await cubit.refreshDriverFinanceFromRealtime();
+        final recovered = cubit.state as DriverFinanceLoaded;
+        expect(recovered.realtimeRefreshFailure, isNull);
+        expect(recovered.balance?.netBalance, -5700);
       },
     );
 
@@ -419,6 +454,7 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final DriverFinancialMovement? addedMovement;
   final Completer<void>? mutationBarrier;
   Completer<void>? movementsBarrier;
+  UnexpectedFailure? movementsFailure;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -436,6 +472,10 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   }) async {
     final barrier = movementsBarrier;
     if (barrier != null) await barrier.future;
+    final failure = movementsFailure;
+    if (failure != null) {
+      return FailureResult<List<DriverFinancialMovement>>(failure);
+    }
     return Success(List.unmodifiable(movements));
   }
 
