@@ -50,18 +50,20 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
 
     final drivers = result.dataOrNull ?? const <Driver>[];
     final selectedId = latest.selectedDriverId;
-    final retainsSelection = selectedId == null ||
-        drivers.any((driver) => driver.id == selectedId);
+    final retainsSelection =
+        selectedId == null || drivers.any((driver) => driver.id == selectedId);
     if (!retainsSelection) owner._detailsRequestId++;
-    emit(latest.copyWith(
-      drivers: List.unmodifiable(drivers),
-      selectedDriverId: retainsSelection ? selectedId : null,
-      movements: retainsSelection ? latest.movements : const [],
-      balance: retainsSelection ? latest.balance : null,
-      tripOptions: retainsSelection ? latest.tripOptions : const [],
-      isDetailsLoading: retainsSelection ? latest.isDetailsLoading : false,
-      failure: null,
-    ));
+    emit(
+      latest.copyWith(
+        drivers: List.unmodifiable(drivers),
+        selectedDriverId: retainsSelection ? selectedId : null,
+        movements: retainsSelection ? latest.movements : const [],
+        balance: retainsSelection ? latest.balance : null,
+        tripOptions: retainsSelection ? latest.tripOptions : const [],
+        isDetailsLoading: retainsSelection ? latest.isDetailsLoading : false,
+        failure: null,
+      ),
+    );
   }
 
   /// Serializes burst invalidations. On permission failures do not retain
@@ -142,17 +144,19 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
     if (_handleRealtimeFailure(balance.failureOrNull)) return;
 
     final latest = state as DriverFinanceLoaded;
-    emit(latest.copyWith(
-      movements: List.unmodifiable(
-        movements.dataOrNull ?? const <DriverFinancialMovement>[],
+    emit(
+      latest.copyWith(
+        movements: List.unmodifiable(
+          movements.dataOrNull ?? const <DriverFinancialMovement>[],
+        ),
+        tripOptions: List.unmodifiable(
+          options.dataOrNull ?? const <DriverFinanceTripOption>[],
+        ),
+        balance: balance.dataOrNull,
+        isDetailsLoading: false,
+        failure: null,
       ),
-      tripOptions: List.unmodifiable(
-        options.dataOrNull ?? const <DriverFinanceTripOption>[],
-      ),
-      balance: balance.dataOrNull,
-      isDetailsLoading: false,
-      failure: null,
-    ));
+    );
   }
 
   bool _handleRealtimeFailure(Failure? failure) {
