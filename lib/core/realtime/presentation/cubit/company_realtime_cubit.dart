@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../errors/common_failures.dart';
 import '../../../errors/failure_codes.dart';
 import '../../../logging/app_logger.dart';
+import '../../domain/entities/company_data_change.dart';
 import '../../domain/policies/company_invalidation_policy.dart';
 import '../../domain/usecases/watch_company_data_changes_usecase.dart';
 import 'company_realtime_state.dart';
@@ -20,7 +21,10 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
     : _watchChanges = watchChanges,
       super(const CompanyRealtimeState(companyId: ''));
 
-  void watchCompany(String companyId) {
+  void watchCompany(
+    String companyId, {
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
     final generation = ++_watchGeneration;
     final previousSubscription = _subscription;
     if (previousSubscription != null) {
@@ -43,7 +47,10 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
 
     _subscription =
         _watchChanges(
-          WatchCompanyDataChangesParams(companyId: companyId),
+          WatchCompanyDataChangesParams(
+            companyId: companyId,
+            additionalResources: additionalResources,
+          ),
         ).listen(
           (result) {
             if (isClosed || generation != _watchGeneration) return;

@@ -7,8 +7,12 @@ import '../repositories/company_data_changes_repository.dart';
 
 final class WatchCompanyDataChangesParams {
   final String companyId;
+  final Set<CompanyDataResource> additionalResources;
 
-  const WatchCompanyDataChangesParams({required this.companyId});
+  const WatchCompanyDataChangesParams({
+    required this.companyId,
+    this.additionalResources = const {},
+  });
 }
 
 final class WatchCompanyDataChangesUseCase
@@ -27,6 +31,9 @@ final class WatchCompanyDataChangesUseCase
         ),
       );
     }
-    return _repository.watchChanges(companyId: companyId);
+    return _repository.watchChanges(
+      companyId: companyId,
+      additionalResources: params.additionalResources,
+    );
   }
 }

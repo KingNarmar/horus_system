@@ -100,6 +100,8 @@ class TripsCubit extends Cubit<TripsState>
   int _activityRequestRevision = 0;
   int _documentsLoadRevision = 0;
   int _tripMutationRevision = 0;
+  bool _tripFinancialRefreshInProgress = false;
+  bool _tripFinancialRefreshPending = false;
   bool _documentsRealtimeRefreshInProgress = false;
   bool _documentsRealtimeRefreshPending = false;
   bool _tripsRefreshInProgress = false;
@@ -144,6 +146,7 @@ class TripsCubit extends Cubit<TripsState>
     _detailsRequestGeneration++;
     _documentsLoadRevision++;
     _documentsRealtimeRefreshPending = false;
+    _tripFinancialRefreshPending = false;
     _currentCompanyContext = currentCompanyContext;
     final companyId = currentCompanyContext.companyId;
 

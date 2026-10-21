@@ -66,13 +66,15 @@ abstract final class CompanyInvalidationPolicy {
     },
     CompanyDataResource.expenseLedger: {
       CompanyInvalidationResource.expenseLedger,
-      CompanyInvalidationResource.tripFinancials,
-      CompanyInvalidationResource.trips,
       CompanyInvalidationResource.driverBalances,
       CompanyInvalidationResource.settlementSources,
       CompanyInvalidationResource.dashboard,
       CompanyInvalidationResource.tripExpensesReport,
       CompanyInvalidationResource.tripNetProfitReport,
+    },
+    CompanyDataResource.tripExpenses: {
+      CompanyInvalidationResource.tripFinancials,
+      CompanyInvalidationResource.trips,
     },
     CompanyDataResource.companyExpenses: {
       CompanyInvalidationResource.companyExpenses,

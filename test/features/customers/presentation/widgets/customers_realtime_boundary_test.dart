@@ -103,6 +103,41 @@ void main() {
     expect(cubits.last.isClosed, isTrue);
   });
 
+  testWidgets('only finance roles request financial private topics', (
+    tester,
+  ) async {
+    final repository = _TrackingRepository();
+    Widget app(CompanyRole role) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: CompanyRealtimeSessionBoundary(
+        companyId: 'company-a',
+        role: role,
+        userId: 'user-1',
+        realtimeCubitFactory: () => CompanyRealtimeCubit(
+          watchChanges: WatchCompanyDataChangesUseCase(repository),
+        ),
+        child: CustomersRealtimeBoundary(
+          currentCompanyContext: _context('company-a'),
+          child: const SizedBox.shrink(),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(app(CompanyRole.accountant));
+    expect(repository.requestedResources.last, {
+      CompanyDataResource.expenseLedger,
+      CompanyDataResource.tripExpenses,
+    });
+
+    await tester.pumpWidget(app(CompanyRole.operations));
+    expect(repository.requestedResources.last, isEmpty);
+
+    await tester.pumpWidget(app(CompanyRole.viewer));
+    expect(repository.requestedResources.last, isEmpty);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('driver role cannot open the Customers Broadcast topic', (
     tester,
   ) async {
@@ -131,11 +166,18 @@ CurrentCompanyContext _context(String companyId) => CurrentCompanyContext(
 final class _TrackingRepository implements CompanyDataChangesRepository {
   final List<String> watched = [];
   final List<String> cancelled = [];
+  final List<Set<CompanyDataResource>> requestedResources = [];
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
     final controller = StreamController<Result<CompanyDataChange>>(
-      onListen: () => watched.add(companyId),
+      onListen: () {
+        watched.add(companyId);
+        requestedResources.add(additionalResources);
+      },
       onCancel: () => cancelled.add(companyId),
     );
     return controller.stream;

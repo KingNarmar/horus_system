@@ -44,6 +44,30 @@ void main() {
     },
   );
 
+  test(
+    'new session drops previously requested finance subscriptions',
+    () async {
+      final repository = _ControllableRepository();
+      final cubit = CompanyRealtimeCubit(
+        watchChanges: WatchCompanyDataChangesUseCase(repository),
+      );
+      addTearDown(() async {
+        await cubit.close();
+        await repository.close();
+      });
+
+      cubit.watchCompany(
+        'company-1',
+        additionalResources: const {CompanyDataResource.tripExpenses},
+      );
+      expect(repository.additionalResourcesByCompany['company-1'], {
+        CompanyDataResource.tripExpenses,
+      });
+      cubit.watchCompany('company-2');
+      expect(repository.additionalResourcesByCompany['company-2'], isEmpty);
+    },
+  );
+
   test('failed prior channel cleanup emits typed failure', () async {
     final repository = _FailingCancellationRepository();
     final cubit = CompanyRealtimeCubit(
@@ -178,9 +202,14 @@ void main() {
 final class _ControllableRepository implements CompanyDataChangesRepository {
   final Map<String, StreamController<Result<CompanyDataChange>>> controllers =
       {};
+  final Map<String, Set<CompanyDataResource>> additionalResourcesByCompany = {};
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
+    additionalResourcesByCompany[companyId] = additionalResources;
     final controller = StreamController<Result<CompanyDataChange>>.broadcast(
       sync: true,
     );
@@ -215,7 +244,10 @@ final class _FailingCancellationRepository
   const _FailingCancellationRepository({this.failAll = false});
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
     final controller = StreamController<Result<CompanyDataChange>>(
       onCancel: () async {
         if (failAll || companyId == 'company-1') {

@@ -1,6 +1,81 @@
 part of 'trips_cubit.dart';
 
 mixin TripsExpenseActions on Cubit<TripsState> {
+  /// Reconcile only the selected Trip's ledger and profit projections.
+  /// A pending hint survives local mutations and loading, and stale reads
+  /// cannot replace a different Trip or a different company session.
+  Future<void> refreshSelectedTripFinancialsFromRealtime() async {
+    final owner = this as TripsCubit;
+    if (owner.isClosed) return;
+    final current = state;
+    if (current is! TripsLoaded ||
+        !current.canViewTripFinancials ||
+        current.selectedTrip == null) {
+      return;
+    }
+
+    owner._tripFinancialRefreshPending = true;
+    if (owner._tripFinancialRefreshInProgress ||
+        current.isTripExpenseMutating ||
+        current.isExpensesLoading ||
+        current.isDetailsLoading) {
+      return;
+    }
+
+    owner._tripFinancialRefreshInProgress = true;
+    try {
+      while (owner._tripFinancialRefreshPending && !owner.isClosed) {
+        final latest = state;
+        if (latest is! TripsLoaded ||
+            !latest.canViewTripFinancials ||
+            latest.selectedTrip == null) {
+          owner._tripFinancialRefreshPending = false;
+          break;
+        }
+        if (latest.isTripExpenseMutating ||
+            latest.isExpensesLoading ||
+            latest.isDetailsLoading) {
+          break;
+        }
+
+        owner._tripFinancialRefreshPending = false;
+        final trip = latest.selectedTrip!;
+        final companyGeneration = owner._companyRequestGeneration;
+        final detailsGeneration = owner._detailsRequestGeneration;
+        final companyId = latest.currentCompanyContext.companyId;
+
+        await _loadSelectedTripExpenses(trip, silent: true);
+        if (!owner._isCurrentDetailsRequest(
+          companyGeneration: companyGeneration,
+          detailsGeneration: detailsGeneration,
+          companyId: companyId,
+          tripId: trip.id,
+        )) {
+          continue;
+        }
+        final afterExpenses = state as TripsLoaded;
+        if (afterExpenses.isTripExpenseMutating) {
+          owner._tripFinancialRefreshPending = true;
+          break;
+        }
+        await owner._loadSelectedTripActivity(trip);
+      }
+    } finally {
+      owner._tripFinancialRefreshInProgress = false;
+      final latest = state;
+      if (!owner.isClosed &&
+          owner._tripFinancialRefreshPending &&
+          latest is TripsLoaded &&
+          latest.selectedTrip != null &&
+          latest.canViewTripFinancials &&
+          !latest.isTripExpenseMutating &&
+          !latest.isExpensesLoading &&
+          !latest.isDetailsLoading) {
+        unawaited(refreshSelectedTripFinancialsFromRealtime());
+      }
+    }
+  }
+
   Future<void> createTripExpense({
     required String tripId,
     required ExpenseType expenseType,
@@ -49,6 +124,9 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       failure: (failure) =>
           owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
+    if (result.failureOrNull != null && owner._tripFinancialRefreshPending) {
+      unawaited(refreshSelectedTripFinancialsFromRealtime());
+    }
   }
 
   Future<void> voidTripExpense({
@@ -91,6 +169,9 @@ mixin TripsExpenseActions on Cubit<TripsState> {
       failure: (failure) =>
           owner._mapLoaded((state) => state.copyWith(expensesFailure: failure)),
     );
+    if (result.failureOrNull != null && owner._tripFinancialRefreshPending) {
+      unawaited(refreshSelectedTripFinancialsFromRealtime());
+    }
   }
 
   Future<void> _refreshSelectedTripExpenseContext(String tripId) async {
@@ -103,9 +184,15 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     await owner._loadSelectedTripDetails(selectedTrip);
     await owner._recalculateSelectedTripFinancials();
     await owner._loadSelectedTripActivity(selectedTrip);
+    if (owner._tripFinancialRefreshPending) {
+      unawaited(refreshSelectedTripFinancialsFromRealtime());
+    }
   }
 
-  Future<void> _loadSelectedTripExpenses(TripEntity trip) async {
+  Future<void> _loadSelectedTripExpenses(
+    TripEntity trip, {
+    bool silent = false,
+  }) async {
     final owner = this as TripsCubit;
     final current = state;
     if (current is! TripsLoaded || current.selectedTrip?.id != trip.id) return;
@@ -114,7 +201,9 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     final detailsGeneration = owner._detailsRequestGeneration;
     final companyId = current.currentCompanyContext.companyId;
 
-    emit(current.copyWith(isExpensesLoading: true, expensesFailure: null));
+    if (!silent) {
+      emit(current.copyWith(isExpensesLoading: true, expensesFailure: null));
+    }
 
     final result = await owner.getTripExpenseLedgerEntriesUseCase(
       GetTripExpenseLedgerEntriesParams(
@@ -133,9 +222,26 @@ mixin TripsExpenseActions on Cubit<TripsState> {
     }
 
     final latestState = state as TripsLoaded;
+    if (silent && latestState.isTripExpenseMutating) {
+      owner._tripFinancialRefreshPending = true;
+      return;
+    }
     if (result is FailureResult<List<ExpenseLedgerEntry>>) {
+      final revoked =
+          silent &&
+          (result.failure is AuthFailure ||
+              result.failure is PermissionFailure);
       emit(
         latestState.copyWith(
+          selectedTripExpenses: revoked
+              ? const <ExpenseLedgerEntry>[]
+              : latestState.selectedTripExpenses,
+          selectedTripTotalExpenses: revoked
+              ? null
+              : latestState.selectedTripTotalExpenses,
+          selectedTripNetProfit: revoked
+              ? null
+              : latestState.selectedTripNetProfit,
           isExpensesLoading: false,
           expensesFailure: result.failure,
         ),

@@ -29,14 +29,36 @@ void main() {
     expect(result.dataOrNull?.companyId, 'company-1');
     expect(result.dataOrNull?.resource, CompanyDataResource.customers);
   });
+
+  test(
+    'passes requested finance resources without coupling to roles',
+    () async {
+      final repository = _FakeChangesRepository();
+      final useCase = WatchCompanyDataChangesUseCase(repository);
+      await useCase(
+        const WatchCompanyDataChangesParams(
+          companyId: 'company-1',
+          additionalResources: {CompanyDataResource.tripExpenses},
+        ),
+      ).single;
+      expect(repository.lastAdditionalResources, {
+        CompanyDataResource.tripExpenses,
+      });
+    },
+  );
 }
 
 final class _FakeChangesRepository implements CompanyDataChangesRepository {
   int watchCount = 0;
   String? lastCompanyId;
+  Set<CompanyDataResource> lastAdditionalResources = const {};
 
   @override
-  Stream<Result<CompanyDataChange>> watchChanges({required String companyId}) {
+  Stream<Result<CompanyDataChange>> watchChanges({
+    required String companyId,
+    Set<CompanyDataResource> additionalResources = const {},
+  }) {
+    lastAdditionalResources = additionalResources;
     watchCount++;
     lastCompanyId = companyId;
     return Stream.value(

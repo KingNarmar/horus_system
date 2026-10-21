@@ -233,6 +233,54 @@ void main() {
     },
   );
 
+  test('financial topics use distinct private scoped payloads', () async {
+    final gateway = _FakeGateway();
+    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+      gateway,
+    );
+    final ledgerSignals = <RealtimeChangeSignal>[];
+    final tripSignals = <RealtimeChangeSignal>[];
+    final ledgerSubscription = source
+        .watchExpenseLedger(companyId: 'company-a')
+        .listen(ledgerSignals.add);
+    final tripSubscription = source
+        .watchTripExpenses(companyId: 'company-a')
+        .listen(tripSignals.add);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(gateway.channels, hasLength(2));
+    final ledger = gateway.channels[0];
+    final tripExpenses = gateway.channels[1];
+    expect(ledger.topic, RealtimeTopics.expenseLedger('company-a'));
+    expect(tripExpenses.topic, RealtimeTopics.tripExpenses('company-a'));
+
+    ledger.onMessage({
+      'payload': {'company_id': 'company-b', 'resource': 'expense_ledger'},
+    });
+    ledger.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'trip_expenses'},
+    });
+    ledger.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
+    });
+    tripExpenses.onMessage({
+      'payload': {'company_id': 'company-b', 'resource': 'trip_expenses'},
+    });
+    tripExpenses.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
+    });
+    tripExpenses.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'trip_expenses'},
+    });
+    await Future<void>.delayed(Duration.zero);
+
+    expect(ledgerSignals, [RealtimeChangeSignal.changed]);
+    expect(tripSignals, [RealtimeChangeSignal.changed]);
+    await ledgerSubscription.cancel();
+    await tripSubscription.cancel();
+    expect(gateway.removed, [ledger, tripExpenses]);
+  });
+
   test('Drivers topic accepts only current-company Drivers hints', () async {
     final gateway = _FakeGateway();
     final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(

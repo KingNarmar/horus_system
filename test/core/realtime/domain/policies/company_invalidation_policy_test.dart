@@ -35,16 +35,39 @@ void main() {
     expect(affected, {CompanyInvalidationResource.fleetLicenseDocuments});
   });
 
-  test('canonical ledger affects trip, driver and financial projections', () {
+  test('ledger invalidation does not reload Trips for unrelated costs', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.expenseLedger,
     );
 
-    expect(affected, contains(CompanyInvalidationResource.tripFinancials));
+    expect(affected, contains(CompanyInvalidationResource.expenseLedger));
     expect(affected, contains(CompanyInvalidationResource.driverBalances));
     expect(affected, contains(CompanyInvalidationResource.settlementSources));
     expect(affected, contains(CompanyInvalidationResource.dashboard));
     expect(affected, contains(CompanyInvalidationResource.tripNetProfitReport));
+    expect(affected, isNot(contains(CompanyInvalidationResource.trips)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripFinancials)),
+    );
+  });
+
+  test('trip-attributed Ledger mutation invalidates dependent Trip views', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.tripExpenses,
+    );
+
+    expect(affected, contains(CompanyInvalidationResource.tripFinancials));
+    expect(affected, contains(CompanyInvalidationResource.trips));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.driverBalances)),
+    );
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.settlementSources)),
+    );
+    expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
   });
 
   test('payments affect statements and open invoices, not trip lookups', () {
