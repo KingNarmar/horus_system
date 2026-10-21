@@ -35,6 +35,15 @@ void main() {
     expect(affected, {CompanyInvalidationResource.fleetLicenseDocuments});
   });
 
+  test('Company Expenses invalidation stays out of Trip financial refresh', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.companyExpenses,
+    );
+    expect(affected, contains(CompanyInvalidationResource.companyExpenses));
+    expect(affected, isNot(contains(CompanyInvalidationResource.tripFinancials)));
+    expect(affected, isNot(contains(CompanyInvalidationResource.trips)));
+  });
+
   test('ledger invalidation does not reload Trips for unrelated costs', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.expenseLedger,

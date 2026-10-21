@@ -52,9 +52,8 @@ final class CompanyExpensesRealtimeBoundary extends StatelessWidget {
                   current.failure != null &&
                   previous.failure?.code != current.failure?.code,
               listener: (context, current) {
-                if (current.failure case final Failure failure) {
-                  _showFailure(context, failure);
-                }
+                final failure = current.failure;
+                if (failure != null) _showFailure(context, failure);
               },
             ),
             BlocListener<CompanyExpensesCubit, CompanyExpensesState>(

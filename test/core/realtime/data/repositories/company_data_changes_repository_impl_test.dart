@@ -84,6 +84,29 @@ void main() {
     },
   );
 
+  test('Company Expenses is finance-only opt-in and unsubscribes', () async {
+    final source = _Source();
+    final repository = CompanyDataChangesRepositoryImpl(source);
+    final changes = <CompanyDataResource>[];
+    final subscription = repository
+        .watchChanges(
+          companyId: 'company-a',
+          additionalResources: const {CompanyDataResource.companyExpenses},
+        )
+        .listen((result) {
+          final change = result.dataOrNull;
+          if (change != null) changes.add(change.resource);
+        });
+    source.companyExpenses.add(RealtimeChangeSignal.changed);
+    await Future<void>.delayed(Duration.zero);
+    expect(changes, [CompanyDataResource.companyExpenses]);
+    expect(source.expenseLedger.hasListener, isFalse);
+    expect(source.tripExpenses.hasListener, isFalse);
+    await subscription.cancel();
+    expect(source.companyExpensesCanceled, isTrue);
+    await source.close();
+  });
+
   test('transport error becomes a sanitized typed failure', () async {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
@@ -112,6 +135,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   bool tripDocumentsCanceled = false;
   bool documentsCanceled = false;
   bool expenseLedgerCanceled = false;
+  bool companyExpensesCanceled = false;
   bool tripExpensesCanceled = false;
 
   late final StreamController<RealtimeChangeSignal> customers =
@@ -149,6 +173,12 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
         onCancel: () => tripDocumentsCanceled = true,
       );
 
+  late final StreamController<RealtimeChangeSignal> companyExpenses =
+      StreamController<RealtimeChangeSignal>.broadcast(
+        sync: true,
+        onCancel: () => companyExpensesCanceled = true,
+      );
+
   late final StreamController<RealtimeChangeSignal> expenseLedger =
       StreamController<RealtimeChangeSignal>.broadcast(
         sync: true,
@@ -166,6 +196,11 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
         sync: true,
         onCancel: () => documentsCanceled = true,
       );
+
+  @override
+  Stream<RealtimeChangeSignal> watchCompanyExpenses({
+    required String companyId,
+  }) => companyExpenses.stream;
 
   @override
   Stream<RealtimeChangeSignal> watchExpenseLedger({
@@ -214,6 +249,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
     await trips.close();
     await tripDocuments.close();
     await documents.close();
+    await companyExpenses.close();
     await expenseLedger.close();
     await tripExpenses.close();
   }
