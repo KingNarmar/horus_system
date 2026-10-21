@@ -95,12 +95,13 @@ final class SupabaseCompanyDataChangesRemoteDataSource
   );
 
   @override
-  Stream<RealtimeChangeSignal> watchDriverFinance({required String companyId}) =>
-      _watchResource(
-        companyId: companyId,
-        topic: RealtimeTopics.driverFinance(companyId),
-        resource: RealtimeTopics.driverFinanceResource,
-      );
+  Stream<RealtimeChangeSignal> watchDriverFinance({
+    required String companyId,
+  }) => _watchResource(
+    companyId: companyId,
+    topic: RealtimeTopics.driverFinance(companyId),
+    resource: RealtimeTopics.driverFinanceResource,
+  );
 
   @override
   Stream<RealtimeChangeSignal> watchExpenseLedger({
