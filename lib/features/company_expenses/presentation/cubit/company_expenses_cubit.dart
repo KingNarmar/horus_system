@@ -177,6 +177,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
 
   Future<void> loadExpenseActivity(CompanyExpense expense) async {
     final generation = ++_activityRequestGeneration;
+    final requestGeneration = _loadRequestGeneration;
     final currentState = state;
     if (currentState is! CompanyExpensesLoaded) return;
 
@@ -202,7 +203,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
     final latestState = state;
     if (generation != _activityRequestGeneration ||
         !_isCurrentCompanyRequest(
-          _loadRequestGeneration,
+          requestGeneration,
           currentState.currentCompanyContext,
         ) ||
         latestState is! CompanyExpensesLoaded ||
@@ -233,6 +234,10 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
 
     final currentAfterConversion = state;
     if (generation != _activityRequestGeneration ||
+        !_isCurrentCompanyRequest(
+          requestGeneration,
+          currentState.currentCompanyContext,
+        ) ||
         currentAfterConversion is! CompanyExpensesLoaded ||
         currentAfterConversion.currentCompanyContext.companyId !=
             currentState.currentCompanyContext.companyId ||
@@ -312,8 +317,6 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
 
     if (!_isCurrentCompanyRequest(generation, context)) return;
     ++_expenseMutationRevision;
-    if (!_isCurrentCompanyRequest(generation, context)) return;
-    ++_expenseMutationRevision;
     result.when(
       success: _upsertExpense,
       failure: (failure) => emit(CompanyExpensesFailure(failure)),
@@ -353,6 +356,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
       ),
     );
 
+    if (!_isCurrentCompanyRequest(generation, context)) return;
+    ++_expenseMutationRevision;
     result.when(
       success: _upsertExpense,
       failure: (failure) => emit(CompanyExpensesFailure(failure)),
