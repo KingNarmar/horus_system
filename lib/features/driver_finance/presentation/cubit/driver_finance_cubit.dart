@@ -38,6 +38,8 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
   int _detailsRequestId = 0;
   bool _realtimeRefreshPending = false;
   bool _realtimeRefreshInProgress = false;
+  bool _driverReferencesRefreshPending = false;
+  bool _driverReferencesRefreshInProgress = false;
 
   DriverFinanceCubit({
     required this.getDriversUseCase,
@@ -89,9 +91,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
         canManage: permissionResult.dataOrNull ?? false,
       ),
     );
-    if (_realtimeRefreshPending) {
-      unawaited(refreshDriverFinanceFromRealtime());
-    }
+    _flushPendingRealtimeRefreshes();
   }
 
   Future<void> selectDriver(String? driverId) async {
@@ -274,14 +274,19 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
 
     if (result is FailureResult<DriverFinancialMovement>) {
       emit(latest.copyWith(isSaving: false, failure: result.failure));
-      if (_realtimeRefreshPending) {
-        unawaited(refreshDriverFinanceFromRealtime());
-      }
+      _flushPendingRealtimeRefreshes();
       return;
     }
 
     emit(latest.copyWith(isSaving: false, failure: null));
     await selectDriver(driverId);
+    _flushPendingRealtimeRefreshes();
+  }
+
+  void _flushPendingRealtimeRefreshes() {
+    if (_driverReferencesRefreshPending) {
+      unawaited(refreshDriverReferencesFromRealtime());
+    }
     if (_realtimeRefreshPending) {
       unawaited(refreshDriverFinanceFromRealtime());
     }
