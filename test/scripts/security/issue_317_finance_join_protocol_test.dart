@@ -48,21 +48,14 @@ void main() {
       'payload': {'status': 'ok', 'response': <String, Object>{}},
     };
     expect(
-      parseFinanceJoinResult(
-        jsonEncode(success),
-        topic: topic,
-        ref: '1',
-      ),
+      parseFinanceJoinResult(jsonEncode(success), topic: topic, ref: '1'),
       RealtimeJoinVerdict.allowed,
     );
     expect(
       parseFinanceJoinResult(success, topic: 'realtime:another', ref: '1'),
       isNull,
     );
-    expect(
-      parseFinanceJoinResult(success, topic: topic, ref: '2'),
-      isNull,
-    );
+    expect(parseFinanceJoinResult(success, topic: topic, ref: '2'), isNull);
   });
 
   test('explicit access rejection is denied, not a socket timeout', () {
@@ -88,15 +81,19 @@ void main() {
       'RealtimeRestarting: retry',
     ]) {
       expect(
-        parseFinanceJoinResult({
-          'topic': topic,
-          'event': 'phx_reply',
-          'ref': '1',
-          'payload': {
-            'status': 'error',
-            'response': {'reason': reason},
+        parseFinanceJoinResult(
+          {
+            'topic': topic,
+            'event': 'phx_reply',
+            'ref': '1',
+            'payload': {
+              'status': 'error',
+              'response': {'reason': reason},
+            },
           },
-        }, topic: topic, ref: '1'),
+          topic: topic,
+          ref: '1',
+        ),
         RealtimeJoinVerdict.inconclusive,
       );
     }
