@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
@@ -179,6 +181,53 @@ void main() {
     );
 
     test(
+      'remote Driver removal during save defers reference refresh',
+      () async {
+        final mutationBarrier = Completer<void>();
+        final driversRepository = _FakeDriversRepository();
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+          addedMovement: _advance(id: 'movement-2', amount: 200),
+          mutationBarrier: mutationBarrier,
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+          driversRepository: driversRepository,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final pendingSave = cubit.addDriverAdvance(
+          amount: '200.00',
+          movementDate: BusinessDate(year: 2026, month: 9, day: 19),
+        );
+        driversRepository.drivers.clear();
+        await cubit.refreshDriverReferencesFromRealtime();
+
+        final saving = cubit.state as DriverFinanceLoaded;
+        expect(saving.isSaving, isTrue);
+        expect(saving.selectedDriverId, _driverId);
+
+        mutationBarrier.complete();
+        await pendingSave;
+        await Future<void>.delayed(Duration.zero);
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.isSaving, isFalse);
+        expect(latest.drivers, isEmpty);
+        expect(latest.selectedDriverId, isNull);
+        expect(latest.movements, isEmpty);
+        expect(latest.balance, isNull);
+        expect(financeRepository.addMovementCalls, 1);
+      },
+    );
+
+    test(
       'returns the trusted company Business Date for movement forms',
       () async {
         final businessDate = BusinessDate(year: 2026, month: 9, day: 19);
@@ -226,6 +275,7 @@ DriverFinanceCubit _createCubit({
   required _FakeDriverFinanceRepository financeRepository,
   required _FakeDriverBalanceRepository balanceRepository,
   _FakeCompanyBusinessDateProvider? businessDateProvider,
+  _FakeDriversRepository? driversRepository,
 }) {
   final provider =
       businessDateProvider ??
@@ -235,7 +285,9 @@ DriverFinanceCubit _createCubit({
   final businessDateUseCase = GetCompanyBusinessDateUseCase(provider);
 
   return DriverFinanceCubit(
-    getDriversUseCase: GetDriversUseCase(_FakeDriversRepository()),
+    getDriversUseCase: GetDriversUseCase(
+      driversRepository ?? _FakeDriversRepository(),
+    ),
     canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
     getCompanyBusinessDateUseCase: businessDateUseCase,
     getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
@@ -280,9 +332,11 @@ DriverFinancialMovement _advance({required String id, required double amount}) {
 }
 
 final class _FakeDriversRepository implements DriversRepository {
+  final List<Driver> drivers = [_driver];
+
   @override
   Future<Result<List<Driver>>> getDrivers({required String companyId}) async {
-    return const Success<List<Driver>>([_driver]);
+    return Success<List<Driver>>(List.unmodifiable(drivers));
   }
 
   @override
@@ -333,6 +387,7 @@ final class _FakeDriversRepository implements DriversRepository {
 final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final List<DriverFinancialMovement> movements;
   final DriverFinancialMovement? addedMovement;
+  final Completer<void>? mutationBarrier;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -340,6 +395,7 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   _FakeDriverFinanceRepository({
     List<DriverFinancialMovement>? movements,
     this.addedMovement,
+    this.mutationBarrier,
   }) : movements = [...?movements];
 
   @override
@@ -367,6 +423,8 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   }) async {
     addMovementCalls++;
     lastWriteData = data;
+    final barrier = mutationBarrier;
+    if (barrier != null) await barrier.future;
     final movement = addedMovement;
     if (movement == null) throw StateError('No test movement configured.');
     movements.insert(0, movement);
