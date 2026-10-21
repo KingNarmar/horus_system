@@ -7,6 +7,7 @@ import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart
 import '../../../company/domain/entities/company_role.dart';
 import '../../../company_expenses/domain/policies/company_expenses_permission_policy.dart';
 import '../../../customers/domain/policies/customers_permission_policy.dart';
+import '../../../driver_finance/domain/policies/driver_finance_permission_policy.dart';
 import '../../../drivers/domain/policies/drivers_permission_policy.dart';
 import '../../../fleet/domain/policies/fleet_permission_policy.dart';
 import '../../../routes/domain/policies/routes_permission_policy.dart';
@@ -39,6 +40,7 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
         !FleetPermissionPolicy.canViewFleet(role) &&
         !RoutesPermissionPolicy.canViewRoutes(role) &&
         !TripsPermissionPolicy.canViewTrips(role) &&
+        !DriverFinancePermissionPolicy.canViewDriverFinance(role) &&
         !CompanyExpensesPermissionPolicy.canViewCompanyExpenses(role)) {
       return child;
     }
@@ -54,6 +56,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
                   CompanyDataResource.expenseLedger,
                   CompanyDataResource.tripExpenses,
                 },
+                if (DriverFinancePermissionPolicy.canViewDriverFinance(role))
+                  CompanyDataResource.driverFinance,
                 if (CompanyExpensesPermissionPolicy.canViewCompanyExpenses(
                   role,
                 ))
