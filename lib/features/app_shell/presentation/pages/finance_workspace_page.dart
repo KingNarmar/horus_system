@@ -15,6 +15,7 @@ import '../../../customer_statements/presentation/pages/customer_statements_page
 import '../../../driver_finance/di/driver_finance_dependencies.dart';
 import '../../../driver_finance/presentation/cubit/driver_finance_cubit.dart';
 import '../../../driver_finance/presentation/pages/driver_finance_page.dart';
+import '../../../driver_finance/presentation/widgets/driver_finance_realtime_boundary.dart';
 import '../../../driver_settlements/di/driver_settlements_dependencies.dart';
 import '../../../driver_settlements/presentation/cubit/driver_settlements_cubit.dart';
 import '../../../driver_settlements/presentation/pages/driver_settlements_page.dart';
@@ -169,11 +170,15 @@ final class _FinanceSectionContent extends StatelessWidget {
     return switch (section) {
       FinanceWorkspaceSection.driverFinance => BlocProvider<DriverFinanceCubit>(
         create: (_) => DriverFinanceDependencies.createCubit(),
-        child: _FinanceReconnectAware(
-          onReconnect: (context) =>
-              context.read<DriverFinanceCubit>().load(currentCompanyContext),
-          child: DriverFinancePage(
-            currentCompanyContext: currentCompanyContext,
+        child: DriverFinanceRealtimeBoundary(
+          currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) => context
+                .read<DriverFinanceCubit>()
+                .reconcileDriverFinanceAfterReconnect(currentCompanyContext),
+            child: DriverFinancePage(
+              currentCompanyContext: currentCompanyContext,
+            ),
           ),
         ),
       ),
