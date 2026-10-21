@@ -30,9 +30,36 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
   /// movements. Refresh them only when the Drivers source changes.
   Future<void> refreshDriverReferencesFromRealtime() async {
     final owner = this as DriverFinanceCubit;
-    final before = state;
-    if (owner.isClosed || before is! DriverFinanceLoaded) return;
+    if (owner.isClosed) return;
+    final current = state;
+    if (current is DriverFinanceLoading) {
+      owner._driverReferencesRefreshPending = true;
+      return;
+    }
+    if (current is! DriverFinanceLoaded) return;
+    if (current.isSaving || owner._driverReferencesRefreshInProgress) {
+      owner._driverReferencesRefreshPending = true;
+      return;
+    }
 
+    owner._driverReferencesRefreshInProgress = true;
+    try {
+      do {
+        owner._driverReferencesRefreshPending = false;
+        await _refreshDriverReferencesOnce();
+      } while (owner._driverReferencesRefreshPending &&
+          !owner.isClosed &&
+          state is DriverFinanceLoaded &&
+          !(state as DriverFinanceLoaded).isSaving);
+    } finally {
+      owner._driverReferencesRefreshInProgress = false;
+    }
+  }
+
+  Future<void> _refreshDriverReferencesOnce() async {
+    final owner = this as DriverFinanceCubit;
+    final before = state;
+    if (before is! DriverFinanceLoaded || before.isSaving) return;
     final context = before.currentCompanyContext;
     final generation = owner._loadRequestId;
     final result = await owner.getDriversUseCase(
@@ -42,6 +69,10 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
 
     final latest = state;
     if (latest is! DriverFinanceLoaded) return;
+    if (latest.isSaving) {
+      owner._driverReferencesRefreshPending = true;
+      return;
+    }
     final failure = result.failureOrNull;
     if (failure != null) {
       _handleRealtimeFailure(failure);
