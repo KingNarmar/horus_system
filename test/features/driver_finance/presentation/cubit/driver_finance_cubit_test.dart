@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -114,6 +117,182 @@ void main() {
     });
 
     test(
+      'realtime silently replaces selected driver with canonical data',
+      () async {
+        final repository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final balances = _FakeDriverBalanceRepository([
+          _balance(-5600),
+          _balance(-5700),
+        ]);
+        final cubit = _createCubit(
+          financeRepository: repository,
+          balanceRepository: balances,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final emitted = <DriverFinanceState>[];
+        final sub = cubit.stream.listen(emitted.add);
+        addTearDown(sub.cancel);
+        repository.movements.insert(0, _advance(id: 'movement-2', amount: 200));
+
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.movements.map((movement) => movement.id).toList(), [
+          'movement-2',
+          'movement-1',
+        ]);
+        expect(latest.balance?.netBalance, -5700);
+        expect(emitted.whereType<DriverFinanceLoading>(), isEmpty);
+        expect(balances.calls, 2);
+      },
+    );
+
+    test(
+      'reconnect preserves the selected driver and reloads missed changes',
+      () async {
+        final repository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: repository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        repository.movements.insert(0, _advance(id: 'movement-2', amount: 200));
+
+        await cubit.reconcileDriverFinanceAfterReconnect(_context);
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.movements, hasLength(2));
+        expect(latest.balance?.netBalance, -5700);
+      },
+    );
+
+    test(
+      'transient realtime error keeps selected balances and form failures',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        financeRepository.movementsFailure = const UnexpectedFailure();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final failed = cubit.state as DriverFinanceLoaded;
+        expect(failed.movements.single.id, 'movement-1');
+        expect(failed.balance?.netBalance, -5600);
+        expect(failed.failure, isNull);
+        expect(failed.realtimeRefreshFailure?.code, 'unexpected_error');
+
+        financeRepository.movementsFailure = null;
+        await cubit.refreshDriverFinanceFromRealtime();
+        final recovered = cubit.state as DriverFinanceLoaded;
+        expect(recovered.realtimeRefreshFailure, isNull);
+        expect(recovered.balance?.netBalance, -5700);
+      },
+    );
+
+    test(
+      'late realtime reply cannot restore a driver cleared during refresh',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final barrier = Completer<void>();
+        financeRepository.movementsBarrier = barrier;
+
+        final refresh = cubit.refreshDriverFinanceFromRealtime();
+        await cubit.selectDriver(null);
+        barrier.complete();
+        await refresh;
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, isNull);
+        expect(latest.movements, isEmpty);
+        expect(latest.balance, isNull);
+        expect(latest.tripOptions, isEmpty);
+      },
+    );
+
+    test(
+      'remote Driver removal during save defers reference refresh',
+      () async {
+        final mutationBarrier = Completer<void>();
+        final driversRepository = _FakeDriversRepository();
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+          addedMovement: _advance(id: 'movement-2', amount: 200),
+          mutationBarrier: mutationBarrier,
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+          driversRepository: driversRepository,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final pendingSave = cubit.addDriverAdvance(
+          amount: '200.00',
+          movementDate: BusinessDate(year: 2026, month: 9, day: 19),
+        );
+        driversRepository.drivers.clear();
+        await cubit.refreshDriverReferencesFromRealtime();
+
+        final saving = cubit.state as DriverFinanceLoaded;
+        expect(saving.isSaving, isTrue);
+        expect(saving.selectedDriverId, _driverId);
+
+        mutationBarrier.complete();
+        await pendingSave;
+        await Future<void>.delayed(Duration.zero);
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.isSaving, isFalse);
+        expect(latest.drivers, isEmpty);
+        expect(latest.selectedDriverId, isNull);
+        expect(latest.movements, isEmpty);
+        expect(latest.balance, isNull);
+        expect(financeRepository.addMovementCalls, 1);
+      },
+    );
+
+    test(
       'returns the trusted company Business Date for movement forms',
       () async {
         final businessDate = BusinessDate(year: 2026, month: 9, day: 19);
@@ -161,6 +340,7 @@ DriverFinanceCubit _createCubit({
   required _FakeDriverFinanceRepository financeRepository,
   required _FakeDriverBalanceRepository balanceRepository,
   _FakeCompanyBusinessDateProvider? businessDateProvider,
+  _FakeDriversRepository? driversRepository,
 }) {
   final provider =
       businessDateProvider ??
@@ -170,7 +350,9 @@ DriverFinanceCubit _createCubit({
   final businessDateUseCase = GetCompanyBusinessDateUseCase(provider);
 
   return DriverFinanceCubit(
-    getDriversUseCase: GetDriversUseCase(_FakeDriversRepository()),
+    getDriversUseCase: GetDriversUseCase(
+      driversRepository ?? _FakeDriversRepository(),
+    ),
     canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
     getCompanyBusinessDateUseCase: businessDateUseCase,
     getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
@@ -215,9 +397,11 @@ DriverFinancialMovement _advance({required String id, required double amount}) {
 }
 
 final class _FakeDriversRepository implements DriversRepository {
+  final List<Driver> drivers = [_driver];
+
   @override
   Future<Result<List<Driver>>> getDrivers({required String companyId}) async {
-    return const Success<List<Driver>>([_driver]);
+    return Success<List<Driver>>(List.unmodifiable(drivers));
   }
 
   @override
@@ -268,6 +452,9 @@ final class _FakeDriversRepository implements DriversRepository {
 final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final List<DriverFinancialMovement> movements;
   final DriverFinancialMovement? addedMovement;
+  final Completer<void>? mutationBarrier;
+  Completer<void>? movementsBarrier;
+  UnexpectedFailure? movementsFailure;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -275,6 +462,7 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   _FakeDriverFinanceRepository({
     List<DriverFinancialMovement>? movements,
     this.addedMovement,
+    this.mutationBarrier,
   }) : movements = [...?movements];
 
   @override
@@ -282,6 +470,12 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
     required String companyId,
     required String driverId,
   }) async {
+    final barrier = movementsBarrier;
+    if (barrier != null) await barrier.future;
+    final failure = movementsFailure;
+    if (failure != null) {
+      return FailureResult<List<DriverFinancialMovement>>(failure);
+    }
     return Success(List.unmodifiable(movements));
   }
 
@@ -302,6 +496,8 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   }) async {
     addMovementCalls++;
     lastWriteData = data;
+    final barrier = mutationBarrier;
+    if (barrier != null) await barrier.future;
     final movement = addedMovement;
     if (movement == null) throw StateError('No test movement configured.');
     movements.insert(0, movement);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
@@ -6,6 +8,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../drivers/domain/entities/driver.dart';
 import '../../../drivers/domain/usecases/get_drivers_usecase.dart';
 import '../../domain/entities/driver_balance.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
@@ -15,7 +18,10 @@ import '../../domain/usecases/driver_finance_usecases.dart';
 import '../../domain/usecases/get_canonical_driver_balance_usecase.dart';
 import 'driver_finance_state.dart';
 
-final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
+part 'driver_finance_realtime_actions.dart';
+
+final class DriverFinanceCubit extends Cubit<DriverFinanceState>
+    with DriverFinanceRealtimeActions {
   final GetDriversUseCase getDriversUseCase;
   final CanManageDriverFinanceUseCase canManageDriverFinanceUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
@@ -30,6 +36,10 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
   int _detailsRequestId = 0;
+  bool _realtimeRefreshPending = false;
+  bool _realtimeRefreshInProgress = false;
+  bool _driverReferencesRefreshPending = false;
+  bool _driverReferencesRefreshInProgress = false;
 
   DriverFinanceCubit({
     required this.getDriversUseCase,
@@ -81,6 +91,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
         canManage: permissionResult.dataOrNull ?? false,
       ),
     );
+    _flushPendingRealtimeRefreshes();
   }
 
   Future<void> selectDriver(String? driverId) async {
@@ -263,11 +274,22 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState> {
 
     if (result is FailureResult<DriverFinancialMovement>) {
       emit(latest.copyWith(isSaving: false, failure: result.failure));
+      _flushPendingRealtimeRefreshes();
       return;
     }
 
     emit(latest.copyWith(isSaving: false, failure: null));
     await selectDriver(driverId);
+    _flushPendingRealtimeRefreshes();
+  }
+
+  void _flushPendingRealtimeRefreshes() {
+    if (_driverReferencesRefreshPending) {
+      unawaited(refreshDriverReferencesFromRealtime());
+    }
+    if (_realtimeRefreshPending) {
+      unawaited(refreshDriverFinanceFromRealtime());
+    }
   }
 
   void _emitDetailsFailure(Failure failure) {

@@ -36,6 +36,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
   final bool isDetailsLoading;
   final bool isSaving;
   final Failure? failure;
+  final Failure? realtimeRefreshFailure;
 
   const DriverFinanceLoaded({
     required this.currentCompanyContext,
@@ -48,6 +49,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
     this.isDetailsLoading = false,
     this.isSaving = false,
     this.failure,
+    this.realtimeRefreshFailure,
   });
 
   Driver? get selectedDriver {
@@ -69,6 +71,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
     bool? isDetailsLoading,
     bool? isSaving,
     Object? failure = _notSet,
+    Object? realtimeRefreshFailure = _notSet,
   }) {
     return DriverFinanceLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -83,6 +86,9 @@ final class DriverFinanceLoaded extends DriverFinanceState {
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
       isSaving: isSaving ?? this.isSaving,
       failure: failure == _notSet ? this.failure : failure as Failure?,
+      realtimeRefreshFailure: realtimeRefreshFailure == _notSet
+          ? this.realtimeRefreshFailure
+          : realtimeRefreshFailure as Failure?,
     );
   }
 }
