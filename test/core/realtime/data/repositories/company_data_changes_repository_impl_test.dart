@@ -233,8 +233,9 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   }) => companyExpenses.stream;
 
   @override
-  Stream<RealtimeChangeSignal> watchDriverFinance({required String companyId}) =>
-      driverFinance.stream;
+  Stream<RealtimeChangeSignal> watchDriverFinance({
+    required String companyId,
+  }) => driverFinance.stream;
 
   @override
   Stream<RealtimeChangeSignal> watchExpenseLedger({
