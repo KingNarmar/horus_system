@@ -181,6 +181,36 @@ void main() {
     );
 
     test(
+      'late realtime reply cannot restore a driver cleared during refresh',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final barrier = Completer<void>();
+        financeRepository.movementsBarrier = barrier;
+
+        final refresh = cubit.refreshDriverFinanceFromRealtime();
+        await cubit.selectDriver(null);
+        barrier.complete();
+        await refresh;
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, isNull);
+        expect(latest.movements, isEmpty);
+        expect(latest.balance, isNull);
+        expect(latest.tripOptions, isEmpty);
+      },
+    );
+
+    test(
       'remote Driver removal during save defers reference refresh',
       () async {
         final mutationBarrier = Completer<void>();
@@ -388,6 +418,7 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final List<DriverFinancialMovement> movements;
   final DriverFinancialMovement? addedMovement;
   final Completer<void>? mutationBarrier;
+  Completer<void>? movementsBarrier;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -403,6 +434,8 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
     required String companyId,
     required String driverId,
   }) async {
+    final barrier = movementsBarrier;
+    if (barrier != null) await barrier.future;
     return Success(List.unmodifiable(movements));
   }
 
