@@ -89,7 +89,7 @@ mixin CompanyExpensesRealtimeActions on Cubit<CompanyExpensesState> {
         realtimeRefreshFailure: null,
       ),
     );
-    if (shouldReloadActivity && selected != null) {
+    if (shouldReloadActivity) {
       unawaited(owner.loadExpenseActivity(selected));
     }
   }
