@@ -6,6 +6,7 @@ abstract final class RealtimeTopics {
   static const routesResource = 'routes';
   static const tripsResource = 'trips';
   static const tripDocumentsResource = 'trip_documents';
+  static const driverFinanceResource = 'driver_finance';
   static const expenseLedgerResource = 'expense_ledger';
   static const companyExpensesResource = 'company_expenses';
   static const tripExpensesResource = 'trip_expenses';
@@ -22,6 +23,9 @@ abstract final class RealtimeTopics {
 
   static String companyExpenses(String companyId) =>
       'horus:company:$companyId:company_expenses';
+
+  static String driverFinance(String companyId) =>
+      'horus:company:$companyId:driver_finance';
 
   static String expenseLedger(String companyId) =>
       'horus:company:$companyId:expense_ledger';
