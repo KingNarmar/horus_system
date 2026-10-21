@@ -317,36 +317,39 @@ void main() {
     expect(gateway.removed, [ledger, tripExpenses]);
   });
 
-  test('Driver Finance topic ignores cross-tenant and wrong-resource hints',
-      () async {
-    final gateway = _FakeGateway();
-    final source =
-        SupabaseCompanyDataChangesRemoteDataSource.withGateway(gateway);
-    final received = <RealtimeChangeSignal>[];
-    final subscription = source
-        .watchDriverFinance(companyId: 'company-a')
-        .listen(received.add);
-    await Future<void>.delayed(Duration.zero);
-    final channel = gateway.channels.single;
-    expect(channel.topic, RealtimeTopics.driverFinance('company-a'));
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-b', 'resource': 'driver_finance'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'driver_finance'},
-    });
-    await Future<void>.delayed(Duration.zero);
-    expect(received, [
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
-    await subscription.cancel();
-    expect(gateway.removed, [channel]);
-  });
+  test(
+    'Driver Finance topic ignores cross-tenant and wrong-resource hints',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchDriverFinance(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.driverFinance('company-a'));
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-b', 'resource': 'driver_finance'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'driver_finance'},
+      });
+      await Future<void>.delayed(Duration.zero);
+      expect(received, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+    },
+  );
 
   test('Drivers topic accepts only current-company Drivers hints', () async {
     final gateway = _FakeGateway();
