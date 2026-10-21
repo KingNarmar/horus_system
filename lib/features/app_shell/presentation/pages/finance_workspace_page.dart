@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company_expenses/di/company_expenses_dependencies.dart';
 import '../../../company_expenses/presentation/cubit/company_expenses_cubit.dart';
 import '../../../company_expenses/presentation/pages/company_expenses_page.dart';
+import '../../../company_expenses/presentation/widgets/company_expenses_realtime_boundary.dart';
 import '../../../customer_statements/di/customer_statements_dependencies.dart';
 import '../../../customer_statements/presentation/cubit/customer_statements_cubit.dart';
 import '../../../customer_statements/presentation/pages/customer_statements_page.dart';
@@ -191,12 +192,17 @@ final class _FinanceSectionContent extends StatelessWidget {
       FinanceWorkspaceSection.companyExpenses =>
         BlocProvider<CompanyExpensesCubit>(
           create: (_) => CompanyExpensesDependencies.createCubit(),
-          child: _FinanceReconnectAware(
-            onReconnect: (context) => context
-                .read<CompanyExpensesCubit>()
-                .loadCompanyExpenses(currentCompanyContext),
-            child: CompanyExpensesPage(
-              currentCompanyContext: currentCompanyContext,
+          child: CompanyExpensesRealtimeBoundary(
+            currentCompanyContext: currentCompanyContext,
+            child: _FinanceReconnectAware(
+              onReconnect: (context) => context
+                  .read<CompanyExpensesCubit>()
+                  .reconcileCompanyExpensesAfterReconnect(
+                    currentCompanyContext,
+                  ),
+              child: CompanyExpensesPage(
+                currentCompanyContext: currentCompanyContext,
+              ),
             ),
           ),
         ),

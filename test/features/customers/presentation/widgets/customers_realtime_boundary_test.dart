@@ -127,6 +127,7 @@ void main() {
     expect(repository.requestedResources.last, {
       CompanyDataResource.expenseLedger,
       CompanyDataResource.tripExpenses,
+      CompanyDataResource.companyExpenses,
     });
 
     await tester.pumpWidget(app(CompanyRole.operations));

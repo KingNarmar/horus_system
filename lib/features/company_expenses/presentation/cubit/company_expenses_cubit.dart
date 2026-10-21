@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/usecases/get_company_business_date_usecase.dart';
@@ -16,7 +19,10 @@ import '../../domain/usecases/can_manage_company_expenses_usecase.dart';
 import '../../domain/usecases/company_expenses_usecases.dart';
 import 'company_expenses_state.dart';
 
-class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
+part 'company_expenses_realtime_actions.dart';
+
+class CompanyExpensesCubit extends Cubit<CompanyExpensesState>
+    with CompanyExpensesRealtimeActions {
   final GetCompanyBusinessDateUseCase getBusinessDateUseCase;
   final CanManageCompanyExpensesUseCase canManageCompanyExpensesUseCase;
   final GetCompanyExpenseCategoriesUseCase getCategoriesUseCase;
@@ -30,6 +36,22 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   convertInstantsToBusinessLocalDateTimesUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
+  int _loadRequestGeneration = 0;
+  int _activityRequestGeneration = 0;
+  int _expenseMutationRevision = 0;
+  bool _expensesRefreshInProgress = false;
+  bool _expensesRefreshPending = false;
+  bool _referencesRefreshInProgress = false;
+  bool _referencesRefreshPending = false;
+
+  bool _isCurrentCompanyRequest(
+    int generation,
+    CurrentCompanyContext context,
+  ) =>
+      !isClosed &&
+      generation == _loadRequestGeneration &&
+      _currentCompanyContext?.companyId == context.companyId &&
+      _currentCompanyContext?.role == context.role;
 
   CompanyExpensesCubit({
     required this.getBusinessDateUseCase,
@@ -47,85 +69,95 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   Future<void> loadCompanyExpenses(
     CurrentCompanyContext currentCompanyContext,
   ) async {
-    _currentCompanyContext = currentCompanyContext;
-    final previousState = state;
-    final previousSearchQuery = previousState is CompanyExpensesLoaded
-        ? previousState.searchQuery
+    final previous = state;
+    final searchQuery = previous is CompanyExpensesLoaded
+        ? previous.searchQuery
         : '';
-    final previousIncludeVoided = previousState is CompanyExpensesLoaded
-        ? previousState.includeVoided
+    final includeVoided = previous is CompanyExpensesLoaded
+        ? previous.includeVoided
         : false;
-
+    _currentCompanyContext = currentCompanyContext;
+    final generation = ++_loadRequestGeneration;
+    ++_activityRequestGeneration;
     emit(const CompanyExpensesLoading());
 
     final businessDateResult = await getBusinessDateUseCase(
       GetCompanyBusinessDateParams(companyId: currentCompanyContext.companyId),
     );
+    if (!_isCurrentCompanyRequest(generation, currentCompanyContext)) return;
+    final businessDateFailure = businessDateResult.failureOrNull;
+    if (businessDateFailure != null) {
+      emit(CompanyExpensesFailure(businessDateFailure));
+      return;
+    }
 
-    await businessDateResult.when(
-      success: (businessDate) async {
-        final categoriesResult = await getCategoriesUseCase(
-          GetCompanyExpenseCategoriesParams(
-            currentCompanyContext: currentCompanyContext,
-          ),
-        );
-
-        await categoriesResult.when(
-          success: (categories) async {
-            final lookupsResult = await getFormLookupsUseCase(
-              GetCompanyExpenseFormLookupsParams(
-                currentCompanyContext: currentCompanyContext,
-              ),
-            );
-
-            await lookupsResult.when(
-              success: (formLookups) async {
-                final expensesResult = await getExpensesUseCase(
-                  GetCompanyExpensesParams(
-                    currentCompanyContext: currentCompanyContext,
-                    includeVoided: previousIncludeVoided,
-                  ),
-                );
-
-                final expensesFailure = expensesResult.failureOrNull;
-                if (expensesFailure != null) {
-                  emit(CompanyExpensesFailure(expensesFailure));
-                  return;
-                }
-
-                final permissionResult = await canManageCompanyExpensesUseCase(
-                  CanManageCompanyExpensesParams(
-                    currentCompanyContext: currentCompanyContext,
-                  ),
-                );
-                final permissionFailure = permissionResult.failureOrNull;
-                if (permissionFailure != null) {
-                  emit(CompanyExpensesFailure(permissionFailure));
-                  return;
-                }
-
-                emit(
-                  CompanyExpensesLoaded(
-                    currentCompanyContext: currentCompanyContext,
-                    currentBusinessDate: businessDate,
-                    categories: categories,
-                    allExpenses: expensesResult.dataOrNull ?? const [],
-                    formLookups: formLookups,
-                    searchQuery: previousSearchQuery,
-                    includeVoided: previousIncludeVoided,
-                    canManageCompanyExpenses:
-                        permissionResult.dataOrNull ?? false,
-                  ),
-                );
-              },
-              failure: (failure) async => emit(CompanyExpensesFailure(failure)),
-            );
-          },
-          failure: (failure) async => emit(CompanyExpensesFailure(failure)),
-        );
-      },
-      failure: (failure) async => emit(CompanyExpensesFailure(failure)),
+    final categoriesResult = await getCategoriesUseCase(
+      GetCompanyExpenseCategoriesParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
     );
+    if (!_isCurrentCompanyRequest(generation, currentCompanyContext)) return;
+    final categoriesFailure = categoriesResult.failureOrNull;
+    if (categoriesFailure != null) {
+      emit(CompanyExpensesFailure(categoriesFailure));
+      return;
+    }
+
+    final lookupsResult = await getFormLookupsUseCase(
+      GetCompanyExpenseFormLookupsParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (!_isCurrentCompanyRequest(generation, currentCompanyContext)) return;
+    final lookupsFailure = lookupsResult.failureOrNull;
+    if (lookupsFailure != null) {
+      emit(CompanyExpensesFailure(lookupsFailure));
+      return;
+    }
+
+    final expensesResult = await getExpensesUseCase(
+      GetCompanyExpensesParams(
+        currentCompanyContext: currentCompanyContext,
+        includeVoided: includeVoided,
+      ),
+    );
+    if (!_isCurrentCompanyRequest(generation, currentCompanyContext)) return;
+    final expensesFailure = expensesResult.failureOrNull;
+    if (expensesFailure != null) {
+      emit(CompanyExpensesFailure(expensesFailure));
+      return;
+    }
+
+    final permissionResult = await canManageCompanyExpensesUseCase(
+      CanManageCompanyExpensesParams(
+        currentCompanyContext: currentCompanyContext,
+      ),
+    );
+    if (!_isCurrentCompanyRequest(generation, currentCompanyContext)) return;
+    final permissionFailure = permissionResult.failureOrNull;
+    if (permissionFailure != null) {
+      emit(CompanyExpensesFailure(permissionFailure));
+      return;
+    }
+
+    emit(
+      CompanyExpensesLoaded(
+        currentCompanyContext: currentCompanyContext,
+        currentBusinessDate: businessDateResult.dataOrNull!,
+        categories: categoriesResult.dataOrNull!,
+        allExpenses: expensesResult.dataOrNull!,
+        formLookups: lookupsResult.dataOrNull!,
+        searchQuery: searchQuery,
+        includeVoided: includeVoided,
+        canManageCompanyExpenses: permissionResult.dataOrNull!,
+      ),
+    );
+    if (_expensesRefreshPending) {
+      unawaited(refreshCompanyExpensesFromRealtime());
+    }
+    if (_referencesRefreshPending) {
+      unawaited(refreshCompanyExpenseReferencesFromRealtime());
+    }
   }
 
   void setSearchQuery(String query) {
@@ -140,10 +172,12 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     if (currentState is! CompanyExpensesLoaded) return;
 
     emit(currentState.copyWith(includeVoided: includeVoided));
-    await loadCompanyExpenses(currentState.currentCompanyContext);
+    await refreshCompanyExpensesFromRealtime();
   }
 
   Future<void> loadExpenseActivity(CompanyExpense expense) async {
+    final generation = ++_activityRequestGeneration;
+    final requestGeneration = _loadRequestGeneration;
     final currentState = state;
     if (currentState is! CompanyExpensesLoaded) return;
 
@@ -167,7 +201,12 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     );
 
     final latestState = state;
-    if (latestState is! CompanyExpensesLoaded ||
+    if (generation != _activityRequestGeneration ||
+        !_isCurrentCompanyRequest(
+          requestGeneration,
+          currentState.currentCompanyContext,
+        ) ||
+        latestState is! CompanyExpensesLoaded ||
         latestState.selectedExpense?.id != expense.id) {
       return;
     }
@@ -194,7 +233,14 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
         );
 
     final currentAfterConversion = state;
-    if (currentAfterConversion is! CompanyExpensesLoaded ||
+    if (generation != _activityRequestGeneration ||
+        !_isCurrentCompanyRequest(
+          requestGeneration,
+          currentState.currentCompanyContext,
+        ) ||
+        currentAfterConversion is! CompanyExpensesLoaded ||
+        currentAfterConversion.currentCompanyContext.companyId !=
+            currentState.currentCompanyContext.companyId ||
         currentAfterConversion.selectedExpense?.id != expense.id) {
       return;
     }
@@ -223,6 +269,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
   }
 
   void clearExpenseActivity() {
+    ++_activityRequestGeneration;
     final currentState = state;
     if (currentState is! CompanyExpensesLoaded) return;
 
@@ -251,6 +298,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     final context = _currentCompanyContext;
     if (context == null) return;
 
+    final generation = _loadRequestGeneration;
+    ++_expenseMutationRevision;
     final result = await addExpenseUseCase(
       AddCompanyExpenseParams(
         currentCompanyContext: context,
@@ -266,6 +315,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       ),
     );
 
+    if (!_isCurrentCompanyRequest(generation, context)) return;
+    ++_expenseMutationRevision;
     result.when(
       success: _upsertExpense,
       failure: (failure) => emit(CompanyExpensesFailure(failure)),
@@ -287,6 +338,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     final context = _currentCompanyContext;
     if (context == null) return;
 
+    final generation = _loadRequestGeneration;
+    ++_expenseMutationRevision;
     final result = await updateExpenseUseCase(
       UpdateCompanyExpenseParams(
         currentCompanyContext: context,
@@ -303,6 +356,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       ),
     );
 
+    if (!_isCurrentCompanyRequest(generation, context)) return;
+    ++_expenseMutationRevision;
     result.when(
       success: _upsertExpense,
       failure: (failure) => emit(CompanyExpensesFailure(failure)),
@@ -313,6 +368,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     final context = _currentCompanyContext;
     if (context == null || !_startPendingAction(expense.id)) return;
 
+    final generation = _loadRequestGeneration;
+    ++_expenseMutationRevision;
     final result = await voidExpenseUseCase(
       VoidCompanyExpenseParams(
         currentCompanyContext: context,
@@ -321,6 +378,8 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
       ),
     );
 
+    if (!_isCurrentCompanyRequest(generation, context)) return;
+    ++_expenseMutationRevision;
     result.when(success: _upsertExpense, failure: _emitMutationFailure);
   }
 
@@ -346,7 +405,7 @@ class CompanyExpensesCubit extends Cubit<CompanyExpensesState> {
     final context = _currentCompanyContext;
 
     if (currentState is! CompanyExpensesLoaded) {
-      if (context != null) loadCompanyExpenses(context);
+      if (context != null) unawaited(loadCompanyExpenses(context));
       return;
     }
 

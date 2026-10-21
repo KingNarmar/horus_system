@@ -13,7 +13,7 @@ import 'dart:io';
 import 'issue_317_finance_join_protocol.dart';
 
 const _roles = ['owner', 'admin', 'accountant', 'operations', 'viewer', 'driver'];
-const _resources = ['expense_ledger', 'trip_expenses'];
+const _resources = ['expense_ledger', 'trip_expenses', 'company_expenses'];
 const _allowedRoles = {'owner', 'admin', 'accountant'};
 const _timeout = Duration(seconds: 15);
 
@@ -245,13 +245,24 @@ final class _Results {
 }
 
 Future<void> main(List<String> args) async {
-  final roleOption = args.length == 1 && args[0].startsWith('--role=')
-      ? args.single.substring('--role='.length)
-      : null;
-  if (args.length > 1 ||
-      (args.isNotEmpty && roleOption == null) ||
-      (roleOption != null && !_roles.contains(roleOption))) {
-    stderr.writeln('Usage: ...realtime.dart [--role=owner|admin|accountant|operations|viewer|driver]');
+  final roleArgs = args.where((arg) => arg.startsWith('--role=')).toList();
+  final resourceArgs =
+      args.where((arg) => arg.startsWith('--resource=')).toList();
+  final roleOption = roleArgs.isEmpty
+      ? null
+      : roleArgs.first.substring('--role='.length);
+  final resourceOption = resourceArgs.isEmpty
+      ? null
+      : resourceArgs.first.substring('--resource='.length);
+  if (roleArgs.length > 1 ||
+      resourceArgs.length > 1 ||
+      args.length != roleArgs.length + resourceArgs.length ||
+      (roleOption != null && !_roles.contains(roleOption)) ||
+      (resourceOption != null && !_resources.contains(resourceOption))) {
+    stderr.writeln(
+      'Usage: ...realtime.dart [--role=owner|admin|accountant|operations|viewer|driver] '
+      '[--resource=expense_ledger|trip_expenses|company_expenses]',
+    );
     exitCode = 64;
     return;
   }
@@ -272,7 +283,9 @@ Future<void> main(List<String> args) async {
   final results = _Results();
   final auth = _AuthReader(config);
   try {
-    for (final resource in _resources) {
+    for (final resource in resourceOption == null
+        ? _resources
+        : [resourceOption]) {
       results.check(
         'anonymous $resource refused',
         await _join(config, config.companyA, resource),
@@ -301,7 +314,9 @@ Future<void> main(List<String> args) async {
       final expected = _allowedRoles.contains(role)
           ? RealtimeJoinVerdict.allowed
           : RealtimeJoinVerdict.denied;
-      for (final resource in _resources) {
+      for (final resource in resourceOption == null
+          ? _resources
+          : [resourceOption]) {
         results.check(
           '$role own $resource',
           await _join(config, session.ownCompany, resource,

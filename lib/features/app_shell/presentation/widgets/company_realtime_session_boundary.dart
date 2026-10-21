@@ -5,6 +5,7 @@ import '../../../../core/realtime/di/realtime_dependencies.dart';
 import '../../../../core/realtime/domain/entities/company_data_change.dart';
 import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
 import '../../../company/domain/entities/company_role.dart';
+import '../../../company_expenses/domain/policies/company_expenses_permission_policy.dart';
 import '../../../customers/domain/policies/customers_permission_policy.dart';
 import '../../../drivers/domain/policies/drivers_permission_policy.dart';
 import '../../../fleet/domain/policies/fleet_permission_policy.dart';
@@ -37,7 +38,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
         !DriversPermissionPolicy.canViewDrivers(role) &&
         !FleetPermissionPolicy.canViewFleet(role) &&
         !RoutesPermissionPolicy.canViewRoutes(role) &&
-        !TripsPermissionPolicy.canViewTrips(role)) {
+        !TripsPermissionPolicy.canViewTrips(role) &&
+        !CompanyExpensesPermissionPolicy.canViewCompanyExpenses(role)) {
       return child;
     }
 
@@ -47,13 +49,16 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
           (realtimeCubitFactory ?? RealtimeDependencies.createCubit)()
             ..watchCompany(
               companyId,
-              additionalResources:
-                  TripsPermissionPolicy.canViewTripFinancials(role)
-                  ? const {
-                      CompanyDataResource.expenseLedger,
-                      CompanyDataResource.tripExpenses,
-                    }
-                  : const {},
+              additionalResources: {
+                if (TripsPermissionPolicy.canViewTripFinancials(role)) ...{
+                  CompanyDataResource.expenseLedger,
+                  CompanyDataResource.tripExpenses,
+                },
+                if (CompanyExpensesPermissionPolicy.canViewCompanyExpenses(
+                  role,
+                ))
+                  CompanyDataResource.companyExpenses,
+              },
             ),
       child: child,
     );

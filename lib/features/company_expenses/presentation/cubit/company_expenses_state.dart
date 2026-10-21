@@ -39,6 +39,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
   selectedExpenseActivityBusinessTimesById;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? realtimeRefreshFailure;
 
   const CompanyExpensesLoaded({
     required this.currentCompanyContext,
@@ -56,6 +57,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
         const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.realtimeRefreshFailure,
   });
 
   BusinessLocalDateTime? activityBusinessTimeFor(String logId) {
@@ -170,6 +172,7 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
     selectedExpenseActivityBusinessTimesById,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? realtimeRefreshFailure = _notSet,
   }) {
     return CompanyExpensesLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -196,6 +199,9 @@ class CompanyExpensesLoaded extends CompanyExpensesState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      realtimeRefreshFailure: realtimeRefreshFailure == _notSet
+          ? this.realtimeRefreshFailure
+          : realtimeRefreshFailure as Failure?,
     );
   }
 }
