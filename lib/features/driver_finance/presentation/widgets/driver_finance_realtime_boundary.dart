@@ -36,9 +36,8 @@ final class DriverFinanceRealtimeBoundary extends StatelessWidget {
         CompanyInvalidationResource.driverBalances,
         CompanyInvalidationResource.driverFinanceTripOptions,
       },
-      onInvalidate: (context) => context
-          .read<DriverFinanceCubit>()
-          .refreshDriverFinanceFromRealtime(),
+      onInvalidate: (context) =>
+          context.read<DriverFinanceCubit>().refreshDriverFinanceFromRealtime(),
       child: CompanyResourceInvalidationBoundary(
         companyId: currentCompanyContext.companyId,
         resources: const {CompanyInvalidationResource.drivers},
