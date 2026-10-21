@@ -75,7 +75,8 @@ mixin CompanyExpensesRealtimeActions on Cubit<CompanyExpensesState> {
         }
       }
     }
-    final shouldReloadActivity = selectedId != null &&
+    final shouldReloadActivity =
+        selectedId != null &&
         selected != null &&
         (selected.updatedAt != current.selectedExpense?.updatedAt ||
             selected.isVoided != current.selectedExpense?.isVoided);
@@ -100,7 +101,8 @@ mixin CompanyExpensesRealtimeActions on Cubit<CompanyExpensesState> {
     final owner = this as CompanyExpensesCubit;
     if (owner.isClosed) return;
     final current = state;
-    if (current is CompanyExpensesInitial || current is CompanyExpensesFailure) {
+    if (current is CompanyExpensesInitial ||
+        current is CompanyExpensesFailure) {
       await owner.loadCompanyExpenses(context);
       return;
     }

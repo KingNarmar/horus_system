@@ -71,88 +71,94 @@ CompanyExpensesCubit _cubit(_ExpenseRepository repository) =>
     );
 
 void main() {
-  test('incoming company expense change silently refreshes and preserves search',
-      () async {
-    final repo = _ExpenseRepository()
-      ..rows['company-a'] = [_expense('one')];
-    final cubit = _cubit(repo);
-    addTearDown(cubit.close);
-    await cubit.loadCompanyExpenses(_companyA);
-    cubit.setSearchQuery('reference');
+  test(
+    'incoming company expense change silently refreshes and preserves search',
+    () async {
+      final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
+      final cubit = _cubit(repo);
+      addTearDown(cubit.close);
+      await cubit.loadCompanyExpenses(_companyA);
+      cubit.setSearchQuery('reference');
 
-    repo.rows['company-a'] = [_expense('one'), _expense('two')];
-    await cubit.refreshCompanyExpensesFromRealtime();
+      repo.rows['company-a'] = [_expense('one'), _expense('two')];
+      await cubit.refreshCompanyExpensesFromRealtime();
 
-    final state = cubit.state as CompanyExpensesLoaded;
-    expect(state.searchQuery, 'reference');
-    expect(state.allExpenses.map((expense) => expense.id), ['one', 'two']);
-    expect(state.realtimeRefreshFailure, isNull);
-    expect(repo.reads, 2);
-  });
+      final state = cubit.state as CompanyExpensesLoaded;
+      expect(state.searchQuery, 'reference');
+      expect(state.allExpenses.map((expense) => expense.id), ['one', 'two']);
+      expect(state.realtimeRefreshFailure, isNull);
+      expect(repo.reads, 2);
+    },
+  );
 
-  test('remote void updates open details without reintroducing hidden row',
-      () async {
-    final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
-    final cubit = _cubit(repo);
-    addTearDown(cubit.close);
-    await cubit.loadCompanyExpenses(_companyA);
-    await cubit.loadExpenseActivity(_expense('one'));
+  test(
+    'remote void updates open details without reintroducing hidden row',
+    () async {
+      final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
+      final cubit = _cubit(repo);
+      addTearDown(cubit.close);
+      await cubit.loadCompanyExpenses(_companyA);
+      await cubit.loadExpenseActivity(_expense('one'));
 
-    repo.rows['company-a'] = [
-      _expense('one', voided: true, updatedAt: DateTime.utc(2026, 10, 21)),
-    ];
-    await cubit.refreshCompanyExpensesFromRealtime();
-    await Future<void>.delayed(Duration.zero);
+      repo.rows['company-a'] = [
+        _expense('one', voided: true, updatedAt: DateTime.utc(2026, 10, 21)),
+      ];
+      await cubit.refreshCompanyExpensesFromRealtime();
+      await Future<void>.delayed(Duration.zero);
 
-    final state = cubit.state as CompanyExpensesLoaded;
-    expect(state.allExpenses, isEmpty);
-    expect(state.selectedExpense?.isVoided, isTrue);
-    expect(repo.includeVoidedRequests.last, isTrue);
-  });
+      final state = cubit.state as CompanyExpensesLoaded;
+      expect(state.allExpenses, isEmpty);
+      expect(state.selectedExpense?.isVoided, isTrue);
+      expect(repo.includeVoidedRequests.last, isTrue);
+    },
+  );
 
-  test('bursty hints coalesce while an authoritative read is pending',
-      () async {
-    final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
-    final cubit = _cubit(repo);
-    addTearDown(cubit.close);
-    await cubit.loadCompanyExpenses(_companyA);
-    final delayed = Completer<Result<List<CompanyExpense>>>();
-    repo.delayedRead = delayed;
+  test(
+    'bursty hints coalesce while an authoritative read is pending',
+    () async {
+      final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
+      final cubit = _cubit(repo);
+      addTearDown(cubit.close);
+      await cubit.loadCompanyExpenses(_companyA);
+      final delayed = Completer<Result<List<CompanyExpense>>>();
+      repo.delayedRead = delayed;
 
-    final first = cubit.refreshCompanyExpensesFromRealtime();
-    await Future<void>.delayed(Duration.zero);
-    final second = cubit.refreshCompanyExpensesFromRealtime();
-    repo.rows['company-a'] = [_expense('one'), _expense('three')];
-    delayed.complete(Success([_expense('one')]));
-    await Future.wait([first, second]);
+      final first = cubit.refreshCompanyExpensesFromRealtime();
+      await Future<void>.delayed(Duration.zero);
+      final second = cubit.refreshCompanyExpensesFromRealtime();
+      repo.rows['company-a'] = [_expense('one'), _expense('three')];
+      delayed.complete(Success([_expense('one')]));
+      await Future.wait([first, second]);
 
-    expect(repo.reads, 3);
-    expect((cubit.state as CompanyExpensesLoaded).allExpenses.length, 2);
-  });
+      expect(repo.reads, 3);
+      expect((cubit.state as CompanyExpensesLoaded).allExpenses.length, 2);
+    },
+  );
 
-  test('late old-tenant responses cannot replace new-company records',
-      () async {
-    final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
-    final cubit = _cubit(repo);
-    addTearDown(cubit.close);
-    await cubit.loadCompanyExpenses(_companyA);
-    final delayed = Completer<Result<List<CompanyExpense>>>();
-    repo.delayedRead = delayed;
-    final prior = cubit.refreshCompanyExpensesFromRealtime();
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'late old-tenant responses cannot replace new-company records',
+    () async {
+      final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
+      final cubit = _cubit(repo);
+      addTearDown(cubit.close);
+      await cubit.loadCompanyExpenses(_companyA);
+      final delayed = Completer<Result<List<CompanyExpense>>>();
+      repo.delayedRead = delayed;
+      final prior = cubit.refreshCompanyExpensesFromRealtime();
+      await Future<void>.delayed(Duration.zero);
 
-    repo.rows['company-b'] = [_expense('two', companyId: 'company-b')];
-    await cubit.loadCompanyExpenses(_companyB);
-    delayed.complete(Success([_expense('foreign-old')]));
-    await prior;
+      repo.rows['company-b'] = [_expense('two', companyId: 'company-b')];
+      await cubit.loadCompanyExpenses(_companyB);
+      delayed.complete(Success([_expense('foreign-old')]));
+      await prior;
 
-    final state = cubit.state as CompanyExpensesLoaded;
-    expect(state.currentCompanyContext.companyId, 'company-b');
-    expect(state.allExpenses.single.id, 'two');
-  });
+      final state = cubit.state as CompanyExpensesLoaded;
+      expect(state.currentCompanyContext.companyId, 'company-b');
+      expect(state.allExpenses.single.id, 'two');
+    },
+  );
 
-  test('server authorization denial clears stale company financials',
-      () async {
+  test('server authorization denial clears stale company financials', () async {
     final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
     final cubit = _cubit(repo);
     addTearDown(cubit.close);
@@ -164,21 +170,23 @@ void main() {
     expect(cubit.state, isA<CompanyExpensesFailure>());
   });
 
-  test('reconnect preserves filters while updating the list and lookups',
-      () async {
-    final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
-    final cubit = _cubit(repo);
-    addTearDown(cubit.close);
-    await cubit.loadCompanyExpenses(_companyA);
-    cubit.setSearchQuery('test');
-    repo.rows['company-a'] = [_expense('one'), _expense('two')];
-    await cubit.reconcileCompanyExpensesAfterReconnect(_companyA);
+  test(
+    'reconnect preserves filters while updating the list and lookups',
+    () async {
+      final repo = _ExpenseRepository()..rows['company-a'] = [_expense('one')];
+      final cubit = _cubit(repo);
+      addTearDown(cubit.close);
+      await cubit.loadCompanyExpenses(_companyA);
+      cubit.setSearchQuery('test');
+      repo.rows['company-a'] = [_expense('one'), _expense('two')];
+      await cubit.reconcileCompanyExpensesAfterReconnect(_companyA);
 
-    final state = cubit.state as CompanyExpensesLoaded;
-    expect(state.searchQuery, 'test');
-    expect(state.allExpenses.length, 2);
-    expect(repo.categoriesReads, 2);
-  });
+      final state = cubit.state as CompanyExpensesLoaded;
+      expect(state.searchQuery, 'test');
+      expect(state.allExpenses.length, 2);
+      expect(repo.categoriesReads, 2);
+    },
+  );
 }
 
 final class _DateProvider implements CompanyBusinessDateProvider {
@@ -238,9 +246,11 @@ final class _ExpenseRepository implements CompanyExpensesRepository {
       return result;
     }
     final current = rows[companyId] ?? const <CompanyExpense>[];
-    return Success(includeVoided
-        ? current
-        : current.where((expense) => !expense.isVoided).toList());
+    return Success(
+      includeVoided
+          ? current
+          : current.where((expense) => !expense.isVoided).toList(),
+    );
   }
 
   @override
@@ -261,18 +271,23 @@ final class _ExpenseRepository implements CompanyExpensesRepository {
   Future<Result<CompanyExpense>> addCompanyExpense({
     required CompanyExpenseWriteData data,
     required String actorRole,
-  }) async => Success(_expense('added', companyId: data.companyId, amount: data.amount));
+  }) async => Success(
+    _expense('added', companyId: data.companyId, amount: data.amount),
+  );
 
   @override
   Future<Result<CompanyExpense>> updateCompanyExpense({
     required String id,
     required CompanyExpenseWriteData data,
     required String actorRole,
-  }) async => Success(_expense(id, companyId: data.companyId, amount: data.amount));
+  }) async =>
+      Success(_expense(id, companyId: data.companyId, amount: data.amount));
 
   @override
   Future<Result<CompanyExpense>> voidCompanyExpense({
     required CompanyExpenseVoidData data,
     required String actorRole,
-  }) async => Success(_expense(data.expenseId, companyId: data.companyId, voided: true));
+  }) async => Success(
+    _expense(data.expenseId, companyId: data.companyId, voided: true),
+  );
 }

@@ -233,36 +233,41 @@ void main() {
     },
   );
 
-  test('Company Expenses private topic accepts only its own minimal hints', () async {
-    final gateway = _FakeGateway();
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(gateway);
-    final received = <RealtimeChangeSignal>[];
-    final subscription = source
-        .watchCompanyExpenses(companyId: 'company-a')
-        .listen(received.add);
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'Company Expenses private topic accepts only its own minimal hints',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchCompanyExpenses(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
 
-    final channel = gateway.channels.single;
-    expect(channel.topic, RealtimeTopics.companyExpenses('company-a'));
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-b', 'resource': 'company_expenses'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'company_expenses'},
-    });
-    await Future<void>.delayed(Duration.zero);
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.companyExpenses('company-a'));
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-b', 'resource': 'company_expenses'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'expense_ledger'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'company_expenses'},
+      });
+      await Future<void>.delayed(Duration.zero);
 
-    expect(received, [
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
-    await subscription.cancel();
-    expect(gateway.removed, [channel]);
-  });
+      expect(received, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+    },
+  );
 
   test('financial topics use distinct private scoped payloads', () async {
     final gateway = _FakeGateway();

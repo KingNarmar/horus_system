@@ -40,7 +40,10 @@ void main() {
       CompanyDataResource.companyExpenses,
     );
     expect(affected, contains(CompanyInvalidationResource.companyExpenses));
-    expect(affected, isNot(contains(CompanyInvalidationResource.tripFinancials)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripFinancials)),
+    );
     expect(affected, isNot(contains(CompanyInvalidationResource.trips)));
   });
 
