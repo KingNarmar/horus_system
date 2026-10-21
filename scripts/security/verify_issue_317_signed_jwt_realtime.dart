@@ -13,7 +13,12 @@ import 'dart:io';
 import 'issue_317_finance_join_protocol.dart';
 
 const _roles = ['owner', 'admin', 'accountant', 'operations', 'viewer', 'driver'];
-const _resources = ['expense_ledger', 'trip_expenses', 'company_expenses'];
+const _resources = [
+  'expense_ledger',
+  'trip_expenses',
+  'company_expenses',
+  'driver_finance',
+];
 const _allowedRoles = {'owner', 'admin', 'accountant'};
 const _timeout = Duration(seconds: 15);
 
@@ -261,7 +266,7 @@ Future<void> main(List<String> args) async {
       (resourceOption != null && !_resources.contains(resourceOption))) {
     stderr.writeln(
       'Usage: ...realtime.dart [--role=owner|admin|accountant|operations|viewer|driver] '
-      '[--resource=expense_ledger|trip_expenses|company_expenses]',
+      '[--resource=expense_ledger|trip_expenses|company_expenses|driver_finance]',
     );
     exitCode = 64;
     return;
