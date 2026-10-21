@@ -169,6 +169,11 @@ final class _LoadedDriverFinance extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<String>(
+          // A remotely removed driver must reset the FormField's own value.
+          key: ValueKey((
+            state.currentCompanyContext.companyId,
+            state.selectedDriverId,
+          )),
           initialValue: state.selectedDriverId,
           isExpanded: true,
           decoration: InputDecoration(
