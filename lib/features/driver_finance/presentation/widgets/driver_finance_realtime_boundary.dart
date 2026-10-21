@@ -9,6 +9,7 @@ import '../../../../core/realtime/presentation/widgets/company_resource_invalida
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/policies/driver_finance_permission_policy.dart';
 import '../cubit/driver_finance_cubit.dart';
+import '../cubit/driver_finance_state.dart';
 
 /// Only an authorized, mounted Driver Finance view consumes financial hints.
 final class DriverFinanceRealtimeBoundary extends StatelessWidget {
@@ -44,20 +45,42 @@ final class DriverFinanceRealtimeBoundary extends StatelessWidget {
         onInvalidate: (context) => context
             .read<DriverFinanceCubit>()
             .refreshDriverReferencesFromRealtime(),
-        child: BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
-          listenWhen: (previous, current) =>
-              current.companyId == currentCompanyContext.companyId &&
-              current.failure != null &&
-              previous.failure?.code != current.failure?.code,
-          listener: (context, current) {
-            final failure = current.failure;
-            if (failure == null) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(context.l10n.localizedErrorMessage(failure)),
-              ),
-            );
-          },
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+              listenWhen: (previous, current) =>
+                  current.companyId == currentCompanyContext.companyId &&
+                  current.failure != null &&
+                  previous.failure?.code != current.failure?.code,
+              listener: (context, current) {
+                final failure = current.failure;
+                if (failure == null) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.l10n.localizedErrorMessage(failure)),
+                  ),
+                );
+              },
+            ),
+            BlocListener<DriverFinanceCubit, DriverFinanceState>(
+              listenWhen: (previous, current) =>
+                  current is DriverFinanceLoaded &&
+                  current.realtimeRefreshFailure != null &&
+                  (previous is! DriverFinanceLoaded ||
+                      previous.realtimeRefreshFailure?.code !=
+                          current.realtimeRefreshFailure?.code),
+              listener: (context, current) {
+                if (current is! DriverFinanceLoaded) return;
+                final failure = current.realtimeRefreshFailure;
+                if (failure == null) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.l10n.localizedErrorMessage(failure)),
+                  ),
+                );
+              },
+            ),
+          ],
           child: child,
         ),
       ),
