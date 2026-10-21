@@ -92,7 +92,7 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
         balance: retainsSelection ? latest.balance : null,
         tripOptions: retainsSelection ? latest.tripOptions : const [],
         isDetailsLoading: retainsSelection ? latest.isDetailsLoading : false,
-        failure: null,
+        realtimeRefreshFailure: null,
       ),
     );
   }
@@ -185,7 +185,7 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
         ),
         balance: balance.dataOrNull,
         isDetailsLoading: false,
-        failure: null,
+        realtimeRefreshFailure: null,
       ),
     );
   }
@@ -197,7 +197,7 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
     } else {
       final latest = state;
       if (latest is DriverFinanceLoaded) {
-        emit(latest.copyWith(failure: failure));
+        emit(latest.copyWith(realtimeRefreshFailure: failure));
       }
     }
     return true;
