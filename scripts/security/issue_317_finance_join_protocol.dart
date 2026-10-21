@@ -22,7 +22,7 @@ Map<String, Object?> joinFinanceTopic({
       'presence': {'enabled': false},
       'postgres_changes': <Object>[],
     },
-    if (jwt != null) 'access_token': jwt,
+    'access_token': ?jwt,
   },
 };
 
