@@ -113,72 +113,70 @@ void main() {
       expect(balanceRepository.calls, 2);
     });
 
-    test('realtime silently replaces selected driver with canonical data',
-        () async {
-      final repository = _FakeDriverFinanceRepository(
-        movements: [_advance(id: 'movement-1', amount: 100)],
-      );
-      final balances = _FakeDriverBalanceRepository([
-        _balance(-5600),
-        _balance(-5700),
-      ]);
-      final cubit = _createCubit(
-        financeRepository: repository,
-        balanceRepository: balances,
-      );
-      addTearDown(cubit.close);
-
-      await cubit.load(_context);
-      await cubit.selectDriver(_driverId);
-      final emitted = <DriverFinanceState>[];
-      final sub = cubit.stream.listen(emitted.add);
-      addTearDown(sub.cancel);
-      repository.movements.insert(
-        0,
-        _advance(id: 'movement-2', amount: 200),
-      );
-
-      await cubit.refreshDriverFinanceFromRealtime();
-
-      final latest = cubit.state as DriverFinanceLoaded;
-      expect(latest.selectedDriverId, _driverId);
-      expect(latest.movements.map((movement) => movement.id).toList(), [
-        'movement-2',
-        'movement-1',
-      ]);
-      expect(latest.balance?.netBalance, -5700);
-      expect(emitted.whereType<DriverFinanceLoading>(), isEmpty);
-      expect(balances.calls, 2);
-    });
-
-    test('reconnect preserves the selected driver and reloads missed changes',
-        () async {
-      final repository = _FakeDriverFinanceRepository(
-        movements: [_advance(id: 'movement-1', amount: 100)],
-      );
-      final cubit = _createCubit(
-        financeRepository: repository,
-        balanceRepository: _FakeDriverBalanceRepository([
+    test(
+      'realtime silently replaces selected driver with canonical data',
+      () async {
+        final repository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final balances = _FakeDriverBalanceRepository([
           _balance(-5600),
           _balance(-5700),
-        ]),
-      );
-      addTearDown(cubit.close);
+        ]);
+        final cubit = _createCubit(
+          financeRepository: repository,
+          balanceRepository: balances,
+        );
+        addTearDown(cubit.close);
 
-      await cubit.load(_context);
-      await cubit.selectDriver(_driverId);
-      repository.movements.insert(
-        0,
-        _advance(id: 'movement-2', amount: 200),
-      );
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        final emitted = <DriverFinanceState>[];
+        final sub = cubit.stream.listen(emitted.add);
+        addTearDown(sub.cancel);
+        repository.movements.insert(0, _advance(id: 'movement-2', amount: 200));
 
-      await cubit.reconcileDriverFinanceAfterReconnect(_context);
+        await cubit.refreshDriverFinanceFromRealtime();
 
-      final latest = cubit.state as DriverFinanceLoaded;
-      expect(latest.selectedDriverId, _driverId);
-      expect(latest.movements, hasLength(2));
-      expect(latest.balance?.netBalance, -5700);
-    });
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.movements.map((movement) => movement.id).toList(), [
+          'movement-2',
+          'movement-1',
+        ]);
+        expect(latest.balance?.netBalance, -5700);
+        expect(emitted.whereType<DriverFinanceLoading>(), isEmpty);
+        expect(balances.calls, 2);
+      },
+    );
+
+    test(
+      'reconnect preserves the selected driver and reloads missed changes',
+      () async {
+        final repository = _FakeDriverFinanceRepository(
+          movements: [_advance(id: 'movement-1', amount: 100)],
+        );
+        final cubit = _createCubit(
+          financeRepository: repository,
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        repository.movements.insert(0, _advance(id: 'movement-2', amount: 200));
+
+        await cubit.reconcileDriverFinanceAfterReconnect(_context);
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.movements, hasLength(2));
+        expect(latest.balance?.netBalance, -5700);
+      },
+    );
 
     test(
       'returns the trusted company Business Date for movement forms',
