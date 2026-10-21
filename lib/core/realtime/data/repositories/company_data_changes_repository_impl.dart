@@ -95,7 +95,9 @@ final class CompanyDataChangesRepositoryImpl
             ),
             resource: CompanyDataResource.fleetLicenseDocuments,
           );
-          if (additionalResources.contains(CompanyDataResource.companyExpenses)) {
+          if (additionalResources.contains(
+            CompanyDataResource.companyExpenses,
+          )) {
             subscribe(
               stream: _dataSource.watchCompanyExpenses(companyId: companyId),
               resource: CompanyDataResource.companyExpenses,

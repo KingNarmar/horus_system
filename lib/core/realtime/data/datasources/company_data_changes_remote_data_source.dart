@@ -20,7 +20,9 @@ abstract interface class CompanyDataChangesRemoteDataSource {
 
   Stream<RealtimeChangeSignal> watchTripDocuments({required String companyId});
 
-  Stream<RealtimeChangeSignal> watchCompanyExpenses({required String companyId});
+  Stream<RealtimeChangeSignal> watchCompanyExpenses({
+    required String companyId,
+  });
 
   Stream<RealtimeChangeSignal> watchExpenseLedger({required String companyId});
 

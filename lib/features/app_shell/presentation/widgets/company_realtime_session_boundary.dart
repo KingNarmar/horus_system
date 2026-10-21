@@ -54,7 +54,9 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
                   CompanyDataResource.expenseLedger,
                   CompanyDataResource.tripExpenses,
                 },
-                if (CompanyExpensesPermissionPolicy.canViewCompanyExpenses(role))
+                if (CompanyExpensesPermissionPolicy.canViewCompanyExpenses(
+                  role,
+                ))
                   CompanyDataResource.companyExpenses,
               },
             ),

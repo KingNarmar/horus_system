@@ -197,7 +197,9 @@ final class _FinanceSectionContent extends StatelessWidget {
             child: _FinanceReconnectAware(
               onReconnect: (context) => context
                   .read<CompanyExpensesCubit>()
-                  .reconcileCompanyExpensesAfterReconnect(currentCompanyContext),
+                  .reconcileCompanyExpensesAfterReconnect(
+                    currentCompanyContext,
+                  ),
               child: CompanyExpensesPage(
                 currentCompanyContext: currentCompanyContext,
               ),
