@@ -250,10 +250,10 @@ Future<void> main(List<String> args) async {
       args.where((arg) => arg.startsWith('--resource=')).toList();
   final roleOption = roleArgs.isEmpty
       ? null
-      : roleArgs.single.substring('--role='.length);
+      : roleArgs.first.substring('--role='.length);
   final resourceOption = resourceArgs.isEmpty
       ? null
-      : resourceArgs.single.substring('--resource='.length);
+      : resourceArgs.first.substring('--resource='.length);
   if (roleArgs.length > 1 ||
       resourceArgs.length > 1 ||
       args.length != roleArgs.length + resourceArgs.length ||
