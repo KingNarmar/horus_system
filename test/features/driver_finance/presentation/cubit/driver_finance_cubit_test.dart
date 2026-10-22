@@ -293,7 +293,10 @@ void main() {
         );
         final cubit = _createCubit(
           financeRepository: financeRepository,
-          balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
         );
         addTearDown(cubit.close);
 
