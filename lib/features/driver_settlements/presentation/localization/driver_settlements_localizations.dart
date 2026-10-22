@@ -237,6 +237,8 @@ class DriverSettlementsLocalizations {
     'compensationCurrencyMismatchFailure':
         'The driver compensation currency does not match the company financial currency.',
     'voidReasonRequiredFailure': 'A void reason is required.',
+    'expenseSourceInvalidFailure':
+        'A trip expense in this settlement was voided or is unavailable. Create a new draft from current sources.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
     'detailsFailed': 'Settlement details could not be loaded.',
@@ -346,6 +348,8 @@ class DriverSettlementsLocalizations {
     'compensationCurrencyMismatchFailure':
         'عملة تعويض السائق لا تطابق العملة المالية للشركة.',
     'voidReasonRequiredFailure': 'سبب الإبطال مطلوب.',
+    'expenseSourceInvalidFailure':
+        'أحد مصروفات الرحلة في هذه التسوية أُلغي أو لم يعد متاحًا. أنشئ مسودة جديدة من البيانات الحالية.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
     'detailsFailed': 'تعذر تحميل تفاصيل التسوية.',
