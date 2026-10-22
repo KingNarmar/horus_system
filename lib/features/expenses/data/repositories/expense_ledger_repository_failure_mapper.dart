@@ -30,6 +30,9 @@ final class ExpenseLedgerRepositoryFailureMapper {
       'P2807' => const ConflictFailure(
         code: ExpenseLedgerFailureCodes.conflictAlreadyVoided,
       ),
+      'P2811' => const ConflictFailure(
+        code: ExpenseLedgerFailureCodes.conflictFinalizedSettlementLocked,
+      ),
       'P2808' => const ValidationFailure(
         code: ExpenseLedgerFailureCodes.validationAmountInvalid,
       ),
