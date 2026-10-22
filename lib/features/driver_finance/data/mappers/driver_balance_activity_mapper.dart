@@ -130,7 +130,9 @@ final class DriverBalanceActivityMapper {
 
   Money _money(Map<String, dynamic> row, CurrencyCode currency) {
     final value = row[DriverFinanceDbFields.amountMinorUnits];
-    final minorUnits = value is int ? value : int.tryParse(value?.toString() ?? '');
+    final minorUnits = value is int
+        ? value
+        : int.tryParse(value?.toString() ?? '');
     if (minorUnits == null || minorUnits <= 0) {
       throw const FormatException('Invalid activity minor units.');
     }
