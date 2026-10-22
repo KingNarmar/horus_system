@@ -202,6 +202,7 @@ void main() {
         final balanceRepository = _FakeDriverBalanceRepository([
           _balance(-5600),
           _balance(-5590),
+          _balance(-5600),
         ]);
         final cubit = _createCubit(
           financeRepository: financeRepository,
@@ -241,6 +242,74 @@ void main() {
           latest.activity?.canonicalBalance.netBalance.minorUnits,
           -559000,
         );
+        expect(balanceRepository.calls, 2);
+
+        // Voiding the same expense must remove the statement row and reverse
+        // its canonical impact without navigating away from Driver Finance.
+        financeRepository.expenseEntries.clear();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final afterVoid = cubit.state as DriverFinanceLoaded;
+        expect(afterVoid.selectedDriverId, _driverId);
+        expect(afterVoid.activity?.entries, isEmpty);
+        expect(
+          afterVoid.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
+        expect(afterVoid.realtimeRefreshFailure, isNull);
+        expect(balanceRepository.calls, 3);
+      },
+    );
+
+    test(
+      'trip lookup failure does not block a voided expense reconciliation',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository();
+        financeRepository.expenseEntries.add(
+          DriverBalanceActivityEntry(
+            source: DriverBalanceActivitySource.tripExpense,
+            sourceId: 'expense-to-void',
+            kind: DriverBalanceActivityKind.driverPaidTripExpense,
+            companyId: _companyId,
+            driverId: _driverId,
+            tripId: 'trip-1',
+            businessDate: BusinessDate(year: 2026, month: 9, day: 19),
+            createdAt: DateTime.utc(2026, 9, 19),
+            amount: Money(
+              minorUnits: 1000,
+              currency: CurrencyCode.tryParse('AED')!,
+            ),
+          ),
+        );
+        final balanceRepository = _FakeDriverBalanceRepository([
+          _balance(-5590),
+          _balance(-5600),
+        ]);
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: balanceRepository,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        expect(
+          (cubit.state as DriverFinanceLoaded).activity?.entries,
+          hasLength(1),
+        );
+
+        financeRepository.expenseEntries.clear();
+        financeRepository.tripOptionsFailure = const UnexpectedFailure();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.activity?.entries, isEmpty);
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
+        expect(latest.realtimeRefreshFailure?.code, 'unexpected_error');
         expect(balanceRepository.calls, 2);
       },
     );
@@ -529,6 +598,7 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final Completer<void>? mutationBarrier;
   Completer<void>? movementsBarrier;
   UnexpectedFailure? movementsFailure;
+  UnexpectedFailure? tripOptionsFailure;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -560,6 +630,10 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
     required String timeZoneId,
   }) async {
     lastTripOptionsTimeZoneId = timeZoneId;
+    final failure = tripOptionsFailure;
+    if (failure != null) {
+      return FailureResult<List<DriverFinanceTripOption>>(failure);
+    }
     return const Success<List<DriverFinanceTripOption>>([]);
   }
 

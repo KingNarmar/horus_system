@@ -162,17 +162,26 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
       ),
     );
     if (!stillCurrent()) return;
-    if (_handleRealtimeFailure(options.failureOrNull)) return;
+    final optionsFailure = options.failureOrNull;
+    if (optionsFailure is AuthFailure ||
+        optionsFailure is PermissionFailure) {
+      _handleRealtimeFailure(optionsFailure);
+      return;
+    }
 
+    // Optional Trip labels must not hold back a newer canonical balance and
+    // statement. Retain last-good labels on transient lookup failure.
     final latest = state as DriverFinanceLoaded;
     emit(
       latest.copyWith(
         activity: activity.dataOrNull,
-        tripOptions: List.unmodifiable(
-          options.dataOrNull ?? const <DriverFinanceTripOption>[],
-        ),
+        tripOptions: optionsFailure == null
+            ? List.unmodifiable(
+                options.dataOrNull ?? const <DriverFinanceTripOption>[],
+              )
+            : latest.tripOptions,
         isDetailsLoading: false,
-        realtimeRefreshFailure: null,
+        realtimeRefreshFailure: optionsFailure,
       ),
     );
   }
