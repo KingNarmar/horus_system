@@ -22,7 +22,6 @@ extension DriverFinanceLocalizationsX on AppLocalizations {
     };
   }
 
-
   String driverMovementTypeLabel(DriverFinancialMovementType type) {
     return switch (type) {
       DriverFinancialMovementType.advance => driverMovementTypeAdvance,
