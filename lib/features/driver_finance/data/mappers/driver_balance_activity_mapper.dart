@@ -1,7 +1,6 @@
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../../../../core/data/utils/db_date.dart';
 import '../../../../core/data/utils/db_timestamp.dart';
-import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../domain/entities/driver_balance_activity.dart';

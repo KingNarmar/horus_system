@@ -265,18 +265,18 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await _readAllPages((from, to) async {
-      final page = await client
-          .from(DriverFinanceDbTables.driverFinancialMovements)
-          .select(_driverFinancialMovementColumns)
-          .eq(DbCommonFields.companyId, companyId)
-          .eq(DriverFinanceDbFields.driverId, driverId)
-          .lt(DriverFinanceDbFields.movementDate, before)
-          .order(DriverFinanceDbFields.movementDate)
-          .order(DbCommonFields.createdAt)
-          .order(DbCommonFields.id)
-          .range(from, to);
-      return _maps(page);
-    });
+        final page = await client
+            .from(DriverFinanceDbTables.driverFinancialMovements)
+            .select(_driverFinancialMovementColumns)
+            .eq(DbCommonFields.companyId, companyId)
+            .eq(DriverFinanceDbFields.driverId, driverId)
+            .lt(DriverFinanceDbFields.movementDate, before)
+            .order(DriverFinanceDbFields.movementDate)
+            .order(DbCommonFields.createdAt)
+            .order(DbCommonFields.id)
+            .range(from, to);
+        return _maps(page);
+      });
       return sourceSelector.select(
         rows: rows,
         effectiveDateField: DriverFinanceDbFields.movementDate,
@@ -350,23 +350,23 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
       final rows = await _readAllPages((from, to) async {
-      final page = await client
-          .from(DriverFinanceDbTables.expenseLedgerEntries)
-          .select(_expenseLedgerColumns)
-          .eq(DbCommonFields.companyId, companyId)
-          .eq(DriverFinanceDbFields.isVoided, false)
-          .inFilter(DriverFinanceDbFields.tripId, tripIds)
-          .inFilter(DriverFinanceDbFields.fundingSource, const [
-            DriverFinanceDbValues.paidByDriverAdvance,
-            DriverFinanceDbValues.paidByDriverCash,
-          ])
-          .lt(DriverFinanceDbFields.expenseDate, before)
-          .order(DriverFinanceDbFields.expenseDate)
-          .order(DbCommonFields.createdAt)
-          .order(DbCommonFields.id)
-          .range(from, to);
-      return _maps(page);
-    });
+        final page = await client
+            .from(DriverFinanceDbTables.expenseLedgerEntries)
+            .select(_expenseLedgerColumns)
+            .eq(DbCommonFields.companyId, companyId)
+            .eq(DriverFinanceDbFields.isVoided, false)
+            .inFilter(DriverFinanceDbFields.tripId, tripIds)
+            .inFilter(DriverFinanceDbFields.fundingSource, const [
+              DriverFinanceDbValues.paidByDriverAdvance,
+              DriverFinanceDbValues.paidByDriverCash,
+            ])
+            .lt(DriverFinanceDbFields.expenseDate, before)
+            .order(DriverFinanceDbFields.expenseDate)
+            .order(DbCommonFields.createdAt)
+            .order(DbCommonFields.id)
+            .range(from, to);
+        return _maps(page);
+      });
       return sourceSelector.select(
         rows: rows,
         effectiveDateField: DriverFinanceDbFields.expenseDate,

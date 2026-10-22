@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/core/localization/money_formatter.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_activity.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_activity_entry.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_finance_trip_option.dart';
@@ -69,7 +70,16 @@ void main() {
       expect(find.textContaining('ledger-expense-1'), findsOneWidget);
       expect(find.textContaining('TRP-2026-000006'), findsOneWidget);
       expect(find.textContaining('Diesel'), findsOneWidget);
-      expect(find.textContaining('12.50'), findsOneWidget);
+      expect(
+        find.textContaining(
+          formatLocalizedMoney(
+            Money(minorUnits: 1250, currency: currency),
+            fractionDigits: 2,
+            localeName: locale.toLanguageTag(),
+          ),
+        ),
+        findsOneWidget,
+      );
       expect(
         Directionality.of(
           tester.element(find.textContaining('ledger-expense-1')),
