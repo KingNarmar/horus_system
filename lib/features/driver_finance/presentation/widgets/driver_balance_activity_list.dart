@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/money_formatter.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
-import '../../../../core/widgets/adaptive_detail_row.dart';
 import '../../domain/entities/driver_balance_activity.dart';
 import '../../domain/entities/driver_balance_activity_entry.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
@@ -123,6 +123,22 @@ final class _ActivityItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final impact = entry.balanceImpact;
+    final unsignedAmount = Money(
+      minorUnits: impact.minorUnits.abs(),
+      currency: impact.currency,
+    );
+    final formattedAmount = formatLocalizedMoney(
+      unsignedAmount,
+      fractionDigits: fractionDigits,
+      localeName: localeName,
+    );
+    final signedAmount = impact.isPositive
+        ? '+ $formattedAmount'
+        : impact.isNegative
+        ? '- $formattedAmount'
+        : formattedAmount;
+    final readableTripLabel = tripLabel?.trim();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Card(
@@ -131,34 +147,45 @@ final class _ActivityItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.driverActivityKindLabel(entry.kind),
-                style: Theme.of(context).textTheme.titleSmall,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.driverActivityKindLabel(entry.kind),
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Flexible(
+                    child: Semantics(
+                      label: '${l10n.driverBalanceActivityImpact}: $signedAmount',
+                      child: Text(
+                        signedAmount,
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: impact.isPositive
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              AdaptiveDetailRow(
-                label: l10n.driverBalanceActivityImpact,
-                value: formatLocalizedMoney(
-                  impact,
-                  fractionDigits: fractionDigits,
-                  localeName: localeName,
-                ),
+              Text(
+                _formattedDate(entry.businessDate, localeName),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(_formattedDate(entry.businessDate, localeName)),
-              if (entry.tripId != null)
-                Text(
-                  '${l10n.driverMovementTripLine}: ${tripLabel ?? entry.tripId}',
-                ),
+              if (readableTripLabel != null && readableTripLabel.isNotEmpty)
+                Text('${l10n.driverMovementTripLine}: $readableTripLabel'),
               if (entry.description != null)
                 Text(
                   '${l10n.driverBalanceActivityDescription}: ${entry.description}',
                 ),
               if (entry.notes != null) Text(entry.notes!),
-              Text(l10n.driverActivitySourceLabel(entry.source)),
-              SelectableText(
-                '${l10n.driverBalanceActivitySourceReference}: ${entry.sourceId}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
             ],
           ),
         ),
