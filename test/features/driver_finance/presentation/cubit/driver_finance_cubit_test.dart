@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/domain/value_objects/currency_code.dart';
+import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/usecases/get_company_business_date_usecase.dart';
 import 'package:horus_system/core/utils/result.dart';
@@ -9,16 +11,20 @@ import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_activity.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_activity_entry.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance.dart';
+import 'package:horus_system/features/driver_finance/domain/entities/driver_money_balance_checkpoint.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_balance_checkpoint.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_finance_trip_option.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_type.dart';
 import 'package:horus_system/features/driver_finance/domain/entities/driver_financial_movement_write_data.dart';
-import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_repository.dart';
+import 'package:horus_system/features/driver_finance/domain/repositories/driver_balance_activity_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/repositories/driver_finance_repository.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/can_manage_driver_finance_usecase.dart';
 import 'package:horus_system/features/driver_finance/domain/usecases/driver_finance_usecases.dart';
-import 'package:horus_system/features/driver_finance/domain/usecases/get_canonical_driver_balance_usecase.dart';
+import 'package:horus_system/features/driver_finance/domain/usecases/get_driver_balance_activity_usecase.dart';
 import 'package:horus_system/features/driver_finance/presentation/cubit/driver_finance_cubit.dart';
 import 'package:horus_system/features/driver_finance/presentation/cubit/driver_finance_state.dart';
 import 'package:horus_system/features/drivers/domain/entities/driver.dart';
@@ -74,8 +80,8 @@ void main() {
 
         final state = cubit.state as DriverFinanceLoaded;
         expect(state.selectedDriverId, _driverId);
-        expect(state.movements, hasLength(1));
-        expect(state.balance?.netBalance, -5600);
+        expect(state.activity?.entries, hasLength(1));
+        expect(state.activity?.canonicalBalance.netBalance.minorUnits, -560000);
         expect(financeRepository.lastTripOptionsTimeZoneId, _timeZoneId);
         expect(
           balanceRepository.beforeExclusiveBoundaries.single,
@@ -108,8 +114,8 @@ void main() {
       );
 
       final state = cubit.state as DriverFinanceLoaded;
-      expect(state.movements.first.id, 'movement-2');
-      expect(state.balance?.netBalance, -5700);
+      expect(state.activity?.entries.first.sourceId, 'movement-2');
+      expect(state.activity?.canonicalBalance.netBalance.minorUnits, -570000);
       expect(financeRepository.addMovementCalls, 1);
       expect(financeRepository.lastWriteData?.amount.minorUnits, 10000);
       expect(financeRepository.lastWriteData?.amount.currency.value, 'AED');
@@ -143,11 +149,16 @@ void main() {
 
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, _driverId);
-        expect(latest.movements.map((movement) => movement.id).toList(), [
-          'movement-2',
-          'movement-1',
-        ]);
-        expect(latest.balance?.netBalance, -5700);
+        expect(
+          latest.activity?.entries
+              .map((movement) => movement.sourceId)
+              .toList(),
+          ['movement-2', 'movement-1'],
+        );
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
         expect(emitted.whereType<DriverFinanceLoading>(), isEmpty);
         expect(balances.calls, 2);
       },
@@ -176,8 +187,130 @@ void main() {
 
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, _driverId);
-        expect(latest.movements, hasLength(2));
-        expect(latest.balance?.netBalance, -5700);
+        expect(latest.activity?.entries, hasLength(2));
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
+      },
+    );
+
+    test(
+      'expense invalidation refreshes a single driver-funded trip activity',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository();
+        final balanceRepository = _FakeDriverBalanceRepository([
+          _balance(-5600),
+          _balance(-5590),
+          _balance(-5600),
+        ]);
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: balanceRepository,
+        );
+        addTearDown(cubit.close);
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+
+        financeRepository.expenseEntries.add(
+          DriverBalanceActivityEntry(
+            source: DriverBalanceActivitySource.tripExpense,
+            sourceId: 'expense-1',
+            kind: DriverBalanceActivityKind.driverPaidTripExpense,
+            companyId: _companyId,
+            driverId: _driverId,
+            tripId: 'trip-1',
+            businessDate: BusinessDate(year: 2026, month: 9, day: 19),
+            createdAt: DateTime.utc(2026, 9, 19),
+            amount: Money(
+              minorUnits: 1000,
+              currency: CurrencyCode.tryParse('AED')!,
+            ),
+          ),
+        );
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.activity?.entries, hasLength(1));
+        expect(
+          latest.activity?.entries.single.stableId,
+          'tripExpense:expense-1',
+        );
+        expect(latest.activity?.entries.single.balanceImpact.minorUnits, 1000);
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -559000,
+        );
+        expect(balanceRepository.calls, 2);
+
+        // Voiding the same expense must remove the statement row and reverse
+        // its canonical impact without navigating away from Driver Finance.
+        financeRepository.expenseEntries.clear();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final afterVoid = cubit.state as DriverFinanceLoaded;
+        expect(afterVoid.selectedDriverId, _driverId);
+        expect(afterVoid.activity?.entries, isEmpty);
+        expect(
+          afterVoid.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
+        expect(afterVoid.realtimeRefreshFailure, isNull);
+        expect(balanceRepository.calls, 3);
+      },
+    );
+
+    test(
+      'trip lookup failure does not block a voided expense reconciliation',
+      () async {
+        final financeRepository = _FakeDriverFinanceRepository();
+        financeRepository.expenseEntries.add(
+          DriverBalanceActivityEntry(
+            source: DriverBalanceActivitySource.tripExpense,
+            sourceId: 'expense-to-void',
+            kind: DriverBalanceActivityKind.driverPaidTripExpense,
+            companyId: _companyId,
+            driverId: _driverId,
+            tripId: 'trip-1',
+            businessDate: BusinessDate(year: 2026, month: 9, day: 19),
+            createdAt: DateTime.utc(2026, 9, 19),
+            amount: Money(
+              minorUnits: 1000,
+              currency: CurrencyCode.tryParse('AED')!,
+            ),
+          ),
+        );
+        final balanceRepository = _FakeDriverBalanceRepository([
+          _balance(-5590),
+          _balance(-5600),
+        ]);
+        final cubit = _createCubit(
+          financeRepository: financeRepository,
+          balanceRepository: balanceRepository,
+        );
+        addTearDown(cubit.close);
+
+        await cubit.load(_context);
+        await cubit.selectDriver(_driverId);
+        expect(
+          (cubit.state as DriverFinanceLoaded).activity?.entries,
+          hasLength(1),
+        );
+
+        financeRepository.expenseEntries.clear();
+        financeRepository.tripOptionsFailure = const UnexpectedFailure();
+        await cubit.refreshDriverFinanceFromRealtime();
+
+        final latest = cubit.state as DriverFinanceLoaded;
+        expect(latest.selectedDriverId, _driverId);
+        expect(latest.activity?.entries, isEmpty);
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
+        expect(latest.realtimeRefreshFailure?.code, 'unexpected_error');
+        expect(balanceRepository.calls, 2);
       },
     );
 
@@ -202,8 +335,11 @@ void main() {
         await cubit.refreshDriverFinanceFromRealtime();
 
         final failed = cubit.state as DriverFinanceLoaded;
-        expect(failed.movements.single.id, 'movement-1');
-        expect(failed.balance?.netBalance, -5600);
+        expect(failed.activity?.entries.single.sourceId, 'movement-1');
+        expect(
+          failed.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
         expect(failed.failure, isNull);
         expect(failed.realtimeRefreshFailure?.code, 'unexpected_error');
 
@@ -211,7 +347,10 @@ void main() {
         await cubit.refreshDriverFinanceFromRealtime();
         final recovered = cubit.state as DriverFinanceLoaded;
         expect(recovered.realtimeRefreshFailure, isNull);
-        expect(recovered.balance?.netBalance, -5700);
+        expect(
+          recovered.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
       },
     );
 
@@ -223,7 +362,10 @@ void main() {
         );
         final cubit = _createCubit(
           financeRepository: financeRepository,
-          balanceRepository: _FakeDriverBalanceRepository([_balance(-5600)]),
+          balanceRepository: _FakeDriverBalanceRepository([
+            _balance(-5600),
+            _balance(-5700),
+          ]),
         );
         addTearDown(cubit.close);
 
@@ -239,8 +381,8 @@ void main() {
 
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, isNull);
-        expect(latest.movements, isEmpty);
-        expect(latest.balance, isNull);
+        expect(latest.activity, isNull);
+
         expect(latest.tripOptions, isEmpty);
       },
     );
@@ -286,8 +428,8 @@ void main() {
         expect(latest.isSaving, isFalse);
         expect(latest.drivers, isEmpty);
         expect(latest.selectedDriverId, isNull);
-        expect(latest.movements, isEmpty);
-        expect(latest.balance, isNull);
+        expect(latest.activity, isNull);
+
         expect(financeRepository.addMovementCalls, 1);
       },
     );
@@ -349,21 +491,21 @@ DriverFinanceCubit _createCubit({
       );
   final businessDateUseCase = GetCompanyBusinessDateUseCase(provider);
 
+  balanceRepository.financeRepository = financeRepository;
   return DriverFinanceCubit(
     getDriversUseCase: GetDriversUseCase(
       driversRepository ?? _FakeDriversRepository(),
     ),
     canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
     getCompanyBusinessDateUseCase: businessDateUseCase,
-    getDriverMovementsUseCase: GetDriverMovementsUseCase(financeRepository),
     getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(financeRepository),
     addDriverAdvanceUseCase: AddDriverAdvanceUseCase(financeRepository),
     addDriverChargeUseCase: AddDriverChargeUseCase(financeRepository),
     addDriverCashReturnUseCase: AddDriverCashReturnUseCase(financeRepository),
-    getCurrentCanonicalDriverBalanceUseCase:
-        GetCurrentCanonicalDriverBalanceUseCase(
+    getCurrentDriverBalanceActivityUseCase:
+        GetCurrentDriverBalanceActivityUseCase(
           getCompanyBusinessDateUseCase: businessDateUseCase,
-          getCanonicalDriverBalanceUseCase: GetCanonicalDriverBalanceUseCase(
+          getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
             balanceRepository,
           ),
         ),
@@ -452,9 +594,11 @@ final class _FakeDriversRepository implements DriversRepository {
 final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   final List<DriverFinancialMovement> movements;
   final DriverFinancialMovement? addedMovement;
+  final List<DriverBalanceActivityEntry> expenseEntries = [];
   final Completer<void>? mutationBarrier;
   Completer<void>? movementsBarrier;
   UnexpectedFailure? movementsFailure;
+  UnexpectedFailure? tripOptionsFailure;
   int addMovementCalls = 0;
   String? lastTripOptionsTimeZoneId;
   DriverFinancialMovementWriteData? lastWriteData;
@@ -486,6 +630,10 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
     required String timeZoneId,
   }) async {
     lastTripOptionsTimeZoneId = timeZoneId;
+    final failure = tripOptionsFailure;
+    if (failure != null) {
+      return FailureResult<List<DriverFinanceTripOption>>(failure);
+    }
     return const Success<List<DriverFinanceTripOption>>([]);
   }
 
@@ -505,22 +653,84 @@ final class _FakeDriverFinanceRepository implements DriverFinanceRepository {
   }
 }
 
-final class _FakeDriverBalanceRepository implements DriverBalanceRepository {
+final class _FakeDriverBalanceRepository
+    implements DriverBalanceActivityRepository {
   final List<DriverBalance> balances;
   final List<BusinessDate> beforeExclusiveBoundaries = [];
+  late _FakeDriverFinanceRepository financeRepository;
   int calls = 0;
 
   _FakeDriverBalanceRepository(this.balances);
 
   @override
-  Future<Result<DriverBalance>> getCanonicalDriverBalance({
+  Future<Result<DriverBalanceActivity>> getDriverBalanceActivity({
     required String companyId,
     required String driverId,
+    required CurrencyCode currency,
+    required int currencyFractionDigits,
     required BusinessDate beforeExclusive,
     BusinessDate? checkpointBeforeExclusive,
   }) async {
+    final barrier = financeRepository.movementsBarrier;
+    if (barrier != null) await barrier.future;
+    final failure = financeRepository.movementsFailure;
+    if (failure != null) return FailureResult(failure);
+
     beforeExclusiveBoundaries.add(beforeExclusive);
-    return Success(balances[calls++]);
+    final old = balances[calls++];
+    final checkpoint = old.checkpoint;
+    final zero = Money(minorUnits: 0, currency: currency);
+    final moneyBalance = DriverMoneyBalance(
+      companyId: companyId,
+      driverId: driverId,
+      currency: currency,
+      currencyFractionDigits: currencyFractionDigits,
+      checkpoint: checkpoint == null
+          ? null
+          : DriverMoneyBalanceCheckpoint(
+              settlementId: checkpoint.settlementId,
+              periodEnd: checkpoint.periodEnd,
+              snapshotCreatedAt: checkpoint.snapshotCreatedAt,
+              closingBalance: Money(
+                minorUnits: (checkpoint.closingBalance * 100).round(),
+                currency: currency,
+              ),
+              currencyFractionDigits: currencyFractionDigits,
+            ),
+      totalAdvances: zero,
+      totalDriverCharges: zero,
+      totalTripExpenseCredits: zero,
+      totalCashReturns: zero,
+    );
+    return Success(
+      DriverBalanceActivity(
+        canonicalBalance: moneyBalance,
+        entries: [
+          for (final movement in financeRepository.movements)
+            DriverBalanceActivityEntry(
+              source: DriverBalanceActivitySource.financialMovement,
+              sourceId: movement.id,
+              kind: switch (movement.type) {
+                DriverFinancialMovementType.advance =>
+                  DriverBalanceActivityKind.advance,
+                DriverFinancialMovementType.driverCharge =>
+                  DriverBalanceActivityKind.driverCharge,
+                DriverFinancialMovementType.cashReturn =>
+                  DriverBalanceActivityKind.cashReturn,
+              },
+              companyId: companyId,
+              driverId: driverId,
+              businessDate: movement.movementDate,
+              createdAt: movement.createdAt ?? DateTime.utc(2026, 9, 19),
+              amount: Money(
+                minorUnits: (movement.amount * 100).round(),
+                currency: currency,
+              ),
+            ),
+          ...financeRepository.expenseEntries,
+        ],
+      ),
+    );
   }
 }
 

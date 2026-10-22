@@ -6,6 +6,7 @@ import '../../drivers/di/drivers_dependencies.dart';
 import '../data/datasources/canonical_driver_balance_remote_data_source.dart';
 import '../data/datasources/driver_finance_remote_data_source.dart';
 import '../data/repositories/driver_balance_repository_impl.dart';
+import '../data/repositories/driver_balance_activity_repository_impl.dart';
 import '../data/repositories/driver_finance_repository_impl.dart';
 import '../domain/repositories/driver_balance_repository.dart';
 import '../domain/repositories/driver_finance_repository.dart';
@@ -14,6 +15,7 @@ import '../domain/usecases/can_manage_driver_finance_usecase.dart';
 import '../domain/usecases/get_canonical_driver_balance_usecase.dart';
 import '../domain/usecases/driver_finance_usecases.dart';
 import '../domain/usecases/get_canonical_driver_money_balance_usecase.dart';
+import '../domain/usecases/get_driver_balance_activity_usecase.dart';
 import '../presentation/cubit/driver_finance_cubit.dart';
 
 abstract final class DriverFinanceDependencies {
@@ -27,14 +29,21 @@ abstract final class DriverFinanceDependencies {
       getDriversUseCase: DriversDependencies.createGetDriversUseCase(),
       canManageDriverFinanceUseCase: const CanManageDriverFinanceUseCase(),
       getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
-      getDriverMovementsUseCase: GetDriverMovementsUseCase(repository),
       getDriverTripOptionsUseCase: GetDriverTripOptionsUseCase(repository),
       addDriverAdvanceUseCase: AddDriverAdvanceUseCase(repository),
       addDriverChargeUseCase: AddDriverChargeUseCase(repository),
       addDriverCashReturnUseCase: AddDriverCashReturnUseCase(repository),
-      getCurrentCanonicalDriverBalanceUseCase:
-          createGetCurrentCanonicalDriverBalanceUseCase(
+      getCurrentDriverBalanceActivityUseCase:
+          GetCurrentDriverBalanceActivityUseCase(
             getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
+            getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
+              DriverBalanceActivityRepositoryImpl(
+                remoteDataSource:
+                    SupabaseCanonicalDriverBalanceRemoteDataSource(
+                      SupabaseClientProvider.client,
+                    ),
+              ),
+            ),
           ),
     );
   }

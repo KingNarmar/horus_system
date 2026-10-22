@@ -88,8 +88,7 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
       latest.copyWith(
         drivers: List.unmodifiable(drivers),
         selectedDriverId: retainsSelection ? selectedId : null,
-        movements: retainsSelection ? latest.movements : const [],
-        balance: retainsSelection ? latest.balance : null,
+        activity: retainsSelection ? latest.activity : null,
         tripOptions: retainsSelection ? latest.tripOptions : const [],
         isDetailsLoading: retainsSelection ? latest.isDetailsLoading : false,
         realtimeRefreshFailure: null,
@@ -147,14 +146,14 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
         state is DriverFinanceLoaded &&
         !(state as DriverFinanceLoaded).isSaving;
 
-    final movements = await owner.getDriverMovementsUseCase(
-      GetDriverMovementsParams(
+    final activity = await owner.getCurrentDriverBalanceActivityUseCase(
+      GetCurrentDriverBalanceActivityParams(
         currentCompanyContext: context,
         driverId: driverId,
       ),
     );
     if (!stillCurrent()) return;
-    if (_handleRealtimeFailure(movements.failureOrNull)) return;
+    if (_handleRealtimeFailure(activity.failureOrNull)) return;
 
     final options = await owner.getDriverTripOptionsUseCase(
       GetDriverTripOptionsParams(
@@ -163,29 +162,25 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
       ),
     );
     if (!stillCurrent()) return;
-    if (_handleRealtimeFailure(options.failureOrNull)) return;
+    final optionsFailure = options.failureOrNull;
+    if (optionsFailure is AuthFailure || optionsFailure is PermissionFailure) {
+      _handleRealtimeFailure(optionsFailure);
+      return;
+    }
 
-    final balance = await owner.getCurrentCanonicalDriverBalanceUseCase(
-      GetCurrentCanonicalDriverBalanceParams(
-        currentCompanyContext: context,
-        driverId: driverId,
-      ),
-    );
-    if (!stillCurrent()) return;
-    if (_handleRealtimeFailure(balance.failureOrNull)) return;
-
+    // Optional Trip labels must not hold back a newer canonical balance and
+    // statement. Retain last-good labels on transient lookup failure.
     final latest = state as DriverFinanceLoaded;
     emit(
       latest.copyWith(
-        movements: List.unmodifiable(
-          movements.dataOrNull ?? const <DriverFinancialMovement>[],
-        ),
-        tripOptions: List.unmodifiable(
-          options.dataOrNull ?? const <DriverFinanceTripOption>[],
-        ),
-        balance: balance.dataOrNull,
+        activity: activity.dataOrNull,
+        tripOptions: optionsFailure == null
+            ? List.unmodifiable(
+                options.dataOrNull ?? const <DriverFinanceTripOption>[],
+              )
+            : latest.tripOptions,
         isDetailsLoading: false,
-        realtimeRefreshFailure: null,
+        realtimeRefreshFailure: optionsFailure,
       ),
     );
   }

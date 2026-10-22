@@ -2402,6 +2402,84 @@ abstract class AppLocalizations {
   /// **'Removed'**
   String get fleetLicenseDocumentRemovedValue;
 
+  /// No description provided for @driverBalanceActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver balance activity'**
+  String get driverBalanceActivityTitle;
+
+  /// No description provided for @driverBalanceActivityLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading driver balance activity...'**
+  String get driverBalanceActivityLoading;
+
+  /// No description provided for @driverBalanceActivityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No balance-affecting transactions for this driver.'**
+  String get driverBalanceActivityEmpty;
+
+  /// No description provided for @driverBalanceActivityOpeningBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance brought forward'**
+  String get driverBalanceActivityOpeningBalance;
+
+  /// No description provided for @driverBalanceActivityCheckpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance from finalized settlement through {date}'**
+  String driverBalanceActivityCheckpoint(String date);
+
+  /// No description provided for @driverBalanceActivityDriverPaidExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver-funded trip expense'**
+  String get driverBalanceActivityDriverPaidExpense;
+
+  /// No description provided for @driverBalanceActivityFinancialMovementSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver financial movement'**
+  String get driverBalanceActivityFinancialMovementSource;
+
+  /// No description provided for @driverBalanceActivityTripExpenseSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense ledger'**
+  String get driverBalanceActivityTripExpenseSource;
+
+  /// No description provided for @driverBalanceActivityImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance impact'**
+  String get driverBalanceActivityImpact;
+
+  /// No description provided for @driverBalanceActivitySourceReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Source transaction'**
+  String get driverBalanceActivitySourceReference;
+
+  /// No description provided for @driverBalanceActivityVoidedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided and non-driver-funded expenses are excluded. Previously settled transactions are included in the opening balance.'**
+  String get driverBalanceActivityVoidedHint;
+
+  /// No description provided for @driverBalanceActivityShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more activity'**
+  String get driverBalanceActivityShowMore;
+
+  /// No description provided for @driverBalanceActivityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get driverBalanceActivityDescription;
+
   /// No description provided for @driverFinanceTitle.
   ///
   /// In en, this message translates to:

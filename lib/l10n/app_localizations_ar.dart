@@ -1250,6 +1250,51 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fleetLicenseDocumentRemovedValue => 'تمت الإزالة';
 
   @override
+  String get driverBalanceActivityTitle => 'كشف حركة رصيد السائق';
+
+  @override
+  String get driverBalanceActivityLoading => 'جارٍ تحميل كشف رصيد السائق...';
+
+  @override
+  String get driverBalanceActivityEmpty =>
+      'لا توجد معاملات مؤثرة على رصيد هذا السائق.';
+
+  @override
+  String get driverBalanceActivityOpeningBalance => 'الرصيد المرحّل';
+
+  @override
+  String driverBalanceActivityCheckpoint(String date) {
+    return 'الرصيد الافتتاحي من التسوية النهائية حتى $date';
+  }
+
+  @override
+  String get driverBalanceActivityDriverPaidExpense =>
+      'مصروف رحلة مدفوع بواسطة السائق';
+
+  @override
+  String get driverBalanceActivityFinancialMovementSource =>
+      'حركة مالية للسائق';
+
+  @override
+  String get driverBalanceActivityTripExpenseSource => 'دفتر المصروفات';
+
+  @override
+  String get driverBalanceActivityImpact => 'التأثير على الرصيد';
+
+  @override
+  String get driverBalanceActivitySourceReference => 'مرجع المعاملة الأصلية';
+
+  @override
+  String get driverBalanceActivityVoidedHint =>
+      'لا تُحتسب المصروفات الملغاة أو غير المدفوعة بواسطة السائق. المعاملات المسوّاة سابقًا مدرجة ضمن الرصيد المرحّل.';
+
+  @override
+  String get driverBalanceActivityShowMore => 'عرض مزيد من الحركات';
+
+  @override
+  String get driverBalanceActivityDescription => 'الوصف';
+
+  @override
   String get driverFinanceTitle => 'حركات السائق المالية';
 
   @override

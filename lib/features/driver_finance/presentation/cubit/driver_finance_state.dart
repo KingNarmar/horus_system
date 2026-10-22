@@ -1,9 +1,8 @@
 import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../drivers/domain/entities/driver.dart';
-import '../../domain/entities/driver_balance.dart';
+import '../../domain/entities/driver_balance_activity.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
-import '../../domain/entities/driver_financial_movement.dart';
 
 const Object _notSet = Object();
 
@@ -29,8 +28,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
   final CurrentCompanyContext currentCompanyContext;
   final List<Driver> drivers;
   final String? selectedDriverId;
-  final List<DriverFinancialMovement> movements;
-  final DriverBalance? balance;
+  final DriverBalanceActivity? activity;
   final List<DriverFinanceTripOption> tripOptions;
   final bool canManage;
   final bool isDetailsLoading;
@@ -43,8 +41,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
     required this.drivers,
     required this.canManage,
     this.selectedDriverId,
-    this.movements = const [],
-    this.balance,
+    this.activity,
     this.tripOptions = const [],
     this.isDetailsLoading = false,
     this.isSaving = false,
@@ -64,8 +61,7 @@ final class DriverFinanceLoaded extends DriverFinanceState {
   DriverFinanceLoaded copyWith({
     List<Driver>? drivers,
     Object? selectedDriverId = _notSet,
-    List<DriverFinancialMovement>? movements,
-    Object? balance = _notSet,
+    Object? activity = _notSet,
     List<DriverFinanceTripOption>? tripOptions,
     bool? canManage,
     bool? isDetailsLoading,
@@ -79,8 +75,9 @@ final class DriverFinanceLoaded extends DriverFinanceState {
       selectedDriverId: selectedDriverId == _notSet
           ? this.selectedDriverId
           : selectedDriverId as String?,
-      movements: movements ?? this.movements,
-      balance: balance == _notSet ? this.balance : balance as DriverBalance?,
+      activity: activity == _notSet
+          ? this.activity
+          : activity as DriverBalanceActivity?,
       tripOptions: tripOptions ?? this.tripOptions,
       canManage: canManage ?? this.canManage,
       isDetailsLoading: isDetailsLoading ?? this.isDetailsLoading,
