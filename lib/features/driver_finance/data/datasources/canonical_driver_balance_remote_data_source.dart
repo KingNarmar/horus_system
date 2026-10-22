@@ -76,7 +76,8 @@ abstract class DriverBalanceActivityRemoteDataSource {
 }
 
 class SupabaseCanonicalDriverBalanceRemoteDataSource
-    implements CanonicalDriverBalanceRemoteDataSource,
+    implements
+        CanonicalDriverBalanceRemoteDataSource,
         DriverBalanceActivityRemoteDataSource {
   final SupabaseClient client;
   final DriverBalanceSourceMapper balanceSourceMapper;
