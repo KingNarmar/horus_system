@@ -17,7 +17,14 @@ import 'dart:io';
 const _host = 'zwnfmszssxtfxkaofnhq.supabase.co';
 const _finance = {'owner', 'admin', 'accountant'};
 const _restricted = {'operations', 'viewer', 'driver'};
-const _cases = {'locked', 'legacy', 'available', 'denied', 'foreign'};
+const _cases = {
+  'locked',
+  'legacy',
+  'available',
+  'denied',
+  'foreign',
+  'anonymous',
+};
 final _uuid = RegExp(
   r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
 );
@@ -59,7 +66,7 @@ final class _Fixture {
   String company(String test) => test == 'foreign' ? tenantB : tenantA;
 
   String expense(String test) =>
-      ids[test == 'denied' ? 'available' : test]!;
+      ids[test == 'denied' || test == 'anonymous' ? 'available' : test]!;
 }
 
 final class _TestCase {
@@ -76,8 +83,13 @@ final class _TestCase {
     if (args.length != 3 ||
         args.first != '--execute' ||
         !_cases.contains(name) ||
-        !(_finance.contains(role) || _restricted.contains(role)) ||
-        ((name == 'denied') != _restricted.contains(role))) {
+        !(_finance.contains(role) ||
+            _restricted.contains(role) ||
+            role == 'anonymous') ||
+        (name == 'denied' && !_restricted.contains(role)) ||
+        (name == 'anonymous' && role != 'anonymous') ||
+        (!{'denied', 'anonymous'}.contains(name) &&
+            !_finance.contains(role))) {
       throw StateError('Unauthorized test case/role combination.');
     }
   }
@@ -295,14 +307,19 @@ Future<void> main(List<String> args) async {
     final owner = await gateway.login(
       _line('Target-company Owner email: '), _password(),
     );
-    final actor = await gateway.login(
-      _line('Actor ${test.role} email: '), _password(),
-    );
+    final _Credentials? actor = test.role == 'anonymous'
+        ? null
+        : await gateway.login(
+            _line('Actor ${test.role} email: '),
+            _password(),
+          );
     final company = fixture.company(test.name);
     final expenseId = fixture.expense(test.name);
     if (!await _hasRole(gateway, owner, company, 'owner') ||
-        !await _hasRole(gateway, actor, fixture.tenantA, test.role) ||
+        (actor != null &&
+            !await _hasRole(gateway, actor, fixture.tenantA, test.role)) ||
         (test.name == 'foreign' &&
+            actor != null &&
             await _hasRole(gateway, actor, company, test.role))) {
       throw StateError('Signed user role/tenant preflight failed.');
     }
@@ -328,7 +345,7 @@ Future<void> main(List<String> args) async {
     final oldAudits = await _voidAudits(gateway, owner, company, expenseId);
     final result = await gateway.send(
       'POST', '/rest/v1/rpc/void_expense_ledger_entry',
-      jwt: actor.jwt,
+      jwt: actor?.jwt,
       data: {
         'p_company_id': company,
         'p_expense_id': expenseId,
@@ -337,11 +354,41 @@ Future<void> main(List<String> args) async {
     );
     final after = await _expense(gateway, owner, company, expenseId);
     final newAudits = await _voidAudits(gateway, owner, company, expenseId);
-    final passed = test.name == 'available'
+    final isAnonymousDenied = test.name == 'anonymous' &&
+        !result.ok &&
+        (result.status == 401 || result.status == 403) &&
+        {'42501', 'P2801', 'PGRST301'}.contains(result.code);
+    var passed = test.name == 'available'
         ? result.ok && after['is_voided'] == true &&
             newAudits == oldAudits + 1
-        : !result.ok && result.code == test.expectedSqlState &&
-            after['is_voided'] == false && newAudits == oldAudits;
+        : !result.ok &&
+            (isAnonymousDenied || result.code == test.expectedSqlState) &&
+            after['is_voided'] == false &&
+            newAudits == oldAudits;
+
+    if (passed && test.name == 'available') {
+      final retry = await gateway.send(
+        'POST',
+        '/rest/v1/rpc/void_expense_ledger_entry',
+        jwt: actor?.jwt,
+        data: {
+          'p_company_id': company,
+          'p_expense_id': expenseId,
+          'p_reason': fixture.marker,
+        },
+      );
+      final finalRow = await _expense(gateway, owner, company, expenseId);
+      final finalAuditCount = await _voidAudits(
+        gateway,
+        owner,
+        company,
+        expenseId,
+      );
+      passed = !retry.ok &&
+          retry.code == 'P2807' &&
+          finalRow['is_voided'] == true &&
+          finalAuditCount == newAudits;
+    }
 
     stdout.writeln(
       '${passed ? 'PASS  ' : 'FAIL  '}${test.name}/${test.role}',
