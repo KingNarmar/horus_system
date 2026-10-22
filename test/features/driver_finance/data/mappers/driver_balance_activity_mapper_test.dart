@@ -44,9 +44,7 @@ void main() {
             created: '2026-10-12T10:00:00Z',
           ),
         ],
-        expenseLedgerRows: [
-          _expense(id: 'ledger-1', amount: 200),
-        ],
+        expenseLedgerRows: [_expense(id: 'ledger-1', amount: 200)],
       );
 
       final balance = result.canonicalBalance;
@@ -58,7 +56,10 @@ void main() {
         result.entries.map((entry) => entry.balanceImpact.minorUnits).toList(),
         [-1000, -300, 100, 200],
       );
-      expect(result.entries.last.source, DriverBalanceActivitySource.tripExpense);
+      expect(
+        result.entries.last.source,
+        DriverBalanceActivitySource.tripExpense,
+      );
       expect(result.entries.last.stableId, 'tripExpense:ledger-1');
       expect(result.entries.last.tripId, 'trip-1');
       expect(result.entries.last.description, 'Diesel');
