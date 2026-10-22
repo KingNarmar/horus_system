@@ -37,11 +37,10 @@ final class DriverBalanceActivityEntry {
     this.tripId,
     this.description,
     this.notes,
-  }) : assert(sourceId != ''),
-       assert(amount.minorUnits > 0);
+  }) : assert(sourceId != '');
 
   /// Namespaces IDs from distinct source relations for stable list identity.
-  String get stableId => source.name + ':' + sourceId;
+  String get stableId => '${source.name}:$sourceId';
 
   /// Matches DriverBalanceCalculator's established sign convention.
   /// The canonical balance itself is never calculated by this entity.
