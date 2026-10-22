@@ -14,51 +14,64 @@ import 'package:test/test.dart';
 void main() {
   final currency = CurrencyCode.tryParse('AED')!;
 
-  test('passes tenant, driver, currency and checkpoint boundary to source', () async {
-    final remote = _FakeRemote();
-    final repo = DriverBalanceActivityRepositoryImpl(remoteDataSource: remote);
-    final before = BusinessDate(year: 2026, month: 10, day: 23);
-    final checkpointBefore = BusinessDate(year: 2026, month: 9, day: 1);
-    final result = await repo.getDriverBalanceActivity(
-      companyId: 'company-1',
-      driverId: 'driver-1',
-      currency: currency,
-      currencyFractionDigits: 2,
-      beforeExclusive: before,
-      checkpointBeforeExclusive: checkpointBefore,
-    );
+  test(
+    'passes tenant, driver, currency and checkpoint boundary to source',
+    () async {
+      final remote = _FakeRemote();
+      final repo = DriverBalanceActivityRepositoryImpl(
+        remoteDataSource: remote,
+      );
+      final before = BusinessDate(year: 2026, month: 10, day: 23);
+      final checkpointBefore = BusinessDate(year: 2026, month: 9, day: 1);
+      final result = await repo.getDriverBalanceActivity(
+        companyId: 'company-1',
+        driverId: 'driver-1',
+        currency: currency,
+        currencyFractionDigits: 2,
+        beforeExclusive: before,
+        checkpointBeforeExclusive: checkpointBefore,
+      );
 
-    expect(result, isA<Success<DriverBalanceActivity>>());
-    expect(remote.companyId, 'company-1');
-    expect(remote.driverId, 'driver-1');
-    expect(remote.currencyCode, 'AED');
-    expect(remote.fractionDigits, 2);
-    expect(remote.beforeExclusive, before);
-    expect(remote.checkpointBeforeExclusive, checkpointBefore);
-    expect(result.dataOrNull?.entries, isEmpty);
-  });
+      expect(result, isA<Success<DriverBalanceActivity>>());
+      expect(remote.companyId, 'company-1');
+      expect(remote.driverId, 'driver-1');
+      expect(remote.currencyCode, 'AED');
+      expect(remote.fractionDigits, 2);
+      expect(remote.beforeExclusive, before);
+      expect(remote.checkpointBeforeExclusive, checkpointBefore);
+      expect(result.dataOrNull?.entries, isEmpty);
+    },
+  );
 
-  test('sanitizes denied database reads to finance permission failures', () async {
-    final remote = _FakeRemote(
-      error: const PostgrestException(
-        message: 'confidential backend error',
-        code: '42501',
-      ),
-    );
-    final repo = DriverBalanceActivityRepositoryImpl(remoteDataSource: remote);
-    final result = await repo.getDriverBalanceActivity(
-      companyId: 'company-1',
-      driverId: 'driver-1',
-      currency: currency,
-      currencyFractionDigits: 2,
-      beforeExclusive: BusinessDate(year: 2026, month: 10, day: 23),
-    );
+  test(
+    'sanitizes denied database reads to finance permission failures',
+    () async {
+      final remote = _FakeRemote(
+        error: const PostgrestException(
+          message: 'confidential backend error',
+          code: '42501',
+        ),
+      );
+      final repo = DriverBalanceActivityRepositoryImpl(
+        remoteDataSource: remote,
+      );
+      final result = await repo.getDriverBalanceActivity(
+        companyId: 'company-1',
+        driverId: 'driver-1',
+        currency: currency,
+        currencyFractionDigits: 2,
+        beforeExclusive: BusinessDate(year: 2026, month: 10, day: 23),
+      );
 
-    expect(result, isA<FailureResult<DriverBalanceActivity>>());
-    expect(result.failureOrNull, isA<PermissionFailure>());
-    expect(result.failureOrNull?.code, FailureCodes.permissionDriverFinanceView);
-    expect(result.failureOrNull?.message, isNull);
-  });
+      expect(result, isA<FailureResult<DriverBalanceActivity>>());
+      expect(result.failureOrNull, isA<PermissionFailure>());
+      expect(
+        result.failureOrNull?.code,
+        FailureCodes.permissionDriverFinanceView,
+      );
+      expect(result.failureOrNull?.message, isNull);
+    },
+  );
 }
 
 final class _FakeRemote implements DriverBalanceActivityRemoteDataSource {
