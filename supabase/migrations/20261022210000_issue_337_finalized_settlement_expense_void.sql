@@ -190,14 +190,11 @@ BEGIN
       ERRCODE = 'P2806', MESSAGE = 'expense_ledger_not_found';
   END IF;
 
-  IF v_entry.origin_kind NOT IN ('manual', 'legacy_trip_expense')
-     OR v_entry.trip_id IS NULL THEN
-    -- Issue #337 handles Trip Expense void only. Do not broaden the RPC to
-    -- retired legacy-company sources or a new movement-void workflow.
-    IF v_entry.origin_kind NOT IN ('manual', 'legacy_trip_expense') THEN
-      RAISE EXCEPTION USING
-        ERRCODE = 'P2801', MESSAGE = 'expense_ledger_permission_denied';
-    END IF;
+  -- Retain the existing supported origins; legacy Company Expense and
+  -- Driver Financial Movement void remain outside this RPC's scope.
+  IF v_entry.origin_kind NOT IN ('manual', 'legacy_trip_expense') THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P2801', MESSAGE = 'expense_ledger_permission_denied';
   END IF;
 
   IF v_entry.is_voided THEN
