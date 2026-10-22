@@ -1,7 +1,6 @@
 -- H.O.R.U.S System — Issue #337 (Development first).
 -- A finalized Driver Settlement must never retain a voided Trip Expense source.
 -- Existing settlement snapshot, audit and private Realtime triggers stay intact.
-BEGIN;
 
 -- Settlement items carry the authoritative captured-source identity.
 -- Historical Trip Expense items may reference origin_id instead of ledger id.
@@ -244,4 +243,3 @@ REVOKE ALL ON FUNCTION public.void_expense_ledger_entry(uuid, uuid, text)
 GRANT EXECUTE ON FUNCTION public.void_expense_ledger_entry(uuid, uuid, text)
   TO authenticated;
 
-COMMIT;
