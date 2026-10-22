@@ -133,6 +133,26 @@ BEGIN
     RAISE EXCEPTION 'Issue 337: eligible unlinked void did not persist in transaction';
   END IF;
 
+  SELECT count(*) INTO v_audit_count
+  FROM public.audit_logs
+  WHERE company_id = v_company
+    AND entity_id = v_free::text
+    AND action = 'voided';
+  IF v_audit_count <> 1 THEN
+    RAISE EXCEPTION 'Issue 337: successful void must emit one audit event';
+  END IF;
+  v_denied := false;
+  BEGIN
+    PERFORM public.void_expense_ledger_entry(v_company, v_free, 'repeat_issue337');
+  EXCEPTION WHEN SQLSTATE 'P2807' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied OR (SELECT count(*) FROM public.audit_logs
+    WHERE company_id = v_company AND entity_id = v_free::text
+      AND action = 'voided') <> v_audit_count THEN
+    RAISE EXCEPTION 'Issue 337: repeat void changed an already-voided row or audit';
+  END IF;
+
   -- A legacy settlement item references origin_id, NOT the canonical ledger id.
   INSERT INTO public.expense_ledger_entries(
     company_id, expense_type_id, amount_minor_units, currency_code,
@@ -218,7 +238,28 @@ BEGIN
     RAISE EXCEPTION 'Issue 337: failed finalization mutated draft';
   END IF;
 
-  RAISE NOTICE 'PASS Issue 337: locked, unlinked, legacy, void-first/finalize-second and denied-audit assertions';
+  -- New finalized snapshots must never have an expense total without any
+  -- captured Trip Expense provenance, even if older legacy data may have it.
+  INSERT INTO public.driver_settlements(
+    company_id, driver_id, period_start, period_end,
+    driver_paid_trip_expenses_total
+  ) VALUES (
+    v_company, v_driver, v_period + 3, v_period + 3, 1
+  ) RETURNING id INTO v_prevoid_settlement;
+
+  v_denied := false;
+  BEGIN
+    UPDATE public.driver_settlements
+    SET status = 'finalized'::public.driver_settlement_status
+    WHERE company_id = v_company AND id = v_prevoid_settlement;
+  EXCEPTION WHEN SQLSTATE 'P2812' THEN
+    v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'Issue 337: missing source provenance finalized';
+  END IF;
+
+  RAISE NOTICE 'PASS Issue 337: captured, unlinked, legacy, void-first, missing-provenance, idempotency and audit assertions';
 END;
 $issue337$;
 
