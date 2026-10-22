@@ -537,6 +537,7 @@
   "failureValidationTripIdRequired": "Trip id is required.",
   "failurePermissionTripExpensesView": "Trip expenses access is not allowed.",
   "failurePermissionTripExpensesManagement": "Trip expenses management is not allowed.",
+  "tripExpenseFinalizedSettlementLockedFailure": "This trip expense is included in a finalized driver settlement and cannot be voided.",
   "failureValidationTripExpenseIdRequired": "Trip expense id is required.",
   "failureValidationTripExpenseTypeRequired": "Expense type is required.",
   "failureValidationTripExpenseNameRequired": "Expense name is required.",
