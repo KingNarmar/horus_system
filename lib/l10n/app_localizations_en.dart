@@ -1267,6 +1267,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fleetLicenseDocumentRemovedValue => 'Removed';
 
   @override
+  String get driverBalanceActivityTitle => 'Driver balance activity';
+
+  @override
+  String get driverBalanceActivityLoading =>
+      'Loading driver balance activity...';
+
+  @override
+  String get driverBalanceActivityEmpty =>
+      'No balance-affecting transactions for this driver.';
+
+  @override
+  String get driverBalanceActivityOpeningBalance => 'Balance brought forward';
+
+  @override
+  String driverBalanceActivityCheckpoint(String date) {
+    return 'Opening balance from finalized settlement through $date';
+  }
+
+  @override
+  String get driverBalanceActivityDriverPaidExpense =>
+      'Driver-funded trip expense';
+
+  @override
+  String get driverBalanceActivityFinancialMovementSource =>
+      'Driver financial movement';
+
+  @override
+  String get driverBalanceActivityTripExpenseSource => 'Expense ledger';
+
+  @override
+  String get driverBalanceActivityImpact => 'Balance impact';
+
+  @override
+  String get driverBalanceActivitySourceReference => 'Source transaction';
+
+  @override
+  String get driverBalanceActivityVoidedHint =>
+      'Voided and non-driver-funded expenses are excluded. Previously settled transactions are included in the opening balance.';
+
+  @override
+  String get driverBalanceActivityShowMore => 'Show more activity';
+
+  @override
+  String get driverBalanceActivityDescription => 'Description';
+
+  @override
   String get driverFinanceTitle => 'Driver finance';
 
   @override
