@@ -193,13 +193,13 @@ final class _LoadedDriverFinance extends StatelessWidget {
         if (state.selectedDriverId != null) ...[
           const SizedBox(height: AppSpacing.lg),
           DriverFinanceDetailsSection(
-            movements: state.movements,
-            balance: state.balance,
+            activity: state.activity,
             tripOptions: state.tripOptions,
             canManage: state.canManage,
             isLoading: state.isDetailsLoading,
             isSaving: state.isSaving,
             failure: state.failure,
+            realtimeRefreshFailure: state.realtimeRefreshFailure,
             onAddAdvance: onAddAdvance,
             onAddDriverCharge: onAddDriverCharge,
             onAddCashReturn: onAddCashReturn,
