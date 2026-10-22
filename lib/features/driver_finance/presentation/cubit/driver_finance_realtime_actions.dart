@@ -163,8 +163,7 @@ mixin DriverFinanceRealtimeActions on Cubit<DriverFinanceState> {
     );
     if (!stillCurrent()) return;
     final optionsFailure = options.failureOrNull;
-    if (optionsFailure is AuthFailure ||
-        optionsFailure is PermissionFailure) {
+    if (optionsFailure is AuthFailure || optionsFailure is PermissionFailure) {
       _handleRealtimeFailure(optionsFailure);
       return;
     }
