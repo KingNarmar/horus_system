@@ -150,7 +150,9 @@ final class _ActivityItem extends StatelessWidget {
                   '${l10n.driverMovementTripLine}: ${tripLabel ?? entry.tripId}',
                 ),
               if (entry.description != null)
-                Text('${l10n.driverBalanceActivityDescription}: ${entry.description}'),
+                Text(
+                  '${l10n.driverBalanceActivityDescription}: ${entry.description}',
+                ),
               if (entry.notes != null) Text(entry.notes!),
               Text(l10n.driverActivitySourceLabel(entry.source)),
               SelectableText(
@@ -165,10 +167,8 @@ final class _ActivityItem extends StatelessWidget {
   }
 }
 
-String _formattedDate(
-  BusinessDate businessDate,
-  String localeName,
-) {
-  return DateFormat.yMMMd(localeName)
-      .format(BusinessDateDateTimeAdapter.toDateTime(businessDate));
+String _formattedDate(BusinessDate businessDate, String localeName) {
+  return DateFormat.yMMMd(
+    localeName,
+  ).format(BusinessDateDateTimeAdapter.toDateTime(businessDate));
 }
