@@ -1638,6 +1638,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trip expenses management is not allowed.';
 
   @override
+  String get tripExpenseFinalizedSettlementLockedFailure =>
+      'This trip expense is included in a finalized driver settlement and cannot be voided.';
+
+  @override
   String get failureValidationTripExpenseIdRequired =>
       'Trip expense id is required.';
 
