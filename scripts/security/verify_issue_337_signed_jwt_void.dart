@@ -135,7 +135,7 @@ final class _Gateway {
     final request = await client.openUrl(method, url);
     request.headers.set('apikey', publishableKey);
     request.headers.set('Accept', 'application/json');
-    if (jwt != null) request.headers.set('Authorization', 'Bearer ' + jwt);
+    if (jwt != null) request.headers.set('Authorization', 'Bearer $jwt');
     if (data != null) {
       request.headers.contentType = ContentType.json;
       request.write(jsonEncode(data));
@@ -178,7 +178,7 @@ final class _Gateway {
       throw StateError('Table not allowed.');
     }
     final response = await send(
-      'GET', '/rest/v1/' + table, jwt: jwt, query: filters,
+      'GET', '/rest/v1/$table', jwt: jwt, query: filters,
     );
     if (!response.ok) throw StateError('Fixture read failed.');
     return response.rows;
@@ -211,7 +211,7 @@ Future<bool> _hasRole(
     user.jwt, 'company_users',
     {
       'select': 'company_id,user_id,role,is_active',
-      'user_id': 'eq.' + user.id,
+      'user_id': 'eq.${user.id}',
     },
   );
   return rows.any((row) => row['company_id'] == company &&
@@ -226,8 +226,8 @@ Future<Map<String, dynamic>> _expense(
     {
       'select': 'id,company_id,trip_id,description,funding_source,'
           'origin_kind,origin_id,is_voided',
-      'company_id': 'eq.' + company,
-      'id': 'eq.' + id,
+      'company_id': 'eq.$company',
+      'id': 'eq.$id',
     },
   );
   if (rows.length != 1) throw StateError('Expected one isolated expense.');
@@ -239,8 +239,8 @@ Future<int> _voidAudits(
 ) async {
   return (await gateway.rows(user.jwt, 'audit_logs', {
     'select': 'id',
-    'company_id': 'eq.' + company,
-    'entity_id': 'eq.' + id,
+    'company_id': 'eq.$company',
+    'entity_id': 'eq.$id',
     'action': 'eq.voided',
   })).length;
 }
@@ -252,9 +252,9 @@ Future<bool> _captured(
     user.jwt, 'driver_settlement_items',
     {
       'select': 'settlement_id',
-      'company_id': 'eq.' + company,
+      'company_id': 'eq.$company',
       'source_type': 'eq.trip_expense',
-      'source_id': 'eq.' + sourceId,
+      'source_id': 'eq.$sourceId',
     },
   );
   for (final item in items) {
@@ -262,8 +262,8 @@ Future<bool> _captured(
       user.jwt, 'driver_settlements',
       {
         'select': 'status',
-        'company_id': 'eq.' + company,
-        'id': 'eq.' + item['settlement_id'].toString(),
+        'company_id': 'eq.$company',
+        'id': "eq.${item['settlement_id']}",
       },
     );
     if (settlements.any((row) => row['status'] == 'finalized')) return true;
@@ -288,7 +288,7 @@ Future<void> main(List<String> args) async {
       'Type EXECUTE + fixture marker + case, separated by spaces: ',
     );
     if (confirmation !=
-        'EXECUTE ' + fixture.marker + ' ' + test.name) {
+        'EXECUTE ${fixture.marker} ${test.name}') {
       throw StateError('Explicit approval/fixture mismatch.');
     }
     gateway = _Gateway(origin, publishableKey);
@@ -296,7 +296,7 @@ Future<void> main(List<String> args) async {
       _line('Target-company Owner email: '), _password(),
     );
     final actor = await gateway.login(
-      _line('Actor ' + test.role + ' email: '), _password(),
+      _line('Actor ${test.role} email: '), _password(),
     );
     final company = fixture.company(test.name);
     final expenseId = fixture.expense(test.name);
@@ -344,7 +344,7 @@ Future<void> main(List<String> args) async {
             after['is_voided'] == false && newAudits == oldAudits;
 
     stdout.writeln(
-      (passed ? 'PASS  ' : 'FAIL  ') + test.name + '/' + test.role,
+      '${passed ? 'PASS  ' : 'FAIL  '}${test.name}/${test.role}',
     );
     if (!passed) exitCode = 1;
   } catch (_) {
