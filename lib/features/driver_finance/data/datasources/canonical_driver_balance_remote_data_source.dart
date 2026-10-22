@@ -296,33 +296,33 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
 
     final effectiveRows = await _readAllPages((from, to) async {
       final page = await client
-        .from(DriverFinanceDbTables.driverFinancialMovements)
-        .select(_driverFinancialMovementColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.driverId, driverId)
-        .gt(
-          DriverFinanceDbFields.movementDate,
-          DbDate.encode(checkpointPeriodEnd),
-        )
-        .lt(DriverFinanceDbFields.movementDate, before)
-        .order(DriverFinanceDbFields.movementDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id)
+          .from(DriverFinanceDbTables.driverFinancialMovements)
+          .select(_driverFinancialMovementColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.driverId, driverId)
+          .gt(
+            DriverFinanceDbFields.movementDate,
+            DbDate.encode(checkpointPeriodEnd),
+          )
+          .lt(DriverFinanceDbFields.movementDate, before)
+          .order(DriverFinanceDbFields.movementDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
           .range(from, to);
       return _maps(page);
     });
 
     final lateRows = await _readAllPages((from, to) async {
       final page = await client
-        .from(DriverFinanceDbTables.driverFinancialMovements)
-        .select(_driverFinancialMovementColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.driverId, driverId)
-        .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
-        .lt(DriverFinanceDbFields.movementDate, before)
-        .order(DriverFinanceDbFields.movementDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id)
+          .from(DriverFinanceDbTables.driverFinancialMovements)
+          .select(_driverFinancialMovementColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.driverId, driverId)
+          .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
+          .lt(DriverFinanceDbFields.movementDate, before)
+          .order(DriverFinanceDbFields.movementDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
           .range(from, to);
       return _maps(page);
     });
@@ -386,43 +386,43 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
 
     final effectiveRows = await _readAllPages((from, to) async {
       final page = await client
-        .from(DriverFinanceDbTables.expenseLedgerEntries)
-        .select(_expenseLedgerColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.isVoided, false)
-        .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.fundingSource, const [
-          DriverFinanceDbValues.paidByDriverAdvance,
-          DriverFinanceDbValues.paidByDriverCash,
-        ])
-        .gt(
-          DriverFinanceDbFields.expenseDate,
-          DbDate.encode(checkpointPeriodEnd),
-        )
-        .lt(DriverFinanceDbFields.expenseDate, before)
-        .order(DriverFinanceDbFields.expenseDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id)
+          .from(DriverFinanceDbTables.expenseLedgerEntries)
+          .select(_expenseLedgerColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.isVoided, false)
+          .inFilter(DriverFinanceDbFields.tripId, tripIds)
+          .inFilter(DriverFinanceDbFields.fundingSource, const [
+            DriverFinanceDbValues.paidByDriverAdvance,
+            DriverFinanceDbValues.paidByDriverCash,
+          ])
+          .gt(
+            DriverFinanceDbFields.expenseDate,
+            DbDate.encode(checkpointPeriodEnd),
+          )
+          .lt(DriverFinanceDbFields.expenseDate, before)
+          .order(DriverFinanceDbFields.expenseDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
           .range(from, to);
       return _maps(page);
     });
 
     final lateRows = await _readAllPages((from, to) async {
       final page = await client
-        .from(DriverFinanceDbTables.expenseLedgerEntries)
-        .select(_expenseLedgerColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.isVoided, false)
-        .inFilter(DriverFinanceDbFields.tripId, tripIds)
-        .inFilter(DriverFinanceDbFields.fundingSource, const [
-          DriverFinanceDbValues.paidByDriverAdvance,
-          DriverFinanceDbValues.paidByDriverCash,
-        ])
-        .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
-        .lt(DriverFinanceDbFields.expenseDate, before)
-        .order(DriverFinanceDbFields.expenseDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id)
+          .from(DriverFinanceDbTables.expenseLedgerEntries)
+          .select(_expenseLedgerColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.isVoided, false)
+          .inFilter(DriverFinanceDbFields.tripId, tripIds)
+          .inFilter(DriverFinanceDbFields.fundingSource, const [
+            DriverFinanceDbValues.paidByDriverAdvance,
+            DriverFinanceDbValues.paidByDriverCash,
+          ])
+          .gt(DbCommonFields.createdAt, DbTimestamp.encode(snapshotCreatedAt))
+          .lt(DriverFinanceDbFields.expenseDate, before)
+          .order(DriverFinanceDbFields.expenseDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
           .range(from, to);
       return _maps(page);
     });
@@ -465,7 +465,7 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     Future<List<Map<String, dynamic>>> Function(int from, int to) loadPage,
   ) async {
     final rows = <Map<String, dynamic>>[];
-    for (var from = 0;; from += _pageSize) {
+    for (var from = 0; ; from += _pageSize) {
       final page = await loadPage(from, from + _pageSize - 1);
       rows.addAll(page);
       if (page.length < _pageSize) return rows;
