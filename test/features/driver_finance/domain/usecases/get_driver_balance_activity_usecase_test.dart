@@ -18,30 +18,33 @@ import 'package:test/test.dart';
 
 void main() {
   group('GetDriverBalanceActivityUseCase', () {
-    test('scopes the read to the company and exact currency configuration', () async {
-      final repository = _FakeActivityRepository();
-      final useCase = GetDriverBalanceActivityUseCase(repository);
-      final before = BusinessDate(year: 2026, month: 10, day: 23);
-      final checkpointBefore = BusinessDate(year: 2026, month: 9, day: 1);
+    test(
+      'scopes the read to the company and exact currency configuration',
+      () async {
+        final repository = _FakeActivityRepository();
+        final useCase = GetDriverBalanceActivityUseCase(repository);
+        final before = BusinessDate(year: 2026, month: 10, day: 23);
+        final checkpointBefore = BusinessDate(year: 2026, month: 9, day: 1);
 
-      final result = await useCase(
-        GetDriverBalanceActivityParams(
-          currentCompanyContext: _context(CompanyRole.accountant),
-          driverId: '  driver-1  ',
-          beforeExclusive: before,
-          checkpointBeforeExclusive: checkpointBefore,
-        ),
-      );
+        final result = await useCase(
+          GetDriverBalanceActivityParams(
+            currentCompanyContext: _context(CompanyRole.accountant),
+            driverId: '  driver-1  ',
+            beforeExclusive: before,
+            checkpointBeforeExclusive: checkpointBefore,
+          ),
+        );
 
-      expect(result, isA<Success<DriverBalanceActivity>>());
-      expect(repository.calls, 1);
-      expect(repository.companyId, 'company-1');
-      expect(repository.driverId, 'driver-1');
-      expect(repository.currency?.value, 'AED');
-      expect(repository.fractionDigits, 2);
-      expect(repository.beforeExclusive, before);
-      expect(repository.checkpointBeforeExclusive, checkpointBefore);
-    });
+        expect(result, isA<Success<DriverBalanceActivity>>());
+        expect(repository.calls, 1);
+        expect(repository.companyId, 'company-1');
+        expect(repository.driverId, 'driver-1');
+        expect(repository.currency?.value, 'AED');
+        expect(repository.fractionDigits, 2);
+        expect(repository.beforeExclusive, before);
+        expect(repository.checkpointBeforeExclusive, checkpointBefore);
+      },
+    );
 
     test('rejects unauthorized roles before any financial read', () async {
       for (final role in [
@@ -105,10 +108,7 @@ void main() {
 
       final wrongDigits = await useCase(
         GetDriverBalanceActivityParams(
-          currentCompanyContext: _context(
-            CompanyRole.owner,
-            fractionDigits: 5,
-          ),
+          currentCompanyContext: _context(CompanyRole.owner, fractionDigits: 5),
           driverId: 'driver-1',
           beforeExclusive: before,
         ),
@@ -122,32 +122,38 @@ void main() {
   });
 
   group('GetCurrentDriverBalanceActivityUseCase', () {
-    test('uses company business date and exclusive next-day boundary', () async {
-      final repository = _FakeActivityRepository();
-      final provider = _FakeDateProvider(
-        Success(BusinessDate(year: 2026, month: 10, day: 22)),
-      );
-      final useCase = GetCurrentDriverBalanceActivityUseCase(
-        getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(provider),
-        getDriverBalanceActivityUseCase:
-            GetDriverBalanceActivityUseCase(repository),
-      );
+    test(
+      'uses company business date and exclusive next-day boundary',
+      () async {
+        final repository = _FakeActivityRepository();
+        final provider = _FakeDateProvider(
+          Success(BusinessDate(year: 2026, month: 10, day: 22)),
+        );
+        final useCase = GetCurrentDriverBalanceActivityUseCase(
+          getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+            provider,
+          ),
+          getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
+            repository,
+          ),
+        );
 
-      final result = await useCase(
-        GetCurrentDriverBalanceActivityParams(
-          currentCompanyContext: _context(CompanyRole.owner),
-          driverId: 'driver-1',
-        ),
-      );
+        final result = await useCase(
+          GetCurrentDriverBalanceActivityParams(
+            currentCompanyContext: _context(CompanyRole.owner),
+            driverId: 'driver-1',
+          ),
+        );
 
-      expect(result, isA<Success<DriverBalanceActivity>>());
-      expect(provider.calls, 1);
-      expect(provider.lastCompanyId, 'company-1');
-      expect(
-        repository.beforeExclusive,
-        BusinessDate(year: 2026, month: 10, day: 23),
-      );
-    });
+        expect(result, isA<Success<DriverBalanceActivity>>());
+        expect(provider.calls, 1);
+        expect(provider.lastCompanyId, 'company-1');
+        expect(
+          repository.beforeExclusive,
+          BusinessDate(year: 2026, month: 10, day: 23),
+        );
+      },
+    );
 
     test('does not read sources after trusted date lookup fails', () async {
       const failure = ServerFailure(code: FailureCodes.serverError);
@@ -157,8 +163,9 @@ void main() {
       final repository = _FakeActivityRepository();
       final useCase = GetCurrentDriverBalanceActivityUseCase(
         getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(provider),
-        getDriverBalanceActivityUseCase:
-            GetDriverBalanceActivityUseCase(repository),
+        getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
+          repository,
+        ),
       );
 
       final result = await useCase(
