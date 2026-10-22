@@ -112,7 +112,8 @@ class DriverSettlementsLocalizations {
   String get compensationCurrencyMismatchFailure =>
       _value('compensationCurrencyMismatchFailure');
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
-  String get expenseSourceInvalidFailure => _value('expenseSourceInvalidFailure');
+  String get expenseSourceInvalidFailure =>
+      _value('expenseSourceInvalidFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
   String get detailsFailed => _value('detailsFailed');
