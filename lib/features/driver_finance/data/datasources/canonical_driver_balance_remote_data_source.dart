@@ -6,6 +6,8 @@ import '../../../../core/data/utils/db_timestamp.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/driver_finance_db_fields.dart';
 import '../mappers/driver_balance_mapper.dart';
+import '../mappers/driver_balance_activity_mapper.dart';
+import '../../domain/entities/driver_balance_activity.dart';
 import '../mappers/driver_money_balance_mapper.dart';
 import '../models/driver_balance_model.dart';
 import '../models/driver_money_balance_model.dart';
@@ -35,6 +37,8 @@ amount_minor_units,
 currency_code,
 currency_fraction_digits,
 funding_source,
+description,
+notes,
 expense_date,
 is_voided,
 origin_kind,
@@ -60,18 +64,32 @@ abstract class CanonicalDriverBalanceRemoteDataSource {
   });
 }
 
+abstract class DriverBalanceActivityRemoteDataSource {
+  Future<DriverBalanceActivity> getDriverBalanceActivity({
+    required String companyId,
+    required String driverId,
+    required String currencyCode,
+    required int currencyFractionDigits,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
+  });
+}
+
 class SupabaseCanonicalDriverBalanceRemoteDataSource
-    implements CanonicalDriverBalanceRemoteDataSource {
+    implements CanonicalDriverBalanceRemoteDataSource,
+        DriverBalanceActivityRemoteDataSource {
   final SupabaseClient client;
   final DriverBalanceSourceMapper balanceSourceMapper;
   final DriverMoneyBalanceSourceMapper moneyBalanceSourceMapper;
   final DriverBalanceSourceSelector sourceSelector;
+  final DriverBalanceActivityMapper activityMapper;
 
   const SupabaseCanonicalDriverBalanceRemoteDataSource(
     this.client, {
     this.balanceSourceMapper = const DriverBalanceSourceMapper(),
     this.moneyBalanceSourceMapper = const DriverMoneyBalanceSourceMapper(),
     this.sourceSelector = const DriverBalanceSourceSelector(),
+    this.activityMapper = const DriverBalanceActivityMapper(),
   });
 
   @override
@@ -136,6 +154,45 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     );
 
     return moneyBalanceSourceMapper.map(
+      companyId: companyId,
+      driverId: driverId,
+      currencyCode: currencyCode,
+      currencyFractionDigits: currencyFractionDigits,
+      checkpointRow: checkpointRow,
+      movementRows: movementRows,
+      expenseLedgerRows: expenseLedgerRows,
+    );
+  }
+
+  /// Uses exactly the same checkpoint and selected source rows as the
+  /// canonical Money balance. No copy of the selection rules is introduced.
+  @override
+  Future<DriverBalanceActivity> getDriverBalanceActivity({
+    required String companyId,
+    required String driverId,
+    required String currencyCode,
+    required int currencyFractionDigits,
+    required BusinessDate beforeExclusive,
+    BusinessDate? checkpointBeforeExclusive,
+  }) async {
+    final checkpointRow = await _getBalanceCheckpointV2(
+      companyId: companyId,
+      driverId: driverId,
+      checkpointBeforeExclusive: checkpointBeforeExclusive,
+    );
+    final movementRows = await _getMovementRows(
+      companyId: companyId,
+      driverId: driverId,
+      beforeExclusive: beforeExclusive,
+      checkpointRow: checkpointRow,
+    );
+    final expenseLedgerRows = await _getExpenseLedgerRows(
+      companyId: companyId,
+      driverId: driverId,
+      beforeExclusive: beforeExclusive,
+      checkpointRow: checkpointRow,
+    );
+    return activityMapper.map(
       companyId: companyId,
       driverId: driverId,
       currencyCode: currencyCode,
