@@ -10,12 +10,12 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../drivers/domain/entities/driver.dart';
 import '../../../drivers/domain/usecases/get_drivers_usecase.dart';
-import '../../domain/entities/driver_balance.dart';
+import '../../domain/entities/driver_balance_activity.dart';
 import '../../domain/entities/driver_finance_trip_option.dart';
 import '../../domain/entities/driver_financial_movement.dart';
 import '../../domain/usecases/can_manage_driver_finance_usecase.dart';
 import '../../domain/usecases/driver_finance_usecases.dart';
-import '../../domain/usecases/get_canonical_driver_balance_usecase.dart';
+import '../../domain/usecases/get_driver_balance_activity_usecase.dart';
 import 'driver_finance_state.dart';
 
 part 'driver_finance_realtime_actions.dart';
@@ -25,13 +25,12 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
   final GetDriversUseCase getDriversUseCase;
   final CanManageDriverFinanceUseCase canManageDriverFinanceUseCase;
   final GetCompanyBusinessDateUseCase getCompanyBusinessDateUseCase;
-  final GetDriverMovementsUseCase getDriverMovementsUseCase;
   final GetDriverTripOptionsUseCase getDriverTripOptionsUseCase;
   final AddDriverAdvanceUseCase addDriverAdvanceUseCase;
   final AddDriverChargeUseCase addDriverChargeUseCase;
   final AddDriverCashReturnUseCase addDriverCashReturnUseCase;
-  final GetCurrentCanonicalDriverBalanceUseCase
-  getCurrentCanonicalDriverBalanceUseCase;
+  final GetCurrentDriverBalanceActivityUseCase
+  getCurrentDriverBalanceActivityUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
@@ -45,12 +44,11 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
     required this.getDriversUseCase,
     required this.canManageDriverFinanceUseCase,
     required this.getCompanyBusinessDateUseCase,
-    required this.getDriverMovementsUseCase,
     required this.getDriverTripOptionsUseCase,
     required this.addDriverAdvanceUseCase,
     required this.addDriverChargeUseCase,
     required this.addDriverCashReturnUseCase,
-    required this.getCurrentCanonicalDriverBalanceUseCase,
+    required this.getCurrentDriverBalanceActivityUseCase,
   }) : super(const DriverFinanceInitial());
 
   Future<void> load(CurrentCompanyContext currentCompanyContext) async {
@@ -104,8 +102,7 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
       emit(
         current.copyWith(
           selectedDriverId: null,
-          movements: const [],
-          balance: null,
+          activity: null,
           tripOptions: const [],
           isDetailsLoading: false,
           failure: null,
@@ -121,23 +118,22 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
     emit(
       current.copyWith(
         selectedDriverId: normalizedId,
-        movements: const [],
-        balance: null,
+        activity: null,
         tripOptions: const [],
         isDetailsLoading: true,
         failure: null,
       ),
     );
 
-    final movementsResult = await getDriverMovementsUseCase(
-      GetDriverMovementsParams(
+    final activityResult = await getCurrentDriverBalanceActivityUseCase(
+      GetCurrentDriverBalanceActivityParams(
         currentCompanyContext: current.currentCompanyContext,
         driverId: normalizedId,
       ),
     );
     if (!_isCurrentDetailsRequest(requestId, companyId, normalizedId)) return;
-    if (movementsResult is FailureResult<List<DriverFinancialMovement>>) {
-      _emitDetailsFailure(movementsResult.failure);
+    if (activityResult is FailureResult<DriverBalanceActivity>) {
+      _emitDetailsFailure(activityResult.failure);
       return;
     }
 
@@ -153,27 +149,13 @@ final class DriverFinanceCubit extends Cubit<DriverFinanceState>
       return;
     }
 
-    final balanceResult = await getCurrentCanonicalDriverBalanceUseCase(
-      GetCurrentCanonicalDriverBalanceParams(
-        currentCompanyContext: current.currentCompanyContext,
-        driverId: normalizedId,
-      ),
-    );
-    if (!_isCurrentDetailsRequest(requestId, companyId, normalizedId)) return;
-    if (balanceResult is FailureResult<DriverBalance>) {
-      _emitDetailsFailure(balanceResult.failure);
-      return;
-    }
-
     final latest = state;
     if (latest is! DriverFinanceLoaded) return;
     emit(
       latest.copyWith(
-        movements:
-            (movementsResult as Success<List<DriverFinancialMovement>>).data,
+        activity: (activityResult as Success<DriverBalanceActivity>).data,
         tripOptions:
             (tripOptionsResult as Success<List<DriverFinanceTripOption>>).data,
-        balance: (balanceResult as Success<DriverBalance>).data,
         isDetailsLoading: false,
         failure: null,
       ),
