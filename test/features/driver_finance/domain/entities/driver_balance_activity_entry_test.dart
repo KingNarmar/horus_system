@@ -28,35 +28,36 @@ void main() {
           amount: Money(minorUnits: 12345, currency: currency),
         );
 
-        final negative = kind == DriverBalanceActivityKind.advance ||
+        final negative =
+            kind == DriverBalanceActivityKind.advance ||
             kind == DriverBalanceActivityKind.driverCharge;
-        expect(
-          entry.balanceImpact.minorUnits,
-          negative ? -12345 : 12345,
-        );
+        expect(entry.balanceImpact.minorUnits, negative ? -12345 : 12345);
         expect(entry.balanceImpact.currency, currency);
       });
     }
 
-    test('different financial sources with equal IDs remain distinguishable', () {
-      DriverBalanceActivityEntry make(DriverBalanceActivitySource source) =>
-          DriverBalanceActivityEntry(
-            source: source,
-            sourceId: 'same-id',
-            kind: source == DriverBalanceActivitySource.tripExpense
-                ? DriverBalanceActivityKind.driverPaidTripExpense
-                : DriverBalanceActivityKind.advance,
-            companyId: 'company-1',
-            driverId: 'driver-1',
-            businessDate: BusinessDate(year: 2026, month: 10, day: 21),
-            createdAt: DateTime.utc(2026, 10, 21),
-            amount: Money(minorUnits: 1, currency: currency),
-          );
+    test(
+      'different financial sources with equal IDs remain distinguishable',
+      () {
+        DriverBalanceActivityEntry make(DriverBalanceActivitySource source) =>
+            DriverBalanceActivityEntry(
+              source: source,
+              sourceId: 'same-id',
+              kind: source == DriverBalanceActivitySource.tripExpense
+                  ? DriverBalanceActivityKind.driverPaidTripExpense
+                  : DriverBalanceActivityKind.advance,
+              companyId: 'company-1',
+              driverId: 'driver-1',
+              businessDate: BusinessDate(year: 2026, month: 10, day: 21),
+              createdAt: DateTime.utc(2026, 10, 21),
+              amount: Money(minorUnits: 1, currency: currency),
+            );
 
-      expect(
-        make(DriverBalanceActivitySource.financialMovement).stableId,
-        isNot(make(DriverBalanceActivitySource.tripExpense).stableId),
-      );
-    });
+        expect(
+          make(DriverBalanceActivitySource.financialMovement).stableId,
+          isNot(make(DriverBalanceActivitySource.tripExpense).stableId),
+        );
+      },
+    );
   });
 }
