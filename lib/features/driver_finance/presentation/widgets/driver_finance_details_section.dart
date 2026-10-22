@@ -51,8 +51,9 @@ class DriverFinanceDetailsSection extends StatelessWidget {
           children: [
             Text(
               l10n.driverBalanceActivityTitle,
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(l10n.driverBalancePlaceholderDescription),
