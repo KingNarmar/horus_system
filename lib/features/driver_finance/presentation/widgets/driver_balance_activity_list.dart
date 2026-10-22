@@ -159,7 +159,8 @@ final class _ActivityItem extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Flexible(
                     child: Semantics(
-                      label: '${l10n.driverBalanceActivityImpact}: $signedAmount',
+                      label:
+                          '${l10n.driverBalanceActivityImpact}: $signedAmount',
                       child: Text(
                         signedAmount,
                         textAlign: TextAlign.end,

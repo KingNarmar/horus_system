@@ -97,76 +97,75 @@ void main() {
       },
     );
 
-    testWidgets(
-      'hides internal source and unresolved trip IDs for $locale',
-      (tester) async {
-        final currency = CurrencyCode.tryParse('AED')!;
-        final zero = Money(minorUnits: 0, currency: currency);
-        final activity = DriverBalanceActivity(
-          canonicalBalance: DriverMoneyBalance(
+    testWidgets('hides internal source and unresolved trip IDs for $locale', (
+      tester,
+    ) async {
+      final currency = CurrencyCode.tryParse('AED')!;
+      final zero = Money(minorUnits: 0, currency: currency);
+      final activity = DriverBalanceActivity(
+        canonicalBalance: DriverMoneyBalance(
+          companyId: 'company-1',
+          driverId: 'driver-1',
+          currency: currency,
+          currencyFractionDigits: 2,
+          totalAdvances: zero,
+          totalDriverCharges: zero,
+          totalTripExpenseCredits: zero,
+          totalCashReturns: zero,
+        ),
+        entries: [
+          DriverBalanceActivityEntry(
+            source: DriverBalanceActivitySource.financialMovement,
+            sourceId: 'internal-movement-id',
+            kind: DriverBalanceActivityKind.advance,
             companyId: 'company-1',
             driverId: 'driver-1',
-            currency: currency,
-            currencyFractionDigits: 2,
-            totalAdvances: zero,
-            totalDriverCharges: zero,
-            totalTripExpenseCredits: zero,
-            totalCashReturns: zero,
+            tripId: 'internal-trip-id',
+            businessDate: BusinessDate(year: 2026, month: 10, day: 21),
+            createdAt: DateTime.utc(2026, 10, 21),
+            amount: Money(minorUnits: 100, currency: currency),
+            notes: 'Advance note',
           ),
-          entries: [
-            DriverBalanceActivityEntry(
-              source: DriverBalanceActivitySource.financialMovement,
-              sourceId: 'internal-movement-id',
-              kind: DriverBalanceActivityKind.advance,
-              companyId: 'company-1',
-              driverId: 'driver-1',
-              tripId: 'internal-trip-id',
-              businessDate: BusinessDate(year: 2026, month: 10, day: 21),
-              createdAt: DateTime.utc(2026, 10, 21),
-              amount: Money(minorUnits: 100, currency: currency),
-              notes: 'Advance note',
-            ),
-          ],
-        );
+        ],
+      );
 
-        await tester.pumpWidget(
-          MaterialApp(
-            locale: locale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: DriverBalanceActivityList(
-                  activity: activity,
-                  tripOptions: const [],
-                ),
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: DriverBalanceActivityList(
+                activity: activity,
+                tripOptions: const [],
               ),
             ),
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        final l10n = AppLocalizations.of(
-          tester.element(find.byType(DriverBalanceActivityList)),
-        );
-        final formattedAmount = formatLocalizedMoney(
-          Money(minorUnits: 100, currency: currency),
-          fractionDigits: 2,
-          localeName: locale.toLanguageTag(),
-        );
-        expect(find.textContaining('- $formattedAmount'), findsOneWidget);
-        expect(find.textContaining('Advance note'), findsOneWidget);
-        expect(find.textContaining('internal-movement-id'), findsNothing);
-        expect(find.textContaining('internal-trip-id'), findsNothing);
-        expect(
-          find.textContaining(l10n.driverBalanceActivityFinancialMovementSource),
-          findsNothing,
-        );
-        expect(
-          find.textContaining(l10n.driverBalanceActivitySourceReference),
-          findsNothing,
-        );
-      },
-    );
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(DriverBalanceActivityList)),
+      );
+      final formattedAmount = formatLocalizedMoney(
+        Money(minorUnits: 100, currency: currency),
+        fractionDigits: 2,
+        localeName: locale.toLanguageTag(),
+      );
+      expect(find.textContaining('- $formattedAmount'), findsOneWidget);
+      expect(find.textContaining('Advance note'), findsOneWidget);
+      expect(find.textContaining('internal-movement-id'), findsNothing);
+      expect(find.textContaining('internal-trip-id'), findsNothing);
+      expect(
+        find.textContaining(l10n.driverBalanceActivityFinancialMovementSource),
+        findsNothing,
+      );
+      expect(
+        find.textContaining(l10n.driverBalanceActivitySourceReference),
+        findsNothing,
+      );
+    });
   }
 }
