@@ -13,79 +13,80 @@ import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
   for (final locale in const [Locale('en'), Locale('ar')]) {
-    testWidgets('shows a traceable trip expense and its signed effect in $locale', (
-      tester,
-    ) async {
-      final currency = CurrencyCode.tryParse('AED')!;
-      final zero = Money(minorUnits: 0, currency: currency);
-      final activity = DriverBalanceActivity(
-        canonicalBalance: DriverMoneyBalance(
-          companyId: 'company-1',
-          driverId: 'driver-1',
-          currency: currency,
-          currencyFractionDigits: 2,
-          totalAdvances: zero,
-          totalDriverCharges: zero,
-          totalTripExpenseCredits: zero,
-          totalCashReturns: zero,
-        ),
-        entries: [
-          DriverBalanceActivityEntry(
-            source: DriverBalanceActivitySource.tripExpense,
-            sourceId: 'ledger-expense-1',
-            kind: DriverBalanceActivityKind.driverPaidTripExpense,
+    testWidgets(
+      'shows a traceable trip expense and its signed effect in $locale',
+      (tester) async {
+        final currency = CurrencyCode.tryParse('AED')!;
+        final zero = Money(minorUnits: 0, currency: currency);
+        final activity = DriverBalanceActivity(
+          canonicalBalance: DriverMoneyBalance(
             companyId: 'company-1',
             driverId: 'driver-1',
-            tripId: 'trip-1',
-            businessDate: BusinessDate(year: 2026, month: 10, day: 21),
-            createdAt: DateTime.utc(2026, 10, 21),
-            amount: Money(minorUnits: 1250, currency: currency),
-            description: 'Diesel',
+            currency: currency,
+            currencyFractionDigits: 2,
+            totalAdvances: zero,
+            totalDriverCharges: zero,
+            totalTripExpenseCredits: zero,
+            totalCashReturns: zero,
           ),
-        ],
-      );
+          entries: [
+            DriverBalanceActivityEntry(
+              source: DriverBalanceActivitySource.tripExpense,
+              sourceId: 'ledger-expense-1',
+              kind: DriverBalanceActivityKind.driverPaidTripExpense,
+              companyId: 'company-1',
+              driverId: 'driver-1',
+              tripId: 'trip-1',
+              businessDate: BusinessDate(year: 2026, month: 10, day: 21),
+              createdAt: DateTime.utc(2026, 10, 21),
+              amount: Money(minorUnits: 1250, currency: currency),
+              description: 'Diesel',
+            ),
+          ],
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: DriverBalanceActivityList(
-                activity: activity,
-                tripOptions: const [
-                  DriverFinanceTripOption(
-                    id: 'trip-1',
-                    label: 'TRP-2026-000006',
-                  ),
-                ],
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: DriverBalanceActivityList(
+                  activity: activity,
+                  tripOptions: const [
+                    DriverFinanceTripOption(
+                      id: 'trip-1',
+                      label: 'TRP-2026-000006',
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.textContaining('ledger-expense-1'), findsOneWidget);
-      expect(find.textContaining('TRP-2026-000006'), findsOneWidget);
-      expect(find.textContaining('Diesel'), findsOneWidget);
-      expect(
-        find.textContaining(
-          formatLocalizedMoney(
-            Money(minorUnits: 1250, currency: currency),
-            fractionDigits: 2,
-            localeName: locale.toLanguageTag(),
+        expect(find.textContaining('ledger-expense-1'), findsOneWidget);
+        expect(find.textContaining('TRP-2026-000006'), findsOneWidget);
+        expect(find.textContaining('Diesel'), findsOneWidget);
+        expect(
+          find.textContaining(
+            formatLocalizedMoney(
+              Money(minorUnits: 1250, currency: currency),
+              fractionDigits: 2,
+              localeName: locale.toLanguageTag(),
+            ),
           ),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        Directionality.of(
-          tester.element(find.textContaining('ledger-expense-1')),
-        ),
-        locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
-      );
-    });
+          findsOneWidget,
+        );
+        expect(
+          Directionality.of(
+            tester.element(find.textContaining('ledger-expense-1')),
+          ),
+          locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+        );
+      },
+    );
   }
 }
