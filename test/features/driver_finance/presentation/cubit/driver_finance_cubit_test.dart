@@ -149,11 +149,16 @@ void main() {
 
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, _driverId);
-        expect(latest.activity?.entries.map((movement) => movement.sourceId).toList(), [
-          'movement-2',
-          'movement-1',
-        ]);
-        expect(latest.activity?.canonicalBalance.netBalance.minorUnits, -570000);
+        expect(
+          latest.activity?.entries
+              .map((movement) => movement.sourceId)
+              .toList(),
+          ['movement-2', 'movement-1'],
+        );
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
         expect(emitted.whereType<DriverFinanceLoading>(), isEmpty);
         expect(balances.calls, 2);
       },
@@ -183,7 +188,10 @@ void main() {
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, _driverId);
         expect(latest.activity?.entries, hasLength(2));
-        expect(latest.activity?.canonicalBalance.netBalance.minorUnits, -570000);
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
       },
     );
 
@@ -224,12 +232,15 @@ void main() {
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, _driverId);
         expect(latest.activity?.entries, hasLength(1));
-        expect(latest.activity?.entries.single.stableId, 'tripExpense:expense-1');
         expect(
-          latest.activity?.entries.single.balanceImpact.minorUnits,
-          1000,
+          latest.activity?.entries.single.stableId,
+          'tripExpense:expense-1',
         );
-        expect(latest.activity?.canonicalBalance.netBalance.minorUnits, -559000);
+        expect(latest.activity?.entries.single.balanceImpact.minorUnits, 1000);
+        expect(
+          latest.activity?.canonicalBalance.netBalance.minorUnits,
+          -559000,
+        );
         expect(balanceRepository.calls, 2);
       },
     );
@@ -256,7 +267,10 @@ void main() {
 
         final failed = cubit.state as DriverFinanceLoaded;
         expect(failed.activity?.entries.single.sourceId, 'movement-1');
-        expect(failed.activity?.canonicalBalance.netBalance.minorUnits, -560000);
+        expect(
+          failed.activity?.canonicalBalance.netBalance.minorUnits,
+          -560000,
+        );
         expect(failed.failure, isNull);
         expect(failed.realtimeRefreshFailure?.code, 'unexpected_error');
 
@@ -264,7 +278,10 @@ void main() {
         await cubit.refreshDriverFinanceFromRealtime();
         final recovered = cubit.state as DriverFinanceLoaded;
         expect(recovered.realtimeRefreshFailure, isNull);
-        expect(recovered.activity?.canonicalBalance.netBalance.minorUnits, -570000);
+        expect(
+          recovered.activity?.canonicalBalance.netBalance.minorUnits,
+          -570000,
+        );
       },
     );
 
@@ -293,7 +310,7 @@ void main() {
         final latest = cubit.state as DriverFinanceLoaded;
         expect(latest.selectedDriverId, isNull);
         expect(latest.activity, isNull);
-        
+
         expect(latest.tripOptions, isEmpty);
       },
     );
@@ -340,7 +357,7 @@ void main() {
         expect(latest.drivers, isEmpty);
         expect(latest.selectedDriverId, isNull);
         expect(latest.activity, isNull);
-        
+
         expect(financeRepository.addMovementCalls, 1);
       },
     );
@@ -416,8 +433,9 @@ DriverFinanceCubit _createCubit({
     getCurrentDriverBalanceActivityUseCase:
         GetCurrentDriverBalanceActivityUseCase(
           getCompanyBusinessDateUseCase: businessDateUseCase,
-          getDriverBalanceActivityUseCase:
-              GetDriverBalanceActivityUseCase(balanceRepository),
+          getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
+            balanceRepository,
+          ),
         ),
   );
 }
