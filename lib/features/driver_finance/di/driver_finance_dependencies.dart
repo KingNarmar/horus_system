@@ -38,9 +38,10 @@ abstract final class DriverFinanceDependencies {
             getCompanyBusinessDateUseCase: getCompanyBusinessDateUseCase,
             getDriverBalanceActivityUseCase: GetDriverBalanceActivityUseCase(
               DriverBalanceActivityRepositoryImpl(
-                remoteDataSource: SupabaseCanonicalDriverBalanceRemoteDataSource(
-                  SupabaseClientProvider.client,
-                ),
+                remoteDataSource:
+                    SupabaseCanonicalDriverBalanceRemoteDataSource(
+                      SupabaseClientProvider.client,
+                    ),
               ),
             ),
           ),
