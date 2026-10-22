@@ -27,6 +27,7 @@ abstract final class DriverFinanceDbFields {
   static const originKind = 'origin_kind';
   static const originId = 'origin_id';
   static const notes = 'notes';
+  static const description = 'description';
 
   static const checkpointSettlementId = 'settlement_id';
   static const checkpointPeriodEnd = 'period_end';
