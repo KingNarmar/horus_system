@@ -88,6 +88,23 @@ BEGIN
     RETURN NEW;
   END IF;
 
+  -- New settlements with a positive driver-paid expense total must retain
+  -- at least one identifiable source item. Historical gaps are handled by
+  -- the conservative void fallback above; do not create new gaps.
+  IF NEW.driver_paid_trip_expenses_total > 0
+     AND NOT EXISTS (
+       SELECT 1
+       FROM public.driver_settlement_items AS item
+       WHERE item.company_id = NEW.company_id
+         AND item.settlement_id = NEW.id
+         AND item.source_type =
+           'trip_expense'::public.driver_settlement_item_source_type
+     ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P2812',
+      MESSAGE = 'driver_settlement_expense_source_invalid';
+  END IF;
+
   -- A missing canonical ledger projection is not a valid source to finalize.
   IF EXISTS (
     SELECT 1
