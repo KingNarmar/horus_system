@@ -264,7 +264,8 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
   }) async {
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
-      final rows = await client
+      final rows = await _readAllPages((from, to) async {
+      final page = await client
           .from(DriverFinanceDbTables.driverFinancialMovements)
           .select(_driverFinancialMovementColumns)
           .eq(DbCommonFields.companyId, companyId)
@@ -272,9 +273,12 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
           .lt(DriverFinanceDbFields.movementDate, before)
           .order(DriverFinanceDbFields.movementDate)
           .order(DbCommonFields.createdAt)
-          .order(DbCommonFields.id);
+          .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
       return sourceSelector.select(
-        rows: _maps(rows),
+        rows: rows,
         effectiveDateField: DriverFinanceDbFields.movementDate,
         beforeExclusive: beforeExclusive,
       );
@@ -289,7 +293,8 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       field: DriverFinanceDbFields.checkpointSnapshotCreatedAt,
     );
 
-    final effectiveRows = await client
+    final effectiveRows = await _readAllPages((from, to) async {
+      final page = await client
         .from(DriverFinanceDbTables.driverFinancialMovements)
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
@@ -301,9 +306,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .lt(DriverFinanceDbFields.movementDate, before)
         .order(DriverFinanceDbFields.movementDate)
         .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
+        .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
-    final lateRows = await client
+    final lateRows = await _readAllPages((from, to) async {
+      final page = await client
         .from(DriverFinanceDbTables.driverFinancialMovements)
         .select(_driverFinancialMovementColumns)
         .eq(DbCommonFields.companyId, companyId)
@@ -312,10 +321,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .lt(DriverFinanceDbFields.movementDate, before)
         .order(DriverFinanceDbFields.movementDate)
         .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
+        .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
     return sourceSelector.select(
-      rows: [..._maps(effectiveRows), ..._maps(lateRows)],
+      rows: [...effectiveRows, ...lateRows],
       effectiveDateField: DriverFinanceDbFields.movementDate,
       beforeExclusive: beforeExclusive,
       checkpointPeriodEnd: checkpointPeriodEnd,
@@ -337,7 +349,8 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
 
     final before = DbDate.encode(beforeExclusive);
     if (checkpointRow == null) {
-      final rows = await client
+      final rows = await _readAllPages((from, to) async {
+      final page = await client
           .from(DriverFinanceDbTables.expenseLedgerEntries)
           .select(_expenseLedgerColumns)
           .eq(DbCommonFields.companyId, companyId)
@@ -350,9 +363,12 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
           .lt(DriverFinanceDbFields.expenseDate, before)
           .order(DriverFinanceDbFields.expenseDate)
           .order(DbCommonFields.createdAt)
-          .order(DbCommonFields.id);
+          .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
       return sourceSelector.select(
-        rows: _maps(rows),
+        rows: rows,
         effectiveDateField: DriverFinanceDbFields.expenseDate,
         beforeExclusive: beforeExclusive,
       );
@@ -367,7 +383,8 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
       field: DriverFinanceDbFields.checkpointSnapshotCreatedAt,
     );
 
-    final effectiveRows = await client
+    final effectiveRows = await _readAllPages((from, to) async {
+      final page = await client
         .from(DriverFinanceDbTables.expenseLedgerEntries)
         .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
@@ -384,9 +401,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .lt(DriverFinanceDbFields.expenseDate, before)
         .order(DriverFinanceDbFields.expenseDate)
         .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
+        .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
-    final lateRows = await client
+    final lateRows = await _readAllPages((from, to) async {
+      final page = await client
         .from(DriverFinanceDbTables.expenseLedgerEntries)
         .select(_expenseLedgerColumns)
         .eq(DbCommonFields.companyId, companyId)
@@ -400,10 +421,13 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
         .lt(DriverFinanceDbFields.expenseDate, before)
         .order(DriverFinanceDbFields.expenseDate)
         .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
+        .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
     return sourceSelector.select(
-      rows: [..._maps(effectiveRows), ..._maps(lateRows)],
+      rows: [...effectiveRows, ...lateRows],
       effectiveDateField: DriverFinanceDbFields.expenseDate,
       beforeExclusive: beforeExclusive,
       checkpointPeriodEnd: checkpointPeriodEnd,
@@ -415,16 +439,36 @@ class SupabaseCanonicalDriverBalanceRemoteDataSource
     required String companyId,
     required String driverId,
   }) async {
-    final rows = await client
-        .from(DriverFinanceDbTables.trips)
-        .select(DbCommonFields.id)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverFinanceDbFields.driverId, driverId);
+    final rows = await _readAllPages((from, to) async {
+      final page = await client
+          .from(DriverFinanceDbTables.trips)
+          .select(DbCommonFields.id)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverFinanceDbFields.driverId, driverId)
+          .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
     return rows
         .map((row) => Map<String, dynamic>.from(row)[DbCommonFields.id])
         .whereType<String>()
         .toList(growable: false);
+  }
+
+  // PostgREST applies row limits even if the query omits a LIMIT clause.
+  // Fetch all canonical sources so the balance and visible activity reconcile.
+  static const int _pageSize = 500;
+
+  Future<List<Map<String, dynamic>>> _readAllPages(
+    Future<List<Map<String, dynamic>>> Function(int from, int to) loadPage,
+  ) async {
+    final rows = <Map<String, dynamic>>[];
+    for (var from = 0;; from += _pageSize) {
+      final page = await loadPage(from, from + _pageSize - 1);
+      rows.addAll(page);
+      if (page.length < _pageSize) return rows;
+    }
   }
 
   List<Map<String, dynamic>> _maps(Iterable<dynamic> rows) {
