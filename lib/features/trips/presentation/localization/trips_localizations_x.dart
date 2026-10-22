@@ -103,6 +103,8 @@ extension TripsLocalizationsX on AppLocalizations {
         tripExpenseTypesUnavailable,
       ExpenseLedgerFailureCodes.conflictAlreadyVoided =>
         tripExpenseVoidedStatus,
+      ExpenseLedgerFailureCodes.conflictFinalizedSettlementLocked =>
+        tripExpenseFinalizedSettlementLockedFailure,
       ExpenseLedgerFailureCodes.serverError => failureServerError,
       ExpenseLedgerFailureCodes.unexpectedError => failureUnexpectedError,
       _ => failureUnexpectedError,
