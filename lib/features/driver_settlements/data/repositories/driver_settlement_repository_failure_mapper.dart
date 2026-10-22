@@ -9,6 +9,11 @@ final class DriverSettlementRepositoryFailureMapper {
   const DriverSettlementRepositoryFailureMapper();
 
   Failure fromPostgrest(PostgrestException error) {
+    if (error.code == 'P2812') {
+      return const ConflictFailure(
+        code: DriverSettlementFailureCodes.conflictExpenseSourceInvalid,
+      );
+    }
     return const ServerFailure(code: FailureCodes.serverError);
   }
 
