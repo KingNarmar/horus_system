@@ -124,7 +124,7 @@ mixin DriverSettlementsRealtimeActions on Cubit<DriverSettlementsState> {
         realtimeRefreshFailure: null,
       ),
     );
-    if (changed && selected != null) {
+    if (changed) {
       final times = await owner._projectSettlementTimestamps(context, selected);
       if (!stillCurrent()) return;
       if (_realtimeFailure(times.failureOrNull)) return;

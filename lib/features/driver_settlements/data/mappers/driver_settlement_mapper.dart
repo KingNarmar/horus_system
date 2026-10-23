@@ -261,8 +261,7 @@ extension DriverSettlementItemMapper on DriverSettlementItem {
   Map<String, dynamic> toInsertMap({String? settlementId}) {
     return {
       DbCommonFields.companyId: companyId,
-      if (settlementId != null)
-        DriverSettlementsDbFields.settlementId: settlementId,
+      DriverSettlementsDbFields.settlementId: ?settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
       DriverSettlementsDbFields.sourceDate: DbDate.encodeNullable(sourceDate),
@@ -286,8 +285,7 @@ extension DriverSettlementMoneyItemMapper on DriverSettlementMoneyItem {
     );
     return {
       DbCommonFields.companyId: companyId,
-      if (settlementId != null)
-        DriverSettlementsDbFields.settlementId: settlementId,
+      DriverSettlementsDbFields.settlementId: ?settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
       DriverSettlementsDbFields.sourceDate: DbDate.encodeNullable(sourceDate),
