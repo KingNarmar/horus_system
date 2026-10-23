@@ -353,19 +353,23 @@ class SupabaseDriverSettlementsRemoteDataSource
     required String companyId,
     required String settlementId,
   }) async {
-    final rows = await client
-        .from(DriverSettlementsDbTables.driverSettlementItems)
-        .select(_driverSettlementItemColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverSettlementsDbFields.settlementId, settlementId)
-        .order(DriverSettlementsDbFields.sourceDate)
-        .order(DbCommonFields.createdAt);
-
-    return rows
-        .map(
-          (row) =>
-              DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row)),
-        )
-        .toList();
+    const pageSize = 500;
+    final items = <DriverSettlementItemModel>[];
+    for (var from = 0; ; from += pageSize) {
+      final rows = await client
+          .from(DriverSettlementsDbTables.driverSettlementItems)
+          .select(_driverSettlementItemColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverSettlementsDbFields.settlementId, settlementId)
+          .order(DriverSettlementsDbFields.sourceDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
+          .range(from, from + pageSize - 1);
+      items.addAll(
+        rows.map((row) =>
+            DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row))),
+      );
+      if (rows.length < pageSize) return items;
+    }
   }
 }
