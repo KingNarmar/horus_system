@@ -56,6 +56,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.exactMoneyMismatchFailure,
       DriverSettlementFailureCodes.validationFinancialTotalsMismatch =>
         strings.financialTotalsMismatchFailure,
+      DriverSettlementFailureCodes.conflictPeriodExists =>
+        strings.periodExistsFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),
