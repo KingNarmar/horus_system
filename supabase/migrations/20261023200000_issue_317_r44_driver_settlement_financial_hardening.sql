@@ -98,7 +98,7 @@ BEGIN
      OR v_header.currency_code IS DISTINCT FROM v_company_code
      OR v_header.currency_fraction_digits IS DISTINCT FROM v_company_digits
      OR v_company_digits NOT BETWEEN 0 AND 4 THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2817',
       MESSAGE='driver_settlement_currency_invalid';
   END IF;
 
@@ -118,7 +118,7 @@ BEGIN
      OR v_revision.currency_fraction_digits IS DISTINCT FROM v_company_digits
      OR v_header.gross_salary_minor_units IS DISTINCT FROM v_revision.amount_minor_units
   THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2816',
       MESSAGE='driver_settlement_compensation_invalid';
   END IF;
 
@@ -147,7 +147,7 @@ BEGIN
     WHERE decimal_amount IS NULL OR minor_units IS NULL
       OR decimal_amount * v_scale <> minor_units::numeric
   ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2817',
       MESSAGE='driver_settlement_exact_money_mismatch';
   END IF;
 
@@ -169,7 +169,7 @@ BEGIN
       OR i.source_type IS NULL
       OR i.direction IS NULL
   ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2817',
       MESSAGE='driver_settlement_item_exact_money_mismatch';
   END IF;
 
@@ -213,8 +213,8 @@ BEGIN
   IF FOUND THEN
     IF v_checkpoint.currency_code IS DISTINCT FROM v_company_code
        OR v_checkpoint.currency_fraction_digits IS DISTINCT FROM v_company_digits THEN
-      RAISE EXCEPTION USING ERRCODE='P2814',
-        MESSAGE='driver_settlement_checkpoint_currency_invalid';
+      RAISE EXCEPTION USING ERRCODE='P2815',
+      MESSAGE='driver_settlement_checkpoint_currency_invalid';
     END IF;
     v_cp_end := v_checkpoint.period_end;
     v_cp_created := v_checkpoint.snapshot_created_at;
@@ -250,7 +250,7 @@ BEGIN
   v_open := v_open + v_movements_before + v_expenses_before;
 
   IF v_header.opening_driver_balance_minor_units::numeric IS DISTINCT FROM v_open THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2815',
       MESSAGE='driver_settlement_opening_balance_changed';
   END IF;
 
@@ -271,7 +271,7 @@ BEGIN
       AND (e.currency_code IS DISTINCT FROM v_company_code
         OR e.currency_fraction_digits IS DISTINCT FROM v_company_digits)
   ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2817',
       MESSAGE='driver_settlement_source_currency_invalid';
   END IF;
 
@@ -326,7 +326,7 @@ BEGIN
     )
     SELECT 1 FROM missing UNION ALL SELECT 1 FROM extra
   ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2815',
       MESSAGE='driver_settlement_source_snapshot_changed';
   END IF;
 
@@ -349,7 +349,7 @@ BEGIN
         OR i.amount_minor_units IS DISTINCT FROM v_header.settlement_deductions_total_minor_units
         OR i.metadata IS DISTINCT FROM '{"adjustment_kind":"settlement_deduction"}'::jsonb)
   ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2818',
       MESSAGE='driver_settlement_manual_adjustment_invalid';
   END IF;
 
@@ -394,7 +394,7 @@ BEGIN
      OR v_header.closing_driver_balance_minor_units::numeric IS DISTINCT FROM
        (v_before_recovery + v_header.balance_deduction_applied_minor_units::numeric)
   THEN
-    RAISE EXCEPTION USING ERRCODE='P2814',
+    RAISE EXCEPTION USING ERRCODE='P2818',
       MESSAGE='driver_settlement_financial_totals_mismatch';
   END IF;
 END;
