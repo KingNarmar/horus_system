@@ -48,6 +48,14 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.compensationCurrencyMismatchFailure,
       DriverSettlementFailureCodes.conflictExpenseSourceInvalid =>
         strings.expenseSourceInvalidFailure,
+      DriverSettlementFailureCodes.conflictSourceSnapshotChanged =>
+        strings.sourceSnapshotChangedFailure,
+      DriverSettlementFailureCodes.conflictCompensationChanged =>
+        strings.compensationChangedFailure,
+      DriverSettlementFailureCodes.validationExactMoneyMismatch =>
+        strings.exactMoneyMismatchFailure,
+      DriverSettlementFailureCodes.validationFinancialTotalsMismatch =>
+        strings.financialTotalsMismatchFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),
