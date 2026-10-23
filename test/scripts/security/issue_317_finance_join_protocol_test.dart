@@ -18,6 +18,10 @@ void main() {
       financeTopic(company, 'trip_expenses'),
       'realtime:${RealtimeTopics.tripExpenses(company)}',
     );
+    expect(
+      financeTopic(company, 'driver_settlements'),
+      'realtime:${RealtimeTopics.driverSettlements(company)}',
+    );
   });
 
   test('private join includes token only for authenticated user', () {

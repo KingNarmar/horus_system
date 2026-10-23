@@ -18,6 +18,7 @@ const _resources = [
   'trip_expenses',
   'company_expenses',
   'driver_finance',
+  'driver_settlements',
 ];
 const _allowedRoles = {'owner', 'admin', 'accountant'};
 const _timeout = Duration(seconds: 15);
@@ -266,7 +267,8 @@ Future<void> main(List<String> args) async {
       (resourceOption != null && !_resources.contains(resourceOption))) {
     stderr.writeln(
       'Usage: ...realtime.dart [--role=owner|admin|accountant|operations|viewer|driver] '
-      '[--resource=expense_ledger|trip_expenses|company_expenses|driver_finance]',
+      '[--resource=expense_ledger|trip_expenses|company_expenses|'
+      'driver_finance|driver_settlements]',
     );
     exitCode = 64;
     return;
