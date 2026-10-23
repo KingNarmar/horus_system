@@ -15,4 +15,6 @@ abstract final class DriverSettlementFailureCodes {
       'validation_driver_settlement_exact_money_mismatch';
   static const validationFinancialTotalsMismatch =
       'validation_driver_settlement_financial_totals_mismatch';
+  static const conflictPeriodExists =
+      'conflict_driver_settlement_period_exists';
 }
