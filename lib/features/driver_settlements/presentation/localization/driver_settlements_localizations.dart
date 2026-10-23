@@ -115,6 +115,14 @@ class DriverSettlementsLocalizations {
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
   String get expenseSourceInvalidFailure =>
       _value('expenseSourceInvalidFailure');
+  String get sourceSnapshotChangedFailure =>
+      _value('sourceSnapshotChangedFailure');
+  String get compensationChangedFailure =>
+      _value('compensationChangedFailure');
+  String get exactMoneyMismatchFailure =>
+      _value('exactMoneyMismatchFailure');
+  String get financialTotalsMismatchFailure =>
+      _value('financialTotalsMismatchFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
   String get detailsFailed => _value('detailsFailed');
@@ -243,6 +251,14 @@ class DriverSettlementsLocalizations {
     'voidReasonRequiredFailure': 'A void reason is required.',
     'expenseSourceInvalidFailure':
         'A trip expense in this settlement was voided or is unavailable. Create a new draft from current sources.',
+    'sourceSnapshotChangedFailure':
+        'Financial sources changed. Recalculate the settlement and try again.',
+    'compensationChangedFailure':
+        'The driver compensation changed. Recalculate the settlement.',
+    'exactMoneyMismatchFailure':
+        'Settlement amounts do not match the company currency precision.',
+    'financialTotalsMismatchFailure':
+        'Settlement totals could not be verified. Recalculate and try again.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
     'detailsFailed': 'Settlement details could not be loaded.',
@@ -356,6 +372,14 @@ class DriverSettlementsLocalizations {
     'voidReasonRequiredFailure': 'سبب الإبطال مطلوب.',
     'expenseSourceInvalidFailure':
         'أحد مصروفات الرحلة في هذه التسوية أُلغي أو لم يعد متاحًا. أنشئ مسودة جديدة من البيانات الحالية.',
+    'sourceSnapshotChangedFailure':
+        'تغيرت المصادر المالية. أعد حساب التسوية ثم حاول مرة أخرى.',
+    'compensationChangedFailure':
+        'تغيرت بيانات راتب السائق. أعد حساب التسوية.',
+    'exactMoneyMismatchFailure':
+        'مبالغ التسوية لا تطابق دقة عملة الشركة.',
+    'financialTotalsMismatchFailure':
+        'تعذر التحقق من إجمالي التسوية. أعد الحساب ثم حاول مرة أخرى.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
     'detailsFailed': 'تعذر تحميل تفاصيل التسوية.',
