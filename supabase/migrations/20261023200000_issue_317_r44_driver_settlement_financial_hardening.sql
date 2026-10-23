@@ -173,29 +173,6 @@ BEGIN
       MESSAGE='driver_settlement_item_exact_money_mismatch';
   END IF;
 
-  -- Match the canonical loader's fail-closed source-money contract even
-  -- for effective late-posted movements before the settlement period.
-  IF EXISTS (
-    SELECT 1 FROM public.driver_financial_movements m
-    WHERE m.company_id=p_company_id AND m.driver_id=v_header.driver_id
-      AND m.movement_date<v_header.period_start
-      AND (m.amount_minor_units IS NULL
-        OR m.currency_code IS DISTINCT FROM v_company_code
-        OR m.currency_fraction_digits IS DISTINCT FROM v_company_digits
-        OR m.amount * v_scale <> m.amount_minor_units::numeric)
-  ) OR EXISTS (
-    SELECT 1 FROM public.expense_ledger_entries e
-    JOIN public.trips t ON t.company_id=e.company_id AND t.id=e.trip_id
-    WHERE e.company_id=p_company_id AND t.driver_id=v_header.driver_id
-      AND e.is_voided=false AND e.funding_source IN ('driver_advance','driver_cash')
-      AND e.expense_date<v_header.period_start
-      AND (e.currency_code IS DISTINCT FROM v_company_code
-        OR e.currency_fraction_digits IS DISTINCT FROM v_company_digits)
-  ) THEN
-    RAISE EXCEPTION USING ERRCODE='P2817',
-      MESSAGE='driver_settlement_source_currency_invalid';
-  END IF;
-
   -- Existing expense void operations lock ledger rows FOR UPDATE.
   -- A captured expense cannot become void during snapshot validation.
   PERFORM e.id
@@ -219,6 +196,31 @@ BEGIN
     v_cp_end := v_checkpoint.period_end;
     v_cp_created := v_checkpoint.snapshot_created_at;
     v_open := v_checkpoint.closing_driver_balance_minor_units::numeric;
+  END IF;
+
+  -- Match the canonical loader's fail-closed source-money contract even
+  -- for effective late-posted movements before the settlement period.
+  IF EXISTS (
+    SELECT 1 FROM public.driver_financial_movements m
+    WHERE m.company_id=p_company_id AND m.driver_id=v_header.driver_id
+      AND m.movement_date<v_header.period_start
+      AND (v_cp_end IS NULL OR m.movement_date>v_cp_end OR m.created_at>v_cp_created)
+      AND (m.amount_minor_units IS NULL
+        OR m.currency_code IS DISTINCT FROM v_company_code
+        OR m.currency_fraction_digits IS DISTINCT FROM v_company_digits
+        OR m.amount * v_scale <> m.amount_minor_units::numeric)
+  ) OR EXISTS (
+    SELECT 1 FROM public.expense_ledger_entries e
+    JOIN public.trips t ON t.company_id=e.company_id AND t.id=e.trip_id
+    WHERE e.company_id=p_company_id AND t.driver_id=v_header.driver_id
+      AND e.is_voided=false AND e.funding_source IN ('driver_advance','driver_cash')
+      AND e.expense_date<v_header.period_start
+      AND (v_cp_end IS NULL OR e.expense_date>v_cp_end OR e.created_at>v_cp_created)
+      AND (e.currency_code IS DISTINCT FROM v_company_code
+        OR e.currency_fraction_digits IS DISTINCT FROM v_company_digits)
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE='P2817',
+      MESSAGE='driver_settlement_source_currency_invalid';
   END IF;
 
   -- Select effective source rows after the checkpoint OR late-posted
