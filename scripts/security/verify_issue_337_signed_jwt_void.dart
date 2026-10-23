@@ -29,9 +29,16 @@ final _uuid = RegExp(
   r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
 );
 
+final class _StartupRefusal implements Exception {
+  final String reason;
+  const _StartupRefusal(this.reason);
+}
+
+// Startup reasons name failed checks only. Never include environment values,
+// credentials, signed JWTs, HTTP bodies or financial records in diagnostics.
 String _env(String key) {
   final value = Platform.environment[key]?.trim() ?? '';
-  if (value.isEmpty) throw StateError('Missing Development configuration.');
+  if (value.isEmpty) throw _StartupRefusal('missing environment variable $key');
   return value;
 }
 
@@ -59,7 +66,7 @@ final class _Fixture {
         tenantA == tenantB ||
         ids.values.toSet().length != 4 ||
         marker.length < 8) {
-      throw StateError('Invalid isolated Development fixture.');
+      throw const _StartupRefusal('fixture identifiers or marker invalid');
     }
   }
 
@@ -81,7 +88,7 @@ final class _TestCase {
             ? args[2].substring('--role='.length)
             : '' {
     if (args.length != 3 ||
-        args.first != '--execute' ||
+        !{'--execute', '--preflight'}.contains(args.first) ||
         !_cases.contains(name) ||
         !(_finance.contains(role) ||
             _restricted.contains(role) ||
@@ -90,7 +97,7 @@ final class _TestCase {
         (name == 'anonymous' && role != 'anonymous') ||
         (!{'denied', 'anonymous'}.contains(name) &&
             !_finance.contains(role))) {
-      throw StateError('Unauthorized test case/role combination.');
+      throw const _StartupRefusal('invalid command arguments or role/case');
     }
   }
 
@@ -290,11 +297,26 @@ Future<void> main(List<String> args) async {
     final fixture = _Fixture();
     final origin = Uri.tryParse(_env('SUPABASE_URL'));
     final publishableKey = _env('SUPABASE_PUBLISHABLE_KEY');
-    if (origin == null || origin.scheme != 'https' ||
-        origin.host != _host || origin.path.isNotEmpty ||
-        !publishableKey.startsWith('sb_publishable_') ||
-        !stdin.hasTerminal) {
-      throw StateError('Non-interactive or non-Development run refused.');
+    if (origin == null ||
+        origin.scheme != 'https' ||
+        origin.host != _host ||
+        origin.path.isNotEmpty ||
+        origin.hasQuery ||
+        origin.hasFragment ||
+        origin.userInfo.isNotEmpty) {
+      throw const _StartupRefusal('Development URL invalid');
+    }
+    if (!publishableKey.startsWith('sb_publishable_')) {
+      throw const _StartupRefusal('Development publishable key format invalid');
+    }
+    if (!stdin.hasTerminal) {
+      throw const _StartupRefusal('Dart stdin is not an interactive terminal');
+    }
+    if (args.first == '--preflight') {
+      stdout.writeln(
+        'PASS  Development-only startup checks (no network or mutation)',
+      );
+      return;
     }
     final confirmation = _line(
       'Type EXECUTE + fixture marker + case, separated by spaces: ',
@@ -394,6 +416,11 @@ Future<void> main(List<String> args) async {
       '${passed ? 'PASS  ' : 'FAIL  '}${test.name}/${test.role}',
     );
     if (!passed) exitCode = 1;
+  } on _StartupRefusal catch (error) {
+    stderr.writeln(
+      'BLOCKED startup — ${error.reason}. No network request sent.',
+    );
+    exitCode = 1;
   } catch (_) {
     stderr.writeln(
       'BLOCKED — Development fixture or signed-JWT verification failed. '
