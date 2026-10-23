@@ -35,7 +35,16 @@ BEGIN
      OR pg_catalog.jsonb_typeof(p_items) <> 'array'
      OR p_header ->> 'company_id' IS DISTINCT FROM p_company_id::text
      OR p_header ->> 'status' IS DISTINCT FROM 'draft'
-     OR p_header - ARRAY['company_id', 'status', 'driver_id', 'period_start', 'period_end', 'compensation_revision_id', 'currency_code', 'currency_fraction_digits', 'opening_driver_balance', 'opening_driver_balance_minor_units', 'advances_total', 'advances_total_minor_units', 'driver_paid_trip_expenses_total', 'driver_paid_trip_expenses_total_minor_units', 'returned_cash_total', 'returned_cash_total_minor_units', 'deductions_total', 'deductions_total_minor_units', 'settlement_deductions_total', 'settlement_deductions_total_minor_units', 'gross_salary', 'gross_salary_minor_units', 'salary_deductions_total', 'salary_deductions_total_minor_units', 'balance_deduction_applied', 'balance_deduction_applied_minor_units', 'net_salary_payable', 'net_salary_payable_minor_units', 'closing_driver_balance', 'closing_driver_balance_minor_units', 'notes'] <> '{}'::jsonb
+     OR p_header - ARRAY[
+       'company_id', 'status', 'driver_id', 'period_start',
+       'period_end', 'compensation_revision_id', 'currency_code', 'currency_fraction_digits',
+       'opening_driver_balance', 'opening_driver_balance_minor_units', 'advances_total', 'advances_total_minor_units',
+       'driver_paid_trip_expenses_total', 'driver_paid_trip_expenses_total_minor_units', 'returned_cash_total', 'returned_cash_total_minor_units',
+       'deductions_total', 'deductions_total_minor_units', 'settlement_deductions_total', 'settlement_deductions_total_minor_units',
+       'gross_salary', 'gross_salary_minor_units', 'salary_deductions_total', 'salary_deductions_total_minor_units',
+       'balance_deduction_applied', 'balance_deduction_applied_minor_units', 'net_salary_payable', 'net_salary_payable_minor_units',
+       'closing_driver_balance', 'closing_driver_balance_minor_units', 'notes'
+     ] <> '{}'::jsonb
   THEN
     RAISE EXCEPTION USING ERRCODE = 'P2814',
       MESSAGE = 'driver_settlement_draft_payload_invalid';
@@ -121,6 +130,48 @@ BEGIN
     THEN
       RAISE EXCEPTION USING ERRCODE = 'P2814',
         MESSAGE = 'driver_settlement_item_payload_invalid';
+    END IF;
+
+    -- SECURITY DEFINER may bypass table RLS. Source provenance must still
+    -- be checked against the same company and the selected driver.
+    v_source_type := (v_item ->> 'source_type')
+      ::public.driver_settlement_item_source_type;
+
+    IF v_source_type = 'driver_financial_movement'
+       AND NOT EXISTS (
+         SELECT 1
+         FROM public.driver_financial_movements AS movement
+         WHERE movement.company_id = p_company_id
+           AND movement.driver_id = (p_header ->> 'driver_id')::uuid
+           AND movement.id = (v_item ->> 'source_id')::uuid
+       )
+    THEN
+      RAISE EXCEPTION USING ERRCODE = 'P2814',
+        MESSAGE = 'driver_settlement_movement_source_invalid';
+    END IF;
+
+    IF v_source_type = 'trip_expense'
+       AND NOT EXISTS (
+         SELECT 1
+         FROM public.expense_ledger_entries AS expense
+         JOIN public.trips AS trip
+           ON trip.company_id = expense.company_id
+          AND trip.id = expense.trip_id
+         WHERE expense.company_id = p_company_id
+           AND trip.driver_id = (p_header ->> 'driver_id')::uuid
+           AND expense.is_voided = false
+           AND expense.funding_source IN ('driver_advance', 'driver_cash')
+           AND (
+             expense.id = (v_item ->> 'source_id')::uuid
+             OR (
+               expense.origin_kind = 'legacy_trip_expense'
+               AND expense.origin_id = (v_item ->> 'source_id')::uuid
+             )
+           )
+       )
+    THEN
+      RAISE EXCEPTION USING ERRCODE = 'P2812',
+        MESSAGE = 'driver_settlement_expense_source_invalid';
     END IF;
 
     -- The relation and company identifier are always server-owned.
