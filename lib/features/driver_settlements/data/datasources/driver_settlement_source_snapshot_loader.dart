@@ -176,7 +176,10 @@ class DriverSettlementSourceSnapshotLoader {
               DriverSettlementsDbFields.expenseDate,
               DbDate.encode(startInclusive),
             )
-            .lte(DriverSettlementsDbFields.expenseDate, DbDate.encode(endInclusive))
+            .lte(
+              DriverSettlementsDbFields.expenseDate,
+              DbDate.encode(endInclusive),
+            )
             .order(DriverSettlementsDbFields.expenseDate)
             .order(DbCommonFields.createdAt)
             .order(DbCommonFields.id)
@@ -191,8 +194,9 @@ class DriverSettlementSourceSnapshotLoader {
         DbCommonFields.createdAt,
         DbCommonFields.id,
       ]) {
-        final comparison = (left[field]?.toString() ?? '')
-            .compareTo(right[field]?.toString() ?? '');
+        final comparison = (left[field]?.toString() ?? '').compareTo(
+          right[field]?.toString() ?? '',
+        );
         if (comparison != 0) return comparison;
       }
       return 0;
