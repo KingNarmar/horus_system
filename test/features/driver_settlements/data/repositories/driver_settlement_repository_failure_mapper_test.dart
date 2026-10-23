@@ -1,6 +1,7 @@
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/driver_settlements/data/repositories/driver_settlement_repository_failure_mapper.dart';
+import 'package:horus_system/features/driver_settlements/domain/failures/driver_settlement_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
@@ -23,6 +24,20 @@ void main() {
       expect(failure.message, isNull);
       expect(failure.code, isNot(error.code));
       expect(failure.message, isNot(error.message));
+    });
+
+    test('maps stale finalized expense sources to sanitized conflict', () {
+      const error = PostgrestException(
+        message: 'sensitive source details',
+        code: 'P2812',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.conflictExpenseSourceInvalid,
+      );
+      expect(failure.message, isNull);
     });
 
     test('uses stable server error when Postgrest code is absent', () {

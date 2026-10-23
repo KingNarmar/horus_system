@@ -44,6 +44,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.compensationOverlapFailure,
       DriverSettlementFailureCodes.conflictCompensationCurrencyMismatch =>
         strings.compensationCurrencyMismatchFailure,
+      DriverSettlementFailureCodes.conflictExpenseSourceInvalid =>
+        strings.expenseSourceInvalidFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),

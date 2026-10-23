@@ -3044,6 +3044,12 @@ abstract class AppLocalizations {
   /// **'Trip expenses management is not allowed.'**
   String get failurePermissionTripExpensesManagement;
 
+  /// No description provided for @tripExpenseFinalizedSettlementLockedFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip expense is included in a finalized driver settlement and cannot be voided.'**
+  String get tripExpenseFinalizedSettlementLockedFailure;
+
   /// No description provided for @failureValidationTripExpenseIdRequired.
   ///
   /// In en, this message translates to:

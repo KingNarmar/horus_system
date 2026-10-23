@@ -40,6 +40,12 @@ jobs:
       - name: Compile invitation concurrency probe
         run: python -m py_compile scripts/test_issue_314_concurrent_resend.py
 
+      - name: Compile Issue 337 financial concurrency probe
+        run: python -m py_compile scripts/security/verify_issue_337_concurrent_void_finalize.py
+
+      - name: Run Issue 337 offline race preflight tests
+        run: python -m unittest discover -s scripts/security -p test_issue_337_concurrent_void_finalize.py
+
       - name: Check formatting
         run: |
           dart format --set-exit-if-changed lib test || {

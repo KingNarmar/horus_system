@@ -541,6 +541,7 @@
   "failureValidationTripIdRequired": "معرّف الرحلة مطلوب.",
   "failurePermissionTripExpensesView": "لا يوجد صلاحية لعرض مصروفات الرحلة.",
   "failurePermissionTripExpensesManagement": "لا يوجد صلاحية لإدارة مصروفات الرحلة.",
+  "tripExpenseFinalizedSettlementLockedFailure": "لا يمكن إلغاء مصروف الرحلة لأنه مدرج في تسوية نهائية للسائق.",
   "failureValidationTripExpenseIdRequired": "معرّف مصروف الرحلة مطلوب.",
   "failureValidationTripExpenseTypeRequired": "نوع المصروف مطلوب.",
   "failureValidationTripExpenseNameRequired": "اسم المصروف مطلوب.",

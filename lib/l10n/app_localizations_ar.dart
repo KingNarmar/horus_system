@@ -1613,6 +1613,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يوجد صلاحية لإدارة مصروفات الرحلة.';
 
   @override
+  String get tripExpenseFinalizedSettlementLockedFailure =>
+      'لا يمكن إلغاء مصروف الرحلة لأنه مدرج في تسوية نهائية للسائق.';
+
+  @override
   String get failureValidationTripExpenseIdRequired =>
       'معرّف مصروف الرحلة مطلوب.';
 

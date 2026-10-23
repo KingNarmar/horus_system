@@ -72,6 +72,22 @@ void main() {
       expect(descriptionFailure.message, isNull);
     });
 
+    test('maps finalized settlement void denial to typed conflict', () {
+      const error = PostgrestException(
+        message: 'sensitive settlement source detail',
+        code: 'P2811',
+      );
+
+      final failure = mapper.fromPostgrest(error);
+
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        ExpenseLedgerFailureCodes.conflictFinalizedSettlementLocked,
+      );
+      expect(failure.message, isNull);
+    });
+
     test('sanitizes unknown Postgrest failure', () {
       const error = PostgrestException(
         message: 'database internals',

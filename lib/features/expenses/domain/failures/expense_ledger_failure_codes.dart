@@ -17,6 +17,8 @@ abstract final class ExpenseLedgerFailureCodes {
       'expense_ledger_expense_type_unavailable';
   static const notFound = 'expense_ledger_not_found';
   static const conflictAlreadyVoided = 'expense_ledger_already_voided';
+  static const conflictFinalizedSettlementLocked =
+      'expense_ledger_finalized_settlement_locked';
   static const serverError = 'expense_ledger_server_error';
   static const unexpectedError = 'expense_ledger_unexpected_error';
 }
