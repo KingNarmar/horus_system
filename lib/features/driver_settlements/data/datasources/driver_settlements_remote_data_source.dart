@@ -366,8 +366,10 @@ class SupabaseDriverSettlementsRemoteDataSource
           .order(DbCommonFields.id)
           .range(from, from + pageSize - 1);
       items.addAll(
-        rows.map((row) =>
-            DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row))),
+        rows.map(
+          (row) =>
+              DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row)),
+        ),
       );
       if (rows.length < pageSize) return items;
     }
