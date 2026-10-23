@@ -19,6 +19,26 @@ final class DriverSettlementRepositoryFailureMapper {
         code: DriverSettlementFailureCodes.validationDraftPayloadInvalid,
       );
     }
+    if (error.code == 'P2815') {
+      return const ConflictFailure(
+        code: DriverSettlementFailureCodes.conflictSourceSnapshotChanged,
+      );
+    }
+    if (error.code == 'P2816') {
+      return const ConflictFailure(
+        code: DriverSettlementFailureCodes.conflictCompensationChanged,
+      );
+    }
+    if (error.code == 'P2817') {
+      return const ValidationFailure(
+        code: DriverSettlementFailureCodes.validationExactMoneyMismatch,
+      );
+    }
+    if (error.code == 'P2818') {
+      return const ValidationFailure(
+        code: DriverSettlementFailureCodes.validationFinancialTotalsMismatch,
+      );
+    }
     if (error.code == 'P2812') {
       return const ConflictFailure(
         code: DriverSettlementFailureCodes.conflictExpenseSourceInvalid,
