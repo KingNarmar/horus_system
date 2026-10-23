@@ -5,6 +5,26 @@
 -- derive exact amounts from canonical server-side sources.
 BEGIN;
 
+-- Existing minor-unit Money values support up to four fraction digits.
+-- Widen legacy numeric projections without changing or rounding stored values.
+-- The original numeric(14,2) columns would otherwise round KWD/4dp input.
+ALTER TABLE public.driver_financial_movements
+  ALTER COLUMN amount TYPE numeric(18,4);
+ALTER TABLE public.driver_settlement_items
+  ALTER COLUMN amount TYPE numeric(18,4);
+ALTER TABLE public.driver_settlements
+  ALTER COLUMN opening_driver_balance TYPE numeric(18,4),
+  ALTER COLUMN advances_total TYPE numeric(18,4),
+  ALTER COLUMN driver_paid_trip_expenses_total TYPE numeric(18,4),
+  ALTER COLUMN returned_cash_total TYPE numeric(18,4),
+  ALTER COLUMN deductions_total TYPE numeric(18,4),
+  ALTER COLUMN settlement_deductions_total TYPE numeric(18,4),
+  ALTER COLUMN gross_salary TYPE numeric(18,4),
+  ALTER COLUMN salary_deductions_total TYPE numeric(18,4),
+  ALTER COLUMN balance_deduction_applied TYPE numeric(18,4),
+  ALTER COLUMN net_salary_payable TYPE numeric(18,4),
+  ALTER COLUMN closing_driver_balance TYPE numeric(18,4);
+
 CREATE FUNCTION private.assert_driver_settlement_financial_integrity(
   p_company_id uuid,
   p_header jsonb,
@@ -58,7 +78,7 @@ BEGIN
   -- inserts. Lock each driver's trips as well, to cover new ledger entries.
   PERFORM 1 FROM public.drivers AS d
   WHERE d.company_id=p_company_id AND d.id=v_header.driver_id
-    AND d.is_active
+    AND (d.is_active OR v_header.status='finalized'::public.driver_settlement_status)
   FOR UPDATE;
   IF NOT FOUND THEN
     RAISE EXCEPTION USING ERRCODE='P2814',
@@ -151,6 +171,29 @@ BEGIN
   ) THEN
     RAISE EXCEPTION USING ERRCODE='P2814',
       MESSAGE='driver_settlement_item_exact_money_mismatch';
+  END IF;
+
+  -- Match the canonical loader's fail-closed source-money contract even
+  -- for effective late-posted movements before the settlement period.
+  IF EXISTS (
+    SELECT 1 FROM public.driver_financial_movements m
+    WHERE m.company_id=p_company_id AND m.driver_id=v_header.driver_id
+      AND m.movement_date<v_header.period_start
+      AND (m.amount_minor_units IS NULL
+        OR m.currency_code IS DISTINCT FROM v_company_code
+        OR m.currency_fraction_digits IS DISTINCT FROM v_company_digits
+        OR m.amount * v_scale <> m.amount_minor_units::numeric)
+  ) OR EXISTS (
+    SELECT 1 FROM public.expense_ledger_entries e
+    JOIN public.trips t ON t.company_id=e.company_id AND t.id=e.trip_id
+    WHERE e.company_id=p_company_id AND t.driver_id=v_header.driver_id
+      AND e.is_voided=false AND e.funding_source IN ('driver_advance','driver_cash')
+      AND e.expense_date<v_header.period_start
+      AND (e.currency_code IS DISTINCT FROM v_company_code
+        OR e.currency_fraction_digits IS DISTINCT FROM v_company_digits)
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE='P2817',
+      MESSAGE='driver_settlement_source_currency_invalid';
   END IF;
 
   -- Existing expense void operations lock ledger rows FOR UPDATE.
@@ -407,6 +450,14 @@ BEGIN
       MESSAGE = 'driver_settlement_draft_payload_invalid';
   END IF;
 
+  IF EXISTS (
+    SELECT 1 FROM pg_catalog.jsonb_array_elements(p_items) AS element
+    WHERE pg_catalog.jsonb_typeof(element.value) <> 'object'
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE='P2814',
+      MESSAGE='driver_settlement_item_payload_invalid';
+  END IF;
+
   -- Validate against canonical sources while locks are held, before writing
   -- the header or firing audit/realtime triggers.
   PERFORM private.assert_driver_settlement_financial_integrity(
@@ -570,6 +621,10 @@ BEGIN
   END IF;
 
   RETURN v_id;
+EXCEPTION
+  WHEN invalid_text_representation OR numeric_value_out_of_range THEN
+    RAISE EXCEPTION USING ERRCODE='P2814',
+      MESSAGE='driver_settlement_draft_payload_invalid';
 END;
 $function$;
 
