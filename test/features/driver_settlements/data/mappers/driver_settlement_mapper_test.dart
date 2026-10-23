@@ -188,7 +188,8 @@ void main() {
       expect(map['currency_fraction_digits'], 3);
       expect(map['metadata'], {'funding_source': 'driver_cash'});
       expect(
-        item.toMoneyInsertMap(currencyFractionDigits: 3)
+        item
+            .toMoneyInsertMap(currencyFractionDigits: 3)
             .containsKey('settlement_id'),
         isFalse,
       );
