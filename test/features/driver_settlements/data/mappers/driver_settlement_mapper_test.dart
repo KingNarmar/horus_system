@@ -103,6 +103,7 @@ void main() {
       expect(map['source_date'], '2026-07-10');
       expect(map['direction'], 'driver_to_company');
       expect(map['metadata'], {'movement_type': 'advance'});
+      expect(item.toInsertMap().containsKey('settlement_id'), isFalse);
     });
 
     test(
@@ -186,6 +187,11 @@ void main() {
       expect(map['currency_code'], 'KWD');
       expect(map['currency_fraction_digits'], 3);
       expect(map['metadata'], {'funding_source': 'driver_cash'});
+      expect(
+        item.toMoneyInsertMap(currencyFractionDigits: 3)
+            .containsKey('settlement_id'),
+        isFalse,
+      );
     });
 
     test('finalize payload leaves lifecycle metadata to the database', () {
