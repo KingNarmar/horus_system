@@ -118,6 +118,20 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps different active settlement in the same period to conflict', () {
+      const error = PostgrestException(
+        message: 'private duplicate record',
+        code: 'P2819',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.conflictPeriodExists,
+      );
+      expect(failure.message, isNull);
+    });
+
     test('uses stable server error when Postgrest code is absent', () {
       const error = PostgrestException(message: 'database error');
 
