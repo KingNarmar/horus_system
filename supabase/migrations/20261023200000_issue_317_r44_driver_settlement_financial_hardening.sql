@@ -457,6 +457,12 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_catalog.jsonb_array_elements(p_items) AS element
     WHERE pg_catalog.jsonb_typeof(element.value) <> 'object'
+       OR element.value ->> 'company_id' IS DISTINCT FROM p_company_id::text
+       OR element.value - ARRAY[
+         'company_id','source_type','source_id','source_date','direction',
+         'amount','amount_minor_units','currency_code','currency_fraction_digits',
+         'label_key','description_key','metadata'
+       ] <> '{}'::jsonb
   ) THEN
     RAISE EXCEPTION USING ERRCODE='P2814',
       MESSAGE='driver_settlement_item_payload_invalid';
