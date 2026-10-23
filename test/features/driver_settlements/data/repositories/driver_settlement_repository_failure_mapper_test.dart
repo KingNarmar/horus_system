@@ -125,10 +125,7 @@ void main() {
       );
       final failure = mapper.fromPostgrest(error);
       expect(failure, isA<ConflictFailure>());
-      expect(
-        failure.code,
-        DriverSettlementFailureCodes.conflictPeriodExists,
-      );
+      expect(failure.code, DriverSettlementFailureCodes.conflictPeriodExists);
       expect(failure.message, isNull);
     });
 
