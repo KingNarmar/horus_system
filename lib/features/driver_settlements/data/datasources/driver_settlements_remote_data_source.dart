@@ -257,25 +257,14 @@ class SupabaseDriverSettlementsRemoteDataSource
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
   }) async {
-    final row = await client
-        .from(DriverSettlementsDbTables.driverSettlements)
-        .insert(data.toInsertMap())
-        .select(_driverSettlementColumns)
-        .single();
-
-    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
-    if (data.items.isNotEmpty) {
-      final itemRows = data.items
-          .map((item) => item.toInsertMap(settlementId: model.id))
-          .toList();
-      await client
-          .from(DriverSettlementsDbTables.driverSettlementItems)
-          .insert(itemRows);
-    }
-
+    final settlementId = await _createAtomicDraft(
+      companyId: data.companyId,
+      header: data.toInsertMap(),
+      items: data.items.map((item) => item.toInsertMap()).toList(),
+    );
     return getDriverSettlementById(
       companyId: data.companyId,
-      settlementId: model.id,
+      settlementId: settlementId,
     );
   }
 
@@ -283,31 +272,37 @@ class SupabaseDriverSettlementsRemoteDataSource
   Future<DriverSettlementModel> createMoneyDraft({
     required DriverSettlementMoneyDraftWriteData data,
   }) async {
-    final row = await client
-        .from(DriverSettlementsDbTables.driverSettlements)
-        .insert(data.toMoneyInsertMap())
-        .select(_driverSettlementColumns)
-        .single();
-
-    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
-    if (data.items.isNotEmpty) {
-      final itemRows = data.items
+    final settlementId = await _createAtomicDraft(
+      companyId: data.companyId,
+      header: data.toMoneyInsertMap(),
+      items: data.items
           .map(
             (item) => item.toMoneyInsertMap(
-              settlementId: model.id,
               currencyFractionDigits: data.currencyFractionDigits,
             ),
           )
-          .toList();
-      await client
-          .from(DriverSettlementsDbTables.driverSettlementItems)
-          .insert(itemRows);
-    }
-
+          .toList(),
+    );
     return getDriverSettlementById(
       companyId: data.companyId,
-      settlementId: model.id,
+      settlementId: settlementId,
     );
+  }
+
+  Future<String> _createAtomicDraft({
+    required String companyId,
+    required Map<String, dynamic> header,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    final result = await client.rpc(
+      DriverSettlementDbFunctions.createDraftAtomic,
+      params: {
+        DriverSettlementRpcParams.companyId: companyId,
+        DriverSettlementRpcParams.header: header,
+        DriverSettlementRpcParams.items: items,
+      },
+    );
+    return result.toString();
   }
 
   @override
