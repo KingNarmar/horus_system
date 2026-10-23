@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
+
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
@@ -17,13 +20,14 @@ import 'driver_settlement_form_input.dart';
 import 'driver_settlements_state.dart';
 
 part 'driver_settlements_filter_actions.dart';
+part 'driver_settlements_realtime_actions.dart';
 
 const _settlementCreatedAtKey = 'settlement_created_at';
 const _settlementFinalizedAtKey = 'settlement_finalized_at';
 const _settlementVoidedAtKey = 'settlement_voided_at';
 
 class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
-    with DriverSettlementsFilterActions {
+    with DriverSettlementsFilterActions, DriverSettlementsRealtimeActions {
   final GetDriverSettlementsUseCase getDriverSettlementsUseCase;
   final CanManageDriverSettlementsUseCase canManageDriverSettlementsUseCase;
   final GetDriverSettlementDriverOptionsUseCase getDriverOptionsUseCase;
@@ -39,6 +43,10 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
 
   CurrentCompanyContext? _currentCompanyContext;
   int _previewGeneration = 0;
+  int _loadRequestGeneration = 0;
+  int _settlementMutationRevision = 0;
+  bool _realtimeRefreshInProgress = false;
+  bool _realtimeRefreshPending = false;
 
   @override
   CurrentCompanyContext? get filterCompanyContext => _currentCompanyContext;
@@ -60,6 +68,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
   Future<void> loadDriverSettlements(
     CurrentCompanyContext currentCompanyContext,
   ) async {
+    final generation = ++_loadRequestGeneration;
     _currentCompanyContext = currentCompanyContext;
     final previousState = state;
     final previousSearch = previousState is DriverSettlementsLoaded
@@ -82,6 +91,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         currentCompanyContext: currentCompanyContext,
       ),
     );
+    if (isClosed || generation != _loadRequestGeneration) return;
     if (businessDateResult is FailureResult<BusinessDate>) {
       emit(DriverSettlementsFailure(businessDateResult.failure));
       return;
@@ -92,6 +102,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         currentCompanyContext: currentCompanyContext,
       ),
     );
+    if (isClosed || generation != _loadRequestGeneration) return;
     if (optionsResult is FailureResult<List<DriverSettlementDriverOption>>) {
       emit(DriverSettlementsFailure(optionsResult.failure));
       return;
@@ -103,6 +114,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         includeVoided: previousIncludeVoided,
       ),
     );
+    if (isClosed || generation != _loadRequestGeneration) return;
     if (settlementsResult is FailureResult<List<DriverSettlement>>) {
       emit(DriverSettlementsFailure(settlementsResult.failure));
       return;
@@ -113,6 +125,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         currentCompanyContext: currentCompanyContext,
       ),
     );
+    if (isClosed || generation != _loadRequestGeneration) return;
     final permissionFailure = permissionResult.failureOrNull;
     if (permissionFailure != null) {
       emit(DriverSettlementsFailure(permissionFailure));
@@ -132,6 +145,9 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         includeVoided: previousIncludeVoided,
       ),
     );
+    if (_realtimeRefreshPending) {
+      await refreshDriverSettlementsFromRealtime();
+    }
   }
 
   void invalidatePreview() {
@@ -218,12 +234,16 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
           mutationFailure: result.failure,
         ),
       );
+      if (_realtimeRefreshPending) {
+        await refreshDriverSettlementsFromRealtime();
+      }
       return false;
     }
 
     final settlement = result.dataOrNull;
     if (settlement == null) return false;
     _previewGeneration++;
+    _settlementMutationRevision++;
     emit(
       _upsertSettlement(latestState, settlement).copyWith(
         isCreatingDraft: false,
@@ -232,6 +252,9 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         feedback: DriverSettlementFeedback.draftCreated,
       ),
     );
+    if (_realtimeRefreshPending) {
+      await refreshDriverSettlementsFromRealtime();
+    }
     return true;
   }
 
@@ -341,11 +364,15 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         settlementId: settlement.id,
       ),
     );
-    return _finishStatusMutation(
+    final succeeded = await _finishStatusMutation(
       settlementId: settlement.id,
       result: result,
       feedback: DriverSettlementFeedback.finalized,
     );
+    if (_realtimeRefreshPending) {
+      await refreshDriverSettlementsFromRealtime();
+    }
+    return succeeded;
   }
 
   Future<bool> voidSettlement(
@@ -375,11 +402,15 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
         reason: reason,
       ),
     );
-    return _finishStatusMutation(
+    final succeeded = await _finishStatusMutation(
       settlementId: settlement.id,
       result: result,
       feedback: DriverSettlementFeedback.voided,
     );
+    if (_realtimeRefreshPending) {
+      await refreshDriverSettlementsFromRealtime();
+    }
+    return succeeded;
   }
 
   void clearSettlementDetails() {
@@ -556,6 +587,7 @@ class DriverSettlementsCubit extends Cubit<DriverSettlementsState>
       return false;
     }
 
+    _settlementMutationRevision++;
     final baseState = _upsertSettlement(currentState, settlement).copyWith(
       selectedSettlement: settlement,
       pendingActionSettlementId: null,
