@@ -478,8 +478,7 @@ BEGIN
     AND s.driver_id=(p_header ->> 'driver_id')::uuid
     AND s.period_start=(p_header ->> 'period_start')::date
     AND s.period_end=(p_header ->> 'period_end')::date
-    AND s.status<>'voided'::public.driver_settlement_status
-  FOR SHARE;
+    AND s.status<>'voided'::public.driver_settlement_status;
 
   IF FOUND THEN
     SELECT pg_catalog.to_jsonb(input) INTO v_submitted_header
