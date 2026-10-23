@@ -121,6 +121,7 @@ class DriverSettlementsLocalizations {
   String get exactMoneyMismatchFailure => _value('exactMoneyMismatchFailure');
   String get financialTotalsMismatchFailure =>
       _value('financialTotalsMismatchFailure');
+  String get periodExistsFailure => _value('periodExistsFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
   String get detailsFailed => _value('detailsFailed');
@@ -257,6 +258,8 @@ class DriverSettlementsLocalizations {
         'Settlement amounts do not match the company currency precision.',
     'financialTotalsMismatchFailure':
         'Settlement totals could not be verified. Recalculate and try again.',
+    'periodExistsFailure':
+        'A settlement already exists for this driver and period. Refresh the list.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
     'detailsFailed': 'Settlement details could not be loaded.',
@@ -376,6 +379,8 @@ class DriverSettlementsLocalizations {
     'exactMoneyMismatchFailure': 'مبالغ التسوية لا تطابق دقة عملة الشركة.',
     'financialTotalsMismatchFailure':
         'تعذر التحقق من إجمالي التسوية. أعد الحساب ثم حاول مرة أخرى.',
+    'periodExistsFailure':
+        'توجد تسوية لهذا السائق ونفس الفترة بالفعل. حدّث القائمة.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
     'detailsFailed': 'تعذر تحميل تفاصيل التسوية.',
