@@ -117,10 +117,8 @@ class DriverSettlementsLocalizations {
       _value('expenseSourceInvalidFailure');
   String get sourceSnapshotChangedFailure =>
       _value('sourceSnapshotChangedFailure');
-  String get compensationChangedFailure =>
-      _value('compensationChangedFailure');
-  String get exactMoneyMismatchFailure =>
-      _value('exactMoneyMismatchFailure');
+  String get compensationChangedFailure => _value('compensationChangedFailure');
+  String get exactMoneyMismatchFailure => _value('exactMoneyMismatchFailure');
   String get financialTotalsMismatchFailure =>
       _value('financialTotalsMismatchFailure');
   String get loadFailed => _value('loadFailed');
@@ -374,10 +372,8 @@ class DriverSettlementsLocalizations {
         'أحد مصروفات الرحلة في هذه التسوية أُلغي أو لم يعد متاحًا. أنشئ مسودة جديدة من البيانات الحالية.',
     'sourceSnapshotChangedFailure':
         'تغيرت المصادر المالية. أعد حساب التسوية ثم حاول مرة أخرى.',
-    'compensationChangedFailure':
-        'تغيرت بيانات راتب السائق. أعد حساب التسوية.',
-    'exactMoneyMismatchFailure':
-        'مبالغ التسوية لا تطابق دقة عملة الشركة.',
+    'compensationChangedFailure': 'تغيرت بيانات راتب السائق. أعد حساب التسوية.',
+    'exactMoneyMismatchFailure': 'مبالغ التسوية لا تطابق دقة عملة الشركة.',
     'financialTotalsMismatchFailure':
         'تعذر التحقق من إجمالي التسوية. أعد الحساب ثم حاول مرة أخرى.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
