@@ -101,6 +101,40 @@ void main() {
     },
   );
 
+  test('Driver Settlements private channel rejects foreign payloads', () async {
+    final gateway = _FakeGateway();
+    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+      gateway,
+    );
+    final received = <RealtimeChangeSignal>[];
+    final subscription = source
+        .watchDriverSettlements(companyId: 'company-a')
+        .listen(received.add);
+    await Future<void>.delayed(Duration.zero);
+
+    final channel = gateway.channels.single;
+    expect(channel.topic, RealtimeTopics.driverSettlements('company-a'));
+    expect(channel.event, RealtimeTopics.customersChangedEvent);
+    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+    channel.onMessage({
+      'payload': {'company_id': 'company-b', 'resource': 'driver_settlements'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'driver_finance'},
+    });
+    channel.onMessage({
+      'payload': {'company_id': 'company-a', 'resource': 'driver_settlements'},
+    });
+    await Future<void>.delayed(Duration.zero);
+    expect(received, [
+      RealtimeChangeSignal.subscribed,
+      RealtimeChangeSignal.changed,
+    ]);
+
+    await subscription.cancel();
+    expect(gateway.removed, [channel]);
+  });
+
   test('unauthenticated session never subscribes', () async {
     final gateway = _FakeGateway()..accessToken = null;
     final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(

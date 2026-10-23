@@ -146,6 +146,51 @@ void main() {
   );
 
   test(
+    'realtime refresh preserves search and active details while updating status',
+    () async {
+      final draft = _settlement(id: 'draft-1');
+      repository.settlements = [draft];
+      repository.details = draft;
+      await cubit.loadDriverSettlements(_context);
+      cubit.setSearchQuery('driver-active');
+      await cubit.loadSettlementDetails(draft);
+
+      final finalized = _settlement(
+        id: 'draft-1',
+        status: DriverSettlementStatus.finalized,
+      );
+      repository.settlements = [finalized];
+      repository.details = finalized;
+      await cubit.refreshDriverSettlementsFromRealtime();
+
+      final state = cubit.state as DriverSettlementsLoaded;
+      expect(state.searchQuery, 'driver-active');
+      expect(state.selectedSettlement?.id, draft.id);
+      expect(state.selectedSettlement?.status, DriverSettlementStatus.finalized);
+      expect(state.allSettlements.single.status, DriverSettlementStatus.finalized);
+      expect(state.realtimeRefreshFailure, isNull);
+    },
+  );
+
+  test(
+    'reconnect reconciles mounted settlements without replacing loaded state',
+    () async {
+      final draft = _settlement(id: 'draft-1');
+      repository.settlements = [draft];
+      await cubit.loadDriverSettlements(_context);
+      cubit.setSearchQuery('driver-active');
+      repository.settlements = [
+        _settlement(id: 'draft-1', status: DriverSettlementStatus.voided),
+      ];
+      await cubit.reconcileSettlementsAfterReconnect(_context);
+      final state = cubit.state as DriverSettlementsLoaded;
+      expect(state.searchQuery, 'driver-active');
+      expect(state.allSettlements.single.status, DriverSettlementStatus.voided);
+      expect(state.driverOptions, hasLength(2));
+    },
+  );
+
+  test(
     'finalizing updates the selected settlement without page loading',
     () async {
       final draft = _settlement(id: 'draft-1');
