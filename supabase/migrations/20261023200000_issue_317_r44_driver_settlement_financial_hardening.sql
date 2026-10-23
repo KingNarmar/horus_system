@@ -419,6 +419,8 @@ DECLARE
   v_id uuid;
   v_item jsonb;
   v_source_type public.driver_settlement_item_source_type;
+  v_existing_header jsonb;
+  v_submitted_header jsonb;
 BEGIN
   IF auth.uid() IS NULL
      OR p_company_id IS NULL
@@ -465,6 +467,62 @@ BEGIN
   PERFORM private.assert_driver_settlement_financial_integrity(
     p_company_id, p_header, p_items
   );
+
+  -- The active period is already unique. A repeated identical request may
+  -- follow a lost network response: return the existing id, without writing
+  -- new audit rows or a second realtime invalidation.
+  SELECT s.id, pg_catalog.to_jsonb(s)
+  INTO v_id, v_existing_header
+  FROM public.driver_settlements s
+  WHERE s.company_id=p_company_id
+    AND s.driver_id=(p_header ->> 'driver_id')::uuid
+    AND s.period_start=(p_header ->> 'period_start')::date
+    AND s.period_end=(p_header ->> 'period_end')::date
+    AND s.status<>'voided'::public.driver_settlement_status
+  FOR SHARE;
+
+  IF FOUND THEN
+    SELECT pg_catalog.to_jsonb(input) INTO v_submitted_header
+    FROM pg_catalog.jsonb_populate_record(
+      NULL::public.driver_settlements, p_header
+    ) AS input;
+    IF v_existing_header - ARRAY[
+         'id','status','finalized_at','finalized_by','voided_at','voided_by',
+         'void_reason','created_by','updated_by','created_at','updated_at'
+       ] = v_submitted_header - ARRAY[
+         'id','status','finalized_at','finalized_by','voided_at','voided_by',
+         'void_reason','created_by','updated_by','created_at','updated_at'
+       ]
+       AND NOT EXISTS (
+         WITH stored AS (
+           SELECT i.source_type::text AS source_type,i.source_id,
+                  i.source_date,i.direction::text AS direction,
+                  i.amount,i.amount_minor_units,i.currency_code,
+                  i.currency_fraction_digits,i.label_key,i.description_key,i.metadata
+           FROM public.driver_settlement_items i
+           WHERE i.company_id=p_company_id AND i.settlement_id=v_id
+         ), sent AS (
+           SELECT i.source_type,i.source_id,i.source_date,i.direction,
+                  i.amount,i.amount_minor_units,i.currency_code,
+                  i.currency_fraction_digits,i.label_key,i.description_key,i.metadata
+           FROM pg_catalog.jsonb_to_recordset(p_items) AS i(
+             source_type text,source_id uuid,source_date date,direction text,
+             amount numeric,amount_minor_units bigint,currency_code text,
+             currency_fraction_digits smallint,label_key text,
+             description_key text,metadata jsonb
+           )
+         ), removed AS (
+           SELECT * FROM stored EXCEPT ALL SELECT * FROM sent
+         ), inserted AS (
+           SELECT * FROM sent EXCEPT ALL SELECT * FROM stored
+         )
+         SELECT 1 FROM removed UNION ALL SELECT 1 FROM inserted
+       ) THEN
+      RETURN v_id;
+    END IF;
+    RAISE EXCEPTION USING ERRCODE='P2819',
+      MESSAGE='driver_settlement_period_conflict';
+  END IF;
 
   -- Explicitly selected fields; clients cannot supply id, actor or status.
   INSERT INTO public.driver_settlements (
