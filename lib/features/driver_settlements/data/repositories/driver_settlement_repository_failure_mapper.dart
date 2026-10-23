@@ -34,6 +34,11 @@ final class DriverSettlementRepositoryFailureMapper {
         code: DriverSettlementFailureCodes.validationExactMoneyMismatch,
       );
     }
+    if (error.code == 'P2819') {
+      return const ConflictFailure(
+        code: DriverSettlementFailureCodes.conflictPeriodExists,
+      );
+    }
     if (error.code == 'P2818') {
       return const ValidationFailure(
         code: DriverSettlementFailureCodes.validationFinancialTotalsMismatch,
