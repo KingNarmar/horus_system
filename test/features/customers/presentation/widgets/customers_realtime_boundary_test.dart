@@ -128,6 +128,7 @@ void main() {
       CompanyDataResource.expenseLedger,
       CompanyDataResource.tripExpenses,
       CompanyDataResource.driverFinance,
+      CompanyDataResource.driverSettlements,
       CompanyDataResource.companyExpenses,
     });
 
