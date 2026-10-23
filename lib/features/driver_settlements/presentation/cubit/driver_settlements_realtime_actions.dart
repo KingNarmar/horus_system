@@ -113,22 +113,27 @@ mixin DriverSettlementsRealtimeActions on Cubit<DriverSettlementsState> {
     }
 
     final active = state as DriverSettlementsLoaded;
-    final changed = selected != null &&
+    final changed =
+        selected != null &&
         (selected.status != active.selectedSettlement?.status ||
             selected.updatedAt != active.selectedSettlement?.updatedAt);
-    emit(active.copyWith(
-      allSettlements: List.unmodifiable(list.dataOrNull ?? const []),
-      selectedSettlement: selected ?? active.selectedSettlement,
-      realtimeRefreshFailure: null,
-    ));
+    emit(
+      active.copyWith(
+        allSettlements: List.unmodifiable(list.dataOrNull ?? const []),
+        selectedSettlement: selected ?? active.selectedSettlement,
+        realtimeRefreshFailure: null,
+      ),
+    );
     if (changed && selected != null) {
       final times = await owner._projectSettlementTimestamps(context, selected);
       if (!stillCurrent()) return;
       if (_realtimeFailure(times.failureOrNull)) return;
-      emit(owner._applySettlementTimestamps(
-        state as DriverSettlementsLoaded,
-        times.dataOrNull ?? const <String, BusinessLocalDateTime>{},
-      ));
+      emit(
+        owner._applySettlementTimestamps(
+          state as DriverSettlementsLoaded,
+          times.dataOrNull ?? const <String, BusinessLocalDateTime>{},
+        ),
+      );
       await owner._loadSettlementActivity(selected);
     }
   }
@@ -140,9 +145,7 @@ mixin DriverSettlementsRealtimeActions on Cubit<DriverSettlementsState> {
     final context = before.currentCompanyContext;
     final generation = owner._loadRequestGeneration;
     final options = await owner.getDriverOptionsUseCase(
-      GetDriverSettlementDriverOptionsParams(
-        currentCompanyContext: context,
-      ),
+      GetDriverSettlementDriverOptionsParams(currentCompanyContext: context),
     );
     final active = state;
     if (owner.isClosed ||
@@ -152,10 +155,12 @@ mixin DriverSettlementsRealtimeActions on Cubit<DriverSettlementsState> {
       return;
     }
     if (_realtimeFailure(options.failureOrNull)) return;
-    emit(active.copyWith(
-      driverOptions: List.unmodifiable(options.dataOrNull ?? const []),
-      realtimeRefreshFailure: null,
-    ));
+    emit(
+      active.copyWith(
+        driverOptions: List.unmodifiable(options.dataOrNull ?? const []),
+        realtimeRefreshFailure: null,
+      ),
+    );
   }
 
   bool _realtimeFailure(Failure? failure) {

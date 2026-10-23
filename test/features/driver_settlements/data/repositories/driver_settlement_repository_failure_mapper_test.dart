@@ -52,10 +52,7 @@ void main() {
     });
 
     test('maps rejected atomic draft payload to localized validation code', () {
-      const error = PostgrestException(
-        message: 'server fields',
-        code: 'P2814',
-      );
+      const error = PostgrestException(message: 'server fields', code: 'P2814');
       final failure = mapper.fromPostgrest(error);
       expect(failure, isA<ValidationFailure>());
       expect(

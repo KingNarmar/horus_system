@@ -223,7 +223,8 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'Driver settlement is required.',
     'periodInvalidFailure': 'The settlement period is invalid.',
     'amountNegativeFailure': 'Settlement amounts cannot be negative.',
-    'draftPayloadInvalidFailure': 'The settlement draft could not be saved. Review the data and try again.',
+    'draftPayloadInvalidFailure':
+        'The settlement draft could not be saved. Review the data and try again.',
     'amountInvalidFailure':
         'Enter a valid settlement amount using the company currency precision.',
     'netSalaryNegativeFailure': 'Net salary payable cannot be negative.',
@@ -338,7 +339,8 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'تسوية السائق مطلوبة.',
     'periodInvalidFailure': 'فترة التسوية غير صحيحة.',
     'amountNegativeFailure': 'مبالغ التسوية لا يمكن أن تكون سالبة.',
-    'draftPayloadInvalidFailure': 'تعذّر حفظ مسودة التسوية. راجع البيانات ثم حاول مرة أخرى.',
+    'draftPayloadInvalidFailure':
+        'تعذّر حفظ مسودة التسوية. راجع البيانات ثم حاول مرة أخرى.',
     'amountInvalidFailure': 'أدخل مبلغ تسوية صحيحًا وفق دقة عملة الشركة.',
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
     'balanceRecoveryExceedsDebtFailure':

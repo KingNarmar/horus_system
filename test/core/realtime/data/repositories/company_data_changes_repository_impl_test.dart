@@ -130,32 +130,37 @@ void main() {
     await source.close();
   });
 
-  test('Driver Settlements is finance-only opt-in and cancels cleanly', () async {
-    final source = _Source();
-    final repository = CompanyDataChangesRepositoryImpl(source);
-    final changes = <CompanyDataResource>[];
-    final subscription = repository.watchChanges(
-      companyId: 'company-a',
-      additionalResources: const {CompanyDataResource.driverSettlements},
-    ).listen((result) {
-      final change = result.dataOrNull;
-      if (change != null) changes.add(change.resource);
-    });
+  test(
+    'Driver Settlements is finance-only opt-in and cancels cleanly',
+    () async {
+      final source = _Source();
+      final repository = CompanyDataChangesRepositoryImpl(source);
+      final changes = <CompanyDataResource>[];
+      final subscription = repository
+          .watchChanges(
+            companyId: 'company-a',
+            additionalResources: const {CompanyDataResource.driverSettlements},
+          )
+          .listen((result) {
+            final change = result.dataOrNull;
+            if (change != null) changes.add(change.resource);
+          });
 
-    source.driverSettlements.add(RealtimeChangeSignal.subscribed);
-    source.driverSettlements.add(RealtimeChangeSignal.changed);
-    await Future<void>.delayed(Duration.zero);
+      source.driverSettlements.add(RealtimeChangeSignal.subscribed);
+      source.driverSettlements.add(RealtimeChangeSignal.changed);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(changes, [
-      CompanyDataResource.driverSettlements,
-      CompanyDataResource.driverSettlements,
-    ]);
-    expect(source.driverFinance.hasListener, isFalse);
-    expect(source.expenseLedger.hasListener, isFalse);
-    await subscription.cancel();
-    expect(source.driverSettlementsCanceled, isTrue);
-    await source.close();
-  });
+      expect(changes, [
+        CompanyDataResource.driverSettlements,
+        CompanyDataResource.driverSettlements,
+      ]);
+      expect(source.driverFinance.hasListener, isFalse);
+      expect(source.expenseLedger.hasListener, isFalse);
+      await subscription.cancel();
+      expect(source.driverSettlementsCanceled, isTrue);
+      await source.close();
+    },
+  );
 
   test('transport error becomes a sanitized typed failure', () async {
     final source = _Source();

@@ -166,8 +166,14 @@ void main() {
       final state = cubit.state as DriverSettlementsLoaded;
       expect(state.searchQuery, 'driver-active');
       expect(state.selectedSettlement?.id, draft.id);
-      expect(state.selectedSettlement?.status, DriverSettlementStatus.finalized);
-      expect(state.allSettlements.single.status, DriverSettlementStatus.finalized);
+      expect(
+        state.selectedSettlement?.status,
+        DriverSettlementStatus.finalized,
+      );
+      expect(
+        state.allSettlements.single.status,
+        DriverSettlementStatus.finalized,
+      );
       expect(state.realtimeRefreshFailure, isNull);
     },
   );

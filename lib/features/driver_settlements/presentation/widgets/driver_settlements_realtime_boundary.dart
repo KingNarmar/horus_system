@@ -61,7 +61,9 @@ final class DriverSettlementsRealtimeBoundary extends StatelessWidget {
                   if (failure == null) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(context.l10n.localizedErrorMessage(failure)),
+                      content: Text(
+                        context.l10n.localizedErrorMessage(failure),
+                      ),
                     ),
                   );
                 },
@@ -79,7 +81,9 @@ final class DriverSettlementsRealtimeBoundary extends StatelessWidget {
                   if (failure == null) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(context.l10n.localizedErrorMessage(failure)),
+                      content: Text(
+                        context.l10n.localizedErrorMessage(failure),
+                      ),
                     ),
                   );
                 },

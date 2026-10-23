@@ -26,7 +26,9 @@ abstract interface class CompanyDataChangesRemoteDataSource {
 
   Stream<RealtimeChangeSignal> watchDriverFinance({required String companyId});
 
-  Stream<RealtimeChangeSignal> watchDriverSettlements({required String companyId});
+  Stream<RealtimeChangeSignal> watchDriverSettlements({
+    required String companyId,
+  });
 
   Stream<RealtimeChangeSignal> watchExpenseLedger({required String companyId});
 
