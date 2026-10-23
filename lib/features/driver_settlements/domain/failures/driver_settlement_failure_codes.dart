@@ -1,4 +1,6 @@
 abstract final class DriverSettlementFailureCodes {
+  static const validationDraftPayloadInvalid =
+      'validation_driver_settlement_draft_payload_invalid';
   static const validationAmountInvalid =
       'validation_driver_settlement_amount_invalid';
   static const conflictCompensationCurrencyMismatch =

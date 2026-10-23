@@ -28,6 +28,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.periodInvalidFailure,
       FailureCodes.validationDriverSettlementAmountNegative =>
         strings.amountNegativeFailure,
+      DriverSettlementFailureCodes.validationDraftPayloadInvalid =>
+        strings.draftPayloadInvalidFailure,
       DriverSettlementFailureCodes.validationAmountInvalid =>
         strings.amountInvalidFailure,
       FailureCodes.validationDriverSettlementNetSalaryNegative =>

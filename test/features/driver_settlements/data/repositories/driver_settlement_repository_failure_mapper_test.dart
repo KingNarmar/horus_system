@@ -40,6 +40,31 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps atomic RPC authorization failures to typed permission', () {
+      const error = PostgrestException(
+        message: 'private actor details',
+        code: 'P2813',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, FailureCodes.permissionDriverSettlementsManagement);
+      expect(failure.message, isNull);
+    });
+
+    test('maps rejected atomic draft payload to localized validation code', () {
+      const error = PostgrestException(
+        message: 'server fields',
+        code: 'P2814',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.validationDraftPayloadInvalid,
+      );
+      expect(failure.message, isNull);
+    });
+
     test('uses stable server error when Postgrest code is absent', () {
       const error = PostgrestException(message: 'database error');
 
