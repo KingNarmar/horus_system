@@ -47,25 +47,30 @@ final class _Config {
           : Platform.environment[fallback]?.trim();
       if (first != null && first.isNotEmpty) return first;
       if (second != null && second.isNotEmpty) return second;
-      throw const FormatException('Required Development environment missing.');
+      throw FormatException('Missing Development environment variable: $key');
     }
 
-    final origin = Uri.parse(required('SUPABASE_URL'));
-    final key = required('SUPABASE_PUBLISHABLE_KEY');
-    final companyA = required('HORUS_317_COMPANY_A_ID', 'HORUS_327_COMPANY_A_ID');
-    final companyB = required('HORUS_317_COMPANY_B_ID', 'HORUS_327_COMPANY_B_ID');
-
-    if (origin.scheme != 'https' ||
+    final origin = Uri.tryParse(required('SUPABASE_URL'));
+    if (origin == null ||
+        origin.scheme != 'https' ||
         origin.host != _devHost ||
         (origin.path.isNotEmpty && origin.path != '/') ||
         origin.hasQuery ||
         origin.hasFragment ||
-        origin.userInfo.isNotEmpty ||
-        !key.startsWith('sb_publishable_') ||
-        !_uuid.hasMatch(companyA) ||
+        origin.userInfo.isNotEmpty) {
+      throw const FormatException('Invalid SUPABASE_URL (Development required).');
+    }
+    final key = required('SUPABASE_PUBLISHABLE_KEY');
+    final companyA = required('HORUS_317_COMPANY_A_ID', 'HORUS_327_COMPANY_A_ID');
+    final companyB = required('HORUS_317_COMPANY_B_ID', 'HORUS_327_COMPANY_B_ID');
+
+    if (!key.startsWith('sb_publishable_')) {
+      throw const FormatException('Invalid SUPABASE_PUBLISHABLE_KEY format.');
+    }
+    if (!_uuid.hasMatch(companyA) ||
         !_uuid.hasMatch(companyB) ||
         companyA.toLowerCase() == companyB.toLowerCase()) {
-      throw const FormatException('Unsafe Development configuration.');
+      throw const FormatException('Invalid or duplicate Development company IDs.');
     }
     return _Config(origin, key, companyA, companyB);
   }
@@ -241,7 +246,11 @@ Future<void> main(List<String> args) async {
   _DevGateway? gateway;
   try {
     final config = _Config.fromEnvironment();
-    if (!stdin.hasTerminal) throw StateError('Interactive terminal required.');
+    if (!stdin.hasTerminal) {
+      stderr.writeln('BLOCKED — Interactive terminal required. No network request sent.');
+      exitCode = 1;
+      return;
+    }
     if (mode.single == '--preflight') {
       stdout.writeln('PASS  Development-only, negative write probe configured.');
       return;
@@ -285,6 +294,13 @@ Future<void> main(List<String> args) async {
       foreignPass ? 'PASS  $role foreign company' : 'FAIL  $role foreign company',
     );
     if (!ownPass || !foreignPass) exitCode = 1;
+  } on FormatException catch (error) {
+    if (mode.single == '--preflight') {
+      stderr.writeln('BLOCKED preflight — ${error.message}. No network request sent.');
+    } else {
+      stderr.writeln('BLOCKED — Invalid Development configuration. Details suppressed.');
+    }
+    exitCode = 1;
   } catch (_) {
     stderr.writeln(
       'BLOCKED — Development configuration, signed role or RPC verification failed. '
