@@ -109,7 +109,8 @@ final class ReportsCubit extends Cubit<ReportsState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(
             ReportsLoadFailure(
               reportType: latest.reportType,
