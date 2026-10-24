@@ -32,10 +32,7 @@ void main() {
 
     test('unknown roles cannot be treated as finance roles', () {
       expect(
-        expectedIssue317R44DraftSqlstate(
-          role: 'unsupported',
-          foreign: false,
-        ),
+        expectedIssue317R44DraftSqlstate(role: 'unsupported', foreign: false),
         isNull,
       );
     });
