@@ -52,6 +52,22 @@ Future<void> main(List<String> args) async {
       password: r44Password(),
     );
 
+    var failed = 0;
+    for (final table in ['invoices', 'invoice_lines']) {
+      final result = await client.request(
+        'POST',
+        '/rest/v1/$table',
+        jwt: session.jwt,
+        data: {'company_id': session.companyId},
+      );
+      if (r44DeniedDirectInsert(result)) {
+        stdout.writeln('PASS  direct $table INSERT refused');
+      } else {
+        stdout.writeln('FAIL  direct $table INSERT not permission-denied');
+        failed++;
+      }
+    }
+
     final outcome = await r44TryForgedBroadcast(
       config,
       session,
@@ -66,12 +82,16 @@ Future<void> main(List<String> args) async {
         );
       case R44BroadcastOutcome.delivered:
         stdout.writeln('FAIL  forged Invoice Broadcast delivered');
-        exitCode = 1;
+        failed++;
       case R44BroadcastOutcome.inconclusive:
         stdout.writeln('FAIL  inconclusive — no authorization PASS');
-        exitCode = 1;
+        failed++;
     }
-    stdout.writeln('Check R4.5 realtime.messages INSERT grants and policies separately.');
+    stdout.writeln('SUMMARY: ${3 - failed} PASS / $failed FAIL');
+    stdout.writeln(
+      'Check R4.5 realtime.messages INSERT grants and policies separately.',
+    );
+    if (failed > 0) exitCode = 1;
   } catch (_) {
     stderr.writeln(
       'BLOCKED — invalid Development configuration, role or connection. '
