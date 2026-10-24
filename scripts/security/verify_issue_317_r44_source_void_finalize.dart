@@ -266,6 +266,8 @@ Future<void> main(List<String> args) async {
       fixture,
     );
     final outcome = verifyR44SourceRace(
+      expenseId: fixture.expenseId,
+      settlementId: fixture.settlementId,
       voidReply: replies[0],
       finalizeReply: replies[1],
       expense: expense,
