@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -147,9 +148,14 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
           _invoiceReferencesRefreshPending = true;
           break;
         }
+        final failure = result.failureOrNull;
+        if (failure is AuthFailure || failure is PermissionFailure) {
+          emit(PaymentsFailure(failure));
+          break;
+        }
         emit(
           latest.copyWith(
-            invoices: result.failureOrNull == null
+            invoices: failure == null
                 ? List.unmodifiable(result.dataOrNull ?? const <Invoice>[])
                 : null,
             invoiceReferencesRefreshFailure: result.failureOrNull,
