@@ -135,40 +135,45 @@ void main() {
     expect(gateway.removed, [channel]);
   });
 
-  test('Invoices topic rejects other tenants, resources and malformed hints', () async {
-    final gateway = _FakeGateway();
-    final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
-      gateway,
-    );
-    final received = <RealtimeChangeSignal>[];
-    final subscription = source
-        .watchInvoices(companyId: 'company-a')
-        .listen(received.add);
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'Invoices topic rejects other tenants, resources and malformed hints',
+    () async {
+      final gateway = _FakeGateway();
+      final source = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
+      final received = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchInvoices(companyId: 'company-a')
+          .listen(received.add);
+      await Future<void>.delayed(Duration.zero);
 
-    final channel = gateway.channels.single;
-    expect(channel.topic, RealtimeTopics.invoices('company-a'));
-    expect(channel.event, RealtimeTopics.customersChangedEvent);
-    channel.onStatus(RealtimeChannelJoinStatus.subscribed);
-    channel.onMessage({
-      'payload': {'company_id': 'company-b', 'resource': 'invoices'},
-    });
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'payments'},
-    });
-    channel.onMessage({'payload': {'resource': 'invoices'}});
-    channel.onMessage({
-      'payload': {'company_id': 'company-a', 'resource': 'invoices'},
-    });
-    await Future<void>.delayed(Duration.zero);
+      final channel = gateway.channels.single;
+      expect(channel.topic, RealtimeTopics.invoices('company-a'));
+      expect(channel.event, RealtimeTopics.customersChangedEvent);
+      channel.onStatus(RealtimeChannelJoinStatus.subscribed);
+      channel.onMessage({
+        'payload': {'company_id': 'company-b', 'resource': 'invoices'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'payments'},
+      });
+      channel.onMessage({
+        'payload': {'resource': 'invoices'},
+      });
+      channel.onMessage({
+        'payload': {'company_id': 'company-a', 'resource': 'invoices'},
+      });
+      await Future<void>.delayed(Duration.zero);
 
-    expect(received, [
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
-    await subscription.cancel();
-    expect(gateway.removed, [channel]);
-  });
+      expect(received, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removed, [channel]);
+    },
+  );
 
   test('unauthenticated session never subscribes', () async {
     final gateway = _FakeGateway()..accessToken = null;
