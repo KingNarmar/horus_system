@@ -29,9 +29,8 @@ final class PaymentInvoiceReferencesRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.paymentFormLookups},
-      onInvalidate: (context) => context
-          .read<PaymentsCubit>()
-          .refreshInvoiceReferencesFromRealtime(),
+      onInvalidate: (context) =>
+          context.read<PaymentsCubit>().refreshInvoiceReferencesFromRealtime(),
       child: BlocListener<PaymentsCubit, PaymentsState>(
         listenWhen: (previous, current) =>
             current is PaymentsLoaded &&
@@ -44,7 +43,9 @@ final class PaymentInvoiceReferencesRealtimeBoundary extends StatelessWidget {
           final failure = current.invoiceReferencesRefreshFailure;
           if (failure == null) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.localizedErrorMessage(failure))),
+            SnackBar(
+              content: Text(context.l10n.localizedErrorMessage(failure)),
+            ),
           );
         },
         child: child,
