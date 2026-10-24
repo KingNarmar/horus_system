@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
@@ -25,6 +27,8 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
+  bool _invoiceReferencesRefreshPending = false;
+  bool _invoiceReferencesRefreshInProgress = false;
 
   PaymentsCubit({
     required this.getPaymentsUseCase,
@@ -113,6 +117,48 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
         searchQuery: previousSearch,
       ),
     );
+    if (_invoiceReferencesRefreshPending) {
+      unawaited(refreshInvoiceReferencesFromRealtime());
+    }
+  }
+
+  /// Invoices are payment form lookups; an invoice event does not reload
+  /// payment history or alter the user's current payment search.
+  Future<void> refreshInvoiceReferencesFromRealtime() async {
+    _invoiceReferencesRefreshPending = true;
+    if (_invoiceReferencesRefreshInProgress) return;
+    _invoiceReferencesRefreshInProgress = true;
+    try {
+      while (_invoiceReferencesRefreshPending && !isClosed) {
+        _invoiceReferencesRefreshPending = false;
+        final current = state;
+        final context = _currentCompanyContext;
+        if (current is! PaymentsLoaded || context == null) {
+          _invoiceReferencesRefreshPending = true;
+          break;
+        }
+        final requestId = _loadRequestId;
+        final result = await getInvoicesUseCase(
+          GetInvoicesParams(currentCompanyContext: context),
+        );
+        if (!_isCurrentLoad(requestId, context.companyId)) return;
+        final latest = state;
+        if (latest is! PaymentsLoaded) {
+          _invoiceReferencesRefreshPending = true;
+          break;
+        }
+        emit(
+          latest.copyWith(
+            invoices: result.failureOrNull == null
+                ? List.unmodifiable(result.dataOrNull ?? const <Invoice>[])
+                : null,
+            invoiceReferencesRefreshFailure: result.failureOrNull,
+          ),
+        );
+      }
+    } finally {
+      _invoiceReferencesRefreshInProgress = false;
+    }
   }
 
   void setSearchQuery(String value) {
