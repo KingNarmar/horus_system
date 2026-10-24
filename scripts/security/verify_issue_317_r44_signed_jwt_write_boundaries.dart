@@ -260,8 +260,15 @@ Future<void> main(List<String> args) async {
   final roles = args.where((value) => value.startsWith('--role=')).toList();
   final modes = args.where((value) =>
       value == '--preflight' || value == '--execute').toList();
-  if (args.length != 2 || roles.length != 1 || modes.length != 1) {
-    stderr.writeln('Usage: --preflight|--execute --role=owner|admin|accountant');
+  final broadcastOnly = args.contains('--broadcast-only');
+  if (args.length != (broadcastOnly ? 3 : 2) ||
+      roles.length != 1 ||
+      modes.length != 1 ||
+      (broadcastOnly && modes.single != '--execute')) {
+    stderr.writeln(
+      'Usage: --preflight|--execute --role=owner|admin|accountant '
+      '[--broadcast-only for --execute]',
+    );
     exitCode = 64;
     return;
   }
@@ -289,18 +296,22 @@ Future<void> main(List<String> args) async {
       password: r44Password(),
     );
     var failures = 0;
-    for (final table in ['driver_settlements', 'driver_settlement_items']) {
-      final result = await client.request(
-        'POST',
-        '/rest/v1/$table',
-        jwt: session.jwt,
-        data: r44MalformedInsert(session.companyId),
-      );
-      final pass = r44DeniedDirectInsert(result);
-      stdout.writeln(pass
-          ? 'PASS  direct $table INSERT refused'
-          : 'FAIL  direct $table INSERT was not permission-denied');
-      if (!pass) failures++;
+    var checks = 1; // Broadcast probe always runs.
+    if (!broadcastOnly) {
+      for (final table in ['driver_settlements', 'driver_settlement_items']) {
+        checks++;
+        final result = await client.request(
+          'POST',
+          '/rest/v1/$table',
+          jwt: session.jwt,
+          data: r44MalformedInsert(session.companyId),
+        );
+        final pass = r44DeniedDirectInsert(result);
+        stdout.writeln(pass
+            ? 'PASS  direct $table INSERT refused'
+            : 'FAIL  direct $table INSERT was not permission-denied');
+        if (!pass) failures++;
+      }
     }
 
     final broadcast = await r44TryForgedBroadcast(config, session);
@@ -322,7 +333,7 @@ Future<void> main(List<String> args) async {
         stdout.writeln('FAIL  Broadcast probe inconclusive; no security PASS');
     }
     if (!pass) failures++;
-    stdout.writeln('SUMMARY: ${3 - failures} PASS / $failures FAIL');
+    stdout.writeln('SUMMARY: ${checks - failures} PASS / $failures FAIL');
     if (failures > 0) exitCode = 1;
   } catch (_) {
     stderr.writeln(
