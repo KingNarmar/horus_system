@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
@@ -26,6 +28,8 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadGeneration = 0;
+  bool _realtimeRefreshInProgress = false;
+  bool _realtimeRefreshPending = false;
 
   InvoiceDetailsCubit({
     required this.getInvoiceDetailsUseCase,
@@ -82,6 +86,80 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       ),
     );
     await _loadActivity(invoice: invoice, generation: generation);
+    _drainRealtimeRefresh();
+  }
+
+  /// Keep the details dialog and pending user input mounted while reconciling.
+  /// An in-flight issue/cancel always finishes before consuming new server truth.
+  Future<void> reconcileInvoiceDetailsFromRealtime() async {
+    _realtimeRefreshPending = true;
+    if (_realtimeRefreshInProgress) return;
+    _realtimeRefreshInProgress = true;
+    try {
+      while (_realtimeRefreshPending && !isClosed) {
+        _realtimeRefreshPending = false;
+        final current = state;
+        final context = _currentCompanyContext;
+        if (current is! InvoiceDetailsLoaded ||
+            context == null ||
+            current.isMutationPending) {
+          _realtimeRefreshPending = true;
+          break;
+        }
+        final generation = ++_loadGeneration;
+        final invoiceId = current.invoice.id;
+        final result = await getInvoiceDetailsUseCase(
+          GetInvoiceDetailsParams(
+            currentCompanyContext: context,
+            invoiceId: invoiceId,
+          ),
+        );
+        if (!_isCurrentRequest(generation, context.companyId)) return;
+        final latest = state;
+        if (latest is! InvoiceDetailsLoaded ||
+            latest.invoice.id != invoiceId ||
+            latest.isMutationPending) {
+          _realtimeRefreshPending = true;
+          break;
+        }
+        final failure = result.failureOrNull;
+        if (failure != null) {
+          emit(latest.copyWith(realtimeRefreshFailure: failure));
+          continue;
+        }
+        final invoice = result.dataOrNull;
+        if (invoice == null) continue;
+        final businessDateResult = await _projectInvoiceCreatedAt(
+          context,
+          invoice,
+        );
+        if (!_isCurrentRequest(generation, context.companyId)) return;
+        final projected = state;
+        if (projected is! InvoiceDetailsLoaded ||
+            projected.invoice.id != invoiceId ||
+            projected.isMutationPending) {
+          _realtimeRefreshPending = true;
+          break;
+        }
+        final projectionFailure = businessDateResult.failureOrNull;
+        if (projectionFailure != null) {
+          emit(projected.copyWith(realtimeRefreshFailure: projectionFailure));
+          continue;
+        }
+        emit(
+          projected.copyWith(
+            invoice: invoice,
+            invoiceCreatedAt: businessDateResult.dataOrNull!,
+            isActivityLoading: true,
+            activityFailure: null,
+            realtimeRefreshFailure: null,
+          ),
+        );
+        await _loadActivity(invoice: invoice, generation: generation);
+      }
+    } finally {
+      _realtimeRefreshInProgress = false;
+    }
   }
 
   Future<void> reloadActivity() async {
@@ -301,6 +379,7 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
           mutationFailure: result.failure,
         ),
       );
+      _drainRealtimeRefresh();
       return false;
     }
 
@@ -337,11 +416,18 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       ),
     );
     await _loadActivity(invoice: invoice, generation: generation);
+    _drainRealtimeRefresh();
     return true;
   }
 
+  void _drainRealtimeRefresh() {
+    if (_realtimeRefreshPending) {
+      unawaited(reconcileInvoiceDetailsFromRealtime());
+    }
+  }
+
   bool _isCurrentRequest(int generation, String companyId) {
-    return generation == _loadGeneration &&
+    return !isClosed && generation == _loadGeneration &&
         _currentCompanyContext?.companyId == companyId;
   }
 }
