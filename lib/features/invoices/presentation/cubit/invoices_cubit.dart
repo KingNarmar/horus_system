@@ -167,6 +167,13 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       }
     } finally {
       _invoicesRefreshInProgress = false;
+      final current = state;
+      if (_invoicesRefreshPending &&
+          current is InvoicesLoaded &&
+          !current.isCreatingDraft &&
+          current.pendingDraftInvoiceId == null) {
+        unawaited(refreshInvoicesFromRealtime());
+      }
     }
   }
 
@@ -261,6 +268,9 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         ),
       ),
     );
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
   }
 
   void setSearchQuery(String value) {
