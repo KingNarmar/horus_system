@@ -234,11 +234,7 @@ Future<void> main(List<String> args) async {
         ? 'PASS  client Broadcast forgery refused'
         : 'FAIL  Broadcast denial unverified (allowed or inconclusive)');
     if (!pass) failures++;
-    stdout.writeln('SUMMARY: ' +
-        (3 - failures).toString() +
-        ' PASS / ' +
-        failures.toString() +
-        ' FAIL');
+    stdout.writeln('SUMMARY: ${3 - failures} PASS / $failures FAIL');
     if (failures > 0) exitCode = 1;
   } catch (_) {
     stderr.writeln(
