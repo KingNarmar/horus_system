@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../customers/domain/usecases/get_customers_usecase.dart';
 import '../../domain/entities/customer_statement.dart';
 import '../../domain/usecases/customer_statement_params.dart';
@@ -209,6 +210,11 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
             requestId != _statementRequestId ||
             latest.currentCompanyContext.companyId != companyId ||
             latest.selectedCustomerId != customerId) {
+          break;
+        }
+        final failure = result.failureOrNull;
+        if (failure is AuthFailure || failure is PermissionFailure) {
+          emit(CustomerStatementsLoadFailure(failure));
           break;
         }
         result.when(
