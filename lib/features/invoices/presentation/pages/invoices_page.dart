@@ -72,11 +72,10 @@ final class _InvoicesPageState extends State<InvoicesPage> {
         create: (_) {
           final cubit = InvoicesDependencies.createInvoiceDetailsCubit();
           _activeDetailsCubit = cubit;
-          return cubit
-            ..loadInvoiceDetails(
-              currentCompanyContext: widget.currentCompanyContext,
-              invoiceId: invoice.id,
-            );
+          return cubit..loadInvoiceDetails(
+            currentCompanyContext: widget.currentCompanyContext,
+            invoiceId: invoice.id,
+          );
         },
         child: _InvoiceDetailsHost(
           currentCompanyContext: widget.currentCompanyContext,
@@ -124,80 +123,80 @@ final class _InvoicesPageState extends State<InvoicesPage> {
       },
       child: BlocConsumer<InvoicesCubit, InvoicesState>(
         listenWhen: (previous, current) {
-        if (current is! InvoicesLoaded) return false;
-        if (previous is! InvoicesLoaded) {
-          return current.feedback != null || current.mutationFailure != null;
-        }
-        return previous.feedback != current.feedback ||
-            previous.mutationFailure != current.mutationFailure;
-      },
-      listener: (context, state) {
-        if (state is InvoicesLoaded) _showListFeedback(context, state);
-      },
-      builder: (context, state) {
-        final cubit = context.read<InvoicesCubit>();
-        final loaded = state is InvoicesLoaded ? state : null;
-        final canCreate =
-            loaded?.canManageInvoiceDrafts == true &&
-            loaded!.billableTrips.isNotEmpty &&
-            !loaded.isBillableTripsLoading &&
-            loaded.billableTripsFailure == null;
+          if (current is! InvoicesLoaded) return false;
+          if (previous is! InvoicesLoaded) {
+            return current.feedback != null || current.mutationFailure != null;
+          }
+          return previous.feedback != current.feedback ||
+              previous.mutationFailure != current.mutationFailure;
+        },
+        listener: (context, state) {
+          if (state is InvoicesLoaded) _showListFeedback(context, state);
+        },
+        builder: (context, state) {
+          final cubit = context.read<InvoicesCubit>();
+          final loaded = state is InvoicesLoaded ? state : null;
+          final canCreate =
+              loaded?.canManageInvoiceDrafts == true &&
+              loaded!.billableTrips.isNotEmpty &&
+              !loaded.isBillableTripsLoading &&
+              loaded.billableTripsFailure == null;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final title = Text(
-                  strings.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-                final addButton = loaded?.canManageInvoiceDrafts == true
-                    ? FilledButton.icon(
-                        key: const ValueKey('invoiceAddDraftButton'),
-                        onPressed: canCreate
-                            ? () => _openCreateDraft(loaded)
-                            : null,
-                        icon: const Icon(AppIcons.add),
-                        label: Text(strings.newDraft),
-                      )
-                    : null;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final title = Text(
+                    strings.title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                  final addButton = loaded?.canManageInvoiceDrafts == true
+                      ? FilledButton.icon(
+                          key: const ValueKey('invoiceAddDraftButton'),
+                          onPressed: canCreate
+                              ? () => _openCreateDraft(loaded)
+                              : null,
+                          icon: const Icon(AppIcons.add),
+                          label: Text(strings.newDraft),
+                        )
+                      : null;
 
-                if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      title,
-                      if (addButton != null) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        addButton,
+                  if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        title,
+                        if (addButton != null) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          addButton,
+                        ],
                       ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: title),
+                      ?addButton,
                     ],
                   );
-                }
-
-                return Row(
-                  children: [
-                    Expanded(child: title),
-                    ?addButton,
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            InvoicesStateView(
-              state: state,
-              onRetry: () => cubit.loadInvoices(widget.currentCompanyContext),
-              onRetryBillableTrips: () => cubit.loadBillableTrips(),
-              onSearchChanged: cubit.setSearchQuery,
-              onStatusFilterChanged: cubit.setStatusFilter,
-              onViewDetails: _openDetails,
-            ),
-          ],
-        );
-      },
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              InvoicesStateView(
+                state: state,
+                onRetry: () => cubit.loadInvoices(widget.currentCompanyContext),
+                onRetryBillableTrips: () => cubit.loadBillableTrips(),
+                onSearchChanged: cubit.setSearchQuery,
+                onStatusFilterChanged: cubit.setStatusFilter,
+                onViewDetails: _openDetails,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
