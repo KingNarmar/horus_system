@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 
 import '../../../company/domain/entities/current_company_context.dart';
@@ -105,6 +106,17 @@ final class ReportsCubit extends Cubit<ReportsState> {
         final latest = state;
         if (latest is! ReportsLoaded ||
             latest.reportType != ReportType.openInvoices) {
+          break;
+        }
+        final failure = result.failureOrNull;
+        if (failure is AuthFailure || failure is PermissionFailure) {
+          emit(
+            ReportsLoadFailure(
+              reportType: latest.reportType,
+              dateRange: latest.dateRange,
+              failure: failure,
+            ),
+          );
           break;
         }
         result.when(
