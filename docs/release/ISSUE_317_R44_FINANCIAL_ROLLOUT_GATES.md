@@ -1,7 +1,9 @@
 # Issue #317 R4.4 — Financial Integrity and Release Gates
 
-**Status:** NO-GO for PR Ready/Merge and Production deployment until remaining
-checks below pass and the operator explicitly approves each release step.
+**Status (2026-10-24):** Code-only integration into `main` explicitly
+approved by the project owner after verified Development testing. **Production
+deployment remains NO-GO** until the separate legacy-client cutover, compatibility,
+and release checks below pass and receive explicit Production approval.
 
 **Scope:** Driver Settlement Realtime + server-authoritative financial creation.
 This document is a test/release protocol, not approval to modify Production.
@@ -103,8 +105,15 @@ Production rollout. Existing closed financial records must remain immutable.
   Production approval**. Then confirm reconnect/Realtime and incident
   rollback drills using real signed deployed artifacts.
 
-**Release disposition:** Source-backed two-principal concurrency is
-verified PASS on Development. The remaining **NO-GO** is a reviewed
-legacy-client deployment/cutover protocol, actual old/new artifact acceptance,
-Production inventory and independent explicit approval. Do not label PR #339
-Ready or deploy Production merely because CI and financial races passed.
+**Code integration decision (2026-10-24):** Project owner explicitly
+approved merging PR #339 into `main` **as repository code only**, with no
+Production release, database migration execution, store publishing, or
+client rollout. Development-signed-JWT source-backed concurrency and the
+latest complete branch CI passed. CI is not a deployment approval.
+
+**Production release disposition: NO-GO.** A reviewed legacy-client
+deployment/cutover protocol, actual old/new artifact acceptance, Production
+migration inventory, backup/rollback readiness, and **separate explicit
+Production approval** remain mandatory. No relaxing settlement INSERT
+restrictions to preserve old split-write compatibility. A merge must not
+be represented as Production readiness.
