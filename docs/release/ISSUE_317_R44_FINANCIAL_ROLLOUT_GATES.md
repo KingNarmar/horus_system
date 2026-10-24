@@ -19,8 +19,16 @@ This document is a test/release protocol, not approval to modify Production.
   AED 1,000, zero opening/closing balance, zero items, Voided status.
 - Actions CI #40085114082 on `5105db7b`: Quality Gate, invitation edge,
   Android and Windows builds all PASS.
-- **None of these is a source-backed expense-versus-finalize race.**
-  Earlier SQL `ROLLBACK` simulations are not separate signed-JWT sessions.
+- An independent **source-backed expense Void vs Finalize** race was run
+  on Development with two different signed Owner/Admin users (2/2 PASS).
+  Finalize won; the captured Driver Cash expense void was denied.
+  Read-only DB verification confirmed one Finalized settlement with exactly
+  one matching expense item (AED 1), expense `is_voided=false`, one creation
+  audit, one finalization audit and zero expense/settlement void audits.
+- CI #40087733945 on `a929d17f`: Quality Gate (format/architecture/analyze/
+  full Flutter tests), invitation edge, Windows and Android builds all PASS.
+- These real two-session JWT tests are separate from historical
+  transaction-scoped SQL `ROLLBACK` simulations.
 
 ## Source-backed expense-void versus settlement-finalize gate
 
@@ -95,6 +103,8 @@ Production rollout. Existing closed financial records must remain immutable.
   Production approval**. Then confirm reconnect/Realtime and incident
   rollback drills using real signed deployed artifacts.
 
-**Release disposition:** This project remains NO-GO until source-backed
-concurrency and a reviewed legacy-client rollout protocol have passed and
-been explicitly approved. Do not label PR #339 Ready merely because CI passed.
+**Release disposition:** Source-backed two-principal concurrency is
+verified PASS on Development. The remaining **NO-GO** is a reviewed
+legacy-client deployment/cutover protocol, actual old/new artifact acceptance,
+Production inventory and independent explicit approval. Do not label PR #339
+Ready or deploy Production merely because CI and financial races passed.
