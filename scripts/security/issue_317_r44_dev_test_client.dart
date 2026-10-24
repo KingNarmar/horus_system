@@ -108,6 +108,7 @@ final class R44DevClient {
     '/rest/v1/driver_settlement_items',
     '/rest/v1/audit_logs',
     '/rest/v1/rpc/create_driver_settlement_draft_atomic',
+    '/rest/v1/rpc/void_expense_ledger_entry',
   };
 
   final R44DevConfig config;
@@ -128,6 +129,7 @@ final class R44DevClient {
       '/rest/v1/driver_settlements',
       '/rest/v1/driver_settlement_items',
       '/rest/v1/rpc/create_driver_settlement_draft_atomic',
+      '/rest/v1/rpc/void_expense_ledger_entry',
     };
     final allowed = _allowedPaths.contains(path) &&
         ((method == 'GET' &&
