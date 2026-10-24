@@ -128,14 +128,16 @@ void main() {
   });
 
   group('R4.4 concurrent source void and finalize outcome', () {
-    const expenseVoided = <String, dynamic>{'is_voided': true};
-    const expenseAvailable = <String, dynamic>{'is_voided': false};
-    const draft = <String, dynamic>{'status': 'draft'};
-    const finalized = <String, dynamic>{'status': 'finalized'};
+    const expenseVoided = <String, dynamic>{'id': expenseId, 'is_voided': true};
+    const expenseAvailable = <String, dynamic>{'id': expenseId, 'is_voided': false};
+    const draft = <String, dynamic>{'id': settlementId, 'status': 'draft'};
+    const finalized = <String, dynamic>{'id': settlementId, 'status': 'finalized'};
 
     test('void wins, stale finalize fails and creates one expense audit', () {
       expect(
         verifyR44SourceRace(
+          expenseId: expenseId,
+          settlementId: settlementId,
           voidReply: const R44Reply(200, {'id': expenseId}),
           finalizeReply: const R44Reply(400, {'code': 'P2815'}),
           expense: expenseVoided,
@@ -150,6 +152,8 @@ void main() {
     test('finalize wins, source void denied with no expense audit', () {
       expect(
         verifyR44SourceRace(
+          expenseId: expenseId,
+          settlementId: settlementId,
           voidReply: const R44Reply(400, {'code': 'P2811'}),
           finalizeReply: const R44Reply(200, [
             {'id': settlementId},
@@ -170,6 +174,8 @@ void main() {
       ]) {
         expect(
           verifyR44SourceRace(
+          expenseId: expenseId,
+          settlementId: settlementId,
             voidReply: const R44Reply(200, {'id': expenseId}),
             finalizeReply: invalid,
             expense: expenseVoided,
@@ -182,6 +188,8 @@ void main() {
       }
       expect(
         verifyR44SourceRace(
+          expenseId: expenseId,
+          settlementId: settlementId,
           voidReply: const R44Reply(200, {}),
           finalizeReply: const R44Reply(200, [{}]),
           expense: expenseVoided,
@@ -193,6 +201,8 @@ void main() {
       );
       expect(
         verifyR44SourceRace(
+          expenseId: expenseId,
+          settlementId: settlementId,
           voidReply: const R44Reply(400, {'code': 'P2811'}),
           finalizeReply: const R44Reply(200, [{}]),
           expense: expenseAvailable,
