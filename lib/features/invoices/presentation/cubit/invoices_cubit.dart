@@ -159,7 +159,9 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         } else {
           emit(
             latest.copyWith(
-              allInvoices: List.unmodifiable(result.dataOrNull ?? const <Invoice>[]),
+              allInvoices: List.unmodifiable(
+                result.dataOrNull ?? const <Invoice>[],
+              ),
               realtimeRefreshFailure: null,
             ),
           );
@@ -481,7 +483,8 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
   }
 
   bool _isCurrentLoad(int generation, String companyId) {
-    return !isClosed && generation == _loadGeneration &&
+    return !isClosed &&
+        generation == _loadGeneration &&
         _currentCompanyContext?.companyId == companyId;
   }
 
