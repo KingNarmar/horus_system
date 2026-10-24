@@ -224,8 +224,7 @@ final class _FinanceSectionContent extends StatelessWidget {
         child: InvoicesRealtimeBoundary(
           currentCompanyContext: currentCompanyContext,
           child: _FinanceReconnectAware(
-            onReconnect: (context) =>
-                context.read<InvoicesCubit>().refresh(),
+            onReconnect: (context) => context.read<InvoicesCubit>().refresh(),
             child: InvoicesPage(currentCompanyContext: currentCompanyContext),
           ),
         ),
