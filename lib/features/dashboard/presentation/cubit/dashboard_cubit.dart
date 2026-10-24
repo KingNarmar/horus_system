@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../domain/usecases/get_dashboard_summary_usecase.dart';
 import 'dashboard_state.dart';
 
@@ -59,6 +60,11 @@ final class DashboardCubit extends Cubit<DashboardState> {
         final latest = state;
         if (latest is! DashboardLoaded) {
           _realtimeRefreshPending = true;
+          break;
+        }
+        final failure = result.failureOrNull;
+        if (failure is AuthFailure || failure is PermissionFailure) {
+          emit(DashboardLoadFailure(failure));
           break;
         }
         result.when(
