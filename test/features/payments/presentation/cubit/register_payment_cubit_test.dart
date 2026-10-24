@@ -90,23 +90,28 @@ void main() {
     await fixture.cubit.close();
   });
 
-  test('invoice invalidation refreshes payable options without resetting date', () async {
-    final fixture = _Fixture();
-    await fixture.cubit.load(fixture.context);
+  test(
+    'invoice invalidation refreshes payable options without resetting date',
+    () async {
+      final fixture = _Fixture();
+      await fixture.cubit.load(fixture.context);
 
-    fixture.invoices.availableInvoices = [
-      _invoice(),
-      _invoice(id: 'invoice-2'),
-    ];
-    await fixture.cubit.refreshPayableInvoicesFromRealtime();
+      fixture.invoices.availableInvoices = [
+        _invoice(),
+        _invoice(id: 'invoice-2'),
+      ];
+      await fixture.cubit.refreshPayableInvoicesFromRealtime();
 
-    final state = fixture.cubit.state as RegisterPaymentReady;
-    expect(state.payableInvoices.map((item) => item.invoice.id),
-        ['invoice-1', 'invoice-2']);
-    expect(state.businessDate, _date(2026, 8, 10));
-    expect(state.invoiceRefreshFailure, isNull);
-    await fixture.cubit.close();
-  });
+      final state = fixture.cubit.state as RegisterPaymentReady;
+      expect(state.payableInvoices.map((item) => item.invoice.id), [
+        'invoice-1',
+        'invoice-2',
+      ]);
+      expect(state.businessDate, _date(2026, 8, 10));
+      expect(state.invoiceRefreshFailure, isNull);
+      await fixture.cubit.close();
+    },
+  );
 
   test('cancelled invoice is removed from open payment form', () async {
     final fixture = _Fixture();
@@ -137,9 +142,9 @@ void main() {
     final fixture = _Fixture();
     await fixture.cubit.load(fixture.context);
     fixture.invoices.nextRead = Completer<Result<List<Invoice>>>()
-      ..complete(const FailureResult(
-        ServerFailure(code: FailureCodes.serverError),
-      ));
+      ..complete(
+        const FailureResult(ServerFailure(code: FailureCodes.serverError)),
+      );
 
     await fixture.cubit.refreshPayableInvoicesFromRealtime();
 
@@ -153,9 +158,11 @@ void main() {
     final fixture = _Fixture();
     await fixture.cubit.load(fixture.context);
     fixture.invoices.nextRead = Completer<Result<List<Invoice>>>()
-      ..complete(const FailureResult(
-        PermissionFailure(code: PaymentFailureCodes.permissionView),
-      ));
+      ..complete(
+        const FailureResult(
+          PermissionFailure(code: PaymentFailureCodes.permissionView),
+        ),
+      );
 
     await fixture.cubit.refreshPayableInvoicesFromRealtime();
 

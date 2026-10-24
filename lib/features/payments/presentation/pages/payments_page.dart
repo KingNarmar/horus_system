@@ -52,8 +52,9 @@ final class _PaymentsPageState extends State<PaymentsPage> {
       builder: (_) => BlocProvider.value(
         value: realtime,
         child: BlocProvider<RegisterPaymentCubit>(
-          create: (_) => PaymentsDependencies.createRegisterPaymentCubit()
-            ..load(widget.currentCompanyContext),
+          create: (_) =>
+              PaymentsDependencies.createRegisterPaymentCubit()
+                ..load(widget.currentCompanyContext),
           child: RegisterPaymentInvoiceRealtimeBoundary(
             companyId: widget.currentCompanyContext.companyId,
             child: const RegisterPaymentDialog(),
