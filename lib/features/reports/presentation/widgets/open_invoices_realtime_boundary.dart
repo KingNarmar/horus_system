@@ -30,9 +30,8 @@ final class OpenInvoicesRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.openInvoicesReport},
-      onInvalidate: (context) => context
-          .read<ReportsCubit>()
-          .refreshOpenInvoicesFromRealtime(),
+      onInvalidate: (context) =>
+          context.read<ReportsCubit>().refreshOpenInvoicesFromRealtime(),
       child: BlocListener<ReportsCubit, ReportsState>(
         listenWhen: (previous, current) =>
             current is ReportsLoaded &&
