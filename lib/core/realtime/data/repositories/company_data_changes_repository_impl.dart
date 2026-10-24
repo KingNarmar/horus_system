@@ -117,6 +117,12 @@ final class CompanyDataChangesRepositoryImpl
               resource: CompanyDataResource.driverSettlements,
             );
           }
+          if (additionalResources.contains(CompanyDataResource.invoices)) {
+            subscribe(
+              stream: _dataSource.watchInvoices(companyId: companyId),
+              resource: CompanyDataResource.invoices,
+            );
+          }
           if (additionalResources.contains(CompanyDataResource.expenseLedger)) {
             subscribe(
               stream: _dataSource.watchExpenseLedger(companyId: companyId),
