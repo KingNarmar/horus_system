@@ -30,9 +30,8 @@ final class DashboardInvoiceRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.dashboard},
-      onInvalidate: (context) => context
-          .read<DashboardCubit>()
-          .refreshFinancialSummaryFromRealtime(),
+      onInvalidate: (context) =>
+          context.read<DashboardCubit>().refreshFinancialSummaryFromRealtime(),
       child: BlocListener<DashboardCubit, DashboardState>(
         listenWhen: (previous, current) =>
             current is DashboardLoaded &&
@@ -45,7 +44,9 @@ final class DashboardInvoiceRealtimeBoundary extends StatelessWidget {
           final failure = current.realtimeRefreshFailure;
           if (failure == null) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.localizedErrorMessage(failure))),
+            SnackBar(
+              content: Text(context.l10n.localizedErrorMessage(failure)),
+            ),
           );
         },
         child: child,
