@@ -124,7 +124,8 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(InvoiceDetailsFailure(failure));
           break;
         }
