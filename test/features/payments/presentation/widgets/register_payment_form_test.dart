@@ -45,10 +45,67 @@ void main() {
     );
     expect(find.text('Select an invoice'), findsOneWidget);
 
-    // Form validation, not an implicit switch, blocks a stale payment.
-    await tester.tap(find.text('Register payment').last);
+    // No implicit switch to the other invoice or enabled submit action.
+    final submitButton = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(submitButton.onPressed, isNull);
+  });
+  testWidgets('last payable invoice removed keeps a populated form visible', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app([_payable('invoice-1')]));
+    await tester.enterText(find.byType(TextFormField).at(0), '10.00');
+    await tester.enterText(find.byType(TextFormField).at(1), 'R45-REALTIME-TEST');
+    await tester.enterText(find.byType(TextFormField).at(2), 'Test note');
+
+    // Cancelling the only payable invoice must not replace this filled form
+    // with the short empty-state dialog or silently register a payment.
+    await tester.pumpWidget(_app([]));
     await tester.pump();
-    expect(find.text('Select an invoice.'), findsOneWidget);
+
+    expect(find.byType(Form), findsOneWidget);
+    expect(find.text('10.00'), findsOneWidget);
+    expect(find.text('R45-REALTIME-TEST'), findsOneWidget);
+    expect(find.text('Test note'), findsOneWidget);
+    expect(
+      find.text('No issued invoices have an outstanding balance.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'The selected invoice is no longer payable. Select another invoice.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNull,
+    );
+
+    // When another payable invoice appears, user input remains untouched,
+    // but the new invoice is not chosen automatically.
+    await tester.pumpWidget(_app([_payable('invoice-2')]));
+    await tester.pump();
+
+    expect(find.text('10.00'), findsOneWidget);
+    expect(find.text('R45-REALTIME-TEST'), findsOneWidget);
+    expect(find.text('Test note'), findsOneWidget);
+    expect(find.text('Select an invoice'), findsOneWidget);
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('fresh form with no invoices keeps compact empty state', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app([]));
+
+    expect(
+      find.text('No issued invoices have an outstanding balance.'),
+      findsOneWidget,
+    );
+    expect(find.byType(Form), findsNothing);
   });
 }
 

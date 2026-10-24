@@ -134,7 +134,10 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
     final fractionDigits =
         state.currentCompanyContext.company.baseCurrencyFractionDigits;
 
-    if (state.payableInvoices.isEmpty) {
+    // Keep a previously filled form mounted when its last payable invoice
+    // disappears. A newly opened, never-used form may show a compact empty
+    // state without losing any user input.
+    if (state.payableInvoices.isEmpty && !_invoiceSelectionInvalidated) {
       return _EmptyRegistration(message: strings.noPayableInvoices);
     }
     if (state.paymentMethods.isEmpty) {
@@ -153,6 +156,10 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (state.payableInvoices.isEmpty) ...[
+              Text(strings.noPayableInvoices),
+              const SizedBox(height: AppSpacing.md),
+            ],
             DropdownButtonFormField<String>(
               key: ValueKey(_invoiceId),
               initialValue: _invoiceId,
@@ -175,7 +182,8 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                     );
                   })
                   .toList(growable: false),
-              onChanged: state.isSubmitting
+              onChanged:
+                  state.isSubmitting || state.payableInvoices.isEmpty
                   ? null
                   : (value) {
                       setState(() {
@@ -284,7 +292,9 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 FilledButton(
-                  onPressed: state.canSubmit ? _submit : null,
+                  onPressed: state.canSubmit && selectedInvoice != null
+                      ? _submit
+                      : null,
                   child: Text(
                     state.isSubmitting ? strings.submitting : strings.submit,
                   ),
