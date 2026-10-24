@@ -163,7 +163,7 @@ final class _DevGateway {
       jwt: jwt,
       query: {
         'select': 'company_id,user_id,role,is_active',
-        'user_id': 'eq.' + userId,
+        'user_id': 'eq.$userId',
       },
     );
     if (!membership.successful || membership.body is! List) {
@@ -258,7 +258,7 @@ Future<void> main(List<String> args) async {
       return;
     }
 
-    final email = _line(role + ' Development test email: ');
+    final email = _line('$role Development test email: ');
     if (email.isEmpty) throw StateError('Role fixture required.');
     final session = await gateway.login(role, email, _password());
     final own = await gateway.deniedDraft(
