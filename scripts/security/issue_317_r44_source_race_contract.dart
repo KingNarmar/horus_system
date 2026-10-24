@@ -85,6 +85,8 @@ enum R44SourceRaceOutcome {
 }
 
 R44SourceRaceOutcome verifyR44SourceRace({
+  required String expenseId,
+  required String settlementId,
   required R44Reply voidReply,
   required R44Reply finalizeReply,
   required Map<String, dynamic> expense,
@@ -92,7 +94,23 @@ R44SourceRaceOutcome verifyR44SourceRace({
   required int voidAuditDelta,
   required int finalizeAuditDelta,
 }) {
-  if (voidReply.ok == finalizeReply.ok) {
+  if (!isR44Uuid(expenseId) ||
+      !isR44Uuid(settlementId) ||
+      expense['id'] != expenseId ||
+      settlement['id'] != settlementId ||
+      voidReply.ok == finalizeReply.ok) {
+    return R44SourceRaceOutcome.rejected;
+  }
+  // A 2xx PATCH with zero returned rows is not proof that this settlement
+  // actually transitioned; similarly, require the exact voided ledger row.
+  if (voidReply.ok &&
+      (voidReply.body is! Map ||
+          (voidReply.body as Map)['id'] != expenseId)) {
+    return R44SourceRaceOutcome.rejected;
+  }
+  if (finalizeReply.ok &&
+      (finalizeReply.rows.length != 1 ||
+          finalizeReply.rows.single['id'] != settlementId)) {
     return R44SourceRaceOutcome.rejected;
   }
   // Reject deadlock, timeout, conflict, transport or all unknown errors.
