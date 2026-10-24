@@ -213,7 +213,8 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(CustomerStatementsLoadFailure(failure));
           break;
         }
