@@ -133,37 +133,34 @@ void main() {
       expect(r44IsObserverHeartbeat({}, ref: '3'), isFalse);
     });
 
-    test('socket close or system failure cannot be treated as silent denial', () {
-      expect(
-        r44IsChannelTerminated(
-          {'topic': topic, 'event': 'phx_close'},
-          topic: topic,
-        ),
-        isTrue,
-      );
-      expect(
-        r44IsChannelTerminated(
-          {
+    test(
+      'socket close or system failure cannot be treated as silent denial',
+      () {
+        expect(
+          r44IsChannelTerminated({
+            'topic': topic,
+            'event': 'phx_close',
+          }, topic: topic),
+          isTrue,
+        );
+        expect(
+          r44IsChannelTerminated({
             'topic': topic,
             'event': 'system',
             'payload': {'status': 'error'},
-          },
-          topic: topic,
-        ),
-        isTrue,
-      );
-      expect(
-        r44IsChannelTerminated(
-          {
+          }, topic: topic),
+          isTrue,
+        );
+        expect(
+          r44IsChannelTerminated({
             'topic': topic,
             'event': 'system',
             'payload': {'status': 'ok'},
-          },
-          topic: topic,
-        ),
-        isFalse,
-      );
-    });
+          }, topic: topic),
+          isFalse,
+        );
+      },
+    );
 
     test('silent no-delivery is distinct from explicit rejection', () {
       expect(
@@ -248,5 +245,4 @@ void main() {
       );
     });
   });
-
 }
