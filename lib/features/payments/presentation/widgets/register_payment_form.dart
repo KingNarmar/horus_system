@@ -182,8 +182,7 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                     );
                   })
                   .toList(growable: false),
-              onChanged:
-                  state.isSubmitting || state.payableInvoices.isEmpty
+              onChanged: state.isSubmitting || state.payableInvoices.isEmpty
                   ? null
                   : (value) {
                       setState(() {

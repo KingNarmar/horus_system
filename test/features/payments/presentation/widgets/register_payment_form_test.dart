@@ -54,7 +54,10 @@ void main() {
   ) async {
     await tester.pumpWidget(_app([_payable('invoice-1')]));
     await tester.enterText(find.byType(TextFormField).at(0), '10.00');
-    await tester.enterText(find.byType(TextFormField).at(1), 'R45-REALTIME-TEST');
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'R45-REALTIME-TEST',
+    );
     await tester.enterText(find.byType(TextFormField).at(2), 'Test note');
 
     // Cancelling the only payable invoice must not replace this filled form
