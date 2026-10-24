@@ -101,7 +101,7 @@ Future<R44ConcurrentFixture> _loadFixture(
     expenses.addAll(await _read(client, session.jwt, 'expense_ledger_entries', {
       'select': 'id',
       'company_id': 'eq.$companyId',
-      'trip_id': 'in.(' + ids.join(',') + ')',
+      'trip_id': 'in.(${ids.join(',')})',
       'funding_source': 'in.(driver_advance,driver_cash)',
       'is_voided': 'eq.false',
     }));
@@ -134,7 +134,7 @@ Future<List<Map<String, dynamic>>> _settlementRows(
   String settlementId,
 ) => _read(client, session.jwt, 'driver_settlements', {
   'select': 'id,status,notes,void_reason,period_start,period_end',
-  'company_id': 'eq.' + session.companyId,
+  'company_id': 'eq.${session.companyId}',
   'id': 'eq.$settlementId',
 });
 
@@ -144,7 +144,7 @@ Future<List<Map<String, dynamic>>> _auditRows(
   String driverId,
 ) => _read(client, session.jwt, 'audit_logs', {
   'select': 'action,metadata',
-  'company_id': 'eq.' + session.companyId,
+  'company_id': 'eq.${session.companyId}',
   'module': 'eq.drivers',
   'entity_type': 'eq.driver',
   'entity_id': 'eq.$driverId',
@@ -240,7 +240,7 @@ Future<void> main(List<String> args) async {
     stdout.writeln('PASS  concurrent Draft: same ID, one row, one create audit.');
 
     final updateQuery = {
-      'company_id': 'eq.' + fixture.companyId,
+      'company_id': 'eq.${fixture.companyId}',
       'id': 'eq.$settlementId',
     };
     final changes = await Future.wait([
@@ -272,7 +272,7 @@ Future<void> main(List<String> args) async {
         ? 'PASS  Finalize/Void race: one voided QA row, audit consistent.'
         : 'FAIL  Finalize/Void race; review QA row before retry.');
     if (!passed) exitCode = 1;
-    stdout.writeln('SUMMARY: ' + (passed ? '3 PASS / 0 FAIL' : '2 PASS / 1 FAIL'));
+    stdout.writeln('SUMMARY: ${passed ? '3 PASS / 0 FAIL' : '2 PASS / 1 FAIL'}');
   } catch (_) {
     stderr.writeln(
       'BLOCKED — QA fixture/session/race invalid. No Production request made. '
