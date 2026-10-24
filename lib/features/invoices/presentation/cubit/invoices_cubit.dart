@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
@@ -26,6 +28,11 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
   CurrentCompanyContext? _currentCompanyContext;
   int _loadGeneration = 0;
   int _billableTripsGeneration = 0;
+  int _invoiceMutationRevision = 0;
+  bool _invoicesRefreshInProgress = false;
+  bool _invoicesRefreshPending = false;
+  bool _billableTripsRefreshInProgress = false;
+  bool _billableTripsRefreshPending = false;
 
   InvoicesCubit({
     required this.getInvoicesUseCase,
@@ -92,12 +99,119 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     if (canManageInvoiceDrafts) {
       await loadBillableTrips();
     }
+    if (_invoicesRefreshPending) {
+      unawaited(refreshInvoicesFromRealtime());
+    }
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
   }
 
   Future<void> refresh() async {
     final context = _currentCompanyContext;
     if (context == null) return;
-    await loadInvoices(context);
+    if (state is InvoicesLoaded) {
+      await refreshInvoicesFromRealtime();
+      await refreshBillableTripsFromRealtime();
+    } else {
+      await loadInvoices(context);
+    }
+  }
+
+  /// Refresh server truth without clearing filters, feedback or pending forms.
+  /// Coalesce duplicate events and replay a signal after a concurrent write.
+  Future<void> refreshInvoicesFromRealtime() async {
+    _invoicesRefreshPending = true;
+    if (_invoicesRefreshInProgress) return;
+    _invoicesRefreshInProgress = true;
+    try {
+      while (_invoicesRefreshPending && !isClosed) {
+        _invoicesRefreshPending = false;
+        final current = state;
+        final context = _currentCompanyContext;
+        if (current is! InvoicesLoaded ||
+            context == null ||
+            current.isCreatingDraft ||
+            current.pendingDraftInvoiceId != null) {
+          _invoicesRefreshPending = true;
+          break;
+        }
+        final generation = _loadGeneration;
+        final mutationRevision = _invoiceMutationRevision;
+        final result = await getInvoicesUseCase(
+          GetInvoicesParams(currentCompanyContext: context),
+        );
+        if (!_isCurrentLoad(generation, context.companyId)) return;
+        final latest = state;
+        if (latest is! InvoicesLoaded) {
+          _invoicesRefreshPending = true;
+          break;
+        }
+        if (mutationRevision != _invoiceMutationRevision ||
+            latest.isCreatingDraft ||
+            latest.pendingDraftInvoiceId != null) {
+          _invoicesRefreshPending = true;
+          break;
+        }
+        final failure = result.failureOrNull;
+        if (failure != null) {
+          emit(latest.copyWith(realtimeRefreshFailure: failure));
+        } else {
+          emit(
+            latest.copyWith(
+              allInvoices: List.unmodifiable(result.dataOrNull ?? const <Invoice>[]),
+              realtimeRefreshFailure: null,
+            ),
+          );
+        }
+      }
+    } finally {
+      _invoicesRefreshInProgress = false;
+    }
+  }
+
+  /// Billable-trip reservations change even when invoice.status stays draft.
+  Future<void> refreshBillableTripsFromRealtime() async {
+    _billableTripsRefreshPending = true;
+    if (_billableTripsRefreshInProgress) return;
+    _billableTripsRefreshInProgress = true;
+    try {
+      while (_billableTripsRefreshPending && !isClosed) {
+        _billableTripsRefreshPending = false;
+        final current = state;
+        final context = _currentCompanyContext;
+        if (current is! InvoicesLoaded || context == null) {
+          _billableTripsRefreshPending = true;
+          break;
+        }
+        if (!current.canManageInvoiceDrafts) break;
+        final generation = ++_billableTripsGeneration;
+        final result = await getBillableTripsUseCase(
+          GetBillableTripsParams(currentCompanyContext: context),
+        );
+        if (isClosed || generation != _billableTripsGeneration) {
+          _billableTripsRefreshPending = true;
+          break;
+        }
+        final latest = state;
+        if (latest is! InvoicesLoaded ||
+            latest.currentCompanyContext.companyId != context.companyId) {
+          _billableTripsRefreshPending = true;
+          break;
+        }
+        final failure = result.failureOrNull;
+        emit(
+          latest.copyWith(
+            billableTrips: failure == null
+                ? List.unmodifiable(result.dataOrNull ?? const <BillableTrip>[])
+                : null,
+            billableTripsFailure: failure,
+          ),
+        );
+      }
+    } finally {
+      _billableTripsRefreshInProgress = false;
+    }
   }
 
   Future<void> loadBillableTrips({String? customerId}) async {
@@ -215,6 +329,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
 
     final companyId = context.companyId;
     final contextGeneration = _loadGeneration;
+    ++_invoiceMutationRevision;
     emit(
       currentState.copyWith(
         isCreatingDraft: true,
@@ -248,6 +363,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
           mutationFailure: result.failure,
         ),
       );
+      _drainRealtimeRefreshes();
       return false;
     }
 
@@ -257,6 +373,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return false;
     }
 
+    ++_invoiceMutationRevision;
     emit(
       _upsertInvoice(latestState, invoice).copyWith(
         isCreatingDraft: false,
@@ -264,6 +381,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         feedback: InvoiceListFeedback.draftCreated,
       ),
     );
+    _drainRealtimeRefreshes();
     return true;
   }
 
@@ -283,6 +401,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
 
     final companyId = context.companyId;
     final contextGeneration = _loadGeneration;
+    ++_invoiceMutationRevision;
     emit(
       currentState.copyWith(
         pendingDraftInvoiceId: invoiceId,
@@ -313,6 +432,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
           mutationFailure: result.failure,
         ),
       );
+      _drainRealtimeRefreshes();
       return false;
     }
 
@@ -322,6 +442,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return false;
     }
 
+    ++_invoiceMutationRevision;
     emit(
       _upsertInvoice(latestState, invoice).copyWith(
         pendingDraftInvoiceId: null,
@@ -329,6 +450,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         feedback: InvoiceListFeedback.draftUpdated,
       ),
     );
+    _drainRealtimeRefreshes();
     return true;
   }
 
@@ -339,8 +461,17 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     }
   }
 
+  void _drainRealtimeRefreshes() {
+    if (_invoicesRefreshPending) {
+      unawaited(refreshInvoicesFromRealtime());
+    }
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
+  }
+
   bool _isCurrentLoad(int generation, String companyId) {
-    return generation == _loadGeneration &&
+    return !isClosed && generation == _loadGeneration &&
         _currentCompanyContext?.companyId == companyId;
   }
 
