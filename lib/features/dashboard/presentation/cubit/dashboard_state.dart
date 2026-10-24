@@ -15,8 +15,9 @@ final class DashboardLoading extends DashboardState {
 
 final class DashboardLoaded extends DashboardState {
   final DashboardSummary summary;
+  final Failure? realtimeRefreshFailure;
 
-  const DashboardLoaded(this.summary);
+  const DashboardLoaded(this.summary, {this.realtimeRefreshFailure});
 }
 
 final class DashboardLoadFailure extends DashboardState {
