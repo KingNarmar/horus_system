@@ -10,53 +10,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'issue_317_finance_join_protocol.dart';
+import 'issue_317_r44_broadcast_observation.dart';
 import 'issue_317_r44_dev_test_client.dart';
 
-enum R44SendVerdict { denied, allowed, inconclusive }
-
+// A permission-denied SQLSTATE, not a payload-validation error, is required.
 bool r44DeniedDirectInsert(R44Reply reply) =>
     !reply.ok &&
     (reply.status == 401 || reply.status == 403) &&
     reply.sqlState == '42501';
-
-R44SendVerdict? r44SendReplyVerdict(
-  Object? message, {
-  required String topic,
-  required String ref,
-}) {
-  Object? decoded = message;
-  try {
-    if (message is String) decoded = jsonDecode(message);
-  } on FormatException {
-    return R44SendVerdict.inconclusive;
-  }
-  if (decoded is! Map ||
-      decoded['topic'] != topic ||
-      decoded['event'] != 'phx_reply' ||
-      decoded['ref'] != ref) {
-    return null;
-  }
-  final payload = decoded['payload'];
-  if (payload is! Map) return R44SendVerdict.inconclusive;
-  if (payload['status'] == 'ok') return R44SendVerdict.allowed;
-  if (payload['status'] != 'error') return R44SendVerdict.inconclusive;
-  final response = payload['response'];
-  if (response is! Map) return R44SendVerdict.inconclusive;
-  final reason = (response['reason'] ?? response['message'])?.toString();
-  if (reason == null) return R44SendVerdict.inconclusive;
-  final value = reason.toLowerCase();
-  return [
-    'unauthorized',
-    'not authorized',
-    'forbidden',
-    'permission',
-    'access denied',
-    'row-level security',
-    'rls',
-  ].any(value.contains)
-      ? R44SendVerdict.denied
-      : R44SendVerdict.inconclusive;
-}
 
 Map<String, Object?> r44MalformedInsert(String companyId) => {
   // Both settlement tables have other mandatory NOT NULL columns. Even if
@@ -64,7 +25,11 @@ Map<String, Object?> r44MalformedInsert(String companyId) => {
   'company_id': companyId,
 };
 
-Map<String, Object?> r44ForgedBroadcast(String topic, String companyId) => {
+Map<String, Object?> r44ForgedBroadcast(
+  String topic,
+  String companyId, {
+  String marker = 'r44_client_forgery_attempt',
+}) => {
   'topic': topic,
   'event': 'broadcast',
   'join_ref': '1',
@@ -75,59 +40,174 @@ Map<String, Object?> r44ForgedBroadcast(String topic, String companyId) => {
     'payload': {
       'company_id': companyId,
       'resource': 'driver_settlements',
-      'qa_probe': 'r44_client_forgery_attempt',
+      'qa_probe': marker,
     },
   },
 };
 
-Future<R44SendVerdict> r44TryForgedBroadcast(
+// Unlike direct table writes, Realtime RLS-denied Broadcasts are silently
+// dropped by Supabase. This uses an independent receiving socket and a
+// heartbeat. 'No delivery observed' is distinct from an explicit denial.
+Future<R44BroadcastOutcome> r44TryForgedBroadcast(
   R44DevConfig config,
   R44Session session,
 ) async {
   final topic = financeTopic(session.companyId, 'driver_settlements');
-  WebSocket? socket;
-  StreamIterator<dynamic>? messages;
+  WebSocket? senderSocket;
+  WebSocket? observerSocket;
+  StreamIterator<dynamic>? senderMessages;
+  StreamIterator<dynamic>? observerMessages;
   try {
-    socket = await WebSocket.connect(
+    observerSocket = await WebSocket.connect(
       config.websocketAddress().toString(),
     ).timeout(r44NetworkTimeout);
-    messages = StreamIterator<dynamic>(socket);
-    final join = joinFinanceTopic(
+    observerMessages = StreamIterator<dynamic>(observerSocket);
+    senderSocket = await WebSocket.connect(
+      config.websocketAddress().toString(),
+    ).timeout(r44NetworkTimeout);
+    senderMessages = StreamIterator<dynamic>(senderSocket);
+
+    final observerJoin = joinFinanceTopic(
       topic: topic,
       ref: '1',
       jwt: session.jwt,
     );
-    // Wait for an explicit server denial instead of relying on a silent send.
-    (join['payload'] as Map)['config'] = {
+    observerSocket.add(jsonEncode(observerJoin));
+    if (await _waitForJoin(observerMessages, topic) !=
+        RealtimeJoinVerdict.allowed) {
+      return R44BroadcastOutcome.inconclusive;
+    }
+
+    final senderJoin = joinFinanceTopic(
+      topic: topic,
+      ref: '1',
+      jwt: session.jwt,
+    );
+    (senderJoin['payload'] as Map)['config'] = {
       'private': true,
-      'broadcast': {'self': true, 'ack': true},
+      'broadcast': {'self': false, 'ack': true},
       'presence': {'enabled': false},
       'postgres_changes': <Object>[],
     };
-    socket.add(jsonEncode(join));
-    final joined = await _waitForJoin(messages, topic);
-    if (joined != RealtimeJoinVerdict.allowed) {
-      return R44SendVerdict.inconclusive;
+    senderSocket.add(jsonEncode(senderJoin));
+    if (await _waitForJoin(senderMessages, topic) !=
+        RealtimeJoinVerdict.allowed) {
+      return R44BroadcastOutcome.inconclusive;
     }
-    socket.add(jsonEncode(r44ForgedBroadcast(
+
+    final marker = 'r44_${DateTime.now().microsecondsSinceEpoch}';
+    senderSocket.add(jsonEncode(r44ForgedBroadcast(
       topic,
       session.companyId,
+      marker: marker,
     )));
-    return await _waitForSend(messages, topic);
+    // A second WebSocket tests whether the forged message was actually
+    // delivered. Heartbeat after sending confirms the observer remains live.
+    observerSocket.add(jsonEncode({
+      'topic': 'phoenix',
+      'event': 'heartbeat',
+      'ref': '3',
+      'payload': <String, Object?>{},
+    }));
+
+    const observationWindow = Duration(seconds: 5);
+    final results = await Future.wait<Object>([
+      _waitForSend(senderMessages, topic, observationWindow),
+      _observeForgery(observerMessages, topic, marker, observationWindow),
+    ]);
+    final sender = results[0] as R44SenderAck;
+    final observer = results[1] as R44ObserverWindow;
+    return r44EvaluateBroadcast(
+      sender: sender,
+      forgedEventObserved: observer.forgedEvent,
+      observerHeartbeatOk: observer.heartbeatOk,
+      fullObservationWindow: observer.windowComplete,
+      observerDisconnected: observer.disconnected,
+    );
   } catch (_) {
-    return R44SendVerdict.inconclusive;
+    return R44BroadcastOutcome.inconclusive;
   } finally {
     try {
-      await messages?.cancel().timeout(const Duration(seconds: 2));
+      await senderMessages?.cancel().timeout(const Duration(seconds: 2));
+      await observerMessages?.cancel().timeout(const Duration(seconds: 2));
     } catch (_) {
-      // Credentials and raw server errors are intentionally suppressed.
+      // Network shutdown cannot count as an authorization PASS.
     }
     try {
-      await socket?.close().timeout(const Duration(seconds: 2));
+      await senderSocket?.close().timeout(const Duration(seconds: 2));
+      await observerSocket?.close().timeout(const Duration(seconds: 2));
     } catch (_) {
-      // A transport failure never counts as an authorization PASS.
+      // Do not leak network failures or authorization headers.
     }
   }
+}
+
+final class R44ObserverWindow {
+  final bool heartbeatOk;
+  final bool forgedEvent;
+  final bool windowComplete;
+  final bool disconnected;
+
+  const R44ObserverWindow({
+    required this.heartbeatOk,
+    required this.forgedEvent,
+    required this.windowComplete,
+    required this.disconnected,
+  });
+}
+
+Future<R44ObserverWindow> _observeForgery(
+  StreamIterator<dynamic> messages,
+  String topic,
+  String marker,
+  Duration window,
+) async {
+  final deadline = DateTime.now().add(window);
+  var heartbeatOk = false;
+  while (DateTime.now().isBefore(deadline)) {
+    final remaining = deadline.difference(DateTime.now());
+    try {
+      if (!await messages.moveNext().timeout(remaining)) {
+        return R44ObserverWindow(
+          heartbeatOk: heartbeatOk,
+          forgedEvent: false,
+          windowComplete: false,
+          disconnected: true,
+        );
+      }
+    } on TimeoutException {
+      return R44ObserverWindow(
+        heartbeatOk: heartbeatOk,
+        forgedEvent: false,
+        windowComplete: true,
+        disconnected: false,
+      );
+    }
+    final frame = messages.current;
+    if (r44IsForgedEvent(frame, topic: topic, marker: marker)) {
+      return R44ObserverWindow(
+        heartbeatOk: heartbeatOk,
+        forgedEvent: true,
+        windowComplete: false,
+        disconnected: false,
+      );
+    }
+    if (r44IsObserverHeartbeat(frame, ref: '3')) heartbeatOk = true;
+    if (r44IsChannelTerminated(frame, topic: topic)) {
+      return R44ObserverWindow(
+        heartbeatOk: heartbeatOk,
+        forgedEvent: false,
+        windowComplete: false,
+        disconnected: true,
+      );
+    }
+  }
+  return R44ObserverWindow(
+    heartbeatOk: heartbeatOk,
+    forgedEvent: false,
+    windowComplete: true,
+    disconnected: false,
+  );
 }
 
 Future<RealtimeJoinVerdict> _waitForJoin(
@@ -148,37 +228,32 @@ Future<RealtimeJoinVerdict> _waitForJoin(
   return RealtimeJoinVerdict.inconclusive;
 }
 
-Future<R44SendVerdict> _waitForSend(
+Future<R44SenderAck> _waitForSend(
   StreamIterator<dynamic> messages,
   String topic,
+  Duration window,
 ) async {
-  final deadline = DateTime.now().add(r44NetworkTimeout);
+  final deadline = DateTime.now().add(window);
   while (DateTime.now().isBefore(deadline)) {
     final remaining = deadline.difference(DateTime.now());
-    if (!await messages.moveNext().timeout(remaining)) break;
-    final verdict = r44SendReplyVerdict(
+    try {
+      if (!await messages.moveNext().timeout(remaining)) {
+        return R44SenderAck.unrelatedError;
+      }
+    } on TimeoutException {
+      return R44SenderAck.silent;
+    }
+    if (r44IsChannelTerminated(messages.current, topic: topic)) {
+      return R44SenderAck.unrelatedError;
+    }
+    final verdict = r44SenderAckFromFrame(
       messages.current,
       topic: topic,
       ref: '2',
     );
     if (verdict != null) return verdict;
-    // Receiving the injected test event is proof that client forgery worked,
-    // regardless of whether the acknowledgement subsequently fails.
-    Object? payload = messages.current;
-    try {
-      if (payload is String) payload = jsonDecode(payload);
-    } on FormatException {
-      continue;
-    }
-    if (payload is Map &&
-        payload['topic'] == topic &&
-        payload['event'] == 'broadcast' &&
-        payload['payload'] is Map &&
-        (payload['payload'] as Map)['event'] == 'changed') {
-      return R44SendVerdict.allowed;
-    }
   }
-  return R44SendVerdict.inconclusive;
+  return R44SenderAck.silent;
 }
 
 Future<void> main(List<String> args) async {
@@ -229,10 +304,23 @@ Future<void> main(List<String> args) async {
     }
 
     final broadcast = await r44TryForgedBroadcast(config, session);
-    final pass = broadcast == R44SendVerdict.denied;
-    stdout.writeln(pass
-        ? 'PASS  client Broadcast forgery refused'
-        : 'FAIL  Broadcast denial unverified (allowed or inconclusive)');
+    final pass = {
+      R44BroadcastOutcome.explicitlyDenied,
+      R44BroadcastOutcome.noDeliveryObserved,
+    }.contains(broadcast);
+    switch (broadcast) {
+      case R44BroadcastOutcome.explicitlyDenied:
+        stdout.writeln('PASS  private Broadcast explicitly denied');
+      case R44BroadcastOutcome.noDeliveryObserved:
+        stdout.writeln(
+          'PASS  no forged Broadcast observed on live receiver '
+          '(also verify RLS write policies separately)',
+        );
+      case R44BroadcastOutcome.delivered:
+        stdout.writeln('FAIL  forged Broadcast accepted or delivered');
+      case R44BroadcastOutcome.inconclusive:
+        stdout.writeln('FAIL  Broadcast probe inconclusive; no security PASS');
+    }
     if (!pass) failures++;
     stdout.writeln('SUMMARY: ${3 - failures} PASS / $failures FAIL');
     if (failures > 0) exitCode = 1;
