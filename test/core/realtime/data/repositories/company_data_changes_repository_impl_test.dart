@@ -162,31 +162,37 @@ void main() {
     },
   );
 
-  test('Invoices private channel is opt-in and cancels with the session', () async {
-    final source = _Source();
-    final repository = CompanyDataChangesRepositoryImpl(source);
-    final changes = <CompanyDataResource>[];
-    final subscription = repository
-        .watchChanges(
-          companyId: 'company-a',
-          additionalResources: const {CompanyDataResource.invoices},
-        )
-        .listen((result) {
-          final change = result.dataOrNull;
-          if (change != null) changes.add(change.resource);
-        });
+  test(
+    'Invoices private channel is opt-in and cancels with the session',
+    () async {
+      final source = _Source();
+      final repository = CompanyDataChangesRepositoryImpl(source);
+      final changes = <CompanyDataResource>[];
+      final subscription = repository
+          .watchChanges(
+            companyId: 'company-a',
+            additionalResources: const {CompanyDataResource.invoices},
+          )
+          .listen((result) {
+            final change = result.dataOrNull;
+            if (change != null) changes.add(change.resource);
+          });
 
-    source.invoices.add(RealtimeChangeSignal.subscribed);
-    source.invoices.add(RealtimeChangeSignal.changed);
-    await Future<void>.delayed(Duration.zero);
+      source.invoices.add(RealtimeChangeSignal.subscribed);
+      source.invoices.add(RealtimeChangeSignal.changed);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(changes, [CompanyDataResource.invoices, CompanyDataResource.invoices]);
-    expect(source.expenseLedger.hasListener, isFalse);
-    expect(source.driverSettlements.hasListener, isFalse);
-    await subscription.cancel();
-    expect(source.invoicesCanceled, isTrue);
-    await source.close();
-  });
+      expect(changes, [
+        CompanyDataResource.invoices,
+        CompanyDataResource.invoices,
+      ]);
+      expect(source.expenseLedger.hasListener, isFalse);
+      expect(source.driverSettlements.hasListener, isFalse);
+      await subscription.cancel();
+      expect(source.invoicesCanceled, isTrue);
+      await source.close();
+    },
+  );
 
   test('transport error becomes a sanitized typed failure', () async {
     final source = _Source();
