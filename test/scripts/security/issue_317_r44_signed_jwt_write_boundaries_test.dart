@@ -7,9 +7,7 @@ void main() {
   group('R4.4 signed-JWT direct write boundaries', () {
     test('only an explicit permission-denied SQLSTATE is a PASS', () {
       expect(
-        r44DeniedDirectInsert(
-          const R44Reply(403, {'code': '42501'}),
-        ),
+        r44DeniedDirectInsert(const R44Reply(403, {'code': '42501'})),
         isTrue,
       );
       for (final reply in [
@@ -23,10 +21,13 @@ void main() {
       }
     });
 
-    test('direct insert payload cannot satisfy NOT NULL settlement columns', () {
-      const companyId = '041a7fc8-3593-41f2-b00f-99643277b18f';
-      expect(r44MalformedInsert(companyId), {'company_id': companyId});
-    });
+    test(
+      'direct insert payload cannot satisfy NOT NULL settlement columns',
+      () {
+        const companyId = '041a7fc8-3593-41f2-b00f-99643277b18f';
+        expect(r44MalformedInsert(companyId), {'company_id': companyId});
+      },
+    );
   });
 
   group('R4.4 private Broadcast forgery response', () {
@@ -66,20 +67,23 @@ void main() {
       );
     });
 
-    test('unrelated Phoenix replies and invalid payload never count as PASS', () {
-      expect(
-        r44SendReplyVerdict(
-          reply('error', 'Unauthorized'),
-          topic: topic,
-          ref: '1',
-        ),
-        isNull,
-      );
-      expect(
-        r44SendReplyVerdict('not-json', topic: topic, ref: '2'),
-        R44SendVerdict.inconclusive,
-      );
-    });
+    test(
+      'unrelated Phoenix replies and invalid payload never count as PASS',
+      () {
+        expect(
+          r44SendReplyVerdict(
+            reply('error', 'Unauthorized'),
+            topic: topic,
+            ref: '1',
+          ),
+          isNull,
+        );
+        expect(
+          r44SendReplyVerdict('not-json', topic: topic, ref: '2'),
+          R44SendVerdict.inconclusive,
+        );
+      },
+    );
 
     test('forged event contains only safe invalidation metadata', () {
       const companyId = '041a7fc8-3593-41f2-b00f-99643277b18f';
