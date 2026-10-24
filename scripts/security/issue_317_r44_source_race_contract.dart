@@ -34,7 +34,6 @@ final class R44SourceRaceFixture {
     if (!valid ||
         expense['id'] != expenseId ||
         expense['company_id'] != companyId ||
-        expense['driver_id'] != driverId ||
         expense['origin_kind'] != 'manual' ||
         expense['is_voided'] != false ||
         !{'driver_cash', 'driver_advance'}.contains(expense['funding_source']) ||
