@@ -129,9 +129,15 @@ void main() {
 
   group('R4.4 concurrent source void and finalize outcome', () {
     const expenseVoided = <String, dynamic>{'id': expenseId, 'is_voided': true};
-    const expenseAvailable = <String, dynamic>{'id': expenseId, 'is_voided': false};
+    const expenseAvailable = <String, dynamic>{
+      'id': expenseId,
+      'is_voided': false,
+    };
     const draft = <String, dynamic>{'id': settlementId, 'status': 'draft'};
-    const finalized = <String, dynamic>{'id': settlementId, 'status': 'finalized'};
+    const finalized = <String, dynamic>{
+      'id': settlementId,
+      'status': 'finalized',
+    };
 
     test('void wins, stale finalize fails and creates one expense audit', () {
       expect(
@@ -174,8 +180,8 @@ void main() {
       ]) {
         expect(
           verifyR44SourceRace(
-          expenseId: expenseId,
-          settlementId: settlementId,
+            expenseId: expenseId,
+            settlementId: settlementId,
             voidReply: const R44Reply(200, {'id': expenseId}),
             finalizeReply: invalid,
             expense: expenseVoided,
