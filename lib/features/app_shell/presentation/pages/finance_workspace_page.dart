@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/network/presentation/widgets/network_reconnect_refresh_boundary.dart';
+import '../../../../core/realtime/domain/entities/company_invalidation_resource.dart';
+import '../../../../core/realtime/presentation/widgets/company_resource_invalidation_boundary.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company_expenses/di/company_expenses_dependencies.dart';
@@ -27,6 +29,7 @@ import '../../../invoices/presentation/widgets/invoices_realtime_boundary.dart';
 import '../../../payments/di/payments_dependencies.dart';
 import '../../../payments/presentation/cubit/payments_cubit.dart';
 import '../../../payments/presentation/pages/payments_page.dart';
+import '../../../payments/presentation/widgets/payment_invoice_references_realtime_boundary.dart';
 import '../models/finance_workspace_section.dart';
 
 final class FinanceWorkspacePage extends StatelessWidget {
@@ -229,21 +232,32 @@ final class _FinanceSectionContent extends StatelessWidget {
       ),
       FinanceWorkspaceSection.payments => BlocProvider<PaymentsCubit>(
         create: (_) => PaymentsDependencies.createPaymentsCubit(),
-        child: _FinanceReconnectAware(
-          onReconnect: (context) =>
-              context.read<PaymentsCubit>().loadPayments(currentCompanyContext),
-          child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+        child: PaymentInvoiceReferencesRealtimeBoundary(
+          currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) => context
+                .read<PaymentsCubit>()
+                .loadPayments(currentCompanyContext),
+            child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+          ),
         ),
       ),
       FinanceWorkspaceSection.customerStatements =>
         BlocProvider<CustomerStatementsCubit>(
           create: (_) => CustomerStatementsDependencies.createCubit(),
-          child: _FinanceReconnectAware(
-            onReconnect: (context) => context
+          child: CompanyResourceInvalidationBoundary(
+            companyId: currentCompanyContext.companyId,
+            resources: const {CompanyInvalidationResource.customerStatements},
+            onInvalidate: (context) => context
                 .read<CustomerStatementsCubit>()
-                .load(currentCompanyContext),
-            child: CustomerStatementsPage(
-              currentCompanyContext: currentCompanyContext,
+                .reconcileStatementAfterInvoiceChange(),
+            child: _FinanceReconnectAware(
+              onReconnect: (context) => context
+                  .read<CustomerStatementsCubit>()
+                  .load(currentCompanyContext),
+              child: CustomerStatementsPage(
+                currentCompanyContext: currentCompanyContext,
+              ),
             ),
           ),
         ),
