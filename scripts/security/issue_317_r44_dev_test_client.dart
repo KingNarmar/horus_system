@@ -130,9 +130,11 @@ final class R44DevClient {
       '/rest/v1/rpc/create_driver_settlement_draft_atomic',
     };
     final allowed = _allowedPaths.contains(path) &&
-        (method == 'GET' && !postPaths.contains(path) ||
-            method == 'POST' && postPaths.contains(path) ||
-            method == 'PATCH' && path == '/rest/v1/driver_settlements');
+        ((method == 'GET' &&
+                path != '/auth/v1/token' &&
+                path != '/rest/v1/rpc/create_driver_settlement_draft_atomic') ||
+            (method == 'POST' && postPaths.contains(path)) ||
+            (method == 'PATCH' && path == '/rest/v1/driver_settlements'));
     if (!allowed) {
       throw StateError('Request outside approved Development test paths.');
     }
