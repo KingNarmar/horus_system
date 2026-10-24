@@ -63,7 +63,8 @@ final class DashboardCubit extends Cubit<DashboardState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(DashboardLoadFailure(failure));
           break;
         }
