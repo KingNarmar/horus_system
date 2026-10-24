@@ -433,7 +433,8 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
   }
 
   bool _isCurrentRequest(int generation, String companyId) {
-    return !isClosed && generation == _loadGeneration &&
+    return !isClosed &&
+        generation == _loadGeneration &&
         _currentCompanyContext?.companyId == companyId;
   }
 }
