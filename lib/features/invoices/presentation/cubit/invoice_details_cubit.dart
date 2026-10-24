@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../../audit/domain/entities/audit_entity_type.dart';
 import '../../../audit/domain/entities/audit_module.dart';
@@ -123,6 +124,10 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
           break;
         }
         final failure = result.failureOrNull;
+        if (failure is AuthFailure || failure is PermissionFailure) {
+          emit(InvoiceDetailsFailure(failure));
+          break;
+        }
         if (failure != null) {
           emit(latest.copyWith(realtimeRefreshFailure: failure));
           continue;
