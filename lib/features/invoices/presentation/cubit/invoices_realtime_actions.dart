@@ -107,6 +107,12 @@ mixin InvoicesRealtimeActions on Cubit<InvoicesState> {
       }
     } finally {
       owner._billableTripsRefreshInProgress = false;
+      final current = state;
+      if (owner._billableTripsRefreshPending &&
+          current is InvoicesLoaded &&
+          !current.isBillableTripsLoading) {
+        unawaited(refreshBillableTripsFromRealtime());
+      }
     }
   }
 }
