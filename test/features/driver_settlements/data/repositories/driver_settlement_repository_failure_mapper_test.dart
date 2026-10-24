@@ -40,6 +40,95 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps atomic RPC authorization failures to typed permission', () {
+      const error = PostgrestException(
+        message: 'private actor details',
+        code: 'P2813',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<PermissionFailure>());
+      expect(failure.code, FailureCodes.permissionDriverSettlementsManagement);
+      expect(failure.message, isNull);
+    });
+
+    test('maps rejected atomic draft payload to localized validation code', () {
+      const error = PostgrestException(message: 'server fields', code: 'P2814');
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.validationDraftPayloadInvalid,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('maps stale canonical sources to a recoverable conflict', () {
+      const error = PostgrestException(
+        message: 'private source data',
+        code: 'P2815',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.conflictSourceSnapshotChanged,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('maps stale compensation without exposing its amount', () {
+      const error = PostgrestException(
+        message: 'private salary data',
+        code: 'P2816',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.conflictCompensationChanged,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('rejects mismatched exact money as a typed validation failure', () {
+      const error = PostgrestException(
+        message: 'private currency amount',
+        code: 'P2817',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.validationExactMoneyMismatch,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('rejects tampered aggregate money without exposing details', () {
+      const error = PostgrestException(
+        message: 'private totals',
+        code: 'P2818',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ValidationFailure>());
+      expect(
+        failure.code,
+        DriverSettlementFailureCodes.validationFinancialTotalsMismatch,
+      );
+      expect(failure.message, isNull);
+    });
+
+    test('maps different active settlement in the same period to conflict', () {
+      const error = PostgrestException(
+        message: 'private duplicate record',
+        code: 'P2819',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, DriverSettlementFailureCodes.conflictPeriodExists);
+      expect(failure.message, isNull);
+    });
+
     test('uses stable server error when Postgrest code is absent', () {
       const error = PostgrestException(message: 'database error');
 

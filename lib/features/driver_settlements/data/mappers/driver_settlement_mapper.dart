@@ -258,10 +258,10 @@ extension DriverSettlementMoneyDraftWriteDataMapper
 }
 
 extension DriverSettlementItemMapper on DriverSettlementItem {
-  Map<String, dynamic> toInsertMap({required String settlementId}) {
+  Map<String, dynamic> toInsertMap({String? settlementId}) {
     return {
       DbCommonFields.companyId: companyId,
-      DriverSettlementsDbFields.settlementId: settlementId,
+      DriverSettlementsDbFields.settlementId: ?settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
       DriverSettlementsDbFields.sourceDate: DbDate.encodeNullable(sourceDate),
@@ -276,7 +276,7 @@ extension DriverSettlementItemMapper on DriverSettlementItem {
 
 extension DriverSettlementMoneyItemMapper on DriverSettlementMoneyItem {
   Map<String, dynamic> toMoneyInsertMap({
-    required String settlementId,
+    String? settlementId,
     required int currencyFractionDigits,
   }) {
     final configuration = CurrencyConfiguration(
@@ -285,7 +285,7 @@ extension DriverSettlementMoneyItemMapper on DriverSettlementMoneyItem {
     );
     return {
       DbCommonFields.companyId: companyId,
-      DriverSettlementsDbFields.settlementId: settlementId,
+      DriverSettlementsDbFields.settlementId: ?settlementId,
       DriverSettlementsDbFields.sourceType: sourceType.value,
       DriverSettlementsDbFields.sourceId: sourceId,
       DriverSettlementsDbFields.sourceDate: DbDate.encodeNullable(sourceDate),

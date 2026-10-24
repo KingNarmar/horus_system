@@ -257,25 +257,14 @@ class SupabaseDriverSettlementsRemoteDataSource
   Future<DriverSettlementModel> createDraft({
     required DriverSettlementDraftWriteData data,
   }) async {
-    final row = await client
-        .from(DriverSettlementsDbTables.driverSettlements)
-        .insert(data.toInsertMap())
-        .select(_driverSettlementColumns)
-        .single();
-
-    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
-    if (data.items.isNotEmpty) {
-      final itemRows = data.items
-          .map((item) => item.toInsertMap(settlementId: model.id))
-          .toList();
-      await client
-          .from(DriverSettlementsDbTables.driverSettlementItems)
-          .insert(itemRows);
-    }
-
+    final settlementId = await _createAtomicDraft(
+      companyId: data.companyId,
+      header: data.toInsertMap(),
+      items: data.items.map((item) => item.toInsertMap()).toList(),
+    );
     return getDriverSettlementById(
       companyId: data.companyId,
-      settlementId: model.id,
+      settlementId: settlementId,
     );
   }
 
@@ -283,31 +272,37 @@ class SupabaseDriverSettlementsRemoteDataSource
   Future<DriverSettlementModel> createMoneyDraft({
     required DriverSettlementMoneyDraftWriteData data,
   }) async {
-    final row = await client
-        .from(DriverSettlementsDbTables.driverSettlements)
-        .insert(data.toMoneyInsertMap())
-        .select(_driverSettlementColumns)
-        .single();
-
-    final model = DriverSettlementModel.fromMap(Map<String, dynamic>.from(row));
-    if (data.items.isNotEmpty) {
-      final itemRows = data.items
+    final settlementId = await _createAtomicDraft(
+      companyId: data.companyId,
+      header: data.toMoneyInsertMap(),
+      items: data.items
           .map(
             (item) => item.toMoneyInsertMap(
-              settlementId: model.id,
               currencyFractionDigits: data.currencyFractionDigits,
             ),
           )
-          .toList();
-      await client
-          .from(DriverSettlementsDbTables.driverSettlementItems)
-          .insert(itemRows);
-    }
-
+          .toList(),
+    );
     return getDriverSettlementById(
       companyId: data.companyId,
-      settlementId: model.id,
+      settlementId: settlementId,
     );
+  }
+
+  Future<String> _createAtomicDraft({
+    required String companyId,
+    required Map<String, dynamic> header,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    final result = await client.rpc(
+      DriverSettlementDbFunctions.createDraftAtomic,
+      params: {
+        DriverSettlementRpcParams.companyId: companyId,
+        DriverSettlementRpcParams.header: header,
+        DriverSettlementRpcParams.items: items,
+      },
+    );
+    return result.toString();
   }
 
   @override
@@ -358,19 +353,25 @@ class SupabaseDriverSettlementsRemoteDataSource
     required String companyId,
     required String settlementId,
   }) async {
-    final rows = await client
-        .from(DriverSettlementsDbTables.driverSettlementItems)
-        .select(_driverSettlementItemColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverSettlementsDbFields.settlementId, settlementId)
-        .order(DriverSettlementsDbFields.sourceDate)
-        .order(DbCommonFields.createdAt);
-
-    return rows
-        .map(
+    const pageSize = 500;
+    final items = <DriverSettlementItemModel>[];
+    for (var from = 0; ; from += pageSize) {
+      final rows = await client
+          .from(DriverSettlementsDbTables.driverSettlementItems)
+          .select(_driverSettlementItemColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverSettlementsDbFields.settlementId, settlementId)
+          .order(DriverSettlementsDbFields.sourceDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
+          .range(from, from + pageSize - 1);
+      items.addAll(
+        rows.map(
           (row) =>
               DriverSettlementItemModel.fromMap(Map<String, dynamic>.from(row)),
-        )
-        .toList();
+        ),
+      );
+      if (rows.length < pageSize) return items;
+    }
   }
 }

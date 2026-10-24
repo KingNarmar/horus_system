@@ -82,6 +82,16 @@ void main() {
     expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
   });
 
+  test('settlement mutations invalidate balances, not unrelated reports', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.driverSettlements,
+    );
+    expect(affected, contains(CompanyInvalidationResource.driverSettlements));
+    expect(affected, contains(CompanyInvalidationResource.driverBalances));
+    expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
+    expect(affected, isNot(contains(CompanyInvalidationResource.dashboard)));
+  });
+
   test('payments affect statements and open invoices, not trip lookups', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.payments,

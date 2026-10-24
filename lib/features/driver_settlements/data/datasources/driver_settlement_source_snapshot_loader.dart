@@ -121,24 +121,26 @@ class DriverSettlementSourceSnapshotLoader {
     required BusinessDate startInclusive,
     required BusinessDate endInclusive,
   }) async {
-    final rows = await client
-        .from(DriverSettlementsDbTables.driverFinancialMovements)
-        .select(_driverFinancialMovementColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverSettlementsDbFields.driverId, driverId)
-        .gte(
-          DriverSettlementsDbFields.movementDate,
-          DbDate.encode(startInclusive),
-        )
-        .lte(
-          DriverSettlementsDbFields.movementDate,
-          DbDate.encode(endInclusive),
-        )
-        .order(DriverSettlementsDbFields.movementDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
-
-    return rows.map((row) => Map<String, dynamic>.from(row)).toList();
+    return _readAllPages((from, to) async {
+      final rows = await client
+          .from(DriverSettlementsDbTables.driverFinancialMovements)
+          .select(_driverFinancialMovementColumns)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverSettlementsDbFields.driverId, driverId)
+          .gte(
+            DriverSettlementsDbFields.movementDate,
+            DbDate.encode(startInclusive),
+          )
+          .lte(
+            DriverSettlementsDbFields.movementDate,
+            DbDate.encode(endInclusive),
+          )
+          .order(DriverSettlementsDbFields.movementDate)
+          .order(DbCommonFields.createdAt)
+          .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(rows);
+    });
   }
 
   Future<List<Map<String, dynamic>>> _getDriverPaidTripExpenseRows({
@@ -153,43 +155,92 @@ class DriverSettlementSourceSnapshotLoader {
     );
     if (tripIds.isEmpty) return const [];
 
-    final rows = await client
-        .from(DriverSettlementsDbTables.expenseLedgerEntries)
-        .select(_expenseLedgerColumns)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverSettlementsDbFields.isVoided, false)
-        .inFilter(DriverSettlementsDbFields.tripId, tripIds)
-        .inFilter(DriverSettlementsDbFields.fundingSource, const [
-          DriverSettlementSourceValues.fundingSourceDriverAdvance,
-          DriverSettlementSourceValues.fundingSourceDriverCash,
-        ])
-        .gte(
-          DriverSettlementsDbFields.expenseDate,
-          DbDate.encode(startInclusive),
-        )
-        .lte(DriverSettlementsDbFields.expenseDate, DbDate.encode(endInclusive))
-        .order(DriverSettlementsDbFields.expenseDate)
-        .order(DbCommonFields.createdAt)
-        .order(DbCommonFields.id);
-
-    return rows.map((row) => Map<String, dynamic>.from(row)).toList();
+    final allRows = <Map<String, dynamic>>[];
+    for (var offset = 0; offset < tripIds.length; offset += _tripIdBatchSize) {
+      final end = offset + _tripIdBatchSize < tripIds.length
+          ? offset + _tripIdBatchSize
+          : tripIds.length;
+      final batch = tripIds.sublist(offset, end);
+      final rows = await _readAllPages((from, to) async {
+        final page = await client
+            .from(DriverSettlementsDbTables.expenseLedgerEntries)
+            .select(_expenseLedgerColumns)
+            .eq(DbCommonFields.companyId, companyId)
+            .eq(DriverSettlementsDbFields.isVoided, false)
+            .inFilter(DriverSettlementsDbFields.tripId, batch)
+            .inFilter(DriverSettlementsDbFields.fundingSource, const [
+              DriverSettlementSourceValues.fundingSourceDriverAdvance,
+              DriverSettlementSourceValues.fundingSourceDriverCash,
+            ])
+            .gte(
+              DriverSettlementsDbFields.expenseDate,
+              DbDate.encode(startInclusive),
+            )
+            .lte(
+              DriverSettlementsDbFields.expenseDate,
+              DbDate.encode(endInclusive),
+            )
+            .order(DriverSettlementsDbFields.expenseDate)
+            .order(DbCommonFields.createdAt)
+            .order(DbCommonFields.id)
+            .range(from, to);
+        return _maps(page);
+      });
+      allRows.addAll(rows);
+    }
+    allRows.sort((left, right) {
+      for (final field in [
+        DriverSettlementsDbFields.expenseDate,
+        DbCommonFields.createdAt,
+        DbCommonFields.id,
+      ]) {
+        final comparison = (left[field]?.toString() ?? '').compareTo(
+          right[field]?.toString() ?? '',
+        );
+        if (comparison != 0) return comparison;
+      }
+      return 0;
+    });
+    return allRows;
   }
 
   Future<List<String>> _getDriverTripIds({
     required String companyId,
     required String driverId,
   }) async {
-    final rows = await client
-        .from(DriverSettlementsDbTables.trips)
-        .select(DbCommonFields.id)
-        .eq(DbCommonFields.companyId, companyId)
-        .eq(DriverSettlementsDbFields.driverId, driverId);
+    final rows = await _readAllPages((from, to) async {
+      final page = await client
+          .from(DriverSettlementsDbTables.trips)
+          .select(DbCommonFields.id)
+          .eq(DbCommonFields.companyId, companyId)
+          .eq(DriverSettlementsDbFields.driverId, driverId)
+          .order(DbCommonFields.id)
+          .range(from, to);
+      return _maps(page);
+    });
 
     return rows
-        .map((row) => Map<String, dynamic>.from(row)[DbCommonFields.id])
+        .map((row) => row[DbCommonFields.id])
         .whereType<String>()
         .toList(growable: false);
   }
+
+  static const int _pageSize = 500;
+  static const int _tripIdBatchSize = 100;
+
+  Future<List<Map<String, dynamic>>> _readAllPages(
+    Future<List<Map<String, dynamic>>> Function(int from, int to) loadPage,
+  ) async {
+    final all = <Map<String, dynamic>>[];
+    for (var from = 0; ; from += _pageSize) {
+      final page = await loadPage(from, from + _pageSize - 1);
+      all.addAll(page);
+      if (page.length < _pageSize) return all;
+    }
+  }
+
+  List<Map<String, dynamic>> _maps(Iterable<dynamic> rows) =>
+      rows.map((row) => Map<String, dynamic>.from(row as Map)).toList();
 }
 
 final class _SettlementSourceRows {

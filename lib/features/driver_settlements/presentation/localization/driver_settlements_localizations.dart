@@ -101,6 +101,7 @@ class DriverSettlementsLocalizations {
   String get periodInvalidFailure => _value('periodInvalidFailure');
   String get amountNegativeFailure => _value('amountNegativeFailure');
   String get amountInvalidFailure => _value('amountInvalidFailure');
+  String get draftPayloadInvalidFailure => _value('draftPayloadInvalidFailure');
   String get netSalaryNegativeFailure => _value('netSalaryNegativeFailure');
   String get balanceRecoveryExceedsDebtFailure =>
       _value('balanceRecoveryExceedsDebtFailure');
@@ -114,6 +115,13 @@ class DriverSettlementsLocalizations {
   String get voidReasonRequiredFailure => _value('voidReasonRequiredFailure');
   String get expenseSourceInvalidFailure =>
       _value('expenseSourceInvalidFailure');
+  String get sourceSnapshotChangedFailure =>
+      _value('sourceSnapshotChangedFailure');
+  String get compensationChangedFailure => _value('compensationChangedFailure');
+  String get exactMoneyMismatchFailure => _value('exactMoneyMismatchFailure');
+  String get financialTotalsMismatchFailure =>
+      _value('financialTotalsMismatchFailure');
+  String get periodExistsFailure => _value('periodExistsFailure');
   String get loadFailed => _value('loadFailed');
   String get previewFailed => _value('previewFailed');
   String get detailsFailed => _value('detailsFailed');
@@ -222,6 +230,8 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'Driver settlement is required.',
     'periodInvalidFailure': 'The settlement period is invalid.',
     'amountNegativeFailure': 'Settlement amounts cannot be negative.',
+    'draftPayloadInvalidFailure':
+        'The settlement draft could not be saved. Review the data and try again.',
     'amountInvalidFailure':
         'Enter a valid settlement amount using the company currency precision.',
     'netSalaryNegativeFailure': 'Net salary payable cannot be negative.',
@@ -240,6 +250,16 @@ class DriverSettlementsLocalizations {
     'voidReasonRequiredFailure': 'A void reason is required.',
     'expenseSourceInvalidFailure':
         'A trip expense in this settlement was voided or is unavailable. Create a new draft from current sources.',
+    'sourceSnapshotChangedFailure':
+        'Financial sources changed. Recalculate the settlement and try again.',
+    'compensationChangedFailure':
+        'The driver compensation changed. Recalculate the settlement.',
+    'exactMoneyMismatchFailure':
+        'Settlement amounts do not match the company currency precision.',
+    'financialTotalsMismatchFailure':
+        'Settlement totals could not be verified. Recalculate and try again.',
+    'periodExistsFailure':
+        'A settlement already exists for this driver and period. Refresh the list.',
     'loadFailed': 'Driver settlements could not be loaded.',
     'previewFailed': 'The settlement preview could not be calculated.',
     'detailsFailed': 'Settlement details could not be loaded.',
@@ -336,6 +356,8 @@ class DriverSettlementsLocalizations {
     'settlementIdRequiredFailure': 'تسوية السائق مطلوبة.',
     'periodInvalidFailure': 'فترة التسوية غير صحيحة.',
     'amountNegativeFailure': 'مبالغ التسوية لا يمكن أن تكون سالبة.',
+    'draftPayloadInvalidFailure':
+        'تعذّر حفظ مسودة التسوية. راجع البيانات ثم حاول مرة أخرى.',
     'amountInvalidFailure': 'أدخل مبلغ تسوية صحيحًا وفق دقة عملة الشركة.',
     'netSalaryNegativeFailure': 'صافي الراتب المستحق لا يمكن أن يكون سالبًا.',
     'balanceRecoveryExceedsDebtFailure':
@@ -351,6 +373,14 @@ class DriverSettlementsLocalizations {
     'voidReasonRequiredFailure': 'سبب الإبطال مطلوب.',
     'expenseSourceInvalidFailure':
         'أحد مصروفات الرحلة في هذه التسوية أُلغي أو لم يعد متاحًا. أنشئ مسودة جديدة من البيانات الحالية.',
+    'sourceSnapshotChangedFailure':
+        'تغيرت المصادر المالية. أعد حساب التسوية ثم حاول مرة أخرى.',
+    'compensationChangedFailure': 'تغيرت بيانات راتب السائق. أعد حساب التسوية.',
+    'exactMoneyMismatchFailure': 'مبالغ التسوية لا تطابق دقة عملة الشركة.',
+    'financialTotalsMismatchFailure':
+        'تعذر التحقق من إجمالي التسوية. أعد الحساب ثم حاول مرة أخرى.',
+    'periodExistsFailure':
+        'توجد تسوية لهذا السائق ونفس الفترة بالفعل. حدّث القائمة.',
     'loadFailed': 'تعذر تحميل تسويات السائقين.',
     'previewFailed': 'تعذر حساب معاينة التسوية.',
     'detailsFailed': 'تعذر تحميل تفاصيل التسوية.',

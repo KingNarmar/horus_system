@@ -28,6 +28,8 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.periodInvalidFailure,
       FailureCodes.validationDriverSettlementAmountNegative =>
         strings.amountNegativeFailure,
+      DriverSettlementFailureCodes.validationDraftPayloadInvalid =>
+        strings.draftPayloadInvalidFailure,
       DriverSettlementFailureCodes.validationAmountInvalid =>
         strings.amountInvalidFailure,
       FailureCodes.validationDriverSettlementNetSalaryNegative =>
@@ -46,6 +48,16 @@ extension DriverSettlementPresentationLocalizationsX on BuildContext {
         strings.compensationCurrencyMismatchFailure,
       DriverSettlementFailureCodes.conflictExpenseSourceInvalid =>
         strings.expenseSourceInvalidFailure,
+      DriverSettlementFailureCodes.conflictSourceSnapshotChanged =>
+        strings.sourceSnapshotChangedFailure,
+      DriverSettlementFailureCodes.conflictCompensationChanged =>
+        strings.compensationChangedFailure,
+      DriverSettlementFailureCodes.validationExactMoneyMismatch =>
+        strings.exactMoneyMismatchFailure,
+      DriverSettlementFailureCodes.validationFinancialTotalsMismatch =>
+        strings.financialTotalsMismatchFailure,
+      DriverSettlementFailureCodes.conflictPeriodExists =>
+        strings.periodExistsFailure,
       FailureCodes.validationDriverSettlementVoidReasonRequired =>
         strings.voidReasonRequiredFailure,
       _ => l10n.localizedErrorMessage(failure),

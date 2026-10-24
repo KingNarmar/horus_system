@@ -52,6 +52,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? mutationFailure;
+  final Failure? realtimeRefreshFailure;
   final DriverSettlementFeedback? feedback;
 
   const DriverSettlementsLoaded({
@@ -81,6 +82,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     this.isActivityLoading = false,
     this.activityFailure,
     this.mutationFailure,
+    this.realtimeRefreshFailure,
     this.feedback,
   });
 
@@ -169,6 +171,7 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? mutationFailure = _notSet,
+    Object? realtimeRefreshFailure = _notSet,
     Object? feedback = _notSet,
   }) {
     return DriverSettlementsLoaded(
@@ -225,6 +228,9 @@ class DriverSettlementsLoaded extends DriverSettlementsState {
       mutationFailure: mutationFailure == _notSet
           ? this.mutationFailure
           : mutationFailure as Failure?,
+      realtimeRefreshFailure: realtimeRefreshFailure == _notSet
+          ? this.realtimeRefreshFailure
+          : realtimeRefreshFailure as Failure?,
       feedback: feedback == _notSet
           ? this.feedback
           : feedback as DriverSettlementFeedback?,

@@ -7,6 +7,16 @@ abstract final class DriverSettlementsDbTables {
   static const expenseLedgerEntries = 'expense_ledger_entries';
 }
 
+abstract final class DriverSettlementDbFunctions {
+  static const createDraftAtomic = 'create_driver_settlement_draft_atomic';
+}
+
+abstract final class DriverSettlementRpcParams {
+  static const companyId = 'p_company_id';
+  static const header = 'p_header';
+  static const items = 'p_items';
+}
+
 abstract final class DriverSettlementsDbFields {
   static const driverId = 'driver_id';
   static const settlementId = 'settlement_id';
