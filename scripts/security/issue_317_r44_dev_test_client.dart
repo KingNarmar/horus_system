@@ -106,6 +106,8 @@ final class R44DevClient {
     '/rest/v1/trips',
     '/rest/v1/driver_settlements',
     '/rest/v1/driver_settlement_items',
+    '/rest/v1/invoices',
+    '/rest/v1/invoice_lines',
     '/rest/v1/audit_logs',
     '/rest/v1/rpc/create_driver_settlement_draft_atomic',
     '/rest/v1/rpc/void_expense_ledger_entry',
@@ -128,6 +130,8 @@ final class R44DevClient {
       '/auth/v1/token',
       '/rest/v1/driver_settlements',
       '/rest/v1/driver_settlement_items',
+      '/rest/v1/invoices',
+      '/rest/v1/invoice_lines',
       '/rest/v1/rpc/create_driver_settlement_draft_atomic',
       '/rest/v1/rpc/void_expense_ledger_entry',
     };
