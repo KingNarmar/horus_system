@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../company/domain/entities/current_company_context.dart';
@@ -14,6 +16,8 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
   CurrentCompanyContext? _currentCompanyContext;
   int _customersRequestId = 0;
   int _statementRequestId = 0;
+  bool _invoiceReconcilePending = false;
+  bool _invoiceReconcileInProgress = false;
 
   CustomerStatementsCubit({
     required this.getCustomersUseCase,
@@ -46,6 +50,7 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
       ),
       failure: (failure) => emit(CustomerStatementsLoadFailure(failure)),
     );
+    _drainInvoiceReconciliation();
   }
 
   void selectCustomer(String? customerId) {
@@ -167,6 +172,64 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
         ),
       ),
     );
+    _drainInvoiceReconciliation();
+  }
+
+  /// Recalculate only a visible, previously requested statement. Keep the
+  /// selected customer, date filters and old statement on refresh failures.
+  Future<void> reconcileStatementAfterInvoiceChange() async {
+    _invoiceReconcilePending = true;
+    if (_invoiceReconcileInProgress) return;
+    _invoiceReconcileInProgress = true;
+    try {
+      while (_invoiceReconcilePending && !isClosed) {
+        _invoiceReconcilePending = false;
+        final current = state;
+        if (current is! CustomerStatementsReady ||
+            current.isLoadingStatement) {
+          _invoiceReconcilePending = true;
+          break;
+        }
+        if (current.statement == null || current.selectedCustomerId == null) {
+          break;
+        }
+        final requestId = ++_statementRequestId;
+        final companyId = current.currentCompanyContext.companyId;
+        final customerId = current.selectedCustomerId!;
+        final result = await getCustomerStatementUseCase(
+          GetCustomerStatementParams(
+            currentCompanyContext: current.currentCompanyContext,
+            customerId: customerId,
+            fromDate: current.fromDate,
+            toDate: current.toDate,
+          ),
+        );
+        final latest = state;
+        if (latest is! CustomerStatementsReady ||
+            isClosed ||
+            requestId != _statementRequestId ||
+            latest.currentCompanyContext.companyId != companyId ||
+            latest.selectedCustomerId != customerId) {
+          break;
+        }
+        result.when(
+          success: (statement) => emit(
+            latest.copyWith(statement: statement, statementFailure: null),
+          ),
+          failure: (failure) => emit(
+            latest.copyWith(statementFailure: failure),
+          ),
+        );
+      }
+    } finally {
+      _invoiceReconcileInProgress = false;
+    }
+  }
+
+  void _drainInvoiceReconciliation() {
+    if (_invoiceReconcilePending) {
+      unawaited(reconcileStatementAfterInvoiceChange());
+    }
   }
 
   void _invalidateStatement() {
