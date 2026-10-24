@@ -24,6 +24,8 @@ final class PaymentsLocalizations {
   String get noPayments => _value('noPayments');
   String get noMatchingPayments => _value('noMatchingPayments');
   String get noPayableInvoices => _value('noPayableInvoices');
+  String get invoiceSelectionUnavailable =>
+      _value('invoiceSelectionUnavailable');
   String get noActivePaymentMethods => _value('noActivePaymentMethods');
   String get invoice => _value('invoice');
   String get customer => _value('customer');
@@ -89,6 +91,8 @@ final class PaymentsLocalizations {
     'noPayments': 'No payments have been registered.',
     'noMatchingPayments': 'No payments match the current search.',
     'noPayableInvoices': 'No issued invoices have an outstanding balance.',
+    'invoiceSelectionUnavailable':
+        'The selected invoice is no longer payable. Select another invoice.',
     'noActivePaymentMethods': 'No active payment methods are available.',
     'invoice': 'Invoice',
     'customer': 'Customer',
@@ -160,6 +164,8 @@ final class PaymentsLocalizations {
     'noPayments': 'لا توجد مدفوعات مسجلة.',
     'noMatchingPayments': 'لا توجد مدفوعات مطابقة للبحث الحالي.',
     'noPayableInvoices': 'لا توجد فواتير صادرة لها رصيد مستحق.',
+    'invoiceSelectionUnavailable':
+        'الفاتورة المحددة لم تعد قابلة للسداد. اختر فاتورة أخرى.',
     'noActivePaymentMethods': 'لا توجد طرق دفع نشطة متاحة.',
     'invoice': 'الفاتورة',
     'customer': 'العميل',
