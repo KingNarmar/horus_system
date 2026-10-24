@@ -80,52 +80,68 @@ void main() {
         isNull,
       );
       expect(
-        verify(movements: [{'id': revision}]),
+        verify(
+          movements: [
+            {'id': revision},
+          ],
+        ),
         isNull,
       );
       expect(
-        verify(expenses: [{'id': revision}]),
+        verify(
+          expenses: [
+            {'id': revision},
+          ],
+        ),
         isNull,
       );
       expect(
-        verify(revisionOverride: [
-          {...revisionRow, 'amount_minor_units': 99999},
-        ]),
+        verify(
+          revisionOverride: [
+            {...revisionRow, 'amount_minor_units': 99999},
+          ],
+        ),
         isNull,
       );
     });
 
     test('refuses active overlapping settlements or repeated QA marker', () {
       expect(
-        verify(settlements: [
-          {
-            'period_start': '2026-10-01',
-            'period_end': '2026-10-24',
-            'status': 'draft',
-          },
-        ]),
+        verify(
+          settlements: [
+            {
+              'period_start': '2026-10-01',
+              'period_end': '2026-10-24',
+              'status': 'draft',
+            },
+          ],
+        ),
         isNull,
       );
       expect(
-        verify(settlements: [
-          {
-            'period_start': '2026-10-01',
-            'period_end': '2026-10-24',
-            'status': 'voided',
-            'notes': r44QaRaceNote,
-          },
-        ]),
+        verify(
+          settlements: [
+            {
+              'period_start': '2026-10-01',
+              'period_end': '2026-10-24',
+              'status': 'voided',
+              'notes': r44QaRaceNote,
+            },
+          ],
+        ),
         isNull,
       );
       expect(
-        verify(settlements: [
-          {
-            'period_start': '2026-10-01',
-            'period_end': '2026-10-24',
-            'status': 'voided',
-            'notes': 'unrelated earlier QA',
-          },
-        ]),
+        verify(
+          settlements: [
+            {
+              'period_start': '2026-10-01',
+              'period_end': '2026-10-24',
+              'status': 'voided',
+              'notes': 'unrelated earlier QA',
+            },
+          ],
+        ),
         isNotNull,
       );
     });
