@@ -101,7 +101,8 @@ final class PaymentsLoaded extends PaymentsState {
       paymentMethods: paymentMethods,
       canRegisterPayments: canRegisterPayments,
       searchQuery: searchQuery ?? this.searchQuery,
-      invoiceReferencesRefreshFailure: identical(invoiceReferencesRefreshFailure, _notSet)
+      invoiceReferencesRefreshFailure:
+          identical(invoiceReferencesRefreshFailure, _notSet)
           ? this.invoiceReferencesRefreshFailure
           : invoiceReferencesRefreshFailure as Failure?,
     );
