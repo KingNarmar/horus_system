@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
@@ -20,6 +22,8 @@ final class ReportsCubit extends Cubit<ReportsState> {
 
   CurrentCompanyContext? _currentContext;
   int _requestId = 0;
+  bool _invoiceReportRefreshPending = false;
+  bool _invoiceReportRefreshInProgress = false;
 
   ReportsCubit({
     required GetOperationalReportUseCase getOperationalReport,
@@ -66,6 +70,64 @@ final class ReportsCubit extends Cubit<ReportsState> {
         ),
       ),
     );
+    if (_invoiceReportRefreshPending) {
+      unawaited(refreshOpenInvoicesFromRealtime());
+    }
+  }
+
+  /// Only refresh the selected open-invoices report. Other report tabs are
+  /// neither loaded nor re-filtered by invoice events.
+  Future<void> refreshOpenInvoicesFromRealtime() async {
+    _invoiceReportRefreshPending = true;
+    if (_invoiceReportRefreshInProgress) return;
+    _invoiceReportRefreshInProgress = true;
+    try {
+      while (_invoiceReportRefreshPending && !isClosed) {
+        _invoiceReportRefreshPending = false;
+        final current = state;
+        final context = _currentContext;
+        if (context == null || current is ReportsLoading) {
+          _invoiceReportRefreshPending = true;
+          break;
+        }
+        if (current is! ReportsLoaded ||
+            current.reportType != ReportType.openInvoices) {
+          break;
+        }
+        final requestId = _requestId;
+        final result = await _getOpenInvoicesReport(
+          ReportParams(
+            currentCompanyContext: context,
+            dateRange: current.dateRange,
+          ),
+        );
+        if (!_isCurrentRequest(requestId, context)) return;
+        final latest = state;
+        if (latest is! ReportsLoaded ||
+            latest.reportType != ReportType.openInvoices) {
+          break;
+        }
+        result.when(
+          success: (report) => emit(
+            ReportsLoaded(
+              reportType: latest.reportType,
+              dateRange: latest.dateRange,
+              content: OpenInvoicesReportsContent(report),
+            ),
+          ),
+          failure: (failure) => emit(
+            ReportsLoaded(
+              reportType: latest.reportType,
+              dateRange: latest.dateRange,
+              content: latest.content,
+              realtimeRefreshFailure: failure,
+            ),
+          ),
+        );
+      }
+    } finally {
+      _invoiceReportRefreshInProgress = false;
+    }
   }
 
   Future<Result<ReportsContent>> _loadContent({
