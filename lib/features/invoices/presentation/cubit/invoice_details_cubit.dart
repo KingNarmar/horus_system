@@ -159,6 +159,12 @@ final class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
       }
     } finally {
       _realtimeRefreshInProgress = false;
+      final current = state;
+      if (_realtimeRefreshPending &&
+          current is InvoiceDetailsLoaded &&
+          !current.isMutationPending) {
+        unawaited(reconcileInvoiceDetailsFromRealtime());
+      }
     }
   }
 
