@@ -107,19 +107,20 @@ void main() {
         isFalse,
       );
       expect(
-        matches(changeSettlement: {
-          ...settlement,
-          'compensation_revision_id': null,
-        }),
+        matches(
+          changeSettlement: {...settlement, 'compensation_revision_id': null},
+        ),
         isFalse,
       );
     });
 
     test('rejects wrong source amount or duplicated provenance', () {
       expect(
-        matches(changeItems: [
-          {...item, 'amount_minor_units': 99},
-        ]),
+        matches(
+          changeItems: [
+            {...item, 'amount_minor_units': 99},
+          ],
+        ),
         isFalse,
       );
       expect(matches(changeItems: [item, item]), isFalse);
