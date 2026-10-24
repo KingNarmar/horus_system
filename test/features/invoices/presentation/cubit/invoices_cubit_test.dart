@@ -60,6 +60,59 @@ void main() {
     expect(repository.billableTripsCalls, 1);
   });
 
+  test('invoice realtime refresh preserves filters and avoids loading', () async {
+    repository.invoices = [_invoice(id: 'invoice-1')];
+    await cubit.loadInvoices(_context());
+    cubit.setSearchQuery('customer');
+    cubit.setStatusFilter(InvoiceStatus.draft);
+    final emitted = <InvoicesState>[];
+    final subscription = cubit.stream.listen(emitted.add);
+
+    repository.invoices = [
+      _invoice(id: 'invoice-1'),
+      _invoice(id: 'invoice-2'),
+    ];
+    await cubit.refreshInvoicesFromRealtime();
+
+    final loaded = cubit.state as InvoicesLoaded;
+    expect(loaded.allInvoices, hasLength(2));
+    expect(loaded.searchQuery, 'customer');
+    expect(loaded.statusFilter, InvoiceStatus.draft);
+    expect(emitted.whereType<InvoicesLoading>(), isEmpty);
+    await subscription.cancel();
+  });
+
+  test('draft reservations reconcile without recreating the invoice list', () async {
+    repository.billableTrips = [_billableTrip(id: 'trip-1')];
+    await cubit.loadInvoices(_context());
+    final first = cubit.state as InvoicesLoaded;
+    expect(first.billableTrips, hasLength(1));
+
+    repository.billableTrips = [_billableTrip(id: 'trip-2')];
+    await cubit.refreshBillableTripsFromRealtime();
+
+    final loaded = cubit.state as InvoicesLoaded;
+    expect(loaded.billableTrips.single.id, 'trip-2');
+    expect(loaded.isBillableTripsLoading, isFalse);
+  });
+
+  test('stale invoice realtime results cannot overwrite a new company', () async {
+    await cubit.loadInvoices(_context(companyId: 'company-a'));
+    final delayed = Completer<List<Invoice>>();
+    repository.invoiceCompleters = {'company-a': delayed};
+
+    final refresh = cubit.refreshInvoicesFromRealtime();
+    await Future<void>.delayed(Duration.zero);
+    repository.invoices = [_invoice(id: 'invoice-b', companyId: 'company-b')];
+    await cubit.loadInvoices(_context(companyId: 'company-b'));
+    delayed.complete([_invoice(id: 'invoice-a')]);
+    await refresh;
+
+    final loaded = cubit.state as InvoicesLoaded;
+    expect(loaded.currentCompanyContext.companyId, 'company-b');
+    expect(loaded.allInvoices.single.id, 'invoice-b');
+  });
+
   test(
     'viewer is denied invoice financial data before any repository read',
     () async {
