@@ -86,26 +86,29 @@ void main() {
     expect(state.canIssue, isTrue);
   });
 
-  test('invoice detail realtime updates status and activity in place', () async {
-    repository.invoice = _invoice();
-    auditRepository.logs = [_auditLog()];
-    await cubit.loadInvoiceDetails(
-      currentCompanyContext: _context(),
-      invoiceId: 'invoice-1',
-    );
-    final states = <InvoiceDetailsState>[];
-    final subscription = cubit.stream.listen(states.add);
+  test(
+    'invoice detail realtime updates status and activity in place',
+    () async {
+      repository.invoice = _invoice();
+      auditRepository.logs = [_auditLog()];
+      await cubit.loadInvoiceDetails(
+        currentCompanyContext: _context(),
+        invoiceId: 'invoice-1',
+      );
+      final states = <InvoiceDetailsState>[];
+      final subscription = cubit.stream.listen(states.add);
 
-    repository.invoice = _invoice(status: InvoiceStatus.issued);
-    await cubit.reconcileInvoiceDetailsFromRealtime();
+      repository.invoice = _invoice(status: InvoiceStatus.issued);
+      await cubit.reconcileInvoiceDetailsFromRealtime();
 
-    final state = cubit.state as InvoiceDetailsLoaded;
-    expect(state.invoice.status, InvoiceStatus.issued);
-    expect(state.activity, hasLength(1));
-    expect(state.canIssue, isFalse);
-    expect(states.whereType<InvoiceDetailsLoading>(), isEmpty);
-    await subscription.cancel();
-  });
+      final state = cubit.state as InvoiceDetailsLoaded;
+      expect(state.invoice.status, InvoiceStatus.issued);
+      expect(state.activity, hasLength(1));
+      expect(state.canIssue, isFalse);
+      expect(states.whereType<InvoiceDetailsLoading>(), isEmpty);
+      await subscription.cancel();
+    },
+  );
 
   test(
     'issuing updates details without returning to full-page loading',
