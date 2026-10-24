@@ -64,10 +64,7 @@ final class DashboardCubit extends Cubit<DashboardState> {
         result.when(
           success: (summary) => emit(DashboardLoaded(summary)),
           failure: (failure) => emit(
-            DashboardLoaded(
-              latest.summary,
-              realtimeRefreshFailure: failure,
-            ),
+            DashboardLoaded(latest.summary, realtimeRefreshFailure: failure),
           ),
         );
       }
