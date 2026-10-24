@@ -73,6 +73,24 @@ void main() {
     await cubit.close();
   });
 
+  test('invoice invalidation refreshes only payment references', () async {
+    final payments = _FakePaymentsRepository();
+    final invoices = _FakeInvoicesRepository();
+    final methods = _FakePaymentMethodsRepository();
+    final cubit = _cubit(payments, invoices, methods);
+    await cubit.loadPayments(_context(CompanyRole.accountant));
+    cubit.setSearchQuery('reference');
+
+    await cubit.refreshInvoiceReferencesFromRealtime();
+
+    final state = cubit.state as PaymentsLoaded;
+    expect(state.searchQuery, 'reference');
+    expect(state.allPayments, isEmpty);
+    expect(invoices.getInvoicesCalls, 2);
+    expect(state.invoiceReferencesRefreshFailure, isNull);
+    await cubit.close();
+  });
+
   test('closing cubit while load is pending ignores late completion', () async {
     final payments = _FakePaymentsRepository(deferGetPayments: true);
     final cubit = _cubit(
@@ -166,9 +184,11 @@ final class _FakePaymentsRepository implements PaymentsRepository {
 
 final class _FakeInvoicesRepository implements InvoicesRepository {
   String? lastCompanyId;
+  int getInvoicesCalls = 0;
 
   @override
   Future<Result<List<Invoice>>> getInvoices({required String companyId}) async {
+    getInvoicesCalls++;
     lastCompanyId = companyId;
     return const Success<List<Invoice>>([]);
   }
