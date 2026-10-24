@@ -40,7 +40,8 @@ mixin InvoicesRealtimeActions on Cubit<InvoicesState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(InvoicesFailure(failure));
         } else if (failure != null) {
           emit(latest.copyWith(realtimeRefreshFailure: failure));
@@ -98,7 +99,8 @@ mixin InvoicesRealtimeActions on Cubit<InvoicesState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(InvoicesFailure(failure));
           break;
         }
