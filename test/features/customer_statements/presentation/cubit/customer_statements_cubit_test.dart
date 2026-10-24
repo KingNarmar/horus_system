@@ -76,6 +76,28 @@ void main() {
     await cubit.close();
   });
 
+  test('invoice signal updates only the active statement selection', () async {
+    final statementRepository = _FakeStatementRepository();
+    final cubit = _cubit(
+      _FakeCustomersRepository(),
+      statementRepository: statementRepository,
+    );
+    await cubit.load(_context);
+    cubit.selectCustomer('customer-1');
+    await cubit.apply();
+
+    final previous = cubit.state as CustomerStatementsReady;
+    await cubit.reconcileStatementAfterInvoiceChange();
+
+    final refreshed = cubit.state as CustomerStatementsReady;
+    expect(statementRepository.readCalls, 2);
+    expect(refreshed.selectedCustomerId, previous.selectedCustomerId);
+    expect(refreshed.fromDate, previous.fromDate);
+    expect(refreshed.toDate, previous.toDate);
+    expect(refreshed.statement, isNotNull);
+    await cubit.close();
+  });
+
   test('changing date invalidates previously loaded statement', () async {
     final cubit = _cubit(_FakeCustomersRepository());
     await cubit.load(_context);
@@ -178,6 +200,7 @@ final class _FakeCustomersRepository implements CustomersRepository {
 }
 
 final class _FakeStatementRepository implements CustomerStatementsRepository {
+  int readCalls = 0;
   String? lastCompanyId;
   String? lastCustomerId;
 
@@ -188,6 +211,7 @@ final class _FakeStatementRepository implements CustomerStatementsRepository {
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
+    readCalls++;
     lastCompanyId = companyId;
     lastCustomerId = customerId;
     final currency = CurrencyCode.tryParse('AED')!;
