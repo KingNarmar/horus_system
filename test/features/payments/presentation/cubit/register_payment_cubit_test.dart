@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:horus_system/core/domain/services/company_business_date_provider.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
@@ -88,6 +90,139 @@ void main() {
     await fixture.cubit.close();
   });
 
+  test(
+    'invoice invalidation refreshes payable options without resetting date',
+    () async {
+      final fixture = _Fixture();
+      await fixture.cubit.load(fixture.context);
+
+      fixture.invoices.availableInvoices = [
+        _invoice(),
+        _invoice(id: 'invoice-2'),
+      ];
+      await fixture.cubit.refreshPayableInvoicesFromRealtime();
+
+      final state = fixture.cubit.state as RegisterPaymentReady;
+      expect(state.payableInvoices.map((item) => item.invoice.id), [
+        'invoice-1',
+        'invoice-2',
+      ]);
+      expect(state.businessDate, _date(2026, 8, 10));
+      expect(state.invoiceRefreshFailure, isNull);
+      await fixture.cubit.close();
+    },
+  );
+
+  test('cancelled invoice is removed from open payment form', () async {
+    final fixture = _Fixture();
+    await fixture.cubit.load(fixture.context);
+    fixture.invoices.availableInvoices = [
+      _invoice(status: InvoiceStatus.cancelled),
+    ];
+
+    await fixture.cubit.refreshPayableInvoicesFromRealtime();
+
+    final state = fixture.cubit.state as RegisterPaymentReady;
+    expect(state.payableInvoices, isEmpty);
+    expect(state.canSubmit, isFalse);
+    expect(
+      await fixture.cubit.submit(
+        invoiceId: 'invoice-1',
+        paymentMethodId: 'method-1',
+        paymentDate: _date(2026, 8, 10),
+        amountText: '10.00',
+      ),
+      isFalse,
+    );
+    expect(fixture.payments.registerCalls, 0);
+    await fixture.cubit.close();
+  });
+
+  test('non-auth refresh failure preserves previous form options', () async {
+    final fixture = _Fixture();
+    await fixture.cubit.load(fixture.context);
+    fixture.invoices.nextRead = Completer<Result<List<Invoice>>>()
+      ..complete(
+        const FailureResult(ServerFailure(code: FailureCodes.serverError)),
+      );
+
+    await fixture.cubit.refreshPayableInvoicesFromRealtime();
+
+    final state = fixture.cubit.state as RegisterPaymentReady;
+    expect(state.payableInvoices.single.invoice.id, 'invoice-1');
+    expect(state.invoiceRefreshFailure?.code, FailureCodes.serverError);
+    await fixture.cubit.close();
+  });
+
+  test('permission loss clears sensitive payment choices', () async {
+    final fixture = _Fixture();
+    await fixture.cubit.load(fixture.context);
+    fixture.invoices.nextRead = Completer<Result<List<Invoice>>>()
+      ..complete(
+        const FailureResult(
+          PermissionFailure(code: PaymentFailureCodes.permissionView),
+        ),
+      );
+
+    await fixture.cubit.refreshPayableInvoicesFromRealtime();
+
+    expect(fixture.cubit.state, isA<RegisterPaymentFailure>());
+    await fixture.cubit.close();
+  });
+
+  test('refresh during submission runs after the submitted mutation', () async {
+    final fixture = _Fixture(deferRegister: true);
+    await fixture.cubit.load(fixture.context);
+
+    final submit = fixture.cubit.submit(
+      invoiceId: 'invoice-1',
+      paymentMethodId: 'method-1',
+      paymentDate: _date(2026, 8, 10),
+      amountText: '10.00',
+    );
+    await fixture.payments.registerRequested;
+    fixture.invoices.availableInvoices = [
+      _invoice(status: InvoiceStatus.cancelled),
+    ];
+    await fixture.cubit.refreshPayableInvoicesFromRealtime();
+    expect((fixture.cubit.state as RegisterPaymentReady).isSubmitting, isTrue);
+
+    fixture.payments.completeDeferredRegister();
+    expect(await submit, isTrue);
+    await Future<void>.delayed(Duration.zero);
+    final state = fixture.cubit.state as RegisterPaymentReady;
+    expect(state.isSubmitting, isFalse);
+    expect(state.payableInvoices, isEmpty);
+    await fixture.cubit.close();
+  });
+
+  test('stale invoice refresh cannot cross a company switch', () async {
+    final fixture = _Fixture();
+    await fixture.cubit.load(fixture.context);
+    final pending = Completer<Result<List<Invoice>>>();
+    fixture.invoices.nextRead = pending;
+    final refresh = fixture.cubit.refreshPayableInvoicesFromRealtime();
+    await Future<void>.delayed(Duration.zero);
+    final other = CurrentCompanyContext(
+      company: const Company(
+        id: 'company-2',
+        name: 'Other company',
+        baseCurrencyCode: 'AED',
+        baseCurrencyFractionDigits: 2,
+        businessTimezone: 'Asia/Dubai',
+      ),
+      role: CompanyRole.accountant,
+    );
+    await fixture.cubit.load(other);
+    pending.complete(Success([_invoice(id: 'old', companyId: 'company-1')]));
+    await refresh;
+
+    final state = fixture.cubit.state as RegisterPaymentReady;
+    expect(state.currentCompanyContext.companyId, 'company-2');
+    expect(state.payableInvoices.single.invoice.companyId, 'company-2');
+    await fixture.cubit.close();
+  });
+
   test('closing cubit while load is pending ignores late completion', () async {
     final businessDate = _DeferredBusinessDateProvider();
     final fixture = _Fixture(businessDateProvider: businessDate);
@@ -170,19 +305,23 @@ final class _Fixture {
   }
 }
 
-Invoice _invoice() {
+Invoice _invoice({
+  String id = 'invoice-1',
+  String companyId = 'company-1',
+  InvoiceStatus status = InvoiceStatus.issued,
+}) {
   final currency = CurrencyCode.tryParse('AED')!;
   final zero = Money(minorUnits: 0, currency: currency);
   final total = Money(minorUnits: 120000, currency: currency);
   return Invoice(
-    id: 'invoice-1',
-    companyId: 'company-1',
+    id: id,
+    companyId: companyId,
     customer: const InvoiceCustomerSnapshot(
       companyId: 'company-1',
       customerId: 'customer-1',
       name: 'Customer',
     ),
-    status: InvoiceStatus.issued,
+    status: status,
     currency: currency,
     lines: [InvoiceTripLine(tripId: 'trip-1', amount: total)],
     totals: InvoiceTotals(
@@ -297,13 +436,22 @@ final class _FakePaymentsRepository implements PaymentsRepository {
 }
 
 final class _FakeInvoicesRepository implements InvoicesRepository {
-  final Invoice invoice;
+  List<Invoice> availableInvoices;
+  Completer<Result<List<Invoice>>>? nextRead;
 
-  const _FakeInvoicesRepository(this.invoice);
+  _FakeInvoicesRepository(Invoice invoice) : availableInvoices = [invoice];
 
   @override
   Future<Result<List<Invoice>>> getInvoices({required String companyId}) async {
-    return Success<List<Invoice>>([invoice]);
+    final deferred = nextRead;
+    nextRead = null;
+    if (deferred != null) return deferred.future;
+    if (companyId != 'company-1') {
+      return Success<List<Invoice>>([
+        _invoice(id: 'other', companyId: companyId),
+      ]);
+    }
+    return Success<List<Invoice>>(availableInvoices);
   }
 
   @override
@@ -311,7 +459,7 @@ final class _FakeInvoicesRepository implements InvoicesRepository {
     required String companyId,
     required String invoiceId,
   }) async {
-    return Success<Invoice>(invoice);
+    return Success<Invoice>(availableInvoices.first);
   }
 
   @override

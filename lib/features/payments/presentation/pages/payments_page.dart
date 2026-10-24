@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../di/payments_dependencies.dart';
 import '../cubit/payments_cubit.dart';
@@ -13,6 +14,7 @@ import '../helpers/payments_failure_message.dart';
 import '../localization/payments_localizations.dart';
 import '../widgets/payments_list.dart';
 import '../widgets/register_payment_dialog.dart';
+import '../widgets/register_payment_invoice_realtime_boundary.dart';
 
 final class PaymentsPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
@@ -42,14 +44,22 @@ final class _PaymentsPageState extends State<PaymentsPage> {
   }
 
   Future<void> _openRegisterPayment() async {
+    // The dialog is a separate route. Forward the shared company session.
+    final realtime = context.read<CompanyRealtimeCubit>();
     final registered = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => BlocProvider<RegisterPaymentCubit>(
-        create: (_) =>
-            PaymentsDependencies.createRegisterPaymentCubit()
-              ..load(widget.currentCompanyContext),
-        child: const RegisterPaymentDialog(),
+      builder: (_) => BlocProvider.value(
+        value: realtime,
+        child: BlocProvider<RegisterPaymentCubit>(
+          create: (_) =>
+              PaymentsDependencies.createRegisterPaymentCubit()
+                ..load(widget.currentCompanyContext),
+          child: RegisterPaymentInvoiceRealtimeBoundary(
+            companyId: widget.currentCompanyContext.companyId,
+            child: const RegisterPaymentDialog(),
+          ),
+        ),
       ),
     );
 

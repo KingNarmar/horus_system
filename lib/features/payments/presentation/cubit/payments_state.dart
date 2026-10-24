@@ -5,6 +5,8 @@ import '../../../invoices/domain/entities/invoice.dart';
 import '../../../payment_methods/domain/entities/payment_method.dart';
 import '../../domain/entities/payment.dart';
 
+const Object _notSet = Object();
+
 sealed class PaymentsState {
   const PaymentsState();
 }
@@ -31,6 +33,7 @@ final class PaymentsLoaded extends PaymentsState {
   final List<PaymentMethod> paymentMethods;
   final bool canRegisterPayments;
   final String searchQuery;
+  final Failure? invoiceReferencesRefreshFailure;
 
   const PaymentsLoaded({
     required this.currentCompanyContext,
@@ -40,6 +43,7 @@ final class PaymentsLoaded extends PaymentsState {
     required this.paymentMethods,
     required this.canRegisterPayments,
     this.searchQuery = '',
+    this.invoiceReferencesRefreshFailure,
   });
 
   BusinessLocalDateTime? createdAtFor(Payment payment) {
@@ -84,15 +88,23 @@ final class PaymentsLoaded extends PaymentsState {
     return null;
   }
 
-  PaymentsLoaded copyWith({String? searchQuery}) {
+  PaymentsLoaded copyWith({
+    String? searchQuery,
+    List<Invoice>? invoices,
+    Object? invoiceReferencesRefreshFailure = _notSet,
+  }) {
     return PaymentsLoaded(
       currentCompanyContext: currentCompanyContext,
       allPayments: allPayments,
       createdAtByPaymentId: createdAtByPaymentId,
-      invoices: invoices,
+      invoices: invoices ?? this.invoices,
       paymentMethods: paymentMethods,
       canRegisterPayments: canRegisterPayments,
       searchQuery: searchQuery ?? this.searchQuery,
+      invoiceReferencesRefreshFailure:
+          identical(invoiceReferencesRefreshFailure, _notSet)
+          ? this.invoiceReferencesRefreshFailure
+          : invoiceReferencesRefreshFailure as Failure?,
     );
   }
 }

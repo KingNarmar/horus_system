@@ -130,6 +130,7 @@ void main() {
       CompanyDataResource.driverFinance,
       CompanyDataResource.driverSettlements,
       CompanyDataResource.companyExpenses,
+      CompanyDataResource.invoices,
     });
 
     await tester.pumpWidget(app(CompanyRole.operations));

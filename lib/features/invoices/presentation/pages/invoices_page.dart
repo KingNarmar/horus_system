@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/realtime/domain/entities/company_invalidation_resource.dart';
+import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
+import '../../../../core/realtime/presentation/cubit/company_realtime_state.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../di/invoices_dependencies.dart';
 import '../../domain/entities/invoice.dart';
@@ -27,6 +32,7 @@ final class InvoicesPage extends StatefulWidget {
 }
 
 final class _InvoicesPageState extends State<InvoicesPage> {
+  InvoiceDetailsCubit? _activeDetailsCubit;
   @override
   void initState() {
     super.initState();
@@ -63,18 +69,21 @@ final class _InvoicesPageState extends State<InvoicesPage> {
     await showDialog<void>(
       context: context,
       builder: (_) => BlocProvider<InvoiceDetailsCubit>(
-        create: (_) =>
-            InvoicesDependencies.createInvoiceDetailsCubit()
-              ..loadInvoiceDetails(
-                currentCompanyContext: widget.currentCompanyContext,
-                invoiceId: invoice.id,
-              ),
+        create: (_) {
+          final cubit = InvoicesDependencies.createInvoiceDetailsCubit();
+          _activeDetailsCubit = cubit;
+          return cubit..loadInvoiceDetails(
+            currentCompanyContext: widget.currentCompanyContext,
+            invoiceId: invoice.id,
+          );
+        },
         child: _InvoiceDetailsHost(
           currentCompanyContext: widget.currentCompanyContext,
           invoiceId: invoice.id,
         ),
       ),
     );
+    _activeDetailsCubit = null;
     if (mounted) {
       await context.read<InvoicesCubit>().refresh();
     }
@@ -100,82 +109,95 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    return BlocConsumer<InvoicesCubit, InvoicesState>(
-      listenWhen: (previous, current) {
-        if (current is! InvoicesLoaded) return false;
-        if (previous is! InvoicesLoaded) {
-          return current.feedback != null || current.mutationFailure != null;
+    return BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+      listenWhen: (previous, current) =>
+          previous.companyId == widget.currentCompanyContext.companyId &&
+          current.companyId == widget.currentCompanyContext.companyId &&
+          previous.revisionFor(CompanyInvalidationResource.invoices) !=
+              current.revisionFor(CompanyInvalidationResource.invoices),
+      listener: (context, _) {
+        final details = _activeDetailsCubit;
+        if (details != null && !details.isClosed) {
+          unawaited(details.reconcileInvoiceDetailsFromRealtime());
         }
-        return previous.feedback != current.feedback ||
-            previous.mutationFailure != current.mutationFailure;
       },
-      listener: (context, state) {
-        if (state is InvoicesLoaded) _showListFeedback(context, state);
-      },
-      builder: (context, state) {
-        final cubit = context.read<InvoicesCubit>();
-        final loaded = state is InvoicesLoaded ? state : null;
-        final canCreate =
-            loaded?.canManageInvoiceDrafts == true &&
-            loaded!.billableTrips.isNotEmpty &&
-            !loaded.isBillableTripsLoading &&
-            loaded.billableTripsFailure == null;
+      child: BlocConsumer<InvoicesCubit, InvoicesState>(
+        listenWhen: (previous, current) {
+          if (current is! InvoicesLoaded) return false;
+          if (previous is! InvoicesLoaded) {
+            return current.feedback != null || current.mutationFailure != null;
+          }
+          return previous.feedback != current.feedback ||
+              previous.mutationFailure != current.mutationFailure;
+        },
+        listener: (context, state) {
+          if (state is InvoicesLoaded) _showListFeedback(context, state);
+        },
+        builder: (context, state) {
+          final cubit = context.read<InvoicesCubit>();
+          final loaded = state is InvoicesLoaded ? state : null;
+          final canCreate =
+              loaded?.canManageInvoiceDrafts == true &&
+              loaded!.billableTrips.isNotEmpty &&
+              !loaded.isBillableTripsLoading &&
+              loaded.billableTripsFailure == null;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final title = Text(
-                  strings.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-                final addButton = loaded?.canManageInvoiceDrafts == true
-                    ? FilledButton.icon(
-                        key: const ValueKey('invoiceAddDraftButton'),
-                        onPressed: canCreate
-                            ? () => _openCreateDraft(loaded)
-                            : null,
-                        icon: const Icon(AppIcons.add),
-                        label: Text(strings.newDraft),
-                      )
-                    : null;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final title = Text(
+                    strings.title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                  final addButton = loaded?.canManageInvoiceDrafts == true
+                      ? FilledButton.icon(
+                          key: const ValueKey('invoiceAddDraftButton'),
+                          onPressed: canCreate
+                              ? () => _openCreateDraft(loaded)
+                              : null,
+                          icon: const Icon(AppIcons.add),
+                          label: Text(strings.newDraft),
+                        )
+                      : null;
 
-                if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      title,
-                      if (addButton != null) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        addButton,
+                  if (constraints.maxWidth < AppSizes.detailsStackBreakpoint) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        title,
+                        if (addButton != null) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          addButton,
+                        ],
                       ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: title),
+                      ?addButton,
                     ],
                   );
-                }
-
-                return Row(
-                  children: [
-                    Expanded(child: title),
-                    ?addButton,
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            InvoicesStateView(
-              state: state,
-              onRetry: () => cubit.loadInvoices(widget.currentCompanyContext),
-              onRetryBillableTrips: () => cubit.loadBillableTrips(),
-              onSearchChanged: cubit.setSearchQuery,
-              onStatusFilterChanged: cubit.setStatusFilter,
-              onViewDetails: _openDetails,
-            ),
-          ],
-        );
-      },
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              InvoicesStateView(
+                state: state,
+                onRetry: () => cubit.loadInvoices(widget.currentCompanyContext),
+                onRetryBillableTrips: () => cubit.loadBillableTrips(),
+                onSearchChanged: cubit.setSearchQuery,
+                onStatusFilterChanged: cubit.setStatusFilter,
+                onViewDetails: _openDetails,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

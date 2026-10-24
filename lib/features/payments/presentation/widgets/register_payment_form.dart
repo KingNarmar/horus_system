@@ -30,6 +30,7 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
   final _notesController = TextEditingController();
 
   String? _invoiceId;
+  bool _invoiceSelectionInvalidated = false;
   String? _paymentMethodId;
   late BusinessDate _paymentDate;
 
@@ -44,6 +45,20 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
         ? null
         : state.paymentMethods.first.id;
     _paymentDate = state.businessDate;
+  }
+
+  @override
+  void didUpdateWidget(covariant RegisterPaymentForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final selectedId = _invoiceId;
+    if (selectedId != null &&
+        !widget.state.payableInvoices.any(
+          (item) => item.invoice.id == selectedId,
+        )) {
+      // Never silently redirect an entered payment to another invoice.
+      _invoiceId = null;
+      _invoiceSelectionInvalidated = true;
+    }
   }
 
   @override
@@ -94,7 +109,11 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final invoiceId = _invoiceId;
     final paymentMethodId = _paymentMethodId;
-    if (invoiceId == null || paymentMethodId == null) return;
+    if (invoiceId == null ||
+        paymentMethodId == null ||
+        _selectedInvoice == null) {
+      return;
+    }
 
     final succeeded = await context.read<RegisterPaymentCubit>().submit(
       invoiceId: invoiceId,
@@ -115,7 +134,10 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
     final fractionDigits =
         state.currentCompanyContext.company.baseCurrencyFractionDigits;
 
-    if (state.payableInvoices.isEmpty) {
+    // Keep a previously filled form mounted when its last payable invoice
+    // disappears. A newly opened, never-used form may show a compact empty
+    // state without losing any user input.
+    if (state.payableInvoices.isEmpty && !_invoiceSelectionInvalidated) {
       return _EmptyRegistration(message: strings.noPayableInvoices);
     }
     if (state.paymentMethods.isEmpty) {
@@ -134,8 +156,14 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (state.payableInvoices.isEmpty) ...[
+              Text(strings.noPayableInvoices),
+              const SizedBox(height: AppSpacing.md),
+            ],
             DropdownButtonFormField<String>(
+              key: ValueKey(_invoiceId),
               initialValue: _invoiceId,
+              hint: Text(strings.selectInvoice),
               isExpanded: true,
               decoration: InputDecoration(labelText: strings.invoice),
               items: state.payableInvoices
@@ -154,11 +182,12 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                     );
                   })
                   .toList(growable: false),
-              onChanged: state.isSubmitting
+              onChanged: state.isSubmitting || state.payableInvoices.isEmpty
                   ? null
                   : (value) {
                       setState(() {
                         _invoiceId = value;
+                        _invoiceSelectionInvalidated = false;
                         final issueDate =
                             _selectedInvoice?.invoice.issueDate?.value;
                         if (issueDate != null &&
@@ -170,6 +199,20 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
               validator: (value) =>
                   value == null ? strings.invoiceRequired : null,
             ),
+            if (_invoiceSelectionInvalidated) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                strings.invoiceSelectionUnavailable,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            if (state.invoiceRefreshFailure != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                paymentsFailureMessage(context, state.invoiceRefreshFailure!),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
             if (selectedInvoice != null) ...[
               const SizedBox(height: AppSpacing.md),
               PaymentBalanceSummary(
@@ -248,7 +291,9 @@ final class _RegisterPaymentFormState extends State<RegisterPaymentForm> {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 FilledButton(
-                  onPressed: state.canSubmit ? _submit : null,
+                  onPressed: state.canSubmit && selectedInvoice != null
+                      ? _submit
+                      : null,
                   child: Text(
                     state.isSubmitting ? strings.submitting : strings.submit,
                   ),

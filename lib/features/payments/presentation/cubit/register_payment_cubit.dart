@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/errors/common_failures.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/result.dart';
@@ -20,6 +24,8 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
+  bool _invoiceRefreshPending = false;
+  bool _invoiceRefreshInProgress = false;
 
   RegisterPaymentCubit({
     required this.getPayableInvoicesUseCase,
@@ -72,6 +78,61 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
         businessDate: (businessDateResult as Success<BusinessDate>).data,
       ),
     );
+    _drainPendingInvoiceRefresh();
+  }
+
+  /// Re-read server-authoritative payment options while retaining the form.
+  /// Pending payment submissions finish before their invalidations are applied.
+  Future<void> refreshPayableInvoicesFromRealtime() async {
+    _invoiceRefreshPending = true;
+    if (_invoiceRefreshInProgress) return;
+    _invoiceRefreshInProgress = true;
+    try {
+      while (_invoiceRefreshPending && !isClosed) {
+        _invoiceRefreshPending = false;
+        final current = state;
+        final context = _currentCompanyContext;
+        if (current is! RegisterPaymentReady ||
+            context == null ||
+            current.isSubmitting) {
+          _invoiceRefreshPending = true;
+          break;
+        }
+
+        final requestId = _loadRequestId;
+        final result = await getPayableInvoicesUseCase(
+          GetPayableInvoicesParams(currentCompanyContext: context),
+        );
+        if (!_isCurrentLoad(requestId, context.companyId)) return;
+
+        final latest = state;
+        if (latest is! RegisterPaymentReady || latest.isSubmitting) {
+          _invoiceRefreshPending = true;
+          break;
+        }
+
+        final failure = result.failureOrNull;
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
+          emit(RegisterPaymentFailure(failure));
+          break;
+        }
+        emit(
+          latest.copyWith(
+            payableInvoices: failure == null ? result.dataOrNull! : null,
+            invoiceRefreshFailure: failure,
+          ),
+        );
+      }
+    } finally {
+      _invoiceRefreshInProgress = false;
+    }
+  }
+
+  void _drainPendingInvoiceRefresh() {
+    if (_invoiceRefreshPending && !isClosed) {
+      unawaited(refreshPayableInvoicesFromRealtime());
+    }
   }
 
   Future<void> retryLoad() async {
@@ -91,7 +152,10 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
     final currentState = state;
     if (context == null ||
         currentState is! RegisterPaymentReady ||
-        currentState.isSubmitting) {
+        currentState.isSubmitting ||
+        !currentState.payableInvoices.any(
+          (item) => item.invoice.id == invoiceId,
+        )) {
       return false;
     }
 
@@ -146,6 +210,7 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
         );
       },
     );
+    _drainPendingInvoiceRefresh();
     return succeeded;
   }
 

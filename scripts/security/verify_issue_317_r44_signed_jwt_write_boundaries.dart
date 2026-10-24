@@ -29,6 +29,7 @@ Map<String, Object?> r44ForgedBroadcast(
   String topic,
   String companyId, {
   String marker = 'r44_client_forgery_attempt',
+  String resource = 'driver_settlements',
 }) => {
   'topic': topic,
   'event': 'broadcast',
@@ -39,7 +40,7 @@ Map<String, Object?> r44ForgedBroadcast(
     'event': 'changed',
     'payload': {
       'company_id': companyId,
-      'resource': 'driver_settlements',
+      'resource': resource,
       'qa_probe': marker,
     },
   },
@@ -50,9 +51,10 @@ Map<String, Object?> r44ForgedBroadcast(
 // heartbeat. 'No delivery observed' is distinct from an explicit denial.
 Future<R44BroadcastOutcome> r44TryForgedBroadcast(
   R44DevConfig config,
-  R44Session session,
-) async {
-  final topic = financeTopic(session.companyId, 'driver_settlements');
+  R44Session session, {
+  String resource = 'driver_settlements',
+}) async {
+  final topic = financeTopic(session.companyId, resource);
   WebSocket? senderSocket;
   WebSocket? observerSocket;
   StreamIterator<dynamic>? senderMessages;
@@ -100,6 +102,7 @@ Future<R44BroadcastOutcome> r44TryForgedBroadcast(
       topic,
       session.companyId,
       marker: marker,
+      resource: resource,
     )));
     // A second WebSocket tests whether the forged message was actually
     // delivered. Heartbeat after sending confirms the observer remains live.

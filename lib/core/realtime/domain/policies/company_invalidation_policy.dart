@@ -97,6 +97,7 @@ abstract final class CompanyInvalidationPolicy {
     CompanyDataResource.invoices: {
       CompanyInvalidationResource.invoices,
       CompanyInvalidationResource.billableTrips,
+      CompanyInvalidationResource.paymentFormLookups,
       CompanyInvalidationResource.customerStatements,
       CompanyInvalidationResource.openInvoicesReport,
       CompanyInvalidationResource.dashboard,

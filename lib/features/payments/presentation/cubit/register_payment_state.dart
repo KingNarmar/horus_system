@@ -28,6 +28,7 @@ final class RegisterPaymentReady extends RegisterPaymentState {
 
   final CurrentCompanyContext currentCompanyContext;
   final List<PayableInvoice> payableInvoices;
+  final Failure? invoiceRefreshFailure;
   final List<PaymentMethod> paymentMethods;
   final BusinessDate businessDate;
   final bool isSubmitting;
@@ -38,6 +39,7 @@ final class RegisterPaymentReady extends RegisterPaymentState {
   const RegisterPaymentReady({
     required this.currentCompanyContext,
     required this.payableInvoices,
+    this.invoiceRefreshFailure,
     required this.paymentMethods,
     required this.businessDate,
     this.isSubmitting = false,
@@ -50,6 +52,8 @@ final class RegisterPaymentReady extends RegisterPaymentState {
       payableInvoices.isNotEmpty && paymentMethods.isNotEmpty && !isSubmitting;
 
   RegisterPaymentReady copyWith({
+    List<PayableInvoice>? payableInvoices,
+    Object? invoiceRefreshFailure = _unset,
     bool? isSubmitting,
     Object? submissionFailure = _unset,
     Object? completedPayment = _unset,
@@ -57,7 +61,10 @@ final class RegisterPaymentReady extends RegisterPaymentState {
   }) {
     return RegisterPaymentReady(
       currentCompanyContext: currentCompanyContext,
-      payableInvoices: payableInvoices,
+      payableInvoices: payableInvoices ?? this.payableInvoices,
+      invoiceRefreshFailure: identical(invoiceRefreshFailure, _unset)
+          ? this.invoiceRefreshFailure
+          : invoiceRefreshFailure as Failure?,
       paymentMethods: paymentMethods,
       businessDate: businessDate,
       isSubmitting: isSubmitting ?? this.isSubmitting,

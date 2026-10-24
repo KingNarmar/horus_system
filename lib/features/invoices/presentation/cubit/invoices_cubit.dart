@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/billable_trip.dart';
@@ -14,7 +17,10 @@ import '../../domain/usecases/invoice_query_usecases.dart';
 import 'invoice_draft_form_input.dart';
 import 'invoices_state.dart';
 
-final class InvoicesCubit extends Cubit<InvoicesState> {
+part 'invoices_realtime_actions.dart';
+
+final class InvoicesCubit extends Cubit<InvoicesState>
+    with InvoicesRealtimeActions {
   final GetInvoicesUseCase getInvoicesUseCase;
   final CanManageInvoiceDraftsUseCase canManageInvoiceDraftsUseCase;
   final GetBillableTripsUseCase getBillableTripsUseCase;
@@ -26,6 +32,11 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
   CurrentCompanyContext? _currentCompanyContext;
   int _loadGeneration = 0;
   int _billableTripsGeneration = 0;
+  int _invoiceMutationRevision = 0;
+  bool _invoicesRefreshInProgress = false;
+  bool _invoicesRefreshPending = false;
+  bool _billableTripsRefreshInProgress = false;
+  bool _billableTripsRefreshPending = false;
 
   InvoicesCubit({
     required this.getInvoicesUseCase,
@@ -92,12 +103,23 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     if (canManageInvoiceDrafts) {
       await loadBillableTrips();
     }
+    if (_invoicesRefreshPending) {
+      unawaited(refreshInvoicesFromRealtime());
+    }
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
   }
 
   Future<void> refresh() async {
     final context = _currentCompanyContext;
     if (context == null) return;
-    await loadInvoices(context);
+    if (state is InvoicesLoaded) {
+      await refreshInvoicesFromRealtime();
+      await refreshBillableTripsFromRealtime();
+    } else {
+      await loadInvoices(context);
+    }
   }
 
   Future<void> loadBillableTrips({String? customerId}) async {
@@ -147,6 +169,9 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         ),
       ),
     );
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
   }
 
   void setSearchQuery(String value) {
@@ -215,6 +240,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
 
     final companyId = context.companyId;
     final contextGeneration = _loadGeneration;
+    ++_invoiceMutationRevision;
     emit(
       currentState.copyWith(
         isCreatingDraft: true,
@@ -248,6 +274,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
           mutationFailure: result.failure,
         ),
       );
+      _drainRealtimeRefreshes();
       return false;
     }
 
@@ -257,6 +284,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return false;
     }
 
+    ++_invoiceMutationRevision;
     emit(
       _upsertInvoice(latestState, invoice).copyWith(
         isCreatingDraft: false,
@@ -264,6 +292,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         feedback: InvoiceListFeedback.draftCreated,
       ),
     );
+    _drainRealtimeRefreshes();
     return true;
   }
 
@@ -283,6 +312,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
 
     final companyId = context.companyId;
     final contextGeneration = _loadGeneration;
+    ++_invoiceMutationRevision;
     emit(
       currentState.copyWith(
         pendingDraftInvoiceId: invoiceId,
@@ -313,6 +343,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
           mutationFailure: result.failure,
         ),
       );
+      _drainRealtimeRefreshes();
       return false;
     }
 
@@ -322,6 +353,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       return false;
     }
 
+    ++_invoiceMutationRevision;
     emit(
       _upsertInvoice(latestState, invoice).copyWith(
         pendingDraftInvoiceId: null,
@@ -329,6 +361,7 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
         feedback: InvoiceListFeedback.draftUpdated,
       ),
     );
+    _drainRealtimeRefreshes();
     return true;
   }
 
@@ -339,8 +372,18 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
     }
   }
 
+  void _drainRealtimeRefreshes() {
+    if (_invoicesRefreshPending) {
+      unawaited(refreshInvoicesFromRealtime());
+    }
+    if (_billableTripsRefreshPending) {
+      unawaited(refreshBillableTripsFromRealtime());
+    }
+  }
+
   bool _isCurrentLoad(int generation, String companyId) {
-    return generation == _loadGeneration &&
+    return !isClosed &&
+        generation == _loadGeneration &&
         _currentCompanyContext?.companyId == companyId;
   }
 

@@ -31,6 +31,7 @@ import '../../../customers/presentation/pages/customers_page.dart';
 import '../../../dashboard/di/dashboard_dependencies.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
+import '../../../dashboard/presentation/widgets/dashboard_invoice_realtime_boundary.dart';
 import '../../../drivers/presentation/cubit/drivers_cubit.dart';
 import '../../../drivers/presentation/pages/drivers_page.dart';
 import '../../../drivers/presentation/widgets/drivers_realtime_boundary.dart';
@@ -48,6 +49,7 @@ import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
 import '../../../reports/di/reports_dependencies.dart';
 import '../../../reports/presentation/cubit/reports_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
+import '../../../reports/presentation/widgets/open_invoices_realtime_boundary.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
 import '../../../routes/presentation/cubit/route_default_freight_rate_cubit.dart';
 import '../../../routes/presentation/pages/routes_page.dart';
@@ -105,10 +107,13 @@ class AppShellContent extends StatelessWidget {
     return switch (selected.module) {
       AppShellModule.dashboard => BlocProvider<DashboardCubit>(
         create: (_) => DashboardDependencies.createCubit(),
-        child: _ReconnectAware(
-          onReconnect: (context) =>
-              context.read<DashboardCubit>().load(contextData),
-          child: DashboardPage(currentCompanyContext: contextData),
+        child: DashboardInvoiceRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: _ReconnectAware(
+            onReconnect: (context) =>
+                context.read<DashboardCubit>().load(contextData),
+            child: DashboardPage(currentCompanyContext: contextData),
+          ),
         ),
       ),
       AppShellModule.customers => CustomersRealtimeBoundary(
@@ -189,7 +194,10 @@ class AppShellContent extends StatelessWidget {
       ),
       AppShellModule.reports => BlocProvider<ReportsCubit>(
         create: (_) => ReportsDependencies.createCubit(),
-        child: ReportsPage(currentCompanyContext: contextData),
+        child: OpenInvoicesRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: ReportsPage(currentCompanyContext: contextData),
+        ),
       ),
       AppShellModule.settings => MultiBlocProvider(
         providers: [

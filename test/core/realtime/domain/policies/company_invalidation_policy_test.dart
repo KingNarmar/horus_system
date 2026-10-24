@@ -92,6 +92,32 @@ void main() {
     expect(affected, isNot(contains(CompanyInvalidationResource.dashboard)));
   });
 
+  test('invoice changes only invalidate invoice-dependent projections', () {
+    final affected = CompanyInvalidationPolicy.affectedBy(
+      CompanyDataResource.invoices,
+    );
+    expect(
+      affected,
+      containsAll({
+        CompanyInvalidationResource.invoices,
+        CompanyInvalidationResource.billableTrips,
+        CompanyInvalidationResource.paymentFormLookups,
+        CompanyInvalidationResource.customerStatements,
+        CompanyInvalidationResource.dashboard,
+        CompanyInvalidationResource.openInvoicesReport,
+      }),
+    );
+    expect(affected, isNot(contains(CompanyInvalidationResource.payments)));
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.driverFinance)),
+    );
+    expect(
+      affected,
+      isNot(contains(CompanyInvalidationResource.tripFinancials)),
+    );
+  });
+
   test('payments affect statements and open invoices, not trip lookups', () {
     final affected = CompanyInvalidationPolicy.affectedBy(
       CompanyDataResource.payments,

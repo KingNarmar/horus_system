@@ -32,6 +32,7 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
   final Map<String, BusinessLocalDateTime> activityTimestampsByLogId;
   final bool isActivityLoading;
   final Failure? activityFailure;
+  final Failure? realtimeRefreshFailure;
   final InvoiceDetailsAction? pendingAction;
   final Failure? mutationFailure;
   final InvoiceDetailsFeedback? feedback;
@@ -44,6 +45,7 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
     this.activityTimestampsByLogId = const <String, BusinessLocalDateTime>{},
     this.isActivityLoading = false,
     this.activityFailure,
+    this.realtimeRefreshFailure,
     this.pendingAction,
     this.mutationFailure,
     this.feedback,
@@ -83,6 +85,7 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
     Map<String, BusinessLocalDateTime>? activityTimestampsByLogId,
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
+    Object? realtimeRefreshFailure = _notSet,
     Object? pendingAction = _notSet,
     Object? mutationFailure = _notSet,
     Object? feedback = _notSet,
@@ -98,6 +101,9 @@ final class InvoiceDetailsLoaded extends InvoiceDetailsState {
       activityFailure: activityFailure == _notSet
           ? this.activityFailure
           : activityFailure as Failure?,
+      realtimeRefreshFailure: realtimeRefreshFailure == _notSet
+          ? this.realtimeRefreshFailure
+          : realtimeRefreshFailure as Failure?,
       pendingAction: pendingAction == _notSet
           ? this.pendingAction
           : pendingAction as InvoiceDetailsAction?,

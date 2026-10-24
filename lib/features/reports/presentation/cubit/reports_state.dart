@@ -50,11 +50,13 @@ final class ReportsLoading extends ReportsState {
 
 final class ReportsLoaded extends ReportsState {
   final ReportsContent content;
+  final Failure? realtimeRefreshFailure;
 
   const ReportsLoaded({
     required super.reportType,
     required super.dateRange,
     required this.content,
+    this.realtimeRefreshFailure,
   });
 }
 
