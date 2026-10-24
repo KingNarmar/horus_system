@@ -112,7 +112,8 @@ final class RegisterPaymentCubit extends Cubit<RegisterPaymentState> {
         }
 
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(RegisterPaymentFailure(failure));
           break;
         }
