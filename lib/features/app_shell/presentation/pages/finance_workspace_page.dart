@@ -23,6 +23,7 @@ import '../../../driver_settlements/presentation/widgets/driver_settlements_real
 import '../../../invoices/di/invoices_dependencies.dart';
 import '../../../invoices/presentation/cubit/invoices_cubit.dart';
 import '../../../invoices/presentation/pages/invoices_page.dart';
+import '../../../invoices/presentation/widgets/invoices_realtime_boundary.dart';
 import '../../../payments/di/payments_dependencies.dart';
 import '../../../payments/presentation/cubit/payments_cubit.dart';
 import '../../../payments/presentation/pages/payments_page.dart';
@@ -217,10 +218,13 @@ final class _FinanceSectionContent extends StatelessWidget {
         ),
       FinanceWorkspaceSection.invoices => BlocProvider<InvoicesCubit>(
         create: (_) => InvoicesDependencies.createInvoicesCubit(),
-        child: _FinanceReconnectAware(
-          onReconnect: (context) =>
-              context.read<InvoicesCubit>().loadInvoices(currentCompanyContext),
-          child: InvoicesPage(currentCompanyContext: currentCompanyContext),
+        child: InvoicesRealtimeBoundary(
+          currentCompanyContext: currentCompanyContext,
+          child: _FinanceReconnectAware(
+            onReconnect: (context) =>
+                context.read<InvoicesCubit>().refresh(),
+            child: InvoicesPage(currentCompanyContext: currentCompanyContext),
+          ),
         ),
       ),
       FinanceWorkspaceSection.payments => BlocProvider<PaymentsCubit>(
