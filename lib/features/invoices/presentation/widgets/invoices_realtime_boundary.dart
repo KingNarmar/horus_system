@@ -68,7 +68,9 @@ final class InvoicesRealtimeBoundary extends StatelessWidget {
                 final failure = current.realtimeRefreshFailure;
                 if (failure == null) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.localizedInvoiceFailure(failure))),
+                  SnackBar(
+                    content: Text(context.localizedInvoiceFailure(failure)),
+                  ),
                 );
               },
             ),
