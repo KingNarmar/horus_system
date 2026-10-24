@@ -337,8 +337,7 @@ BEGIN
   IF (
     SELECT COUNT(*) FROM pg_catalog.jsonb_to_recordset(p_items) AS i(source_type text)
     WHERE i.source_type='manual_adjustment'
-  ) IS DISTINCT FROM CASE WHEN v_header.settlement_deductions_total_minor_units>0
-    THEN 1::bigint ELSE 0::bigint END
+  ) <> (v_header.settlement_deductions_total_minor_units>0)::integer
   OR EXISTS (
     SELECT 1 FROM pg_catalog.jsonb_to_recordset(p_items) AS i(
       source_type text,source_id uuid,source_date date,direction text,
