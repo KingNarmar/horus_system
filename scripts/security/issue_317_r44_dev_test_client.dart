@@ -123,8 +123,17 @@ final class R44DevClient {
     Map<String, String>? query,
     Object? data,
   }) async {
-    if (!_allowedPaths.contains(path) ||
-        !{'GET', 'POST', 'PATCH'}.contains(method)) {
+    const postPaths = {
+      '/auth/v1/token',
+      '/rest/v1/driver_settlements',
+      '/rest/v1/driver_settlement_items',
+      '/rest/v1/rpc/create_driver_settlement_draft_atomic',
+    };
+    final allowed = _allowedPaths.contains(path) &&
+        (method == 'GET' && !postPaths.contains(path) ||
+            method == 'POST' && postPaths.contains(path) ||
+            method == 'PATCH' && path == '/rest/v1/driver_settlements');
+    if (!allowed) {
       throw StateError('Request outside approved Development test paths.');
     }
     final url = config.origin.resolve(path).replace(queryParameters: query);
