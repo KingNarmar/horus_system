@@ -16,7 +16,10 @@ import '../../domain/usecases/invoice_query_usecases.dart';
 import 'invoice_draft_form_input.dart';
 import 'invoices_state.dart';
 
-final class InvoicesCubit extends Cubit<InvoicesState> {
+part 'invoices_realtime_actions.dart';
+
+final class InvoicesCubit extends Cubit<InvoicesState>
+    with InvoicesRealtimeActions {
   final GetInvoicesUseCase getInvoicesUseCase;
   final CanManageInvoiceDraftsUseCase canManageInvoiceDraftsUseCase;
   final GetBillableTripsUseCase getBillableTripsUseCase;
@@ -115,111 +118,6 @@ final class InvoicesCubit extends Cubit<InvoicesState> {
       await refreshBillableTripsFromRealtime();
     } else {
       await loadInvoices(context);
-    }
-  }
-
-  /// Refresh server truth without clearing filters, feedback or pending forms.
-  /// Coalesce duplicate events and replay a signal after a concurrent write.
-  Future<void> refreshInvoicesFromRealtime() async {
-    _invoicesRefreshPending = true;
-    if (_invoicesRefreshInProgress) return;
-    _invoicesRefreshInProgress = true;
-    try {
-      while (_invoicesRefreshPending && !isClosed) {
-        _invoicesRefreshPending = false;
-        final current = state;
-        final context = _currentCompanyContext;
-        if (current is! InvoicesLoaded ||
-            context == null ||
-            current.isCreatingDraft ||
-            current.pendingDraftInvoiceId != null) {
-          _invoicesRefreshPending = true;
-          break;
-        }
-        final generation = _loadGeneration;
-        final mutationRevision = _invoiceMutationRevision;
-        final result = await getInvoicesUseCase(
-          GetInvoicesParams(currentCompanyContext: context),
-        );
-        if (!_isCurrentLoad(generation, context.companyId)) return;
-        final latest = state;
-        if (latest is! InvoicesLoaded) {
-          _invoicesRefreshPending = true;
-          break;
-        }
-        if (mutationRevision != _invoiceMutationRevision ||
-            latest.isCreatingDraft ||
-            latest.pendingDraftInvoiceId != null) {
-          _invoicesRefreshPending = true;
-          break;
-        }
-        final failure = result.failureOrNull;
-        if (failure != null) {
-          emit(latest.copyWith(realtimeRefreshFailure: failure));
-        } else {
-          emit(
-            latest.copyWith(
-              allInvoices: List.unmodifiable(
-                result.dataOrNull ?? const <Invoice>[],
-              ),
-              realtimeRefreshFailure: null,
-            ),
-          );
-        }
-      }
-    } finally {
-      _invoicesRefreshInProgress = false;
-      final current = state;
-      if (_invoicesRefreshPending &&
-          current is InvoicesLoaded &&
-          !current.isCreatingDraft &&
-          current.pendingDraftInvoiceId == null) {
-        unawaited(refreshInvoicesFromRealtime());
-      }
-    }
-  }
-
-  /// Billable-trip reservations change even when invoice.status stays draft.
-  Future<void> refreshBillableTripsFromRealtime() async {
-    _billableTripsRefreshPending = true;
-    if (_billableTripsRefreshInProgress) return;
-    _billableTripsRefreshInProgress = true;
-    try {
-      while (_billableTripsRefreshPending && !isClosed) {
-        _billableTripsRefreshPending = false;
-        final current = state;
-        final context = _currentCompanyContext;
-        if (current is! InvoicesLoaded || context == null) {
-          _billableTripsRefreshPending = true;
-          break;
-        }
-        if (!current.canManageInvoiceDrafts) break;
-        final generation = ++_billableTripsGeneration;
-        final result = await getBillableTripsUseCase(
-          GetBillableTripsParams(currentCompanyContext: context),
-        );
-        if (isClosed || generation != _billableTripsGeneration) {
-          _billableTripsRefreshPending = true;
-          break;
-        }
-        final latest = state;
-        if (latest is! InvoicesLoaded ||
-            latest.currentCompanyContext.companyId != context.companyId) {
-          _billableTripsRefreshPending = true;
-          break;
-        }
-        final failure = result.failureOrNull;
-        emit(
-          latest.copyWith(
-            billableTrips: failure == null
-                ? List.unmodifiable(result.dataOrNull ?? const <BillableTrip>[])
-                : null,
-            billableTripsFailure: failure,
-          ),
-        );
-      }
-    } finally {
-      _billableTripsRefreshInProgress = false;
     }
   }
 
