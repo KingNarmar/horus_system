@@ -185,8 +185,7 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
       while (_invoiceReconcilePending && !isClosed) {
         _invoiceReconcilePending = false;
         final current = state;
-        if (current is! CustomerStatementsReady ||
-            current.isLoadingStatement) {
+        if (current is! CustomerStatementsReady || current.isLoadingStatement) {
           _invoiceReconcilePending = true;
           break;
         }
@@ -216,9 +215,8 @@ final class CustomerStatementsCubit extends Cubit<CustomerStatementsState> {
           success: (statement) => emit(
             latest.copyWith(statement: statement, statementFailure: null),
           ),
-          failure: (failure) => emit(
-            latest.copyWith(statementFailure: failure),
-          ),
+          failure: (failure) =>
+              emit(latest.copyWith(statementFailure: failure)),
         );
       }
     } finally {
