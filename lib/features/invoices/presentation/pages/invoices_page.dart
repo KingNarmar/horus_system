@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/realtime/domain/entities/company_invalidation_resource.dart';
+import '../../../../core/realtime/presentation/cubit/company_realtime_cubit.dart';
+import '../../../../core/realtime/presentation/cubit/company_realtime_state.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../di/invoices_dependencies.dart';
 import '../../domain/entities/invoice.dart';
@@ -27,6 +32,7 @@ final class InvoicesPage extends StatefulWidget {
 }
 
 final class _InvoicesPageState extends State<InvoicesPage> {
+  InvoiceDetailsCubit? _activeDetailsCubit;
   @override
   void initState() {
     super.initState();
@@ -63,18 +69,22 @@ final class _InvoicesPageState extends State<InvoicesPage> {
     await showDialog<void>(
       context: context,
       builder: (_) => BlocProvider<InvoiceDetailsCubit>(
-        create: (_) =>
-            InvoicesDependencies.createInvoiceDetailsCubit()
-              ..loadInvoiceDetails(
-                currentCompanyContext: widget.currentCompanyContext,
-                invoiceId: invoice.id,
-              ),
+        create: (_) {
+          final cubit = InvoicesDependencies.createInvoiceDetailsCubit();
+          _activeDetailsCubit = cubit;
+          return cubit
+            ..loadInvoiceDetails(
+              currentCompanyContext: widget.currentCompanyContext,
+              invoiceId: invoice.id,
+            );
+        },
         child: _InvoiceDetailsHost(
           currentCompanyContext: widget.currentCompanyContext,
           invoiceId: invoice.id,
         ),
       ),
     );
+    _activeDetailsCubit = null;
     if (mounted) {
       await context.read<InvoicesCubit>().refresh();
     }
@@ -100,8 +110,20 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   @override
   Widget build(BuildContext context) {
     final strings = context.invoicesL10n;
-    return BlocConsumer<InvoicesCubit, InvoicesState>(
-      listenWhen: (previous, current) {
+    return BlocListener<CompanyRealtimeCubit, CompanyRealtimeState>(
+      listenWhen: (previous, current) =>
+          previous.companyId == widget.currentCompanyContext.companyId &&
+          current.companyId == widget.currentCompanyContext.companyId &&
+          previous.revisionFor(CompanyInvalidationResource.invoices) !=
+              current.revisionFor(CompanyInvalidationResource.invoices),
+      listener: (context, _) {
+        final details = _activeDetailsCubit;
+        if (details != null && !details.isClosed) {
+          unawaited(details.reconcileInvoiceDetailsFromRealtime());
+        }
+      },
+      child: BlocConsumer<InvoicesCubit, InvoicesState>(
+        listenWhen: (previous, current) {
         if (current is! InvoicesLoaded) return false;
         if (previous is! InvoicesLoaded) {
           return current.feedback != null || current.mutationFailure != null;
@@ -176,6 +198,7 @@ final class _InvoicesPageState extends State<InvoicesPage> {
           ],
         );
       },
+      ),
     );
   }
 }
