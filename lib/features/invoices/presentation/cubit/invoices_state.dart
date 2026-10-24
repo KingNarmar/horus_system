@@ -34,6 +34,7 @@ final class InvoicesLoaded extends InvoicesState {
   final bool isCreatingDraft;
   final String? pendingDraftInvoiceId;
   final Failure? mutationFailure;
+  final Failure? realtimeRefreshFailure;
   final InvoiceListFeedback? feedback;
 
   const InvoicesLoaded({
@@ -48,6 +49,7 @@ final class InvoicesLoaded extends InvoicesState {
     this.isCreatingDraft = false,
     this.pendingDraftInvoiceId,
     this.mutationFailure,
+    this.realtimeRefreshFailure,
     this.feedback,
   });
 
@@ -109,6 +111,7 @@ final class InvoicesLoaded extends InvoicesState {
     bool? isCreatingDraft,
     Object? pendingDraftInvoiceId = _notSet,
     Object? mutationFailure = _notSet,
+    Object? realtimeRefreshFailure = _notSet,
     Object? feedback = _notSet,
   }) {
     return InvoicesLoaded(
@@ -133,6 +136,9 @@ final class InvoicesLoaded extends InvoicesState {
       mutationFailure: mutationFailure == _notSet
           ? this.mutationFailure
           : mutationFailure as Failure?,
+      realtimeRefreshFailure: realtimeRefreshFailure == _notSet
+          ? this.realtimeRefreshFailure
+          : realtimeRefreshFailure as Failure?,
       feedback: feedback == _notSet
           ? this.feedback
           : feedback as InvoiceListFeedback?,
