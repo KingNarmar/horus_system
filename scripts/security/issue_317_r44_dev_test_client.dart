@@ -135,6 +135,9 @@ final class R44DevClient {
     req.headers.set('apikey', config.key);
     req.headers.set('Accept', 'application/json');
     if (jwt != null) req.headers.set('Authorization', 'Bearer $jwt');
+    if (method == 'PATCH') {
+      req.headers.set('Prefer', 'return=representation');
+    }
     if (data != null) {
       req.headers.contentType = ContentType.json;
       req.write(jsonEncode(data));
