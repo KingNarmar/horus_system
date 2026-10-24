@@ -149,7 +149,8 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
           break;
         }
         final failure = result.failureOrNull;
-        if (failure is AuthFailure || failure is PermissionFailure) {
+        if (failure != null &&
+            (failure is AuthFailure || failure is PermissionFailure)) {
           emit(PaymentsFailure(failure));
           break;
         }
