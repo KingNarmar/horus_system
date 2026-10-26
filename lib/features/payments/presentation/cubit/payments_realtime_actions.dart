@@ -38,8 +38,7 @@ mixin PaymentsRealtimeActions on Cubit<PaymentsState> {
         final timestampsResult =
             await owner.convertInstantsToBusinessLocalDateTimesUseCase(
               ConvertInstantsToBusinessLocalDateTimesParams(
-                timeZoneId:
-                    companyContext.company.businessTimezone ?? '',
+                timeZoneId: companyContext.company.businessTimezone ?? '',
                 instantsByKey: {
                   for (final payment in payments)
                     payment.id: payment.createdAt,
