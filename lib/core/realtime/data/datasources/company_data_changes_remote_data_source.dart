@@ -32,6 +32,8 @@ abstract interface class CompanyDataChangesRemoteDataSource {
 
   Stream<RealtimeChangeSignal> watchInvoices({required String companyId});
 
+  Stream<RealtimeChangeSignal> watchPayments({required String companyId});
+
   Stream<RealtimeChangeSignal> watchExpenseLedger({required String companyId});
 
   Stream<RealtimeChangeSignal> watchTripExpenses({required String companyId});
@@ -124,6 +126,14 @@ final class SupabaseCompanyDataChangesRemoteDataSource
         companyId: companyId,
         topic: RealtimeTopics.invoices(companyId),
         resource: RealtimeTopics.invoicesResource,
+      );
+
+  @override
+  Stream<RealtimeChangeSignal> watchPayments({required String companyId}) =>
+      _watchResource(
+        companyId: companyId,
+        topic: RealtimeTopics.payments(companyId),
+        resource: RealtimeTopics.paymentsResource,
       );
 
   @override
