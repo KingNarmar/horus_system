@@ -30,6 +30,7 @@ import '../../../payments/di/payments_dependencies.dart';
 import '../../../payments/presentation/cubit/payments_cubit.dart';
 import '../../../payments/presentation/pages/payments_page.dart';
 import '../../../payments/presentation/widgets/payment_invoice_references_realtime_boundary.dart';
+import '../../../payments/presentation/widgets/payments_realtime_boundary.dart';
 import '../models/finance_workspace_section.dart';
 
 final class FinanceWorkspacePage extends StatelessWidget {
@@ -231,13 +232,16 @@ final class _FinanceSectionContent extends StatelessWidget {
       ),
       FinanceWorkspaceSection.payments => BlocProvider<PaymentsCubit>(
         create: (_) => PaymentsDependencies.createPaymentsCubit(),
-        child: PaymentInvoiceReferencesRealtimeBoundary(
+        child: PaymentsRealtimeBoundary(
           currentCompanyContext: currentCompanyContext,
-          child: _FinanceReconnectAware(
-            onReconnect: (context) => context
-                .read<PaymentsCubit>()
-                .loadPayments(currentCompanyContext),
-            child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+          child: PaymentInvoiceReferencesRealtimeBoundary(
+            currentCompanyContext: currentCompanyContext,
+            child: _FinanceReconnectAware(
+              onReconnect: (context) => context
+                  .read<PaymentsCubit>()
+                  .loadPayments(currentCompanyContext),
+              child: PaymentsPage(currentCompanyContext: currentCompanyContext),
+            ),
           ),
         ),
       ),
