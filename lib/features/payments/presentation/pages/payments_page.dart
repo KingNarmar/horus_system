@@ -65,7 +65,7 @@ final class _PaymentsPageState extends State<PaymentsPage> {
 
     if (registered != true || !mounted) return;
 
-    await context.read<PaymentsCubit>().refresh();
+    await context.read<PaymentsCubit>().refreshPaymentsFromRealtime();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger
