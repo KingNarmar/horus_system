@@ -101,8 +101,7 @@ final class PaymentsLoaded extends PaymentsState {
     return PaymentsLoaded(
       currentCompanyContext: currentCompanyContext,
       allPayments: allPayments ?? this.allPayments,
-      createdAtByPaymentId:
-          createdAtByPaymentId ?? this.createdAtByPaymentId,
+      createdAtByPaymentId: createdAtByPaymentId ?? this.createdAtByPaymentId,
       invoices: invoices ?? this.invoices,
       paymentMethods: paymentMethods,
       canRegisterPayments: canRegisterPayments,
