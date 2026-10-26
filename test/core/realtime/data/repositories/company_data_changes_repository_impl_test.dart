@@ -194,29 +194,35 @@ void main() {
     },
   );
 
-  test('Payments private channel is opt-in and cancels with the session', () async {
-    final source = _Source();
-    final repository = CompanyDataChangesRepositoryImpl(source);
-    final changes = <CompanyDataResource>[];
-    final subscription = repository
-        .watchChanges(
-          companyId: 'company-a',
-          additionalResources: const {CompanyDataResource.payments},
-        )
-        .listen((result) {
-          final change = result.dataOrNull;
-          if (change != null) changes.add(change.resource);
-        });
+  test(
+    'Payments private channel is opt-in and cancels with the session',
+    () async {
+      final source = _Source();
+      final repository = CompanyDataChangesRepositoryImpl(source);
+      final changes = <CompanyDataResource>[];
+      final subscription = repository
+          .watchChanges(
+            companyId: 'company-a',
+            additionalResources: const {CompanyDataResource.payments},
+          )
+          .listen((result) {
+            final change = result.dataOrNull;
+            if (change != null) changes.add(change.resource);
+          });
 
-    source.payments.add(RealtimeChangeSignal.subscribed);
-    source.payments.add(RealtimeChangeSignal.changed);
-    await Future<void>.delayed(Duration.zero);
-    expect(changes, [CompanyDataResource.payments, CompanyDataResource.payments]);
-    expect(source.invoices.hasListener, isFalse);
-    await subscription.cancel();
-    expect(source.paymentsCanceled, isTrue);
-    await source.close();
-  });
+      source.payments.add(RealtimeChangeSignal.subscribed);
+      source.payments.add(RealtimeChangeSignal.changed);
+      await Future<void>.delayed(Duration.zero);
+      expect(changes, [
+        CompanyDataResource.payments,
+        CompanyDataResource.payments,
+      ]);
+      expect(source.invoices.hasListener, isFalse);
+      await subscription.cancel();
+      expect(source.paymentsCanceled, isTrue);
+      await source.close();
+    },
+  );
 
   test('transport error becomes a sanitized typed failure', () async {
     final source = _Source();
