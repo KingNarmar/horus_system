@@ -18,7 +18,10 @@ import '../../domain/usecases/get_payments_usecase.dart';
 import '../../domain/usecases/payment_params.dart';
 import 'payments_state.dart';
 
-final class PaymentsCubit extends Cubit<PaymentsState> {
+part 'payments_realtime_actions.dart';
+
+final class PaymentsCubit extends Cubit<PaymentsState>
+    with PaymentsRealtimeActions {
   final GetPaymentsUseCase getPaymentsUseCase;
   final CanRegisterPaymentsUseCase canRegisterPaymentsUseCase;
   final GetInvoicesUseCase getInvoicesUseCase;
@@ -30,6 +33,8 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
   int _loadRequestId = 0;
   bool _invoiceReferencesRefreshPending = false;
   bool _invoiceReferencesRefreshInProgress = false;
+  bool _paymentsRefreshPending = false;
+  bool _paymentsRefreshInProgress = false;
 
   PaymentsCubit({
     required this.getPaymentsUseCase,
@@ -120,6 +125,9 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     );
     if (_invoiceReferencesRefreshPending) {
       unawaited(refreshInvoiceReferencesFromRealtime());
+    }
+    if (_paymentsRefreshPending) {
+      unawaited(refreshPaymentsFromRealtime());
     }
   }
 
