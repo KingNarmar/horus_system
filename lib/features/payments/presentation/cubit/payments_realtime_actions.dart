@@ -35,13 +35,12 @@ mixin PaymentsRealtimeActions on Cubit<PaymentsState> {
         }
 
         final payments = result.dataOrNull ?? const <Payment>[];
-        final timestampsResult =
-            await owner.convertInstantsToBusinessLocalDateTimesUseCase(
+        final timestampsResult = await owner
+            .convertInstantsToBusinessLocalDateTimesUseCase(
               ConvertInstantsToBusinessLocalDateTimesParams(
                 timeZoneId: companyContext.company.businessTimezone ?? '',
                 instantsByKey: {
-                  for (final payment in payments)
-                    payment.id: payment.createdAt,
+                  for (final payment in payments) payment.id: payment.createdAt,
                 },
               ),
             );
