@@ -93,67 +93,76 @@ void main() {
     await cubit.close();
   });
 
-  test('payment realtime refresh keeps search and does not query invoices', () async {
-    final payments = _FakePaymentsRepository();
-    final invoices = _FakeInvoicesRepository();
-    final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
-    await cubit.loadPayments(_context(CompanyRole.accountant));
-    cubit.setSearchQuery('reference');
+  test(
+    'payment realtime refresh keeps search and does not query invoices',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final invoices = _FakeInvoicesRepository();
+      final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      cubit.setSearchQuery('reference');
 
-    await cubit.refreshPaymentsFromRealtime();
+      await cubit.refreshPaymentsFromRealtime();
 
-    final state = cubit.state as PaymentsLoaded;
-    expect(state.searchQuery, 'reference');
-    expect(state.allPayments, isEmpty);
-    expect(state.paymentsRefreshFailure, isNull);
-    expect(payments.getPaymentsCalls, 2);
-    expect(invoices.getInvoicesCalls, 1);
-    await cubit.close();
-  });
+      final state = cubit.state as PaymentsLoaded;
+      expect(state.searchQuery, 'reference');
+      expect(state.allPayments, isEmpty);
+      expect(state.paymentsRefreshFailure, isNull);
+      expect(payments.getPaymentsCalls, 2);
+      expect(invoices.getInvoicesCalls, 1);
+      await cubit.close();
+    },
+  );
 
-  test('duplicate payment signals coalesce behind the latest server read', () async {
-    final payments = _FakePaymentsRepository();
-    final cubit = _cubit(
-      payments,
-      _FakeInvoicesRepository(),
-      _FakePaymentMethodsRepository(),
-    );
-    await cubit.loadPayments(_context(CompanyRole.accountant));
-    final barrier = Completer<Result<List<Payment>>>();
-    payments.realtimeBarrier = barrier;
-    payments.realtimeRequested = Completer<void>();
+  test(
+    'duplicate payment signals coalesce behind the latest server read',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final cubit = _cubit(
+        payments,
+        _FakeInvoicesRepository(),
+        _FakePaymentMethodsRepository(),
+      );
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      final barrier = Completer<Result<List<Payment>>>();
+      payments.realtimeBarrier = barrier;
+      payments.realtimeRequested = Completer<void>();
 
-    final first = cubit.refreshPaymentsFromRealtime();
-    await payments.realtimeRequested!.future;
-    final duplicate = cubit.refreshPaymentsFromRealtime();
-    barrier.complete(const Success<List<Payment>>([]));
-    await Future.wait([first, duplicate]);
+      final first = cubit.refreshPaymentsFromRealtime();
+      await payments.realtimeRequested!.future;
+      final duplicate = cubit.refreshPaymentsFromRealtime();
+      barrier.complete(const Success<List<Payment>>([]));
+      await Future.wait([first, duplicate]);
 
-    expect(payments.getPaymentsCalls, 3);
-    expect(cubit.state, isA<PaymentsLoaded>());
-    await cubit.close();
-  });
+      expect(payments.getPaymentsCalls, 3);
+      expect(cubit.state, isA<PaymentsLoaded>());
+      await cubit.close();
+    },
+  );
 
-  test('payment realtime read failure retains loaded state and search', () async {
-    final payments = _FakePaymentsRepository();
-    final invoices = _FakeInvoicesRepository();
-    final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
-    await cubit.loadPayments(_context(CompanyRole.accountant));
-    cubit.setSearchQuery('reference');
-    payments.failRealtime = true;
+  test(
+    'payment realtime read failure retains loaded state and search',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final invoices = _FakeInvoicesRepository();
+      final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      cubit.setSearchQuery('reference');
+      payments.failRealtime = true;
 
-    await cubit.refreshPaymentsFromRealtime();
+      await cubit.refreshPaymentsFromRealtime();
 
-    final state = cubit.state as PaymentsLoaded;
-    expect(state.searchQuery, 'reference');
-    expect(state.allPayments, isEmpty);
-    expect(
-      state.paymentsRefreshFailure?.code,
-      FailureCodes.realtimeSubscriptionUnavailable,
-    );
-    expect(invoices.getInvoicesCalls, 1);
-    await cubit.close();
-  });
+      final state = cubit.state as PaymentsLoaded;
+      expect(state.searchQuery, 'reference');
+      expect(state.allPayments, isEmpty);
+      expect(
+        state.paymentsRefreshFailure?.code,
+        FailureCodes.realtimeSubscriptionUnavailable,
+      );
+      expect(invoices.getInvoicesCalls, 1);
+      await cubit.close();
+    },
+  );
 
   test('closing cubit while load is pending ignores late completion', () async {
     final payments = _FakePaymentsRepository(deferGetPayments: true);
