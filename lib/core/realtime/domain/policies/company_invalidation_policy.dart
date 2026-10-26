@@ -104,9 +104,7 @@ abstract final class CompanyInvalidationPolicy {
     },
     // Each payment registration already updates its invoice atomically.
     // R4.5 owns invoice-derived projections; avoid duplicate refreshes.
-    CompanyDataResource.payments: {
-      CompanyInvalidationResource.payments,
-    },
+    CompanyDataResource.payments: {CompanyInvalidationResource.payments},
     CompanyDataResource.paymentMethods: {
       CompanyInvalidationResource.paymentMethods,
       CompanyInvalidationResource.paymentFormLookups,
