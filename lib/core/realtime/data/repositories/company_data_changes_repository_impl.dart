@@ -123,6 +123,12 @@ final class CompanyDataChangesRepositoryImpl
               resource: CompanyDataResource.invoices,
             );
           }
+          if (additionalResources.contains(CompanyDataResource.payments)) {
+            subscribe(
+              stream: _dataSource.watchPayments(companyId: companyId),
+              resource: CompanyDataResource.payments,
+            );
+          }
           if (additionalResources.contains(CompanyDataResource.expenseLedger)) {
             subscribe(
               stream: _dataSource.watchExpenseLedger(companyId: companyId),
