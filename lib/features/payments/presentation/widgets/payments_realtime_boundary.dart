@@ -64,7 +64,9 @@ final class PaymentsRealtimeBoundary extends StatelessWidget {
               final failure = current.paymentsRefreshFailure;
               if (failure == null) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(paymentsFailureMessage(context, failure))),
+                SnackBar(
+                  content: Text(paymentsFailureMessage(context, failure)),
+                ),
               );
             },
           ),
