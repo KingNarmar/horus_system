@@ -151,6 +151,57 @@ void main() {
     expect(harness.membership.activeSubscriptions, 0);
   });
 
+  testWidgets('verification failure hides old role until successful retry', (
+    tester,
+  ) async {
+    final harness = _Harness();
+    addTearDown(harness.dispose);
+    await harness.auth.checkCurrentUser();
+    await tester.pumpWidget(harness.widget(_protectedScreen()));
+    await tester.pumpAndSettle();
+
+    harness.companyRepository.nextLoadResult = const FailureResult(
+      NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+    );
+    await harness.company.revalidateSelectedCompany();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('protected-company-content')), findsNothing);
+    expect(find.text('Retry'), findsOneWidget);
+
+    harness.companyRepository.contexts = [_context(CompanyRole.viewer)];
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('viewer'), findsOneWidget);
+    expect(find.text('owner'), findsNothing);
+  });
+
+  testWidgets('late verification cannot restore a signed-out deep link', (
+    tester,
+  ) async {
+    final harness = _Harness();
+    addTearDown(harness.dispose);
+    await harness.auth.checkCurrentUser();
+    await tester.pumpWidget(harness.widget(_protectedScreen()));
+    await tester.pumpAndSettle();
+
+    final pending = Completer<Result<List<CurrentCompanyContext>>>();
+    harness.companyRepository.pendingLoad = pending;
+    final validation = harness.company.revalidateSelectedCompany();
+    await tester.pump();
+
+    harness.sessions.notify(AuthSessionChange.signedOut);
+    await tester.pump();
+    pending.complete(Success([_context(CompanyRole.owner)]));
+    await validation;
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LoginPage), findsOneWidget);
+    expect(find.byKey(const Key('protected-company-content')), findsNothing);
+    expect(harness.membership.activeSubscriptions, 0);
+  });
+
   testWidgets('same-role verification blocks taps but keeps draft state', (
     tester,
   ) async {
@@ -326,11 +377,15 @@ class _Harness {
 class _FakeCompanyRepository implements CompanyContextRepository {
   List<CurrentCompanyContext> contexts = [_context(CompanyRole.owner)];
   Completer<Result<List<CurrentCompanyContext>>>? pendingLoad;
+  Result<List<CurrentCompanyContext>>? nextLoadResult;
   int loads = 0;
 
   @override
   Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async {
     loads++;
+    final nextResult = nextLoadResult;
+    nextLoadResult = null;
+    if (nextResult != null) return nextResult;
     final pending = pendingLoad;
     if (pending != null) {
       pendingLoad = null;
