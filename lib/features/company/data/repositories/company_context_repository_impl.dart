@@ -17,6 +17,7 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
 
   List<CurrentCompanyContext> _loadedContexts = const [];
   int _contextEpoch = 0;
+  int _loadGeneration = 0;
 
   CompanyContextRepositoryImpl({
     required CompanyContextRemoteDataSource remoteDataSource,
@@ -30,8 +31,9 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
   Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async {
     try {
       final epoch = _contextEpoch;
+      final request = ++_loadGeneration;
       final memberships = await _remoteDataSource.loadUserCompanyMemberships();
-      if (epoch != _contextEpoch) {
+      if (epoch != _contextEpoch || request != _loadGeneration) {
         return const FailureResult(
           ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
         );
@@ -122,6 +124,7 @@ class CompanyContextRepositoryImpl implements CompanyContextRepository {
   @override
   Future<Result<void>> clearCurrentCompanyContext() async {
     ++_contextEpoch;
+    ++_loadGeneration;
     try {
       _currentCompanyProvider.clear();
       _loadedContexts = const [];
