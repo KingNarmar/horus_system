@@ -62,10 +62,12 @@ abstract final class AppRouter {
         ),
       ),
       AppRoutes.companyUsers => CompanyRequiredRouteGuard(
+        createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
         builder: (_) => const CompanyUsersPage(),
       ),
       _ when AppRoutes.companyRequiredRoutes.contains(routeName) =>
         CompanyRequiredRouteGuard(
+          createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
           builder: (currentCompanyContext) => AppShellPage(
             currentCompanyContext: currentCompanyContext,
             initialModule: moduleForRoute(routeName),
