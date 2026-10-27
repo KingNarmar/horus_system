@@ -5,11 +5,14 @@ import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/di/app_dependencies.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
+import '../cubit/company_switcher_cubit.dart';
+import '../widgets/company_switcher_panel.dart';
 import '../widgets/company_logout_button.dart';
 
 class CompanyEntryPage extends StatelessWidget {
@@ -85,6 +88,12 @@ class _CompanyEntryContent extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(l10n.companyEntrySubtitle, textAlign: TextAlign.center),
+                  const SizedBox(height: AppSpacing.xl),
+                  BlocProvider<CompanySwitcherCubit>(
+                    create: (_) =>
+                        AppDependencies.createCompanySwitcherCubit()..load(),
+                    child: const CompanySwitcherPanel(activeCompanyId: null),
+                  ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     l10n.createCompanyOptionDescription,
