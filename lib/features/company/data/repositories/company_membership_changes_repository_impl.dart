@@ -16,26 +16,21 @@ final class CompanyMembershipChangesRepositoryImpl
   @override
   Stream<Result<CompanyMembershipChange>> watchChanges({
     required String userId,
-  }) => _source.watchChanges(userId: userId).map((signal) {
-    if (signal == RealtimeChangeSignal.unavailable) {
-      return const FailureResult<CompanyMembershipChange>(
+  }) async* {
+    try {
+      await for (final signal in _source.watchChanges(userId: userId)) {
+        if (signal == RealtimeChangeSignal.unavailable) {
+          yield const FailureResult(
+            NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
+          );
+        } else {
+          yield const Success(CompanyMembershipChange.invalidated);
+        }
+      }
+    } catch (_) {
+      yield const FailureResult(
         NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
       );
     }
-    return const Success<CompanyMembershipChange>(
-      CompanyMembershipChange.invalidated,
-    );
-  }).handleError((Object _, StackTrace stack) {
-    // Stream failures are converted below, not surfaced as raw SDK errors.
-  }).transform(
-    StreamTransformer.fromHandlers(
-      handleError: (Object _, StackTrace __, sink) {
-        sink.add(
-          const FailureResult<CompanyMembershipChange>(
-            NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
-          ),
-        );
-      },
-    ),
-  );
+  }
 }
