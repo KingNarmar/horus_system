@@ -129,6 +129,20 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       return;
     }
 
+    if (current is CurrentCompanyFailure) {
+      final companyId = current.selectedCompanyId;
+      if (companyId == null) {
+        // Initial loads can also fail while offline. Always re-read the server.
+        await loadCurrentCompanyContext();
+      } else {
+        // The failed shell must stay hidden until membership is verified.
+        final request = ++_requestGeneration;
+        emit(const CurrentCompanyLoading());
+        await _refreshSelected(companyId, request);
+      }
+      return;
+    }
+
     final context = switch (current) {
       CurrentCompanyLoaded(:final context) => context,
       CurrentCompanyVerifying(:final context) => context,
@@ -162,7 +176,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
           emit(CurrentCompanyFailure(clearFailure));
         }
       } else {
-        emit(CurrentCompanyFailure(failure));
+        emit(CurrentCompanyFailure(failure, selectedCompanyId: companyId));
       }
       return;
     }
