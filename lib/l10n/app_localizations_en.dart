@@ -1711,6 +1711,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notProvidedLabel => 'Not provided';
 
   @override
+  String get companySwitcherTitle => 'Your companies';
+
+  @override
+  String get companySwitcherEmpty =>
+      'There are no active company memberships for this account.';
+
+  @override
+  String get companySwitcherCurrent => 'Current';
+
+  @override
+  String get companySwitcherJoin => 'Join another company';
+
+  @override
+  String get companySwitcherAction => 'Switch or join company';
+
+  @override
   String get companyEntryTitle => 'Choose how to continue';
 
   @override
