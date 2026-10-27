@@ -7,6 +7,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/current_company_context.dart';
+import '../cubit/company_switcher_cubit.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
 import '../pages/company_entry_page.dart';
@@ -17,8 +18,13 @@ import '../pages/company_entry_page.dart';
 /// a changed role recreates it so old role-specific state cannot be reused.
 final class CompanyContextAccessView extends StatefulWidget {
   final Widget Function(CurrentCompanyContext) builder;
+  final CompanySwitcherCubit Function()? createCompanySwitcherCubit;
 
-  const CompanyContextAccessView({required this.builder, super.key});
+  const CompanyContextAccessView({
+    required this.builder,
+    this.createCompanySwitcherCubit,
+    super.key,
+  });
 
   @override
   State<CompanyContextAccessView> createState() =>
@@ -56,7 +62,9 @@ final class _CompanyContextAccessViewState
         }
 
         if (state is CurrentCompanyEmpty) {
-          return const CompanyEntryPage();
+          return CompanyEntryPage(
+            createCompanySwitcherCubit: widget.createCompanySwitcherCubit,
+          );
         }
 
         if (state is CurrentCompanyLoaded || state is CurrentCompanyVerifying) {
