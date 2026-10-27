@@ -13,6 +13,14 @@ class CurrentCompanyLoading extends CurrentCompanyState {
   const CurrentCompanyLoading();
 }
 
+/// Blocks interaction during an authoritative membership check while keeping
+/// the existing company shell mounted so unsaved form state can survive.
+class CurrentCompanyVerifying extends CurrentCompanyState {
+  final CurrentCompanyContext context;
+
+  const CurrentCompanyVerifying(this.context);
+}
+
 class CurrentCompanyEmpty extends CurrentCompanyState {
   const CurrentCompanyEmpty();
 }
