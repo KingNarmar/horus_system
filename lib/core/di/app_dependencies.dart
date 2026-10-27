@@ -17,9 +17,11 @@ import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/password_recovery_cubit.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
+import '../../features/company/data/datasources/company_membership_changes_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
 import '../../features/company/data/datasources/company_users_remote_data_source.dart';
 import '../../features/company/data/repositories/company_context_repository_impl.dart';
+import '../../features/company/data/repositories/company_membership_changes_repository_impl.dart';
 import '../../features/company/data/repositories/company_repository_impl.dart';
 import '../../features/company/data/repositories/company_users_repository_impl.dart';
 import '../../features/company/di/company_dependencies.dart';
@@ -30,6 +32,7 @@ import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
 import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
+import '../../features/company/domain/usecases/watch_company_membership_changes_usecase.dart';
 import '../../features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
 import '../../features/company/presentation/cubit/company_invitations_cubit.dart';
 import '../../features/company/presentation/cubit/company_member_actions_cubit.dart';
@@ -124,6 +127,13 @@ abstract final class AppDependencies {
           RefreshSelectedCompanyContextUseCase(companyContextRepository),
       clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
         companyContextRepository,
+      ),
+      watchMembershipChangesUseCase: WatchCompanyMembershipChangesUseCase(
+        CompanyMembershipChangesRepositoryImpl(
+          SupabaseCompanyMembershipChangesRemoteDataSource(
+            SupabaseClientProvider.client,
+          ),
+        ),
       ),
     );
   }
