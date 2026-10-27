@@ -13,12 +13,12 @@ final class CurrentCompanyGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CompanyContextAccessView(
-      createCompanySwitcherCubit:
-              AppDependencies.createCompanySwitcherCubit,
+      createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
       builder: (companyContext) => CompanyScopedCubitBoundary(
         child: AppShellPage(
           currentCompanyContext: companyContext,
-          createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
+          createCompanySwitcherCubit:
+              AppDependencies.createCompanySwitcherCubit,
         ),
       ),
     );
