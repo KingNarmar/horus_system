@@ -107,9 +107,14 @@ class _AppShellPageState extends State<AppShellPage> {
                 child: CompanySwitcherPanel(
                   activeCompanyId: widget.currentCompanyContext.companyId,
                   onSwitchSucceeded: () {
-                    if (sheetContext.mounted) {
-                      Navigator.of(sheetContext).pop();
-                    }
+                    if (!sheetContext.mounted) return;
+                    // Remove routes opened under the former tenant. Keeping
+                    // previous company pages in Navigator history would allow
+                    // back navigation into stale company-owned UI.
+                    Navigator.of(sheetContext).pushNamedAndRemoveUntil(
+                      AppRoutes.appShell,
+                      (route) => false,
+                    );
                   },
                   onJoin: () {
                     Navigator.of(sheetContext).pop();
