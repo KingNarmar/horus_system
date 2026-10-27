@@ -110,9 +110,9 @@ class _AppShellPageState extends State<AppShellPage> {
                   onJoin: () {
                     Navigator.of(sheetContext).pop();
                     if (mounted) {
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.companyInvitation,
-                      );
+                      Navigator.of(
+                        context,
+                      ).pushNamed(AppRoutes.companyInvitation);
                     }
                   },
                 ),
