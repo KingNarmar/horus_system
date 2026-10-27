@@ -77,8 +77,6 @@ void main() {
 
     expect(cubit.state, isA<AuthUnauthenticated>());
   });
-
-
 }
 
 AuthCubit _createCubit(
