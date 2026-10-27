@@ -160,6 +160,110 @@ void main() {
   );
 
   test(
+    'failed verification hides old role and reconnect restores fresh role',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.loadCurrentCompanyContext();
+      repository.nextLoadResult = const FailureResult(
+        NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+      );
+
+      await cubit.revalidateSelectedCompany();
+      final failure = cubit.state as CurrentCompanyFailure;
+      expect(failure.selectedCompanyId, 'company-a');
+      expect(failure.failure, isA<NetworkFailure>());
+
+      repository.contexts = [_context(CompanyRole.viewer)];
+      final pending = Completer<Result<List<CurrentCompanyContext>>>();
+      repository.pendingLoad = pending;
+      final recovered = cubit.revalidateSelectedCompany();
+      expect(cubit.state, isA<CurrentCompanyLoading>());
+
+      pending.complete(Success(repository.contexts));
+      await recovered;
+      expect(
+        (cubit.state as CurrentCompanyLoaded).context.role,
+        CompanyRole.viewer,
+      );
+      expect(repository.loads, 3);
+    },
+  );
+
+  test(
+    'reconnect after failed verification cannot restore revoked membership',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.loadCurrentCompanyContext();
+      repository.nextLoadResult = const FailureResult(
+        NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+      );
+      await cubit.revalidateSelectedCompany();
+      expect(cubit.state, isA<CurrentCompanyFailure>());
+
+      repository.contexts = const [];
+      await cubit.revalidateSelectedCompany();
+
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
+      expect(repository.clears, 1);
+      expect(repository.loads, 3);
+    },
+  );
+
+  test('failed initial company load retries authoritatively', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+    repository.nextLoadResult = const FailureResult(
+      NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+    );
+
+    await cubit.loadCurrentCompanyContext();
+    final failure = cubit.state as CurrentCompanyFailure;
+    expect(failure.selectedCompanyId, isNull);
+
+    repository.contexts = [_context(CompanyRole.viewer)];
+    await cubit.revalidateSelectedCompany();
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.role,
+      CompanyRole.viewer,
+    );
+    expect(repository.loads, 2);
+  });
+
+  test('personal membership hint retries failed verification', () async {
+    final repository = _FakeCompanyContextRepository();
+    final changes = _FakeMembershipChangesRepository();
+    final cubit = _createCubit(repository, changes)
+      ..startWatchingMembership('user-a');
+    addTearDown(() async {
+      await cubit.close();
+      await changes.dispose();
+    });
+
+    await cubit.loadCurrentCompanyContext();
+    repository.nextLoadResult = const FailureResult(
+      NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+    );
+    await cubit.revalidateSelectedCompany();
+    expect(cubit.state, isA<CurrentCompanyFailure>());
+
+    repository.contexts = [_context(CompanyRole.viewer)];
+    changes.notify();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.role,
+      CompanyRole.viewer,
+    );
+  });
+
+  test(
     'late company verification cannot resurrect context after sign-out',
     () async {
       final repository = _FakeCompanyContextRepository();
@@ -222,12 +326,16 @@ final class _FakeMembershipChangesRepository
 final class _FakeCompanyContextRepository implements CompanyContextRepository {
   List<CurrentCompanyContext> contexts = [_context(CompanyRole.owner)];
   Completer<Result<List<CurrentCompanyContext>>>? pendingLoad;
+  Result<List<CurrentCompanyContext>>? nextLoadResult;
   int loads = 0;
   int clears = 0;
 
   @override
   Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async {
     loads++;
+    final next = nextLoadResult;
+    nextLoadResult = null;
+    if (next != null) return next;
     return pendingLoad?.future ?? Success(contexts);
   }
 
