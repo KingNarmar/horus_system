@@ -52,6 +52,36 @@ void main() {
     },
   );
 
+  test('reactivated membership restores the company from empty state', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    repository.contexts = const [];
+    await cubit.loadCurrentCompanyContext();
+    expect(cubit.state, isA<CurrentCompanyEmpty>());
+
+    repository.contexts = [_context(CompanyRole.operations)];
+    await cubit.revalidateSelectedCompany();
+
+    final recovered = cubit.state as CurrentCompanyLoaded;
+    expect(recovered.context.role, CompanyRole.operations);
+    expect(repository.loads, 2);
+  });
+
+  test('rechecking empty context cannot restore a revoked member', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    repository.contexts = const [];
+    await cubit.loadCurrentCompanyContext();
+    await cubit.revalidateSelectedCompany();
+
+    expect(cubit.state, isA<CurrentCompanyEmpty>());
+    expect(repository.loads, 2);
+  });
+
   test(
     'revalidation retains mounted company context until server responds',
     () async {
