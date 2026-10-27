@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart'
     show AppLocalizationsX;
 import '../../../../core/responsive/responsive_layout.dart';
@@ -35,6 +37,8 @@ class _CompanyInvitationAcceptancePageState
     extends State<CompanyInvitationAcceptancePage> {
   final _tokenController = TextEditingController();
   bool _initialized = false;
+  bool _openingAcceptedCompany = false;
+  Failure? _acceptedCompanyOpenFailure;
 
   @override
   void didChangeDependencies() {
@@ -140,9 +144,36 @@ class _CompanyInvitationAcceptancePageState
     CompanyInvitationAcceptanceState state, {
     required AuthUser? currentUser,
   }) {
-    if (state is CompanyInvitationPreviewLoading ||
-        state is CompanyInvitationAccepted) {
+    if (state is CompanyInvitationPreviewLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state is CompanyInvitationAccepted) {
+      return _responsiveContent(
+        context,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(context.l10n.companyInvitationActionSucceeded),
+            const SizedBox(height: AppSpacing.lg),
+            if (_acceptedCompanyOpenFailure != null) ...[
+              Text(
+                context.l10n.localizedErrorMessage(
+                  _acceptedCompanyOpenFailure!,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            if (_openingAcceptedCompany)
+              const Center(child: CircularProgressIndicator())
+            else
+              FilledButton(
+                onPressed: () => _openAcceptedCompany(state.companyId),
+                child: Text(context.l10n.retryButton),
+              ),
+          ],
+        ),
+      );
     }
 
     if (state is CompanyInvitationPreviewReady) {
@@ -288,16 +319,31 @@ class _CompanyInvitationAcceptancePageState
   }
 
   Future<void> _openAcceptedCompany(String companyId) async {
+    if (_openingAcceptedCompany) return;
+    setState(() {
+      _openingAcceptedCompany = true;
+      _acceptedCompanyOpenFailure = null;
+    });
+
     final currentCompanyCubit = context.read<CurrentCompanyCubit>();
-    await currentCompanyCubit.refreshAndSelectCompany(companyId);
+    final result = await currentCompanyCubit.switchActiveCompany(companyId);
     if (!mounted) return;
 
     final state = currentCompanyCubit.state;
-    if (state is CurrentCompanyLoaded && state.context.companyId == companyId) {
+    if (result.failureOrNull == null &&
+        state is CurrentCompanyLoaded &&
+        state.context.companyId == companyId) {
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(AppRoutes.appShell, (route) => false);
+      return;
     }
+
+    setState(() {
+      _openingAcceptedCompany = false;
+      _acceptedCompanyOpenFailure =
+          result.failureOrNull ?? const UnexpectedFailure();
+    });
   }
 }
 
