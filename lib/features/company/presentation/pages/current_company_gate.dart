@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/network/presentation/cubit/network_status_cubit.dart';
@@ -112,9 +113,20 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate>
                 body: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Text(
-                      l10n.localizedErrorMessage(state.failure),
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l10n.localizedErrorMessage(state.failure),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        FilledButton.icon(
+                          onPressed: _revalidate,
+                          icon: const Icon(AppIcons.resend),
+                          label: Text(l10n.retryButton),
+                        ),
+                      ],
                     ),
                   ),
                 ),
