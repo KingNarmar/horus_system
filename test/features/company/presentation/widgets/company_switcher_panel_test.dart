@@ -20,40 +20,41 @@ import 'package:horus_system/l10n/app_localizations.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 
 void main() {
-  testWidgets('shows authorized companies and switches to server-verified role', (
-    tester,
-  ) async {
-    final repository = _MembershipRepository();
-    final current = _currentCubit(repository);
-    final choices = _choicesCubit(repository);
-    addTearDown(current.close);
-    addTearDown(choices.close);
-    await current.loadCurrentCompanyContext();
-    await choices.load();
-    var completed = 0;
+  testWidgets(
+    'shows authorized companies and switches to server-verified role',
+    (tester) async {
+      final repository = _MembershipRepository();
+      final current = _currentCubit(repository);
+      final choices = _choicesCubit(repository);
+      addTearDown(current.close);
+      addTearDown(choices.close);
+      await current.loadCurrentCompanyContext();
+      await choices.load();
+      var completed = 0;
 
-    await tester.pumpWidget(
-      _app(
-        current: current,
-        choices: choices,
-        onSwitchSucceeded: () => completed++,
-      ),
-    );
+      await tester.pumpWidget(
+        _app(
+          current: current,
+          choices: choices,
+          onSwitchSucceeded: () => completed++,
+        ),
+      );
 
-    expect(find.text('First Company'), findsOneWidget);
-    expect(find.text('Second Company'), findsOneWidget);
-    expect(find.text('Accountant'), findsOneWidget);
-    expect(find.text('Join another company'), findsOneWidget);
+      expect(find.text('First Company'), findsOneWidget);
+      expect(find.text('Second Company'), findsOneWidget);
+      expect(find.text('Accountant'), findsOneWidget);
+      expect(find.text('Join another company'), findsOneWidget);
 
-    await tester.tap(find.text('Second Company'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Second Company'));
+      await tester.pumpAndSettle();
 
-    final context = (current.state as CurrentCompanyLoaded).context;
-    expect(context.companyId, 'company-b');
-    expect(context.role, CompanyRole.accountant);
-    expect(completed, 1);
-    expect(tester.takeException(), isNull);
-  });
+      final context = (current.state as CurrentCompanyLoaded).context;
+      expect(context.companyId, 'company-b');
+      expect(context.role, CompanyRole.accountant);
+      expect(completed, 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('renders the company picker correctly in Arabic RTL', (
     tester,
@@ -67,11 +68,7 @@ void main() {
     await choices.load();
 
     await tester.pumpWidget(
-      _app(
-        current: current,
-        choices: choices,
-        locale: const Locale('ar'),
-      ),
+      _app(current: current, choices: choices, locale: const Locale('ar')),
     );
 
     expect(find.text('شركاتك'), findsOneWidget);
