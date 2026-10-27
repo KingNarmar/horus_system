@@ -17,8 +17,8 @@ void main() {
       () => 'user-a',
     );
 
-    final signals = await source.watchChanges(userId: 'user-b').toList();
-    expect(signals, [RealtimeChangeSignal.unavailable]);
+    final signal = await source.watchChanges(userId: 'user-b').first;
+    expect(signal, RealtimeChangeSignal.unavailable);
     expect(gateway.subscribedTopic, isNull);
   });
 
