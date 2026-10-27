@@ -74,7 +74,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     final current = state;
     if (current is! CurrentCompanyLoaded) return;
     final request = ++_requestGeneration;
-    emit(const CurrentCompanyLoading());
+    emit(CurrentCompanyVerifying(current.context));
     await _refreshSelected(current.context.companyId, request);
   }
 
