@@ -29,6 +29,7 @@ import '../../features/company/domain/usecases/clear_current_company_context_use
 import '../../features/company/domain/usecases/create_company_usecase.dart';
 import '../../features/company/domain/usecases/get_company_users_usecase.dart';
 import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
+import '../../features/company/domain/usecases/get_switchable_company_contexts_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
 import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
@@ -39,6 +40,7 @@ import '../../features/company/presentation/cubit/company_member_actions_cubit.d
 import '../../features/company/presentation/cubit/company_onboarding_cubit.dart';
 import '../../features/company/presentation/cubit/company_users_cubit.dart';
 import '../../features/company/presentation/cubit/current_company_cubit.dart';
+import '../../features/company/presentation/cubit/company_switcher_cubit.dart';
 import '../../features/customers/di/customers_dependencies.dart';
 import '../../features/customers/presentation/cubit/customers_cubit.dart';
 import '../../features/drivers/di/driver_compensation_dependencies.dart';
@@ -109,13 +111,25 @@ abstract final class AppDependencies {
     );
   }
 
-  static CurrentCompanyCubit createCurrentCompanyCubit() {
-    final companyContextRemoteDataSource =
-        SupabaseCompanyContextRemoteDataSource(SupabaseClientProvider.client);
-    final companyContextRepository = CompanyContextRepositoryImpl(
-      remoteDataSource: companyContextRemoteDataSource,
+  static CompanyContextRepositoryImpl _createCompanyContextRepository() {
+    return CompanyContextRepositoryImpl(
+      remoteDataSource: SupabaseCompanyContextRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
       currentCompanyProvider: _currentCompanyProvider,
     );
+  }
+
+  static CompanySwitcherCubit createCompanySwitcherCubit() {
+    return CompanySwitcherCubit(
+      getCompanies: GetSwitchableCompanyContextsUseCase(
+        _createCompanyContextRepository(),
+      ),
+    );
+  }
+
+  static CurrentCompanyCubit createCurrentCompanyCubit() {
+    final companyContextRepository = _createCompanyContextRepository();
     return CurrentCompanyCubit(
       loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
         companyContextRepository,
