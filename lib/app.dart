@@ -44,7 +44,9 @@ class HorusApp extends StatelessWidget {
           ),
         ),
         BlocProvider<AuthCubit>(
-          create: (_) => AppDependencies.createAuthCubit()..checkCurrentUser(),
+          create: (_) => AppDependencies.createAuthCubit()
+            ..startWatchingSession()
+            ..checkCurrentUser(),
         ),
         BlocProvider<CurrentCompanyCubit>(
           create: (_) => AppDependencies.createCurrentCompanyCubit(),
