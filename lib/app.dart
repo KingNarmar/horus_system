@@ -95,7 +95,7 @@ class HorusApp extends StatelessWidget {
               initialRoute: AppRoutes.root,
               onGenerateRoute: AppRouter.onGenerateRoute,
             );
-            },
+          },
         ),
       ),
     );
