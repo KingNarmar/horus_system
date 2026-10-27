@@ -1684,6 +1684,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notProvidedLabel => 'غير مُدخل';
 
   @override
+  String get companySwitcherTitle => 'شركاتك';
+
+  @override
+  String get companySwitcherEmpty =>
+      'لا توجد عضويات نشطة في شركات لهذا الحساب.';
+
+  @override
+  String get companySwitcherCurrent => 'الحالية';
+
+  @override
+  String get companySwitcherJoin => 'الانضمام إلى شركة أخرى';
+
+  @override
+  String get companySwitcherAction => 'تبديل الشركة أو الانضمام لشركة';
+
+  @override
   String get companyEntryTitle => 'اختر كيف تريد المتابعة';
 
   @override
