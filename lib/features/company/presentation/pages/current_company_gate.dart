@@ -87,7 +87,9 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate>
                       child: AbsorbPointer(
                         child: ColoredBox(
                           color: Theme.of(context).scaffoldBackgroundColor,
-                          child: const Center(child: CircularProgressIndicator()),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
                         ),
                       ),
                     ),
