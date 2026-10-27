@@ -14,13 +14,15 @@ final class SupabaseAuthSessionChangesRepository
   Stream<AuthSessionChange> watchSessionChanges() => _client
       .auth
       .onAuthStateChange
-      .map((data) => switch (data.event) {
-            AuthChangeEvent.signedIn => AuthSessionChange.signedIn,
-            AuthChangeEvent.signedOut => AuthSessionChange.signedOut,
-            AuthChangeEvent.tokenRefreshed => AuthSessionChange.tokenRefreshed,
-            AuthChangeEvent.userDeleted => AuthSessionChange.userDeleted,
-            _ => null,
-          })
+      .map(
+        (data) => switch (data.event) {
+          AuthChangeEvent.signedIn => AuthSessionChange.signedIn,
+          AuthChangeEvent.signedOut => AuthSessionChange.signedOut,
+          AuthChangeEvent.tokenRefreshed => AuthSessionChange.tokenRefreshed,
+          AuthChangeEvent.userDeleted => AuthSessionChange.userDeleted,
+          _ => null,
+        },
+      )
       .where((change) => change != null)
       .cast<AuthSessionChange>();
 }
