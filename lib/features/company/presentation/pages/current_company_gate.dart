@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/routing/company_scoped_cubit_boundary.dart';
+import '../../../../core/di/app_dependencies.dart';
 
 import '../../../app_shell/presentation/pages/app_shell_page.dart';
 import '../widgets/company_context_access_view.dart';
@@ -12,6 +13,7 @@ final class CurrentCompanyGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CompanyContextAccessView(
+      createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
       builder: (companyContext) => CompanyScopedCubitBoundary(
         child: AppShellPage(currentCompanyContext: companyContext),
       ),
