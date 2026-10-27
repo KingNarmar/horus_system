@@ -46,7 +46,6 @@ class AuthCubit extends Cubit<AuthState> {
         if (change == null) return;
         switch (change) {
           case AuthSessionChange.signedOut:
-          case AuthSessionChange.userDeleted:
             ++_operationGeneration;
             emit(const AuthUnauthenticated());
           case AuthSessionChange.signedIn:
@@ -65,7 +64,7 @@ class AuthCubit extends Cubit<AuthState> {
             }
         }
       },
-      onError: (Object _, StackTrace __) {
+      onError: (Object _, StackTrace _) {
         // Never include SDK errors or token material in logs.
         AppLogger.debug('auth_session_events_unavailable');
       },
