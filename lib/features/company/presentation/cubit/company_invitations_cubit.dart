@@ -32,6 +32,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
        super(const CompanyInvitationsInitial());
 
   Future<void> load(CurrentCompanyContext currentCompanyContext) async {
+    if (isClosed) return;
     final companyId = currentCompanyContext.companyId;
     _scopeCompanyId = companyId;
     emit(CompanyInvitationsLoading(companyId: companyId));
@@ -44,7 +45,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     required CompanyRole role,
   }) async {
     final companyId = currentCompanyContext.companyId;
-    if (_commandInProgress(companyId)) return;
+    if (isClosed || _commandInProgress(companyId)) return;
     _scopeCompanyId = companyId;
     final invitations = _currentInvitations(companyId);
     emit(
@@ -62,7 +63,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
       ),
     );
 
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     await result.when(
       success: (_) => _handleCommandSuccess(currentCompanyContext, invitations),
@@ -106,7 +107,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     Future<Result<void>> Function() action,
   ) async {
     final companyId = context.companyId;
-    if (_commandInProgress(companyId)) return;
+    if (isClosed || _commandInProgress(companyId)) return;
     _scopeCompanyId = companyId;
     final invitations = _currentInvitations(companyId);
     emit(
@@ -117,7 +118,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     );
 
     final result = await action();
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     await result.when(
       success: (_) => _handleCommandSuccess(context, invitations),
@@ -127,6 +128,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
   }
 
   bool _commandInProgress(String companyId) =>
+      isClosed ||
       state is CompanyInvitationsCommandInProgress &&
       state.companyId == companyId;
 
@@ -135,7 +137,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     List<CompanyInvitation> invitations,
   ) async {
     final companyId = context.companyId;
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     emit(
       CompanyInvitationsCommandSucceeded(
@@ -152,7 +154,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     List<CompanyInvitation> invitations,
   ) async {
     final companyId = context.companyId;
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     emit(
       CompanyInvitationsCommandFailure(
@@ -167,7 +169,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
     final refreshResult = await _getInvitationsUseCase(
       GetCompanyInvitationsParams(currentCompanyContext: context),
     );
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     refreshResult.when(
       success: (refreshedInvitations) => emit(
@@ -192,7 +194,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
       GetCompanyInvitationsParams(currentCompanyContext: context),
     );
 
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed || _scopeCompanyId != companyId) return;
 
     result.when(
       success: (invitations) => emit(
@@ -221,5 +223,11 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
       return current.invitations;
     }
     return const [];
+  }
+
+  @override
+  Future<void> close() async {
+    _scopeCompanyId = null;
+    await super.close();
   }
 }
