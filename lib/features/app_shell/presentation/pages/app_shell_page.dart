@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/di/app_dependencies.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -21,11 +20,13 @@ class AppShellPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
   final AppShellModule initialModule;
   final FinanceWorkspaceSection initialFinanceSection;
+  final CompanySwitcherCubit Function()? createCompanySwitcherCubit;
 
   const AppShellPage({
     required this.currentCompanyContext,
     this.initialModule = AppShellModule.dashboard,
     this.initialFinanceSection = FinanceWorkspaceSection.driverFinance,
+    this.createCompanySwitcherCubit,
     super.key,
   });
 
@@ -84,12 +85,15 @@ class _AppShellPageState extends State<AppShellPage> {
   }
 
   void _openCompanySwitcher() {
+    final createSwitcher = widget.createCompanySwitcherCubit;
+    if (createSwitcher == null) return;
+
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
       builder: (sheetContext) => BlocProvider<CompanySwitcherCubit>(
-        create: (_) => AppDependencies.createCompanySwitcherCubit()..load(),
+        create: (_) => createSwitcher()..load(),
         child: BlocListener<AuthCubit, AuthState>(
           listener: (_, state) {
             if (state is! AuthAuthenticated && sheetContext.mounted) {
@@ -165,7 +169,9 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
-          onSwitchCompany: _openCompanySwitcher,
+          onSwitchCompany: widget.createCompanySwitcherCubit == null
+              ? null
+              : _openCompanySwitcher,
         ),
         tablet: AppShellTabletLayout(
           contextData: widget.currentCompanyContext,
@@ -177,7 +183,9 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
-          onSwitchCompany: _openCompanySwitcher,
+          onSwitchCompany: widget.createCompanySwitcherCubit == null
+              ? null
+              : _openCompanySwitcher,
         ),
         desktop: AppShellDesktopLayout(
           contextData: widget.currentCompanyContext,
@@ -189,7 +197,9 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
-          onSwitchCompany: _openCompanySwitcher,
+          onSwitchCompany: widget.createCompanySwitcherCubit == null
+              ? null
+              : _openCompanySwitcher,
         ),
       ),
     );
