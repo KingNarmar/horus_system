@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/utils/result.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/entities/current_company_context.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
@@ -111,6 +114,56 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       success: (context) => emit(CurrentCompanyLoaded(context)),
       failure: (failure) => emit(CurrentCompanyFailure(failure)),
     );
+  }
+
+  /// Explicit user-initiated tenant switch. Unlike selecting a cached context,
+  /// this must verify active membership and role against the server.
+  ///
+  /// The previous shell is unmounted before the request. If selection fails,
+  /// the former company is revalidated before it can be shown again.
+  Future<Result<CurrentCompanyContext>> switchActiveCompany(
+    String companyId,
+  ) async {
+    final previous = state;
+    final previousContext = switch (previous) {
+      CurrentCompanyLoaded(:final context) => context,
+      CurrentCompanyVerifying(:final context) => context,
+      _ => null,
+    };
+
+    final request = ++_requestGeneration;
+    emit(const CurrentCompanyLoading());
+
+    final result = await _refreshSelectedCompanyContextUseCase(
+      RefreshSelectedCompanyContextParams(companyId: companyId),
+    );
+    if (!_isCurrent(request)) {
+      return const FailureResult(
+        ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
+      );
+    }
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      if (previousContext != null) {
+        await _refreshSelected(previousContext.companyId, request);
+      } else {
+        emit(CurrentCompanyFailure(failure, selectedCompanyId: companyId));
+      }
+      return FailureResult(failure);
+    }
+
+    final selected = result.dataOrNull;
+    if (selected == null) {
+      const invalid = ValidationFailure(
+        code: CompanyFailureCodes.companyNotAvailable,
+      );
+      emit(const CurrentCompanyFailure(invalid));
+      return const FailureResult(invalid);
+    }
+
+    emit(CurrentCompanyLoaded(selected));
+    return Success(selected);
   }
 
   Future<void> refreshAndSelectCompany(String companyId) async {
