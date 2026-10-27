@@ -282,60 +282,75 @@ void main() {
     },
   );
 
-  test('explicit switch verifies the target membership on the server', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'explicit switch verifies the target membership on the server',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    await cubit.loadCurrentCompanyContext();
-    repository.contexts = [
-      _context(CompanyRole.owner),
-      const CurrentCompanyContext(
-        company: Company(id: 'company-b', name: 'Company B'),
-        role: CompanyRole.accountant,
-      ),
-    ];
+      await cubit.loadCurrentCompanyContext();
+      repository.contexts = [
+        _context(CompanyRole.owner),
+        const CurrentCompanyContext(
+          company: Company(id: 'company-b', name: 'Company B'),
+          role: CompanyRole.accountant,
+        ),
+      ];
 
-    final result = await cubit.switchActiveCompany('company-b');
+      final result = await cubit.switchActiveCompany('company-b');
 
-    expect(result.failureOrNull, isNull);
-    expect(repository.loads, 2);
-    final selected = (cubit.state as CurrentCompanyLoaded).context;
-    expect(selected.companyId, 'company-b');
-    expect(selected.role, CompanyRole.accountant);
-  });
+      expect(result.failureOrNull, isNull);
+      expect(repository.loads, 2);
+      final selected = (cubit.state as CurrentCompanyLoaded).context;
+      expect(selected.companyId, 'company-b');
+      expect(selected.role, CompanyRole.accountant);
+    },
+  );
 
-  test('denied switch revalidates original company before restoring it', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'denied switch revalidates original company before restoring it',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    await cubit.loadCurrentCompanyContext();
-    repository.contexts = [_context(CompanyRole.viewer)];
+      await cubit.loadCurrentCompanyContext();
+      repository.contexts = [_context(CompanyRole.viewer)];
 
-    final result = await cubit.switchActiveCompany('company-b');
+      final result = await cubit.switchActiveCompany('company-b');
 
-    expect(result.failureOrNull?.code, CompanyFailureCodes.companyNotAvailable);
-    expect(repository.loads, 3);
-    final original = (cubit.state as CurrentCompanyLoaded).context;
-    expect(original.companyId, 'company-a');
-    expect(original.role, CompanyRole.viewer);
-  });
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.companyNotAvailable,
+      );
+      expect(repository.loads, 3);
+      final original = (cubit.state as CurrentCompanyLoaded).context;
+      expect(original.companyId, 'company-a');
+      expect(original.role, CompanyRole.viewer);
+    },
+  );
 
-  test('switch failure cannot restore a simultaneously revoked company', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'switch failure cannot restore a simultaneously revoked company',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    await cubit.loadCurrentCompanyContext();
-    repository.contexts = const [];
+      await cubit.loadCurrentCompanyContext();
+      repository.contexts = const [];
 
-    final result = await cubit.switchActiveCompany('company-b');
+      final result = await cubit.switchActiveCompany('company-b');
 
-    expect(result.failureOrNull?.code, CompanyFailureCodes.companyNotAvailable);
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
-    expect(repository.clears, 1);
-  });
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.companyNotAvailable,
+      );
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
+      expect(repository.clears, 1);
+    },
+  );
 
   test('late switch result cannot restore a company after sign-out', () async {
     final repository = _FakeCompanyContextRepository();
