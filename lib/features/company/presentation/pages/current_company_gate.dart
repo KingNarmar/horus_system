@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,11 +23,18 @@ class CurrentCompanyGate extends StatefulWidget {
 
 class _CurrentCompanyGateState extends State<CurrentCompanyGate>
     with WidgetsBindingObserver {
+  late final CurrentCompanyCubit _companyCubit;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    context.read<CurrentCompanyCubit>().loadCurrentCompanyContext();
+    _companyCubit = context.read<CurrentCompanyCubit>();
+    unawaited(_companyCubit.loadCurrentCompanyContext());
+    final auth = context.read<AuthCubit>().state;
+    if (auth is AuthAuthenticated) {
+      _companyCubit.startWatchingMembership(auth.user.id);
+    }
   }
 
   @override
@@ -37,12 +46,13 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate>
 
   void _revalidate() {
     if (!mounted) return;
-    context.read<CurrentCompanyCubit>().revalidateSelectedCompany();
+    unawaited(_companyCubit.revalidateSelectedCompany());
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_companyCubit.stopWatchingMembership());
     super.dispose();
   }
 
