@@ -84,9 +84,11 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate>
                   AppShellPage(currentCompanyContext: companyContext),
                   if (state is CurrentCompanyVerifying)
                     Positioned.fill(
-                      child: ColoredBox(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        child: const Center(child: CircularProgressIndicator()),
+                      child: AbsorbPointer(
+                        child: ColoredBox(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          child: const Center(child: CircularProgressIndicator()),
+                        ),
                       ),
                     ),
                 ],
