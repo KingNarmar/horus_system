@@ -55,22 +55,25 @@ void main() {
     },
   );
 
-  test('reactivated membership restores the company from empty state', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'reactivated membership restores the company from empty state',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    repository.contexts = const [];
-    await cubit.loadCurrentCompanyContext();
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
+      repository.contexts = const [];
+      await cubit.loadCurrentCompanyContext();
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
 
-    repository.contexts = [_context(CompanyRole.operations)];
-    await cubit.revalidateSelectedCompany();
+      repository.contexts = [_context(CompanyRole.operations)];
+      await cubit.revalidateSelectedCompany();
 
-    final recovered = cubit.state as CurrentCompanyLoaded;
-    expect(recovered.context.role, CompanyRole.operations);
-    expect(repository.loads, 2);
-  });
+      final recovered = cubit.state as CurrentCompanyLoaded;
+      expect(recovered.context.role, CompanyRole.operations);
+      expect(repository.loads, 2);
+    },
+  );
 
   test('rechecking empty context cannot restore a revoked member', () async {
     final repository = _FakeCompanyContextRepository();
@@ -100,31 +103,38 @@ void main() {
     changes.notify();
     await Future<void>.delayed(Duration.zero);
 
-    expect((cubit.state as CurrentCompanyLoaded).context.role,
-        CompanyRole.operations);
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.role,
+      CompanyRole.operations,
+    );
   });
 
-  test('membership signal recovers reactivated company without login', () async {
-    final repository = _FakeCompanyContextRepository();
-    final changes = _FakeMembershipChangesRepository();
-    final cubit = _createCubit(repository, changes)
-      ..startWatchingMembership('user-a');
-    addTearDown(() async {
-      await cubit.close();
-      await changes.dispose();
-    });
+  test(
+    'membership signal recovers reactivated company without login',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final changes = _FakeMembershipChangesRepository();
+      final cubit = _createCubit(repository, changes)
+        ..startWatchingMembership('user-a');
+      addTearDown(() async {
+        await cubit.close();
+        await changes.dispose();
+      });
 
-    repository.contexts = const [];
-    await cubit.loadCurrentCompanyContext();
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
+      repository.contexts = const [];
+      await cubit.loadCurrentCompanyContext();
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
 
-    repository.contexts = [_context(CompanyRole.operations)];
-    changes.notify();
-    await Future<void>.delayed(Duration.zero);
+      repository.contexts = [_context(CompanyRole.operations)];
+      changes.notify();
+      await Future<void>.delayed(Duration.zero);
 
-    expect((cubit.state as CurrentCompanyLoaded).context.role,
-        CompanyRole.operations);
-  });
+      expect(
+        (cubit.state as CurrentCompanyLoaded).context.role,
+        CompanyRole.operations,
+      );
+    },
+  );
 
   test(
     'revalidation retains mounted company context until server responds',
@@ -173,19 +183,20 @@ CurrentCompanyCubit _createCubit(
   _FakeCompanyContextRepository repository, [
   _FakeMembershipChangesRepository? changes,
 ]) => CurrentCompanyCubit(
-      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
-        repository,
-      ),
-      selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
-      refreshSelectedCompanyContextUseCase:
-          RefreshSelectedCompanyContextUseCase(repository),
-      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
-        repository,
-      ),
-      watchMembershipChangesUseCase: changes == null
-          ? null
-          : WatchCompanyMembershipChangesUseCase(changes),
-    );
+  loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+    repository,
+  ),
+  selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
+  refreshSelectedCompanyContextUseCase: RefreshSelectedCompanyContextUseCase(
+    repository,
+  ),
+  clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+    repository,
+  ),
+  watchMembershipChangesUseCase: changes == null
+      ? null
+      : WatchCompanyMembershipChangesUseCase(changes),
+);
 
 CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
   company: const Company(id: 'company-a', name: 'Test Company'),
@@ -202,9 +213,8 @@ final class _FakeMembershipChangesRepository
     required String userId,
   }) => _controller.stream;
 
-  void notify() => _controller.add(
-    const Success(CompanyMembershipChange.invalidated),
-  );
+  void notify() =>
+      _controller.add(const Success(CompanyMembershipChange.invalidated));
 
   Future<void> dispose() => _controller.close();
 }
