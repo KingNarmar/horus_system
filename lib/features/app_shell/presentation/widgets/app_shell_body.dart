@@ -15,6 +15,7 @@ class AppShellBody extends StatelessWidget {
   final FinanceWorkspaceSection selectedFinanceSection;
   final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final bool showIdentityContext;
+  final VoidCallback? onSwitchCompany;
 
   const AppShellBody({
     required this.contextData,
@@ -23,6 +24,7 @@ class AppShellBody extends StatelessWidget {
     required this.selectedFinanceSection,
     required this.onFinanceSectionSelected,
     this.showIdentityContext = false,
+    this.onSwitchCompany,
     super.key,
   });
 
@@ -64,6 +66,7 @@ class AppShellBody extends StatelessWidget {
                   user: currentUser,
                   contextData: contextData,
                   compact: true,
+                  onSwitchCompany: onSwitchCompany,
                 ),
               ],
             ],
