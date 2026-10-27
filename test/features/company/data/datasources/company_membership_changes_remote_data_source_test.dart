@@ -8,63 +8,77 @@ import 'package:horus_system/features/company/data/mappers/company_membership_ch
 import 'package:test/test.dart';
 
 void main() {
-  test('only the signed-in user may start the private membership channel',
-      () async {
-    final gateway = _FakeGateway();
-    final source =
-        SupabaseCompanyMembershipChangesRemoteDataSource.withGateway(
-      gateway,
-      () => 'user-a',
-    );
+  test(
+    'only the signed-in user may start the private membership channel',
+    () async {
+      final gateway = _FakeGateway();
+      final source =
+          SupabaseCompanyMembershipChangesRemoteDataSource.withGateway(
+            gateway,
+            () => 'user-a',
+          );
 
-    final signal = await source.watchChanges(userId: 'user-b').first;
-    expect(signal, RealtimeChangeSignal.unavailable);
-    expect(gateway.subscribedTopic, isNull);
-  });
+      final signal = await source.watchChanges(userId: 'user-b').first;
+      expect(signal, RealtimeChangeSignal.unavailable);
+      expect(gateway.subscribedTopic, isNull);
+    },
+  );
 
-  test('own membership events invalidate; foreign or malformed events do not',
-      () async {
-    final gateway = _FakeGateway();
-    final source =
-        SupabaseCompanyMembershipChangesRemoteDataSource.withGateway(
-      gateway,
-      () => 'user-a',
-    );
-    final signals = <RealtimeChangeSignal>[];
-    final subscription =
-        source.watchChanges(userId: 'user-a').listen(signals.add);
+  test(
+    'own membership events invalidate; foreign or malformed events do not',
+    () async {
+      final gateway = _FakeGateway();
+      final source =
+          SupabaseCompanyMembershipChangesRemoteDataSource.withGateway(
+            gateway,
+            () => 'user-a',
+          );
+      final signals = <RealtimeChangeSignal>[];
+      final subscription = source
+          .watchChanges(userId: 'user-a')
+          .listen(signals.add);
 
-    await Future<void>.delayed(Duration.zero);
-    expect(gateway.subscribedTopic,
-        CompanyMembershipRealtimeTopics.userMemberships('user-a'));
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        gateway.subscribedTopic,
+        CompanyMembershipRealtimeTopics.userMemberships('user-a'),
+      );
 
-    gateway.status!(RealtimeChannelJoinStatus.subscribed);
-    gateway.message!({
-      'payload': {'user_id': 'user-b', 'resource': 'membership'},
-    });
-    gateway.message!({'payload': {'user_id': 'user-a', 'resource': 'finance'}});
-    gateway.message!({
-      'payload': {'user_id': 'user-a', 'resource': 'membership'},
-    });
-    await Future<void>.delayed(Duration.zero);
+      gateway.status!(RealtimeChannelJoinStatus.subscribed);
+      gateway.message!({
+        'payload': {'user_id': 'user-b', 'resource': 'membership'},
+      });
+      gateway.message!({
+        'payload': {'user_id': 'user-a', 'resource': 'finance'},
+      });
+      gateway.message!({
+        'payload': {'user_id': 'user-a', 'resource': 'membership'},
+      });
+      await Future<void>.delayed(Duration.zero);
 
-    expect(signals, [
-      RealtimeChangeSignal.subscribed,
-      RealtimeChangeSignal.changed,
-    ]);
-    await subscription.cancel();
-    expect(gateway.removes, 1);
-  });
+      expect(signals, [
+        RealtimeChangeSignal.subscribed,
+        RealtimeChangeSignal.changed,
+      ]);
+      await subscription.cancel();
+      expect(gateway.removes, 1);
+    },
+  );
 
   test('invalid envelope never authorizes a membership change', () {
-    expect(CompanyMembershipChangeDecoder.isForUser(
-      {'payload': {'user_id': 'user-b', 'resource': 'membership'}},
-      userId: 'user-a',
-    ), isFalse);
-    expect(CompanyMembershipChangeDecoder.isForUser(
-      {'user_id': 'user-a', 'resource': 'membership'},
-      userId: 'user-a',
-    ), isFalse);
+    expect(
+      CompanyMembershipChangeDecoder.isForUser({
+        'payload': {'user_id': 'user-b', 'resource': 'membership'},
+      }, userId: 'user-a'),
+      isFalse,
+    );
+    expect(
+      CompanyMembershipChangeDecoder.isForUser({
+        'user_id': 'user-a',
+        'resource': 'membership',
+      }, userId: 'user-a'),
+      isFalse,
+    );
   });
 }
 
