@@ -48,19 +48,25 @@ void main() {
       expect(failure.message, isNull);
     });
 
-    test('transient socket and timeout errors return typed network failure', () {
-      for (final error in <Object>[
-        const SocketException('secret transport detail'),
-        TimeoutException('secret timeout'),
-        const HttpException('secret response detail'),
-      ]) {
-        final failure = mapper.fromUnexpected(error);
+    test(
+      'transient socket and timeout errors return typed network failure',
+      () {
+        for (final error in <Object>[
+          const SocketException('secret transport detail'),
+          TimeoutException('secret timeout'),
+          const HttpException('secret response detail'),
+        ]) {
+          final failure = mapper.fromUnexpected(error);
 
-        expect(failure, isA<NetworkFailure>());
-        expect(failure.code, CompanyFailureCodes.contextConnectionUnavailable);
-        expect(failure.message, isNull);
-      }
-    });
+          expect(failure, isA<NetworkFailure>());
+          expect(
+            failure.code,
+            CompanyFailureCodes.contextConnectionUnavailable,
+          );
+          expect(failure.message, isNull);
+        }
+      },
+    );
 
     test('sanitizes unexpected exceptions', () {
       final failure = mapper.fromUnexpected(
