@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecases/usecase.dart';
@@ -6,6 +8,7 @@ import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
 import '../../domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../domain/usecases/select_current_company_usecase.dart';
+import '../../domain/usecases/watch_company_membership_changes_usecase.dart';
 import 'current_company_state.dart';
 
 class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
@@ -14,6 +17,9 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   final RefreshSelectedCompanyContextUseCase
   _refreshSelectedCompanyContextUseCase;
   final ClearCurrentCompanyContextUseCase _clearCurrentCompanyContextUseCase;
+  final WatchCompanyMembershipChangesUseCase? _watchMembershipChangesUseCase;
+  StreamSubscription? _membershipSubscription;
+  int _membershipGeneration = 0;
   int _requestGeneration = 0;
 
   CurrentCompanyCubit({
@@ -23,12 +29,48 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     refreshSelectedCompanyContextUseCase,
     required ClearCurrentCompanyContextUseCase
     clearCurrentCompanyContextUseCase,
+    WatchCompanyMembershipChangesUseCase? watchMembershipChangesUseCase,
   }) : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
        _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
        _refreshSelectedCompanyContextUseCase =
            refreshSelectedCompanyContextUseCase,
        _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
+       _watchMembershipChangesUseCase = watchMembershipChangesUseCase,
        super(const CurrentCompanyInitial());
+
+  /// Start the personal membership channel for this authenticated identity.
+  /// Every event triggers a server re-read; client messages never grant roles.
+  void startWatchingMembership(String userId) {
+    if (_watchMembershipChangesUseCase == null || userId.trim().isEmpty) {
+      return;
+    }
+    final generation = ++_membershipGeneration;
+    final previous = _membershipSubscription;
+    if (previous != null) {
+      unawaited(previous.cancel());
+    }
+
+    _membershipSubscription =
+        _watchMembershipChangesUseCase(
+          WatchCompanyMembershipChangesParams(userId: userId),
+        ).listen(
+          (_) {
+            if (isClosed || generation != _membershipGeneration) return;
+            unawaited(revalidateSelectedCompany());
+          },
+          onError: (Object _, StackTrace __) {
+            if (isClosed || generation != _membershipGeneration) return;
+            unawaited(revalidateSelectedCompany());
+          },
+        );
+  }
+
+  Future<void> stopWatchingMembership() async {
+    ++_membershipGeneration;
+    final subscription = _membershipSubscription;
+    _membershipSubscription = null;
+    await subscription?.cancel();
+  }
 
   Future<void> loadCurrentCompanyContext() async {
     final request = ++_requestGeneration;
@@ -138,6 +180,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   @override
   Future<void> close() async {
     ++_requestGeneration;
+    await stopWatchingMembership();
     await super.close();
   }
 }
