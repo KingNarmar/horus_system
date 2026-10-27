@@ -48,9 +48,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     final generation = ++_membershipGeneration;
     final previous = _membershipSubscription;
     if (previous != null) {
-      unawaited(previous.cancel().onError((Object _, StackTrace _) {
-        AppLogger.debug('membership_channel_cleanup_failed');
-      }));
+      unawaited(
+        previous.cancel().onError((Object _, StackTrace _) {
+          AppLogger.debug('membership_channel_cleanup_failed');
+        }),
+      );
     }
 
     _membershipSubscription =
