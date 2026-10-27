@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
