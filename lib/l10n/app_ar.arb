@@ -15,6 +15,7 @@
   "networkStatusCheckFailedTitle": "تعذر التحقق من الاتصال",
   "networkStatusCheckFailedMessage": "تعذر على H.O.R.U.S التحقق من اتصال الإنترنت. ستظل الإجراءات متوقفة حفاظًا على سلامة البيانات.",
   "networkRetryButton": "إعادة المحاولة",
+  "failureCompanyContextConnectionUnavailable": "تعذر التحقق من صلاحيات الشركة بسبب انقطاع الاتصال. أعد الاتصال ثم حاول مرة أخرى.",
   "failureNetworkStatusUnavailable": "تعذر التحقق من حالة اتصال الإنترنت.",
   "failureRealtimeSubscriptionUnavailable": "التحديثات المباشرة غير متاحة مؤقتًا. يمكنك إعادة المحاولة أو فتح الصفحة مجددًا لتحديث البيانات.",
   "bootstrapFailureTitle": "تعذر تشغيل نظام حورس",
