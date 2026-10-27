@@ -2,6 +2,7 @@ import '../../features/auth/data/datasources/account_deletion_remote_data_source
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/account_deletion_repository_impl.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/auth_session_changes_repository_impl.dart';
 import '../../features/auth/data/repositories/password_recovery_repository_impl.dart';
 import '../../features/auth/domain/usecases/cancel_account_deletion_usecase.dart';
 import '../../features/auth/domain/usecases/get_account_deletion_status_usecase.dart';
@@ -9,6 +10,7 @@ import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
+import '../../features/auth/domain/usecases/watch_auth_session_changes_usecase.dart';
 import '../../features/auth/domain/usecases/request_password_recovery_usecase.dart';
 import '../../features/auth/domain/usecases/request_account_deletion_usecase.dart';
 import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
@@ -62,6 +64,9 @@ abstract final class AppDependencies {
       loginUseCase: LoginUseCase(authRepository),
       logoutUseCase: LogoutUseCase(authRepository),
       getCurrentUserUseCase: GetCurrentUserUseCase(authRepository),
+      watchSessionChangesUseCase: WatchAuthSessionChangesUseCase(
+        SupabaseAuthSessionChangesRepository(SupabaseClientProvider.client),
+      ),
     );
   }
 
