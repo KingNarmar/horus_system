@@ -19,41 +19,50 @@ void main() {
     );
 
     await tester.pumpWidget(app('invoice-123'));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
-        'invoice-123');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'invoice-123',
+    );
 
     await tester.pumpWidget(app(null));
     expect(find.byType(TextField), findsNothing);
 
     await tester.pumpWidget(app('invoice-123'));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
-        'invoice-123');
-  });
-
-  testWidgets('forwards typed intent and synchronizes externally changed query', (
-    tester,
-  ) async {
-    final changes = <String>[];
-    Widget app(String query) => MaterialApp(
-      home: Scaffold(
-        body: PaymentsSearchField(
-          query: query,
-          hintText: 'Search',
-          onChanged: changes.add,
-        ),
-      ),
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'invoice-123',
     );
-
-    await tester.pumpWidget(app('previous'));
-    await tester.enterText(find.byType(TextField), 'reference');
-    expect(changes, ['reference']);
-
-    await tester.pumpWidget(app('reference'));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
-        'reference');
-
-    await tester.pumpWidget(app('updated'));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
-        'updated');
   });
+
+  testWidgets(
+    'forwards typed intent and synchronizes externally changed query',
+    (tester) async {
+      final changes = <String>[];
+      Widget app(String query) => MaterialApp(
+        home: Scaffold(
+          body: PaymentsSearchField(
+            query: query,
+            hintText: 'Search',
+            onChanged: changes.add,
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(app('previous'));
+      await tester.enterText(find.byType(TextField), 'reference');
+      expect(changes, ['reference']);
+
+      await tester.pumpWidget(app('reference'));
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'reference',
+      );
+
+      await tester.pumpWidget(app('updated'));
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'updated',
+      );
+    },
+  );
 }
