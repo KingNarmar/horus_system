@@ -71,7 +71,8 @@ abstract final class AppRouter {
               AppDependencies.createCompanySwitcherCubit,
           builder: (currentCompanyContext) => AppShellPage(
             currentCompanyContext: currentCompanyContext,
-            createCompanySwitcherCubit: AppDependencies.createCompanySwitcherCubit,
+            createCompanySwitcherCubit:
+                AppDependencies.createCompanySwitcherCubit,
             initialModule: moduleForRoute(routeName),
             initialFinanceSection: financeSectionForRoute(routeName),
           ),
