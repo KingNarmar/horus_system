@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/routing/app_routes.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/di/app_dependencies.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../company/domain/entities/current_company_context.dart';
+import '../../../company/presentation/cubit/company_switcher_cubit.dart';
+import '../../../company/presentation/widgets/company_switcher_panel.dart';
 import '../models/app_shell_destination.dart';
 import '../models/finance_workspace_section.dart';
 import '../widgets/app_shell_desktop_layout.dart';
@@ -78,6 +83,47 @@ class _AppShellPageState extends State<AppShellPage> {
     setState(() => _selectedFinanceSection = section);
   }
 
+  void _openCompanySwitcher() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => BlocProvider<CompanySwitcherCubit>(
+        create: (_) => AppDependencies.createCompanySwitcherCubit()..load(),
+        child: BlocListener<AuthCubit, AuthState>(
+          listener: (_, state) {
+            if (state is! AuthAuthenticated && sheetContext.mounted) {
+              Navigator.of(sheetContext).pop();
+            }
+          },
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: SingleChildScrollView(
+                child: CompanySwitcherPanel(
+                  activeCompanyId: widget.currentCompanyContext.companyId,
+                  onSwitchSucceeded: () {
+                    if (sheetContext.mounted) {
+                      Navigator.of(sheetContext).pop();
+                    }
+                  },
+                  onJoin: () {
+                    Navigator.of(sheetContext).pop();
+                    if (mounted) {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.companyInvitation,
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _logout() => context.read<AuthCubit>().logout();
 
   AppShellModule _resolveInitialModule(AppShellModule module) {
@@ -119,6 +165,7 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
+          onSwitchCompany: _openCompanySwitcher,
         ),
         tablet: AppShellTabletLayout(
           contextData: widget.currentCompanyContext,
@@ -130,6 +177,7 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
+          onSwitchCompany: _openCompanySwitcher,
         ),
         desktop: AppShellDesktopLayout(
           contextData: widget.currentCompanyContext,
@@ -141,6 +189,7 @@ class _AppShellPageState extends State<AppShellPage> {
           onSelect: _select,
           onFinanceSectionSelected: _selectFinanceSection,
           onLogout: _logout,
+          onSwitchCompany: _openCompanySwitcher,
         ),
       ),
     );
