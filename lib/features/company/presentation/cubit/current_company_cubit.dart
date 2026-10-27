@@ -58,7 +58,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
             if (isClosed || generation != _membershipGeneration) return;
             unawaited(revalidateSelectedCompany());
           },
-          onError: (Object _, StackTrace __) {
+          onError: (Object _, StackTrace _) {
             if (isClosed || generation != _membershipGeneration) return;
             unawaited(revalidateSelectedCompany());
           },
