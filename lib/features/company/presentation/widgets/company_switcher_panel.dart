@@ -48,9 +48,9 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
       _switchFailure = null;
     });
 
-    final result = await context.read<CurrentCompanyCubit>().switchActiveCompany(
-      company.companyId,
-    );
+    final result = await context
+        .read<CurrentCompanyCubit>()
+        .switchActiveCompany(company.companyId);
     if (!mounted) return;
 
     final failure = result.failureOrNull;
@@ -102,9 +102,7 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
                     contentPadding: EdgeInsets.zero,
                     enabled: !busy,
                     title: Text(company.company.name),
-                    subtitle: Text(
-                      company.role.localizedLabel(context),
-                    ),
+                    subtitle: Text(company.role.localizedLabel(context)),
                     leading: Icon(
                       company.companyId == widget.activeCompanyId
                           ? AppIcons.reactivate
