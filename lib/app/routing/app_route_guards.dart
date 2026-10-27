@@ -43,9 +43,8 @@ class CompanyRequiredRouteGuard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AuthenticatedRouteGuard(
       child: CompanyContextAccessView(
-        builder: (companyContext) => CompanyScopedCubitBoundary(
-          child: builder(companyContext),
-        ),
+        builder: (companyContext) =>
+            CompanyScopedCubitBoundary(child: builder(companyContext)),
       ),
     );
   }
