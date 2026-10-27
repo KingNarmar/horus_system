@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:horus_system/core/context/current_company_provider.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -43,6 +46,20 @@ void main() {
       expect(failure, isA<ValidationFailure>());
       expect(failure.code, FailureCodes.validationCompanyContextRequired);
       expect(failure.message, isNull);
+    });
+
+    test('transient socket and timeout errors return typed network failure', () {
+      for (final error in <Object>[
+        const SocketException('secret transport detail'),
+        TimeoutException('secret timeout'),
+        const HttpException('secret response detail'),
+      ]) {
+        final failure = mapper.fromUnexpected(error);
+
+        expect(failure, isA<NetworkFailure>());
+        expect(failure.code, CompanyFailureCodes.contextConnectionUnavailable);
+        expect(failure.message, isNull);
+      }
     });
 
     test('sanitizes unexpected exceptions', () {
