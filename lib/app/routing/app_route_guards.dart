@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'company_scoped_cubit_boundary.dart';
+
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -40,7 +42,11 @@ class CompanyRequiredRouteGuard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AuthenticatedRouteGuard(
-      child: CompanyContextAccessView(builder: builder),
+      child: CompanyContextAccessView(
+        builder: (companyContext) => CompanyScopedCubitBoundary(
+          child: builder(companyContext),
+        ),
+      ),
     );
   }
 }
