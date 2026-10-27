@@ -60,36 +60,57 @@ final class _Verifier {
     return renewed;
   }
 
+  String? _companyId;
+
   Future<void> verifyTenantAccess(
     R51RenewedCredentials session, {
     required String phase,
   }) async {
-    final own = await _client.request(
+    final ownMemberships = await _client.request(
       'GET',
       '/rest/v1/company_users',
       jwt: session.accessToken,
       query: {
         'select': 'company_id,role,is_active',
         'user_id': 'eq.${session.userId}',
-        'company_id': 'eq.${_config.companyA}',
       },
     );
+    final candidates = ownMemberships.rows.where(
+      (row) =>
+          row['is_active'] == true &&
+          row['role'] == 'viewer' &&
+          (row['company_id'] == _config.companyA ||
+              row['company_id'] == _config.companyB),
+    ).toList();
+
+    if (candidates.length != 1) {
+      throw const FormatException('Development Viewer fixture invalid.');
+    }
+    final ownCompanyId = candidates.single['company_id'] as String;
+    if (_companyId != null && _companyId != ownCompanyId) {
+      throw const FormatException('Company selection changed after renewal.');
+    }
+    _companyId = ownCompanyId;
+
     if (!r51HasExpectedMembership(
-      own.rows,
-      companyId: _config.companyA,
+      candidates,
+      companyId: ownCompanyId,
       role: 'viewer',
     )) {
       throw const FormatException('Development Viewer membership invalid.');
     }
     pass('$phase own Viewer membership readable through RLS');
 
+    final foreignCompanyId = ownCompanyId == _config.companyA
+        ? _config.companyB
+        : _config.companyA;
     final foreign = await _client.request(
       'GET',
       '/rest/v1/company_users',
       jwt: session.accessToken,
       query: {
         'select': 'company_id',
-        'company_id': 'eq.${_config.companyB}',
+        'company_id': 'eq.$foreignCompanyId',
       },
     );
     if (foreign.rows.isNotEmpty) {
