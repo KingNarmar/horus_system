@@ -19,7 +19,6 @@ final class SupabaseAuthSessionChangesRepository
           AuthChangeEvent.signedIn => AuthSessionChange.signedIn,
           AuthChangeEvent.signedOut => AuthSessionChange.signedOut,
           AuthChangeEvent.tokenRefreshed => AuthSessionChange.tokenRefreshed,
-          AuthChangeEvent.userDeleted => AuthSessionChange.userDeleted,
           _ => null,
         },
       )
