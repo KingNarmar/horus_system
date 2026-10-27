@@ -121,8 +121,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     );
   }
 
-  bool _isCurrent(int request) =>
-      !isClosed && request == _requestGeneration;
+  bool _isCurrent(int request) => !isClosed && request == _requestGeneration;
 
   @override
   Future<void> close() async {
