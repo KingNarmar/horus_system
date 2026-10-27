@@ -19,6 +19,7 @@ class AuthLoginSubmitting extends AuthState {
 
 class AuthAuthenticated extends AuthState {
   final AuthUser user;
+
   /// Incremented when the active SDK session refreshes its credentials.
   final int sessionRevision;
 
