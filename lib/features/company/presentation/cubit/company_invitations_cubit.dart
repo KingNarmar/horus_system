@@ -130,7 +130,7 @@ class CompanyInvitationsCubit extends Cubit<CompanyInvitationsState> {
   bool _commandInProgress(String companyId) =>
       isClosed ||
       state is CompanyInvitationsCommandInProgress &&
-      state.companyId == companyId;
+          state.companyId == companyId;
 
   Future<void> _handleCommandSuccess(
     CurrentCompanyContext context,
