@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
+import 'package:horus_system/features/company/domain/entities/company_membership_change.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/company/domain/repositories/company_context_repository.dart';
+import 'package:horus_system/features/company/domain/repositories/company_membership_changes_repository.dart';
 import 'package:horus_system/features/company/domain/usecases/clear_current_company_context_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/load_current_company_context_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/select_current_company_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/watch_company_membership_changes_usecase.dart';
 import 'package:horus_system/features/company/presentation/cubit/current_company_cubit.dart';
 import 'package:horus_system/features/company/presentation/cubit/current_company_state.dart';
 import 'package:test/test.dart';
@@ -82,6 +85,47 @@ void main() {
     expect(repository.loads, 2);
   });
 
+  test('membership signal refreshes an already-open company role', () async {
+    final repository = _FakeCompanyContextRepository();
+    final changes = _FakeMembershipChangesRepository();
+    final cubit = _createCubit(repository, changes)
+      ..startWatchingMembership('user-a');
+    addTearDown(() async {
+      await cubit.close();
+      await changes.dispose();
+    });
+
+    await cubit.loadCurrentCompanyContext();
+    repository.contexts = [_context(CompanyRole.operations)];
+    changes.notify();
+    await Future<void>.delayed(Duration.zero);
+
+    expect((cubit.state as CurrentCompanyLoaded).context.role,
+        CompanyRole.operations);
+  });
+
+  test('membership signal recovers reactivated company without login', () async {
+    final repository = _FakeCompanyContextRepository();
+    final changes = _FakeMembershipChangesRepository();
+    final cubit = _createCubit(repository, changes)
+      ..startWatchingMembership('user-a');
+    addTearDown(() async {
+      await cubit.close();
+      await changes.dispose();
+    });
+
+    repository.contexts = const [];
+    await cubit.loadCurrentCompanyContext();
+    expect(cubit.state, isA<CurrentCompanyEmpty>());
+
+    repository.contexts = [_context(CompanyRole.operations)];
+    changes.notify();
+    await Future<void>.delayed(Duration.zero);
+
+    expect((cubit.state as CurrentCompanyLoaded).context.role,
+        CompanyRole.operations);
+  });
+
   test(
     'revalidation retains mounted company context until server responds',
     () async {
@@ -125,8 +169,10 @@ void main() {
   );
 }
 
-CurrentCompanyCubit _createCubit(_FakeCompanyContextRepository repository) =>
-    CurrentCompanyCubit(
+CurrentCompanyCubit _createCubit(
+  _FakeCompanyContextRepository repository, [
+  _FakeMembershipChangesRepository? changes,
+]) => CurrentCompanyCubit(
       loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
         repository,
       ),
@@ -136,12 +182,32 @@ CurrentCompanyCubit _createCubit(_FakeCompanyContextRepository repository) =>
       clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
         repository,
       ),
+      watchMembershipChangesUseCase: changes == null
+          ? null
+          : WatchCompanyMembershipChangesUseCase(changes),
     );
 
 CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
   company: const Company(id: 'company-a', name: 'Test Company'),
   role: role,
 );
+
+final class _FakeMembershipChangesRepository
+    implements CompanyMembershipChangesRepository {
+  final _controller =
+      StreamController<Result<CompanyMembershipChange>>.broadcast();
+
+  @override
+  Stream<Result<CompanyMembershipChange>> watchChanges({
+    required String userId,
+  }) => _controller.stream;
+
+  void notify() => _controller.add(
+    const Success(CompanyMembershipChange.invalidated),
+  );
+
+  Future<void> dispose() => _controller.close();
+}
 
 final class _FakeCompanyContextRepository implements CompanyContextRepository {
   List<CurrentCompanyContext> contexts = [_context(CompanyRole.owner)];
