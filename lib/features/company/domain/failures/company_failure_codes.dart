@@ -26,6 +26,8 @@ abstract final class CompanyFailureCodes {
       'conflict_company_business_timezone_not_configured';
   static const conflictRegionalSettingsNotConfigured =
       'conflict_company_regional_settings_not_configured';
+  static const contextConnectionUnavailable =
+      'company_context_connection_unavailable';
   static const companyNotAvailable = 'company_not_available';
   static const notFound = 'company_not_found';
 
