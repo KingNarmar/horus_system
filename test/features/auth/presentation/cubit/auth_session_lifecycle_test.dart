@@ -21,24 +21,27 @@ const _user = AuthUser(
 );
 
 void main() {
-  test('token renewal preserves identity and invalidates company session revision', () async {
-    final changes = _FakeSessionEventsRepository();
-    final repository = _FakeAuthRepository();
-    final cubit = _createCubit(repository, changes)..startWatchingSession();
-    addTearDown(() async {
-      await cubit.close();
-      await changes.dispose();
-    });
+  test(
+    'token renewal preserves identity and invalidates company session revision',
+    () async {
+      final changes = _FakeSessionEventsRepository();
+      final repository = _FakeAuthRepository();
+      final cubit = _createCubit(repository, changes)..startWatchingSession();
+      addTearDown(() async {
+        await cubit.close();
+        await changes.dispose();
+      });
 
-    await cubit.checkCurrentUser();
-    expect(cubit.state, isA<AuthAuthenticated>());
-    changes.add(AuthSessionChange.tokenRefreshed);
-    await Future<void>.delayed(Duration.zero);
+      await cubit.checkCurrentUser();
+      expect(cubit.state, isA<AuthAuthenticated>());
+      changes.add(AuthSessionChange.tokenRefreshed);
+      await Future<void>.delayed(Duration.zero);
 
-    final renewed = cubit.state as AuthAuthenticated;
-    expect(renewed.user.id, _user.id);
-    expect(renewed.sessionRevision, 1);
-  });
+      final renewed = cubit.state as AuthAuthenticated;
+      expect(renewed.user.id, _user.id);
+      expect(renewed.sessionRevision, 1);
+    },
+  );
 
   test('external sign-out immediately invalidates authenticated UI', () async {
     final changes = _FakeSessionEventsRepository();
@@ -102,7 +105,8 @@ AuthCubit _createCubit(
   watchSessionChangesUseCase: WatchAuthSessionChangesUseCase(changes),
 );
 
-final class _FakeSessionEventsRepository implements AuthSessionChangesRepository {
+final class _FakeSessionEventsRepository
+    implements AuthSessionChangesRepository {
   final _controller = StreamController<AuthSessionChange>.broadcast();
 
   @override
