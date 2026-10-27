@@ -39,9 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (_sessionSubscription != null || _watchSessionChangesUseCase == null) {
       return;
     }
-    _sessionSubscription = _watchSessionChangesUseCase(
-      const NoParams(),
-    ).listen(
+    _sessionSubscription = _watchSessionChangesUseCase(const NoParams()).listen(
       (result) {
         if (isClosed) return;
         final change = result.dataOrNull;
