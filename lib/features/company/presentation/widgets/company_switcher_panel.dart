@@ -84,7 +84,11 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
                 state is CompanySwitcherInitial)
               const Center(child: CircularProgressIndicator())
             else if (state is CompanySwitcherFailure) ...[
-              Text(CompanyFailureLocalizationX(l10n).localizedErrorMessage(state.failure)),
+              Text(
+                CompanyFailureLocalizationX(l10n).localizedErrorMessage(
+                  state.failure,
+                ),
+              ),
               const SizedBox(height: AppSpacing.sm),
               OutlinedButton.icon(
                 onPressed: busy
@@ -119,7 +123,11 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
             ],
             if (_switchFailure != null) ...[
               const SizedBox(height: AppSpacing.md),
-              Text(CompanyFailureLocalizationX(l10n).localizedErrorMessage(_switchFailure!)),
+              Text(
+                CompanyFailureLocalizationX(l10n).localizedErrorMessage(
+                  _switchFailure!,
+                ),
+              ),
             ],
             if (widget.onJoin != null) ...[
               const SizedBox(height: AppSpacing.md),
