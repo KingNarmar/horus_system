@@ -52,6 +52,26 @@ void main() {
     },
   );
 
+  test('revalidation retains mounted company context until server responds', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.loadCurrentCompanyContext();
+    final pending = Completer<Result<List<CurrentCompanyContext>>>();
+    repository.pendingLoad = pending;
+
+    final validation = cubit.revalidateSelectedCompany();
+    final verifying = cubit.state as CurrentCompanyVerifying;
+    expect(verifying.context.companyId, 'company-a');
+    expect(verifying.context.role, CompanyRole.owner);
+
+    repository.contexts = [_context(CompanyRole.owner)];
+    pending.complete(Success(repository.contexts));
+    await validation;
+    expect(cubit.state, isA<CurrentCompanyLoaded>());
+  });
+
   test(
     'late company verification cannot resurrect context after sign-out',
     () async {
