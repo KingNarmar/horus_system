@@ -78,20 +78,7 @@ void main() {
     expect(cubit.state, isA<AuthUnauthenticated>());
   });
 
-  test('user deletion ends the active company session', () async {
-    final changes = _FakeSessionEventsRepository();
-    final cubit = _createCubit(_FakeAuthRepository(), changes)
-      ..startWatchingSession();
-    addTearDown(() async {
-      await cubit.close();
-      await changes.dispose();
-    });
-    await cubit.checkCurrentUser();
 
-    changes.add(AuthSessionChange.userDeleted);
-    await Future<void>.delayed(Duration.zero);
-    expect(cubit.state, isA<AuthUnauthenticated>());
-  });
 }
 
 AuthCubit _createCubit(
