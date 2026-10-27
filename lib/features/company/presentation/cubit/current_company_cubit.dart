@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
@@ -47,7 +48,9 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     final generation = ++_membershipGeneration;
     final previous = _membershipSubscription;
     if (previous != null) {
-      unawaited(previous.cancel());
+      unawaited(previous.cancel().onError((Object _, StackTrace _) {
+        AppLogger.debug('membership_channel_cleanup_failed');
+      }));
     }
 
     _membershipSubscription =
@@ -69,7 +72,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     ++_membershipGeneration;
     final subscription = _membershipSubscription;
     _membershipSubscription = null;
-    await subscription?.cancel();
+    try {
+      await subscription?.cancel();
+    } catch (_) {
+      AppLogger.debug('membership_channel_cleanup_failed');
+    }
   }
 
   Future<void> loadCurrentCompanyContext() async {
