@@ -275,6 +275,31 @@ void main() {
       },
     );
 
+    test('late older membership load cannot replace fresh role cache', () async {
+      final source = _OutOfOrderMembershipDataSource();
+      final repository = _repository(dataSource: source);
+
+      final older = repository.loadUserCompanyContexts();
+      final newer = repository.loadUserCompanyContexts();
+
+      source.requests[1].complete([
+        _membership('company-1', 'Company', CompanyRole.operations),
+      ]);
+      expect((await newer).dataOrNull?.first.role, CompanyRole.operations);
+
+      source.requests[0].complete([
+        _membership('company-1', 'Company', CompanyRole.admin),
+      ]);
+      expect(
+        (await older).failureOrNull?.code,
+        CompanyFailureCodes.companyNotAvailable,
+      );
+      expect(
+        (await repository.selectCompany('company-1')).dataOrNull?.role,
+        CompanyRole.operations,
+      );
+    });
+
     test('sanitizes unexpected current-context provider failures', () async {
       final repository = _repository(
         dataSource: _FakeCompanyContextRemoteDataSource(),
@@ -400,6 +425,18 @@ final class _ThrowingCompanyMembershipModel extends CompanyMembershipModel {
 
   @override
   CompanyModel get company => throw StateError('secret mapping detail');
+}
+
+final class _OutOfOrderMembershipDataSource
+    implements CompanyContextRemoteDataSource {
+  final requests = <Completer<List<CompanyMembershipModel>>>[];
+
+  @override
+  Future<List<CompanyMembershipModel>> loadUserCompanyMemberships() {
+    final request = Completer<List<CompanyMembershipModel>>();
+    requests.add(request);
+    return request.future;
+  }
 }
 
 final class _DelayedCompanyMembershipDataSource
