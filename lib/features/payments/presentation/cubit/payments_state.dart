@@ -34,6 +34,7 @@ final class PaymentsLoaded extends PaymentsState {
   final bool canRegisterPayments;
   final String searchQuery;
   final Failure? invoiceReferencesRefreshFailure;
+  final Failure? paymentsRefreshFailure;
 
   const PaymentsLoaded({
     required this.currentCompanyContext,
@@ -44,6 +45,7 @@ final class PaymentsLoaded extends PaymentsState {
     required this.canRegisterPayments,
     this.searchQuery = '',
     this.invoiceReferencesRefreshFailure,
+    this.paymentsRefreshFailure,
   });
 
   BusinessLocalDateTime? createdAtFor(Payment payment) {
@@ -90,13 +92,16 @@ final class PaymentsLoaded extends PaymentsState {
 
   PaymentsLoaded copyWith({
     String? searchQuery,
+    List<Payment>? allPayments,
+    Map<String, BusinessLocalDateTime>? createdAtByPaymentId,
     List<Invoice>? invoices,
     Object? invoiceReferencesRefreshFailure = _notSet,
+    Object? paymentsRefreshFailure = _notSet,
   }) {
     return PaymentsLoaded(
       currentCompanyContext: currentCompanyContext,
-      allPayments: allPayments,
-      createdAtByPaymentId: createdAtByPaymentId,
+      allPayments: allPayments ?? this.allPayments,
+      createdAtByPaymentId: createdAtByPaymentId ?? this.createdAtByPaymentId,
       invoices: invoices ?? this.invoices,
       paymentMethods: paymentMethods,
       canRegisterPayments: canRegisterPayments,
@@ -105,6 +110,9 @@ final class PaymentsLoaded extends PaymentsState {
           identical(invoiceReferencesRefreshFailure, _notSet)
           ? this.invoiceReferencesRefreshFailure
           : invoiceReferencesRefreshFailure as Failure?,
+      paymentsRefreshFailure: identical(paymentsRefreshFailure, _notSet)
+          ? this.paymentsRefreshFailure
+          : paymentsRefreshFailure as Failure?,
     );
   }
 }

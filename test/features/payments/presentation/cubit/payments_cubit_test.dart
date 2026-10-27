@@ -4,6 +4,8 @@ import 'package:horus_system/core/usecases/convert_instants_to_business_local_da
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/core/utils/result.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
@@ -91,6 +93,77 @@ void main() {
     await cubit.close();
   });
 
+  test(
+    'payment realtime refresh keeps search and does not query invoices',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final invoices = _FakeInvoicesRepository();
+      final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      cubit.setSearchQuery('reference');
+
+      await cubit.refreshPaymentsFromRealtime();
+
+      final state = cubit.state as PaymentsLoaded;
+      expect(state.searchQuery, 'reference');
+      expect(state.allPayments, isEmpty);
+      expect(state.paymentsRefreshFailure, isNull);
+      expect(payments.getPaymentsCalls, 2);
+      expect(invoices.getInvoicesCalls, 1);
+      await cubit.close();
+    },
+  );
+
+  test(
+    'duplicate payment signals coalesce behind the latest server read',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final cubit = _cubit(
+        payments,
+        _FakeInvoicesRepository(),
+        _FakePaymentMethodsRepository(),
+      );
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      final barrier = Completer<Result<List<Payment>>>();
+      payments.realtimeBarrier = barrier;
+      payments.realtimeRequested = Completer<void>();
+
+      final first = cubit.refreshPaymentsFromRealtime();
+      await payments.realtimeRequested!.future;
+      final duplicate = cubit.refreshPaymentsFromRealtime();
+      barrier.complete(const Success<List<Payment>>([]));
+      await Future.wait([first, duplicate]);
+
+      expect(payments.getPaymentsCalls, 3);
+      expect(cubit.state, isA<PaymentsLoaded>());
+      await cubit.close();
+    },
+  );
+
+  test(
+    'payment realtime read failure retains loaded state and search',
+    () async {
+      final payments = _FakePaymentsRepository();
+      final invoices = _FakeInvoicesRepository();
+      final cubit = _cubit(payments, invoices, _FakePaymentMethodsRepository());
+      await cubit.loadPayments(_context(CompanyRole.accountant));
+      cubit.setSearchQuery('reference');
+      payments.failRealtime = true;
+
+      await cubit.refreshPaymentsFromRealtime();
+
+      final state = cubit.state as PaymentsLoaded;
+      expect(state.searchQuery, 'reference');
+      expect(state.allPayments, isEmpty);
+      expect(
+        state.paymentsRefreshFailure?.code,
+        FailureCodes.realtimeSubscriptionUnavailable,
+      );
+      expect(invoices.getInvoicesCalls, 1);
+      await cubit.close();
+    },
+  );
+
   test('closing cubit while load is pending ignores late completion', () async {
     final payments = _FakePaymentsRepository(deferGetPayments: true);
     final cubit = _cubit(
@@ -145,6 +218,10 @@ final class _FakePaymentsRepository implements PaymentsRepository {
       Completer<Result<List<Payment>>>();
 
   String? lastCompanyId;
+  int getPaymentsCalls = 0;
+  bool failRealtime = false;
+  Completer<Result<List<Payment>>>? realtimeBarrier;
+  Completer<void>? realtimeRequested;
 
   _FakePaymentsRepository({this.deferGetPayments = false});
 
@@ -159,6 +236,18 @@ final class _FakePaymentsRepository implements PaymentsRepository {
   @override
   Future<Result<List<Payment>>> getPayments({required String companyId}) async {
     lastCompanyId = companyId;
+    getPaymentsCalls++;
+    final barrier = realtimeBarrier;
+    if (getPaymentsCalls > 1 && barrier != null) {
+      realtimeBarrier = null;
+      realtimeRequested?.complete();
+      return barrier.future;
+    }
+    if (getPaymentsCalls > 1 && failRealtime) {
+      return const FailureResult<List<Payment>>(
+        NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
+      );
+    }
     if (!deferGetPayments) return const Success<List<Payment>>([]);
     if (!_loadRequested.isCompleted) _loadRequested.complete();
     return _deferredLoad.future;

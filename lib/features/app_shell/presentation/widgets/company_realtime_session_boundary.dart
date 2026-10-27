@@ -12,6 +12,7 @@ import '../../../driver_settlements/domain/policies/driver_settlements_permissio
 import '../../../drivers/domain/policies/drivers_permission_policy.dart';
 import '../../../fleet/domain/policies/fleet_permission_policy.dart';
 import '../../../invoices/domain/policies/invoices_permission_policy.dart';
+import '../../../payments/domain/policies/payments_permission_policy.dart';
 import '../../../routes/domain/policies/routes_permission_policy.dart';
 import '../../../trips/domain/policies/trips_permission_policy.dart';
 
@@ -45,7 +46,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
         !DriverFinancePermissionPolicy.canViewDriverFinance(role) &&
         !DriverSettlementsPermissionPolicy.canViewDriverSettlements(role) &&
         !CompanyExpensesPermissionPolicy.canViewCompanyExpenses(role) &&
-        !InvoicesPermissionPolicy.canViewInvoices(role)) {
+        !InvoicesPermissionPolicy.canViewInvoices(role) &&
+        !PaymentsPermissionPolicy.canViewPayments(role)) {
       return child;
     }
 
@@ -72,6 +74,8 @@ final class CompanyRealtimeSessionBoundary extends StatelessWidget {
                   CompanyDataResource.companyExpenses,
                 if (InvoicesPermissionPolicy.canViewInvoices(role))
                   CompanyDataResource.invoices,
+                if (PaymentsPermissionPolicy.canViewPayments(role))
+                  CompanyDataResource.payments,
               },
             ),
       child: child,

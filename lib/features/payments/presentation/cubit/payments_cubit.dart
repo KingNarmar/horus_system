@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/value_objects/business_local_date_time.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
@@ -18,7 +19,10 @@ import '../../domain/usecases/get_payments_usecase.dart';
 import '../../domain/usecases/payment_params.dart';
 import 'payments_state.dart';
 
-final class PaymentsCubit extends Cubit<PaymentsState> {
+part 'payments_realtime_actions.dart';
+
+final class PaymentsCubit extends Cubit<PaymentsState>
+    with PaymentsRealtimeActions {
   final GetPaymentsUseCase getPaymentsUseCase;
   final CanRegisterPaymentsUseCase canRegisterPaymentsUseCase;
   final GetInvoicesUseCase getInvoicesUseCase;
@@ -30,6 +34,8 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
   int _loadRequestId = 0;
   bool _invoiceReferencesRefreshPending = false;
   bool _invoiceReferencesRefreshInProgress = false;
+  bool _paymentsRefreshPending = false;
+  bool _paymentsRefreshInProgress = false;
 
   PaymentsCubit({
     required this.getPaymentsUseCase,
@@ -120,6 +126,9 @@ final class PaymentsCubit extends Cubit<PaymentsState> {
     );
     if (_invoiceReferencesRefreshPending) {
       unawaited(refreshInvoiceReferencesFromRealtime());
+    }
+    if (_paymentsRefreshPending) {
+      unawaited(refreshPaymentsFromRealtime());
     }
   }
 

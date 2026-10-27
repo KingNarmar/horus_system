@@ -194,6 +194,36 @@ void main() {
     },
   );
 
+  test(
+    'Payments private channel is opt-in and cancels with the session',
+    () async {
+      final source = _Source();
+      final repository = CompanyDataChangesRepositoryImpl(source);
+      final changes = <CompanyDataResource>[];
+      final subscription = repository
+          .watchChanges(
+            companyId: 'company-a',
+            additionalResources: const {CompanyDataResource.payments},
+          )
+          .listen((result) {
+            final change = result.dataOrNull;
+            if (change != null) changes.add(change.resource);
+          });
+
+      source.payments.add(RealtimeChangeSignal.subscribed);
+      source.payments.add(RealtimeChangeSignal.changed);
+      await Future<void>.delayed(Duration.zero);
+      expect(changes, [
+        CompanyDataResource.payments,
+        CompanyDataResource.payments,
+      ]);
+      expect(source.invoices.hasListener, isFalse);
+      await subscription.cancel();
+      expect(source.paymentsCanceled, isTrue);
+      await source.close();
+    },
+  );
+
   test('transport error becomes a sanitized typed failure', () async {
     final source = _Source();
     final repository = CompanyDataChangesRepositoryImpl(source);
@@ -224,6 +254,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   bool driverFinanceCanceled = false;
   bool driverSettlementsCanceled = false;
   bool invoicesCanceled = false;
+  bool paymentsCanceled = false;
   bool expenseLedgerCanceled = false;
   bool companyExpensesCanceled = false;
   bool tripExpensesCanceled = false;
@@ -287,6 +318,12 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
         onCancel: () => invoicesCanceled = true,
       );
 
+  late final StreamController<RealtimeChangeSignal> payments =
+      StreamController<RealtimeChangeSignal>.broadcast(
+        sync: true,
+        onCancel: () => paymentsCanceled = true,
+      );
+
   late final StreamController<RealtimeChangeSignal> expenseLedger =
       StreamController<RealtimeChangeSignal>.broadcast(
         sync: true,
@@ -323,6 +360,10 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
   @override
   Stream<RealtimeChangeSignal> watchInvoices({required String companyId}) =>
       invoices.stream;
+
+  @override
+  Stream<RealtimeChangeSignal> watchPayments({required String companyId}) =>
+      payments.stream;
 
   @override
   Stream<RealtimeChangeSignal> watchExpenseLedger({
@@ -375,6 +416,7 @@ final class _Source implements CompanyDataChangesRemoteDataSource {
     await driverFinance.close();
     await driverSettlements.close();
     await invoices.close();
+    await payments.close();
     await expenseLedger.close();
     await tripExpenses.close();
   }

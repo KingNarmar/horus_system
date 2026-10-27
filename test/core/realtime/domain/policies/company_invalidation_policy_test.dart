@@ -118,19 +118,25 @@ void main() {
     );
   });
 
-  test('payments affect statements and open invoices, not trip lookups', () {
-    final affected = CompanyInvalidationPolicy.affectedBy(
-      CompanyDataResource.payments,
-    );
+  test(
+    'payment events invalidate only history; invoices own derived views',
+    () {
+      final affected = CompanyInvalidationPolicy.affectedBy(
+        CompanyDataResource.payments,
+      );
 
-    expect(affected, contains(CompanyInvalidationResource.invoices));
-    expect(affected, contains(CompanyInvalidationResource.customerStatements));
-    expect(affected, contains(CompanyInvalidationResource.openInvoicesReport));
-    expect(
-      affected,
-      isNot(contains(CompanyInvalidationResource.tripFormLookups)),
-    );
-  });
+      expect(affected, {CompanyInvalidationResource.payments});
+      expect(affected, isNot(contains(CompanyInvalidationResource.invoices)));
+      expect(
+        affected,
+        isNot(contains(CompanyInvalidationResource.customerStatements)),
+      );
+      expect(
+        affected,
+        isNot(contains(CompanyInvalidationResource.openInvoicesReport)),
+      );
+    },
+  );
 
   test('operational lookups change only for their relevant sources', () {
     final affected = CompanyInvalidationPolicy.affectedBy(

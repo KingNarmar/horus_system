@@ -102,13 +102,9 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.openInvoicesReport,
       CompanyInvalidationResource.dashboard,
     },
-    CompanyDataResource.payments: {
-      CompanyInvalidationResource.payments,
-      CompanyInvalidationResource.invoices,
-      CompanyInvalidationResource.customerStatements,
-      CompanyInvalidationResource.openInvoicesReport,
-      CompanyInvalidationResource.dashboard,
-    },
+    // Each payment registration already updates its invoice atomically.
+    // R4.5 owns invoice-derived projections; avoid duplicate refreshes.
+    CompanyDataResource.payments: {CompanyInvalidationResource.payments},
     CompanyDataResource.paymentMethods: {
       CompanyInvalidationResource.paymentMethods,
       CompanyInvalidationResource.paymentFormLookups,

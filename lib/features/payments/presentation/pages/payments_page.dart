@@ -13,6 +13,7 @@ import '../cubit/register_payment_cubit.dart';
 import '../helpers/payments_failure_message.dart';
 import '../localization/payments_localizations.dart';
 import '../widgets/payments_list.dart';
+import '../widgets/payments_search_field.dart';
 import '../widgets/register_payment_dialog.dart';
 import '../widgets/register_payment_invoice_realtime_boundary.dart';
 
@@ -65,7 +66,7 @@ final class _PaymentsPageState extends State<PaymentsPage> {
 
     if (registered != true || !mounted) return;
 
-    await context.read<PaymentsCubit>().refresh();
+    await context.read<PaymentsCubit>().refreshPaymentsFromRealtime();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger
@@ -203,13 +204,10 @@ final class _LoadedPaymentsView extends StatelessWidget {
           constraints: const BoxConstraints(
             maxWidth: AppSizes.searchFieldMaxWidth,
           ),
-          child: TextField(
+          child: PaymentsSearchField(
+            query: state.searchQuery,
+            hintText: strings.searchHint,
             onChanged: onSearchChanged,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(AppIcons.search),
-              hintText: strings.searchHint,
-              border: const OutlineInputBorder(),
-            ),
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
