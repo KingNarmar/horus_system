@@ -211,9 +211,7 @@ void main() {
     await harness.company.loadCurrentCompanyContext();
     await tester.pumpWidget(
       harness.widget(
-        CompanyContextAccessView(
-          builder: (_) => const _DraftContent(),
-        ),
+        CompanyContextAccessView(builder: (_) => const _DraftContent()),
         withSessionBoundary: false,
       ),
     );
@@ -330,15 +328,19 @@ class _Harness {
   )..startWatchingSession();
 
   late final CurrentCompanyCubit company = CurrentCompanyCubit(
-    loadCurrentCompanyContextUseCase:
-        LoadCurrentCompanyContextUseCase(companyRepository),
+    loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+      companyRepository,
+    ),
     selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(companyRepository),
-    refreshSelectedCompanyContextUseCase:
-        RefreshSelectedCompanyContextUseCase(companyRepository),
-    clearCurrentCompanyContextUseCase:
-        ClearCurrentCompanyContextUseCase(companyRepository),
-    watchMembershipChangesUseCase:
-        WatchCompanyMembershipChangesUseCase(membership),
+    refreshSelectedCompanyContextUseCase: RefreshSelectedCompanyContextUseCase(
+      companyRepository,
+    ),
+    clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+      companyRepository,
+    ),
+    watchMembershipChangesUseCase: WatchCompanyMembershipChangesUseCase(
+      membership,
+    ),
   );
 
   late final NetworkStatusCubit network = NetworkStatusCubit(

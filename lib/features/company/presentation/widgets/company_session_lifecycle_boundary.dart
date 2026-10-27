@@ -88,9 +88,7 @@ final class _CompanySessionLifecycleBoundaryState
   }
 
   bool _isActiveIdentity(String userId, int generation) =>
-      mounted &&
-      _identityGeneration == generation &&
-      _activeUserId == userId;
+      mounted && _identityGeneration == generation && _activeUserId == userId;
 
   void _revalidate() {
     if (!mounted || _activeUserId == null) return;

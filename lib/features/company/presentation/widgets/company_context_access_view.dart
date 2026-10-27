@@ -59,8 +59,7 @@ final class _CompanyContextAccessViewState
           return const CompanyEntryPage();
         }
 
-        if (state is CurrentCompanyLoaded ||
-            state is CurrentCompanyVerifying) {
+        if (state is CurrentCompanyLoaded || state is CurrentCompanyVerifying) {
           final verifying = state is CurrentCompanyVerifying;
           final companyContext = state is CurrentCompanyLoaded
               ? state.context
