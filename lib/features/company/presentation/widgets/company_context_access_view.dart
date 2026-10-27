@@ -75,7 +75,10 @@ final class _CompanyContextAccessViewState
                   child: AbsorbPointer(
                     absorbing: verifying,
                     child: KeyedSubtree(
-                      key: ValueKey((companyContext.companyId, companyContext.role)),
+                      key: ValueKey((
+                        companyContext.companyId,
+                        companyContext.role,
+                      )),
                       child: widget.builder(companyContext),
                     ),
                   ),

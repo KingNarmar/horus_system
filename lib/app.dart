@@ -81,21 +81,21 @@ class HorusApp extends StatelessWidget {
       child: CompanySessionLifecycleBoundary(
         child: BlocBuilder<AppLocaleCubit, Locale>(
           builder: (context, locale) {
-          return MaterialApp(
-            onGenerateTitle: (context) => context.l10n.appTitle,
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            locale: locale,
-            builder: (context, child) => DevicePreview.appBuilder(
-              context,
-              GlobalNetworkGate(child: child ?? const SizedBox.shrink()),
-            ),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            initialRoute: AppRoutes.root,
-            onGenerateRoute: AppRouter.onGenerateRoute,
-          );
-          },
+            return MaterialApp(
+              onGenerateTitle: (context) => context.l10n.appTitle,
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
+              locale: locale,
+              builder: (context, child) => DevicePreview.appBuilder(
+                context,
+                GlobalNetworkGate(child: child ?? const SizedBox.shrink()),
+              ),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              initialRoute: AppRoutes.root,
+              onGenerateRoute: AppRouter.onGenerateRoute,
+            );
+            },
         ),
       ),
     );

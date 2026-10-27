@@ -175,7 +175,10 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('draft-text')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('draft-action')), warnIfMissed: false);
+    await tester.tap(
+      find.byKey(const Key('draft-action')),
+      warnIfMissed: false,
+    );
     await tester.pump();
     expect(find.text('Action triggered'), findsNothing);
 
@@ -204,7 +207,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byKey(const Key('draft-text')), 'private draft');
+    await tester.enterText(
+      find.byKey(const Key('draft-text')),
+      'private draft',
+    );
     harness.companyRepository.contexts = [_context(CompanyRole.viewer)];
     await harness.company.revalidateSelectedCompany();
     await tester.pumpAndSettle();
@@ -397,7 +403,8 @@ class _FakeNetworkRepository implements NetworkStatusRepository {
   @override
   Stream<Result<NetworkConnectionStatus>> watchStatus() => controller.stream;
 
-  void notify(NetworkConnectionStatus status) => controller.add(Success(status));
+  void notify(NetworkConnectionStatus status) =>
+      controller.add(Success(status));
 
   Future<void> dispose() => controller.close();
 }

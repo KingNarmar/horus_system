@@ -24,7 +24,8 @@ final class CompanySessionLifecycleBoundary extends StatefulWidget {
 }
 
 final class _CompanySessionLifecycleBoundaryState
-    extends State<CompanySessionLifecycleBoundary> with WidgetsBindingObserver {
+    extends State<CompanySessionLifecycleBoundary>
+    with WidgetsBindingObserver {
   late final CurrentCompanyCubit _companyCubit;
   String? _activeUserId;
   int? _sessionRevision;
