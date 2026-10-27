@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
 import '../../domain/usecases/refresh_selected_company_context_usecase.dart';
@@ -13,6 +14,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   final RefreshSelectedCompanyContextUseCase
   _refreshSelectedCompanyContextUseCase;
   final ClearCurrentCompanyContextUseCase _clearCurrentCompanyContextUseCase;
+  int _requestGeneration = 0;
 
   CurrentCompanyCubit({
     required LoadCurrentCompanyContextUseCase loadCurrentCompanyContextUseCase,
@@ -29,29 +31,30 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
        super(const CurrentCompanyInitial());
 
   Future<void> loadCurrentCompanyContext() async {
+    final request = ++_requestGeneration;
     emit(const CurrentCompanyLoading());
 
     final result = await _loadCurrentCompanyContextUseCase(const NoParams());
+    if (!_isCurrent(request)) return;
 
     result.when(
-      success: (context) {
-        if (context == null) {
-          emit(const CurrentCompanyEmpty());
-          return;
-        }
-
-        emit(CurrentCompanyLoaded(context));
-      },
+      success: (context) => emit(
+        context == null
+            ? const CurrentCompanyEmpty()
+            : CurrentCompanyLoaded(context),
+      ),
       failure: (failure) => emit(CurrentCompanyFailure(failure)),
     );
   }
 
   Future<void> selectCompany(String companyId) async {
+    final request = ++_requestGeneration;
     emit(const CurrentCompanyLoading());
 
     final result = await _selectCurrentCompanyUseCase(
       SelectCurrentCompanyParams(companyId: companyId),
     );
+    if (!_isCurrent(request)) return;
 
     result.when(
       success: (context) => emit(CurrentCompanyLoaded(context)),
@@ -60,22 +63,70 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   }
 
   Future<void> refreshAndSelectCompany(String companyId) async {
+    final request = ++_requestGeneration;
+    emit(const CurrentCompanyLoading());
+    await _refreshSelected(companyId, request);
+  }
+
+  /// On resumed/reconnected/renewed sessions, re-check active membership and
+  /// role on the server before exposing the company shell again.
+  Future<void> revalidateSelectedCompany() async {
+    final current = state;
+    if (current is! CurrentCompanyLoaded) return;
+    final request = ++_requestGeneration;
+    emit(const CurrentCompanyLoading());
+    await _refreshSelected(current.context.companyId, request);
+  }
+
+  Future<void> _refreshSelected(String companyId, int request) async {
     final result = await _refreshSelectedCompanyContextUseCase(
       RefreshSelectedCompanyContextParams(companyId: companyId),
     );
+    if (!_isCurrent(request)) return;
 
-    result.when(
-      success: (context) => emit(CurrentCompanyLoaded(context)),
-      failure: (failure) => emit(CurrentCompanyFailure(failure)),
-    );
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      if (failure.code == CompanyFailureCodes.companyNotAvailable) {
+        // Never retain the old selection when the membership has been revoked.
+        final clearResult = await _clearCurrentCompanyContextUseCase(
+          const NoParams(),
+        );
+        if (!_isCurrent(request)) return;
+        final clearFailure = clearResult.failureOrNull;
+        if (clearFailure == null) {
+          emit(const CurrentCompanyEmpty());
+        } else {
+          emit(CurrentCompanyFailure(clearFailure));
+        }
+      } else {
+        emit(CurrentCompanyFailure(failure));
+      }
+      return;
+    }
+
+    final context = result.dataOrNull;
+    if (context != null) emit(CurrentCompanyLoaded(context));
   }
 
   Future<void> clearCurrentCompanyContext() async {
+    final request = ++_requestGeneration;
+    emit(const CurrentCompanyLoading());
+
     final result = await _clearCurrentCompanyContextUseCase(const NoParams());
+    if (!_isCurrent(request)) return;
 
     result.when(
       success: (_) => emit(const CurrentCompanyEmpty()),
       failure: (failure) => emit(CurrentCompanyFailure(failure)),
     );
+  }
+
+  bool _isCurrent(int request) =>
+      !isClosed && request == _requestGeneration;
+
+  @override
+  Future<void> close() async {
+    ++_requestGeneration;
+    await super.close();
   }
 }
