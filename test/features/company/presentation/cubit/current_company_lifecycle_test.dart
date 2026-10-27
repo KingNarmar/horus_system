@@ -22,7 +22,10 @@ void main() {
     addTearDown(cubit.close);
 
     await cubit.loadCurrentCompanyContext();
-    expect((cubit.state as CurrentCompanyLoaded).context.role, CompanyRole.owner);
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.role,
+      CompanyRole.owner,
+    );
 
     repository.contexts = [_context(CompanyRole.viewer)];
     await cubit.revalidateSelectedCompany();
@@ -33,43 +36,53 @@ void main() {
     expect(repository.loads, 2);
   });
 
-  test('revoked membership clears selected company and hides its shell', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'revoked membership clears selected company and hides its shell',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    await cubit.loadCurrentCompanyContext();
-    repository.contexts = const [];
-    await cubit.revalidateSelectedCompany();
+      await cubit.loadCurrentCompanyContext();
+      repository.contexts = const [];
+      await cubit.revalidateSelectedCompany();
 
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
-    expect(repository.clears, 1);
-  });
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
+      expect(repository.clears, 1);
+    },
+  );
 
-  test('late company verification cannot resurrect context after sign-out', () async {
-    final repository = _FakeCompanyContextRepository();
-    final cubit = _createCubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'late company verification cannot resurrect context after sign-out',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
 
-    await cubit.loadCurrentCompanyContext();
-    final pending = Completer<Result<List<CurrentCompanyContext>>>();
-    repository.pendingLoad = pending;
-    final validation = cubit.revalidateSelectedCompany();
-    await cubit.clearCurrentCompanyContext();
-    pending.complete(Success([_context(CompanyRole.owner)]));
-    await validation;
+      await cubit.loadCurrentCompanyContext();
+      final pending = Completer<Result<List<CurrentCompanyContext>>>();
+      repository.pendingLoad = pending;
+      final validation = cubit.revalidateSelectedCompany();
+      await cubit.clearCurrentCompanyContext();
+      pending.complete(Success([_context(CompanyRole.owner)]));
+      await validation;
 
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
-  });
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
+    },
+  );
 }
 
 CurrentCompanyCubit _createCubit(_FakeCompanyContextRepository repository) =>
     CurrentCompanyCubit(
-      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(repository),
+      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+        repository,
+      ),
       selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
       refreshSelectedCompanyContextUseCase:
           RefreshSelectedCompanyContextUseCase(repository),
-      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(repository),
+      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+        repository,
+      ),
     );
 
 CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
