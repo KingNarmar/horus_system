@@ -55,6 +55,7 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
 
     final failure = result.failureOrNull;
     if (failure == null) {
+      setState(() => _pendingCompanyId = null);
       widget.onSwitchSucceeded?.call();
       return;
     }
