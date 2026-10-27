@@ -81,11 +81,12 @@ class AppShellMobileLayout extends StatelessWidget {
           ],
         ),
         actions: [
-          if (onSwitchCompany != null) IconButton(
-            tooltip: l10n.companySwitcherAction,
-            onPressed: onSwitchCompany,
-            icon: const Icon(AppIcons.transfer),
-          ),
+          if (onSwitchCompany != null)
+            IconButton(
+              tooltip: l10n.companySwitcherAction,
+              onPressed: onSwitchCompany,
+              icon: const Icon(AppIcons.transfer),
+            ),
           IconButton(
             tooltip: l10n.signedInAsLabel,
             onPressed: () => _showIdentityContext(context),
