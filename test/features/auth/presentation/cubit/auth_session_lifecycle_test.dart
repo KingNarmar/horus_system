@@ -58,6 +58,32 @@ void main() {
     expect(cubit.state, isA<AuthUnauthenticated>());
   });
 
+  test(
+    'renewal notification cannot resurrect a session after sign-out',
+    () async {
+      final changes = _FakeSessionEventsRepository();
+      final repository = _FakeAuthRepository();
+      final cubit = _createCubit(repository, changes)..startWatchingSession();
+      addTearDown(() async {
+        await cubit.close();
+        await changes.dispose();
+      });
+
+      await cubit.checkCurrentUser();
+      changes.add(AuthSessionChange.tokenRefreshed);
+      await Future<void>.delayed(Duration.zero);
+      expect((cubit.state as AuthAuthenticated).sessionRevision, 1);
+
+      changes.add(AuthSessionChange.signedOut);
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state, isA<AuthUnauthenticated>());
+
+      changes.add(AuthSessionChange.tokenRefreshed);
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state, isA<AuthUnauthenticated>());
+    },
+  );
+
   test('late login response cannot restore a signed-out user', () async {
     final changes = _FakeSessionEventsRepository();
     final repository = _FakeAuthRepository();
