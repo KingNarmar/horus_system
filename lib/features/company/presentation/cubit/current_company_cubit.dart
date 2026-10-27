@@ -72,10 +72,22 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   /// role on the server before exposing the company shell again.
   Future<void> revalidateSelectedCompany() async {
     final current = state;
-    if (current is! CurrentCompanyLoaded) return;
+    if (current is CurrentCompanyEmpty) {
+      // A previously revoked membership can be reactivated while logged in.
+      await loadCurrentCompanyContext();
+      return;
+    }
+
+    final context = switch (current) {
+      CurrentCompanyLoaded(:final context) => context,
+      CurrentCompanyVerifying(:final context) => context,
+      _ => null,
+    };
+    if (context == null) return;
+
     final request = ++_requestGeneration;
-    emit(CurrentCompanyVerifying(current.context));
-    await _refreshSelected(current.context.companyId, request);
+    emit(CurrentCompanyVerifying(context));
+    await _refreshSelected(context.companyId, request);
   }
 
   Future<void> _refreshSelected(String companyId, int request) async {
