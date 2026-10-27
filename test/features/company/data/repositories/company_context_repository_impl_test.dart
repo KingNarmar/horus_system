@@ -250,21 +250,30 @@ void main() {
       expect(dataSource.calls, 2);
     });
 
-    test('old membership response cannot repopulate cache after logout', () async {
-      final dataSource = _DelayedCompanyMembershipDataSource();
-      final provider = _FakeCurrentCompanyProvider(initialId: 'company-1');
-      final repository = _repository(dataSource: dataSource, provider: provider);
+    test(
+      'old membership response cannot repopulate cache after logout',
+      () async {
+        final dataSource = _DelayedCompanyMembershipDataSource();
+        final provider = _FakeCurrentCompanyProvider(initialId: 'company-1');
+        final repository = _repository(
+          dataSource: dataSource,
+          provider: provider,
+        );
 
-      final pending = repository.loadUserCompanyContexts();
-      await repository.clearCurrentCompanyContext();
-      dataSource.completer.complete([_membership()]);
-      final result = await pending;
+        final pending = repository.loadUserCompanyContexts();
+        await repository.clearCurrentCompanyContext();
+        dataSource.completer.complete([_membership()]);
+        final result = await pending;
 
-      expect(result.failureOrNull?.code, CompanyFailureCodes.companyNotAvailable);
-      expect(provider.currentCompanyId, isNull);
-      await repository.selectCompany('company-1');
-      expect(dataSource.calls, 2);
-    });
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.companyNotAvailable,
+        );
+        expect(provider.currentCompanyId, isNull);
+        await repository.selectCompany('company-1');
+        expect(dataSource.calls, 2);
+      },
+    );
 
     test('sanitizes unexpected current-context provider failures', () async {
       final repository = _repository(
