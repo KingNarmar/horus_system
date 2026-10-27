@@ -2,6 +2,7 @@ import '../../features/auth/data/datasources/account_deletion_remote_data_source
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/account_deletion_repository_impl.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/auth_session_changes_repository_impl.dart';
 import '../../features/auth/data/repositories/password_recovery_repository_impl.dart';
 import '../../features/auth/domain/usecases/cancel_account_deletion_usecase.dart';
 import '../../features/auth/domain/usecases/get_account_deletion_status_usecase.dart';
@@ -9,15 +10,18 @@ import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
+import '../../features/auth/domain/usecases/watch_auth_session_changes_usecase.dart';
 import '../../features/auth/domain/usecases/request_password_recovery_usecase.dart';
 import '../../features/auth/domain/usecases/request_account_deletion_usecase.dart';
 import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/password_recovery_cubit.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
+import '../../features/company/data/datasources/company_membership_changes_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
 import '../../features/company/data/datasources/company_users_remote_data_source.dart';
 import '../../features/company/data/repositories/company_context_repository_impl.dart';
+import '../../features/company/data/repositories/company_membership_changes_repository_impl.dart';
 import '../../features/company/data/repositories/company_repository_impl.dart';
 import '../../features/company/data/repositories/company_users_repository_impl.dart';
 import '../../features/company/di/company_dependencies.dart';
@@ -28,6 +32,7 @@ import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
 import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
+import '../../features/company/domain/usecases/watch_company_membership_changes_usecase.dart';
 import '../../features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
 import '../../features/company/presentation/cubit/company_invitations_cubit.dart';
 import '../../features/company/presentation/cubit/company_member_actions_cubit.dart';
@@ -62,6 +67,9 @@ abstract final class AppDependencies {
       loginUseCase: LoginUseCase(authRepository),
       logoutUseCase: LogoutUseCase(authRepository),
       getCurrentUserUseCase: GetCurrentUserUseCase(authRepository),
+      watchSessionChangesUseCase: WatchAuthSessionChangesUseCase(
+        SupabaseAuthSessionChangesRepository(SupabaseClientProvider.client),
+      ),
     );
   }
 
@@ -119,6 +127,13 @@ abstract final class AppDependencies {
           RefreshSelectedCompanyContextUseCase(companyContextRepository),
       clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
         companyContextRepository,
+      ),
+      watchMembershipChangesUseCase: WatchCompanyMembershipChangesUseCase(
+        CompanyMembershipChangesRepositoryImpl(
+          SupabaseCompanyMembershipChangesRemoteDataSource(
+            SupabaseClientProvider.client,
+          ),
+        ),
       ),
     );
   }

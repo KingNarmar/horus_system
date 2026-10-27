@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:horus_system/core/context/current_company_provider.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
@@ -248,6 +250,59 @@ void main() {
       expect(dataSource.calls, 2);
     });
 
+    test(
+      'old membership response cannot repopulate cache after logout',
+      () async {
+        final dataSource = _DelayedCompanyMembershipDataSource();
+        final provider = _FakeCurrentCompanyProvider(initialId: 'company-1');
+        final repository = _repository(
+          dataSource: dataSource,
+          provider: provider,
+        );
+
+        final pending = repository.loadUserCompanyContexts();
+        await repository.clearCurrentCompanyContext();
+        dataSource.completer.complete([_membership()]);
+        final result = await pending;
+
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.companyNotAvailable,
+        );
+        expect(provider.currentCompanyId, isNull);
+        await repository.selectCompany('company-1');
+        expect(dataSource.calls, 2);
+      },
+    );
+
+    test(
+      'late older membership load cannot replace fresh role cache',
+      () async {
+        final source = _OutOfOrderMembershipDataSource();
+        final repository = _repository(dataSource: source);
+
+        final older = repository.loadUserCompanyContexts();
+        final newer = repository.loadUserCompanyContexts();
+
+        source.requests[1].complete([
+          _membership('company-1', 'Company', CompanyRole.operations),
+        ]);
+        expect((await newer).dataOrNull?.first.role, CompanyRole.operations);
+
+        source.requests[0].complete([
+          _membership('company-1', 'Company', CompanyRole.admin),
+        ]);
+        expect(
+          (await older).failureOrNull?.code,
+          CompanyFailureCodes.companyNotAvailable,
+        );
+        expect(
+          (await repository.selectCompany('company-1')).dataOrNull?.role,
+          CompanyRole.operations,
+        );
+      },
+    );
+
     test('sanitizes unexpected current-context provider failures', () async {
       final repository = _repository(
         dataSource: _FakeCompanyContextRemoteDataSource(),
@@ -373,4 +428,28 @@ final class _ThrowingCompanyMembershipModel extends CompanyMembershipModel {
 
   @override
   CompanyModel get company => throw StateError('secret mapping detail');
+}
+
+final class _OutOfOrderMembershipDataSource
+    implements CompanyContextRemoteDataSource {
+  final requests = <Completer<List<CompanyMembershipModel>>>[];
+
+  @override
+  Future<List<CompanyMembershipModel>> loadUserCompanyMemberships() {
+    final request = Completer<List<CompanyMembershipModel>>();
+    requests.add(request);
+    return request.future;
+  }
+}
+
+final class _DelayedCompanyMembershipDataSource
+    implements CompanyContextRemoteDataSource {
+  final completer = Completer<List<CompanyMembershipModel>>();
+  int calls = 0;
+
+  @override
+  Future<List<CompanyMembershipModel>> loadUserCompanyMemberships() {
+    calls++;
+    return completer.future;
+  }
 }

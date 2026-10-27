@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
@@ -24,7 +27,14 @@ final class CompanyContextRepositoryFailureMapper {
     );
   }
 
-  Failure fromUnexpected(Object _) {
+  Failure fromUnexpected(Object error) {
+    if (error is SocketException ||
+        error is TimeoutException ||
+        error is HttpException) {
+      return const NetworkFailure(
+        code: CompanyFailureCodes.contextConnectionUnavailable,
+      );
+    }
     return const UnexpectedFailure();
   }
 }

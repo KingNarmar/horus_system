@@ -87,13 +87,17 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
       );
     }
 
-    if (currentCompanyState is! CurrentCompanyLoaded) {
+    final currentCompanyContext = switch (currentCompanyState) {
+      CurrentCompanyLoaded(:final context) => context,
+      CurrentCompanyVerifying(:final context) => context,
+      _ => null,
+    };
+
+    if (currentCompanyContext == null) {
       return Scaffold(
         body: Center(child: Text(l10n.currentCompanyContextRequired)),
       );
     }
-
-    final currentCompanyContext = currentCompanyState.context;
     if (!CompanyPermissionPolicy.canViewCompanyUsers(
       currentCompanyContext.role,
     )) {

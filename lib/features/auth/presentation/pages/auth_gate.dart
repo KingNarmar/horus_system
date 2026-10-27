@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../features/company/presentation/cubit/current_company_cubit.dart';
 import '../../../../features/company/presentation/pages/current_company_gate.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -15,11 +14,6 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          context.read<CurrentCompanyCubit>().clearCurrentCompanyContext();
-          return;
-        }
-
         if (state is AuthFailureState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

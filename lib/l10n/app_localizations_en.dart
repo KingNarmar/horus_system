@@ -47,6 +47,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkRetryButton => 'Retry';
 
   @override
+  String get failureCompanyContextConnectionUnavailable =>
+      'Couldn\'t verify company access because the connection was interrupted. Reconnect and try again.';
+
+  @override
   String get failureNetworkStatusUnavailable =>
       'Internet connection status could not be verified.';
 

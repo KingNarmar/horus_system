@@ -46,6 +46,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get networkRetryButton => 'إعادة المحاولة';
 
   @override
+  String get failureCompanyContextConnectionUnavailable =>
+      'تعذر التحقق من صلاحيات الشركة بسبب انقطاع الاتصال. أعد الاتصال ثم حاول مرة أخرى.';
+
+  @override
   String get failureNetworkStatusUnavailable =>
       'تعذر التحقق من حالة اتصال الإنترنت.';
 

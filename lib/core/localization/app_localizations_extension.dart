@@ -32,6 +32,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       FailureCodes.validationCompanyContextRequired =>
         failureValidationCompanyContextRequired,
       'company_not_available' => failureCompanyNotAvailable,
+      'company_context_connection_unavailable' =>
+        failureCompanyContextConnectionUnavailable,
       FailureCodes.permissionCompanyUsersView =>
         failurePermissionCompanyUsersView,
       FailureCodes.permissionCustomersView => failurePermissionCustomersView,

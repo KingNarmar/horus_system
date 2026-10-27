@@ -20,7 +20,10 @@ class AuthLoginSubmitting extends AuthState {
 class AuthAuthenticated extends AuthState {
   final AuthUser user;
 
-  const AuthAuthenticated(this.user);
+  /// Incremented when the active SDK session refreshes its credentials.
+  final int sessionRevision;
+
+  const AuthAuthenticated(this.user, {this.sessionRevision = 0});
 }
 
 class AuthEmailConfirmationRequired extends AuthState {

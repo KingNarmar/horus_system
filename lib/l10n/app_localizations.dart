@@ -164,6 +164,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get networkRetryButton;
 
+  /// No description provided for @failureCompanyContextConnectionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t verify company access because the connection was interrupted. Reconnect and try again.'**
+  String get failureCompanyContextConnectionUnavailable;
+
   /// No description provided for @failureNetworkStatusUnavailable.
   ///
   /// In en, this message translates to:

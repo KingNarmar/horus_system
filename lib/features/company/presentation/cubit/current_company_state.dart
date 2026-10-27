@@ -13,6 +13,14 @@ class CurrentCompanyLoading extends CurrentCompanyState {
   const CurrentCompanyLoading();
 }
 
+/// Blocks interaction during an authoritative membership check while keeping
+/// the existing company shell mounted so unsaved form state can survive.
+class CurrentCompanyVerifying extends CurrentCompanyState {
+  final CurrentCompanyContext context;
+
+  const CurrentCompanyVerifying(this.context);
+}
+
 class CurrentCompanyEmpty extends CurrentCompanyState {
   const CurrentCompanyEmpty();
 }
@@ -26,5 +34,9 @@ class CurrentCompanyLoaded extends CurrentCompanyState {
 class CurrentCompanyFailure extends CurrentCompanyState {
   final Failure failure;
 
-  const CurrentCompanyFailure(this.failure);
+  /// Identifies the company to check after reconnect. No cached role or
+  /// authorization data is retained while verification has failed.
+  final String? selectedCompanyId;
+
+  const CurrentCompanyFailure(this.failure, {this.selectedCompanyId});
 }
