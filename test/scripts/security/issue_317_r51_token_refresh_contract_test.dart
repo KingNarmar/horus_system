@@ -10,14 +10,9 @@ const _companyA = '33333333-3333-4333-8333-333333333333';
 final _now = DateTime.utc(2026, 10, 27);
 
 String _jwt(String sub, {String role = 'authenticated', int? expires}) {
-  String part(Object value) => base64Url
-      .encode(utf8.encode(jsonEncode(value)))
-      .replaceAll('=', '');
-  return '${part({'alg': 'HS256', 'typ': 'JWT'})}.${part({
-    'sub': sub,
-    'role': role,
-    'exp': expires ?? _now.millisecondsSinceEpoch ~/ 1000 + 3600,
-  })}.signature';
+  String part(Object value) =>
+      base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+  return '${part({'alg': 'HS256', 'typ': 'JWT'})}.${part({'sub': sub, 'role': role, 'exp': expires ?? _now.millisecondsSinceEpoch ~/ 1000 + 3600})}.signature';
 }
 
 Map<String, Object> _payload({
@@ -49,10 +44,7 @@ void main() {
 
   test('rejects token subject differing from response user', () {
     expect(
-      () => r51ReadCredentials(
-        _payload(token: _jwt(_userB)),
-        now: _now,
-      ),
+      () => r51ReadCredentials(_payload(token: _jwt(_userB)), now: _now),
       throwsA(isA<FormatException>()),
     );
   });
@@ -105,11 +97,7 @@ void main() {
     ];
 
     expect(
-      r51HasExpectedMembership(
-        own,
-        companyId: _companyA,
-        role: 'viewer',
-      ),
+      r51HasExpectedMembership(own, companyId: _companyA, role: 'viewer'),
       isTrue,
     );
 
@@ -132,11 +120,7 @@ void main() {
       ],
     ]) {
       expect(
-        r51HasExpectedMembership(
-          invalid,
-          companyId: _companyA,
-          role: 'viewer',
-        ),
+        r51HasExpectedMembership(invalid, companyId: _companyA, role: 'viewer'),
         isFalse,
       );
     }
