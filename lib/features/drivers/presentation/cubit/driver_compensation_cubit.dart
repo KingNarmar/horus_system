@@ -27,6 +27,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
   final EndDriverCompensationRevisionUseCase endRevisionUseCase;
   final AttachDriverCompensationContractUseCase attachContractUseCase;
   final GetDriverCompensationContractAccessUseCase contractAccessUseCase;
+  int _loadGeneration = 0;
 
   DriverCompensationCubit({
     required this.getCompanyBusinessDateUseCase,
@@ -42,6 +43,8 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
     required CurrentCompanyContext currentCompanyContext,
     required String driverId,
   }) async {
+    if (isClosed) return;
+    final request = ++_loadGeneration;
     emit(DriverCompensationLoading(driverId: driverId));
 
     final historyResult = await getHistoryUseCase(
@@ -50,6 +53,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
         driverId: driverId,
       ),
     );
+    if (isClosed || request != _loadGeneration) return;
     final historyFailure = historyResult.failureOrNull;
     if (historyFailure != null) {
       emit(DriverCompensationFailure(historyFailure));
@@ -59,6 +63,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
     final businessDateResult = await getCompanyBusinessDateUseCase(
       GetCompanyBusinessDateParams(companyId: currentCompanyContext.companyId),
     );
+    if (isClosed || request != _loadGeneration) return;
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) {
       emit(DriverCompensationFailure(businessDateFailure));
@@ -84,6 +89,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
       ),
     );
 
+    if (isClosed || request != _loadGeneration) return;
     emit(
       DriverCompensationLoaded(
         currentCompanyContext: currentCompanyContext,
@@ -130,6 +136,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
       ),
     );
     final failure = result.failureOrNull;
+    if (isClosed) return failure;
     if (failure != null) {
       emit(
         loaded.copyWith(
@@ -175,6 +182,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
       ),
     );
     final failure = result.failureOrNull;
+    if (isClosed) return failure;
     if (failure != null) {
       emit(
         loaded.copyWith(
@@ -220,6 +228,7 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
       ),
     );
     final failure = result.failureOrNull;
+    if (isClosed) return failure;
     if (failure != null) {
       emit(
         loaded.copyWith(
@@ -261,6 +270,14 @@ final class DriverCompensationCubit extends Cubit<DriverCompensationState> {
   }
 
   void clear() {
+    if (isClosed) return;
+    ++_loadGeneration;
     emit(const DriverCompensationInitial());
+  }
+
+  @override
+  Future<void> close() async {
+    ++_loadGeneration;
+    await super.close();
   }
 }
