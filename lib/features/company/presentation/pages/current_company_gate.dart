@@ -74,8 +74,23 @@ class _CurrentCompanyGateState extends State<CurrentCompanyGate>
               return const CompanyEntryPage();
             }
 
-            if (state is CurrentCompanyLoaded) {
-              return AppShellPage(currentCompanyContext: state.context);
+            if (state is CurrentCompanyLoaded ||
+                state is CurrentCompanyVerifying) {
+              final companyContext = state is CurrentCompanyLoaded
+                  ? state.context
+                  : (state as CurrentCompanyVerifying).context;
+              return Stack(
+                children: [
+                  AppShellPage(currentCompanyContext: companyContext),
+                  if (state is CurrentCompanyVerifying)
+                    Positioned.fill(
+                      child: ColoredBox(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                ],
+              );
             }
 
             if (state is CurrentCompanyFailure) {
