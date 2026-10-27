@@ -20,7 +20,7 @@ class AppShellTabletLayout extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
-  final VoidCallback onSwitchCompany;
+  final VoidCallback? onSwitchCompany;
 
   const AppShellTabletLayout({
     required this.contextData,
@@ -32,7 +32,7 @@ class AppShellTabletLayout extends StatelessWidget {
     required this.onSelect,
     required this.onFinanceSectionSelected,
     required this.onLogout,
-    required this.onSwitchCompany,
+    this.onSwitchCompany,
     super.key,
   });
 
