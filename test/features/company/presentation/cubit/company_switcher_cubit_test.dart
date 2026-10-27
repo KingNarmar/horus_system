@@ -90,7 +90,7 @@ CompanySwitcherCubit _cubit(CompanyContextRepository repository) =>
 
 CurrentCompanyContext _context(String id, CompanyRole role) =>
     CurrentCompanyContext(
-      company: Company(id: id, name: 'Company ' + id),
+      company: Company(id: id, name: 'Company $id'),
       role: role,
     );
 
