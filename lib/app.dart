@@ -23,6 +23,7 @@ import 'features/company/presentation/cubit/company_member_actions_cubit.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
 import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
+import 'features/company/presentation/widgets/company_session_lifecycle_boundary.dart';
 import 'features/customers/presentation/cubit/customers_cubit.dart';
 import 'features/drivers/presentation/cubit/driver_compensation_cubit.dart';
 import 'features/drivers/presentation/cubit/drivers_cubit.dart';
@@ -77,8 +78,9 @@ class HorusApp extends StatelessWidget {
           create: (_) => AppDependencies.createDriverCompensationCubit(),
         ),
       ],
-      child: BlocBuilder<AppLocaleCubit, Locale>(
-        builder: (context, locale) {
+      child: CompanySessionLifecycleBoundary(
+        child: BlocBuilder<AppLocaleCubit, Locale>(
+          builder: (context, locale) {
           return MaterialApp(
             onGenerateTitle: (context) => context.l10n.appTitle,
             debugShowCheckedModeBanner: false,
@@ -93,7 +95,8 @@ class HorusApp extends StatelessWidget {
             initialRoute: AppRoutes.root,
             onGenerateRoute: AppRouter.onGenerateRoute,
           );
-        },
+          },
+        ),
       ),
     );
   }
