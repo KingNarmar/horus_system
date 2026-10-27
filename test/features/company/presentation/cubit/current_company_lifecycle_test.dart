@@ -308,6 +308,64 @@ void main() {
     },
   );
 
+  test('A-B-A switching reloads authoritative company-specific roles', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.loadCurrentCompanyContext();
+    repository.contexts = [
+      _context(CompanyRole.owner),
+      const CurrentCompanyContext(
+        company: Company(id: 'company-b', name: 'Company B'),
+        role: CompanyRole.accountant,
+      ),
+    ];
+
+    final toB = await cubit.switchActiveCompany('company-b');
+    expect(toB.failureOrNull, isNull);
+    expect((cubit.state as CurrentCompanyLoaded).context.companyId, 'company-b');
+    expect((cubit.state as CurrentCompanyLoaded).context.role, CompanyRole.accountant);
+
+    repository.contexts = [
+      _context(CompanyRole.viewer),
+      const CurrentCompanyContext(
+        company: Company(id: 'company-b', name: 'Company B'),
+        role: CompanyRole.accountant,
+      ),
+    ];
+
+    final toA = await cubit.switchActiveCompany('company-a');
+    expect(toA.failureOrNull, isNull);
+    expect((cubit.state as CurrentCompanyLoaded).context.companyId, 'company-a');
+    expect((cubit.state as CurrentCompanyLoaded).context.role, CompanyRole.viewer);
+    expect(repository.loads, 3);
+  });
+
+  test('offline target switch hides old shell until previous role is verified', () async {
+    final repository = _FakeCompanyContextRepository();
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.loadCurrentCompanyContext();
+    repository.nextLoadResult = const FailureResult(
+      NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+    );
+    final pendingOldRole = Completer<Result<List<CurrentCompanyContext>>>();
+    repository.pendingLoad = pendingOldRole;
+
+    final pendingSwitch = cubit.switchActiveCompany('company-b');
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.state, isA<CurrentCompanyLoading>());
+
+    repository.contexts = [_context(CompanyRole.viewer)];
+    pendingOldRole.complete(Success(repository.contexts));
+    final result = await pendingSwitch;
+
+    expect(result.failureOrNull, isA<NetworkFailure>());
+    expect((cubit.state as CurrentCompanyLoaded).context.role, CompanyRole.viewer);
+  });
+
   test(
     'denied switch revalidates original company before restoring it',
     () async {
