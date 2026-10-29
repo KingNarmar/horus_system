@@ -24,8 +24,7 @@ void main() {
       companyId: 'company-a',
       role: CompanyRole.admin,
       userId: 'fixture-user',
-      realtimeCubitFactory: () =>
-          CompanyRealtimeCubit(watchChanges: changes),
+      realtimeCubitFactory: () => CompanyRealtimeCubit(watchChanges: changes),
       child: CompanyResourceInvalidationBoundary(
         companyId: 'company-a',
         resources: const {CompanyInvalidationResource.customers},
@@ -33,9 +32,9 @@ void main() {
         child: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => shell('nested')),
-              ),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute<void>(builder: (_) => shell('nested'))),
               child: Text(label),
             ),
           ),
