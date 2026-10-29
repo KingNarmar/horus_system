@@ -265,6 +265,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Retry'), findsOneWidget);
+      final failureMessage = find.textContaining('company access');
+      expect(failureMessage, findsOneWidget);
+      expect(
+        find.ancestor(of: failureMessage, matching: find.byType(Material)),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('draft-text')), findsNothing);
 
       await harness.company.revalidateSelectedCompany();
