@@ -69,24 +69,30 @@ final class _CompanyContextAccessViewState
 
         if (state is CurrentCompanyLoaded || state is CurrentCompanyVerifying) {
           final verifying = state is CurrentCompanyVerifying;
+          final connectionFailure = state is CurrentCompanyVerifying
+              ? state.connectionFailure
+              : null;
           final companyContext = state is CurrentCompanyLoaded
               ? state.context
               : (state as CurrentCompanyVerifying).context;
 
           return Stack(
             children: [
-              ExcludeSemantics(
-                excluding: verifying,
-                child: ExcludeFocus(
+              Offstage(
+                offstage: connectionFailure != null,
+                child: ExcludeSemantics(
                   excluding: verifying,
-                  child: AbsorbPointer(
-                    absorbing: verifying,
-                    child: KeyedSubtree(
-                      key: ValueKey((
-                        companyContext.companyId,
-                        companyContext.role,
-                      )),
-                      child: widget.builder(companyContext),
+                  child: ExcludeFocus(
+                    excluding: verifying,
+                    child: AbsorbPointer(
+                      absorbing: verifying,
+                      child: KeyedSubtree(
+                        key: ValueKey((
+                          companyContext.companyId,
+                          companyContext.role,
+                        )),
+                        child: widget.builder(companyContext),
+                      ),
                     ),
                   ),
                 ),
@@ -95,7 +101,30 @@ final class _CompanyContextAccessViewState
                 Positioned.fill(
                   child: ColoredBox(
                     color: Theme.of(context).scaffoldBackgroundColor,
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: Center(
+                      child: connectionFailure == null
+                          ? const CircularProgressIndicator()
+                          : Padding(
+                              padding: const EdgeInsets.all(AppSpacing.xl),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    l10n.localizedErrorMessage(
+                                      connectionFailure,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  FilledButton.icon(
+                                    onPressed: _retry,
+                                    icon: const Icon(AppIcons.resend),
+                                    label: Text(l10n.retryButton),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
                   ),
                 ),
             ],

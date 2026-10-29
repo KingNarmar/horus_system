@@ -68,6 +68,20 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
           },
           onError: (Object _, StackTrace _) {
             if (isClosed || generation != _membershipGeneration) return;
+            // A failed connection check is retried on explicit Retry or on
+            // reconnect. Repeated channel errors while offline must not
+            // trigger an endless verification/loading loop.
+            final current = state;
+            if (current is CurrentCompanyVerifying &&
+                current.connectionFailure?.code ==
+                    CompanyFailureCodes.contextConnectionUnavailable) {
+              return;
+            }
+            if (current is CurrentCompanyFailure &&
+                current.failure.code ==
+                    CompanyFailureCodes.contextConnectionUnavailable) {
+              return;
+            }
             unawaited(revalidateSelectedCompany());
           },
         );
@@ -216,6 +230,15 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
 
     final failure = result.failureOrNull;
     if (failure != null) {
+      // A temporary connection problem is not proof that the company's
+      // membership or role changed. Keep the last verified route mounted but
+      // completely inaccessible until the server can revalidate access.
+      if (failure.code == CompanyFailureCodes.contextConnectionUnavailable &&
+          state is CurrentCompanyVerifying) {
+        final previous = (state as CurrentCompanyVerifying).context;
+        emit(CurrentCompanyVerifying(previous, connectionFailure: failure));
+        return;
+      }
       if (failure.code == CompanyFailureCodes.companyNotAvailable) {
         // Never retain the old selection when the membership has been revoked.
         final clearResult = await _clearCurrentCompanyContextUseCase(
