@@ -28,11 +28,7 @@ final class AppCompanyRealtimeScope extends StatelessWidget {
     final activeContext = userId == null ? null : companyContext;
 
     return KeyedSubtree(
-      key: ValueKey((
-        activeContext?.companyId,
-        activeContext?.role,
-        userId,
-      )),
+      key: ValueKey((activeContext?.companyId, activeContext?.role, userId)),
       child: activeContext == null
           ? child
           : CompanyRealtimeSessionBoundary(
