@@ -172,15 +172,15 @@ void main() {
       );
 
       await cubit.revalidateSelectedCompany();
-      final failure = cubit.state as CurrentCompanyFailure;
-      expect(failure.selectedCompanyId, 'company-a');
-      expect(failure.failure, isA<NetworkFailure>());
+      final unavailable = cubit.state as CurrentCompanyVerifying;
+      expect(unavailable.context.companyId, 'company-a');
+      expect(unavailable.connectionFailure, isA<NetworkFailure>());
 
       repository.contexts = [_context(CompanyRole.viewer)];
       final pending = Completer<Result<List<CurrentCompanyContext>>>();
       repository.pendingLoad = pending;
       final recovered = cubit.revalidateSelectedCompany();
-      expect(cubit.state, isA<CurrentCompanyLoading>());
+      expect(cubit.state, isA<CurrentCompanyVerifying>());
 
       pending.complete(Success(repository.contexts));
       await recovered;
@@ -204,7 +204,7 @@ void main() {
         NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
       );
       await cubit.revalidateSelectedCompany();
-      expect(cubit.state, isA<CurrentCompanyFailure>());
+      expect(cubit.state, isA<CurrentCompanyVerifying>());
 
       repository.contexts = const [];
       await cubit.revalidateSelectedCompany();
@@ -251,7 +251,7 @@ void main() {
       NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
     );
     await cubit.revalidateSelectedCompany();
-    expect(cubit.state, isA<CurrentCompanyFailure>());
+    expect(cubit.state, isA<CurrentCompanyVerifying>());
 
     repository.contexts = [_context(CompanyRole.viewer)];
     changes.notify();
