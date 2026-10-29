@@ -7,6 +7,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/current_company_context.dart';
+import '../cubit/company_switcher_cubit.dart';
 import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
 import '../pages/company_entry_page.dart';
@@ -17,8 +18,13 @@ import '../pages/company_entry_page.dart';
 /// a changed role recreates it so old role-specific state cannot be reused.
 final class CompanyContextAccessView extends StatefulWidget {
   final Widget Function(CurrentCompanyContext) builder;
+  final CompanySwitcherCubit Function()? createCompanySwitcherCubit;
 
-  const CompanyContextAccessView({required this.builder, super.key});
+  const CompanyContextAccessView({
+    required this.builder,
+    this.createCompanySwitcherCubit,
+    super.key,
+  });
 
   @override
   State<CompanyContextAccessView> createState() =>
@@ -56,38 +62,69 @@ final class _CompanyContextAccessViewState
         }
 
         if (state is CurrentCompanyEmpty) {
-          return const CompanyEntryPage();
+          return CompanyEntryPage(
+            createCompanySwitcherCubit: widget.createCompanySwitcherCubit,
+          );
         }
 
         if (state is CurrentCompanyLoaded || state is CurrentCompanyVerifying) {
           final verifying = state is CurrentCompanyVerifying;
+          final connectionFailure = state is CurrentCompanyVerifying
+              ? state.connectionFailure
+              : null;
           final companyContext = state is CurrentCompanyLoaded
               ? state.context
               : (state as CurrentCompanyVerifying).context;
 
           return Stack(
             children: [
-              ExcludeSemantics(
-                excluding: verifying,
-                child: ExcludeFocus(
+              Offstage(
+                offstage: connectionFailure != null,
+                child: ExcludeSemantics(
                   excluding: verifying,
-                  child: AbsorbPointer(
-                    absorbing: verifying,
-                    child: KeyedSubtree(
-                      key: ValueKey((
-                        companyContext.companyId,
-                        companyContext.role,
-                      )),
-                      child: widget.builder(companyContext),
+                  child: ExcludeFocus(
+                    excluding: verifying,
+                    child: AbsorbPointer(
+                      absorbing: verifying,
+                      child: KeyedSubtree(
+                        key: ValueKey((
+                          companyContext.companyId,
+                          companyContext.role,
+                        )),
+                        child: widget.builder(companyContext),
+                      ),
                     ),
                   ),
                 ),
               ),
               if (verifying)
                 Positioned.fill(
-                  child: ColoredBox(
+                  child: Material(
                     color: Theme.of(context).scaffoldBackgroundColor,
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: Center(
+                      child: connectionFailure == null
+                          ? const CircularProgressIndicator()
+                          : Padding(
+                              padding: const EdgeInsets.all(AppSpacing.xl),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    l10n.localizedErrorMessage(
+                                      connectionFailure,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  FilledButton.icon(
+                                    onPressed: _retry,
+                                    icon: const Icon(AppIcons.resend),
+                                    label: Text(l10n.retryButton),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
                   ),
                 ),
             ],

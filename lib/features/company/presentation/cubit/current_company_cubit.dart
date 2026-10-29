@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/utils/result.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/entities/current_company_context.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
@@ -59,15 +62,31 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
         _watchMembershipChangesUseCase(
           WatchCompanyMembershipChangesParams(userId: userId),
         ).listen(
-          (_) {
+          (result) {
             if (isClosed || generation != _membershipGeneration) return;
+            // Transport failures arrive as typed Result failures, not only
+            // stream errors. Avoid repeated checks while one is running or
+            // connectivity has already prevented verification.
+            if (result.failureOrNull != null &&
+                _shouldIgnoreMembershipTransportFailure) {
+              return;
+            }
             unawaited(revalidateSelectedCompany());
           },
           onError: (Object _, StackTrace _) {
             if (isClosed || generation != _membershipGeneration) return;
+            if (_shouldIgnoreMembershipTransportFailure) return;
             unawaited(revalidateSelectedCompany());
           },
         );
+  }
+
+  bool get _shouldIgnoreMembershipTransportFailure {
+    final current = state;
+    if (current is CurrentCompanyVerifying) return true;
+    return current is CurrentCompanyFailure &&
+        current.failure.code ==
+            CompanyFailureCodes.contextConnectionUnavailable;
   }
 
   Future<void> stopWatchingMembership() async {
@@ -111,6 +130,56 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       success: (context) => emit(CurrentCompanyLoaded(context)),
       failure: (failure) => emit(CurrentCompanyFailure(failure)),
     );
+  }
+
+  /// Explicit user-initiated tenant switch. Unlike selecting a cached context,
+  /// this must verify active membership and role against the server.
+  ///
+  /// The previous shell is unmounted before the request. If selection fails,
+  /// the former company is revalidated before it can be shown again.
+  Future<Result<CurrentCompanyContext>> switchActiveCompany(
+    String companyId,
+  ) async {
+    final previous = state;
+    final previousContext = switch (previous) {
+      CurrentCompanyLoaded(:final context) => context,
+      CurrentCompanyVerifying(:final context) => context,
+      _ => null,
+    };
+
+    final request = ++_requestGeneration;
+    emit(const CurrentCompanyLoading());
+
+    final result = await _refreshSelectedCompanyContextUseCase(
+      RefreshSelectedCompanyContextParams(companyId: companyId),
+    );
+    if (!_isCurrent(request)) {
+      return const FailureResult(
+        ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
+      );
+    }
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      if (previousContext != null) {
+        await _refreshSelected(previousContext.companyId, request);
+      } else {
+        emit(CurrentCompanyFailure(failure, selectedCompanyId: companyId));
+      }
+      return FailureResult(failure);
+    }
+
+    final selected = result.dataOrNull;
+    if (selected == null) {
+      const invalid = ValidationFailure(
+        code: CompanyFailureCodes.companyNotAvailable,
+      );
+      emit(const CurrentCompanyFailure(invalid));
+      return const FailureResult(invalid);
+    }
+
+    emit(CurrentCompanyLoaded(selected));
+    return Success(selected);
   }
 
   Future<void> refreshAndSelectCompany(String companyId) async {
@@ -163,6 +232,15 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
 
     final failure = result.failureOrNull;
     if (failure != null) {
+      // A temporary connection problem is not proof that the company's
+      // membership or role changed. Keep the last verified route mounted but
+      // completely inaccessible until the server can revalidate access.
+      if (failure.code == CompanyFailureCodes.contextConnectionUnavailable &&
+          state is CurrentCompanyVerifying) {
+        final previous = (state as CurrentCompanyVerifying).context;
+        emit(CurrentCompanyVerifying(previous, connectionFailure: failure));
+        return;
+      }
       if (failure.code == CompanyFailureCodes.companyNotAvailable) {
         // Never retain the old selection when the membership has been revoked.
         final clearResult = await _clearCurrentCompanyContextUseCase(

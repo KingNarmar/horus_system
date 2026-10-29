@@ -22,6 +22,7 @@ class AppShellMobileLayout extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
+  final VoidCallback? onSwitchCompany;
 
   const AppShellMobileLayout({
     required this.contextData,
@@ -33,6 +34,7 @@ class AppShellMobileLayout extends StatelessWidget {
     required this.onSelect,
     required this.onFinanceSectionSelected,
     required this.onLogout,
+    this.onSwitchCompany,
     super.key,
   });
 
@@ -79,6 +81,12 @@ class AppShellMobileLayout extends StatelessWidget {
           ],
         ),
         actions: [
+          if (onSwitchCompany != null)
+            IconButton(
+              tooltip: l10n.companySwitcherAction,
+              onPressed: onSwitchCompany,
+              icon: const Icon(AppIcons.transfer),
+            ),
           IconButton(
             tooltip: l10n.signedInAsLabel,
             onPressed: () => _showIdentityContext(context),
@@ -140,6 +148,10 @@ class AppShellMobileLayout extends StatelessWidget {
           child: AppShellIdentityContext(
             user: currentUser,
             contextData: contextData,
+            onSwitchCompany: () {
+              Navigator.of(context).pop();
+              onSwitchCompany?.call();
+            },
           ),
         ),
       ),

@@ -18,6 +18,7 @@ class CompanyMemberActionsCubit extends Cubit<CompanyMemberActionsState> {
   final TransferCompanyOwnershipUseCase _transferOwnershipUseCase;
 
   String? _scopeCompanyId;
+  int _operationGeneration = 0;
 
   CompanyMemberActionsCubit({
     required ChangeCompanyMemberRoleUseCase changeRoleUseCase,
@@ -121,11 +122,17 @@ class CompanyMemberActionsCubit extends Cubit<CompanyMemberActionsState> {
     String companyId,
     Future<Result<void>> Function() action,
   ) async {
+    if (isClosed) return;
+    final request = ++_operationGeneration;
     _scopeCompanyId = companyId;
     emit(CompanyMemberActionInProgress(companyId: companyId));
 
     final result = await action();
-    if (_scopeCompanyId != companyId) return;
+    if (isClosed ||
+        request != _operationGeneration ||
+        _scopeCompanyId != companyId) {
+      return;
+    }
 
     result.when(
       success: (_) => emit(CompanyMemberActionSucceeded(companyId: companyId)),
@@ -133,5 +140,12 @@ class CompanyMemberActionsCubit extends Cubit<CompanyMemberActionsState> {
         CompanyMemberActionFailed(companyId: companyId, failure: failure),
       ),
     );
+  }
+
+  @override
+  Future<void> close() async {
+    ++_operationGeneration;
+    _scopeCompanyId = null;
+    await super.close();
   }
 }

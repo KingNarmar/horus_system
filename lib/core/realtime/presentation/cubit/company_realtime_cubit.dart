@@ -26,6 +26,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
     Set<CompanyDataResource> additionalResources = const {},
   }) {
     final generation = ++_watchGeneration;
+    AppLogger.debug('realtime.session.watch_started');
     final previousSubscription = _subscription;
     if (previousSubscription != null) {
       unawaited(
@@ -70,6 +71,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
             final change = result.dataOrNull;
             if (change == null || change.companyId != companyId) return;
 
+            AppLogger.debug('realtime.session.signal_${change.resource.name}');
             final affected = CompanyInvalidationPolicy.affectedBy(
               change.resource,
             );
@@ -104,6 +106,7 @@ final class CompanyRealtimeCubit extends Cubit<CompanyRealtimeState> {
 
   @override
   Future<void> close() async {
+    AppLogger.debug('realtime.session.close_requested');
     ++_watchGeneration;
     // Stop emitting immediately, without waiting on remote channel cleanup.
     Future<void>? cancellation;

@@ -10,10 +10,14 @@ import '../../../../core/responsive/responsive_layout.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
+import '../cubit/company_switcher_cubit.dart';
+import '../widgets/company_switcher_panel.dart';
 import '../widgets/company_logout_button.dart';
 
 class CompanyEntryPage extends StatelessWidget {
-  const CompanyEntryPage({super.key});
+  final CompanySwitcherCubit Function()? createCompanySwitcherCubit;
+
+  const CompanyEntryPage({this.createCompanySwitcherCubit, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +34,17 @@ class CompanyEntryPage extends StatelessWidget {
           mobile: _CompanyEntryContent(
             maxWidth: AppSizes.mobileMaxContentWidth,
             horizontalPadding: AppSpacing.lg,
+            createCompanySwitcherCubit: createCompanySwitcherCubit,
           ),
           tablet: _CompanyEntryContent(
             maxWidth: AppSizes.tabletMaxContentWidth,
             horizontalPadding: AppSpacing.xl,
+            createCompanySwitcherCubit: createCompanySwitcherCubit,
           ),
           desktop: _CompanyEntryContent(
             maxWidth: AppSizes.desktopAuthFormMaxWidth,
             horizontalPadding: AppSpacing.xxl,
+            createCompanySwitcherCubit: createCompanySwitcherCubit,
           ),
         ),
       ),
@@ -48,10 +55,12 @@ class CompanyEntryPage extends StatelessWidget {
 class _CompanyEntryContent extends StatelessWidget {
   final double maxWidth;
   final double horizontalPadding;
+  final CompanySwitcherCubit Function()? createCompanySwitcherCubit;
 
   const _CompanyEntryContent({
     required this.maxWidth,
     required this.horizontalPadding,
+    this.createCompanySwitcherCubit,
   });
 
   @override
@@ -86,6 +95,13 @@ class _CompanyEntryContent extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   Text(l10n.companyEntrySubtitle, textAlign: TextAlign.center),
                   const SizedBox(height: AppSpacing.xl),
+                  if (createCompanySwitcherCubit != null) ...[
+                    BlocProvider<CompanySwitcherCubit>(
+                      create: (_) => createCompanySwitcherCubit!()..load(),
+                      child: const CompanySwitcherPanel(activeCompanyId: null),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
                   Text(
                     l10n.createCompanyOptionDescription,
                     style: Theme.of(context).textTheme.bodyMedium,

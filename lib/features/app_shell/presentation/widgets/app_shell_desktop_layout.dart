@@ -24,6 +24,7 @@ class AppShellDesktopLayout extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final ValueChanged<FinanceWorkspaceSection> onFinanceSectionSelected;
   final VoidCallback onLogout;
+  final VoidCallback? onSwitchCompany;
 
   const AppShellDesktopLayout({
     required this.contextData,
@@ -35,6 +36,7 @@ class AppShellDesktopLayout extends StatelessWidget {
     required this.onSelect,
     required this.onFinanceSectionSelected,
     required this.onLogout,
+    this.onSwitchCompany,
     super.key,
   });
 
@@ -64,6 +66,7 @@ class AppShellDesktopLayout extends StatelessWidget {
                     AppShellIdentityContext(
                       user: currentUser,
                       contextData: contextData,
+                      onSwitchCompany: onSwitchCompany,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     const Align(

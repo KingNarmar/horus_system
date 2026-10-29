@@ -2,6 +2,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'app/app_company_realtime_scope.dart';
 import 'app/routing/app_router.dart';
 import 'app/routing/app_routes.dart';
 import 'core/constants/app_sizes.dart';
@@ -17,16 +18,12 @@ import 'core/responsive/responsive_layout.dart';
 import 'core/theme/app_radius.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/company/presentation/cubit/company_invitation_acceptance_cubit.dart';
-import 'features/company/presentation/cubit/company_invitations_cubit.dart';
-import 'features/company/presentation/cubit/company_member_actions_cubit.dart';
 import 'features/company/presentation/cubit/company_onboarding_cubit.dart';
-import 'features/company/presentation/cubit/company_users_cubit.dart';
 import 'features/company/presentation/cubit/current_company_cubit.dart';
+import 'features/company/presentation/cubit/current_company_state.dart';
 import 'features/company/presentation/widgets/company_session_lifecycle_boundary.dart';
-import 'features/customers/presentation/cubit/customers_cubit.dart';
-import 'features/drivers/presentation/cubit/driver_compensation_cubit.dart';
-import 'features/drivers/presentation/cubit/drivers_cubit.dart';
 import 'l10n/app_localizations.dart';
 
 class HorusApp extends StatelessWidget {
@@ -55,45 +52,51 @@ class HorusApp extends StatelessWidget {
         BlocProvider<CompanyOnboardingCubit>(
           create: (_) => AppDependencies.createCompanyOnboardingCubit(),
         ),
-        BlocProvider<CompanyUsersCubit>(
-          create: (_) => AppDependencies.createCompanyUsersCubit(),
-        ),
-        BlocProvider<CompanyInvitationsCubit>(
-          create: (_) => AppDependencies.createCompanyInvitationsCubit(),
-        ),
-        BlocProvider<CompanyMemberActionsCubit>(
-          create: (_) => AppDependencies.createCompanyMemberActionsCubit(),
-        ),
         BlocProvider<CompanyInvitationAcceptanceCubit>(
           create: (_) =>
               AppDependencies.createCompanyInvitationAcceptanceCubit(),
         ),
-        BlocProvider<CustomersCubit>(
-          create: (_) => AppDependencies.createCustomersCubit(),
-        ),
-        BlocProvider<DriversCubit>(
-          create: (_) => AppDependencies.createDriversCubit(),
-        ),
-        BlocProvider<DriverCompensationCubit>(
-          create: (_) => AppDependencies.createDriverCompensationCubit(),
-        ),
       ],
       child: CompanySessionLifecycleBoundary(
-        child: BlocBuilder<AppLocaleCubit, Locale>(
-          builder: (context, locale) {
-            return MaterialApp(
-              onGenerateTitle: (context) => context.l10n.appTitle,
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.light,
-              locale: locale,
-              builder: (context, child) => DevicePreview.appBuilder(
-                context,
-                GlobalNetworkGate(child: child ?? const SizedBox.shrink()),
-              ),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              initialRoute: AppRoutes.root,
-              onGenerateRoute: AppRouter.onGenerateRoute,
+        child: BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, authState) {
+            return BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
+              builder: (context, companyState) {
+                final selectedContext = switch (companyState) {
+                  CurrentCompanyLoaded(:final context) => context,
+                  CurrentCompanyVerifying(:final context) => context,
+                  _ => null,
+                };
+                final userId = authState is AuthAuthenticated
+                    ? authState.user.id
+                    : null;
+
+                return AppCompanyRealtimeScope(
+                  companyContext: selectedContext,
+                  userId: userId,
+                  child: BlocBuilder<AppLocaleCubit, Locale>(
+                    builder: (context, locale) {
+                      return MaterialApp(
+                        onGenerateTitle: (context) => context.l10n.appTitle,
+                        debugShowCheckedModeBanner: false,
+                        theme: AppTheme.light,
+                        locale: locale,
+                        builder: (context, child) => DevicePreview.appBuilder(
+                          context,
+                          GlobalNetworkGate(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
+                        ),
+                        localizationsDelegates:
+                            AppLocalizations.localizationsDelegates,
+                        supportedLocales: AppLocalizations.supportedLocales,
+                        initialRoute: AppRoutes.root,
+                        onGenerateRoute: AppRouter.onGenerateRoute,
+                      );
+                    },
+                  ),
+                );
+              },
             );
           },
         ),

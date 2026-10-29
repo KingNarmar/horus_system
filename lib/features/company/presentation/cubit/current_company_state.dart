@@ -18,7 +18,11 @@ class CurrentCompanyLoading extends CurrentCompanyState {
 class CurrentCompanyVerifying extends CurrentCompanyState {
   final CurrentCompanyContext context;
 
-  const CurrentCompanyVerifying(this.context);
+  /// A failed connection check must hide the previously verified company UI
+  /// without destroying its local navigation and unsaved form state.
+  final Failure? connectionFailure;
+
+  const CurrentCompanyVerifying(this.context, {this.connectionFailure});
 }
 
 class CurrentCompanyEmpty extends CurrentCompanyState {

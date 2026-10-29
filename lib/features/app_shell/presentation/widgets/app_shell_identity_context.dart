@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
@@ -11,11 +12,13 @@ class AppShellIdentityContext extends StatelessWidget {
   final AuthUser? user;
   final CurrentCompanyContext contextData;
   final bool compact;
+  final VoidCallback? onSwitchCompany;
 
   const AppShellIdentityContext({
     required this.user,
     required this.contextData,
     this.compact = false,
+    this.onSwitchCompany,
     super.key,
   });
 
@@ -39,6 +42,14 @@ class AppShellIdentityContext extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        if (onSwitchCompany != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          TextButton.icon(
+            onPressed: onSwitchCompany,
+            icon: const Icon(AppIcons.transfer),
+            label: Text(l10n.companySwitcherAction),
+          ),
+        ],
       ],
     );
   }

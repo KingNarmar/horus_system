@@ -3158,6 +3158,36 @@ abstract class AppLocalizations {
   /// **'Not provided'**
   String get notProvidedLabel;
 
+  /// No description provided for @companySwitcherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your companies'**
+  String get companySwitcherTitle;
+
+  /// No description provided for @companySwitcherEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no active company memberships for this account.'**
+  String get companySwitcherEmpty;
+
+  /// No description provided for @companySwitcherCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get companySwitcherCurrent;
+
+  /// No description provided for @companySwitcherJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join another company'**
+  String get companySwitcherJoin;
+
+  /// No description provided for @companySwitcherAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch or join company'**
+  String get companySwitcherAction;
+
   /// No description provided for @companyEntryTitle.
   ///
   /// In en, this message translates to:
