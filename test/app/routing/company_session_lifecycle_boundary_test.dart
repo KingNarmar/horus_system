@@ -241,6 +241,70 @@ void main() {
     expect(find.text('Action triggered'), findsOneWidget);
   });
 
+  testWidgets(
+    'recoverable connection failure hides company data but restores draft',
+    (tester) async {
+      final harness = _Harness();
+      addTearDown(harness.dispose);
+      await harness.auth.checkCurrentUser();
+      await harness.company.loadCurrentCompanyContext();
+      await tester.pumpWidget(
+        harness.widget(
+          CompanyContextAccessView(builder: (_) => const _DraftContent()),
+          withSessionBoundary: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('draft-text')), 'retained');
+      harness.companyRepository.nextLoadResult = const FailureResult(
+        NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+      );
+      await harness.company.revalidateSelectedCompany();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Retry'), findsOneWidget);
+      expect(find.byKey(const Key('draft-text')), findsNothing);
+
+      await harness.company.revalidateSelectedCompany();
+      await tester.pumpAndSettle();
+
+      expect(find.text('retained'), findsOneWidget);
+      expect(find.text('Retry'), findsNothing);
+    },
+  );
+
+  testWidgets('repeated membership channel errors do not retry while offline', (
+    tester,
+  ) async {
+    final harness = _Harness();
+    addTearDown(harness.dispose);
+    await harness.auth.checkCurrentUser();
+    await harness.company.loadCurrentCompanyContext();
+    harness.company.startWatchingMembership('user-a');
+    await tester.pumpWidget(
+      harness.widget(
+        CompanyContextAccessView(builder: (_) => const _DraftContent()),
+        withSessionBoundary: false,
+      ),
+    );
+
+    harness.companyRepository.nextLoadResult = const FailureResult(
+      NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+    );
+    await harness.company.revalidateSelectedCompany();
+    await tester.pumpAndSettle();
+    expect(find.text('Retry'), findsOneWidget);
+
+    final loadsDuringFailure = harness.companyRepository.loads;
+    harness.membership.fail();
+    harness.membership.fail();
+    await tester.pumpAndSettle();
+
+    expect(harness.companyRepository.loads, loadsDuringFailure);
+    expect(find.text('Retry'), findsOneWidget);
+  });
+
   testWidgets('role change discards old role-specific form state', (
     tester,
   ) async {
@@ -434,6 +498,9 @@ class _FakeMembershipRepository implements CompanyMembershipChangesRepository {
 
   void invalidate() =>
       controller.add(const Success(CompanyMembershipChange.invalidated));
+
+  void fail() => controller.addError(StateError('connection unavailable'));
+
 
   Future<void> dispose() => controller.close();
 }
