@@ -18,8 +18,9 @@ void main() {
     'A -> B -> A with different roles receives new A events during old teardown',
     (tester) async {
       final gateway = _DeferredRemovalGateway();
-      final dataSource =
-          SupabaseCompanyDataChangesRemoteDataSource.withGateway(gateway);
+      final dataSource = SupabaseCompanyDataChangesRemoteDataSource.withGateway(
+        gateway,
+      );
       final watchChanges = WatchCompanyDataChangesUseCase(
         CompanyDataChangesRepositoryImpl(dataSource),
       );
