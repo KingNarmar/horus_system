@@ -99,7 +99,7 @@ final class _CompanyContextAccessViewState
               ),
               if (verifying)
                 Positioned.fill(
-                  child: ColoredBox(
+                  child: Material(
                     color: Theme.of(context).scaffoldBackgroundColor,
                     child: Center(
                       child: connectionFailure == null
