@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/app/routing/app_route_guards.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/core/network/domain/entities/network_connection_status.dart';
 import 'package:horus_system/core/network/domain/repositories/network_status_repository.dart';
 import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
@@ -298,7 +299,8 @@ void main() {
 
     final loadsDuringFailure = harness.companyRepository.loads;
     harness.membership.fail();
-    harness.membership.fail();
+    harness.membership.unavailable();
+    harness.membership.unavailable();
     await tester.pumpAndSettle();
 
     expect(harness.companyRepository.loads, loadsDuringFailure);
@@ -500,6 +502,12 @@ class _FakeMembershipRepository implements CompanyMembershipChangesRepository {
       controller.add(const Success(CompanyMembershipChange.invalidated));
 
   void fail() => controller.addError(StateError('connection unavailable'));
+
+  void unavailable() => controller.add(
+    const FailureResult(
+      NetworkFailure(code: FailureCodes.realtimeSubscriptionUnavailable),
+    ),
+  );
 
   Future<void> dispose() => controller.close();
 }

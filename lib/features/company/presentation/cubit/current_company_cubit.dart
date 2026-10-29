@@ -62,29 +62,31 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
         _watchMembershipChangesUseCase(
           WatchCompanyMembershipChangesParams(userId: userId),
         ).listen(
-          (_) {
+          (result) {
             if (isClosed || generation != _membershipGeneration) return;
+            // Transport failures arrive as typed Result failures, not only
+            // stream errors. Avoid repeated checks while one is running or
+            // connectivity has already prevented verification.
+            if (result.failureOrNull != null &&
+                _shouldIgnoreMembershipTransportFailure) {
+              return;
+            }
             unawaited(revalidateSelectedCompany());
           },
           onError: (Object _, StackTrace _) {
             if (isClosed || generation != _membershipGeneration) return;
-            // A failed connection check is retried on explicit Retry or on
-            // reconnect. Repeated channel errors while offline must not
-            // trigger an endless verification/loading loop.
-            final current = state;
-            if (current is CurrentCompanyVerifying &&
-                current.connectionFailure?.code ==
-                    CompanyFailureCodes.contextConnectionUnavailable) {
-              return;
-            }
-            if (current is CurrentCompanyFailure &&
-                current.failure.code ==
-                    CompanyFailureCodes.contextConnectionUnavailable) {
-              return;
-            }
+            if (_shouldIgnoreMembershipTransportFailure) return;
             unawaited(revalidateSelectedCompany());
           },
         );
+  }
+
+  bool get _shouldIgnoreMembershipTransportFailure {
+    final current = state;
+    if (current is CurrentCompanyVerifying) return true;
+    return current is CurrentCompanyFailure &&
+        current.failure.code ==
+            CompanyFailureCodes.contextConnectionUnavailable;
   }
 
   Future<void> stopWatchingMembership() async {
