@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../logging/app_logger.dart';
+
 /// Supabase transport seam. Kept in Data so subscription cleanup can be
 /// verified without real sockets or leaking SDK types into Domain or Cubits.
 enum RealtimeChannelJoinStatus { subscribed, unavailable }
@@ -50,6 +52,8 @@ final class SupabaseRealtimeChannelGateway implements RealtimeChannelGateway {
       status,
       _,
     ) {
+      // Never log full topics: they embed tenant identifiers.
+      AppLogger.debug('realtime.sdk.${topic.split(':').last}.${status.name}');
       if (status == RealtimeSubscribeStatus.subscribed) {
         onStatus(RealtimeChannelJoinStatus.subscribed);
       } else if (status == RealtimeSubscribeStatus.channelError ||
