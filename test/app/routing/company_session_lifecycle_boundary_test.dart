@@ -501,7 +501,6 @@ class _FakeMembershipRepository implements CompanyMembershipChangesRepository {
 
   void fail() => controller.addError(StateError('connection unavailable'));
 
-
   Future<void> dispose() => controller.close();
 }
 
