@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../logging/app_logger.dart';
 import '../../domain/entities/company_invalidation_resource.dart';
 import '../cubit/company_realtime_cubit.dart';
 import '../cubit/company_realtime_state.dart';
@@ -33,7 +34,10 @@ final class CompanyResourceInvalidationBoundary extends StatelessWidget {
             (resource) =>
                 previous.revisionFor(resource) != current.revisionFor(resource),
           ),
-      listener: (context, _) => unawaited(onInvalidate(context)),
+      listener: (context, _) {
+        AppLogger.debug('realtime.visible_resource_invalidation');
+        unawaited(onInvalidate(context));
+      },
       child: child,
     );
   }

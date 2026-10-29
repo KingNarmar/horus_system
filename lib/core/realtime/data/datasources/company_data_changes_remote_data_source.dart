@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 
+import '../../../logging/app_logger.dart';
+
 import '../constants/realtime_topics.dart';
 import '../mappers/company_change_message_decoder.dart';
 import '../models/realtime_change_signal.dart';
@@ -46,6 +48,10 @@ abstract interface class CompanyDataChangesRemoteDataSource {
 final class SupabaseCompanyDataChangesRemoteDataSource
     implements CompanyDataChangesRemoteDataSource {
   final RealtimeChannelGateway _gateway;
+
+  // Diagnostic-only correlation across channel instances. Never log tenant IDs,
+  // access tokens, message payloads, or customer records.
+  static int _nextDiagnosticSequence = 0;
 
   SupabaseCompanyDataChangesRemoteDataSource(SupabaseClient client)
     : _gateway = SupabaseRealtimeChannelGateway(client);
@@ -179,6 +185,11 @@ final class SupabaseCompanyDataChangesRemoteDataSource
     late final StreamController<RealtimeChangeSignal> controller;
     RealtimeChannelHandle? channel;
     var disposed = false;
+    final diagnosticSequence = ++_nextDiagnosticSequence;
+
+    void trace(String phase) {
+      AppLogger.debug('realtime.$resource.$diagnosticSequence.$phase');
+    }
 
     void addSignal(RealtimeChangeSignal signal) {
       if (!disposed && !controller.isClosed) {
@@ -187,16 +198,22 @@ final class SupabaseCompanyDataChangesRemoteDataSource
     }
 
     Future<void> connect() async {
+      trace('connect_start');
       try {
         final token = _gateway.accessToken;
         if (token == null) {
+          trace('session_unavailable');
           addSignal(RealtimeChangeSignal.unavailable);
           return;
         }
 
         await _gateway.authenticate(token);
-        if (disposed) return;
+        if (disposed) {
+          trace('disposed_before_subscribe');
+          return;
+        }
 
+        trace('subscribe_requested');
         channel = _gateway.subscribe(
           topic: topic,
           event: RealtimeTopics.customersChangedEvent,
@@ -206,10 +223,12 @@ final class SupabaseCompanyDataChangesRemoteDataSource
               companyId: companyId,
               resource: resource,
             )) {
+              trace('message_accepted');
               addSignal(RealtimeChangeSignal.changed);
             }
           },
           onStatus: (status) {
+            trace('status_${status.name}');
             if (status == RealtimeChannelJoinStatus.subscribed) {
               // Includes SDK rejoin: fetch authoritative state after missed work.
               addSignal(RealtimeChangeSignal.subscribed);
@@ -219,6 +238,7 @@ final class SupabaseCompanyDataChangesRemoteDataSource
           },
         );
       } catch (_) {
+        trace('connect_failed');
         addSignal(RealtimeChangeSignal.unavailable);
       }
     }
@@ -227,9 +247,18 @@ final class SupabaseCompanyDataChangesRemoteDataSource
       onListen: () => unawaited(connect()),
       onCancel: () async {
         disposed = true;
+        trace('cancel_requested');
         final activeChannel = channel;
-        if (activeChannel != null) {
+        if (activeChannel == null) {
+          trace('cancel_before_subscribe');
+          return;
+        }
+        try {
           await _gateway.remove(activeChannel);
+          trace('channel_removed');
+        } catch (_) {
+          trace('channel_remove_failed');
+          rethrow;
         }
       },
     );
