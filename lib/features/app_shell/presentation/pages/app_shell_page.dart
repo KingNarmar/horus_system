@@ -12,7 +12,6 @@ import '../../../company/presentation/widgets/company_switcher_panel.dart';
 import '../models/app_shell_destination.dart';
 import '../models/finance_workspace_section.dart';
 import '../widgets/app_shell_desktop_layout.dart';
-import '../widgets/company_realtime_session_boundary.dart';
 import '../widgets/app_shell_mobile_layout.dart';
 import '../widgets/app_shell_tablet_layout.dart';
 
@@ -106,16 +105,8 @@ class _AppShellPageState extends State<AppShellPage> {
               child: SingleChildScrollView(
                 child: CompanySwitcherPanel(
                   activeCompanyId: widget.currentCompanyContext.companyId,
-                  onSwitchSucceeded: () {
-                    if (!sheetContext.mounted) return;
-                    // Remove routes opened under the former tenant. Keeping
-                    // previous company pages in Navigator history would allow
-                    // back navigation into stale company-owned UI.
-                    Navigator.of(sheetContext).pushNamedAndRemoveUntil(
-                      AppRoutes.appShell,
-                      (route) => false,
-                    );
-                  },
+                  // The app-level session scope resets Navigator ownership
+                  // after an authoritative company change.
                   onJoin: () {
                     Navigator.of(sheetContext).pop();
                     if (mounted) {
@@ -159,53 +150,48 @@ class _AppShellPageState extends State<AppShellPage> {
     final currentUser = authState is AuthAuthenticated ? authState.user : null;
     final destinations = _destinations;
 
-    return CompanyRealtimeSessionBoundary(
-      companyId: widget.currentCompanyContext.companyId,
-      role: widget.currentCompanyContext.role,
-      userId: currentUser?.id,
-      child: ResponsiveLayout(
-        mobile: AppShellMobileLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-          onSwitchCompany: widget.createCompanySwitcherCubit == null
-              ? null
-              : _openCompanySwitcher,
-        ),
-        tablet: AppShellTabletLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-          onSwitchCompany: widget.createCompanySwitcherCubit == null
-              ? null
-              : _openCompanySwitcher,
-        ),
-        desktop: AppShellDesktopLayout(
-          contextData: widget.currentCompanyContext,
-          currentUser: currentUser,
-          destinations: destinations,
-          selected: _selected,
-          selectedIndex: _selectedIndex,
-          selectedFinanceSection: _selectedFinanceSection,
-          onSelect: _select,
-          onFinanceSectionSelected: _selectFinanceSection,
-          onLogout: _logout,
-          onSwitchCompany: widget.createCompanySwitcherCubit == null
-              ? null
-              : _openCompanySwitcher,
-        ),
+    return ResponsiveLayout(
+      mobile: AppShellMobileLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
+        onSwitchCompany: widget.createCompanySwitcherCubit == null
+            ? null
+            : _openCompanySwitcher,
+      ),
+      tablet: AppShellTabletLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
+        onSwitchCompany: widget.createCompanySwitcherCubit == null
+            ? null
+            : _openCompanySwitcher,
+      ),
+      desktop: AppShellDesktopLayout(
+        contextData: widget.currentCompanyContext,
+        currentUser: currentUser,
+        destinations: destinations,
+        selected: _selected,
+        selectedIndex: _selectedIndex,
+        selectedFinanceSection: _selectedFinanceSection,
+        onSelect: _select,
+        onFinanceSectionSelected: _selectFinanceSection,
+        onLogout: _logout,
+        onSwitchCompany: widget.createCompanySwitcherCubit == null
+            ? null
+            : _openCompanySwitcher,
       ),
     );
   }
