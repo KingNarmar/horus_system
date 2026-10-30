@@ -36,8 +36,10 @@ final class CompanyOnboardingFinancialFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.financialSectionTitle,
-            style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          l10n.financialSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.md),
         FormField<String>(
           key: ValueKey(selectedCurrency),
@@ -74,7 +76,8 @@ final class CompanyOnboardingFinancialFields extends StatelessWidget {
             labelText: financialL10n.fractionDigitsLabel,
             border: const OutlineInputBorder(),
           ),
-          validator: (value) => value == null ? l10n.fractionDigitsRequired : null,
+          validator: (value) =>
+              value == null ? l10n.fractionDigitsRequired : null,
           items: [
             for (var digits = CompanyFinancialConfiguration.minFractionDigits;
                 digits <= CompanyFinancialConfiguration.maxFractionDigits;
@@ -87,8 +90,10 @@ final class CompanyOnboardingFinancialFields extends StatelessWidget {
           onChanged: onFractionDigitsChanged,
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text(l10n.invoiceSectionTitle,
-            style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          l10n.invoiceSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.md),
         TextFormField(
           controller: invoicePrefixController,
@@ -98,8 +103,9 @@ final class CompanyOnboardingFinancialFields extends StatelessWidget {
             hintText: l10n.invoicePrefixHint,
             border: const OutlineInputBorder(),
           ),
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? l10n.invoicePrefixRequired : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? l10n.invoicePrefixRequired
+              : null,
         ),
       ],
     );

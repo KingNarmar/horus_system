@@ -36,7 +36,10 @@ void main() {
         final result = await repository.createCompany(
           name: 'Horus Transport',
           businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
+        financialConfiguration: CompanyFinancialConfiguration.tryCreate(
+          baseCurrencyCode: 'AED',
+          fractionDigits: 2,
+        )!,
         invoicePrefix: InvoicePrefix.tryParse('INV')!,
           businessType: 'Heavy Transport',
           phone: '+971500000000',
@@ -102,7 +105,10 @@ void main() {
       final result = await repository.createCompany(
         name: 'Company',
         businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
+        financialConfiguration: CompanyFinancialConfiguration.tryCreate(
+          baseCurrencyCode: 'AED',
+          fractionDigits: 2,
+        )!,
         invoicePrefix: InvoicePrefix.tryParse('INV')!,
       );
 
@@ -140,7 +146,10 @@ void main() {
       final result = await repository.createCompany(
         name: 'Company',
         businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
+        financialConfiguration: CompanyFinancialConfiguration.tryCreate(
+          baseCurrencyCode: 'AED',
+          fractionDigits: 2,
+        )!,
         invoicePrefix: InvoicePrefix.tryParse('INV')!,
       );
 

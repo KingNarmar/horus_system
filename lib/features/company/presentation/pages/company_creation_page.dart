@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
-import '../../../../core/responsive/responsive_layout.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
@@ -15,9 +13,8 @@ import '../cubit/current_company_cubit.dart';
 import '../cubit/current_company_state.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
-import '../widgets/company_logout_button.dart';
-import '../widgets/company_creation_form.dart';
 import '../localization/company_onboarding_localizations.dart';
+import '../widgets/company_creation_form.dart';
 
 class CompanyCreationPage extends StatefulWidget {
   const CompanyCreationPage({super.key});
@@ -144,8 +141,10 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               invoicePrefixController: _invoicePrefixController,
               selectedCurrency: _selectedCurrency,
               selectedFractionDigits: _selectedFractionDigits,
-              onCurrencyChanged: (value) => setState(() => _selectedCurrency = value),
-              onFractionDigitsChanged: (value) => setState(() => _selectedFractionDigits = value),
+              onCurrencyChanged: (value) =>
+                  setState(() => _selectedCurrency = value),
+              onFractionDigitsChanged: (value) =>
+                  setState(() => _selectedFractionDigits = value),
               timezoneState: timezoneState,
               selectedTimezone: _selectedTimezone,
               onTimezoneChanged: (value) {
@@ -189,7 +188,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     final selectedTimezone = _selectedTimezone;
     final selectedCurrency = _selectedCurrency;
     final selectedDigits = _selectedFractionDigits;
-    if (selectedTimezone == null || selectedCurrency == null || selectedDigits == null) {
+    if (selectedTimezone == null ||
+        selectedCurrency == null ||
+        selectedDigits == null) {
       return;
     }
 

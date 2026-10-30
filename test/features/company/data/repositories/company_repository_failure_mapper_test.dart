@@ -38,6 +38,27 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    for (final entry in <String, String>{
+      CompanyRpcErrorCodes.onboardingBaseCurrencyInvalid:
+          CompanyFailureCodes.validationBaseCurrencyInvalid,
+      CompanyRpcErrorCodes.onboardingFractionDigitsInvalid:
+          CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+      CompanyRpcErrorCodes.onboardingInvoicePrefixInvalid:
+          CompanyFailureCodes.validationInvoicePrefixInvalid,
+    }.entries) {
+      test('maps onboarding invalid value ${entry.key} to a typed failure', () {
+        final failure = mapper.fromPostgrest(
+          PostgrestException(
+            message: 'internal details',
+            code: entry.key,
+          ),
+        );
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.code, entry.value);
+        expect(failure.message, isNull);
+      });
+    }
+
     test('sanitizes PostgREST persistence failures', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(

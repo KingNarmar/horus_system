@@ -6,6 +6,42 @@ import 'package:horus_system/features/company/presentation/helpers/company_timez
 import 'package:horus_system/features/company/presentation/widgets/company_timezone_selector.dart';
 
 void main() {
+  for (final locale in const [Locale('en'), Locale('ar')]) {
+    for (final size in const [Size(390, 844), Size(900, 700), Size(1280, 800)]) {
+      testWidgets(
+        'empty timezone field has a single hint in ${locale.languageCode} at ${size.width}',
+        (tester) async {
+          await tester.binding.setSurfaceSize(size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+
+          await tester.pumpWidget(
+            MaterialApp(
+              locale: locale,
+              supportedLocales: const [Locale('en'), Locale('ar')],
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
+              home: Scaffold(
+                body: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: CompanyTimezoneSelector(
+                    options: [CompanyTimezone.tryParse('Asia/Dubai')!],
+                    selectedValue: null,
+                    onChanged: (_) {},
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          final hint = locale.languageCode == 'ar'
+              ? 'اختر المنطقة الزمنية الخاصة بعمل الشركة'
+              : 'Select the company business timezone';
+          expect(find.text(hint), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
+
   testWidgets(
     'Arabic selector localizes names and searches Arabic English and IANA',
     (tester) async {

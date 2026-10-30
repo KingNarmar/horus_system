@@ -199,9 +199,9 @@ BEGIN
     'company_settings',
     v_company.id::text,
     v_invoice_prefix,
-    'created',
+    'updated',
     'invoice_settings_updated',
-    NULL,
+    pg_catalog.jsonb_build_object('invoice_prefix', NULL),
     pg_catalog.jsonb_build_object('invoice_prefix', v_invoice_prefix),
     pg_catalog.jsonb_build_object('source', 'company_onboarding')
   );

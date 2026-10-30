@@ -1,7 +1,7 @@
+import 'package:horus_system/core/domain/value_objects/invoice_prefix.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_financial_configuration.dart';
-import 'package:horus_system/core/domain/value_objects/invoice_prefix.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/company/domain/repositories/company_repository.dart';
 import 'package:horus_system/features/company/domain/usecases/create_company_usecase.dart';
