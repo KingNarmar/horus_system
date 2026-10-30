@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/features/company/presentation/widgets/company_onboarding_financial_fields.dart';
 
@@ -14,6 +15,8 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             locale: locale,
+            supportedLocales: const [Locale('en'), Locale('ar')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: Form(
