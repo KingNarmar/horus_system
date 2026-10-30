@@ -7,9 +7,9 @@
 - Production project: `rkhmfbxlduuovlbsxhgy` (must remain the same hosted project).
 - Development source: `zwnfmszssxtfxkaofnhq` (read-only).
 - `main` source commit: `2559a4cdcd15f6dd8eca63a8ebbe77a38313f91c`.
-- Existing frozen `public,private` schema-only SQL (workstation only): `C:\Users\minab\HORUS-Production-Cutover-Source-Freeze\DevFreeze_20261030_142052_469\development_current_public_private.sql`
+- Existing frozen `public,private` schema-only SQL (workstation only): `HORUS-Production-Cutover-Source-Freeze/DevFreeze_20261030_142052_469/development_current_public_private.sql`
 - Exactly 570,819 bytes; SHA-256 `6090529D9F2DE7E01408557AB80EFF50064EFEF5D470AEF11011CC1312EA411B`.
-- Production pre-cutover rollback source (do not overwrite): `C:\Users\minab\HORUS-Production-Backups\HORUS_Production_PreCutover_FINAL_v2.7z`; 59,664 encrypted bytes; six original files, 7-Zip test PASS. Offsite: [Drive](https://drive.google.com/file/d/1MAoZEMuse4mDO3s5j6ceWpKLb_9i1Ddg/view).
+- Production pre-cutover rollback source (do not overwrite): `HORUS-Production-Backups/HORUS_Production_PreCutover_FINAL_v2.7z`; 59,664 encrypted bytes; six original files, 7-Zip test PASS. Offsite: [Drive](https://drive.google.com/file/d/1MAoZEMuse4mDO3s5j6ceWpKLb_9i1Ddg/view).
 - The local backup contains production `roles.sql`, `schema.sql`, `data.sql`, manifest/checksums and 123 verified migration records. No repeated export, archive test, or Docker change required.
 
 ## Direct read-only managed-schema comparison, 2026-10-30
