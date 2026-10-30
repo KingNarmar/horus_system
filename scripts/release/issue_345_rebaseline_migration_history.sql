@@ -180,7 +180,7 @@ DO $assert_history$
 BEGIN
  IF (SELECT count(*) FROM supabase_migrations.schema_migrations)<>156
     OR (SELECT max(version) FROM supabase_migrations.schema_migrations)<>'20261030073044'
-    OR (SELECT md5(string_agg(version||':'||coalesce(name,''), E'\\n' ORDER BY version))
+    OR (SELECT md5(string_agg(version||':'||coalesce(name,''), chr(10) ORDER BY version))
         FROM supabase_migrations.schema_migrations)<>'cf73036e985a77c1f4d553549906b557'
     OR (SELECT count(*) FROM supabase_migrations.schema_migrations
         WHERE version<'20260609065142')<>0
