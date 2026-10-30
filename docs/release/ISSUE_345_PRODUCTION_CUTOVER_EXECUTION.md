@@ -35,13 +35,13 @@
 
 1. `scripts/release/issue_345_preserve_prod_key.sql` — snapshots Production's single confirmation digest into `pg_temp` **inside one DB session and transaction**; no digest printed, exported or committed.
 2. `scripts/release/issue_345_detach_managed_dependencies.sql` — detaches only H.O.R.U.S-owned policies and the two H.O.R.U.S-owned triggers; it refuses to run without the preserved temp digest.
-3. Application schema replacement driver — **NOT YET GENERATED**. Must be constructed/reviewed against the frozen local schema and Production dependencies; perform dependency-ordered removal of application objects without `DROP SCHEMA CASCADE` and then restore frozen `public/private` SQL, table/column ACLs/default privileges, functions, triggers, grants and RLS. No unmanaged schema-wide deletion, and no Development test data.
+3. `scripts/release/issue_345_replace_app_objects.sql` — guarded, RESTRICT-only removal of the exact 37 app tables, 110 current functions and 13 enum types; pre-removes the seven tracked RPC-to-rowtype dependencies, and fails closed on any unexpected external dependency. **Source dump MUST then replay in the same transaction**, restoring 137 functions, 70 app triggers, grants and RLS. This driver is unexecuted and has not had a live rollback rehearsal.
 4. `scripts/release/issue_345_storage_policy_restore.sql` — 13 exact Development Storage policy definitions from `pg_policies`, H.O.R.U.S-owned only.
 5. `scripts/release/issue_345_realtime_policy_restore.sql` — 15 exact Development Realtime policy definitions from `pg_policies`.
 6. `scripts/release/issue_345_restore_prod_integrations.sql` — restores **Production's** saved digest, verifies equality without revealing its value, re-creates the Auth profile trigger and RLS event trigger.
-7. Hosted integration restore: preserve Production Auth Site URL/SMTP/templates/redirects, publishable keys, existing Cloudflare configuration and five invitation Edge secret names/values; deploy reviewed current `send-company-invitation` only **after** DB RPC compatibility, never the stale `account-deletion-finalizer` Edge function. Restore only approved reference plan records; Dev's zero-valued test pricing is not commercial pricing.
+7. `scripts/release/issue_345_reference_seed.sql` — three plan capability references (Basic, Pro, Enterprise), **fresh server-generated UUIDs only**. Development `monthly_price = 0` is preserved as an explicit *temporary placeholder* and is NOT commercial release pricing approval.\n8. `scripts/release/issue_345_assert_before_commit.sql` — fail-closed structural and empty-business-data assertions before commit.\n9. Hosted integration restore: preserve Production Auth Site URL/SMTP/templates/redirects, publishable keys, existing Cloudflare configuration and five invitation Edge secret names/values; deploy reviewed current `send-company-invitation` only **after** DB RPC compatibility, never the stale `account-deletion-finalizer` Edge function.
 
-Steps 1–6 are parts of a **single transaction and single PostgreSQL session**; do not run separately with disconnected SQL tool calls. The source SQL, object cleanup, migration provenance mapping and managed sidecars must pass review *before* opening the maintenance gate. No credentials or raw digest values may appear in logs, GitHub or chat.
+Steps 1–8 (including the frozen schema file) are parts of a **single transaction and single PostgreSQL session**; do not run separately with disconnected SQL tool calls. The source SQL, object cleanup, migration provenance mapping and managed sidecars must pass review *before* opening the maintenance gate. No credentials or raw digest values may appear in logs, GitHub or chat.
 
 ## Execution boundaries
 
@@ -67,7 +67,7 @@ A failed gate **blocks release**. Capture sanitized evidence, re-close maintenan
 
 ## Immediate remaining dependency
 
-The frozen Development SQL is presently **only on the operator's Windows computer**, not accessible to the connected Supabase/GitHub tools. Its exact bytes are required to build and validate the dependency-ordered application replacement. Request the **existing** SQL as an attachment; do not ask for a new export, password, service-role key or backup. Until this is available and the replacement driver is reviewed, no destructive Production DB action is safe.
+The frozen Development SQL **was attached and independently SHA-256 verified** in the 2026-10-30 continuation: exactly 570,819 bytes, matching the prior freeze. Offline static inspection confirmed 37 app tables, 137 function definitions, 70 app-owned trigger definitions, 13 enum types and 74 public policies, with no table-data COPY/INSERT section. The uploaded file is *not* committed to public GitHub. Next step is controlled operator-side transactional restore (the connected Supabase API does not accept a local pg_dump file nor provide Auth admin bulk removal). Production has not been modified.
 
 ## Reference
 
