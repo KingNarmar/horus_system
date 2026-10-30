@@ -27,6 +27,18 @@ final class CompanyRepositoryFailureMapper {
         const ValidationFailure(
           code: CompanyFailureCodes.validationBusinessTimezoneInvalid,
         ),
+      CompanyRpcErrorCodes.onboardingBaseCurrencyInvalid =>
+        const ValidationFailure(
+          code: CompanyFailureCodes.validationBaseCurrencyInvalid,
+        ),
+      CompanyRpcErrorCodes.onboardingFractionDigitsInvalid =>
+        const ValidationFailure(
+          code: CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+        ),
+      CompanyRpcErrorCodes.onboardingInvoicePrefixInvalid =>
+        const ValidationFailure(
+          code: CompanyFailureCodes.validationInvoicePrefixInvalid,
+        ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

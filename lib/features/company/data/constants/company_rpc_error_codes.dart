@@ -12,4 +12,7 @@ abstract final class CompanyRpcErrorCodes {
   static const onboardingAuthRequired = 'P2830';
   static const onboardingCompanyNameRequired = 'P2831';
   static const onboardingBusinessTimezoneInvalid = 'P2832';
+  static const onboardingBaseCurrencyInvalid = 'P2833';
+  static const onboardingFractionDigitsInvalid = 'P2834';
+  static const onboardingInvoicePrefixInvalid = 'P2835';
 }
