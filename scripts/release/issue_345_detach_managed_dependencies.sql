@@ -11,6 +11,7 @@ BEGIN
 END $$;
 
 DROP TRIGGER IF EXISTS on_auth_user_created_create_profile ON auth.users;
+DROP EVENT TRIGGER IF EXISTS ensure_rls;
 DROP POLICY IF EXISTS business_documents_delete_managers ON storage.objects;
 DROP POLICY IF EXISTS business_documents_delete_unregistered_fleet_license_documents ON storage.objects;
 DROP POLICY IF EXISTS business_documents_delete_unregistered_trip_documents ON storage.objects;
