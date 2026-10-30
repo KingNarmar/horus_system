@@ -79,13 +79,12 @@ final class CompanyOnboardingFinancialFields extends StatelessWidget {
           validator: (value) =>
               value == null ? l10n.fractionDigitsRequired : null,
           items: [
-            for (var digits = CompanyFinancialConfiguration.minFractionDigits;
-                digits <= CompanyFinancialConfiguration.maxFractionDigits;
-                digits++)
-              DropdownMenuItem<int>(
-                value: digits,
-                child: Text('$digits'),
-              ),
+            for (
+              var digits = CompanyFinancialConfiguration.minFractionDigits;
+              digits <= CompanyFinancialConfiguration.maxFractionDigits;
+              digits++
+            )
+              DropdownMenuItem<int>(value: digits, child: Text('$digits')),
           ],
           onChanged: onFractionDigitsChanged,
         ),

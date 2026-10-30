@@ -40,7 +40,10 @@ void main() {
           expect(find.text('اكتب بادئة رقم الفاتورة.'), findsOneWidget);
         } else {
           expect(find.text('Select a base currency.'), findsOneWidget);
-          expect(find.text('Select the currency fraction digits.'), findsOneWidget);
+          expect(
+            find.text('Select the currency fraction digits.'),
+            findsOneWidget,
+          );
           expect(find.text('Enter an invoice prefix.'), findsOneWidget);
         }
 

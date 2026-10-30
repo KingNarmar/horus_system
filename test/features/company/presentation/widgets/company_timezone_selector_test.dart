@@ -7,7 +7,11 @@ import 'package:horus_system/features/company/presentation/widgets/company_timez
 
 void main() {
   for (final locale in const [Locale('en'), Locale('ar')]) {
-    for (final size in const [Size(390, 844), Size(900, 700), Size(1280, 800)]) {
+    for (final size in const [
+      Size(390, 844),
+      Size(900, 700),
+      Size(1280, 800),
+    ]) {
       testWidgets(
         'empty timezone field has a single hint in ${locale.languageCode} at ${size.width}',
         (tester) async {

@@ -31,7 +31,10 @@ void main() {
         expect(repository.lastName, 'Horus Transport');
         expect(repository.lastTimezone?.value, 'Asia/Dubai');
         expect(repository.lastBusinessType, 'Heavy Transport');
-        expect(repository.lastFinancialConfiguration?.baseCurrency.value, 'AED');
+        expect(
+          repository.lastFinancialConfiguration?.baseCurrency.value,
+          'AED',
+        );
         expect(repository.lastFinancialConfiguration?.fractionDigits, 2);
         expect(repository.lastInvoicePrefix?.value, 'INV');
       },
@@ -95,7 +98,10 @@ void main() {
           invoicePrefix: 'INV',
         ),
       );
-      expect(result.failureOrNull?.code, CompanyFailureCodes.validationBaseCurrencyInvalid);
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBaseCurrencyInvalid,
+      );
       expect(repository.createCallCount, 0);
     });
 
@@ -110,8 +116,10 @@ void main() {
           invoicePrefix: 'INV',
         ),
       );
-      expect(result.failureOrNull?.code,
-          CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid);
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+      );
       expect(repository.createCallCount, 0);
     });
 
@@ -127,7 +135,10 @@ void main() {
             invoicePrefix: prefix,
           ),
         );
-        expect(result.failureOrNull?.code, CompanyFailureCodes.validationInvoicePrefixInvalid);
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.validationInvoicePrefixInvalid,
+        );
       }
       expect(repository.createCallCount, 0);
     });

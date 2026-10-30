@@ -48,10 +48,7 @@ void main() {
     }.entries) {
       test('maps onboarding invalid value ${entry.key} to a typed failure', () {
         final failure = mapper.fromPostgrest(
-          PostgrestException(
-            message: 'internal details',
-            code: entry.key,
-          ),
+          PostgrestException(message: 'internal details', code: entry.key),
         );
         expect(failure, isA<ValidationFailure>());
         expect(failure.code, entry.value);

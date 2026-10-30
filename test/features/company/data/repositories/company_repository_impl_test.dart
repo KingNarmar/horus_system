@@ -36,11 +36,11 @@ void main() {
         final result = await repository.createCompany(
           name: 'Horus Transport',
           businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(
-          baseCurrencyCode: 'AED',
-          fractionDigits: 2,
-        )!,
-        invoicePrefix: InvoicePrefix.tryParse('INV')!,
+          financialConfiguration: CompanyFinancialConfiguration.tryCreate(
+            baseCurrencyCode: 'AED',
+            fractionDigits: 2,
+          )!,
+          invoicePrefix: InvoicePrefix.tryParse('INV')!,
           businessType: 'Heavy Transport',
           phone: '+971500000000',
           email: 'ops@example.com',

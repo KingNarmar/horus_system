@@ -8,8 +8,8 @@ final class CompanyOnboardingLocalizations {
 
   factory CompanyOnboardingLocalizations.forLocale(Locale locale) =>
       locale.languageCode == 'ar'
-          ? const CompanyOnboardingLocalizations._(_ar)
-          : const CompanyOnboardingLocalizations._(_en);
+      ? const CompanyOnboardingLocalizations._(_ar)
+      : const CompanyOnboardingLocalizations._(_en);
 
   String _value(String key) => _values[key]!;
 

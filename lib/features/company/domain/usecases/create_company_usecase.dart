@@ -80,7 +80,9 @@ class CreateCompanyUseCase implements UseCase<Company, CreateCompanyParams> {
     if (currency == null) {
       return Future.value(
         const FailureResult<Company>(
-          ValidationFailure(code: CompanyFailureCodes.validationBaseCurrencyInvalid),
+          ValidationFailure(
+            code: CompanyFailureCodes.validationBaseCurrencyInvalid,
+          ),
         ),
       );
     }
@@ -91,7 +93,8 @@ class CreateCompanyUseCase implements UseCase<Company, CreateCompanyParams> {
       return Future.value(
         const FailureResult<Company>(
           ValidationFailure(
-            code: CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+            code:
+                CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
           ),
         ),
       );
@@ -105,7 +108,9 @@ class CreateCompanyUseCase implements UseCase<Company, CreateCompanyParams> {
     if (prefix == null) {
       return Future.value(
         const FailureResult<Company>(
-          ValidationFailure(code: CompanyFailureCodes.validationInvoicePrefixInvalid),
+          ValidationFailure(
+            code: CompanyFailureCodes.validationInvoicePrefixInvalid,
+          ),
         ),
       );
     }

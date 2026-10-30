@@ -47,7 +47,8 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
             CompanyRpcConstants.companyName: name,
             CompanyRpcConstants.businessTimezone: businessTimezone,
             CompanyRpcConstants.baseCurrencyCode: baseCurrencyCode,
-            CompanyRpcConstants.baseCurrencyFractionDigits: baseCurrencyFractionDigits,
+            CompanyRpcConstants.baseCurrencyFractionDigits:
+                baseCurrencyFractionDigits,
             CompanyRpcConstants.invoicePrefix: invoicePrefix,
             CompanyRpcConstants.businessType: businessType,
             CompanyRpcConstants.phone: phone,
