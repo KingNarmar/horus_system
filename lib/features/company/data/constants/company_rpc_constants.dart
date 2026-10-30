@@ -17,5 +17,4 @@ abstract final class CompanyRpcConstants {
   static const baseCurrencyCode = 'p_base_currency_code';
   static const baseCurrencyFractionDigits = 'p_base_currency_fraction_digits';
   static const businessTimezone = 'p_business_timezone';
-  static const invoicePrefix = 'p_invoice_prefix';
 }

@@ -2,8 +2,6 @@ abstract final class CompanyFailureCodes {
   static const authRequired = 'company_auth_required';
   static const permissionSettingsManagement =
       'permission_company_settings_management';
-  static const validationInvoicePrefixInvalid =
-      'validation_company_invoice_prefix_invalid';
   static const validationBaseCurrencyInvalid =
       'validation_company_base_currency_invalid';
   static const validationBaseCurrencyFractionDigitsInvalid =
