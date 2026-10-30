@@ -52,7 +52,7 @@ class CompanyTimezoneSelector extends StatelessWidget {
               isEmpty: selectedOption == null,
               decoration: InputDecoration(
                 labelText: l10n.label,
-                hintText: l10n.hint,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 errorText: field.errorText,
                 border: const OutlineInputBorder(),
                 suffixIcon: const Icon(AppIcons.search),

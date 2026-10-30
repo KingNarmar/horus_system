@@ -16,7 +16,8 @@ import '../cubit/current_company_state.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
 import '../widgets/company_logout_button.dart';
-import '../widgets/company_timezone_selector.dart';
+import '../widgets/company_creation_form.dart';
+import '../localization/company_onboarding_localizations.dart';
 
 class CompanyCreationPage extends StatefulWidget {
   const CompanyCreationPage({super.key});
@@ -33,6 +34,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   final _emailController = TextEditingController();
   final _countryController = TextEditingController();
   final _cityController = TextEditingController();
+  final _invoicePrefixController = TextEditingController();
+  String? _selectedCurrency;
+  int? _selectedFractionDigits;
   String? _selectedTimezone;
   String? _contextSyncErrorMessage;
 
@@ -50,6 +54,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     _emailController.dispose();
     _countryController.dispose();
     _cityController.dispose();
+    _invoicePrefixController.dispose();
     super.dispose();
   }
 
@@ -57,6 +62,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final timezoneL10n = context.companyTimezoneL10n;
+    final onboardingL10n = context.companyOnboardingL10n;
 
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
       listener: (context, state) async {
@@ -70,6 +76,12 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
             CompanyFailureCodes.validationBusinessTimezoneRequired ||
             CompanyFailureCodes.validationBusinessTimezoneInvalid =>
               companyTimezoneFailureMessage(state.failure, timezoneL10n),
+            CompanyFailureCodes.validationBaseCurrencyInvalid =>
+              onboardingL10n.currencyInvalid,
+            CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid =>
+              onboardingL10n.fractionDigitsInvalid,
+            CompanyFailureCodes.validationInvoicePrefixInvalid =>
+              onboardingL10n.invoicePrefixInvalid,
             _ => l10n.localizedErrorMessage(state.failure),
           };
           ScaffoldMessenger.of(
@@ -121,7 +133,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
 
         return BlocBuilder<CompanyTimezoneCubit, CompanyTimezoneState>(
           builder: (context, timezoneState) {
-            return _CompanyCreationForm(
+            return CompanyCreationForm(
               formKey: _formKey,
               nameController: _nameController,
               businessTypeController: _businessTypeController,
@@ -129,6 +141,11 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               emailController: _emailController,
               countryController: _countryController,
               cityController: _cityController,
+              invoicePrefixController: _invoicePrefixController,
+              selectedCurrency: _selectedCurrency,
+              selectedFractionDigits: _selectedFractionDigits,
+              onCurrencyChanged: (value) => setState(() => _selectedCurrency = value),
+              onFractionDigitsChanged: (value) => setState(() => _selectedFractionDigits = value),
               timezoneState: timezoneState,
               selectedTimezone: _selectedTimezone,
               onTimezoneChanged: (value) {
@@ -170,309 +187,23 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     }
 
     final selectedTimezone = _selectedTimezone;
-    if (selectedTimezone == null) return;
+    final selectedCurrency = _selectedCurrency;
+    final selectedDigits = _selectedFractionDigits;
+    if (selectedTimezone == null || selectedCurrency == null || selectedDigits == null) {
+      return;
+    }
 
     context.read<CompanyOnboardingCubit>().createCompany(
       name: _nameController.text,
       businessTimezone: selectedTimezone,
+      baseCurrencyCode: selectedCurrency,
+      baseCurrencyFractionDigits: selectedDigits,
+      invoicePrefix: _invoicePrefixController.text,
       businessType: _businessTypeController.text,
       phone: _phoneController.text,
       email: _emailController.text,
       country: _countryController.text,
       city: _cityController.text,
-    );
-  }
-}
-
-class _CompanyCreationForm extends StatelessWidget {
-  final GlobalKey<FormState> formKey;
-  final TextEditingController nameController;
-  final TextEditingController businessTypeController;
-  final TextEditingController phoneController;
-  final TextEditingController emailController;
-  final TextEditingController countryController;
-  final TextEditingController cityController;
-  final CompanyTimezoneState timezoneState;
-  final String? selectedTimezone;
-  final ValueChanged<String?> onTimezoneChanged;
-  final VoidCallback onRetryTimezones;
-  final VoidCallback onSubmit;
-
-  const _CompanyCreationForm({
-    required this.formKey,
-    required this.nameController,
-    required this.businessTypeController,
-    required this.phoneController,
-    required this.emailController,
-    required this.countryController,
-    required this.cityController,
-    required this.timezoneState,
-    required this.selectedTimezone,
-    required this.onTimezoneChanged,
-    required this.onRetryTimezones,
-    required this.onSubmit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.createCompanyTitle),
-        actions: const [
-          CompanyLogoutButton(),
-          SizedBox(width: AppSpacing.sm),
-        ],
-      ),
-      body: SafeArea(
-        child: ResponsiveLayout(
-          mobile: _CompanyCreationFormBody(
-            maxWidth: AppSizes.mobileMaxContentWidth,
-            horizontalPadding: AppSpacing.lg,
-            formKey: formKey,
-            nameController: nameController,
-            businessTypeController: businessTypeController,
-            phoneController: phoneController,
-            emailController: emailController,
-            countryController: countryController,
-            cityController: cityController,
-            timezoneState: timezoneState,
-            selectedTimezone: selectedTimezone,
-            onTimezoneChanged: onTimezoneChanged,
-            onRetryTimezones: onRetryTimezones,
-            onSubmit: onSubmit,
-          ),
-          tablet: _CompanyCreationFormBody(
-            maxWidth: AppSizes.tabletMaxContentWidth,
-            horizontalPadding: AppSpacing.xl,
-            formKey: formKey,
-            nameController: nameController,
-            businessTypeController: businessTypeController,
-            phoneController: phoneController,
-            emailController: emailController,
-            countryController: countryController,
-            cityController: cityController,
-            timezoneState: timezoneState,
-            selectedTimezone: selectedTimezone,
-            onTimezoneChanged: onTimezoneChanged,
-            onRetryTimezones: onRetryTimezones,
-            onSubmit: onSubmit,
-          ),
-          desktop: _CompanyCreationFormBody(
-            maxWidth: AppSizes.desktopMaxContentWidth,
-            horizontalPadding: AppSpacing.xxl,
-            formKey: formKey,
-            nameController: nameController,
-            businessTypeController: businessTypeController,
-            phoneController: phoneController,
-            emailController: emailController,
-            countryController: countryController,
-            cityController: cityController,
-            timezoneState: timezoneState,
-            selectedTimezone: selectedTimezone,
-            onTimezoneChanged: onTimezoneChanged,
-            onRetryTimezones: onRetryTimezones,
-            onSubmit: onSubmit,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CompanyCreationFormBody extends StatelessWidget {
-  final double maxWidth;
-  final double horizontalPadding;
-  final GlobalKey<FormState> formKey;
-  final TextEditingController nameController;
-  final TextEditingController businessTypeController;
-  final TextEditingController phoneController;
-  final TextEditingController emailController;
-  final TextEditingController countryController;
-  final TextEditingController cityController;
-  final CompanyTimezoneState timezoneState;
-  final String? selectedTimezone;
-  final ValueChanged<String?> onTimezoneChanged;
-  final VoidCallback onRetryTimezones;
-  final VoidCallback onSubmit;
-
-  const _CompanyCreationFormBody({
-    required this.maxWidth,
-    required this.horizontalPadding,
-    required this.formKey,
-    required this.nameController,
-    required this.businessTypeController,
-    required this.phoneController,
-    required this.emailController,
-    required this.countryController,
-    required this.cityController,
-    required this.timezoneState,
-    required this.selectedTimezone,
-    required this.onTimezoneChanged,
-    required this.onRetryTimezones,
-    required this.onSubmit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = context.l10n;
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: AppSpacing.xl,
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  l10n.createCompanyFormTitle,
-                  textAlign: TextAlign.center,
-                  style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  l10n.createCompanySubtitle,
-                  textAlign: TextAlign.center,
-                  style: textTheme.bodyMedium,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: l10n.companyNameLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.companyNameRequired;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _CompanyTimezoneField(
-                  state: timezoneState,
-                  selectedTimezone: selectedTimezone,
-                  onChanged: onTimezoneChanged,
-                  onRetry: onRetryTimezones,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: businessTypeController,
-                  decoration: InputDecoration(
-                    labelText: l10n.businessTypeLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    labelText: l10n.phoneLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: l10n.emailLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: countryController,
-                  decoration: InputDecoration(
-                    labelText: l10n.countryLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: cityController,
-                  decoration: InputDecoration(
-                    labelText: l10n.cityLabel,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                FilledButton(
-                  onPressed: timezoneState.options.isNotEmpty ? onSubmit : null,
-                  child: Text(l10n.createCompanyButton),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CompanyTimezoneField extends StatelessWidget {
-  final CompanyTimezoneState state;
-  final String? selectedTimezone;
-  final ValueChanged<String?> onChanged;
-  final VoidCallback onRetry;
-
-  const _CompanyTimezoneField({
-    required this.state,
-    required this.selectedTimezone,
-    required this.onChanged,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.companyTimezoneL10n;
-
-    if (state is CompanyTimezoneInitial || state is CompanyTimezoneLoading) {
-      return Row(
-        children: [
-          const SizedBox.square(
-            dimension: AppSpacing.xl,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text(l10n.loading)),
-        ],
-      );
-    }
-
-    if (state is CompanyTimezoneFailure && state.options.isEmpty) {
-      final failure = (state as CompanyTimezoneFailure).failure;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(companyTimezoneFailureMessage(failure, l10n)),
-          const SizedBox(height: AppSpacing.sm),
-          OutlinedButton(onPressed: onRetry, child: Text(l10n.retry)),
-        ],
-      );
-    }
-
-    final options = state.options;
-    final effectiveValue =
-        options.any((option) => option.value == selectedTimezone)
-        ? selectedTimezone
-        : null;
-
-    return CompanyTimezoneSelector(
-      options: options,
-      selectedValue: effectiveValue,
-      onChanged: onChanged,
-      validator: (value) => value == null ? l10n.required : null,
     );
   }
 }
