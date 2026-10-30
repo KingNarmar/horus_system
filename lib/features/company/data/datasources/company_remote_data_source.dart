@@ -9,6 +9,9 @@ abstract class CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
     required String name,
     required String businessTimezone,
+    required String baseCurrencyCode,
+    required int baseCurrencyFractionDigits,
+    required String invoicePrefix,
     String? businessType,
     String? phone,
     String? email,
@@ -28,6 +31,9 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
     required String name,
     required String businessTimezone,
+    required String baseCurrencyCode,
+    required int baseCurrencyFractionDigits,
+    required String invoicePrefix,
     String? businessType,
     String? phone,
     String? email,
@@ -40,6 +46,10 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
           params: {
             CompanyRpcConstants.companyName: name,
             CompanyRpcConstants.businessTimezone: businessTimezone,
+            CompanyRpcConstants.baseCurrencyCode: baseCurrencyCode,
+            CompanyRpcConstants.baseCurrencyFractionDigits:
+                baseCurrencyFractionDigits,
+            CompanyRpcConstants.invoicePrefix: invoicePrefix,
             CompanyRpcConstants.businessType: businessType,
             CompanyRpcConstants.phone: phone,
             CompanyRpcConstants.email: email,

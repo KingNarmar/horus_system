@@ -1,5 +1,7 @@
+import 'package:horus_system/core/domain/value_objects/invoice_prefix.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
+import 'package:horus_system/features/company/domain/entities/company_financial_configuration.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/company/domain/repositories/company_repository.dart';
 import 'package:horus_system/features/company/domain/usecases/create_company_usecase.dart';
@@ -18,6 +20,9 @@ void main() {
           const CreateCompanyParams(
             name: '  Horus Transport  ',
             businessTimezone: '  Asia/Dubai  ',
+            baseCurrencyCode: ' aed ',
+            baseCurrencyFractionDigits: 2,
+            invoicePrefix: ' inv ',
             businessType: '  Heavy Transport  ',
           ),
         );
@@ -26,6 +31,12 @@ void main() {
         expect(repository.lastName, 'Horus Transport');
         expect(repository.lastTimezone?.value, 'Asia/Dubai');
         expect(repository.lastBusinessType, 'Heavy Transport');
+        expect(
+          repository.lastFinancialConfiguration?.baseCurrency.value,
+          'AED',
+        );
+        expect(repository.lastFinancialConfiguration?.fractionDigits, 2);
+        expect(repository.lastInvoicePrefix?.value, 'INV');
       },
     );
 
@@ -39,6 +50,9 @@ void main() {
           const CreateCompanyParams(
             name: 'Horus Transport',
             businessTimezone: '   ',
+            baseCurrencyCode: 'AED',
+            baseCurrencyFractionDigits: 2,
+            invoicePrefix: 'INV',
           ),
         );
 
@@ -60,6 +74,9 @@ void main() {
           const CreateCompanyParams(
             name: 'Horus Transport',
             businessTimezone: 'Asia /Dubai',
+            baseCurrencyCode: 'AED',
+            baseCurrencyFractionDigits: 2,
+            invoicePrefix: 'INV',
           ),
         );
 
@@ -70,6 +87,61 @@ void main() {
         expect(repository.createCallCount, 0);
       },
     );
+    test('rejects malformed currency before repository access', () async {
+      final repository = _FakeCompanyRepository();
+      final result = await CreateCompanyUseCase(repository)(
+        const CreateCompanyParams(
+          name: 'Transport',
+          businessTimezone: 'Asia/Dubai',
+          baseCurrencyCode: 'EURO',
+          baseCurrencyFractionDigits: 2,
+          invoicePrefix: 'INV',
+        ),
+      );
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBaseCurrencyInvalid,
+      );
+      expect(repository.createCallCount, 0);
+    });
+
+    test('rejects out of range fraction digits', () async {
+      final repository = _FakeCompanyRepository();
+      final result = await CreateCompanyUseCase(repository)(
+        const CreateCompanyParams(
+          name: 'Transport',
+          businessTimezone: 'Asia/Dubai',
+          baseCurrencyCode: 'AED',
+          baseCurrencyFractionDigits: 5,
+          invoicePrefix: 'INV',
+        ),
+      );
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+      );
+      expect(repository.createCallCount, 0);
+    });
+
+    test('rejects missing or invalid invoice prefix', () async {
+      final repository = _FakeCompanyRepository();
+      for (final prefix in ['', '1INV', 'INV!']) {
+        final result = await CreateCompanyUseCase(repository)(
+          CreateCompanyParams(
+            name: 'Transport',
+            businessTimezone: 'Asia/Dubai',
+            baseCurrencyCode: 'AED',
+            baseCurrencyFractionDigits: 2,
+            invoicePrefix: prefix,
+          ),
+        );
+        expect(
+          result.failureOrNull?.code,
+          CompanyFailureCodes.validationInvoicePrefixInvalid,
+        );
+      }
+      expect(repository.createCallCount, 0);
+    });
   });
 }
 
@@ -78,11 +150,15 @@ final class _FakeCompanyRepository implements CompanyRepository {
   String? lastName;
   CompanyTimezone? lastTimezone;
   String? lastBusinessType;
+  CompanyFinancialConfiguration? lastFinancialConfiguration;
+  InvoicePrefix? lastInvoicePrefix;
 
   @override
   Future<Result<Company>> createCompany({
     required String name,
     required CompanyTimezone businessTimezone,
+    required CompanyFinancialConfiguration financialConfiguration,
+    required InvoicePrefix invoicePrefix,
     String? businessType,
     String? phone,
     String? email,
@@ -92,6 +168,8 @@ final class _FakeCompanyRepository implements CompanyRepository {
     createCallCount += 1;
     lastName = name;
     lastTimezone = businessTimezone;
+    lastFinancialConfiguration = financialConfiguration;
+    lastInvoicePrefix = invoicePrefix;
     lastBusinessType = businessType;
     return Success(
       Company(

@@ -1,9 +1,12 @@
 import 'package:horus_system/core/errors/failure_codes.dart';
 
+import '../../../../core/domain/value_objects/invoice_prefix.dart';
+import '../../../../core/domain/value_objects/currency_code.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/company.dart';
+import '../entities/company_financial_configuration.dart';
 import '../failures/company_failure_codes.dart';
 import '../repositories/company_repository.dart';
 import '../value_objects/company_timezone.dart';
@@ -11,6 +14,9 @@ import '../value_objects/company_timezone.dart';
 class CreateCompanyParams {
   final String name;
   final String businessTimezone;
+  final String baseCurrencyCode;
+  final int baseCurrencyFractionDigits;
+  final String invoicePrefix;
   final String? businessType;
   final String? phone;
   final String? email;
@@ -20,6 +26,9 @@ class CreateCompanyParams {
   const CreateCompanyParams({
     required this.name,
     required this.businessTimezone,
+    required this.baseCurrencyCode,
+    required this.baseCurrencyFractionDigits,
+    required this.invoicePrefix,
     this.businessType,
     this.phone,
     this.email,
@@ -67,9 +76,50 @@ class CreateCompanyUseCase implements UseCase<Company, CreateCompanyParams> {
       );
     }
 
+    final currency = CurrencyCode.tryParse(params.baseCurrencyCode);
+    if (currency == null) {
+      return Future.value(
+        const FailureResult<Company>(
+          ValidationFailure(
+            code: CompanyFailureCodes.validationBaseCurrencyInvalid,
+          ),
+        ),
+      );
+    }
+
+    if (!CompanyFinancialConfiguration.isValidFractionDigits(
+      params.baseCurrencyFractionDigits,
+    )) {
+      return Future.value(
+        const FailureResult<Company>(
+          ValidationFailure(
+            code:
+                CompanyFailureCodes.validationBaseCurrencyFractionDigitsInvalid,
+          ),
+        ),
+      );
+    }
+    final configuration = CompanyFinancialConfiguration(
+      baseCurrency: currency,
+      fractionDigits: params.baseCurrencyFractionDigits,
+    );
+
+    final prefix = InvoicePrefix.tryParse(params.invoicePrefix);
+    if (prefix == null) {
+      return Future.value(
+        const FailureResult<Company>(
+          ValidationFailure(
+            code: CompanyFailureCodes.validationInvoicePrefixInvalid,
+          ),
+        ),
+      );
+    }
+
     return _repository.createCompany(
       name: companyName,
       businessTimezone: timezone,
+      financialConfiguration: configuration,
+      invoicePrefix: prefix,
       businessType: _normalizeOptionalText(params.businessType),
       phone: _normalizeOptionalText(params.phone),
       email: _normalizeOptionalText(params.email),
