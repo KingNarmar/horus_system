@@ -48,6 +48,7 @@ class CompanyCreationForm extends StatelessWidget {
     required this.onTimezoneChanged,
     required this.onRetryTimezones,
     required this.onSubmit,
+    super.key,
   });
 
   @override
