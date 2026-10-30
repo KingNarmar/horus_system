@@ -34,6 +34,10 @@ BEGIN
      )
   THEN RAISE EXCEPTION 'Production invitation key was not preserved'; END IF;
 
+  IF (SELECT count(*) FROM supabase_migrations.schema_migrations)<>156
+     OR (SELECT max(version) FROM supabase_migrations.schema_migrations)<>'20261030073044'
+  THEN RAISE EXCEPTION 'Migration history does not match Development freeze'; END IF;
+
   IF (SELECT count(*) FROM public.subscription_plans)<>3
      OR (SELECT string_agg(code,',' ORDER BY code) FROM public.subscription_plans)
         <> 'basic,enterprise,pro'
