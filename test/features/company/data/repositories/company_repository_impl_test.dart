@@ -1,11 +1,9 @@
-import 'package:horus_system/core/domain/value_objects/invoice_prefix.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/data/datasources/company_remote_data_source.dart';
 import 'package:horus_system/features/company/data/models/company_model.dart';
 import 'package:horus_system/features/company/data/repositories/company_repository_impl.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
-import 'package:horus_system/features/company/domain/entities/company_financial_configuration.dart';
 import 'package:horus_system/features/company/domain/value_objects/company_timezone.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
@@ -36,8 +34,6 @@ void main() {
         final result = await repository.createCompany(
           name: 'Horus Transport',
           businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
-        invoicePrefix: InvoicePrefix.tryParse('INV')!,
           businessType: 'Heavy Transport',
           phone: '+971500000000',
           email: 'ops@example.com',
@@ -48,9 +44,6 @@ void main() {
         expect(result.failureOrNull, isNull);
         expect(dataSource.createName, 'Horus Transport');
         expect(dataSource.createBusinessTimezone, 'Asia/Dubai');
-        expect(dataSource.createBaseCurrencyCode, 'AED');
-        expect(dataSource.createBaseCurrencyFractionDigits, 2);
-        expect(dataSource.createInvoicePrefix, 'INV');
         expect(dataSource.createBusinessType, 'Heavy Transport');
         expect(dataSource.createPhone, '+971500000000');
         expect(dataSource.createEmail, 'ops@example.com');
@@ -102,8 +95,6 @@ void main() {
       final result = await repository.createCompany(
         name: 'Company',
         businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
-        invoicePrefix: InvoicePrefix.tryParse('INV')!,
       );
 
       expect(result.failureOrNull, isA<AuthFailure>());
@@ -140,8 +131,6 @@ void main() {
       final result = await repository.createCompany(
         name: 'Company',
         businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
-        financialConfiguration: CompanyFinancialConfiguration.tryCreate(baseCurrencyCode: 'AED', fractionDigits: 2)!,
-        invoicePrefix: InvoicePrefix.tryParse('INV')!,
       );
 
       expect(result.failureOrNull, isA<UnexpectedFailure>());
@@ -171,9 +160,6 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
 
   String? createName;
   String? createBusinessTimezone;
-  String? createBaseCurrencyCode;
-  int? createBaseCurrencyFractionDigits;
-  String? createInvoicePrefix;
   String? createBusinessType;
   String? createPhone;
   String? createEmail;
@@ -193,9 +179,6 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
     required String name,
     required String businessTimezone,
-    required String baseCurrencyCode,
-    required int baseCurrencyFractionDigits,
-    required String invoicePrefix,
     String? businessType,
     String? phone,
     String? email,
@@ -204,9 +187,6 @@ final class _FakeCompanyRemoteDataSource implements CompanyRemoteDataSource {
   }) async {
     createName = name;
     createBusinessTimezone = businessTimezone;
-    createBaseCurrencyCode = baseCurrencyCode;
-    createBaseCurrencyFractionDigits = baseCurrencyFractionDigits;
-    createInvoicePrefix = invoicePrefix;
     createBusinessType = businessType;
     createPhone = phone;
     createEmail = email;

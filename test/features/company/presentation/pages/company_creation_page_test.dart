@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/app/routing/app_routes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
-import 'package:horus_system/features/company/domain/entities/company_financial_configuration.dart';
-import 'package:horus_system/core/domain/value_objects/invoice_prefix.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company/domain/repositories/company_context_repository.dart';
@@ -35,9 +33,6 @@ void main() {
       await harness.onboardingCubit.createCompany(
         name: _company.name,
         businessTimezone: _company.businessTimezone!,
-        baseCurrencyCode: 'AED',
-        baseCurrencyFractionDigits: 2,
-        invoicePrefix: 'INV',
       );
       await tester.pumpAndSettle();
 
@@ -59,9 +54,6 @@ void main() {
       await harness.onboardingCubit.createCompany(
         name: _company.name,
         businessTimezone: _company.businessTimezone!,
-        baseCurrencyCode: 'AED',
-        baseCurrencyFractionDigits: 2,
-        invoicePrefix: 'INV',
       );
       await tester.pumpAndSettle();
 
@@ -186,8 +178,6 @@ final class _FakeCompanyRepository implements CompanyRepository {
   Future<Result<Company>> createCompany({
     required String name,
     required CompanyTimezone businessTimezone,
-    required CompanyFinancialConfiguration financialConfiguration,
-    required InvoicePrefix invoicePrefix,
     String? businessType,
     String? phone,
     String? email,
