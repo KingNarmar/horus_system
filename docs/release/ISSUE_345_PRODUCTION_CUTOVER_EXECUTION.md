@@ -1,6 +1,6 @@
 # Issue #345 — Production cutover execution record
 
-**Status:** preparation artifacts checked in; **Production database has NOT been modified** by these artifacts. The destructive cutover is approved in the 2026-10-30 conversation, but the complete restore input and dependency-safe replacement driver must be present before any destructive command.
+**Status:** source freeze SHA-256 and dependency-safe RESTRICT-only driver are prepared; **Production database has NOT been modified**. The approved destructive cutover is operator-executed in a maintenance window, not yet run or rehearsal-tested.
 
 ## Immutable sources and recovery
 
@@ -33,24 +33,28 @@
 
 ## Source-controlled cutover building blocks
 
+0. `scripts/release/issue_345_preimpact_guard.sql` — pinned pre-impact SQL guard before any write; checks the expected Production migration count/version and Auth/Storage/Cron state.
 1. `scripts/release/issue_345_preserve_prod_key.sql` — snapshots Production's single confirmation digest into `pg_temp` **inside one DB session and transaction**; no digest printed, exported or committed.
 2. `scripts/release/issue_345_detach_managed_dependencies.sql` — detaches only H.O.R.U.S-owned policies and the two H.O.R.U.S-owned triggers; it refuses to run without the preserved temp digest.
 3. `scripts/release/issue_345_replace_app_objects.sql` — guarded, RESTRICT-only removal of the exact 37 app tables, 110 current functions and 13 enum types; pre-removes the seven tracked RPC-to-rowtype dependencies, and fails closed on any unexpected external dependency. **Source dump MUST then replay in the same transaction**, restoring 137 functions, 70 app triggers, grants and RLS. This driver is unexecuted and has not had a live rollback rehearsal.
 4. `scripts/release/issue_345_storage_policy_restore.sql` — 13 exact Development Storage policy definitions from `pg_policies`, H.O.R.U.S-owned only.
 5. `scripts/release/issue_345_realtime_policy_restore.sql` — 15 exact Development Realtime policy definitions from `pg_policies`.
 6. `scripts/release/issue_345_restore_prod_integrations.sql` — restores **Production's** saved digest, verifies equality without revealing its value, re-creates the Auth profile trigger and RLS event trigger.
-7. `scripts/release/issue_345_reference_seed.sql` — three plan capability references (Basic, Pro, Enterprise), **fresh server-generated UUIDs only**. Development `monthly_price = 0` is preserved as an explicit *temporary placeholder* and is NOT commercial release pricing approval.\n8. `scripts/release/issue_345_assert_before_commit.sql` — fail-closed structural and empty-business-data assertions before commit.\n9. Hosted integration restore: preserve Production Auth Site URL/SMTP/templates/redirects, publishable keys, existing Cloudflare configuration and five invitation Edge secret names/values; deploy reviewed current `send-company-invitation` only **after** DB RPC compatibility, never the stale `account-deletion-finalizer` Edge function.
+7. `scripts/release/issue_345_reference_seed.sql` — three plan capability references (Basic, Pro, Enterprise), **fresh server-generated UUIDs only**. Development `monthly_price = 0` is preserved as an explicit *temporary placeholder* and is NOT commercial release pricing approval.
+8. `scripts/release/issue_345_rebaseline_migration_history.sql` — version/name metadata is synchronized **in the same transaction** to the 156 confirmed frozen Development applied versions after full schema replacement. No old SQL is replayed; it matches Supabase CLI `migration repair --status applied` tracking semantics. Original migration SQL remains in Git; `statements` metadata is intentionally empty for repaired rows. Prod's previous 123 entries are protected by the original pre-cutover backup.
+9. `scripts/release/issue_345_assert_before_commit.sql` — fail-closed structural and empty-business-data assertions, plus migration-version parity, before commit.
+10. Hosted integration restore: preserve Production Auth Site URL/SMTP/templates/redirects, publishable keys, existing Cloudflare configuration and five invitation Edge secret names/values; deploy reviewed current `send-company-invitation` only **after** DB RPC compatibility, never the stale `account-deletion-finalizer` Edge function.
 
-Steps 1–8 (including the frozen schema file) are parts of a **single transaction and single PostgreSQL session**; do not run separately with disconnected SQL tool calls. The source SQL, object cleanup, migration provenance mapping and managed sidecars must pass review *before* opening the maintenance gate. No credentials or raw digest values may appear in logs, GitHub or chat.
+Steps 1–9 (including the frozen schema file) are parts of a **single transaction and single PostgreSQL session**; do not run separately with disconnected SQL tool calls. The source SQL, object cleanup, migration provenance mapping and managed sidecars must pass review *before* opening the maintenance gate. No credentials or raw digest values may appear in logs, GitHub or chat.
 
 ## Execution boundaries
 
 - Confirm source hash and project target independently from the operator's connection; fail closed on mismatch.
 - Put application clients into a verified maintenance/no-write state; pause the named Cron before disruptive changes. No app sessions should write during policy detachment.
-- Delete all five disposable Production Auth users using supported administrative API, not blind edits of managed Auth tables. Storage object count is currently zero; confirm again before cleanup.
+- Delete all five disposable Production Auth users using supported administrative API, not blind edits of managed Auth tables, **after** the schema transaction but **before reopening Production traffic**. Storage object count is currently zero; confirm again before cleanup.
 - Use an explicitly transaction-wrapped, `ON_ERROR_STOP` restore with the exact frozen schema, audited dependency drop list and managed sidecars. If any SQL operation fails, rollback the **whole database transaction**.
 - Never substitute Dev's invitation digest, Dev's `auth.users`, test companies, operational/financial rows or Storage object bytes.
-- Migration history: Prod 123 entries, Dev 156; eight GitHub migration version mismatches. Preserve true provenance, record baseline evidence and reconcile via reviewed supported process **after** schema parity. Do not bulk mark files applied or blindly `db push`.
+- Migration history: Prod 123 entries, Dev 156; eight historic migration version mismatches. The verified frozen full schema is restored first, then all 156 exact applied Dev version/name pairs are reconciled atomically inside the same transaction (never blindly `db push`, never replay individual historic migration scripts). This is an intentional tracked-metadata repair, not evidence that each individual historic migration executed on Production.
 - Re-enable Cron only after operational integrity checks. The old Docker backup/recovery stacks and volumes are out of scope.
 
 ## Four bounded release gates
