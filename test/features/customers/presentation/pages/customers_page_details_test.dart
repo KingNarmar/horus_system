@@ -86,13 +86,13 @@ void main() {
         find.descendant(of: details, matching: find.text('QA Operator')),
         findsWidgets,
       );
-      expect((cubit.state as CustomersLoaded).selectedCustomer?.id, _customer.id);
+      expect(
+        (cubit.state as CustomersLoaded).selectedCustomer?.id,
+        _customer.id,
+      );
 
       await tester.tap(
-        find.descendant(
-          of: details,
-          matching: find.byIcon(AppIcons.clear),
-        ),
+        find.descendant(of: details, matching: find.byIcon(AppIcons.clear)),
       );
       await tester.pumpAndSettle();
       expect(find.byType(CustomerDetailsDialog), findsNothing);
