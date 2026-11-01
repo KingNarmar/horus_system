@@ -82,6 +82,7 @@ class _CustomersPageState extends State<CustomersPage> {
     await showDialog<void>(
       context: context,
       builder: (_) => BlocBuilder<CustomersCubit, CustomersState>(
+        bloc: cubit,
         builder: (context, state) {
           final loaded = state is CustomersLoaded ? state : null;
           final selected = loaded?.selectedCustomer;
