@@ -68,15 +68,23 @@ Three original Production-only ACL repair SQL files have been copied
 byte-for-byte to
 `scripts/release/issue_345_applied_production_migrations/`
 with provenance documented in its README. Their existing version-numbered
-`supabase/migrations/` files now contain **read-only, fail-closed** assertions
-of the intended Development baseline. This is a deliberate and documented
-difference between the executed historical SQL and its canonical
-version-number checkpoint. Production has already recorded all three
-versions; Development has correct ACLs and must not run the historical
-Production repair bodies.
+`supabase/migrations/` files now contain **fail-closed, baseline-aware**
+checkpoint migrations. Correct existing Development/Production ACLs cause a
+no-op followed by strict verification. A disposable clean replay whose
+function/table ACLs match the *exact observed* broader preimage is corrected
+to the canonical Development grants, including 56 column-level ACLs restored
+**atomically with the table repair**. The third checkpoint independently
+verifies RLS, table and column parity. All unexpected preimages stop without
+broadening privileges. This differs deliberately from the historical SQL,
+which is preserved byte-for-byte; Production already records all three
+versions as applied. No live database repair/replay is authorized.
 
-The SQL is not yet certified replayable: prove the CLI migration plan,
-a disposable local replay, and remote `--dry-run` before merging. Do not
+Supabase CLI 3.0.0 Development `db push --remote --dry-run` already confirmed
+exactly the 3 expected checkpoints and no unrelated migrations. The first
+isolated CI rebuild detected broader function ACLs; the next correctly
+passed the function checkpoint and detected table ACL drift. Strict,
+preimage-guarded reconciliation is now implemented and a full fresh replay
+must PASS before declaring portability fixed. Do not
 apply any live migration or rewrite remote history to make a check pass.
 If an older, unrelated historical migration-version mismatch prevents
 local replay, report it as a separate blocker without destructive fixes.
