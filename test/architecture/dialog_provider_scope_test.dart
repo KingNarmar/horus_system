@@ -68,10 +68,11 @@ void main() {
           }
           if (body.contains('context.read<') ||
               body.contains('context.watch<')) {
-            if (!hasForwarding)
+            if (!hasForwarding) {
               riskyDialogNames.add(
                 '${entry.key}:${_line(source, open.start)}: $name',
               );
+            }
           }
         }
       }
