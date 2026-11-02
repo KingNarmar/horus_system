@@ -1,0 +1,57 @@
+name: Issue 345 Migration Replay
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - '.github/workflows/issue-345-migration-replay.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-migration-replay-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  replay:
+    name: Disposable local migration replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Initialize disposable local Supabase configuration
+        run: |
+          test ! -e supabase/config.toml
+          npx --yes supabase@3.0.0 init
+          test -f supabase/config.toml
+
+      - name: Verify no linked remote project or remote credentials
+        shell: bash
+        run: |
+          test ! -e supabase/.temp/project-ref
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+
+      - name: Start isolated local Supabase stack
+        run: npx --yes supabase@3.0.0 start
+
+      - name: Rebuild disposable local database from repository migrations
+        run: npx --yes supabase@3.0.0 db reset --local --no-seed
+
+      - name: Clean up disposable local containers
+        if: always()
+        run: |
+          if test -e supabase/config.toml; then
+            npx --yes supabase@3.0.0 stop --no-backup || true
+          fi
