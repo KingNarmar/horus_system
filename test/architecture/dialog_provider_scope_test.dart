@@ -35,7 +35,9 @@ void main() {
       r'\b(?:BlocBuilder|BlocConsumer|BlocSelector|BlocListener)<',
     );
     final dialogConstructor = RegExp(r'\b([A-Z]\w*Dialog)\s*\(');
-    final forwarded = RegExp(r'\b(?:MultiBlocProvider|BlocProvider)(?:<[^>]+>)?\s*\(');
+    final forwarded = RegExp(
+      r'\b(?:MultiBlocProvider|BlocProvider)(?:<[^>]+>)?\s*\(',
+    );
 
     for (final entry in sources.entries) {
       final source = entry.value;
@@ -44,14 +46,17 @@ void main() {
         final closeParen = _closingParen(source, openParen);
         if (closeParen < 0) continue;
         final call = source.substring(openParen, closeParen + 1);
-        final hasForwarding = forwarded.hasMatch(call) ||
+        final hasForwarding =
+            forwarded.hasMatch(call) ||
             call.contains('BlocProvider<') ||
             call.contains('MultiBlocProvider(');
 
         final explicitBloc = RegExp(r'\bbloc\s*:').hasMatch(call);
         if (blocLookup.hasMatch(call) && !hasForwarding && !explicitBloc) {
-          unscoped.add('${entry.key}:${_line(source, open.start)}: '
-              'implicit BlocBuilder/Consumer inside dialog route');
+          unscoped.add(
+            '${entry.key}:${_line(source, open.start)}: '
+            'implicit BlocBuilder/Consumer inside dialog route',
+          );
         }
 
         for (final match in dialogConstructor.allMatches(call)) {
@@ -59,14 +64,17 @@ void main() {
           final body = dialogSources[name];
           if (body == null) continue;
           if (blocLookup.hasMatch(body) && !hasForwarding && !explicitBloc) {
-            unscoped.add('${entry.key}:${_line(source, open.start)}: '
-                '$name reads Bloc without forwarded route provider');
+            unscoped.add(
+              '${entry.key}:${_line(source, open.start)}: '
+              '$name reads Bloc without forwarded route provider',
+            );
           }
           if (body.contains('context.read<') ||
               body.contains('context.watch<')) {
-            if (!hasForwarding) riskyDialogNames.add(
-              '${entry.key}:${_line(source, open.start)}: $name',
-            );
+            if (!hasForwarding)
+              riskyDialogNames.add(
+                '${entry.key}:${_line(source, open.start)}: $name',
+              );
           }
         }
       }
@@ -77,8 +85,10 @@ void main() {
     // provider; review these manually before treating them as violations.
     if (riskyDialogNames.isNotEmpty) {
       // ignore: avoid_print
-      print('DIALOG CONTEXT LOOKUP CANDIDATES:\n'
-          '${riskyDialogNames.toList()..sort()}');
+      print(
+        'DIALOG CONTEXT LOOKUP CANDIDATES:\n'
+        '${riskyDialogNames.toList()..sort()}',
+      );
     }
 
     expect(unscoped, isEmpty, reason: unscoped.join('\n'));
