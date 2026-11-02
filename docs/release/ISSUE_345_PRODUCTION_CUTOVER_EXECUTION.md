@@ -1,6 +1,110 @@
-# Issue #345 — Production cutover execution record
+# Issue #345 — Production cutover execution and release evidence
 
-**Status:** source freeze SHA-256 and dependency-safe RESTRICT-only driver are prepared; **Production database has NOT been modified**. The approved destructive cutover is operator-executed in a maintenance window, not yet run or rehearsal-tested.
+**CURRENT STATUS — 2026-11-02:** Application schema cutover was **COMMITTED**
+to the existing Production project. The pre-cutover test Auth identities were
+deleted. Three Production-specific ACL repair migrations were applied,
+and the Production database was independently verified against Development.
+Production remains a **QA environment, not commercially released**.
+Cron is intentionally **PAUSED**. PR #346 remains DRAFT until migration
+portability, repository history and release documentation are validated.
+
+> **DO NOT RE-RUN THE DESTRUCTIVE CUTOVER.**
+> The original pre-impact guard, dependency detachment, object drop/rebuild,
+> migration-history rebaseline and frozen Development restore scripts below
+> were **one-time execution artifacts** for the PREVIOUS Production state.
+> Their preconditions no longer match current Production. These instructions
+> are archived for audit only, **not** an operator task or release checklist.
+> No repeat export, Docker recovery-stack replacement or Development
+> business-data copy is authorized.
+
+## Completed Production cutover (actual outcomes)
+
+- Existing project ref `rkhmfbxlduuovlbsxhgy` preserved; Development source
+  `zwnfmszssxtfxkaofnhq` not overwritten.
+- 2026-10-30 frozen public/private schema, SHA-256
+  `6090529D9F2DE7E01408557AB80EFF50064EFEF5D470AEF11011CC1312EA411B`,
+  was applied in one guarded transaction; SQL operator transcript reported
+  `APPLICATION SCHEMA + MIGRATION METADATA TRANSACTION COMMITTED`.
+- Five **original, disposable** Production Auth identities were removed via
+  supported Auth Admin UI after the structural cutover. New QA accounts were
+  created later; don't confuse these with the original identities.
+- Dev-equivalent application inventory independently verified: **37 tables**
+  (all RLS enabled), **137 functions**, **70 triggers**, **74 public RLS
+  policies**, **13 Storage policies** and **15 Realtime policies**.
+- Production-only grants were narrower after repair. Applied migration
+  versions: `20261101150237` (functions), `20261101152235` (tables),
+  `20261101155147` (columns). Function, table, column and default-privilege
+  parity with the Development baseline was independently verified.
+- `supabase_migrations.schema_migrations` has **159** applied versions:
+  156 source baseline versions + 3 Production-only repairs. This is
+  intentional provenance metadata, not a claim that the 156 historical SQL
+  files were replayed one by one.
+- `send-company-invitation` Edge Function on Production is ACTIVE at version
+  2, with `verify_jwt=true`, deployed from the reviewed Development source.
+  The stale account-deletion-finalizer Edge Function was **not** deployed.
+- Original Production-specific invitation confirmation digest was preserved;
+  private `business-documents` and `driver-documents` buckets retained.
+- Preserved backup `HORUS_Production_PreCutover_FINAL_v2.7z` passed local
+  archive test and its off-site copy was verified by file existence/size.
+  No post-cutover restore rehearsal is claimed.
+
+## Bounded release-gate evidence (not repeated full-feature QA)
+
+| Gate | Verified | Remaining / qualification |
+| --- | --- | --- |
+| A. Structural security | Table/function/trigger counts, RLS, Storage/Realtime policy inventory and ACL parity PASS; no anon-executable public SECURITY DEFINER RPCs after repair | Repo migration portability must be verified before PR merge |
+| B. Auth and onboarding | New Owner account, invoice-ready company defaults and Admin invitation/acceptance confirmed | Hosted SMTP/redirect/Cloudflare configuration not independently re-read in this pass |
+| C. SaaS finance/audit | Cross-account trip create, Fuel expense, stored 100.00 AED freight, 20.00 AED expense, 80.00 AED derived profit and structured audit PASS; earlier Development tenant/RLS contracts PASS | Production nonmember signed-JWT denial not independently demonstrated; SQL-simulated nonmember Storage SELECT returns zero |
+| D. Integrated behavior | Windows/Android cross-user Realtime for Company Expenses, Routes, Trips, Trip Expenses PASS; private Storage upload and driver details display PASS; invitation acceptance PASS | Signed URL negative test not independently demonstrated; Cron remains intentionally inactive pending explicit activation decision |
+
+On 2026-11-02, direct read-only Production catalog snapshot also showed two
+new QA Auth identities, two QA companies, two private Storage objects, and
+three subscription-plan rows with **zero placeholder monthly prices**.
+These are QA records; **zero prices are not approved commercial pricing**.
+
+## Migration-history reconciliation (Git only; no database writes)
+
+Three original Production-only ACL repair SQL files have been copied
+byte-for-byte to
+`scripts/release/issue_345_applied_production_migrations/`
+with provenance documented in its README. Their existing version-numbered
+`supabase/migrations/` files now contain **read-only, fail-closed** assertions
+of the intended Development baseline. This is a deliberate and documented
+difference between the executed historical SQL and its canonical
+version-number checkpoint. Production has already recorded all three
+versions; Development has correct ACLs and must not run the historical
+Production repair bodies.
+
+The SQL is not yet certified replayable: prove the CLI migration plan,
+a disposable local replay, and remote `--dry-run` before merging. Do not
+apply any live migration or rewrite remote history to make a check pass.
+If an older, unrelated historical migration-version mismatch prevents
+local replay, report it as a separate blocker without destructive fixes.
+
+## Final release decisions — NOT YET AUTHORIZED
+
+1. Verify migration history/portability and publish accurate PR evidence.
+2. Confirm Production hosted Auth/SMTP/redirect settings and Cloudflare
+   remain correct, without exposing credentials.
+3. Decide whether accepted nonmember SQL RLS proof and Development JWT
+   contracts satisfy the bounded security gate, or whether a single
+   automated authenticated denial is required; **no third manual test account
+   or repeated feature QA**.
+4. Review the commercial subscription price placeholders before paid launch.
+5. Only after explicit release approval, activate the named Cron
+   `horus-account-deletion-finalizer` at `17 * * * *`, verify its state,
+   and sign off the release gates.
+
+Do not merge PR #346, enable Cron, run SQL writes or claim final release
+until these decisions are recorded.
+
+---
+
+## HISTORICAL PRE-CUTOVER PLAN — ARCHIVED, DO NOT EXECUTE
+
+The sections below preserve the original frozen source inventory, recovery
+path and operator instructions as historical evidence only. Statements about
+work being "pending" describe the **former** 2026-10-30 state, not today.
 
 ## Immutable sources and recovery
 
@@ -69,9 +173,9 @@ D. **Integrated behavior:** private bucket access/isolation, Realtime event acro
 
 A failed gate **blocks release**. Capture sanitized evidence, re-close maintenance, and use the existing preserved rollback set; do not repeatedly try ad-hoc repair scripts.
 
-## Immediate remaining dependency
+## Superseded pre-cutover dependency (historical only)
 
-The frozen Development SQL **was attached and independently SHA-256 verified** in the 2026-10-30 continuation: exactly 570,819 bytes, matching the prior freeze. Offline static inspection confirmed 37 app tables, 137 function definitions, 70 app-owned trigger definitions, 13 enum types and 74 public policies, with no table-data COPY/INSERT section. The uploaded file is *not* committed to public GitHub. Next step is controlled operator-side transactional restore (the connected Supabase API does not accept a local pg_dump file nor provide Auth admin bulk removal). Production has not been modified.
+The frozen Development SQL **was attached and independently SHA-256 verified** in the 2026-10-30 continuation: exactly 570,819 bytes, matching the prior freeze. Offline static inspection confirmed 37 app tables, 137 function definitions, 70 app-owned trigger definitions, 13 enum types and 74 public policies, with no table-data COPY/INSERT section. The uploaded file is *not* committed to public GitHub. The restore step mentioned in this original plan was completed on 2026-10-31/2026-11-01; this paragraph is retained only to preserve the original plan. NEVER execute it again on the current Production database.
 
 ## Reference
 
