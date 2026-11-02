@@ -126,28 +126,26 @@ class _DriversPageState extends State<DriversPage> {
       builder: (_) => MultiBlocProvider(
         providers: [
           BlocProvider<DriversCubit>.value(value: driversCubit),
-          BlocProvider<DriverCompensationCubit>.value(
-            value: compensationCubit,
-          ),
+          BlocProvider<DriverCompensationCubit>.value(value: compensationCubit),
         ],
         child: BlocBuilder<DriversCubit, DriversState>(
           builder: (context, state) => DriverDetailsDialog(
-          driver: driver,
-          state: state is DriversLoaded ? state : null,
-          showCompensation: canViewCompensation,
-          onAddCompensationRevision: canViewCompensation
-              ? () => _openCompensationForm(driver)
-              : null,
-          onEndCompensationRevision: canViewCompensation
-              ? (revision) => _openCompensationEndDialog(driver, revision)
-              : null,
-          onAttachCompensationContract: canViewCompensation
-              ? (revision) => _attachCompensationContract(driver, revision)
-              : null,
-          onOpenCompensationContract: canViewCompensation
-              ? _openCompensationContract
-              : null,
-          ),
+            driver: driver,
+            state: state is DriversLoaded ? state : null,
+            showCompensation: canViewCompensation,
+            onAddCompensationRevision: canViewCompensation
+                ? () => _openCompensationForm(driver)
+                : null,
+            onEndCompensationRevision: canViewCompensation
+                ? (revision) => _openCompensationEndDialog(driver, revision)
+                : null,
+            onAttachCompensationContract: canViewCompensation
+                ? (revision) => _attachCompensationContract(driver, revision)
+                : null,
+            onOpenCompensationContract: canViewCompensation
+                ? _openCompensationContract
+                : null,
+            ),
         ),
       ),
     );
