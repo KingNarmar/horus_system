@@ -3,7 +3,7 @@
 -- scripts/release/issue_345_applied_production_migrations/20261101152235_issue_345_reconcile_production_table_acl.sql
 -- Production records this version as applied; Development (already correct)
 -- is a no-op. A fresh replay may apply only the observed ACL preimage.
--- No DML, no RLS policy changes and no action against linked databases here.
+-- Table and column ACLs are reconciled together atomically, with no DML or RLS changes.
 -- Historical SQL and this portability wrapper intentionally differ.
 
 DO $issue_345_table_repair$
@@ -114,6 +114,42 @@ INTO v_digest FROM table_acl;
   EXECUTE $ddl$GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON TABLE public.trips TO service_role$ddl$;
   EXECUTE $ddl$GRANT SELECT ON TABLE public.user_profiles TO authenticated$ddl$;
   EXECUTE $ddl$GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON TABLE public.user_profiles TO service_role$ddl$;
+
+  -- Unlike the historical Production repair, restore the reviewed column ACLs
+  -- inside this SAME atomic DO block after REVOKE ALL on public tables.
+  -- A failed column check rolls back the entire table ACL change.
+  EXECUTE $ddl$GRANT INSERT (amount_minor_units, company_id, contract_document_reference, contract_reference, currency_code, currency_fraction_digits, driver_id, effective_from, effective_to, id) ON TABLE public.driver_compensation_revisions TO authenticated$ddl$;
+  EXECUTE $ddl$GRANT UPDATE (contract_document_reference, effective_to) ON TABLE public.driver_compensation_revisions TO authenticated$ddl$;
+  EXECUTE $ddl$GRANT UPDATE (is_active, name, updated_by) ON TABLE public.expense_types TO authenticated$ddl$;
+  EXECUTE $ddl$GRANT SELECT (company_id, created_at, created_by, governorate_from, governorate_to, id, is_active, loading_location, notes, unloading_location, updated_at, updated_by) ON TABLE public.routes TO authenticated$ddl$;
+  EXECUTE $ddl$GRANT SELECT (actual_delivery_at, actual_loading_at, arrival_time, cargo_type, company_id, created_at, created_by, customer_id, departure_time, documents_received_at, driver_id, id, invoice_id, loading_location, loading_order_number, loading_time, notes, quantity_tons, route_id, scheduled_delivery_at, scheduled_loading_at, status, tractor_head_id, trailer_id, trip_date, trip_number, unloading_location, unloading_time, updated_at, updated_by, waybill_number) ON TABLE public.trips TO authenticated$ddl$;
+
+  IF (SELECT count(*)
+      FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid
+      JOIN pg_namespace n ON n.oid=c.relnamespace
+      WHERE n.nspname IN ('public','private') AND c.relkind IN ('r','p')
+        AND a.attnum>0 AND NOT a.attisdropped AND a.attacl IS NOT NULL) <> 56
+  THEN
+    RAISE EXCEPTION 'Issue #345: atomic column grant restoration count mismatch';
+  END IF;
+
+  WITH column_acl AS (
+    SELECT n.nspname,c.relname,a.attname,
+      (SELECT COALESCE(string_agg(COALESCE(r.rolname,'PUBLIC')||':'||x.privilege_type||':'||x.is_grantable::text,
+          ',' ORDER BY COALESCE(r.rolname,'PUBLIC'),x.privilege_type,x.is_grantable),'')
+       FROM aclexplode(a.attacl) x LEFT JOIN pg_roles r ON r.oid=x.grantee) acl
+    FROM pg_attribute a JOIN pg_class c ON a.attrelid=c.oid
+    JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname IN ('public','private') AND c.relkind IN ('r','p')
+      AND a.attnum>0 AND NOT a.attisdropped AND a.attacl IS NOT NULL
+  )
+  SELECT md5(string_agg(nspname||'.'||relname||'.'||attname||'='||acl,
+                        chr(10) ORDER BY nspname,relname,attname))
+  INTO v_digest FROM column_acl;
+
+  IF v_digest IS DISTINCT FROM 'c07c2e5b2207af0b9d29d5c9659293f5' THEN
+    RAISE EXCEPTION 'Issue #345: atomic column grant restoration fingerprint mismatch (%)',v_digest;
+  END IF;
 END $issue_345_table_repair$;
 
 DO $verify$
