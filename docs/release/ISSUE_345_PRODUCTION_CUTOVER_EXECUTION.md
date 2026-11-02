@@ -81,6 +81,40 @@ apply any live migration or rewrite remote history to make a check pass.
 If an older, unrelated historical migration-version mismatch prevents
 local replay, report it as a separate blocker without destructive fixes.
 
+## Eight historical migration filenames aligned (Git-only)
+
+Before this correction, eight **existing** migration files in Git had a
+different numeric timestamp than their corresponding *same-named* applied
+versions on **both** Development and Production. The timestamp, not the
+migration SQL content, was inconsistent.
+
+The eight files below were renamed using their **existing Git blob SHA**,
+with no SQL edits and no relative-order change:
+
+| Git's former version | Applied version now used in Git | Migration |
+| --- | --- | --- |
+| 20260927160000 | 20260927124126 | issue_196_account_deletion_lifecycle |
+| 20260927161000 | 20260927124826 | issue_196_storage_ownership_finalization |
+| 20260927162000 | 20260927132441 | issue_196_automatic_finalization |
+| 20260927163000 | 20260927132451 | issue_196_finalizer_observability |
+| 20260927164000 | 20260927132459 | issue_196_cron_privileges |
+| 20260927165000 | 20260927132508 | issue_196_remove_obsolete_finalizer_rpcs |
+| 20260930160000 | 20260930160127 | issue_196_account_deletion_audit_finalizer_hardening |
+| 20261009155000 | 20261009160648 | issue_314_staged_invitation_resend |
+
+**Independent remote migration-list verification (read-only, 2026-11-02):**
+Git has 159 version/name pairs; Production has **159/159 exact pairs**,
+with zero local-only and zero remote-only versions. Development has **156/156
+exact applied pairs** plus *only* the three expected, verification-only
+2026-11-01 Production ACL checkpoint versions not yet recorded there.
+The remote databases and their migration histories were **not modified**.
+
+The three checkpoint SQL blocks each executed **successfully** in
+`BEGIN READ ONLY ... ROLLBACK` transactions on both Development and
+Production. This proves the existing effective catalog baseline passes
+their assertions, but does **not** replace a full clean local reset or
+Supabase CLI dry-run.
+
 ## Final release decisions — NOT YET AUTHORIZED
 
 1. Verify migration history/portability and publish accurate PR evidence.
