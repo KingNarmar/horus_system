@@ -16,18 +16,25 @@ catalog and deliberately fails on an already-correct Development database.
 
 The correspondingly named files under `supabase/migrations/` retain the
 same three migration versions so that the CLI's version-based migration
-history can remain compatible. Their new bodies perform **read-only,
-fail-closed baseline assertions**, not the historical Production repairs:
+history can remain compatible. Their current bodies implement **fail-closed, baseline-aware reconciliation**, not an unconditional replay of the historical Production repairs:
 
 - The original Development baseline already has the expected function ACLs,
-  table grants, column grants and RLS settings.
+  table grants, column grants and RLS settings. Both function and table
+  checkpoints detect the exact expected baseline and make **no mutations**.
 - Production already records these three versions as applied, so it must
   never attempt them again.
-- A fresh environment built from the intended Development migration baseline
-  may record these versions only after the assertions pass.
-- If an environment differs, the assertion must fail rather than silently
-  change permissions. Resolve the upstream schema/migration discrepancy
-  under a separately reviewed migration; never bypass the check.
+- A fresh CLI environment that replays the historical migrations may start
+  with **broader, explicitly fingerprinted function/table ACLs**. The first
+  checkpoint accepts only the observed known function-grant preimage, then
+  executes the reviewed, narrow EXECUTE/default-privilege grants and verifies
+  the exact per-function ACL fingerprint. The second checkpoint accepts only
+  the known table-ACL preimage and restores the canonical table grants and
+  corresponding 56 column ACLs **inside the same atomic DO block**, verified
+  by table and column fingerprints. The third checkpoint remains read-only
+  and checks RLS, table and column grants.
+- Any unexpected catalogue/preimage fails closed. No user/auth data, RLS
+  policies, company business data, or Storage/Realtime objects are mutated.
+  Never bypass a failing ACL fingerprint to force migration replay.
 
 **Provenance caveat:** the SQL bodies stored at the three canonical version
 paths are now intentionally different from the statements that were previously
@@ -39,13 +46,14 @@ environment.
 
 Validation required before merging PR #346:
 1. Read-only confirm target ACL/RLS fingerprints in Development and Production.
-2. Validate the three verification-only SQL files on a disposable local
-   Development-baseline database; confirm no DML/DDL appears in their contents.
+2. Verify that the function and table repair branches run **only** on
+   known fresh-replay ACL fingerprints, and do nothing on existing Dev/Prod.
+   Confirm exact post-repair ACL digests and zero unexpected anonymous execute.
 3. Check `supabase migration list` for both targets and
    `supabase db push --dry-run` against the intended linked target.
-4. Demonstrate a local `supabase db reset` from repository migrations.
-   Historic migration-number discrepancies may independently prevent reset;
-   do not claim this gate passed without an actual run.
+4. Demonstrate `supabase start` and `supabase db reset --local --no-seed`
+   in an isolated GitHub Actions Supabase stack. Do not claim PASS until both
+   complete and the three embedded ACL/RLS checks pass.
 
 `db push` without `--dry-run`, `migration repair`, destructive cutover
 scripts, production writes, and Cron activation are **not authorized** by this
