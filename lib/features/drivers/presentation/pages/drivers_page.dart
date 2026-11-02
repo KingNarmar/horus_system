@@ -145,7 +145,7 @@ class _DriversPageState extends State<DriversPage> {
             onOpenCompensationContract: canViewCompensation
                 ? _openCompensationContract
                 : null,
-            ),
+          ),
         ),
       ),
     );
