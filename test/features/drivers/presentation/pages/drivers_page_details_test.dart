@@ -128,15 +128,19 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.byType(DriverDetailsDialog), findsOneWidget);
         expect(find.textContaining(_driver.fullName), findsWidgets);
-        expect((driversCubit.state as DriversLoaded).selectedDriver?.id,
-            _driver.id);
+        expect(
+          (driversCubit.state as DriversLoaded).selectedDriver?.id,
+          _driver.id,
+        );
         expect(find.text('QA Operator'), findsWidgets);
 
         await tester.tap(
-          find.descendant(
-            of: find.byType(DriverDetailsDialog),
-            matching: find.byIcon(AppIcons.clear),
-          ).first,
+          find
+              .descendant(
+                of: find.byType(DriverDetailsDialog),
+                matching: find.byIcon(AppIcons.clear),
+              )
+              .first,
         );
         await tester.pumpAndSettle();
         expect(find.byType(DriverDetailsDialog), findsNothing);
@@ -162,9 +166,8 @@ const _driver = Driver(
 
 final class _DriversRepository extends Fake implements DriversRepository {
   @override
-  Future<Result<List<Driver>>> getDrivers({
-    required String companyId,
-  }) async => const Success(<Driver>[_driver]);
+  Future<Result<List<Driver>>> getDrivers({required String companyId}) async =>
+      const Success(<Driver>[_driver]);
 
   @override
   Future<Result<DriverImageUrls>> getDriverImageUrls({
@@ -232,11 +235,13 @@ final class _BusinessTimeZoneConverter implements BusinessTimeZoneConverter {
   Result<DateTime> toUtcInstant({
     required BusinessLocalDateTime localDateTime,
     required String timeZoneId,
-  }) => Success(DateTime.utc(
-    localDateTime.year,
-    localDateTime.month,
-    localDateTime.day,
-    localDateTime.hour,
-    localDateTime.minute,
-  ));
+  }) => Success(
+    DateTime.utc(
+      localDateTime.year,
+      localDateTime.month,
+      localDateTime.day,
+      localDateTime.hour,
+      localDateTime.minute,
+    ),
+  );
 }
