@@ -36,7 +36,7 @@ void main() {
     );
     final dialogConstructor = RegExp(r'\b([A-Z]\w*Dialog)\s*\(');
     final forwarded = RegExp(
-      r'\b(?:MultiBlocProvider|BlocProvider)(?:<[^>]+>)?\s*\(',
+      r'\b(?:MultiBlocProvider|BlocProvider)(?:<[^>]+>)?(?:\.value)?\s*\(',
     );
 
     for (final entry in sources.entries) {
@@ -46,10 +46,7 @@ void main() {
         final closeParen = _closingParen(source, openParen);
         if (closeParen < 0) continue;
         final call = source.substring(openParen, closeParen + 1);
-        final hasForwarding =
-            forwarded.hasMatch(call) ||
-            call.contains('BlocProvider<') ||
-            call.contains('MultiBlocProvider(');
+        final hasForwarding = forwarded.hasMatch(call);
 
         final explicitBloc = RegExp(r'\bbloc\s*:').hasMatch(call);
         if (blocLookup.hasMatch(call) && !hasForwarding && !explicitBloc) {
