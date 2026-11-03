@@ -80,7 +80,7 @@
   "fullNameRequired": "Full name is required.",
   "phoneNumberLabel": "Phone number",
   "phoneNumberRequired": "Phone number is required.",
-  "passwordMinLength": "Password must be at least 6 characters.",
+  "passwordMinLength": "Password must be at least 15 characters.",
   "failureAuthInvalidCredentials": "Incorrect email or password.",
   "failureAuthEmailNotConfirmed": "Confirm your email before signing in.",
   "failureAuthAccountAlreadyExists": "An account already exists for this email.",
