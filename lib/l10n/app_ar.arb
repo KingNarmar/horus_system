@@ -84,7 +84,7 @@
   "fullNameRequired": "الاسم الكامل مطلوب.",
   "phoneNumberLabel": "رقم الهاتف",
   "phoneNumberRequired": "رقم الهاتف مطلوب.",
-  "passwordMinLength": "كلمة المرور يجب ألا تقل عن 6 أحرف.",
+  "passwordMinLength": "كلمة المرور يجب ألا تقل عن 15 حرفًا.",
   "failureAuthInvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
   "failureAuthEmailNotConfirmed": "أكّد بريدك الإلكتروني قبل تسجيل الدخول.",
   "failureAuthAccountAlreadyExists": "يوجد حساب بالفعل لهذا البريد الإلكتروني.",
