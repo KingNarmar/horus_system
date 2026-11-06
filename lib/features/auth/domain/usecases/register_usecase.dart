@@ -65,10 +65,15 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
       );
     }
 
-    if (!PasswordPolicy.isValidForCreation(password)) {
+    final passwordValidation = PasswordPolicy.validateForCreation(password);
+    if (passwordValidation != PasswordCreationValidation.valid) {
       return Future.value(
-        const FailureResult<AuthUser>(
-          ValidationFailure(code: FailureCodes.authPasswordTooShort),
+        FailureResult<AuthUser>(
+          ValidationFailure(
+            code: passwordValidation == PasswordCreationValidation.tooShort
+                ? FailureCodes.authPasswordTooShort
+                : FailureCodes.authPasswordTooLong,
+          ),
         ),
       );
     }
