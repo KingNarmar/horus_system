@@ -554,6 +554,12 @@ abstract class AppLocalizations {
   /// **'Password must be at least 15 characters.'**
   String get passwordMinLength;
 
+  /// No description provided for @passwordMaxLengthBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must not exceed 72 UTF-8 bytes. Some characters use multiple bytes.'**
+  String get passwordMaxLengthBytes;
+
   /// No description provided for @failureAuthInvalidCredentials.
   ///
   /// In en, this message translates to:
