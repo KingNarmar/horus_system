@@ -1,6 +1,7 @@
 abstract final class AppSizes {
   static const double minButtonWidth = 120;
   static const double buttonHeight = 48;
+  static const int formErrorMaxLines = 4;
 
   static const double desktopSidebarWidth = 280;
   static const double tabletRailWidth = 80;

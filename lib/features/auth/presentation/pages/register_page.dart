@@ -210,12 +210,14 @@ class _RegisterLayout extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: passwordController,
+                      autovalidateMode: AutovalidateMode.onUserInteractionIfError,
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
                       decoration: InputDecoration(
                         labelText: l10n.passwordLabel,
                         prefixIcon: const Icon(AppIcons.password),
+                        errorMaxLines: AppSizes.formErrorMaxLines,
                       ),
                       validator: (value) =>
                           RegistrationPasswordValidator.validate(value, l10n),
