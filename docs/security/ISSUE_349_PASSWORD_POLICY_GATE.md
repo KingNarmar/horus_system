@@ -10,6 +10,17 @@ This is a **provider compatibility constraint**, **not** a claim of full NIST 64
 
 **Sign-in of existing accounts** must never use these creation-time rules.
 
+## Product acceptance — 2026-11-06
+
+The product owner explicitly **accepted the hosted Supabase Auth maximum of 72 UTF-8 bytes** as a documented compatibility exception for this H.O.R.U.S release. The creation/reset contract is therefore:
+
+- **Minimum 15 Unicode code points**, maximum **72 UTF-8 bytes**; no mandatory mixture of character classes.
+- Do not trim, truncate, normalize, or otherwise alter passwords. Passwords between 15 and 72 ASCII characters fit; multibyte Unicode passwords may reach the byte limit sooner.
+- Existing users may continue to sign in using previously accepted shorter passwords. Apply the new policy to creation/reset only.
+- This is **not full support for arbitrary 64-character Unicode passwords** or an assertion of full NIST 64-character guideline conformance; the provider limit is a known exception. Revisit if the hosted provider changes this limit.
+
+**Approval scope:** This product-policy acceptance does **not** authorize merging the [Flutter Draft PR #350](https://github.com/KingNarmar/horus_system/pull/350) or [Website Draft PR #32](https://github.com/KingNarmar/king-narmar-website/pull/32), changing Supabase **Production** Auth settings, deploying the production website/app, or closing [Issue #349](https://github.com/KingNarmar/horus_system/issues/349). These require separate explicit release approval after the remaining manual security/EN-AR checks and rollout/rollback review.
+
 ## Architecture and files
 
 - Domain: `lib/features/auth/domain/policies/password_policy.dart` owns validation; `register_usecase.dart` owns registration use case.
