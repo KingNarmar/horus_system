@@ -8,6 +8,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../helpers/registration_password_validator.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -209,20 +210,18 @@ class _RegisterLayout extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: passwordController,
+                      autovalidateMode:
+                          AutovalidateMode.onUserInteractionIfError,
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => isLoading ? null : onSubmit(),
                       decoration: InputDecoration(
                         labelText: l10n.passwordLabel,
                         prefixIcon: const Icon(AppIcons.password),
+                        errorMaxLines: AppSizes.formErrorMaxLines,
                       ),
-                      validator: (value) {
-                        if ((value ?? '').length < 6) {
-                          return l10n.passwordMinLength;
-                        }
-
-                        return null;
-                      },
+                      validator: (value) =>
+                          RegistrationPasswordValidator.validate(value, l10n),
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     FilledButton(

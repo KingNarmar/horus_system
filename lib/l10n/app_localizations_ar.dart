@@ -261,7 +261,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phoneNumberRequired => 'رقم الهاتف مطلوب.';
 
   @override
-  String get passwordMinLength => 'كلمة المرور يجب ألا تقل عن 6 أحرف.';
+  String get passwordMinLength => 'كلمة المرور يجب ألا تقل عن 15 حرفًا.';
+
+  @override
+  String get passwordMaxLengthBytes =>
+      'يجب ألا يزيد حجم كلمة المرور عن 72 بايت بترميز UTF-8؛ بعض الحروف والرموز تشغل أكثر من بايت.';
 
   @override
   String get failureAuthInvalidCredentials =>

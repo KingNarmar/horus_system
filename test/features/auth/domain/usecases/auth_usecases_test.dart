@@ -110,7 +110,7 @@ void main() {
       expect(repository.registerCalls, 0);
     });
 
-    test('rejects password shorter than existing minimum', () async {
+    test('rejects password shorter than the 15-character policy', () async {
       final repository = _FakeAuthRepository();
       final useCase = RegisterUseCase(repository);
 
@@ -119,11 +119,28 @@ void main() {
           fullName: 'Mina',
           phone: '0500000000',
           email: 'user@example.com',
-          password: '12345',
+          password: '12345678901234',
         ),
       );
 
       expect(result.failureOrNull?.code, FailureCodes.authPasswordTooShort);
+      expect(repository.registerCalls, 0);
+    });
+
+    test('rejects overlong UTF-8 passwords before repository call', () async {
+      final repository = _FakeAuthRepository();
+      final useCase = RegisterUseCase(repository);
+
+      final result = await useCase(
+        RegisterParams(
+          fullName: 'Mina',
+          phone: '0500000000',
+          email: 'user@example.com',
+          password: List.filled(19, '🔒').join(),
+        ),
+      );
+
+      expect(result.failureOrNull?.code, FailureCodes.authPasswordTooLong);
       expect(repository.registerCalls, 0);
     });
 
@@ -137,7 +154,7 @@ void main() {
           fullName: '  Mina Adly  ',
           phone: '  0500000000  ',
           email: '  user@example.com  ',
-          password: 'secret',
+          password: 'correct horse battery staple',
         ),
       );
 
@@ -146,7 +163,7 @@ void main() {
       expect(repository.lastRegisterFullName, 'Mina Adly');
       expect(repository.lastRegisterPhone, '0500000000');
       expect(repository.lastRegisterEmail, 'user@example.com');
-      expect(repository.lastRegisterPassword, 'secret');
+      expect(repository.lastRegisterPassword, 'correct horse battery staple');
     });
   });
 

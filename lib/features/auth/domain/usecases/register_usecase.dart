@@ -3,6 +3,7 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/auth_user.dart';
+import '../policies/password_policy.dart';
 import '../repositories/auth_repository.dart';
 
 class RegisterParams {
@@ -64,12 +65,14 @@ class RegisterUseCase implements UseCase<AuthUser, RegisterParams> {
       );
     }
 
-    if (password.length < 6) {
+    final passwordValidation = PasswordPolicy.validateForCreation(password);
+    if (passwordValidation != PasswordCreationValidation.valid) {
       return Future.value(
-        const FailureResult<AuthUser>(
+        FailureResult<AuthUser>(
           ValidationFailure(
-            code: FailureCodes.authPasswordTooShort,
-            message: 'Password must be at least 6 characters.',
+            code: passwordValidation == PasswordCreationValidation.tooShort
+                ? FailureCodes.authPasswordTooShort
+                : FailureCodes.authPasswordTooLong,
           ),
         ),
       );

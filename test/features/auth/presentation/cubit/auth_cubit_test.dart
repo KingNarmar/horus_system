@@ -110,7 +110,7 @@ void main() {
           fullName: 'Mina Adly',
           phone: '0500000000',
           email: 'user@example.com',
-          password: 'secret',
+          password: 'correct horse battery staple',
         ),
       );
 
@@ -132,7 +132,7 @@ void main() {
           fullName: 'Mina Adly',
           phone: '0500000000',
           email: 'fallback@example.com',
-          password: 'secret',
+          password: 'correct horse battery staple',
         ),
       );
 
@@ -155,7 +155,7 @@ void main() {
           fullName: 'Mina Adly',
           phone: '0500000000',
           email: 'user@example.com',
-          password: 'secret',
+          password: 'correct horse battery staple',
         ),
       );
 
