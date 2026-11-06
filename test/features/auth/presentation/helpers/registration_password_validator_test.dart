@@ -22,7 +22,10 @@ void main() {
         locale.passwordMinLength,
       );
       expect(
-        RegistrationPasswordValidator.validate(List.filled(19, '🔒').join(), locale),
+        RegistrationPasswordValidator.validate(
+          List.filled(19, '🔒').join(),
+          locale,
+        ),
         locale.passwordMaxLengthBytes,
       );
       expect(
@@ -30,7 +33,10 @@ void main() {
         isNull,
       );
       expect(
-        RegistrationPasswordValidator.validate(List.filled(18, '🔒').join(), locale),
+        RegistrationPasswordValidator.validate(
+          List.filled(18, '🔒').join(),
+          locale,
+        ),
         isNull,
       );
     }
