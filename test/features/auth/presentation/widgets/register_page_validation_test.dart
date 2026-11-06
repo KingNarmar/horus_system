@@ -63,7 +63,7 @@ void main() {
           AppSizes.formErrorMaxLines,
         );
 
-        await tester.enterText(passwordField, 'A' * 73);
+        await tester.enterText(passwordField, List.filled(73, 'A').join());
         await tester.ensureVisible(submitButton);
         await tester.tap(submitButton);
         await tester.pumpAndSettle();
@@ -71,17 +71,17 @@ void main() {
         expect(find.text(l10n.passwordMaxLengthBytes), findsOneWidget);
 
         // Fixing an error revalidates that field without another submit.
-        await tester.enterText(passwordField, 'A' * 72);
+        await tester.enterText(passwordField, List.filled(72, 'A').join());
         await tester.pumpAndSettle();
         expect(find.text(l10n.passwordMaxLengthBytes), findsNothing);
 
-        await tester.enterText(passwordField, 'A' * 14);
+        await tester.enterText(passwordField, List.filled(14, 'A').join());
         await tester.ensureVisible(submitButton);
         await tester.tap(submitButton);
         await tester.pumpAndSettle();
         expect(find.text(l10n.passwordMinLength), findsOneWidget);
 
-        await tester.enterText(passwordField, 'A' * 15);
+        await tester.enterText(passwordField, List.filled(15, 'A').join());
         await tester.pumpAndSettle();
         expect(find.text(l10n.passwordMinLength), findsNothing);
 
