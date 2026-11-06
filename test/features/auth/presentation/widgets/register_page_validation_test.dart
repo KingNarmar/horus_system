@@ -59,7 +59,15 @@ void main() {
           AutovalidateMode.onUserInteractionIfError,
         );
         expect(
-          tester.widget<TextFormField>(passwordField).decoration?.errorMaxLines,
+          tester
+              .widget<TextField>(
+                find.descendant(
+                  of: passwordField,
+                  matching: find.byType(TextField),
+                ),
+              )
+              .decoration
+              ?.errorMaxLines,
           AppSizes.formErrorMaxLines,
         );
 
