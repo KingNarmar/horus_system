@@ -264,6 +264,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordMinLength => 'كلمة المرور يجب ألا تقل عن 15 حرفًا.';
 
   @override
+  String get passwordMaxLengthBytes =>
+      'يجب ألا يزيد حجم كلمة المرور عن 72 بايت بترميز UTF-8؛ بعض الحروف والرموز تشغل أكثر من بايت.';
+
+  @override
   String get failureAuthInvalidCredentials =>
       'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
 
