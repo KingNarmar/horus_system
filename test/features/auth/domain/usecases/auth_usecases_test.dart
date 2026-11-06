@@ -127,6 +127,23 @@ void main() {
       expect(repository.registerCalls, 0);
     });
 
+    test('rejects overlong UTF-8 passwords before repository call', () async {
+      final repository = _FakeAuthRepository();
+      final useCase = RegisterUseCase(repository);
+
+      final result = await useCase(
+        RegisterParams(
+          fullName: 'Mina',
+          phone: '0500000000',
+          email: 'user@example.com',
+          password: List.filled(19, '🔒').join(),
+        ),
+      );
+
+      expect(result.failureOrNull?.code, FailureCodes.authPasswordTooLong);
+      expect(repository.registerCalls, 0);
+    });
+
     test('trims text fields, delegates once, and preserves result', () async {
       final expected = Success<AuthUser>(_user);
       final repository = _FakeAuthRepository(registerResult: expected);
