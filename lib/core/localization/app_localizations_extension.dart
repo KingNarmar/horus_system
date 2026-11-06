@@ -52,6 +52,7 @@ extension CommonErrorLocalizationsX on AppLocalizations {
         failureValidationAuditDescriptionRequired,
       FailureCodes.authPasswordRequired => passwordRequired,
       FailureCodes.authPasswordTooShort => passwordMinLength,
+      FailureCodes.authPasswordTooLong => passwordMaxLengthBytes,
       FailureCodes.authEmailRequired => emailRequired,
       FailureCodes.authFullNameRequired => fullNameRequired,
       FailureCodes.authPhoneRequired => phoneNumberRequired,
