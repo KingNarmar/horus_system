@@ -5,6 +5,7 @@ class FailureCodes {
   static const String authFullNameRequired = 'auth_full_name_required';
   static const String authPhoneRequired = 'auth_phone_required';
   static const String authPasswordTooShort = 'auth_password_too_short';
+  static const String authPasswordTooLong = 'auth_password_too_long';
   static const String authInvalidCredentials = 'auth_invalid_credentials';
   static const String authEmailNotConfirmed = 'auth_email_not_confirmed';
   static const String authAccountAlreadyExists = 'auth_account_already_exists';
