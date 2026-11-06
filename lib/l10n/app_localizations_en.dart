@@ -267,6 +267,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordMinLength => 'Password must be at least 15 characters.';
 
   @override
+  String get passwordMaxLengthBytes =>
+      'Password must not exceed 72 UTF-8 bytes. Some characters use multiple bytes.';
+
+  @override
   String get failureAuthInvalidCredentials => 'Incorrect email or password.';
 
   @override
