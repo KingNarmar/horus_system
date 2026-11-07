@@ -820,6 +820,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.';
 
   @override
+  String get routeRateRequiresSeparateAction =>
+      'عدّل سعر نقل المسار من خلال إجراء تعديل السعر المنفصل.';
+
+  @override
   String get routeStaleFreightRateSnapshot =>
       'تم تحديث هذا المسار من مكان آخر. حدّث البيانات وحاول مرة أخرى.';
 

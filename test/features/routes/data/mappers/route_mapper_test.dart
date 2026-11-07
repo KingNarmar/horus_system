@@ -44,12 +44,11 @@ void main() {
       expect(map['default_freight_price'], '1250.50');
     });
 
-    test('encodes update rate and timestamp without floating point', () {
-      final map = _writeData(
-        currency,
-      ).toUpdateMap(financialConfiguration: configuration);
+    test('operational update never sends a financial rate', () {
+      final map = _writeData(currency).toOperationalUpdateMap();
 
-      expect(map['default_freight_price'], '1250.50');
+      expect(map.containsKey('default_freight_price'), isFalse);
+      expect(map['loading_location'], 'Dubai');
       final updatedAt = DateTime.parse(map['updated_at'] as String);
       expect(updatedAt.isUtc, isTrue);
     });

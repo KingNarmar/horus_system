@@ -25,7 +25,6 @@ abstract class RoutesRemoteDataSource {
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
-    required CurrencyConfiguration? financialConfiguration,
   });
 
   Future<RouteModel> deactivateRoute({
@@ -95,12 +94,11 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
-    required CurrencyConfiguration? financialConfiguration,
   }) async {
     final row = await client
         .from(RouteDbFields.tableName)
         .update(
-          data.toUpdateMap(financialConfiguration: financialConfiguration),
+          data.toOperationalUpdateMap(),
         )
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)

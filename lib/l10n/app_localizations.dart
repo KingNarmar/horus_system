@@ -1586,6 +1586,12 @@ abstract class AppLocalizations {
   /// **'You do not have permission to change Route freight rates.'**
   String get routeFreightRatePermissionDenied;
 
+  /// No description provided for @routeRateRequiresSeparateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the Route freight rate using its separate rate action.'**
+  String get routeRateRequiresSeparateAction;
+
   /// No description provided for @routeStaleFreightRateSnapshot.
   ///
   /// In en, this message translates to:

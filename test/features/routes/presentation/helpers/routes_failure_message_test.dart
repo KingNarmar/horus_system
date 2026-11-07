@@ -13,6 +13,20 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-07 Route presentation hardening', () {
+    testWidgets('localizes the dedicated edit action requirement', (tester) async {
+      const failure = ConflictFailure(
+        code: RouteFailureCodes.financialRateRequiresSeparateAction,
+      );
+      expect(
+        await _messageFor(tester, const Locale('en'), failure),
+        'Edit the Route freight rate using its separate rate action.',
+      );
+      expect(
+        await _messageFor(tester, const Locale('ar'), failure),
+        'عدّل سعر نقل المسار من خلال إجراء تعديل السعر المنفصل.',
+      );
+    });
+
     testWidgets('localizes Route freight permission denial', (tester) async {
       const failure = PermissionFailure(
         code: RouteFailureCodes.financialTermsPermissionDenied,

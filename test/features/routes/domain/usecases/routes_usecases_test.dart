@@ -219,6 +219,25 @@ void main() {
       expect(data.notes, 'Priority route');
     });
 
+    test('rejects financial changes through an operational Route edit', () async {
+      final repository = _FakeRoutesRepository();
+      final result = await SaveRouteUseCase(repository)(
+        SaveRouteParams(
+          currentCompanyContext: _context(),
+          id: 'route-1',
+          loadingLocation: 'Dubai',
+          unloadingLocation: 'Al Ain',
+          defaultFreightRatePerTonInput: '44.12',
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        RouteFailureCodes.financialRateRequiresSeparateAction,
+      );
+      expect(repository.totalMutationCalls, 0);
+    });
+
     test('updates using trimmed id and nullable rate', () async {
       final repository = _FakeRoutesRepository();
       final useCase = SaveRouteUseCase(repository);

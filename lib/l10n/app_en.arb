@@ -276,6 +276,7 @@
   "unloadingLocationRequired": "Unloading location is required.",
   "defaultFreightPriceInvalid": "Enter a valid non-negative number.",
   "routeFreightRatePermissionDenied": "You do not have permission to change Route freight rates.",
+  "routeRateRequiresSeparateAction": "Edit the Route freight rate using its separate rate action.",
   "routeStaleFreightRateSnapshot": "This Route was updated elsewhere. Refresh it and try again.",
   "routeFinancialRateRouteMissing": "This Route is no longer available. Refresh the list.",
   "searchRoutesHint": "Search routes",

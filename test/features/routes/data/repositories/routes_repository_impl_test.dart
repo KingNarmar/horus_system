@@ -189,10 +189,8 @@ class _FakeRoutesRemoteDataSource implements RoutesRemoteDataSource {
   Future<RouteModel> saveRoute({
     required String id,
     required RouteWriteData data,
-    required CurrencyConfiguration? financialConfiguration,
   }) async {
     operations?.add('save_route');
-    lastMutationConfiguration = financialConfiguration;
     return _model(loadingLocation: data.loadingLocation);
   }
 
