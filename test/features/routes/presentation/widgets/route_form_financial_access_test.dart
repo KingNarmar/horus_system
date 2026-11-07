@@ -7,7 +7,9 @@ import 'package:horus_system/l10n/app_localizations.dart';
 import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
-  testWidgets('existing Route never exposes initial pricing field', (tester) async {
+  testWidgets('existing Route never exposes initial pricing field', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -29,8 +31,10 @@ void main() {
         ),
       ),
     );
-    expect(find.text(AppLocalizationsEn().routeDefaultFreightRatePerTonLabel),
-        findsNothing);
+    expect(
+      find.text(AppLocalizationsEn().routeDefaultFreightRatePerTonLabel),
+      findsNothing,
+    );
   });
 
   for (final roleCanEdit in [false, true]) {

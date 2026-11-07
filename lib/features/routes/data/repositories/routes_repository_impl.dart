@@ -61,10 +61,7 @@ class RoutesRepositoryImpl implements RoutesRepository {
     required CurrencyConfiguration? financialConfiguration,
   }) {
     return _guard(() async {
-      final model = await remoteDataSource.saveRoute(
-        id: id,
-        data: data,
-      );
+      final model = await remoteDataSource.saveRoute(id: id, data: data);
       return Success(
         model.toEntity(financialConfiguration: financialConfiguration),
       );

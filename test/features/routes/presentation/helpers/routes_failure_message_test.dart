@@ -13,7 +13,9 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-07 Route presentation hardening', () {
-    testWidgets('localizes the dedicated edit action requirement', (tester) async {
+    testWidgets('localizes the dedicated edit action requirement', (
+      tester,
+    ) async {
       const failure = ConflictFailure(
         code: RouteFailureCodes.financialRateRequiresSeparateAction,
       );
