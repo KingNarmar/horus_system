@@ -97,7 +97,7 @@ class SupabaseRoutesRemoteDataSource implements RoutesRemoteDataSource {
   }) async {
     final row = await client
         .from(RouteDbFields.tableName)
-.update(data.toOperationalUpdateMap())
+        .update(data.toOperationalUpdateMap())
         .eq(DbCommonFields.id, id)
         .eq(DbCommonFields.companyId, data.companyId)
         .select(DbCommonFields.id)
