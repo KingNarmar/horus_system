@@ -68,18 +68,13 @@ extension RouteWriteDataMapper on RouteWriteData {
     };
   }
 
-  Map<String, dynamic> toUpdateMap({
-    required CurrencyConfiguration? financialConfiguration,
-  }) {
+  // Operational edits cannot change pricing. Pricing uses the checked RPC.
+  Map<String, dynamic> toOperationalUpdateMap() {
     return {
       RouteDbFields.loadingLocation: loadingLocation,
       RouteDbFields.unloadingLocation: unloadingLocation,
       RouteDbFields.governorateFrom: governorateFrom,
       RouteDbFields.governorateTo: governorateTo,
-      RouteDbFields.defaultFreightRatePerTon: _encodeOptionalMoney(
-        defaultFreightRatePerTon,
-        financialConfiguration: financialConfiguration,
-      ),
       RouteDbFields.notes: notes,
       DbCommonFields.updatedAt: DbTimestamp.nowUtcIsoString(),
     };

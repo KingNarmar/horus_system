@@ -280,6 +280,7 @@
   "unloadingLocationRequired": "مكان التفريغ مطلوب.",
   "defaultFreightPriceInvalid": "أدخل رقم صحيح غير سالب.",
   "routeFreightRatePermissionDenied": "ليس لديك صلاحية تعديل أسعار النقل الافتراضية للمسارات.",
+  "routeRateRequiresSeparateAction": "عدّل سعر نقل المسار من خلال إجراء تعديل السعر المنفصل.",
   "routeStaleFreightRateSnapshot": "تم تحديث هذا المسار من مكان آخر. حدّث البيانات وحاول مرة أخرى.",
   "routeFinancialRateRouteMissing": "هذا المسار لم يعد متاحًا. حدّث القائمة.",
   "searchRoutesHint": "ابحث في المسارات",

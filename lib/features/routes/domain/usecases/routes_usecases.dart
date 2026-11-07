@@ -129,6 +129,7 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
 
     final configuration = _financialConfiguration(context);
     final rateInput = _optional(params.defaultFreightRatePerTonInput);
+    final id = _optional(params.id);
     if (rateInput != null &&
         !RoutesPermissionPolicy.canEditFreightRate(context.role)) {
       return Future.value(
@@ -139,6 +140,18 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
         ),
       );
     }
+    // Existing Routes have a dedicated, version-checked financial mutation.
+    // Never silently drop a rate supplied to the operational save action.
+    if (id != null && rateInput != null) {
+      return Future.value(
+        const FailureResult<RouteEntity>(
+          ConflictFailure(
+            code: RouteFailureCodes.financialRateRequiresSeparateAction,
+          ),
+        ),
+      );
+    }
+
     Money? defaultFreightRatePerTon;
 
     if (rateInput != null) {
@@ -184,7 +197,6 @@ class SaveRouteUseCase implements UseCase<RouteEntity, SaveRouteParams> {
       notes: _optional(params.notes),
     );
 
-    final id = _optional(params.id);
     if (id == null) {
       return _repository.addRoute(
         data: data,

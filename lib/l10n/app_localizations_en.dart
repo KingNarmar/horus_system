@@ -828,6 +828,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You do not have permission to change Route freight rates.';
 
   @override
+  String get routeRateRequiresSeparateAction =>
+      'Edit the Route freight rate using its separate rate action.';
+
+  @override
   String get routeStaleFreightRateSnapshot =>
       'This Route was updated elsewhere. Refresh it and try again.';
 

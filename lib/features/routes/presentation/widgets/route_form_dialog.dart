@@ -63,6 +63,10 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
 
   bool _isSubmitting = false;
 
+  // Existing Route prices are edited only in the financial-rate dialog.
+  bool get _canEnterInitialRate =>
+      widget.route == null && widget.canEditFreightRate;
+
   @override
   void initState() {
     super.initState();
@@ -153,7 +157,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                     labelText: l10n.governorateToLabel,
                   ),
                 ),
-                if (widget.canEditFreightRate) ...[
+                if (_canEnterInitialRate) ...[
                   const SizedBox(height: AppSpacing.md),
                   TextFormField(
                     controller: _defaultFreightRateController,
@@ -206,7 +210,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
         unloadingLocation: _unloadingController.text.trim(),
         governorateFrom: _optional(_governorateFromController.text),
         governorateTo: _optional(_governorateToController.text),
-        defaultFreightRatePerTonInput: widget.canEditFreightRate
+        defaultFreightRatePerTonInput: _canEnterInitialRate
             ? _optional(_defaultFreightRateController.text)
             : null,
         notes: _optional(_notesController.text),
