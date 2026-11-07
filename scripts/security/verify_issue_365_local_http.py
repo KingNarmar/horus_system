@@ -37,9 +37,10 @@ def local_stack():
 
 
 def psql(db, stmt):
-    return shell("docker", "exec", "-i", db, "psql", "-U", "postgres",
-                 "-d", "postgres", "-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1",
-                 input_text=stmt).splitlines()[0]
+    output = shell("docker", "exec", "-i", db, "psql", "-U", "postgres",
+                   "-d", "postgres", "-X", "-q", "-A", "-t",
+                   "-v", "ON_ERROR_STOP=1", input_text=stmt).splitlines()
+    return output[0] if output else ""
 
 
 def uid(v):
