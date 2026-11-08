@@ -200,6 +200,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleDriver => 'Driver';
 
   @override
+  String get auditRolePlatformAdministrator => 'Platform administrator';
+
+  @override
   String get loginWelcomeTitle => 'Welcome to H.O.R.U.S System';
 
   @override

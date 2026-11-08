@@ -428,6 +428,12 @@ abstract class AppLocalizations {
   /// **'Driver'**
   String get roleDriver;
 
+  /// No description provided for @auditRolePlatformAdministrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform administrator'**
+  String get auditRolePlatformAdministrator;
+
   /// No description provided for @loginWelcomeTitle.
   ///
   /// In en, this message translates to:

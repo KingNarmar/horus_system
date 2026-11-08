@@ -60,6 +60,7 @@
   "roleAccountant": "Accountant",
   "roleViewer": "Viewer",
   "roleDriver": "Driver",
+  "auditRolePlatformAdministrator": "Platform administrator",
   "loginWelcomeTitle": "Welcome to H.O.R.U.S System",
   "loginSubtitle": "Sign in to continue managing heavy transport operations.",
   "emailLabel": "Email",

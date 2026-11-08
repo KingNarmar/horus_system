@@ -11,6 +11,7 @@ void main() {
     final values = await _localizedValues(tester, const Locale('en'));
 
     expect(values.accountantRole, 'Accountant');
+    expect(values.platformAdministratorRole, 'Platform administrator');
     expect(values.createdAction, 'Created');
     expect(values.updatedAction, 'Updated');
     expect(values.deactivatedAction, 'Deactivated');
@@ -24,6 +25,7 @@ void main() {
     final values = await _localizedValues(tester, const Locale('ar'));
 
     expect(values.accountantRole, 'المحاسب');
+    expect(values.platformAdministratorRole, 'مسؤول إدارة المنصة');
     expect(values.createdAction, 'تم الإنشاء');
     expect(values.updatedAction, 'تم التعديل');
     expect(values.deactivatedAction, 'تم التعطيل');
@@ -85,6 +87,9 @@ Future<_LocalizedAuditValues> _localizedValues(
           final l10n = AppLocalizations.of(context);
           values = _LocalizedAuditValues(
             accountantRole: l10n.auditRoleDisplayLabel('accountant'),
+            platformAdministratorRole: l10n.auditRoleDisplayLabel(
+              '  PlAtFoRm_AdMiN  ',
+            ),
             createdAction: l10n.auditActionDisplayLabel(AuditAction.created),
             updatedAction: l10n.auditActionDisplayLabel(AuditAction.updated),
             deactivatedAction: l10n.auditActionDisplayLabel(
@@ -109,6 +114,7 @@ Future<_LocalizedAuditValues> _localizedValues(
 
 class _LocalizedAuditValues {
   final String accountantRole;
+  final String platformAdministratorRole;
   final String createdAction;
   final String updatedAction;
   final String deactivatedAction;
@@ -117,6 +123,7 @@ class _LocalizedAuditValues {
 
   const _LocalizedAuditValues({
     required this.accountantRole,
+    required this.platformAdministratorRole,
     required this.createdAction,
     required this.updatedAction,
     required this.deactivatedAction,

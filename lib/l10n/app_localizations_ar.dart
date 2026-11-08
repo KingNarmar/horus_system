@@ -198,6 +198,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleDriver => 'سائق';
 
   @override
+  String get auditRolePlatformAdministrator => 'مسؤول إدارة المنصة';
+
+  @override
   String get loginWelcomeTitle => 'مرحبًا بك في نظام حورس';
 
   @override

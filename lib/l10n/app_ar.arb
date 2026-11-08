@@ -64,6 +64,7 @@
   "roleAccountant": "المحاسب",
   "roleViewer": "مشاهد",
   "roleDriver": "سائق",
+  "auditRolePlatformAdministrator": "مسؤول إدارة المنصة",
   "loginWelcomeTitle": "مرحبًا بك في نظام حورس",
   "loginSubtitle": "سجّل الدخول لمتابعة إدارة عمليات النقل الثقيل.",
   "emailLabel": "البريد الإلكتروني",
