@@ -218,6 +218,7 @@ String _localizedAuditActionLabel(AppLocalizations l10n, AuditLog log) {
       AuditAction.reactivated =>
         isArabic ? 'تمت إعادة تفعيل مصروف' : 'Expense reactivated',
       AuditAction.statusChanged => l10n.tripAuditActionLabel(log.action.value),
+      _ => l10n.tripAuditActionLabel(log.action.value),
     };
   }
 
@@ -229,6 +230,7 @@ String _localizedAuditActionLabel(AppLocalizations l10n, AuditLog log) {
     AuditAction.reactivated =>
       isArabic ? 'تمت إعادة تفعيل الرحلة' : 'Trip reactivated',
     AuditAction.statusChanged => l10n.tripAuditActionLabel(log.action.value),
+    _ => l10n.tripAuditActionLabel(log.action.value),
   };
 }
 

@@ -575,6 +575,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get customerAuditActionStatusChanged => 'تم تغيير الحالة';
 
   @override
+  String get auditActionAccepted => 'تم القبول';
+
+  @override
+  String get auditActionCancelled => 'تم الإلغاء';
+
+  @override
+  String get auditActionIssued => 'تم الإصدار';
+
+  @override
+  String get auditActionPaymentStatusChanged => 'تم تغيير حالة الدفع';
+
+  @override
+  String get auditActionRegistered => 'تم التسجيل';
+
+  @override
+  String get auditActionResent => 'تمت إعادة الإرسال';
+
+  @override
+  String get auditActionRevoked => 'تم سحب الدعوة';
+
+  @override
+  String get auditActionSent => 'تم الإرسال';
+
+  @override
+  String get auditActionVoided => 'تم الإبطال';
+
+  @override
   String get driversTitle => 'السائقون';
 
   @override

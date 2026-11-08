@@ -200,7 +200,7 @@ void main() {
       expect(ar.tripExpenseTypeName('Custom Fee'), 'Custom Fee');
     });
 
-    test('maps audit actions and preserves unknown action', () {
+    test('maps audit actions and localizes unknown actions safely', () {
       final expectedEn = <String, String>{
         'created': 'Created',
         'updated': 'Updated',
@@ -227,8 +227,8 @@ void main() {
         expect(ar.tripAuditActionLabel(entry.key), entry.value);
       }
 
-      expect(en.tripAuditActionLabel('custom_action'), 'custom_action');
-      expect(ar.tripAuditActionLabel('custom_action'), 'custom_action');
+      expect(en.tripAuditActionLabel('custom_action'), 'Not available');
+      expect(ar.tripAuditActionLabel('custom_action'), 'غير متاح');
     });
 
     test(

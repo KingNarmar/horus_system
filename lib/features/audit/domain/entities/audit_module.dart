@@ -7,8 +7,10 @@ enum AuditModule {
   expenses,
   invoices,
   payments,
+  companies,
   companyUsers,
   companySettings,
+  unknown,
 }
 
 extension AuditModuleX on AuditModule {
@@ -22,8 +24,10 @@ extension AuditModuleX on AuditModule {
       AuditModule.expenses => 'expenses',
       AuditModule.invoices => 'invoices',
       AuditModule.payments => 'payments',
+      AuditModule.companies => 'companies',
       AuditModule.companyUsers => 'company_users',
       AuditModule.companySettings => 'company_settings',
+      AuditModule.unknown => 'unknown',
     };
   }
 }

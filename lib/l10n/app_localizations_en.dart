@@ -581,6 +581,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customerAuditActionStatusChanged => 'Status changed';
 
   @override
+  String get auditActionAccepted => 'Accepted';
+
+  @override
+  String get auditActionCancelled => 'Cancelled';
+
+  @override
+  String get auditActionIssued => 'Issued';
+
+  @override
+  String get auditActionPaymentStatusChanged => 'Payment status changed';
+
+  @override
+  String get auditActionRegistered => 'Registered';
+
+  @override
+  String get auditActionResent => 'Resent';
+
+  @override
+  String get auditActionRevoked => 'Revoked';
+
+  @override
+  String get auditActionSent => 'Sent';
+
+  @override
+  String get auditActionVoided => 'Voided';
+
+  @override
   String get driversTitle => 'Drivers';
 
   @override
