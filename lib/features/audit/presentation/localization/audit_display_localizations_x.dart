@@ -1,6 +1,7 @@
 import '../../../../l10n/app_localizations.dart';
 import '../../../company/domain/entities/company_role.dart';
 import '../../domain/entities/audit_action.dart';
+import '../../domain/entities/audit_actor_role_keys.dart';
 
 extension AuditDisplayLocalizationsX on AppLocalizations {
   String auditActionDisplayLabel(AuditAction action) {
@@ -31,6 +32,11 @@ extension AuditDisplayLocalizationsX on AppLocalizations {
   }
 
   String auditRoleDisplayLabel(String? rawRole) {
+    if (rawRole?.trim().toLowerCase() ==
+        AuditActorRoleKeys.platformAdministrator) {
+      return auditRolePlatformAdministrator;
+    }
+
     final role = _companyRoleFromValue(rawRole);
     return switch (role) {
       CompanyRole.owner => roleOwner,
