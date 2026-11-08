@@ -7,8 +7,15 @@ void main() {
   testWidgets('shows correct English semantic labels', (tester) async {
     final labels = await _labels(tester, const Locale('en'));
     expect(labels, [
-      'Accepted', 'Cancelled', 'Issued', 'Payment status changed',
-      'Registered', 'Resent', 'Revoked', 'Sent', 'Voided',
+      'Accepted',
+      'Cancelled',
+      'Issued',
+      'Payment status changed',
+      'Registered',
+      'Resent',
+      'Revoked',
+      'Sent',
+      'Voided',
       'Not available',
     ]);
   });
@@ -16,9 +23,16 @@ void main() {
   testWidgets('shows correct Arabic semantic labels', (tester) async {
     final labels = await _labels(tester, const Locale('ar'));
     expect(labels, [
-      'تم القبول', 'تم الإلغاء', 'تم الإصدار', 'تم تغيير حالة الدفع',
-      'تم التسجيل', 'تمت إعادة الإرسال', 'تم سحب الدعوة',
-      'تم الإرسال', 'تم الإبطال', 'غير متاح',
+      'تم القبول',
+      'تم الإلغاء',
+      'تم الإصدار',
+      'تم تغيير حالة الدفع',
+      'تم التسجيل',
+      'تمت إعادة الإرسال',
+      'تم سحب الدعوة',
+      'تم الإرسال',
+      'تم الإبطال',
+      'غير متاح',
     ]);
   });
 }
@@ -35,10 +49,18 @@ Future<List<String>> _labels(WidgetTester tester, Locale locale) async {
           final l10n = AppLocalizations.of(context);
           result = [
             for (final action in [
-              'accepted', 'cancelled', 'issued', 'payment_status_changed',
-              'registered', 'resent', 'revoked', 'sent', 'voided',
+              'accepted',
+              'cancelled',
+              'issued',
+              'payment_status_changed',
+              'registered',
+              'resent',
+              'revoked',
+              'sent',
+              'voided',
               'unknown_future_action',
-            ]) l10n.auditActionValueDisplayLabel(action),
+            ])
+              l10n.auditActionValueDisplayLabel(action),
           ];
           return const SizedBox();
         },

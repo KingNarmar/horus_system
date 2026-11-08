@@ -24,7 +24,8 @@ extension AuditEntityTypeX on AuditEntityType {
     return switch (this) {
       AuditEntityType.customer => 'customer',
       AuditEntityType.driver => 'driver',
-      AuditEntityType.driverCompensationRevision => 'driver_compensation_revision',
+      AuditEntityType.driverCompensationRevision =>
+        'driver_compensation_revision',
       AuditEntityType.tractorHead => 'tractor_head',
       AuditEntityType.trailer => 'trailer',
       AuditEntityType.route => 'route',
