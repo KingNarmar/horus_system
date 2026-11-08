@@ -1,5 +1,6 @@
 import '../../../../core/errors/failure.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../../expense_types/domain/entities/expense_type.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../expenses/domain/failures/expense_ledger_failure_codes.dart';
@@ -160,7 +161,7 @@ extension TripsLocalizationsX on AppLocalizations {
       'deactivated' => tripAuditActionDeactivated,
       'reactivated' => tripAuditActionReactivated,
       'voided' => tripExpenseVoidedStatus,
-      _ => action,
+      _ => auditActionValueDisplayLabel(action),
     };
   }
 

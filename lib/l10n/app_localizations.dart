@@ -1118,6 +1118,60 @@ abstract class AppLocalizations {
   /// **'Status changed'**
   String get customerAuditActionStatusChanged;
 
+  /// No description provided for @auditActionAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get auditActionAccepted;
+
+  /// No description provided for @auditActionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get auditActionCancelled;
+
+  /// No description provided for @auditActionIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get auditActionIssued;
+
+  /// No description provided for @auditActionPaymentStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment status changed'**
+  String get auditActionPaymentStatusChanged;
+
+  /// No description provided for @auditActionRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered'**
+  String get auditActionRegistered;
+
+  /// No description provided for @auditActionResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Resent'**
+  String get auditActionResent;
+
+  /// No description provided for @auditActionRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get auditActionRevoked;
+
+  /// No description provided for @auditActionSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get auditActionSent;
+
+  /// No description provided for @auditActionVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get auditActionVoided;
+
   /// No description provided for @driversTitle.
   ///
   /// In en, this message translates to:

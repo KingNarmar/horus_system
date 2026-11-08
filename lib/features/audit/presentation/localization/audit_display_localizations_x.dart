@@ -10,6 +10,16 @@ extension AuditDisplayLocalizationsX on AppLocalizations {
       AuditAction.deactivated => customerAuditActionDeactivated,
       AuditAction.reactivated => customerAuditActionReactivated,
       AuditAction.statusChanged => customerAuditActionStatusChanged,
+      AuditAction.accepted => auditActionAccepted,
+      AuditAction.cancelled => auditActionCancelled,
+      AuditAction.issued => auditActionIssued,
+      AuditAction.paymentStatusChanged => auditActionPaymentStatusChanged,
+      AuditAction.registered => auditActionRegistered,
+      AuditAction.resent => auditActionResent,
+      AuditAction.revoked => auditActionRevoked,
+      AuditAction.sent => auditActionSent,
+      AuditAction.voided => auditActionVoided,
+      AuditAction.unknown => customerNotAvailable,
     };
   }
 
