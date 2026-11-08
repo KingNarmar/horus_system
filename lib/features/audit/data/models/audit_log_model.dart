@@ -73,9 +73,12 @@ class AuditLogModel {
       actorEmail: actorEmail,
       module: _moduleFromValue(module),
       entityType: _entityTypeFromValue(entityType),
+      rawModule: module,
+      rawEntityType: entityType,
       entityId: entityId,
       entityDisplayName: entityDisplayName,
       action: _actionFromValue(action),
+      rawAction: action,
       description: description,
       oldValues: oldValues,
       newValues: newValues,
@@ -91,22 +94,22 @@ class AuditLogModel {
 
   static AuditModule _moduleFromValue(String value) {
     return AuditModule.values.firstWhere(
-      (item) => item.value == value,
-      orElse: () => AuditModule.customers,
+      (item) => item.value == value.trim().toLowerCase(),
+      orElse: () => AuditModule.unknown,
     );
   }
 
   static AuditEntityType _entityTypeFromValue(String value) {
     return AuditEntityType.values.firstWhere(
-      (item) => item.value == value,
-      orElse: () => AuditEntityType.customer,
+      (item) => item.value == value.trim().toLowerCase(),
+      orElse: () => AuditEntityType.unknown,
     );
   }
 
   static AuditAction _actionFromValue(String value) {
     return AuditAction.values.firstWhere(
-      (item) => item.value == value,
-      orElse: () => AuditAction.updated,
+      (item) => item.value == value.trim().toLowerCase(),
+      orElse: () => AuditAction.unknown,
     );
   }
 }
