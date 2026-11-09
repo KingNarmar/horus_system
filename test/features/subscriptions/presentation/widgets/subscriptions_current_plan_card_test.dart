@@ -12,28 +12,27 @@ void main() {
     (const Locale('en'), 'Free Starter', 'No expiration'),
     (const Locale('ar'), 'المجانية الأساسية', 'بدون تاريخ انتهاء'),
   ]) {
-    testWidgets(
-      'renders canonical Starter grant in ${locale.languageCode}',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            locale: locale,
-            supportedLocales: const [Locale('en'), Locale('ar')],
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            home: Scaffold(
-              body: SubscriptionsCurrentPlanCard(entitlement: _grant()),
-            ),
+    testWidgets('renders canonical Starter grant in ${locale.languageCode}', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: locale,
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Scaffold(
+            body: SubscriptionsCurrentPlanCard(entitlement: _grant()),
           ),
-        );
+        ),
+      );
 
-        expect(find.text(planName), findsOneWidget);
-        expect(find.text(noExpiration), findsOneWidget);
-      },
-    );
+      expect(find.text(planName), findsOneWidget);
+      expect(find.text(noExpiration), findsOneWidget);
+    });
   }
 }
 

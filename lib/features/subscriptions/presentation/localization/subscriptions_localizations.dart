@@ -145,8 +145,7 @@ final class SubscriptionsLocalizations {
 
   static const Map<String, String> _ar = {
     'title': 'الاشتراكات',
-    'description':
-        'راجع خطة الوصول الحالية للشركة وحالة انتهاء صلاحيتها.',
+    'description': 'راجع خطة الوصول الحالية للشركة وحالة انتهاء صلاحيتها.',
     'currentPlan': 'الخطة الحالية',
     'availablePlans': 'الخطط المتاحة',
     'noCurrentSubscription': 'لا يوجد سجل اشتراك لهذه الشركة حتى الآن.',
@@ -173,8 +172,7 @@ final class SubscriptionsLocalizations {
     'expiration': 'تاريخ الانتهاء',
     'noExpiration': 'بدون تاريخ انتهاء',
     'statusRevoked': 'مسحوبة',
-    'permissionViewFailure':
-        'يمكن لمالك الشركة أو مسؤولها فقط عرض هذه الخطة.',
+    'permissionViewFailure': 'يمكن لمالك الشركة أو مسؤولها فقط عرض هذه الخطة.',
     'invalidStatusFailure': 'حالة الاشتراك غير مدعومة.',
     'genericFailure': 'تعذر تحميل معلومات الاشتراك.',
     'free': 'مجانًا',

@@ -23,9 +23,7 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
     emit(const SubscriptionsLoading());
 
     final result = await _getCompanyEntitlementUseCase(
-      GetCompanyEntitlementParams(
-        currentCompanyContext: currentCompanyContext,
-      ),
+      GetCompanyEntitlementParams(currentCompanyContext: currentCompanyContext),
     );
     if (isClosed ||
         requestId != _loadRequestId ||

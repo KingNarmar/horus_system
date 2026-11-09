@@ -9,18 +9,12 @@ import '../localization/subscriptions_localizations.dart';
 final class SubscriptionsCurrentPlanCard extends StatelessWidget {
   final CompanyEntitlement entitlement;
 
-  const SubscriptionsCurrentPlanCard({
-    required this.entitlement,
-    super.key,
-  });
+  const SubscriptionsCurrentPlanCard({required this.entitlement, super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.subscriptionsL10n;
-    final planName = l10n.planName(
-      entitlement.planCode,
-      entitlement.planCode,
-    );
+    final planName = l10n.planName(entitlement.planCode, entitlement.planCode);
     final expiry = entitlement.expiresAt;
     final expiryLabel = expiry == null
         ? l10n.noExpiration
@@ -49,9 +43,9 @@ final class SubscriptionsCurrentPlanCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               planName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.sm),
             _DetailRow(

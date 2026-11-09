@@ -61,9 +61,7 @@ SubscriptionsCubit _cubit(_FakeCompanyEntitlementsRepository repository) {
   );
 }
 
-CurrentCompanyContext _context({
-  CompanyRole role = CompanyRole.owner,
-}) {
+CurrentCompanyContext _context({CompanyRole role = CompanyRole.owner}) {
   return CurrentCompanyContext(
     company: const Company(id: 'company-1', name: 'Company One'),
     role: role,
