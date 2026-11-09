@@ -11,7 +11,7 @@ Map<String, dynamic> _payload() => {
   'status': 'active',
   'effective_at': '2026-11-01T00:00:00Z',
   'expires_at': null,
-  'limits': {
+  'limits': <String, dynamic>{
     'owner_created_companies': 1,
     'company_users': 3,
     'customers': 10,
