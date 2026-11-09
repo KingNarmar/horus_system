@@ -61,6 +61,7 @@ final class SubscriptionsLocalizations {
 
   String planName(String code, String fallback) {
     return switch (code) {
+      'free_starter' => _value('planFreeStarter'),
       'basic' => _value('planBasic'),
       'pro' => _value('planPro'),
       'enterprise' => _value('planEnterprise'),
@@ -114,6 +115,7 @@ final class SubscriptionsLocalizations {
     'pricePerMonth': '{price} / month',
     'limitValue': '{value}',
     'periodRange': '{start} to {end}',
+    'planFreeStarter': 'Free Starter',
     'planBasic': 'Basic',
     'planPro': 'Pro',
     'planEnterprise': 'Enterprise',
@@ -159,6 +161,7 @@ final class SubscriptionsLocalizations {
     'pricePerMonth': '{price} / شهر',
     'limitValue': '{value}',
     'periodRange': '{start} إلى {end}',
+    'planFreeStarter': 'المجانية الأساسية',
     'planBasic': 'الأساسية',
     'planPro': 'الاحترافية',
     'planEnterprise': 'المؤسسات',
