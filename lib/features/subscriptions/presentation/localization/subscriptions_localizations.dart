@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../domain/entities/company_entitlement.dart';
 import '../../domain/entities/subscription_status.dart';
 
 final class SubscriptionsLocalizations {
@@ -40,6 +41,8 @@ final class SubscriptionsLocalizations {
   String get status => _value('status');
   String get trialEndsAt => _value('trialEndsAt');
   String get currentPeriod => _value('currentPeriod');
+  String get expiration => _value('expiration');
+  String get noExpiration => _value('noExpiration');
   String get permissionViewFailure => _value('permissionViewFailure');
   String get invalidStatusFailure => _value('invalidStatusFailure');
   String get genericFailure => _value('genericFailure');
@@ -69,6 +72,15 @@ final class SubscriptionsLocalizations {
     };
   }
 
+  String entitlementStatusLabel(CompanyEntitlementStatus status) {
+    return switch (status) {
+      CompanyEntitlementStatus.active => _value('statusActive'),
+      CompanyEntitlementStatus.suspended => _value('statusSuspended'),
+      CompanyEntitlementStatus.expired => _value('statusExpired'),
+      CompanyEntitlementStatus.revoked => _value('statusRevoked'),
+    };
+  }
+
   String statusLabel(SubscriptionStatus status) {
     return switch (status) {
       SubscriptionStatus.trialing => _value('statusTrialing'),
@@ -83,7 +95,7 @@ final class SubscriptionsLocalizations {
   static const Map<String, String> _en = {
     'title': 'Subscriptions',
     'description':
-        'Review this company subscription status, available plans, and MVP plan limits.',
+        'Review this company’s current access plan and expiration status.',
     'currentPlan': 'Current plan',
     'availablePlans': 'Available plans',
     'noCurrentSubscription':
@@ -108,7 +120,11 @@ final class SubscriptionsLocalizations {
     'status': 'Status',
     'trialEndsAt': 'Trial ends',
     'currentPeriod': 'Current period',
-    'permissionViewFailure': 'Only the company owner can view subscriptions.',
+    'expiration': 'Expires',
+    'noExpiration': 'No expiration',
+    'statusRevoked': 'Revoked',
+    'permissionViewFailure':
+        'Only the company owner or administrator can view this plan.',
     'invalidStatusFailure': 'The subscription status is not supported.',
     'genericFailure': 'The subscription information could not be loaded.',
     'free': 'Free',
@@ -130,7 +146,7 @@ final class SubscriptionsLocalizations {
   static const Map<String, String> _ar = {
     'title': 'الاشتراكات',
     'description':
-        'مراجعة حالة اشتراك الشركة والخطط المتاحة وحدود الخطط الأولية.',
+        'راجع خطة الوصول الحالية للشركة وحالة انتهاء صلاحيتها.',
     'currentPlan': 'الخطة الحالية',
     'availablePlans': 'الخطط المتاحة',
     'noCurrentSubscription': 'لا يوجد سجل اشتراك لهذه الشركة حتى الآن.',
@@ -154,7 +170,11 @@ final class SubscriptionsLocalizations {
     'status': 'الحالة',
     'trialEndsAt': 'نهاية الفترة التجريبية',
     'currentPeriod': 'الفترة الحالية',
-    'permissionViewFailure': 'يمكن لمالك الشركة فقط عرض الاشتراكات.',
+    'expiration': 'تاريخ الانتهاء',
+    'noExpiration': 'بدون تاريخ انتهاء',
+    'statusRevoked': 'مسحوبة',
+    'permissionViewFailure':
+        'يمكن لمالك الشركة أو مسؤولها فقط عرض هذه الخطة.',
     'invalidStatusFailure': 'حالة الاشتراك غير مدعومة.',
     'genericFailure': 'تعذر تحميل معلومات الاشتراك.',
     'free': 'مجانًا',

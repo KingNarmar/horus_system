@@ -1,5 +1,6 @@
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../domain/failures/entitlement_failure_codes.dart';
 import '../localization/subscriptions_localizations.dart';
 
 String subscriptionsFailureMessage(
@@ -7,7 +8,8 @@ String subscriptionsFailureMessage(
   SubscriptionsLocalizations l10n,
 ) {
   return switch (failure.code) {
-    FailureCodes.permissionSubscriptionsView => l10n.permissionViewFailure,
+    FailureCodes.permissionSubscriptionsView ||
+    EntitlementFailureCodes.permissionDenied => l10n.permissionViewFailure,
     FailureCodes.subscriptionStatusInvalid => l10n.invalidStatusFailure,
     _ => l10n.genericFailure,
   };
