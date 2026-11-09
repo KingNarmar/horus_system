@@ -48,7 +48,7 @@ VALUES (
 )
 ON CONFLICT (code) DO NOTHING;
 
-DO $
+DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM public.subscription_plans
@@ -66,7 +66,7 @@ BEGIN
     RAISE EXCEPTION 'Invalid Free Starter plan seed';
   END IF;
 END;
-$;
+$$;
 
 INSERT INTO private.entitlement_policy_versions (
   plan_id, version, limits, enabled_features
@@ -96,7 +96,7 @@ WHERE code = 'free_starter'
 ON CONFLICT (plan_id, version) DO NOTHING;
 
 -- An existing conflicting policy row must fail migration, not grant altered caps.
-DO $
+DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1
@@ -123,7 +123,7 @@ BEGIN
     RAISE EXCEPTION 'Free Starter policy mismatch';
   END IF;
 END;
-$;
+$$;
 
 -- One company-scoped authoritative grant remains in the established table.
 ALTER TABLE public.company_subscriptions
