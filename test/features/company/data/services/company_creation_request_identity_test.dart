@@ -12,9 +12,14 @@ void main() {
     final first = identity.getOrCreate(parameters);
     final second = identity.getOrCreate(Map.of(parameters));
     expect(first, second);
-    expect(first, matches(RegExp(
-      r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
-    )));
+    expect(
+      first,
+      matches(
+        RegExp(
+          r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        ),
+      ),
+    );
   });
 
   test('changed request is an independent creation intent', () {

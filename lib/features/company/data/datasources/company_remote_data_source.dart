@@ -62,10 +62,7 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
     final response = await _client
         .rpc(
           CompanyRpcConstants.createCompany,
-          params: {
-            ...parameters,
-            CompanyRpcConstants.requestId: requestId,
-          },
+          params: {...parameters, CompanyRpcConstants.requestId: requestId},
         )
         .single();
 

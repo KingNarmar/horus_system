@@ -61,9 +61,7 @@ final class CompanyEntitlementsRepositoryImpl
         ServerFailure(code: EntitlementFailureCodes.corrupt),
       );
     } catch (_) {
-      return const FailureResult(
-        UnexpectedFailure(),
-      );
+      return const FailureResult(UnexpectedFailure());
     }
   }
 }

@@ -102,15 +102,15 @@ void main() {
       throwsUnsupportedError,
     );
     expect(
-      grant.limitFor(EntitlementResource.companyUsers).allowsAdditional(
-        currentUsage: 1,
-      ),
+      grant
+          .limitFor(EntitlementResource.companyUsers)
+          .allowsAdditional(currentUsage: 1),
       isFalse,
     );
     expect(
-      grant.limitFor(EntitlementResource.companyUsers).allowsAdditional(
-        currentUsage: -1,
-      ),
+      grant
+          .limitFor(EntitlementResource.companyUsers)
+          .allowsAdditional(currentUsage: -1),
       isFalse,
     );
   });

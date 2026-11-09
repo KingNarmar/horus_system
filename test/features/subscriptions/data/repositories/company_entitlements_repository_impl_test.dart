@@ -20,15 +20,17 @@ final class _Remote implements CompanyEntitlementsRemoteDataSource {
 
 void main() {
   test('missing grant becomes a typed safe failure', () async {
-    final result = await CompanyEntitlementsRepositoryImpl(_Remote())
-        .getCurrent(companyId: 'company-1');
+    final result = await CompanyEntitlementsRepositoryImpl(
+      _Remote(),
+    ).getCurrent(companyId: 'company-1');
     expect(result.failureOrNull?.code, EntitlementFailureCodes.unavailable);
   });
 
   test('wrong-company projection fails closed', () async {
     final source = _Remote(response: const {'company_id': 'company-other'});
-    final result = await CompanyEntitlementsRepositoryImpl(source)
-        .getCurrent(companyId: 'company-1');
+    final result = await CompanyEntitlementsRepositoryImpl(
+      source,
+    ).getCurrent(companyId: 'company-1');
     expect(source.lastCompanyId, 'company-1');
     expect(result.failureOrNull?.code, EntitlementFailureCodes.corrupt);
   });

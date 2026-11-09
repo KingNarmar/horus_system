@@ -80,26 +80,26 @@ final class CompanyEntitlementModel {
     throw const FormatException('Missing or invalid resource limit');
   }
 
-  static String _resourceKey(EntitlementResource resource) => switch (resource) {
-    EntitlementResource.ownerCreatedCompanies => 'owner_created_companies',
-    EntitlementResource.companyUsers => 'company_users',
-    EntitlementResource.customers => 'customers',
-    EntitlementResource.drivers => 'drivers',
-    EntitlementResource.combinedVehicles => 'combined_vehicles',
-    EntitlementResource.routes => 'routes',
-    EntitlementResource.lifetimeTrips => 'lifetime_trips',
-    EntitlementResource.lifetimeInvoices => 'lifetime_invoices',
-    EntitlementResource.businessDocuments => 'business_documents',
-  };
-
-  static CompanyEntitlementStatus _parseStatus(String value) =>
-      switch (value) {
-        'active' => CompanyEntitlementStatus.active,
-        'suspended' => CompanyEntitlementStatus.suspended,
-        'expired' => CompanyEntitlementStatus.expired,
-        'revoked' => CompanyEntitlementStatus.revoked,
-        _ => throw const FormatException('Unsupported entitlement status'),
+  static String _resourceKey(EntitlementResource resource) =>
+      switch (resource) {
+        EntitlementResource.ownerCreatedCompanies => 'owner_created_companies',
+        EntitlementResource.companyUsers => 'company_users',
+        EntitlementResource.customers => 'customers',
+        EntitlementResource.drivers => 'drivers',
+        EntitlementResource.combinedVehicles => 'combined_vehicles',
+        EntitlementResource.routes => 'routes',
+        EntitlementResource.lifetimeTrips => 'lifetime_trips',
+        EntitlementResource.lifetimeInvoices => 'lifetime_invoices',
+        EntitlementResource.businessDocuments => 'business_documents',
       };
+
+  static CompanyEntitlementStatus _parseStatus(String value) => switch (value) {
+    'active' => CompanyEntitlementStatus.active,
+    'suspended' => CompanyEntitlementStatus.suspended,
+    'expired' => CompanyEntitlementStatus.expired,
+    'revoked' => CompanyEntitlementStatus.revoked,
+    _ => throw const FormatException('Unsupported entitlement status'),
+  };
 
   static EntitlementFeature _parseFeature(String value) => switch (value) {
     'company_branding' => EntitlementFeature.companyBranding,

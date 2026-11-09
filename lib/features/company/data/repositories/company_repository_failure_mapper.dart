@@ -41,10 +41,13 @@ final class CompanyRepositoryFailureMapper {
         ),
       CompanyRpcErrorCodes.onboardingCreationLimitReached =>
         const ConflictFailure(code: CompanyFailureCodes.creationLimitReached),
-      CompanyRpcErrorCodes.onboardingRequestConflict =>
-        const ConflictFailure(code: CompanyFailureCodes.creationRequestConflict),
+      CompanyRpcErrorCodes.onboardingRequestConflict => const ConflictFailure(
+        code: CompanyFailureCodes.creationRequestConflict,
+      ),
       CompanyRpcErrorCodes.onboardingRequestUnavailable =>
-        const PermissionFailure(code: CompanyFailureCodes.creationRetryUnavailable),
+        const PermissionFailure(
+          code: CompanyFailureCodes.creationRetryUnavailable,
+        ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

@@ -51,17 +51,26 @@ void main() {
   test('missing limit is rejected instead of treated as unlimited', () {
     final data = _payload();
     (data['limits'] as Map<String, dynamic>).remove('lifetime_trips');
-    expect(() => CompanyEntitlementModel(data).toEntity(), throwsFormatException);
+    expect(
+      () => CompanyEntitlementModel(data).toEntity(),
+      throwsFormatException,
+    );
   });
 
   test('invalid features and negative limits are rejected', () {
     final data = _payload();
     data['enabled_features'] = ['premium_everything'];
-    expect(() => CompanyEntitlementModel(data).toEntity(), throwsFormatException);
+    expect(
+      () => CompanyEntitlementModel(data).toEntity(),
+      throwsFormatException,
+    );
 
     final other = _payload();
     (other['limits'] as Map<String, dynamic>)['customers'] = -1;
-    expect(() => CompanyEntitlementModel(other).toEntity(), throwsFormatException);
+    expect(
+      () => CompanyEntitlementModel(other).toEntity(),
+      throwsFormatException,
+    );
   });
 
   test('unlimited requires an explicit server marker', () {
