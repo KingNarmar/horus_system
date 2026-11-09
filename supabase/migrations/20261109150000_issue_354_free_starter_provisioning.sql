@@ -48,18 +48,25 @@ VALUES (
 )
 ON CONFLICT (code) DO NOTHING;
 
-DO $$
+DO $
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM public.subscription_plans
     WHERE code = 'free_starter'
       AND monthly_price = 0
+      AND max_users = 3
+      AND max_vehicles = 6
+      AND has_document_upload
+      AND NOT has_driver_app
+      AND NOT has_advanced_reports
+      AND NOT has_maintenance
+      AND NOT has_whatsapp_notifications
       AND is_active = true
   ) THEN
     RAISE EXCEPTION 'Invalid Free Starter plan seed';
   END IF;
 END;
-$$;
+$;
 
 INSERT INTO private.entitlement_policy_versions (
   plan_id, version, limits, enabled_features
@@ -87,6 +94,36 @@ SELECT
 FROM public.subscription_plans
 WHERE code = 'free_starter'
 ON CONFLICT (plan_id, version) DO NOTHING;
+
+-- An existing conflicting policy row must fail migration, not grant altered caps.
+DO $
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM private.entitlement_policy_versions policy
+    JOIN public.subscription_plans plan ON plan.id = policy.plan_id
+    WHERE plan.code = 'free_starter'
+      AND policy.version = 1
+      AND policy.limits = pg_catalog.jsonb_build_object(
+        'owner_created_companies', 1,
+        'company_users', 3,
+        'customers', 10,
+        'drivers', 5,
+        'combined_vehicles', 6,
+        'routes', 10,
+        'lifetime_trips', 30,
+        'lifetime_invoices', 10,
+        'business_documents', 50
+      )
+      AND policy.enabled_features = pg_catalog.jsonb_build_array(
+        'company_branding', 'invoice_pdf', 'report_pdf',
+        'report_xlsx', 'document_upload'
+      )
+  ) THEN
+    RAISE EXCEPTION 'Free Starter policy mismatch';
+  END IF;
+END;
+$;
 
 -- One company-scoped authoritative grant remains in the established table.
 ALTER TABLE public.company_subscriptions
@@ -229,7 +266,10 @@ DECLARE
 BEGIN
   IF auth.uid() IS NULL
      OR p_company_id IS NULL
-     OR NOT private.is_company_member(p_company_id) THEN
+     OR NOT private.has_company_role(
+       p_company_id,
+       ARRAY['owner'::public.company_role, 'admin'::public.company_role]
+     ) THEN
     RAISE EXCEPTION USING ERRCODE = 'P2850',
       MESSAGE = 'entitlement_permission_denied';
   END IF;
