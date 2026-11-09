@@ -4,6 +4,8 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../entities/company_entitlement.dart';
+import '../failures/entitlement_failure_codes.dart';
+import '../policies/entitlement_visibility_policy.dart';
 import '../repositories/company_entitlements_repository.dart';
 
 final class GetCompanyEntitlementParams {
@@ -21,6 +23,16 @@ final class GetCompanyEntitlementUseCase
 
   @override
   Future<Result<CompanyEntitlement>> call(GetCompanyEntitlementParams params) {
+    if (!EntitlementVisibilityPolicy.canView(
+      params.currentCompanyContext.role,
+    )) {
+      return Future.value(
+        const FailureResult<CompanyEntitlement>(
+          PermissionFailure(code: EntitlementFailureCodes.permissionDenied),
+        ),
+      );
+    }
+
     final companyId = params.currentCompanyContext.companyId.trim();
     if (companyId.isEmpty) {
       return Future.value(
