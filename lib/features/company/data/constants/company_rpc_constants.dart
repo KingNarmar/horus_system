@@ -8,6 +8,7 @@ abstract final class CompanyRpcConstants {
   static const getBusinessDate = 'get_company_business_date';
 
   static const companyId = 'p_company_id';
+  static const requestId = 'p_request_id';
   static const companyName = 'p_name';
   static const businessType = 'p_business_type';
   static const phone = 'p_phone';

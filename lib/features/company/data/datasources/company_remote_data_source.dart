@@ -4,6 +4,7 @@ import '../../../../core/data/constants/db_common_fields.dart';
 import '../constants/company_db_fields.dart';
 import '../constants/company_rpc_constants.dart';
 import '../models/company_model.dart';
+import '../services/company_creation_request_identity.dart';
 
 abstract class CompanyRemoteDataSource {
   Future<CompanyModel> createCompany({
@@ -24,8 +25,12 @@ abstract class CompanyRemoteDataSource {
 
 class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   final SupabaseClient _client;
+  final CompanyCreationRequestIdentity _requestIdentity;
 
-  const SupabaseCompanyRemoteDataSource(this._client);
+  SupabaseCompanyRemoteDataSource(
+    this._client, {
+    CompanyCreationRequestIdentity? requestIdentity,
+  }) : _requestIdentity = requestIdentity ?? CompanyCreationRequestIdentity();
 
   @override
   Future<CompanyModel> createCompany({
@@ -40,26 +45,33 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
     String? country,
     String? city,
   }) async {
+    final parameters = <String, Object?>{
+      CompanyRpcConstants.companyName: name,
+      CompanyRpcConstants.businessTimezone: businessTimezone,
+      CompanyRpcConstants.baseCurrencyCode: baseCurrencyCode,
+      CompanyRpcConstants.baseCurrencyFractionDigits:
+          baseCurrencyFractionDigits,
+      CompanyRpcConstants.invoicePrefix: invoicePrefix,
+      CompanyRpcConstants.businessType: businessType,
+      CompanyRpcConstants.phone: phone,
+      CompanyRpcConstants.email: email,
+      CompanyRpcConstants.country: country,
+      CompanyRpcConstants.city: city,
+    };
+    final requestId = _requestIdentity.getOrCreate(parameters);
     final response = await _client
         .rpc(
           CompanyRpcConstants.createCompany,
           params: {
-            CompanyRpcConstants.companyName: name,
-            CompanyRpcConstants.businessTimezone: businessTimezone,
-            CompanyRpcConstants.baseCurrencyCode: baseCurrencyCode,
-            CompanyRpcConstants.baseCurrencyFractionDigits:
-                baseCurrencyFractionDigits,
-            CompanyRpcConstants.invoicePrefix: invoicePrefix,
-            CompanyRpcConstants.businessType: businessType,
-            CompanyRpcConstants.phone: phone,
-            CompanyRpcConstants.email: email,
-            CompanyRpcConstants.country: country,
-            CompanyRpcConstants.city: city,
+            ...parameters,
+            CompanyRpcConstants.requestId: requestId,
           },
         )
         .single();
 
-    return CompanyModel.fromMap(Map<String, dynamic>.from(response));
+    final company = CompanyModel.fromMap(Map<String, dynamic>.from(response));
+    _requestIdentity.complete(requestId);
+    return company;
   }
 
   @override

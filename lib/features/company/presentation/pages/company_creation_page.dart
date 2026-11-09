@@ -79,6 +79,12 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               onboardingL10n.fractionDigitsInvalid,
             CompanyFailureCodes.validationInvoicePrefixInvalid =>
               onboardingL10n.invoicePrefixInvalid,
+            CompanyFailureCodes.creationLimitReached =>
+              onboardingL10n.creationLimitReached,
+            CompanyFailureCodes.creationRequestConflict =>
+              onboardingL10n.creationRequestConflict,
+            CompanyFailureCodes.creationRetryUnavailable =>
+              onboardingL10n.creationRetryUnavailable,
             _ => l10n.localizedErrorMessage(state.failure),
           };
           ScaffoldMessenger.of(

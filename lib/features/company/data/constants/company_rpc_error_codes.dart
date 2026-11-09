@@ -15,4 +15,8 @@ abstract final class CompanyRpcErrorCodes {
   static const onboardingBaseCurrencyInvalid = 'P2833';
   static const onboardingFractionDigitsInvalid = 'P2834';
   static const onboardingInvoicePrefixInvalid = 'P2835';
+  static const onboardingCreationLimitReached = 'P2836';
+  static const onboardingRequestIdRequired = 'P2837';
+  static const onboardingRequestConflict = 'P2838';
+  static const onboardingRequestUnavailable = 'P2839';
 }
