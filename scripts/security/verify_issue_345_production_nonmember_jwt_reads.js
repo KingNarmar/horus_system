@@ -182,7 +182,7 @@ async function run() {
   }
   pass(trip !== null && route !== null,'positive Trip and Route fixtures exist');
   const blockedTrip = await http('POST','/rest/v1/rpc/get_authorized_trip_records',
-    {jwt:outsider.jwt,data:{p_company_id:trip.company,p_trip_id:trip.id,p_active_only:false}});
+    {jwt:outsider.jwt,data:{p_company_id:trip.company,p_trip_id:trip.id}});
   pass(blockedTrip.status >= 400 && blockedTrip.status < 500 &&
     blockedTrip.json?.code === 'P3433','secured Trip projection denies nonmember');
   const blockedRoute = await http('POST','/rest/v1/rpc/get_authorized_route_records',
