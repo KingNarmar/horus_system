@@ -169,7 +169,7 @@ final class _LoadedState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SubscriptionsCurrentPlanCard(
-      currentSubscription: state.currentSubscription,
+      entitlement: state.entitlement,
     );
   }
 }

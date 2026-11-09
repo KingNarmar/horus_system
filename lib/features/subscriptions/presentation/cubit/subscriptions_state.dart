@@ -1,7 +1,6 @@
 import '../../../../core/errors/failure.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../domain/entities/company_subscription.dart';
-import '../../domain/entities/subscription_plan.dart';
+import '../../domain/entities/company_entitlement.dart';
 
 sealed class SubscriptionsState {
   const SubscriptionsState();
@@ -17,16 +16,12 @@ final class SubscriptionsLoading extends SubscriptionsState {
 
 final class SubscriptionsLoaded extends SubscriptionsState {
   final CurrentCompanyContext currentCompanyContext;
-  final List<SubscriptionPlan> plans;
-  final CompanySubscription? currentSubscription;
+  final CompanyEntitlement entitlement;
 
   const SubscriptionsLoaded({
     required this.currentCompanyContext,
-    required this.plans,
-    required this.currentSubscription,
+    required this.entitlement,
   });
-
-  bool get hasCurrentSubscription => currentSubscription != null;
 }
 
 final class SubscriptionsFailure extends SubscriptionsState {
