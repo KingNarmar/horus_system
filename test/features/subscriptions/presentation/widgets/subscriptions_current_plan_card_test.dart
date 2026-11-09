@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/company_entitlement.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/entitlement_feature.dart';
@@ -11,11 +12,18 @@ void main() {
     (const Locale('en'), 'Free Starter', 'No expiration'),
     (const Locale('ar'), 'المجانية الأساسية', 'بدون تاريخ انتهاء'),
   ]) {
-    testWidgets('renders canonical Starter grant in ${locale.languageCode}',
-        (tester) async {
+    testWidgets(
+      'renders canonical Starter grant in ${locale.languageCode}',
+      (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           locale: locale,
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           home: Scaffold(
             body: SubscriptionsCurrentPlanCard(entitlement: _grant()),
           ),
@@ -24,7 +32,8 @@ void main() {
 
       expect(find.text(planName), findsOneWidget);
       expect(find.text(noExpiration), findsOneWidget);
-    });
+    },
+    );
   }
 }
 
