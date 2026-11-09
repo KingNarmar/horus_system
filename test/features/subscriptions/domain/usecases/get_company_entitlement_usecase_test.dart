@@ -25,7 +25,10 @@ final class _Repository implements CompanyEntitlementsRepository {
   }
 }
 
-CurrentCompanyContext _context(CompanyRole role, {String companyId = 'company-1'}) {
+CurrentCompanyContext _context(
+  CompanyRole role, {
+  String companyId = 'company-1',
+}) {
   return CurrentCompanyContext(
     company: Company(id: companyId, name: 'Test Company'),
     role: role,
@@ -60,7 +63,10 @@ void main() {
         GetCompanyEntitlementParams(currentCompanyContext: _context(role)),
       );
 
-      expect(result.failureOrNull?.code, EntitlementFailureCodes.permissionDenied);
+      expect(
+        result.failureOrNull?.code,
+        EntitlementFailureCodes.permissionDenied,
+      );
       expect(repository.calls, 0);
     }
   });
