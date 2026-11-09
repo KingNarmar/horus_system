@@ -1,0 +1,39 @@
+name: Issue 345 Production Nonmember Test Harness Safety
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/security/verify_issue_345_production_nonmember_jwt_reads.js'
+      - 'docs/release/ISSUE_345_PROD_NONMEMBER_JWT_READONLY.md'
+      - '.github/workflows/issue-345-production-nonmember-test-harness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-preflight:
+    name: Static/Offline Production Test Harness Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Validate script without production access
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/security/verify_issue_345_production_nonmember_jwt_reads.js
+          HORUS_PROD_PUBLISHABLE_KEY=sb_publishable_OFFLINE_FAKE_CHECK \
+            node scripts/security/verify_issue_345_production_nonmember_jwt_reads.js --preflight
+          if HORUS_PROD_PUBLISHABLE_KEY=sb_secret_FORBIDDEN \
+            node scripts/security/verify_issue_345_production_nonmember_jwt_reads.js --preflight; then
+            echo "ERROR: privileged key was accepted" >&2
+            exit 1
+          fi
+          echo "Static and local-only preflight PASS; no hosted requests made."
