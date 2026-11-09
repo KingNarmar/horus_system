@@ -85,7 +85,8 @@ function storagePath(operation, fullPath) {
     + fullPath.split('/').map(encodeURIComponent).join('/');
 }
 async function findPrivateObject(jwt, companyIds) {
-  const queue = [...companyIds], explored = new Set();
+  // Storage/RLS uses companies/<company_id>/drivers/...; not <company_id>/... .
+  const queue = companyIds.map((id) => 'companies/' + id), explored = new Set();
   while (queue.length && explored.size < 40) {
     const prefix = queue.shift();
     if (explored.has(prefix)) continue;
@@ -97,7 +98,7 @@ async function findPrivateObject(jwt, companyIds) {
     for (const item of r.json) {
       if (typeof item?.name !== 'string' || !item.name || item.name.includes('/')) continue;
       const full = prefix + '/' + item.name;
-      if (!companyIds.some((id) => full.startsWith(id + '/'))) continue;
+      if (!companyIds.some((id) => full.startsWith('companies/' + id + '/'))) continue;
       if (item.id) return full;
       if (item.id === null && queue.length < 40) queue.push(full);
     }
