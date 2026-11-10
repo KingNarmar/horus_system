@@ -239,9 +239,13 @@ def main():
         }),
         "prepare valid resend candidate",
     )
+    # Backdate both timestamps to preserve the DB expiry > creation check.
+    # Only the original token expires; the candidate resend remains live.
     psql(db,
-         "UPDATE public.company_invitations SET expires_at=now()-"
-         "interval '1 minute' WHERE id='" + staged["invitation_id"] + "';")
+         "UPDATE public.company_invitations SET "
+         "created_at=now()-interval '2 days', "
+         "expires_at=now()-interval '1 minute' "
+         "WHERE id='" + staged["invitation_id"] + "';")
     check("live resend candidate continues to reserve a seat",
           one_row(quota(api, owner_jwt, company), "staged resend quota")
           ["usage"]["company_users"] == 3)
