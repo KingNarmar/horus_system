@@ -5156,10 +5156,6 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get invitationContinueButton;
 
-  /// No description provided for @failureCompanyAuthRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to complete this company action.'**
   /// No description provided for @failureQuotaCompanyUsersReached.
   ///
   /// In en, this message translates to:
@@ -5178,6 +5174,10 @@ abstract class AppLocalizations {
   /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
   String get failureQuotaUnavailable;
 
+  /// No description provided for @failureCompanyAuthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to complete this company action.'**
   String get failureCompanyAuthRequired;
 
   /// No description provided for @failureCompanyInvitationIdRequired.

@@ -47,6 +47,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           locale: locale,
+          supportedLocales: const [Locale('en'), Locale('ar')],
           home: Scaffold(
             body: SubscriptionsQuotaUsageCard(quota: _quota()),
           ),

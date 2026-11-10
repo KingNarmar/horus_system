@@ -2763,15 +2763,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get invitationContinueButton => 'متابعة';
 
   @override
-  @override
-  String get failureQuotaCompanyUsersReached => 'وصلت الشركة إلى الحد المسموح للمستخدمين. عطّل عضوًا أو ألغِ دعوة معلّقة قبل دعوة شخص جديد.';
+  String get failureQuotaCompanyUsersReached =>
+      'وصلت الشركة إلى الحد المسموح للمستخدمين. عطّل عضوًا أو ألغِ دعوة معلّقة قبل دعوة شخص جديد.';
 
   @override
-  String get failureQuotaCombinedVehiclesReached => 'وصلت الشركة إلى الحد المشترك للجرارات والمقطورات. عطّل مركبة غير مستخدمة قبل إضافة أو إعادة تنشيط أخرى.';
+  String get failureQuotaCombinedVehiclesReached =>
+      'وصلت الشركة إلى الحد المشترك للجرارات والمقطورات. عطّل مركبة غير مستخدمة قبل إضافة أو إعادة تنشيط أخرى.';
 
   @override
-  String get failureQuotaUnavailable => 'تعذر التحقق من حدود الخطة حاليًا. لم تتم إضافة سعة جديدة.';
+  String get failureQuotaUnavailable =>
+      'تعذر التحقق من حدود الخطة حاليًا. لم تتم إضافة سعة جديدة.';
 
+  @override
   String get failureCompanyAuthRequired =>
       'سجّل الدخول لإكمال هذا الإجراء الخاص بالشركة.';
 
