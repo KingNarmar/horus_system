@@ -23,13 +23,16 @@ def record(resource, company, name, active=True):
 
 
 def write(api, jwt, resource, company, name, active=True):
+    # Route financial columns are deliberately not selectable by members.
     return api.call("POST", "/rest/v1/" + resource, token=jwt,
+                    query={"select": "id"},
                     payload=record(resource, company, name, active))
 
 
 def edit(api, jwt, resource, company, row_id, values):
     return api.call("PATCH", "/rest/v1/" + resource, token=jwt,
-                    query={"id": "eq." + row_id, "company_id": "eq." + company},
+                    query={"id": "eq." + row_id, "company_id": "eq." + company,
+                           "select": "id"},
                     payload=values)
 
 
@@ -179,7 +182,7 @@ def main():
         status, rows = api.call("GET", "/rest/v1/" + resource,
                                 token=owner_jwt,
                                 query={"company_id": "eq." + company,
-                                       "limit": "2"})
+                                       "select": "id", "limit": "2"})
         check(resource + " original rows remain readable",
               status == 200 and isinstance(rows, list) and len(rows) > 0)
 
