@@ -316,8 +316,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get createCompanyFormTitle => 'أنشئ شركتك';
 
   @override
-  String get createCompanySubtitle =>
-      'قم بإعداد أول مساحة عمل للشركة داخل نظام حورس.';
+  String get createCompanySubtitle => 'أنشئ مساحة عمل لشركتك داخل نظام حورس.';
 
   @override
   String get companyNameLabel => 'اسم الشركة';

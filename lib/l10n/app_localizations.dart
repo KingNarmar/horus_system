@@ -647,7 +647,7 @@ abstract class AppLocalizations {
   /// No description provided for @createCompanySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Set up the first company workspace for H.O.R.U.S System.'**
+  /// **'Set up a workspace for your company in H.O.R.U.S System.'**
   String get createCompanySubtitle;
 
   /// No description provided for @companyNameLabel.

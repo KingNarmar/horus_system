@@ -9,7 +9,6 @@ import '../cubit/subscriptions_cubit.dart';
 import '../cubit/subscriptions_state.dart';
 import '../helpers/subscriptions_failure_message.dart';
 import '../localization/subscriptions_localizations.dart';
-import '../widgets/subscription_plan_card.dart';
 import '../widgets/subscriptions_current_plan_card.dart';
 
 final class SubscriptionsPage extends StatefulWidget {
@@ -59,7 +58,7 @@ final class _SubscriptionsPageState extends State<SubscriptionsPage> {
                 ),
                 l10n: l10n,
               ),
-              SubscriptionsLoaded() => _LoadedState(state: state, l10n: l10n),
+              SubscriptionsLoaded() => _LoadedState(state: state),
             };
           },
         ),
@@ -160,68 +159,15 @@ final class _FailureState extends StatelessWidget {
   }
 }
 
+/// V1 displays the assigned plan, not historical placeholder sales offers.
+/// Effective quota usage is rendered through the canonical service in #360.
 final class _LoadedState extends StatelessWidget {
   final SubscriptionsLoaded state;
-  final SubscriptionsLocalizations l10n;
 
-  const _LoadedState({required this.state, required this.l10n});
+  const _LoadedState({required this.state});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SubscriptionsCurrentPlanCard(
-          currentSubscription: state.currentSubscription,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        Text(
-          l10n.availablePlans,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        if (state.plans.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Text(l10n.noAvailablePlans),
-            ),
-          )
-        else
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final useGrid =
-                  constraints.maxWidth >= AppSizes.dataTableBreakpoint;
-              if (!useGrid) {
-                return Column(
-                  children: state.plans
-                      .map(
-                        (plan) => Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: SubscriptionPlanCard(plan: plan),
-                        ),
-                      )
-                      .toList(),
-                );
-              }
-
-              return Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
-                children: state.plans
-                    .map(
-                      (plan) => SizedBox(
-                        width: (constraints.maxWidth - AppSpacing.md * 2) / 3,
-                        child: SubscriptionPlanCard(plan: plan),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-      ],
-    );
+    return SubscriptionsCurrentPlanCard(entitlement: state.entitlement);
   }
 }

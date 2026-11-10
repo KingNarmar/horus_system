@@ -1,54 +1,63 @@
-import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
-import 'package:horus_system/features/subscriptions/domain/entities/company_subscription.dart';
-import 'package:horus_system/features/subscriptions/domain/entities/plan_limit.dart';
-import 'package:horus_system/features/subscriptions/domain/entities/subscription_plan.dart';
-import 'package:horus_system/features/subscriptions/domain/repositories/subscriptions_repository.dart';
-import 'package:horus_system/features/subscriptions/domain/usecases/get_available_subscription_plans_usecase.dart';
-import 'package:horus_system/features/subscriptions/domain/usecases/get_current_company_subscription_usecase.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/company_entitlement.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/entitlement_feature.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/entitlement_limit.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/entitlement_resource.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/entitlement_failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/repositories/company_entitlements_repository.dart';
+import 'package:horus_system/features/subscriptions/domain/usecases/get_company_entitlement_usecase.dart';
 import 'package:horus_system/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import 'package:horus_system/features/subscriptions/presentation/cubit/subscriptions_state.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test(
-    'load emits loaded state for owner with plans and no current subscription',
-    () async {
-      final repository = _FakeSubscriptionsRepository();
+  test('owner and admin load the authoritative company grant', () async {
+    for (final role in [CompanyRole.owner, CompanyRole.admin]) {
+      final repository = _FakeCompanyEntitlementsRepository();
       final cubit = _cubit(repository);
+      addTearDown(cubit.close);
 
-      await cubit.load(_context());
+      await cubit.load(_context(role: role));
       final state = cubit.state as SubscriptionsLoaded;
 
-      expect(state.plans.single.code, 'basic');
-      expect(state.currentSubscription, isNull);
-      expect(state.hasCurrentSubscription, isFalse);
-      await cubit.close();
-    },
-  );
+      expect(state.entitlement.planCode, 'free_starter');
+      expect(state.entitlement.expiresAt, isNull);
+      expect(repository.callCount, 1);
+      expect(repository.lastCompanyId, 'company-1');
+    }
+  });
 
-  test('load emits failure for non-owner role', () async {
-    final repository = _FakeSubscriptionsRepository();
+  test('viewer never queries the company entitlement', () async {
+    final repository = _FakeCompanyEntitlementsRepository();
     final cubit = _cubit(repository);
+    addTearDown(cubit.close);
 
-    await cubit.load(_context(role: CompanyRole.admin));
+    await cubit.load(_context(role: CompanyRole.viewer));
+
     final state = cubit.state as SubscriptionsFailure;
+    expect(state.failure.code, EntitlementFailureCodes.permissionDenied);
+    expect(repository.callCount, 0);
+  });
 
-    expect(state.failure.code, FailureCodes.permissionSubscriptionsView);
-    expect(repository.availablePlansCalls, 0);
-    await cubit.close();
+  test('missing server grant does not show a permissive plan', () async {
+    final repository = _FakeCompanyEntitlementsRepository(missing: true);
+    final cubit = _cubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.load(_context());
+
+    final state = cubit.state as SubscriptionsFailure;
+    expect(state.failure.code, EntitlementFailureCodes.unavailable);
   });
 }
 
-SubscriptionsCubit _cubit(_FakeSubscriptionsRepository repository) {
+SubscriptionsCubit _cubit(_FakeCompanyEntitlementsRepository repository) {
   return SubscriptionsCubit(
-    getAvailablePlansUseCase: GetAvailableSubscriptionPlansUseCase(repository),
-    getCurrentSubscriptionUseCase: GetCurrentCompanySubscriptionUseCase(
-      repository,
-    ),
+    getCompanyEntitlementUseCase: GetCompanyEntitlementUseCase(repository),
   );
 }
 
@@ -59,37 +68,42 @@ CurrentCompanyContext _context({CompanyRole role = CompanyRole.owner}) {
   );
 }
 
-final class _FakeSubscriptionsRepository implements SubscriptionsRepository {
-  final plans = const [
-    SubscriptionPlan(
-      id: 'plan-basic',
-      code: 'basic',
-      name: 'Basic',
-      monthlyPrice: 100,
-      maxUsers: PlanLimit(5),
-      maxVehicles: PlanLimit(20),
-      maxTripsPerMonth: PlanLimit(500),
-      hasDriverApp: true,
-      hasAdvancedReports: false,
-      hasDocumentUpload: false,
-      hasMaintenance: false,
-      hasWhatsappNotifications: false,
-      isActive: true,
-    ),
-  ];
+final class _FakeCompanyEntitlementsRepository
+    implements CompanyEntitlementsRepository {
+  final bool missing;
+  int callCount = 0;
+  String? lastCompanyId;
 
-  int availablePlansCalls = 0;
+  _FakeCompanyEntitlementsRepository({this.missing = false});
 
   @override
-  Future<Result<List<SubscriptionPlan>>> getAvailablePlans() async {
-    availablePlansCalls += 1;
-    return Success(plans);
-  }
-
-  @override
-  Future<Result<CompanySubscription?>> getCurrentCompanySubscription({
+  Future<Result<CompanyEntitlement>> getCurrent({
     required String companyId,
   }) async {
-    return const Success(null);
+    callCount += 1;
+    lastCompanyId = companyId;
+    if (missing) {
+      return const FailureResult(
+        ServerFailure(code: EntitlementFailureCodes.unavailable),
+      );
+    }
+    return Success(
+      CompanyEntitlement(
+        companyId: companyId,
+        planCode: 'free_starter',
+        policyVersion: 1,
+        revision: 1,
+        effectiveAt: DateTime.utc(2026, 11, 9),
+        status: CompanyEntitlementStatus.active,
+        limits: {
+          for (final resource in EntitlementResource.values)
+            resource: EntitlementLimit.finite(1),
+        },
+        enabledFeatures: const {
+          EntitlementFeature.invoicePdf,
+          EntitlementFeature.reportPdf,
+        },
+      ),
+    );
   }
 }

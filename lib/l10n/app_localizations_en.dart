@@ -320,7 +320,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createCompanySubtitle =>
-      'Set up the first company workspace for H.O.R.U.S System.';
+      'Set up a workspace for your company in H.O.R.U.S System.';
 
   @override
   String get companyNameLabel => 'Company name';

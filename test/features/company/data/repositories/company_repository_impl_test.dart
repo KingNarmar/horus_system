@@ -4,6 +4,7 @@ import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/company/data/datasources/company_remote_data_source.dart';
 import 'package:horus_system/features/company/data/models/company_model.dart';
 import 'package:horus_system/features/company/data/repositories/company_repository_impl.dart';
+import 'package:horus_system/features/company/data/services/company_creation_request_identity.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/company/domain/entities/company_financial_configuration.dart';
 import 'package:horus_system/features/company/domain/value_objects/company_timezone.dart';
@@ -133,6 +134,30 @@ void main() {
 
       expect(result.failureOrNull, isA<ServerFailure>());
       expect(result.failureOrNull?.code, FailureCodes.serverError);
+      expect(result.failureOrNull?.message, isNull);
+    });
+
+    test('maps unsafe local retry storage to typed failure', () async {
+      final repository = CompanyRepositoryImpl(
+        _FakeCompanyRemoteDataSource(
+          createError: const CompanyCreationRequestIdentityException(),
+        ),
+      );
+
+      final result = await repository.createCompany(
+        name: 'Company',
+        businessTimezone: CompanyTimezone.tryParse('Asia/Dubai')!,
+        financialConfiguration: CompanyFinancialConfiguration.tryCreate(
+          baseCurrencyCode: 'AED',
+          fractionDigits: 2,
+        )!,
+        invoicePrefix: InvoicePrefix.tryParse('INV')!,
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.creationLocalRetryUnavailable,
+      );
       expect(result.failureOrNull?.message, isNull);
     });
 

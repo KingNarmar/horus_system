@@ -40,7 +40,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CompanyOnboardingCubit>().loadMyCompanies();
+    context.read<CompanyOnboardingCubit>().prepareForCreation();
   }
 
   @override
@@ -79,6 +79,14 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               onboardingL10n.fractionDigitsInvalid,
             CompanyFailureCodes.validationInvoicePrefixInvalid =>
               onboardingL10n.invoicePrefixInvalid,
+            CompanyFailureCodes.creationLimitReached =>
+              onboardingL10n.creationLimitReached,
+            CompanyFailureCodes.creationRequestConflict =>
+              onboardingL10n.creationRequestConflict,
+            CompanyFailureCodes.creationRetryUnavailable =>
+              onboardingL10n.creationRetryUnavailable,
+            CompanyFailureCodes.creationLocalRetryUnavailable =>
+              onboardingL10n.creationLocalRetryUnavailable,
             _ => l10n.localizedErrorMessage(state.failure),
           };
           ScaffoldMessenger.of(

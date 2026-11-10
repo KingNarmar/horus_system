@@ -39,6 +39,15 @@ final class CompanyRepositoryFailureMapper {
         const ValidationFailure(
           code: CompanyFailureCodes.validationInvoicePrefixInvalid,
         ),
+      CompanyRpcErrorCodes.onboardingCreationLimitReached =>
+        const ConflictFailure(code: CompanyFailureCodes.creationLimitReached),
+      CompanyRpcErrorCodes.onboardingRequestConflict => const ConflictFailure(
+        code: CompanyFailureCodes.creationRequestConflict,
+      ),
+      CompanyRpcErrorCodes.onboardingRequestUnavailable =>
+        const PermissionFailure(
+          code: CompanyFailureCodes.creationRetryUnavailable,
+        ),
       _ => const ServerFailure(code: FailureCodes.serverError),
     };
   }

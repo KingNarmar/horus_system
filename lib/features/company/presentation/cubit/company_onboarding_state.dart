@@ -13,6 +13,11 @@ class CompanyOnboardingLoading extends CompanyOnboardingState {
   const CompanyOnboardingLoading();
 }
 
+/// The explicit creation route can show the form regardless of memberships.
+class CompanyOnboardingReady extends CompanyOnboardingState {
+  const CompanyOnboardingReady();
+}
+
 class CompanyOnboardingEmpty extends CompanyOnboardingState {
   const CompanyOnboardingEmpty();
 }

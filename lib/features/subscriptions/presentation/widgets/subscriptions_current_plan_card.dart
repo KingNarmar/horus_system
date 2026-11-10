@@ -2,127 +2,60 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../domain/entities/company_subscription.dart';
+import '../../domain/entities/company_entitlement.dart';
 import '../localization/subscriptions_localizations.dart';
 
+/// Renders the effective server-authoritative entitlement, not billing data.
 final class SubscriptionsCurrentPlanCard extends StatelessWidget {
-  final CompanySubscription? currentSubscription;
+  final CompanyEntitlement entitlement;
 
-  const SubscriptionsCurrentPlanCard({
-    required this.currentSubscription,
-    super.key,
-  });
+  const SubscriptionsCurrentPlanCard({required this.entitlement, super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.subscriptionsL10n;
-    final subscription = currentSubscription;
+    final planName = l10n.planName(entitlement.planCode, entitlement.planCode);
+    final expiry = entitlement.expiresAt;
+    final expiryLabel = expiry == null
+        ? l10n.noExpiration
+        : MaterialLocalizations.of(context).formatShortDate(expiry.toLocal());
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        child: subscription == null
-            ? _EmptyCurrentPlan(l10n: l10n)
-            : _CurrentPlanDetails(subscription: subscription, l10n: l10n),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(AppIcons.subscriptions),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.currentPlan,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              planName,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _DetailRow(
+              label: l10n.status,
+              value: l10n.entitlementStatusLabel(entitlement.status),
+            ),
+            _DetailRow(label: l10n.expiration, value: expiryLabel),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-final class _EmptyCurrentPlan extends StatelessWidget {
-  final SubscriptionsLocalizations l10n;
-
-  const _EmptyCurrentPlan({required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _CardTitle(label: l10n.currentPlan),
-        const SizedBox(height: AppSpacing.sm),
-        Text(l10n.noCurrentSubscription),
-      ],
-    );
-  }
-}
-
-final class _CurrentPlanDetails extends StatelessWidget {
-  final CompanySubscription subscription;
-  final SubscriptionsLocalizations l10n;
-
-  const _CurrentPlanDetails({required this.subscription, required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    final planName = l10n.planName(
-      subscription.plan.code,
-      subscription.plan.name,
-    );
-    final period = _periodLabel(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _CardTitle(label: l10n.currentPlan),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          planName,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        _DetailRow(
-          label: l10n.status,
-          value: l10n.statusLabel(subscription.status),
-        ),
-        if (subscription.trialEndsAt != null)
-          _DetailRow(
-            label: l10n.trialEndsAt,
-            value: _formatDate(context, subscription.trialEndsAt!),
-          ),
-        if (period != null)
-          _DetailRow(label: l10n.currentPeriod, value: period),
-      ],
-    );
-  }
-
-  String? _periodLabel(BuildContext context) {
-    final start = subscription.currentPeriodStart;
-    final end = subscription.currentPeriodEnd;
-    if (start == null || end == null) return null;
-    return l10n.periodRange(
-      _formatDate(context, start),
-      _formatDate(context, end),
-    );
-  }
-
-  String _formatDate(BuildContext context, DateTime value) {
-    return MaterialLocalizations.of(context).formatShortDate(value.toLocal());
-  }
-}
-
-final class _CardTitle extends StatelessWidget {
-  final String label;
-
-  const _CardTitle({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(AppIcons.subscriptions),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -16,6 +16,12 @@ class CompanyOnboardingCubit extends Cubit<CompanyOnboardingState> {
        _getMyCompaniesUseCase = getMyCompaniesUseCase,
        super(const CompanyOnboardingInitial());
 
+  /// Opens a new creation intent without inferring allowance from membership.
+  /// The protected onboarding RPC remains authoritative for the creator limit.
+  void prepareForCreation() {
+    emit(const CompanyOnboardingReady());
+  }
+
   Future<void> loadMyCompanies() async {
     emit(const CompanyOnboardingLoading());
 

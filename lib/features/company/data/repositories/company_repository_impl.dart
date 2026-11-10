@@ -3,12 +3,15 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 
 import '../../../../core/domain/value_objects/invoice_prefix.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../core/errors/common_failures.dart';
+import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/entities/company.dart';
 import '../../domain/entities/company_financial_configuration.dart';
 import '../../domain/repositories/company_repository.dart';
 import '../../domain/value_objects/company_timezone.dart';
 import '../datasources/company_remote_data_source.dart';
 import '../mappers/company_mapper.dart';
+import '../services/company_creation_request_identity.dart';
 import 'company_repository_failure_mapper.dart';
 
 class CompanyRepositoryImpl implements CompanyRepository {
@@ -62,6 +65,10 @@ class CompanyRepositoryImpl implements CompanyRepository {
       return FailureResult(_failureMapper.fromAuthException(error));
     } on PostgrestException catch (error) {
       return FailureResult(_failureMapper.fromPostgrest(error));
+    } on CompanyCreationRequestIdentityException {
+      return const FailureResult(
+        ServerFailure(code: CompanyFailureCodes.creationLocalRetryUnavailable),
+      );
     } catch (error) {
       return FailureResult(_failureMapper.fromUnexpected(error));
     }

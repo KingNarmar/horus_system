@@ -5,6 +5,7 @@ real-GoTrue-JWT HTTP harness; never use hosted Dev/Production credentials.
 """
 
 import secrets
+import uuid
 
 from verify_issue_365_local_http import LocalApi, check, local_stack, psql, rpc, uid
 
@@ -15,6 +16,7 @@ DEFAULT_CATEGORY_COUNT = 11
 def create_company(api, jwt, nonce, suffix):
     status, body = rpc(api, jwt, "create_company_with_initial_owner", {
         "p_name": "HORUS371-LOCAL-" + nonce + "-" + suffix,
+        "p_request_id": str(uuid.uuid4()),
         "p_business_timezone": "UTC",
         "p_base_currency_code": "AED",
         "p_base_currency_fraction_digits": 2,
