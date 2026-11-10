@@ -132,59 +132,59 @@ class _CustomersPageState extends State<CustomersPage> {
         );
       },
       child: BlocBuilder<CustomersCubit, CustomersState>(
-      builder: (context, state) {
-        final cubit = context.read<CustomersCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.customersTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+        builder: (context, state) {
+          final cubit = context.read<CustomersCubit>();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.customersTitle,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                if (state is CustomersLoaded && state.canManageCustomers)
-                  FilledButton.icon(
-                    onPressed: () => _openCustomerForm(),
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.addCustomerButton),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is CustomersLoaded && state.refreshFailure != null) ...[
-              MaterialBanner(
-                content: Text(
-                  l10n.localizedErrorMessage(state.refreshFailure!),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () =>
-                        cubit.refreshCustomers(widget.currentCompanyContext),
-                    child: Text(l10n.networkRetryButton),
-                  ),
+                  if (state is CustomersLoaded && state.canManageCustomers)
+                    FilledButton.icon(
+                      onPressed: () => _openCustomerForm(),
+                      icon: const Icon(AppIcons.add),
+                      label: Text(l10n.addCustomerButton),
+                    ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.lg),
+              if (state is CustomersLoaded && state.refreshFailure != null) ...[
+                MaterialBanner(
+                  content: Text(
+                    l10n.localizedErrorMessage(state.refreshFailure!),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          cubit.refreshCustomers(widget.currentCompanyContext),
+                      child: Text(l10n.networkRetryButton),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+              CustomersStateView(
+                state: state,
+                onRetry: () =>
+                    cubit.loadCustomers(widget.currentCompanyContext),
+                onViewDetails: _openCustomerDetails,
+                onEdit: (customer) => _openCustomerForm(customer: customer),
+                onDeactivate: cubit.deactivateCustomer,
+                onReactivate: cubit.reactivateCustomer,
+                onSearchChanged: cubit.setSearchQuery,
+                onStatusFilterChanged: cubit.setStatusFilter,
+              ),
             ],
-            CustomersStateView(
-              state: state,
-              onRetry: () => cubit.loadCustomers(widget.currentCompanyContext),
-              onViewDetails: _openCustomerDetails,
-              onEdit: (customer) => _openCustomerForm(customer: customer),
-              onDeactivate: cubit.deactivateCustomer,
-              onReactivate: cubit.reactivateCustomer,
-              onSearchChanged: cubit.setSearchQuery,
-              onStatusFilterChanged: cubit.setStatusFilter,
-            ),
-          ],
-        );
-      },
-    ),
+          );
+        },
+      ),
     );
   }
 }

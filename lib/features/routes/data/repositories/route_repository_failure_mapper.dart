@@ -13,9 +13,7 @@ final class RouteRepositoryFailureMapper {
   Failure fromPostgrest(PostgrestException error) {
     if (error.code == 'P2860' &&
         error.message == QuotaFailureCodes.routesReached) {
-      return const ConflictFailure(
-        code: QuotaFailureCodes.routesReached,
-      );
+      return const ConflictFailure(code: QuotaFailureCodes.routesReached);
     }
     if (error.code == 'P2861' || error.code == 'P2862') {
       return const ServerFailure(code: QuotaFailureCodes.unavailable);

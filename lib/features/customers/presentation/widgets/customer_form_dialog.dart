@@ -194,7 +194,9 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     l10n.localizedCustomerFailureMessage(_submissionFailure!),
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ],
               ],

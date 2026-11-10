@@ -12,9 +12,7 @@ final class DriverRepositoryFailureMapper {
   Failure fromPostgrest(PostgrestException error) {
     if (error.code == 'P2860' &&
         error.message == QuotaFailureCodes.driversReached) {
-      return const ConflictFailure(
-        code: QuotaFailureCodes.driversReached,
-      );
+      return const ConflictFailure(code: QuotaFailureCodes.driversReached);
     }
     if (error.code == 'P2861' || error.code == 'P2862') {
       return const ServerFailure(code: QuotaFailureCodes.unavailable);

@@ -314,57 +314,66 @@ class _DriversPageState extends State<DriversPage> {
         );
       },
       child: BlocBuilder<DriversCubit, DriversState>(
-      builder: (context, state) {
-        final cubit = context.read<DriversCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.driversTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+        builder: (context, state) {
+          final cubit = context.read<DriversCubit>();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.driversTitle,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                if (state is DriversLoaded && state.canManageDrivers)
-                  FilledButton.icon(
-                    onPressed: () => _openForm(),
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.addDriverButton),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is DriversInitial || state is DriversLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state is DriversFailure)
-              _MessageCard(
-                message: l10n.localizedErrorMessage(state.failure),
-                action: OutlinedButton(
-                  onPressed: () =>
-                      cubit.loadDrivers(widget.currentCompanyContext),
-                  child: Text(l10n.retryButton),
-                ),
-              )
-            else if (state is DriversLoaded) ...[
-              _Filters(
-                statusFilter: state.statusFilter,
-                onSearchChanged: cubit.setSearchQuery,
-                onStatusFilterChanged: cubit.setStatusFilter,
+                  if (state is DriversLoaded && state.canManageDrivers)
+                    FilledButton.icon(
+                      onPressed: () => _openForm(),
+                      icon: const Icon(AppIcons.add),
+                      label: Text(l10n.addDriverButton),
+                    ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              if (state.allDrivers.isEmpty)
-                _MessageCard(message: l10n.noDriversFound)
-              else if (state.drivers.isEmpty)
-                _MessageCard(message: l10n.noDriversMatchFilters)
-              else
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth >= AppSizes.dataTableBreakpoint) {
-                      return DriversTable(
+              const SizedBox(height: AppSpacing.lg),
+              if (state is DriversInitial || state is DriversLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (state is DriversFailure)
+                _MessageCard(
+                  message: l10n.localizedErrorMessage(state.failure),
+                  action: OutlinedButton(
+                    onPressed: () =>
+                        cubit.loadDrivers(widget.currentCompanyContext),
+                    child: Text(l10n.retryButton),
+                  ),
+                )
+              else if (state is DriversLoaded) ...[
+                _Filters(
+                  statusFilter: state.statusFilter,
+                  onSearchChanged: cubit.setSearchQuery,
+                  onStatusFilterChanged: cubit.setStatusFilter,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                if (state.allDrivers.isEmpty)
+                  _MessageCard(message: l10n.noDriversFound)
+                else if (state.drivers.isEmpty)
+                  _MessageCard(message: l10n.noDriversMatchFilters)
+                else
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth >=
+                          AppSizes.dataTableBreakpoint) {
+                        return DriversTable(
+                          drivers: state.drivers,
+                          canManageDrivers: state.canManageDrivers,
+                          onViewDetails: _openDetails,
+                          onEdit: (driver) => _openForm(driver: driver),
+                          onDeactivate: cubit.deactivateDriver,
+                          onReactivate: cubit.reactivateDriver,
+                        );
+                      }
+                      return DriversCards(
                         drivers: state.drivers,
                         canManageDrivers: state.canManageDrivers,
                         onViewDetails: _openDetails,
@@ -372,22 +381,13 @@ class _DriversPageState extends State<DriversPage> {
                         onDeactivate: cubit.deactivateDriver,
                         onReactivate: cubit.reactivateDriver,
                       );
-                    }
-                    return DriversCards(
-                      drivers: state.drivers,
-                      canManageDrivers: state.canManageDrivers,
-                      onViewDetails: _openDetails,
-                      onEdit: (driver) => _openForm(driver: driver),
-                      onDeactivate: cubit.deactivateDriver,
-                      onReactivate: cubit.reactivateDriver,
-                    );
-                  },
-                ),
+                    },
+                  ),
+              ],
             ],
-          ],
-        );
-      },
-    ),
+          );
+        },
+      ),
     );
   }
 }
