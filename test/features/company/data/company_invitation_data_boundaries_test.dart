@@ -154,7 +154,8 @@ void main() {
       );
       expect(classify(error), CompanyFailureCodes.invitationPermissionDenied);
     });
-    test('full invitation seats preserve typed localized quota failure', () {
+
+    test('full invitation seats preserve typed quota failure', () {
       final error = FunctionException(
         status: 400,
         details: {'code': CompanyFailureCodes.quotaCompanyUsersReached},
