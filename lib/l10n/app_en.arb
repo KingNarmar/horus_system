@@ -97,7 +97,7 @@
   "backToLoginButton": "Back to login",
   "createCompanyTitle": "Create company",
   "createCompanyFormTitle": "Create your company",
-  "createCompanySubtitle": "Set up the first company workspace for H.O.R.U.S System.",
+  "createCompanySubtitle": "Set up a workspace for your company in H.O.R.U.S System.",
   "companyNameLabel": "Company name",
   "companyNameRequired": "Company name is required.",
   "businessTypeLabel": "Business type",

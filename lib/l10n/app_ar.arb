@@ -101,7 +101,7 @@
   "backToLoginButton": "العودة لتسجيل الدخول",
   "createCompanyTitle": "إنشاء شركة",
   "createCompanyFormTitle": "أنشئ شركتك",
-  "createCompanySubtitle": "قم بإعداد أول مساحة عمل للشركة داخل نظام حورس.",
+  "createCompanySubtitle": "أنشئ مساحة عمل لشركتك داخل نظام حورس.",
   "companyNameLabel": "اسم الشركة",
   "companyNameRequired": "اسم الشركة مطلوب.",
   "businessTypeLabel": "نوع النشاط",

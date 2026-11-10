@@ -36,9 +36,29 @@ void main() {
       );
 
       expect(find.text('Create company'), findsWidgets);
+      expect(
+        find.text('Set up a workspace for your company in H.O.R.U.S System.'),
+        findsOneWidget,
+      );
       expect(find.byType(TextFormField), findsWidgets);
       expect(harness.companyRepository.getMyCompaniesCallCount, 0);
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Arabic creation subtitle does not imply first company',
+    (tester) async {
+      await _pumpCreationPage(
+        tester,
+        existingCompanies: const [_otherCompany],
+        locale: const Locale('ar'),
+      );
+
+      expect(
+        find.text('أنشئ مساحة عمل لشركتك داخل نظام حورس.'),
+        findsOneWidget,
+      );
     },
   );
 
@@ -100,6 +120,7 @@ Future<_CreationPageHarness> _pumpCreationPage(
   WidgetTester tester, {
   List<CurrentCompanyContext> selectedContexts = const [_targetContext],
   List<Company> existingCompanies = const [],
+  Locale locale = const Locale('en'),
 }) async {
   final companyRepository = _FakeCompanyRepository(
     existingCompanies: existingCompanies,
@@ -146,6 +167,7 @@ Future<_CreationPageHarness> _pumpCreationPage(
         BlocProvider<CompanyTimezoneCubit>.value(value: timezoneCubit),
       ],
       child: MaterialApp(
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         routes: {
