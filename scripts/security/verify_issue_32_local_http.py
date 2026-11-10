@@ -220,8 +220,6 @@ def main():
           and data.get("code") == "P2860")
 
     # Existing edits and financial closeout must not be blocked by a full cap.
-    row_id = fleet_winners[0][1][0]["id"]
-    table = "tractor_heads" if "tractor" in fleet_winners[0][1][0].get("plate_number", "").lower() else None
     # Always use a known fixture row from tractor_heads for read/update verification.
     status, rows = api.call(
         "GET", "/rest/v1/tractor_heads", token=owner_jwt,
