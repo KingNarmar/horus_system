@@ -31,7 +31,13 @@ Map<String, dynamic> _payload() => {
       'document_upload',
     ],
   },
-  'usage': <String, dynamic>{'company_users': 10, 'combined_vehicles': 6},
+  'usage': <String, dynamic>{
+    'company_users': 10,
+    'combined_vehicles': 6,
+    'customers': 8,
+    'drivers': 7,
+    'routes': 3,
+  },
 };
 
 void main() {
@@ -46,6 +52,9 @@ void main() {
     expect(users.remaining, 0);
     expect(fleet.used, 6);
     expect(fleet.isAtCapacity, isTrue);
+    expect(snapshot.usageFor(EntitlementResource.customers).used, 8);
+    expect(snapshot.usageFor(EntitlementResource.drivers).isOverLimit, isTrue);
+    expect(snapshot.usageFor(EntitlementResource.routes).used, 3);
     expect(snapshot.entitlement.policyVersion, 1);
   });
 

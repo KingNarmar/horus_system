@@ -5168,6 +5168,24 @@ abstract class AppLocalizations {
   /// **'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.'**
   String get failureQuotaCombinedVehiclesReached;
 
+  /// No description provided for @failureQuotaCustomersReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its active customer limit. Deactivate an unused customer before adding or reactivating another.'**
+  String get failureQuotaCustomersReached;
+
+  /// No description provided for @failureQuotaDriversReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its active driver limit. Deactivate an unused driver before adding or reactivating another.'**
+  String get failureQuotaDriversReached;
+
+  /// No description provided for @failureQuotaRoutesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.'**
+  String get failureQuotaRoutesReached;
+
   /// No description provided for @failureQuotaUnavailable.
   ///
   /// In en, this message translates to:

@@ -6,7 +6,7 @@ import '../../domain/entities/company_quota_usage.dart';
 import '../../domain/entities/entitlement_resource.dart';
 import '../localization/subscriptions_localizations.dart';
 
-/// Compact usage feedback for the two counters enforced in #32.
+/// Server-confirmed capacity usage for #32 and #355. Full reporting is #360.
 /// The complete company usage dashboard remains in #360.
 final class SubscriptionsQuotaUsageCard extends StatelessWidget {
   final CompanyQuotaSnapshot quota;
@@ -37,6 +37,21 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
             _QuotaLine(
               label: l10n.vehicles,
               usage: quota.usageFor(EntitlementResource.combinedVehicles),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.customers,
+              usage: quota.usageFor(EntitlementResource.customers),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.drivers,
+              usage: quota.usageFor(EntitlementResource.drivers),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.routes,
+              usage: quota.usageFor(EntitlementResource.routes),
             ),
           ],
         ),

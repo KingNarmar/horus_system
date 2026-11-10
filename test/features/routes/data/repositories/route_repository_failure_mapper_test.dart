@@ -1,5 +1,6 @@
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:horus_system/features/routes/data/repositories/route_repository_failure_mapper.dart';
 import 'package:horus_system/features/routes/data/constants/route_db_contract.dart';
 import 'package:horus_system/features/routes/domain/failures/route_failure_codes.dart';
@@ -7,6 +8,29 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
+  test('maps only its own P2860 quota rejection to a sanitized conflict', () {
+    const mapper = RouteRepositoryFailureMapper();
+    final matched = mapper.fromPostgrest(
+      const PostgrestException(
+        code: 'P2860',
+        message: QuotaFailureCodes.routesReached,
+        details: 'secret backend detail',
+      ),
+    );
+    expect(matched, isA<ConflictFailure>());
+    expect(matched.code, QuotaFailureCodes.routesReached);
+    expect(matched.message, isNull);
+
+    final spoofed = mapper.fromPostgrest(
+      const PostgrestException(
+        code: 'P2860',
+        message: QuotaFailureCodes.companyUsersReached,
+      ),
+    );
+    expect(spoofed, isA<ServerFailure>());
+    expect(spoofed.message, isNull);
+  });
+
   group('RouteRepositoryFailureMapper', () {
     const mapper = RouteRepositoryFailureMapper();
 
