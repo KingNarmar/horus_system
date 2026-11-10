@@ -37,6 +37,8 @@ class RoutesLoaded extends RoutesState {
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? refreshFailure;
+  final Failure? mutationFailure;
+  final int mutationFailureSequence;
 
   const RoutesLoaded({
     required this.currentCompanyContext,
@@ -51,6 +53,8 @@ class RoutesLoaded extends RoutesState {
     this.isActivityLoading = false,
     this.activityFailure,
     this.refreshFailure,
+    this.mutationFailure,
+    this.mutationFailureSequence = 0,
   });
 
   bool isActiveStateChanging(String id) {
@@ -92,6 +96,8 @@ class RoutesLoaded extends RoutesState {
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? refreshFailure = _notSet,
+    Object? mutationFailure = _notSet,
+    int? mutationFailureSequence,
   }) {
     return RoutesLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -116,6 +122,11 @@ class RoutesLoaded extends RoutesState {
       refreshFailure: refreshFailure == _notSet
           ? this.refreshFailure
           : refreshFailure as Failure?,
+      mutationFailure: mutationFailure == _notSet
+          ? this.mutationFailure
+          : mutationFailure as Failure?,
+      mutationFailureSequence:
+          mutationFailureSequence ?? this.mutationFailureSequence,
     );
   }
 

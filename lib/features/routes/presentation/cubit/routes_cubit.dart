@@ -289,7 +289,12 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     if (current is RoutesLoaded &&
         failure is! PermissionFailure &&
         failure is! AuthFailure) {
-      emit(current.copyWith(refreshFailure: failure));
+      emit(
+        current.copyWith(
+          mutationFailure: failure,
+          mutationFailureSequence: current.mutationFailureSequence + 1,
+        ),
+      );
     } else {
       emit(RoutesFailure(failure));
     }
@@ -303,6 +308,7 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
       if (_isRealtimeRefreshing) _realtimeRefreshPending = true;
       return state.copyWith(
         allRoutes: _upsertRouteInList(state.allRoutes, route),
+        mutationFailure: null,
         selectedRoute: state.selectedRoute?.id == route.id
             ? route
             : state.selectedRoute,
