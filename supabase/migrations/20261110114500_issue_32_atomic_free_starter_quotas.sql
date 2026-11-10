@@ -909,7 +909,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog
-AS $
+AS $$
 DECLARE
   v_actor_user_id uuid := auth.uid();
   v_actor_role public.company_role;
@@ -1002,7 +1002,7 @@ BEGIN
 
   RETURN QUERY SELECT v_invitation.id, v_invitation.status, v_invitation.revoked_at;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.revoke_company_invitation(uuid,uuid)
   FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.revoke_company_invitation(uuid,uuid)
