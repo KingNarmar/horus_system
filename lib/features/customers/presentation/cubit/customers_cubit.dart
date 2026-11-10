@@ -198,7 +198,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     }
   }
 
-  Future<void> addCustomer({
+  Future<Failure?> addCustomer({
     required String name,
     String? contactPerson,
     String? phone,
@@ -210,7 +210,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     double? creditLimit,
   }) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null) return const UnexpectedFailure();
 
     final result = await addCustomerUseCase(
       AddCustomerParams(
@@ -227,14 +227,19 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    if (!_isCurrentMutationContext(currentCompanyContext)) return;
-    result.when(
-      success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
+    if (!_isCurrentMutationContext(currentCompanyContext)) {
+      return const UnexpectedFailure();
+    }
+    return result.when<Failure?>(
+      success: (created) {
+        _upsertCustomer(created);
+        return null;
+      },
+      failure: (failure) => failure,
     );
   }
 
-  Future<void> updateCustomer({
+  Future<Failure?> updateCustomer({
     required Customer customer,
     required String name,
     String? contactPerson,
@@ -247,7 +252,7 @@ class CustomersCubit extends Cubit<CustomersState> {
     double? creditLimit,
   }) async {
     final currentCompanyContext = _currentCompanyContext;
-    if (currentCompanyContext == null) return;
+    if (currentCompanyContext == null) return const UnexpectedFailure();
 
     final result = await updateCustomerUseCase(
       UpdateCustomerParams(
@@ -265,10 +270,15 @@ class CustomersCubit extends Cubit<CustomersState> {
       ),
     );
 
-    if (!_isCurrentMutationContext(currentCompanyContext)) return;
-    result.when(
-      success: _upsertCustomer,
-      failure: (failure) => emit(CustomersFailure(failure)),
+    if (!_isCurrentMutationContext(currentCompanyContext)) {
+      return const UnexpectedFailure();
+    }
+    return result.when<Failure?>(
+      success: (updated) {
+        _upsertCustomer(updated);
+        return null;
+      },
+      failure: (failure) => failure,
     );
   }
 
@@ -317,10 +327,19 @@ class CustomersCubit extends Cubit<CustomersState> {
 
   void _emitMutationFailure(Failure failure) {
     final currentState = state;
-    if (currentState is CustomersLoaded) {
-      emit(currentState.copyWith(pendingActionCustomerId: null));
+    if (currentState is CustomersLoaded &&
+        failure is! AuthFailure &&
+        failure is! PermissionFailure) {
+      emit(
+        currentState.copyWith(
+          pendingActionCustomerId: null,
+          mutationFailure: failure,
+          mutationFailureSequence: currentState.mutationFailureSequence + 1,
+        ),
+      );
+    } else {
+      emit(CustomersFailure(failure));
     }
-    emit(CustomersFailure(failure));
   }
 
   bool _isCurrentMutationContext(CurrentCompanyContext expected) {
@@ -360,6 +379,7 @@ class CustomersCubit extends Cubit<CustomersState> {
         currentState.copyWith(
           allCustomers: updatedCustomers,
           pendingActionCustomerId: null,
+          mutationFailure: null,
           selectedCustomer: customer,
         ),
       );
@@ -370,6 +390,7 @@ class CustomersCubit extends Cubit<CustomersState> {
       currentState.copyWith(
         allCustomers: updatedCustomers,
         pendingActionCustomerId: null,
+        mutationFailure: null,
       ),
     );
   }

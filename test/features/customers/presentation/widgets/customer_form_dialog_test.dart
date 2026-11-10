@@ -18,6 +18,7 @@ void main() {
           body: CustomerFormDialog(
             onSubmit: (_) async {
               submitCalls++;
+              return null;
             },
           ),
         ),

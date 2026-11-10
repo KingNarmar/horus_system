@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/validators/app_validators.dart';
 import '../../domain/entities/customer.dart';
+import '../localization/customers_localizations_x.dart';
 
 class CustomerFormData {
   final String name;
@@ -31,7 +33,7 @@ class CustomerFormData {
 
 class CustomerFormDialog extends StatefulWidget {
   final Customer? customer;
-  final Future<void> Function(CustomerFormData data) onSubmit;
+  final Future<Failure?> Function(CustomerFormData data) onSubmit;
 
   const CustomerFormDialog({required this.onSubmit, this.customer, super.key});
 
@@ -51,6 +53,7 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
   final _countryController = TextEditingController();
   final _creditLimitController = TextEditingController();
   bool _isSaving = false;
+  Failure? _submissionFailure;
 
   @override
   void initState() {
@@ -86,10 +89,13 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    setState(() => _isSaving = true);
+    setState(() {
+      _isSaving = true;
+      _submissionFailure = null;
+    });
     final creditLimitText = _creditLimitController.text.trim();
 
-    await widget.onSubmit(
+    final failure = await widget.onSubmit(
       CustomerFormData(
         name: _nameController.text,
         contactPerson: _optional(_contactPersonController.text),
@@ -106,7 +112,13 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
     );
 
     if (!mounted) return;
-    setState(() => _isSaving = false);
+    if (failure != null) {
+      setState(() {
+        _isSaving = false;
+        _submissionFailure = failure;
+      });
+      return;
+    }
     Navigator.of(context).pop();
   }
 
@@ -178,6 +190,13 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                     return null;
                   },
                 ),
+                if (_submissionFailure != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.localizedCustomerFailureMessage(_submissionFailure!),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ],
               ],
             ),
           ),

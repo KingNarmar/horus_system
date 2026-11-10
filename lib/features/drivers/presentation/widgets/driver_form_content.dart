@@ -14,7 +14,7 @@ extension _DriverFormContent on _DriverFormDialogState {
             if (_submissionFailure != null) ...[
               const SizedBox(height: AppSpacing.md),
               Text(
-                context.l10n.localizedErrorMessage(_submissionFailure!),
+                context.l10n.localizedDriverFailureMessage(_submissionFailure!),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],

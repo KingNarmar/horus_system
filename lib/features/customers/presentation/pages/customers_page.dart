@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../cubit/customers_cubit.dart';
 import '../cubit/customers_state.dart';
+import '../localization/customers_localizations_x.dart';
 import '../dialogs/customer_details_dialog.dart';
 import '../widgets/customer_form_dialog.dart';
 import '../widgets/customers_state_view.dart';
@@ -104,7 +105,33 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return BlocBuilder<CustomersCubit, CustomersState>(
+    return BlocListener<CustomersCubit, CustomersState>(
+      listenWhen: (previous, current) {
+        if (current is! CustomersLoaded || current.mutationFailure == null) {
+          return false;
+        }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! CustomersLoaded ||
+            previous.mutationFailureSequence != current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final loaded = state as CustomersLoaded;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.l10n.localizedCustomerFailureMessage(
+                loaded.mutationFailure!,
+              ),
+            ),
+          ),
+        );
+      },
+      child: BlocBuilder<CustomersCubit, CustomersState>(
       builder: (context, state) {
         final cubit = context.read<CustomersCubit>();
         return Column(
@@ -157,6 +184,7 @@ class _CustomersPageState extends State<CustomersPage> {
           ],
         );
       },
+    ),
     );
   }
 }

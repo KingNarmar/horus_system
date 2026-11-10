@@ -23,6 +23,7 @@ import '../cubit/drivers_state.dart';
 import '../helpers/driver_contract_document_launcher.dart';
 import '../helpers/driver_contract_file_picker.dart';
 import '../localization/driver_compensation_localizations.dart';
+import '../localization/drivers_localizations_x.dart';
 import '../widgets/driver_compensation_end_dialog.dart';
 import '../widgets/driver_compensation_form_dialog.dart';
 import '../widgets/driver_details_dialog.dart';
@@ -286,7 +287,33 @@ class _DriversPageState extends State<DriversPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return BlocBuilder<DriversCubit, DriversState>(
+    return BlocListener<DriversCubit, DriversState>(
+      listenWhen: (previous, current) {
+        if (current is! DriversLoaded || current.mutationFailure == null) {
+          return false;
+        }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! DriversLoaded ||
+            previous.mutationFailureSequence != current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final loaded = state as DriversLoaded;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.l10n.localizedDriverFailureMessage(
+                loaded.mutationFailure!,
+              ),
+            ),
+          ),
+        );
+      },
+      child: BlocBuilder<DriversCubit, DriversState>(
       builder: (context, state) {
         final cubit = context.read<DriversCubit>();
         return Column(
@@ -360,6 +387,7 @@ class _DriversPageState extends State<DriversPage> {
           ],
         );
       },
+    ),
     );
   }
 }

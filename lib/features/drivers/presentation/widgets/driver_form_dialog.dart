@@ -12,6 +12,7 @@ import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
 import '../../domain/policies/driver_license_expiry_policy.dart';
 import '../../domain/services/driver_image_upload_validator.dart';
+import '../localization/drivers_localizations_x.dart';
 import 'driver_form_date_helpers.dart';
 import 'driver_form_image_picker_tile.dart';
 
