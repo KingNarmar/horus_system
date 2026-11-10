@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/company_entitlement.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/company_quota_snapshot.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/company_quota_usage.dart';
@@ -50,6 +51,11 @@ void main() {
           MaterialApp(
             locale: locale,
             supportedLocales: const [Locale('en'), Locale('ar')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
             home: Scaffold(body: SubscriptionsQuotaUsageCard(quota: _quota())),
           ),
         );

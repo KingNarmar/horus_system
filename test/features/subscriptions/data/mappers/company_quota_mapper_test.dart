@@ -31,7 +31,7 @@ Map<String, dynamic> _payload() => {
       'document_upload',
     ],
   },
-  'usage': {'company_users': 10, 'combined_vehicles': 6},
+  'usage': <String, dynamic>{'company_users': 10, 'combined_vehicles': 6},
 };
 
 void main() {
