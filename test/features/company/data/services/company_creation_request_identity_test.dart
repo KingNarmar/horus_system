@@ -65,20 +65,23 @@ void main() {
     expect(store.values.length, 2);
   });
 
-  test('unknown outcome with changed input retains the original UUID', () async {
-    final store = _FakeLocalStore();
-    final service = CompanyCreationRequestIdentity(store);
-    final first = await service.getOrCreate(
-      userId: 'user-1',
-      parameters: parameters,
-    );
-    final changed = await service.getOrCreate(
-      userId: 'user-1',
-      parameters: {...parameters, 'p_name': 'Other Company'},
-    );
+  test(
+    'unknown outcome with changed input retains the original UUID',
+    () async {
+      final store = _FakeLocalStore();
+      final service = CompanyCreationRequestIdentity(store);
+      final first = await service.getOrCreate(
+        userId: 'user-1',
+        parameters: parameters,
+      );
+      final changed = await service.getOrCreate(
+        userId: 'user-1',
+        parameters: {...parameters, 'p_name': 'Other Company'},
+      );
 
-    expect(changed, first);
-  });
+      expect(changed, first);
+    },
+  );
 
   test('confirmed outcome clears UUID so new intent is independent', () async {
     final store = _FakeLocalStore();
