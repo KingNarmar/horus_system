@@ -118,7 +118,7 @@ CREATE FUNCTION private.company_quota_used(
 )
 RETURNS bigint
 LANGUAGE plpgsql
-STABLE
+VOLATILE
 SECURITY DEFINER
 SET search_path = pg_catalog
 AS $$
@@ -135,9 +135,9 @@ BEGIN
        FROM public.company_invitations invitation
        WHERE invitation.company_id=p_company_id
          AND invitation.status='pending'::public.company_invitation_status
-         AND pg_catalog.GREATEST(
+         AND GREATEST(
            invitation.expires_at,
-           pg_catalog.COALESCE(
+           COALESCE(
              invitation.pending_token_expires_at, invitation.expires_at
            )
          ) > pg_catalog.now()
