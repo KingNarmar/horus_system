@@ -278,7 +278,7 @@ RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path=pg_catalog
-AS $
+AS $$
 BEGIN
   -- BEFORE triggers may execute before RLS WITH CHECK. Authorize the
   -- signed client actor before inspecting sensitive tenant quota occupancy.
