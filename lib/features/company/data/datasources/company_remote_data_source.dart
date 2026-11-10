@@ -27,11 +27,14 @@ abstract class CompanyRemoteDataSource {
 class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
   final SupabaseClient _client;
   final CompanyCreationRequestIdentity _requestIdentity;
+  final String? Function() _currentActorId;
 
   SupabaseCompanyRemoteDataSource(
     this._client, {
     required CompanyCreationRequestIdentity requestIdentity,
-  }) : _requestIdentity = requestIdentity;
+    required String? Function() currentActorId,
+  }) : _requestIdentity = requestIdentity,
+       _currentActorId = currentActorId;
 
   @override
   Future<CompanyModel> createCompany({
@@ -59,7 +62,7 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
       CompanyRpcConstants.country: country,
       CompanyRpcConstants.city: city,
     };
-    final actorId = _client.auth.currentUser?.id;
+    final actorId = _currentActorId();
     if (actorId == null) {
       throw AuthException('Company creation requires authentication');
     }

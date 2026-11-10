@@ -112,6 +112,7 @@ abstract final class AppDependencies {
           const FlutterSecureStorage(),
         ),
       ),
+      currentActorId: () => SupabaseClientProvider.client.auth.currentUser?.id,
     );
     final companyRepository = CompanyRepositoryImpl(companyRemoteDataSource);
     return CompanyOnboardingCubit(
