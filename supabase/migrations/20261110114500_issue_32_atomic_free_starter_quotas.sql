@@ -894,4 +894,298 @@ GRANT EXECUTE ON FUNCTION public.abort_company_invitation_initial(uuid,uuid,uuid
 
 -- The original membership/invitation and Fleet RLS and grants remain in force.
 -- Server audit/realtime triggers remain unchanged and see only committed rows.
+
+-- Revocation releases a reserved seat even if only the staged resend is live.
+-- Existing role restrictions, signature and structured audit are preserved.
+CREATE OR REPLACE FUNCTION public.revoke_company_invitation(
+  p_company_id uuid,
+  p_invitation_id uuid
+)
+RETURNS TABLE (
+  invitation_id uuid,
+  invitation_status public.company_invitation_status,
+  revoked_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $
+DECLARE
+  v_actor_user_id uuid := auth.uid();
+  v_actor_role public.company_role;
+  v_invitation public.company_invitations%ROWTYPE;
+BEGIN
+  IF v_actor_user_id IS NULL THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2800', MESSAGE = 'company_auth_required';
+  END IF;
+
+  -- Serialize seat release with prepare/accept/reactivation: company first.
+  -- Authorized revocation remains available on suspended companies.
+  PERFORM 1 FROM public.companies company_row
+  WHERE company_row.id = p_company_id FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2801', MESSAGE = 'company_not_found';
+  END IF;
+
+  SELECT company_user.role
+  INTO v_actor_role
+  FROM public.company_users company_user
+  WHERE company_user.company_id = p_company_id
+    AND company_user.user_id = v_actor_user_id
+    AND company_user.is_active = true
+  FOR UPDATE;
+
+  IF NOT FOUND OR v_actor_role NOT IN ('owner', 'admin') THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2805', MESSAGE = 'company_invitation_permission_denied';
+  END IF;
+
+  SELECT invitation.*
+  INTO v_invitation
+  FROM public.company_invitations invitation
+  WHERE invitation.company_id = p_company_id
+    AND invitation.id = p_invitation_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2809', MESSAGE = 'company_invitation_invalid';
+  END IF;
+
+  IF v_invitation.status = 'revoked'::public.company_invitation_status THEN
+    RETURN QUERY SELECT v_invitation.id, v_invitation.status, v_invitation.revoked_at;
+    RETURN;
+  END IF;
+
+  IF v_invitation.status = 'accepted'::public.company_invitation_status THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2810', MESSAGE = 'company_invitation_already_accepted';
+  END IF;
+
+  -- A staged resend may still reserve a seat after the original token expires.
+  IF v_invitation.status = 'expired'::public.company_invitation_status
+     OR GREATEST(
+       v_invitation.expires_at,
+       COALESCE(v_invitation.pending_token_expires_at, v_invitation.expires_at)
+     ) <= pg_catalog.now() THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2812', MESSAGE = 'company_invitation_expired';
+  END IF;
+
+  IF v_actor_role = 'admin'::public.company_role
+     AND v_invitation.role = 'admin'::public.company_role THEN
+    RAISE EXCEPTION USING ERRCODE = 'P2803', MESSAGE = 'company_invitation_role_not_allowed';
+  END IF;
+
+  UPDATE public.company_invitations invitation
+  SET status = 'revoked'::public.company_invitation_status,
+      pending_token_hash = NULL,
+      pending_token_expires_at = NULL,
+      pending_delivery_attempt_id = NULL,
+      revoked_at = pg_catalog.now(),
+      revoked_by_user_id = v_actor_user_id,
+      updated_at = pg_catalog.now()
+  WHERE invitation.id = p_invitation_id
+  RETURNING * INTO v_invitation;
+
+  PERFORM private.write_audit_event(
+    p_company_id,
+    'company_users',
+    'company_invitation',
+    v_invitation.id::text,
+    v_invitation.email_normalized,
+    'revoked',
+    'company_invitation_revoked',
+    pg_catalog.jsonb_build_object('status', 'pending'),
+    pg_catalog.jsonb_build_object(
+      'status', 'revoked',
+      'revoked_at', v_invitation.revoked_at
+    ),
+    '{}'::jsonb
+  );
+
+  RETURN QUERY SELECT v_invitation.id, v_invitation.status, v_invitation.revoked_at;
+END;
+$;
+REVOKE ALL ON FUNCTION public.revoke_company_invitation(uuid,uuid)
+  FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.revoke_company_invitation(uuid,uuid)
+  TO authenticated;
+
+-- Operator recovery may not bypass limits without an approved override.
+-- Keep #370 role checks, owner protection, optimistic locking and audit.
+CREATE OR REPLACE FUNCTION public.recover_company_membership_as_platform_admin(
+  p_company_id uuid,
+  p_membership_id uuid,
+  p_new_role public.company_role,
+  p_is_active boolean,
+  p_expected_updated_at timestamp with time zone,
+  p_reason_code text,
+  p_case_reference text DEFAULT NULL
+)
+RETURNS TABLE (
+  membership_id uuid,
+  membership_role public.company_role,
+  membership_active boolean,
+  membership_updated_at timestamp with time zone
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog
+AS $function$
+DECLARE
+  v_actor_id uuid := auth.uid();
+  v_before public.company_users%ROWTYPE;
+  v_after public.company_users%ROWTYPE;
+  v_new_role public.company_role;
+  v_new_active boolean;
+  v_reason_code text := NULLIF(pg_catalog.btrim(p_reason_code), '');
+  v_case_reference text := NULLIF(pg_catalog.btrim(p_case_reference), '');
+BEGIN
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3700',
+      MESSAGE = 'platform_recovery_auth_required';
+  END IF;
+
+  IF private.is_platform_admin() IS NOT TRUE THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3701',
+      MESSAGE = 'platform_recovery_forbidden';
+  END IF;
+
+  IF v_reason_code IS NULL OR v_reason_code NOT IN (
+    'owner_access_recovery',
+    'membership_access_recovery',
+    'security_remediation'
+  ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3706',
+      MESSAGE = 'platform_recovery_reason_invalid';
+  END IF;
+
+  IF v_case_reference IS NOT NULL AND (
+    pg_catalog.length(v_case_reference) > 80
+    OR v_case_reference !~ '^[A-Za-z0-9][A-Za-z0-9._:-]*
+  ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3707',
+      MESSAGE = 'platform_recovery_case_reference_invalid';
+  END IF;
+
+  IF p_new_role IS NULL AND p_is_active IS NULL THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3705',
+      MESSAGE = 'platform_recovery_change_required';
+  END IF;
+
+  IF p_expected_updated_at IS NULL THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3704',
+      MESSAGE = 'platform_recovery_stale_membership';
+  END IF;
+
+  -- Lock in the same order as ordinary membership RPCs.
+  PERFORM 1
+  FROM public.companies company_row
+  WHERE company_row.id = p_company_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3702',
+      MESSAGE = 'platform_recovery_target_not_found';
+  END IF;
+
+  SELECT membership.*
+  INTO v_before
+  FROM public.company_users membership
+  WHERE membership.company_id = p_company_id
+    AND membership.id = p_membership_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3702',
+      MESSAGE = 'platform_recovery_target_not_found';
+  END IF;
+
+  IF v_before.updated_at IS DISTINCT FROM p_expected_updated_at THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3704',
+      MESSAGE = 'platform_recovery_stale_membership';
+  END IF;
+
+  v_new_role := COALESCE(p_new_role, v_before.role);
+  v_new_active := COALESCE(p_is_active, v_before.is_active);
+
+  -- An inactive Owner is not a valid recovery outcome.
+  IF v_new_role = 'owner'::public.company_role AND v_new_active IS NOT TRUE THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3703',
+      MESSAGE = 'platform_recovery_owner_must_be_active';
+  END IF;
+
+  -- Never remove the last active Owner, including through an operator command.
+  IF v_before.role = 'owner'::public.company_role
+     AND v_before.is_active IS TRUE
+     AND (v_new_role <> 'owner'::public.company_role OR v_new_active IS NOT TRUE)
+     AND NOT EXISTS (
+       SELECT 1
+       FROM public.company_users other_owner
+       WHERE other_owner.company_id = p_company_id
+         AND other_owner.id <> v_before.id
+         AND other_owner.role = 'owner'::public.company_role
+         AND other_owner.is_active IS TRUE
+     ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = 'P3703',
+      MESSAGE = 'platform_recovery_last_owner_required';
+  END IF;
+
+  -- Platform recovery is not a quota override. #358 will own audited overrides.
+  -- The company row was locked before the target membership row above.
+  IF v_before.is_active IS FALSE AND v_new_active IS TRUE THEN
+    PERFORM private.assert_company_quota_capacity(
+      p_company_id, 'company_users', 1
+    );
+  END IF;
+
+  -- A genuine no-op creates neither audit history nor a Realtime event.
+  IF v_before.role IS NOT DISTINCT FROM v_new_role
+     AND v_before.is_active IS NOT DISTINCT FROM v_new_active THEN
+    RETURN QUERY
+    SELECT v_before.id, v_before.role, v_before.is_active, v_before.updated_at;
+    RETURN;
+  END IF;
+
+  UPDATE public.company_users membership
+  SET role = v_new_role,
+      is_active = v_new_active,
+      updated_by = v_actor_id,
+      updated_at = pg_catalog.now()
+  WHERE membership.id = v_before.id
+    AND membership.company_id = p_company_id
+  RETURNING * INTO v_after;
+
+  -- Same transaction as the membership update. Failure rolls both back.
+  PERFORM private.write_platform_membership_recovery_audit(
+    p_company_id,
+    v_after.id,
+    v_after.user_id,
+    v_before.role,
+    v_after.role,
+    v_before.is_active,
+    v_after.is_active,
+    v_reason_code,
+    v_case_reference
+  );
+
+  RETURN QUERY
+  SELECT v_after.id, v_after.role, v_after.is_active, v_after.updated_at;
+END;
+$function$;
+REVOKE ALL ON FUNCTION public.recover_company_membership_as_platform_admin(
+  uuid,uuid,public.company_role,boolean,timestamptz,text,text
+) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.recover_company_membership_as_platform_admin(
+  uuid,uuid,public.company_role,boolean,timestamptz,text,text
+) TO authenticated;
+
 COMMIT;

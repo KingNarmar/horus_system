@@ -64,11 +64,14 @@ def main():
     actors = {
         name: api.create_session(name, nonce)
         for name in ("owner", "invitee", "admin", "operations", "accountant",
-                     "viewer", "driver", "foreign", "legacy", "legacy_member_a",
+                     "viewer", "driver", "foreign", "operator", "legacy", "legacy_member_a",
                      "legacy_member_b", "legacy_member_c")
     }
     owner_id, owner_jwt = actors["owner"]
     foreign_id, foreign_jwt = actors["foreign"]
+    operator_id, operator_jwt = actors["operator"]
+    psql(db, "UPDATE public.user_profiles SET is_platform_admin=true "
+             "WHERE id='" + operator_id + "';")
     company = successful_company(
         onboard(api, owner_jwt, str(uuid.uuid4()), "HORUS32-" + nonce),
         "owner creates test company through canonical #354 RPC",
@@ -173,6 +176,86 @@ def main():
           one_row(quota(api, owner_jwt, company), "after abort")
           ["usage"]["company_users"] == 2)
 
+    # Simultaneous initial confirmation and signed rejection: exactly one wins.
+    token, race_attempt = prepare(
+        api, owner_jwt, company, f"horus32-confirm-abort-{nonce}@example.test"
+    )
+    delivery = one_row(race_attempt, "reserve confirm/abort race seat")
+    def delivery_proof(action):
+        payload = (company + ":" + delivery["invitation_id"] + ":"
+                   + delivery["delivery_attempt_id"] + ":" + action)
+        return "\\x" + hmac.new(
+            key_hash, payload.encode(), hashlib.sha256
+        ).hexdigest()
+
+    base_args = {
+        "p_company_id": company,
+        "p_invitation_id": delivery["invitation_id"],
+        "p_delivery_attempt_id": delivery["delivery_attempt_id"],
+    }
+    audit_before_race = count(db, "audit_logs", company)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        confirm_abort = list(pool.map(
+            lambda action: rpc(
+                api, owner_jwt,
+                "confirm_company_invitation_delivery"
+                if action == "confirm" else "abort_company_invitation_initial",
+                {**base_args, "p_confirmation_proof": delivery_proof(action)},
+            ),
+            ("confirm", "abort_initial"),
+        ))
+    winners = [x for x in confirm_abort if x[0] in (200, 201, 204)]
+    losers = [x for x in confirm_abort if x[0] >= 400]
+    check("confirm vs initial abort has one atomic winner",
+          len(winners) == 1 and len(losers) == 1)
+    final = psql(
+        db, "SELECT status::text || ':' || send_count FROM "
+        "public.company_invitations WHERE id='"
+        + delivery["invitation_id"] + "';"
+    )
+    check("race leaves one valid terminal result",
+          final in ("pending:1", "revoked:0"))
+    check("race writes exactly one finalization audit",
+          count(db, "audit_logs", company) == audit_before_race + 1)
+    one_row(rpc(api, owner_jwt, "revoke_company_invitation", {
+        "p_company_id": company,
+        "p_invitation_id": delivery["invitation_id"],
+    }), "race result cleanup")
+    check("confirm/abort cleanup restores seat usage",
+          one_row(quota(api, owner_jwt, company), "race cleanup usage")
+          ["usage"]["company_users"] == 2)
+
+    # Expired original invitation plus live staged resend still holds a seat.
+    _, send_attempt = prepare(
+        api, owner_jwt, company, f"horus32-staged-{nonce}@example.test"
+    )
+    staged = one_row(send_attempt, "prepare staged resend fixture")
+    candidate = "\\x" + hashlib.sha256(secrets.token_bytes(32)).hexdigest()
+    one_row(
+        rpc(api, owner_jwt, "prepare_company_invitation_resend", {
+            "p_company_id": company,
+            "p_invitation_id": staged["invitation_id"],
+            "p_token_hash": candidate,
+        }),
+        "prepare valid resend candidate",
+    )
+    psql(db,
+         "UPDATE public.company_invitations SET expires_at=now()-"
+         "interval '1 minute' WHERE id='" + staged["invitation_id"] + "';")
+    check("live resend candidate continues to reserve a seat",
+          one_row(quota(api, owner_jwt, company), "staged resend quota")
+          ["usage"]["company_users"] == 3)
+    one_row(
+        rpc(api, owner_jwt, "revoke_company_invitation", {
+            "p_company_id": company,
+            "p_invitation_id": staged["invitation_id"],
+        }),
+        "revoke expired original with live staged resend",
+    )
+    check("staged resend revocation clears seat",
+          one_row(quota(api, owner_jwt, company), "resend revocation quota")
+          ["usage"]["company_users"] == 2)
+
     # Reactivation must consume a seat even when a prior membership exists.
     waiting_a = one_row(
         prepare(api, owner_jwt, company,
@@ -191,6 +274,31 @@ def main():
     )
     denied(rpc(api, owner_jwt, "reactivate_company_member", member_args),
            "P2860", "reactivation denied while reserved capacity is full")
+    membership_id = accepted["membership_id"]
+    expected_update = psql(
+        db, "SELECT updated_at FROM public.company_users WHERE id='"
+        + membership_id + "';"
+    )
+    operator_request = {
+        "p_company_id": company,
+        "p_membership_id": membership_id,
+        "p_new_role": None,
+        "p_is_active": True,
+        "p_expected_updated_at": expected_update,
+        "p_reason_code": "membership_access_recovery",
+        "p_case_reference": "HORUS32-CAP",
+    }
+    audit_before_operator = count(db, "audit_logs", company)
+    denied(
+        rpc(api, operator_jwt,
+            "recover_company_membership_as_platform_admin",
+            operator_request),
+        "P2860", "operator recovery cannot activate without quota override",
+    )
+    check("denied operator recovery leaves member inactive and no audit",
+          psql(db, "SELECT is_active FROM public.company_users WHERE id='"
+               + membership_id + "';") == "f"
+          and count(db, "audit_logs", company) == audit_before_operator)
     one_row(
         rpc(api, owner_jwt, "revoke_company_invitation", {
             "p_company_id": company,
@@ -198,8 +306,18 @@ def main():
         }),
         "revoke pending seat before reactivation",
     )
+    restored = one_row(
+        rpc(api, operator_jwt,
+            "recover_company_membership_as_platform_admin",
+            operator_request),
+        "operator recovery allowed after capacity is freed",
+    )
+    check("operator recovery activates without exceeding company quota",
+          restored["membership_active"] is True
+          and one_row(quota(api, owner_jwt, company), "operator recovery quota")
+          ["usage"]["company_users"] == 3)
     one_row(rpc(api, owner_jwt, "reactivate_company_member", member_args),
-            "reactivation succeeds after a reservation is revoked")
+            "ordinary reactivation remains idempotent after recovery")
     one_row(
         rpc(api, owner_jwt, "revoke_company_invitation", {
             "p_company_id": company,
