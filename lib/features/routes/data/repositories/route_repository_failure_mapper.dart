@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/route_failure_codes.dart';
 import '../constants/route_db_contract.dart';
 
@@ -10,6 +11,15 @@ final class RouteRepositoryFailureMapper {
   const RouteRepositoryFailureMapper();
 
   Failure fromPostgrest(PostgrestException error) {
+    if (error.code == 'P2860' &&
+        error.message == QuotaFailureCodes.routesReached) {
+      return const ConflictFailure(
+        code: QuotaFailureCodes.routesReached,
+      );
+    }
+    if (error.code == 'P2861' || error.code == 'P2862') {
+      return const ServerFailure(code: QuotaFailureCodes.unavailable);
+    }
     if (error.code == RouteDbErrorCodes.staleFinancialSnapshot) {
       return const ConflictFailure(
         code: RouteFailureCodes.staleFinancialSnapshot,

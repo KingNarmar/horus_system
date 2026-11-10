@@ -5,4 +5,7 @@ abstract final class CompanyQuotaRpc {
   static const usage = 'usage';
   static const companyUsers = 'company_users';
   static const combinedVehicles = 'combined_vehicles';
+  static const customers = 'customers';
+  static const drivers = 'drivers';
+  static const routes = 'routes';
 }

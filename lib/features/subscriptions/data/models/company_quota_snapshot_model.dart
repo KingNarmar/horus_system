@@ -19,6 +19,9 @@ final class CompanyQuotaSnapshotModel {
     for (final key in [
       CompanyQuotaRpc.companyUsers,
       CompanyQuotaRpc.combinedVehicles,
+      CompanyQuotaRpc.customers,
+      CompanyQuotaRpc.drivers,
+      CompanyQuotaRpc.routes,
     ]) {
       final count = map[key];
       if (count is! int || count < 0) {
