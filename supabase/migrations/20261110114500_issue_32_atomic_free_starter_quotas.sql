@@ -1008,184 +1008,34 @@ REVOKE ALL ON FUNCTION public.revoke_company_invitation(uuid,uuid)
 GRANT EXECUTE ON FUNCTION public.revoke_company_invitation(uuid,uuid)
   TO authenticated;
 
--- Operator recovery may not bypass limits without an approved override.
--- Keep #370 role checks, owner protection, optimistic locking and audit.
-CREATE OR REPLACE FUNCTION public.recover_company_membership_as_platform_admin(
-  p_company_id uuid,
-  p_membership_id uuid,
-  p_new_role public.company_role,
-  p_is_active boolean,
-  p_expected_updated_at timestamp with time zone,
-  p_reason_code text,
-  p_case_reference text DEFAULT NULL
-)
-RETURNS TABLE (
-  membership_id uuid,
-  membership_role public.company_role,
-  membership_active boolean,
-  membership_updated_at timestamp with time zone
-)
+-- A company recovery RPC is not an implicit quota override.
+-- Existing membership and operator RPCs lock company before the target
+-- membership; direct authenticated table updates remain revoked by #370.
+-- Enforce any signed inactive-to-active transition, including operator
+-- recovery, without copying or altering the audited #370 RPC implementation.
+CREATE FUNCTION private.enforce_company_user_reactivation_quota()
+RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog
 AS $$
-DECLARE
-  v_actor_id uuid := auth.uid();
-  v_before public.company_users%ROWTYPE;
-  v_after public.company_users%ROWTYPE;
-  v_new_role public.company_role;
-  v_new_active boolean;
-  v_reason_code text := NULLIF(pg_catalog.btrim(p_reason_code), '');
-  v_case_reference text := NULLIF(pg_catalog.btrim(p_case_reference), '');
 BEGIN
-  IF v_actor_id IS NULL THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3700',
-      MESSAGE = 'platform_recovery_auth_required';
-  END IF;
-
-  IF private.is_platform_admin() IS NOT TRUE THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3701',
-      MESSAGE = 'platform_recovery_forbidden';
-  END IF;
-
-  IF v_reason_code IS NULL OR v_reason_code NOT IN (
-    'owner_access_recovery',
-    'membership_access_recovery',
-    'security_remediation'
-  ) THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3706',
-      MESSAGE = 'platform_recovery_reason_invalid';
-  END IF;
-
-  IF v_case_reference IS NOT NULL AND (
-    pg_catalog.length(v_case_reference) > 80
-    OR v_case_reference !~ '^[A-Za-z0-9][A-Za-z0-9._:-]*
-  ) THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3707',
-      MESSAGE = 'platform_recovery_case_reference_invalid';
-  END IF;
-
-  IF p_new_role IS NULL AND p_is_active IS NULL THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3705',
-      MESSAGE = 'platform_recovery_change_required';
-  END IF;
-
-  IF p_expected_updated_at IS NULL THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3704',
-      MESSAGE = 'platform_recovery_stale_membership';
-  END IF;
-
-  -- Lock in the same order as ordinary membership RPCs.
-  PERFORM 1
-  FROM public.companies company_row
-  WHERE company_row.id = p_company_id
-  FOR UPDATE;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3702',
-      MESSAGE = 'platform_recovery_target_not_found';
-  END IF;
-
-  SELECT membership.*
-  INTO v_before
-  FROM public.company_users membership
-  WHERE membership.company_id = p_company_id
-    AND membership.id = p_membership_id
-  FOR UPDATE;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3702',
-      MESSAGE = 'platform_recovery_target_not_found';
-  END IF;
-
-  IF v_before.updated_at IS DISTINCT FROM p_expected_updated_at THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3704',
-      MESSAGE = 'platform_recovery_stale_membership';
-  END IF;
-
-  v_new_role := COALESCE(p_new_role, v_before.role);
-  v_new_active := COALESCE(p_is_active, v_before.is_active);
-
-  -- An inactive Owner is not a valid recovery outcome.
-  IF v_new_role = 'owner'::public.company_role AND v_new_active IS NOT TRUE THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3703',
-      MESSAGE = 'platform_recovery_owner_must_be_active';
-  END IF;
-
-  -- Never remove the last active Owner, including through an operator command.
-  IF v_before.role = 'owner'::public.company_role
-     AND v_before.is_active IS TRUE
-     AND (v_new_role <> 'owner'::public.company_role OR v_new_active IS NOT TRUE)
-     AND NOT EXISTS (
-       SELECT 1
-       FROM public.company_users other_owner
-       WHERE other_owner.company_id = p_company_id
-         AND other_owner.id <> v_before.id
-         AND other_owner.role = 'owner'::public.company_role
-         AND other_owner.is_active IS TRUE
+  IF OLD.is_active IS FALSE AND NEW.is_active IS TRUE
+     AND (auth.uid() IS NOT NULL OR
+       pg_catalog.current_setting('request.jwt.claim.role', true) = 'authenticated'
      ) THEN
-    RAISE EXCEPTION USING
-      ERRCODE = 'P3703',
-      MESSAGE = 'platform_recovery_last_owner_required';
-  END IF;
-
-  -- Platform recovery is not a quota override. #358 will own audited overrides.
-  -- The company row was locked before the target membership row above.
-  IF v_before.is_active IS FALSE AND v_new_active IS TRUE THEN
     PERFORM private.assert_company_quota_capacity(
-      p_company_id, 'company_users', 1
+      NEW.company_id, 'company_users', 1
     );
   END IF;
-
-  -- A genuine no-op creates neither audit history nor a Realtime event.
-  IF v_before.role IS NOT DISTINCT FROM v_new_role
-     AND v_before.is_active IS NOT DISTINCT FROM v_new_active THEN
-    RETURN QUERY
-    SELECT v_before.id, v_before.role, v_before.is_active, v_before.updated_at;
-    RETURN;
-  END IF;
-
-  UPDATE public.company_users membership
-  SET role = v_new_role,
-      is_active = v_new_active,
-      updated_by = v_actor_id,
-      updated_at = pg_catalog.now()
-  WHERE membership.id = v_before.id
-    AND membership.company_id = p_company_id
-  RETURNING * INTO v_after;
-
-  -- Same transaction as the membership update. Failure rolls both back.
-  PERFORM private.write_platform_membership_recovery_audit(
-    p_company_id,
-    v_after.id,
-    v_after.user_id,
-    v_before.role,
-    v_after.role,
-    v_before.is_active,
-    v_after.is_active,
-    v_reason_code,
-    v_case_reference
-  );
-
-  RETURN QUERY
-  SELECT v_after.id, v_after.role, v_after.is_active, v_after.updated_at;
+  RETURN NEW;
 END;
 $$;
-REVOKE ALL ON FUNCTION public.recover_company_membership_as_platform_admin(
-  uuid,uuid,public.company_role,boolean,timestamptz,text,text
-) FROM PUBLIC,anon;
-GRANT EXECUTE ON FUNCTION public.recover_company_membership_as_platform_admin(
-  uuid,uuid,public.company_role,boolean,timestamptz,text,text
-) TO authenticated;
+
+REVOKE ALL ON FUNCTION private.enforce_company_user_reactivation_quota()
+  FROM PUBLIC, anon, authenticated;
+CREATE TRIGGER company_users_enforce_reactivation_quota
+BEFORE UPDATE OF is_active ON public.company_users
+FOR EACH ROW EXECUTE FUNCTION private.enforce_company_user_reactivation_quota();
 
 COMMIT;
