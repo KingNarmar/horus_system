@@ -273,8 +273,16 @@ def main():
     check("non-consuming edit remains allowed", status == 200)
 
     # Multi-row REST requests must fail atomically, without partial writes.
+    status, active_trailers = api.call(
+        "GET", "/rest/v1/trailers", token=owner_jwt,
+        query={"company_id": "eq." + company, "is_active": "eq.true",
+               "limit": "1"},
+    )
+    check("active trailer fixture exists for capacity release",
+          status == 200 and bool(active_trailers))
+    active_trailer_id = active_trailers[0]["id"]
     for table_name, asset_id in [
-        ("tractor_heads", current_id), ("trailers", parked_id),
+        ("tractor_heads", current_id), ("trailers", active_trailer_id),
     ]:
         status, _ = api.call(
             "PATCH", "/rest/v1/" + table_name, token=owner_jwt,
@@ -300,7 +308,7 @@ def main():
     check("failed bulk write generates no partial audit rows",
           count(db, "audit_logs", company) == audit_before_bulk)
     for table_name, asset_id in [
-        ("tractor_heads", current_id), ("trailers", parked_id),
+        ("tractor_heads", current_id), ("trailers", active_trailer_id),
     ]:
         status, _ = api.call(
             "PATCH", "/rest/v1/" + table_name, token=owner_jwt,
