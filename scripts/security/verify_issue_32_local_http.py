@@ -329,9 +329,11 @@ def main():
                  "Q32-OPS-CAP-" + nonce),
            "P2860", "operations may manage Fleet but cannot exceed capacity")
     for role in ("accountant", "viewer", "driver", "foreign"):
-        status, _ = fleet(api, actors[role][1], company, "trailers",
-                          "Q32-DENIED-" + role + "-" + nonce)
-        check(role + " cannot bypass RLS", status >= 400)
+        status, failure = fleet(api, actors[role][1], company, "trailers",
+                                "Q32-DENIED-" + role + "-" + nonce)
+        check(role + " denied before any private quota is inspected",
+              status >= 400 and isinstance(failure, dict)
+              and failure.get("code") == "42501")
 
     membership(db, foreign_company, owner_id, "admin", foreign_id)
     status, result = api.call(

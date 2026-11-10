@@ -278,8 +278,26 @@ RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path=pg_catalog
-AS $$
+AS $
 BEGIN
+  -- BEFORE triggers may execute before RLS WITH CHECK. Authorize the
+  -- signed client actor before inspecting sensitive tenant quota occupancy.
+  -- Trusted internal DB fixture/maintenance roles still use the same
+  -- capacity check, without requiring an end-user JWT.
+  IF (auth.uid() IS NOT NULL OR
+      pg_catalog.current_setting('request.jwt.claim.role', true) = 'authenticated'
+     ) AND NOT private.has_company_role(
+       NEW.company_id,
+       ARRAY[
+         'owner'::public.company_role,
+         'admin'::public.company_role,
+         'operations'::public.company_role
+       ]
+     ) THEN
+    RAISE EXCEPTION USING ERRCODE='42501',
+      MESSAGE='fleet_permission_denied';
+  END IF;
+
   IF TG_OP='UPDATE' THEN
     IF NEW.company_id IS DISTINCT FROM OLD.company_id THEN
       RAISE EXCEPTION USING ERRCODE='P2864',
