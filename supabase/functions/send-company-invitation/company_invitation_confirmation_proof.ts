@@ -1,4 +1,4 @@
-export type InvitationConfirmationAction = 'confirm' | 'abort'
+export type InvitationConfirmationAction = 'confirm' | 'abort' | 'abort_initial'
 
 export async function signInvitationConfirmation(input: {
   secret: string

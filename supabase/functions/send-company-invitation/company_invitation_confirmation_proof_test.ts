@@ -16,12 +16,16 @@ Deno.test('computes deterministic PostgreSQL-compatible HMAC proof', async () =>
 Deno.test('scopes proof to the requested action and company', async () => {
   const confirm = await signInvitationConfirmation({ ...example, action: 'confirm' })
   const abort = await signInvitationConfirmation({ ...example, action: 'abort' })
+  const initialAbort = await signInvitationConfirmation({
+    ...example,
+    action: 'abort_initial',
+  })
   const anotherCompany = await signInvitationConfirmation({
     ...example,
     companyId: '44444444-4444-4444-8444-444444444444',
     action: 'confirm',
   })
-  if (confirm === abort || confirm === anotherCompany) {
+  if (confirm === abort || confirm === initialAbort || abort === initialAbort || confirm === anotherCompany) {
     throw new Error('Proof must bind company, invitation and action')
   }
 })

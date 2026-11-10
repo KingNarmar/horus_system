@@ -134,6 +134,32 @@ export function prepareResend(input: {
   })
 }
 
+/** Releases a never-confirmed invitation only after definite provider rejection. */
+export async function abortInitialAfterRejection(input: {
+  environment: EdgeEnvironment
+  authorization: string
+  preparation: PreparedInvitation
+}): Promise<RpcResult> {
+  const proof = await signInvitationConfirmation({
+    secret: input.environment.confirmationSecret,
+    companyId: input.preparation.company_id,
+    invitationId: input.preparation.invitation_id,
+    deliveryAttemptId: input.preparation.delivery_attempt_id,
+    action: 'abort_initial',
+  })
+  return callRpc({
+    environment: input.environment,
+    authorization: input.authorization,
+    functionName: 'abort_company_invitation_initial',
+    body: {
+      p_company_id: input.preparation.company_id,
+      p_invitation_id: input.preparation.invitation_id,
+      p_delivery_attempt_id: input.preparation.delivery_attempt_id,
+      p_confirmation_proof: proof,
+    },
+  })
+}
+
 export async function abortResendAfterRejection(input: {
   environment: EdgeEnvironment
   authorization: string
