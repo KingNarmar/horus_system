@@ -10,6 +10,7 @@ import '../cubit/subscriptions_state.dart';
 import '../helpers/subscriptions_failure_message.dart';
 import '../localization/subscriptions_localizations.dart';
 import '../widgets/subscriptions_current_plan_card.dart';
+import '../widgets/subscriptions_quota_usage_card.dart';
 
 final class SubscriptionsPage extends StatefulWidget {
   final CurrentCompanyContext currentCompanyContext;
@@ -168,6 +169,13 @@ final class _LoadedState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SubscriptionsCurrentPlanCard(entitlement: state.entitlement);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SubscriptionsCurrentPlanCard(entitlement: state.entitlement),
+        const SizedBox(height: AppSpacing.md),
+        SubscriptionsQuotaUsageCard(quota: state.quota),
+      ],
+    );
   }
 }

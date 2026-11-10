@@ -47,6 +47,13 @@ final class SubscriptionsLocalizations {
   String get invalidStatusFailure => _value('invalidStatusFailure');
   String get genericFailure => _value('genericFailure');
   String get free => _value('free');
+  String get usageTitle => _value('usageTitle');
+  String get usageDescription => _value('usageDescription');
+  String get usageOverCap => _value('usageOverCap');
+
+  String usageCount(int used, String max) => _value(
+    'usageCount',
+  ).replaceFirst('{used}', used.toString()).replaceFirst('{max}', max);
 
   String pricePerMonth(String price) {
     return _value('pricePerMonth').replaceFirst('{price}', price);
@@ -93,6 +100,10 @@ final class SubscriptionsLocalizations {
   }
 
   static const Map<String, String> _en = {
+    'usageTitle': 'Current resource usage',
+    'usageDescription': 'Server-verified active usage and reserved seats.',
+    'usageOverCap': 'Above the plan limit; existing records remain accessible.',
+    'usageCount': '{used} of {max} used',
     'title': 'Subscriptions',
     'description':
         'Review this company’s current access plan and expiration status.',
@@ -144,6 +155,10 @@ final class SubscriptionsLocalizations {
   };
 
   static const Map<String, String> _ar = {
+    'usageTitle': 'استخدام موارد الشركة',
+    'usageDescription': 'الاستخدام النشط والمقاعد المحجوزة حسب سجلات الخادم.',
+    'usageOverCap': 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.',
+    'usageCount': 'المستخدم {used} من {max}',
     'title': 'الاشتراكات',
     'description': 'راجع خطة الوصول الحالية للشركة وحالة انتهاء صلاحيتها.',
     'currentPlan': 'الخطة الحالية',

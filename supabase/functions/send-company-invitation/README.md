@@ -9,6 +9,7 @@ Server-side delivery adapter for Issue #203 company invitations.
 - It never uses `service_role` to bypass tenant or role authorization.
 - The raw invitation token is generated in the function, is never returned to Flutter, and is never persisted or audited.
 - The database stores only the SHA-256 token hash.
+- A definite first-send rejection calls a signed initial-abort RPC to revoke the reservation; a definite resend rejection retains the original delivered token. Unknown outcomes retain the reservation until expiry or safe resolution.
 - A successful external email send followed by an uncertain delivery-confirmation RPC returns `company_invitation_delivery_confirmation_unknown`; the function does not automatically resend.
 
 ## Email delivery architecture

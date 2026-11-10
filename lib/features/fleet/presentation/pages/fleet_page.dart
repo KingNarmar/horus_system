@@ -12,6 +12,7 @@ import '../../domain/entities/trailer_entity.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_cubit.dart';
 import '../cubit/fleet_state.dart';
+import '../localization/fleet_localizations_x.dart';
 import '../widgets/fleet_asset_cards.dart';
 import '../widgets/fleet_filters.dart';
 import '../widgets/fleet_form_dialog.dart';
@@ -177,66 +178,92 @@ class _FleetPageState extends State<FleetPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return BlocBuilder<FleetCubit, FleetState>(
-      builder: (context, state) {
-        final cubit = context.read<FleetCubit>();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.fleetTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (state is FleetLoaded && state.canManageFleet)
-                  _AddButton(
-                    selectedTab: state.selectedTab,
-                    onAddTractorHead: () => _openTractorHeadForm(),
-                    onAddTrailer: () => _openTrailerForm(),
-                  ),
-              ],
+    return BlocListener<FleetCubit, FleetState>(
+      listenWhen: (previous, current) {
+        if (current is! FleetLoaded || current.mutationFailure == null) {
+          return false;
+        }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! FleetLoaded ||
+            previous.mutationFailureSequence != current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final loaded = state as FleetLoaded;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.l10n.localizedFleetFailureMessage(
+                loaded.mutationFailure!,
+              ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is FleetInitial || state is FleetLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state is FleetFailure)
-              _MessageCard(
-                message: l10n.localizedErrorMessage(state.failure),
-                action: OutlinedButton(
-                  onPressed: () =>
-                      cubit.loadFleet(widget.currentCompanyContext),
-                  child: Text(l10n.retryButton),
-                ),
-              )
-            else if (state is FleetLoaded) ...[
-              FleetFilters(
-                selectedTab: state.selectedTab,
-                statusFilter: state.statusFilter,
-                onTabChanged: cubit.selectTab,
-                onSearchChanged: cubit.setSearchQuery,
-                onStatusFilterChanged: cubit.setStatusFilter,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _FleetAssetBody(
-                state: state,
-                onEditTractorHead: (item) =>
-                    _openTractorHeadForm(tractorHead: item),
-                onDeactivateTractorHead: _deactivateTractorHead,
-                onReactivateTractorHead: _reactivateTractorHead,
-                onEditTrailer: (item) => _openTrailerForm(trailer: item),
-                onDeactivateTrailer: _deactivateTrailer,
-                onReactivateTrailer: _reactivateTrailer,
-              ),
-            ],
-          ],
+          ),
         );
       },
+      child: BlocBuilder<FleetCubit, FleetState>(
+        builder: (context, state) {
+          final cubit = context.read<FleetCubit>();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.fleetTitle,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  if (state is FleetLoaded && state.canManageFleet)
+                    _AddButton(
+                      selectedTab: state.selectedTab,
+                      onAddTractorHead: () => _openTractorHeadForm(),
+                      onAddTrailer: () => _openTrailerForm(),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              if (state is FleetInitial || state is FleetLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (state is FleetFailure)
+                _MessageCard(
+                  message: l10n.localizedFleetFailureMessage(state.failure),
+                  action: OutlinedButton(
+                    onPressed: () =>
+                        cubit.loadFleet(widget.currentCompanyContext),
+                    child: Text(l10n.retryButton),
+                  ),
+                )
+              else if (state is FleetLoaded) ...[
+                FleetFilters(
+                  selectedTab: state.selectedTab,
+                  statusFilter: state.statusFilter,
+                  onTabChanged: cubit.selectTab,
+                  onSearchChanged: cubit.setSearchQuery,
+                  onStatusFilterChanged: cubit.setStatusFilter,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _FleetAssetBody(
+                  state: state,
+                  onEditTractorHead: (item) =>
+                      _openTractorHeadForm(tractorHead: item),
+                  onDeactivateTractorHead: _deactivateTractorHead,
+                  onReactivateTractorHead: _reactivateTractorHead,
+                  onEditTrailer: (item) => _openTrailerForm(trailer: item),
+                  onDeactivateTrailer: _deactivateTrailer,
+                  onReactivateTrailer: _reactivateTrailer,
+                ),
+              ],
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -18,6 +18,9 @@ final class CompanyCommandFailureMapper {
     return switch (code) {
       CompanyFailureCodes.authRequired || 'company_membership_auth_required' =>
         const AuthFailure(code: CompanyFailureCodes.authRequired),
+      CompanyFailureCodes.quotaCompanyUsersReached => const ConflictFailure(
+        code: CompanyFailureCodes.quotaCompanyUsersReached,
+      ),
       CompanyFailureCodes.invitationPermissionDenied => const PermissionFailure(
         code: CompanyFailureCodes.invitationPermissionDenied,
       ),

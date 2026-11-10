@@ -4,60 +4,70 @@ import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/company_entitlement.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/company_quota_snapshot.dart';
+import 'package:horus_system/features/subscriptions/domain/entities/company_quota_usage.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/entitlement_feature.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/entitlement_limit.dart';
 import 'package:horus_system/features/subscriptions/domain/entities/entitlement_resource.dart';
-import 'package:horus_system/features/subscriptions/domain/failures/entitlement_failure_codes.dart';
-import 'package:horus_system/features/subscriptions/domain/repositories/company_entitlements_repository.dart';
-import 'package:horus_system/features/subscriptions/domain/usecases/get_company_entitlement_usecase.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/repositories/company_quota_repository.dart';
+import 'package:horus_system/features/subscriptions/domain/usecases/get_company_quota_usage_usecase.dart';
 import 'package:horus_system/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import 'package:horus_system/features/subscriptions/presentation/cubit/subscriptions_state.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('owner and admin load the authoritative company grant', () async {
-    for (final role in [CompanyRole.owner, CompanyRole.admin]) {
-      final repository = _FakeCompanyEntitlementsRepository();
-      final cubit = _cubit(repository);
-      addTearDown(cubit.close);
+  test(
+    'owner and admin load one server-authoritative usage projection',
+    () async {
+      for (final role in [CompanyRole.owner, CompanyRole.admin]) {
+        final repository = _FakeCompanyQuotaRepository();
+        final cubit = _cubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.load(_context(role: role));
-      final state = cubit.state as SubscriptionsLoaded;
+        await cubit.load(_context(role: role));
+        final state = cubit.state as SubscriptionsLoaded;
 
-      expect(state.entitlement.planCode, 'free_starter');
-      expect(state.entitlement.expiresAt, isNull);
-      expect(repository.callCount, 1);
-      expect(repository.lastCompanyId, 'company-1');
-    }
-  });
+        expect(state.entitlement.planCode, 'free_starter');
+        expect(state.entitlement.expiresAt, isNull);
+        expect(state.quota.usageFor(EntitlementResource.companyUsers).used, 4);
+        expect(
+          state.quota.usageFor(EntitlementResource.companyUsers).isOverLimit,
+          isTrue,
+        );
+        expect(repository.callCount, 1);
+        expect(repository.lastCompanyId, 'company-1');
+      }
+    },
+  );
 
-  test('viewer never queries the company entitlement', () async {
-    final repository = _FakeCompanyEntitlementsRepository();
+  test('viewer never queries company usage', () async {
+    final repository = _FakeCompanyQuotaRepository();
     final cubit = _cubit(repository);
     addTearDown(cubit.close);
 
     await cubit.load(_context(role: CompanyRole.viewer));
 
     final state = cubit.state as SubscriptionsFailure;
-    expect(state.failure.code, EntitlementFailureCodes.permissionDenied);
+    expect(state.failure.code, QuotaFailureCodes.permissionDenied);
     expect(repository.callCount, 0);
   });
 
-  test('missing server grant does not show a permissive plan', () async {
-    final repository = _FakeCompanyEntitlementsRepository(missing: true);
+  test('missing server projection never shows a permissive plan', () async {
+    final repository = _FakeCompanyQuotaRepository(missing: true);
     final cubit = _cubit(repository);
     addTearDown(cubit.close);
 
     await cubit.load(_context());
 
     final state = cubit.state as SubscriptionsFailure;
-    expect(state.failure.code, EntitlementFailureCodes.unavailable);
+    expect(state.failure.code, QuotaFailureCodes.unavailable);
   });
 }
 
-SubscriptionsCubit _cubit(_FakeCompanyEntitlementsRepository repository) {
+SubscriptionsCubit _cubit(_FakeCompanyQuotaRepository repository) {
   return SubscriptionsCubit(
-    getCompanyEntitlementUseCase: GetCompanyEntitlementUseCase(repository),
+    getCompanyQuotaUsageUseCase: GetCompanyQuotaUsageUseCase(repository),
   );
 }
 
@@ -68,40 +78,58 @@ CurrentCompanyContext _context({CompanyRole role = CompanyRole.owner}) {
   );
 }
 
-final class _FakeCompanyEntitlementsRepository
-    implements CompanyEntitlementsRepository {
+final class _FakeCompanyQuotaRepository implements CompanyQuotaRepository {
   final bool missing;
   int callCount = 0;
   String? lastCompanyId;
 
-  _FakeCompanyEntitlementsRepository({this.missing = false});
+  _FakeCompanyQuotaRepository({this.missing = false});
 
   @override
-  Future<Result<CompanyEntitlement>> getCurrent({
+  Future<Result<CompanyQuotaSnapshot>> getUsage({
     required String companyId,
   }) async {
     callCount += 1;
     lastCompanyId = companyId;
     if (missing) {
       return const FailureResult(
-        ServerFailure(code: EntitlementFailureCodes.unavailable),
+        ServerFailure(code: QuotaFailureCodes.unavailable),
       );
     }
+
+    final entitlement = CompanyEntitlement(
+      companyId: companyId,
+      planCode: 'free_starter',
+      policyVersion: 1,
+      revision: 1,
+      effectiveAt: DateTime.utc(2026, 11, 9),
+      status: CompanyEntitlementStatus.active,
+      limits: {
+        for (final resource in EntitlementResource.values)
+          resource: EntitlementLimit.finite(
+            resource == EntitlementResource.companyUsers ? 3 : 6,
+          ),
+      },
+      enabledFeatures: const {
+        EntitlementFeature.invoicePdf,
+        EntitlementFeature.reportPdf,
+      },
+    );
+
     return Success(
-      CompanyEntitlement(
-        companyId: companyId,
-        planCode: 'free_starter',
-        policyVersion: 1,
-        revision: 1,
-        effectiveAt: DateTime.utc(2026, 11, 9),
-        status: CompanyEntitlementStatus.active,
-        limits: {
-          for (final resource in EntitlementResource.values)
-            resource: EntitlementLimit.finite(1),
-        },
-        enabledFeatures: const {
-          EntitlementFeature.invoicePdf,
-          EntitlementFeature.reportPdf,
+      CompanyQuotaSnapshot(
+        entitlement: entitlement,
+        usage: {
+          EntitlementResource.companyUsers: CompanyQuotaUsage(
+            resource: EntitlementResource.companyUsers,
+            limit: entitlement.limitFor(EntitlementResource.companyUsers),
+            used: 4,
+          ),
+          EntitlementResource.combinedVehicles: CompanyQuotaUsage(
+            resource: EntitlementResource.combinedVehicles,
+            limit: entitlement.limitFor(EntitlementResource.combinedVehicles),
+            used: 2,
+          ),
         },
       ),
     );

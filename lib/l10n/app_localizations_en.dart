@@ -2796,6 +2796,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invitationContinueButton => 'Continue';
 
   @override
+  String get failureQuotaCompanyUsersReached =>
+      'The company has reached its user-seat limit. Deactivate a member or revoke a pending invitation before inviting someone new.';
+
+  @override
+  String get failureQuotaCombinedVehiclesReached =>
+      'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.';
+
+  @override
+  String get failureQuotaUnavailable =>
+      'Plan limits cannot be verified right now. No additional capacity was consumed.';
+
+  @override
   String get failureCompanyAuthRequired =>
       'Sign in to complete this company action.';
 
@@ -2856,7 +2868,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryFailed =>
-      'The invitation is pending, but the email could not be sent. You can resend it.';
+      'The email was rejected. The new invitation was canceled; an existing invitation, if any, remains available.';
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>

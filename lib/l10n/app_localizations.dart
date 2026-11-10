@@ -5156,6 +5156,24 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get invitationContinueButton;
 
+  /// No description provided for @failureQuotaCompanyUsersReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its user-seat limit. Deactivate a member or revoke a pending invitation before inviting someone new.'**
+  String get failureQuotaCompanyUsersReached;
+
+  /// No description provided for @failureQuotaCombinedVehiclesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.'**
+  String get failureQuotaCombinedVehiclesReached;
+
+  /// No description provided for @failureQuotaUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
+  String get failureQuotaUnavailable;
+
   /// No description provided for @failureCompanyAuthRequired.
   ///
   /// In en, this message translates to:
@@ -5249,7 +5267,7 @@ abstract class AppLocalizations {
   /// No description provided for @failureCompanyInvitationDeliveryFailed.
   ///
   /// In en, this message translates to:
-  /// **'The invitation is pending, but the email could not be sent. You can resend it.'**
+  /// **'The email was rejected. The new invitation was canceled; an existing invitation, if any, remains available.'**
   String get failureCompanyInvitationDeliveryFailed;
 
   /// No description provided for @failureCompanyInvitationDeliveryConfirmationUnknown.

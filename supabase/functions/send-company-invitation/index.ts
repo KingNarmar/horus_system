@@ -7,6 +7,7 @@ import {
 } from './company_invitation_token.ts'
 import { buildCompanyInvitationEmail } from './invitation_email_template.ts'
 import {
+  abortInitialAfterRejection,
   abortResendAfterRejection,
   confirmInvitationDelivery,
   loadCompanyName,
@@ -112,13 +113,10 @@ Deno.serve(async (request: Request) => {
   if (deliveryFailureCode) {
     // Only a definite provider rejection is safe to abandon. A network
     // timeout may hide an accepted message, whose token must remain valid.
-    if (action === 'resend' &&
-        deliveryFailureCode === 'company_invitation_delivery_failed') {
-      const aborted = await abortResendAfterRejection({
-        environment,
-        authorization,
-        preparation,
-      })
+    if (deliveryFailureCode === 'company_invitation_delivery_failed') {
+      const aborted = await (action === 'resend'
+        ? abortResendAfterRejection({ environment, authorization, preparation })
+        : abortInitialAfterRejection({ environment, authorization, preparation }))
       if (!aborted.ok) {
         return jsonResponse(502, 'company_invitation_delivery_confirmation_unknown')
       }

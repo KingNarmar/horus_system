@@ -1,8 +1,20 @@
+import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/vehicle_status.dart';
 
 extension FleetLocalizationsX on AppLocalizations {
+  String localizedFleetFailureMessage(Failure failure) {
+    return switch (failure.code) {
+      QuotaFailureCodes.combinedVehiclesReached =>
+        failureQuotaCombinedVehiclesReached,
+      QuotaFailureCodes.unavailable => failureQuotaUnavailable,
+      _ => CommonErrorLocalizationsX(this).localizedErrorMessage(failure),
+    };
+  }
+
   String get editButton => fleetEditButton;
 
   String get emptyValue => fleetNotAvailable;

@@ -2763,6 +2763,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get invitationContinueButton => 'متابعة';
 
   @override
+  String get failureQuotaCompanyUsersReached =>
+      'وصلت الشركة إلى الحد المسموح للمستخدمين. عطّل عضوًا أو ألغِ دعوة معلّقة قبل دعوة شخص جديد.';
+
+  @override
+  String get failureQuotaCombinedVehiclesReached =>
+      'وصلت الشركة إلى الحد المشترك للجرارات والمقطورات. عطّل مركبة غير مستخدمة قبل إضافة أو إعادة تنشيط أخرى.';
+
+  @override
+  String get failureQuotaUnavailable =>
+      'تعذر التحقق من حدود الخطة حاليًا. لم تتم إضافة سعة جديدة.';
+
+  @override
   String get failureCompanyAuthRequired =>
       'سجّل الدخول لإكمال هذا الإجراء الخاص بالشركة.';
 
@@ -2821,7 +2833,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryFailed =>
-      'الدعوة ما زالت معلقة، لكن تعذر إرسال البريد الإلكتروني. يمكنك إعادة الإرسال.';
+      'رفض مزود البريد إرسال الرسالة. أُلغيت الدعوة الجديدة وتظل أي دعوة سابقة متاحة.';
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>
