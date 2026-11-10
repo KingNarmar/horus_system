@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../constants/company_db_fields.dart';
+import '../constants/company_rpc_error_codes.dart';
 import '../constants/company_rpc_constants.dart';
 import '../models/company_model.dart';
 import '../services/company_creation_request_identity.dart';
@@ -29,8 +30,8 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
 
   SupabaseCompanyRemoteDataSource(
     this._client, {
-    CompanyCreationRequestIdentity? requestIdentity,
-  }) : _requestIdentity = requestIdentity ?? CompanyCreationRequestIdentity();
+    required CompanyCreationRequestIdentity requestIdentity,
+  }) : _requestIdentity = requestIdentity;
 
   @override
   Future<CompanyModel> createCompany({
@@ -58,17 +59,33 @@ class SupabaseCompanyRemoteDataSource implements CompanyRemoteDataSource {
       CompanyRpcConstants.country: country,
       CompanyRpcConstants.city: city,
     };
-    final requestId = _requestIdentity.getOrCreate(parameters);
-    final response = await _client
-        .rpc(
-          CompanyRpcConstants.createCompany,
-          params: {...parameters, CompanyRpcConstants.requestId: requestId},
-        )
-        .single();
+    final actorId = _client.auth.currentUser?.id;
+    if (actorId == null) {
+      throw AuthException('Company creation requires authentication');
+    }
+    final requestId = await _requestIdentity.getOrCreate(
+      userId: actorId,
+      parameters: parameters,
+    );
+    try {
+      final response = await _client
+          .rpc(
+            CompanyRpcConstants.createCompany,
+            params: {...parameters, CompanyRpcConstants.requestId: requestId},
+          )
+          .single();
 
-    final company = CompanyModel.fromMap(Map<String, dynamic>.from(response));
-    _requestIdentity.complete(requestId);
-    return company;
+      final company = CompanyModel.fromMap(Map<String, dynamic>.from(response));
+      await _requestIdentity.complete(userId: actorId, requestId: requestId);
+      return company;
+    } on PostgrestException catch (error) {
+      // Only a definitive server-side business rejection releases the UUID.
+      // Transport failure or response parsing uncertainty must preserve it.
+      if (_definitiveOnboardingErrors.contains(error.code)) {
+        await _requestIdentity.complete(userId: actorId, requestId: requestId);
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -99,3 +116,16 @@ final _companySelectColumns = <String>[
   CompanyDbFields.businessTimezone,
   DbCommonFields.isActive,
 ].join(',');
+
+const _definitiveOnboardingErrors = <String>{
+  CompanyRpcErrorCodes.onboardingAuthRequired,
+  CompanyRpcErrorCodes.onboardingCompanyNameRequired,
+  CompanyRpcErrorCodes.onboardingBusinessTimezoneInvalid,
+  CompanyRpcErrorCodes.onboardingBaseCurrencyInvalid,
+  CompanyRpcErrorCodes.onboardingFractionDigitsInvalid,
+  CompanyRpcErrorCodes.onboardingInvoicePrefixInvalid,
+  CompanyRpcErrorCodes.onboardingCreationLimitReached,
+  CompanyRpcErrorCodes.onboardingRequestConflict,
+  CompanyRpcErrorCodes.onboardingRequestUnavailable,
+  CompanyRpcErrorCodes.onboardingRequestIdRequired,
+};

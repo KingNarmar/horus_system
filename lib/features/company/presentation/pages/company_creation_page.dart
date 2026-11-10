@@ -85,6 +85,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               onboardingL10n.creationRequestConflict,
             CompanyFailureCodes.creationRetryUnavailable =>
               onboardingL10n.creationRetryUnavailable,
+            CompanyFailureCodes.creationLocalRetryUnavailable =>
+              onboardingL10n.creationLocalRetryUnavailable,
             _ => l10n.localizedErrorMessage(state.failure),
           };
           ScaffoldMessenger.of(

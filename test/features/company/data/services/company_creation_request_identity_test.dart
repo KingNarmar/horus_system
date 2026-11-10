@@ -1,5 +1,27 @@
+import 'package:horus_system/features/company/data/datasources/company_creation_request_local_data_source.dart';
 import 'package:horus_system/features/company/data/services/company_creation_request_identity.dart';
 import 'package:test/test.dart';
+
+final class _FakeLocalStore implements CompanyCreationRequestLocalDataSource {
+  final values = <String, String>{};
+  bool failReads = false;
+  bool failWrites = false;
+
+  @override
+  Future<String?> read(String userId) async {
+    if (failReads) throw StateError('private local storage failure');
+    return values[userId];
+  }
+
+  @override
+  Future<void> write(String userId, String encodedRequest) async {
+    if (failWrites) throw StateError('private local storage failure');
+    values[userId] = encodedRequest;
+  }
+
+  @override
+  Future<void> delete(String userId) async => values.remove(userId);
+}
 
 void main() {
   final parameters = <String, Object?>{
@@ -7,10 +29,14 @@ void main() {
     'p_business_timezone': 'Asia/Dubai',
   };
 
-  test('retry of an unchanged request retains the same valid UUID', () {
-    final identity = CompanyCreationRequestIdentity();
-    final first = identity.getOrCreate(parameters);
-    final second = identity.getOrCreate(Map.of(parameters));
+  test('retry after app restart uses the original UUID', () async {
+    final store = _FakeLocalStore();
+    final first = await CompanyCreationRequestIdentity(
+      store,
+    ).getOrCreate(userId: 'user-1', parameters: parameters);
+    final second = await CompanyCreationRequestIdentity(
+      store,
+    ).getOrCreate(userId: 'user-1', parameters: Map.of(parameters));
     expect(first, second);
     expect(
       first,
@@ -20,24 +46,79 @@ void main() {
         ),
       ),
     );
+    expect(store.values['user-1'], isNot(contains('Horus Transport')));
   });
 
-  test('changed request is an independent creation intent', () {
-    final identity = CompanyCreationRequestIdentity();
-    final first = identity.getOrCreate(parameters);
-    final second = identity.getOrCreate({
-      ...parameters,
-      'p_name': 'Another Company',
-    });
-    expect(first, isNot(second));
+  test('different actor cannot reuse the other account UUID', () async {
+    final store = _FakeLocalStore();
+    final service = CompanyCreationRequestIdentity(store);
+    final first = await service.getOrCreate(
+      userId: 'user-1',
+      parameters: parameters,
+    );
+    final other = await service.getOrCreate(
+      userId: 'user-2',
+      parameters: parameters,
+    );
+
+    expect(other, isNot(first));
+    expect(store.values.length, 2);
   });
 
-  test('successful completion releases the old identity', () {
-    final identity = CompanyCreationRequestIdentity();
-    final first = identity.getOrCreate(parameters);
-    identity.complete('different-request-id');
-    expect(identity.getOrCreate(parameters), first);
-    identity.complete(first);
-    expect(identity.getOrCreate(parameters), isNot(first));
+  test('unknown outcome with changed input retains the original UUID', () async {
+    final store = _FakeLocalStore();
+    final service = CompanyCreationRequestIdentity(store);
+    final first = await service.getOrCreate(
+      userId: 'user-1',
+      parameters: parameters,
+    );
+    final changed = await service.getOrCreate(
+      userId: 'user-1',
+      parameters: {...parameters, 'p_name': 'Other Company'},
+    );
+
+    expect(changed, first);
+  });
+
+  test('confirmed outcome clears UUID so new intent is independent', () async {
+    final store = _FakeLocalStore();
+    final service = CompanyCreationRequestIdentity(store);
+    final first = await service.getOrCreate(
+      userId: 'user-1',
+      parameters: parameters,
+    );
+    await service.complete(userId: 'user-1', requestId: 'wrong-id');
+    expect(
+      await service.getOrCreate(userId: 'user-1', parameters: parameters),
+      first,
+    );
+    await service.complete(userId: 'user-1', requestId: first);
+    expect(
+      await service.getOrCreate(userId: 'user-1', parameters: parameters),
+      isNot(first),
+    );
+  });
+
+  test('corrupted pending metadata fails closed', () async {
+    final store = _FakeLocalStore();
+    store.values['user-1'] = '{invalid-json';
+    final service = CompanyCreationRequestIdentity(store);
+
+    await expectLater(
+      service.getOrCreate(userId: 'user-1', parameters: parameters),
+      throwsA(isA<CompanyCreationRequestIdentityException>()),
+    );
+    expect(store.values['user-1'], '{invalid-json');
+  });
+
+  test('unavailable secure storage fails before starting request', () async {
+    final store = _FakeLocalStore()..failWrites = true;
+    final service = CompanyCreationRequestIdentity(store);
+
+    await expectLater(
+      service.getOrCreate(userId: 'user-1', parameters: parameters),
+      throwsA(isA<CompanyCreationRequestIdentityException>()),
+    );
+    expect(store.values, isEmpty);
   });
 }

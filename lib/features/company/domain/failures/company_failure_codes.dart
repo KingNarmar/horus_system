@@ -3,6 +3,8 @@ abstract final class CompanyFailureCodes {
   static const creationLimitReached = 'company_creation_limit_reached';
   static const creationRequestConflict = 'company_creation_request_conflict';
   static const creationRetryUnavailable = 'company_creation_retry_unavailable';
+  static const creationLocalRetryUnavailable =
+      'company_creation_local_retry_unavailable';
   static const permissionSettingsManagement =
       'permission_company_settings_management';
   static const validationInvoicePrefixInvalid =

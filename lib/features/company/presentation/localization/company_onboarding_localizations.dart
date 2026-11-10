@@ -26,6 +26,8 @@ final class CompanyOnboardingLocalizations {
   String get creationLimitReached => _value('creationLimitReached');
   String get creationRequestConflict => _value('creationRequestConflict');
   String get creationRetryUnavailable => _value('creationRetryUnavailable');
+  String get creationLocalRetryUnavailable =>
+      _value('creationLocalRetryUnavailable');
 
   static const _en = <String, String>{
     'creationLimitReached':
@@ -34,6 +36,8 @@ final class CompanyOnboardingLocalizations {
         'This company creation request was changed. Review the details and try again.',
     'creationRetryUnavailable':
         'The original creation cannot be reopened with this request. Use company switching or contact support.',
+    'creationLocalRetryUnavailable':
+        'Unable to safely save the company creation request on this device. Check device storage and try again.',
     'financialSectionTitle': 'Financial configuration',
     'invoiceSectionTitle': 'Invoice numbering',
     'currencyRequired': 'Select a base currency.',
@@ -54,6 +58,8 @@ final class CompanyOnboardingLocalizations {
         'تم تغيير بيانات طلب إنشاء الشركة. راجع البيانات وحاول مجددًا.',
     'creationRetryUnavailable':
         'لا يمكن إعادة فتح الشركة من طلب الإنشاء السابق. استخدم تبديل الشركات أو تواصل مع الدعم.',
+    'creationLocalRetryUnavailable':
+        'تعذر حفظ طلب إنشاء الشركة بأمان على هذا الجهاز. تحقق من مساحة التخزين وحاول مجددًا.',
     'financialSectionTitle': 'الإعدادات المالية',
     'invoiceSectionTitle': 'ترقيم الفواتير',
     'currencyRequired': 'اختر العملة الأساسية.',

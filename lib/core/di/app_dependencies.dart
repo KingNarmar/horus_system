@@ -16,6 +16,9 @@ import '../../features/auth/domain/usecases/request_account_deletion_usecase.dar
 import '../../features/auth/presentation/cubit/account_deletion_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/password_recovery_cubit.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../../features/company/data/datasources/company_creation_request_local_data_source.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
 import '../../features/company/data/datasources/company_membership_changes_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
@@ -24,6 +27,7 @@ import '../../features/company/data/repositories/company_context_repository_impl
 import '../../features/company/data/repositories/company_membership_changes_repository_impl.dart';
 import '../../features/company/data/repositories/company_repository_impl.dart';
 import '../../features/company/data/repositories/company_users_repository_impl.dart';
+import '../../features/company/data/services/company_creation_request_identity.dart';
 import '../../features/company/di/company_dependencies.dart';
 import '../../features/company/domain/usecases/clear_current_company_context_usecase.dart';
 import '../../features/company/domain/usecases/create_company_usecase.dart';
@@ -103,6 +107,11 @@ abstract final class AppDependencies {
   static CompanyOnboardingCubit createCompanyOnboardingCubit() {
     final companyRemoteDataSource = SupabaseCompanyRemoteDataSource(
       SupabaseClientProvider.client,
+      requestIdentity: CompanyCreationRequestIdentity(
+        SecureCompanyCreationRequestLocalDataSource(
+          const FlutterSecureStorage(),
+        ),
+      ),
     );
     final companyRepository = CompanyRepositoryImpl(companyRemoteDataSource);
     return CompanyOnboardingCubit(
