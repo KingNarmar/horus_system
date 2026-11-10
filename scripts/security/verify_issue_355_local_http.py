@@ -35,6 +35,12 @@ def edit(api, jwt, resource, company, row_id, values):
 
 def row(result, label):
     code, payload = result
+    if code != 201:
+        # Local-only probe: never print JWTs, emails, or request payloads.
+        error_code = payload.get("code") if isinstance(payload, dict) else None
+        error_name = payload.get("message") if isinstance(payload, dict) else None
+        print("LOCAL CREATE FAILURE", label, code, error_code, error_name,
+              flush=True)
     check(label, code == 201 and isinstance(payload, (list, dict)))
     if isinstance(payload, list):
         check(label + ": exactly one row", len(payload) == 1)
