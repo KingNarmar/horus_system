@@ -1028,7 +1028,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog
-AS $function$
+AS $$
 DECLARE
   v_actor_id uuid := auth.uid();
   v_before public.company_users%ROWTYPE;
@@ -1180,7 +1180,7 @@ BEGIN
   RETURN QUERY
   SELECT v_after.id, v_after.role, v_after.is_active, v_after.updated_at;
 END;
-$function$;
+$$;
 REVOKE ALL ON FUNCTION public.recover_company_membership_as_platform_admin(
   uuid,uuid,public.company_role,boolean,timestamptz,text,text
 ) FROM PUBLIC,anon;
