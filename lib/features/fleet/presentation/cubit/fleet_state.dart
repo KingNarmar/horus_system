@@ -39,6 +39,8 @@ class FleetLoaded extends FleetState {
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? refreshFailure;
+  final Failure? mutationFailure;
+  final int mutationFailureSequence;
 
   const FleetLoaded({
     required this.currentCompanyContext,
@@ -56,6 +58,8 @@ class FleetLoaded extends FleetState {
     this.isActivityLoading = false,
     this.activityFailure,
     this.refreshFailure,
+    this.mutationFailure,
+    this.mutationFailureSequence = 0,
   });
 
   bool isActiveStateChanging(String id) =>
@@ -106,6 +110,8 @@ class FleetLoaded extends FleetState {
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? refreshFailure = _notSet,
+    Object? mutationFailure = _notSet,
+    int? mutationFailureSequence,
   }) {
     return FleetLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -132,6 +138,11 @@ class FleetLoaded extends FleetState {
       refreshFailure: refreshFailure == _notSet
           ? this.refreshFailure
           : refreshFailure as Failure?,
+      mutationFailure: mutationFailure == _notSet
+          ? this.mutationFailure
+          : mutationFailure as Failure?,
+      mutationFailureSequence:
+          mutationFailureSequence ?? this.mutationFailureSequence,
     );
   }
 }

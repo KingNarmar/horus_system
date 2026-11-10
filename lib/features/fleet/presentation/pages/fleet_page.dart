@@ -178,7 +178,34 @@ class _FleetPageState extends State<FleetPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return BlocBuilder<FleetCubit, FleetState>(
+    return BlocListener<FleetCubit, FleetState>(
+      listenWhen: (previous, current) {
+        if (current is! FleetLoaded || current.mutationFailure == null) {
+          return false;
+        }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! FleetLoaded ||
+            previous.mutationFailureSequence !=
+                current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final loaded = state as FleetLoaded;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.l10n.localizedFleetFailureMessage(
+                loaded.mutationFailure!,
+              ),
+            ),
+          ),
+        );
+      },
+      child: BlocBuilder<FleetCubit, FleetState>(
       builder: (context, state) {
         final cubit = context.read<FleetCubit>();
 
@@ -238,6 +265,7 @@ class _FleetPageState extends State<FleetPage> {
           ],
         );
       },
+    ),
     );
   }
 }

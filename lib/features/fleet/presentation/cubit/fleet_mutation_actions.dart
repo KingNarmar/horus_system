@@ -15,10 +15,8 @@ mixin FleetMutationActions on Cubit<FleetState> {
     final context = owner._currentCompanyContext;
     if (context == null || !owner._isCurrentFleetContext(context)) return;
     if (tractorHead != null && tractorHead.companyId != context.companyId) {
-      emit(
-        const FleetFailure(
-          PermissionFailure(code: FailureCodes.permissionFleetManagement),
-        ),
+      _emitMutationFailure(
+        const PermissionFailure(code: FailureCodes.permissionFleetManagement),
       );
       return;
     }
@@ -27,12 +25,12 @@ mixin FleetMutationActions on Cubit<FleetState> {
     if (!owner._isCurrentFleetContext(context)) return;
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) {
-      emit(FleetFailure(businessDateFailure));
+      _emitMutationFailure(businessDateFailure);
       return;
     }
     final currentBusinessDate = businessDateResult.dataOrNull;
     if (currentBusinessDate == null) {
-      emit(const FleetFailure(UnexpectedFailure()));
+      _emitMutationFailure(const UnexpectedFailure());
       return;
     }
 
@@ -51,7 +49,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
     if (!owner._isCurrentFleetContext(context)) return;
     result.when(
       success: _upsertTractorHead,
-      failure: (failure) => emit(FleetFailure(failure)),
+      failure: _emitMutationFailure,
     );
   }
 
@@ -66,10 +64,8 @@ mixin FleetMutationActions on Cubit<FleetState> {
     final context = owner._currentCompanyContext;
     if (context == null || !owner._isCurrentFleetContext(context)) return;
     if (trailer != null && trailer.companyId != context.companyId) {
-      emit(
-        const FleetFailure(
-          PermissionFailure(code: FailureCodes.permissionFleetManagement),
-        ),
+      _emitMutationFailure(
+        const PermissionFailure(code: FailureCodes.permissionFleetManagement),
       );
       return;
     }
@@ -78,12 +74,12 @@ mixin FleetMutationActions on Cubit<FleetState> {
     if (!owner._isCurrentFleetContext(context)) return;
     final businessDateFailure = businessDateResult.failureOrNull;
     if (businessDateFailure != null) {
-      emit(FleetFailure(businessDateFailure));
+      _emitMutationFailure(businessDateFailure);
       return;
     }
     final currentBusinessDate = businessDateResult.dataOrNull;
     if (currentBusinessDate == null) {
-      emit(const FleetFailure(UnexpectedFailure()));
+      _emitMutationFailure(const UnexpectedFailure());
       return;
     }
 
@@ -101,7 +97,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
     if (!owner._isCurrentFleetContext(context)) return;
     result.when(
       success: _upsertTrailer,
-      failure: (failure) => emit(FleetFailure(failure)),
+      failure: _emitMutationFailure,
     );
   }
 
@@ -152,7 +148,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
     _setAssetActionRunning(id, false);
     result.when(
       success: _upsertTractorHead,
-      failure: (failure) => emit(FleetFailure(failure)),
+      failure: _emitMutationFailure,
     );
   }
 
@@ -178,7 +174,23 @@ mixin FleetMutationActions on Cubit<FleetState> {
     _setAssetActionRunning(id, false);
     result.when(
       success: _upsertTrailer,
-      failure: (failure) => emit(FleetFailure(failure)),
+      failure: _emitMutationFailure,
+    );
+  }
+
+  /// A rejected write must not discard the last authorized fleet snapshot.
+  /// The event sequence lets Presentation show feedback once per attempt.
+  void _emitMutationFailure(Failure failure) {
+    final current = state;
+    if (current is! FleetLoaded) {
+      emit(FleetFailure(failure));
+      return;
+    }
+    emit(
+      current.copyWith(
+        mutationFailure: failure,
+        mutationFailureSequence: current.mutationFailureSequence + 1,
+      ),
     );
   }
 
@@ -202,6 +214,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
           item,
           (current) => current.id,
         ),
+        mutationFailure: null,
       ),
     );
   }
@@ -226,6 +239,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
           item,
           (current) => current.id,
         ),
+        mutationFailure: null,
       ),
     );
   }

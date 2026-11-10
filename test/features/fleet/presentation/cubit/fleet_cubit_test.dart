@@ -79,8 +79,11 @@ void main() {
         status: VehicleStatus.available,
       );
 
-      expect(cubit.state, isA<FleetFailure>());
-      expect((cubit.state as FleetFailure).failure, same(failure));
+      expect(cubit.state, isA<FleetLoaded>());
+      final loaded = cubit.state as FleetLoaded;
+      expect(loaded.mutationFailure, same(failure));
+      expect(loaded.allTractorHeads, [_tractor]);
+      expect(loaded.mutationFailureSequence, 1);
       expect(repository.addTractorHeadCalls, 0);
     });
 
