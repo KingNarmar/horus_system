@@ -12,6 +12,7 @@ import '../../domain/entities/trailer_entity.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_cubit.dart';
 import '../cubit/fleet_state.dart';
+import '../localization/fleet_localizations_x.dart';
 import '../widgets/fleet_asset_cards.dart';
 import '../widgets/fleet_filters.dart';
 import '../widgets/fleet_form_dialog.dart';
@@ -207,7 +208,7 @@ class _FleetPageState extends State<FleetPage> {
               const Center(child: CircularProgressIndicator())
             else if (state is FleetFailure)
               _MessageCard(
-                message: l10n.localizedErrorMessage(state.failure),
+                message: l10n.localizedFleetFailureMessage(state.failure),
                 action: OutlinedButton(
                   onPressed: () =>
                       cubit.loadFleet(widget.currentCompanyContext),

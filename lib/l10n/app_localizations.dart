@@ -5160,6 +5160,24 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Sign in to complete this company action.'**
+  /// No description provided for @failureQuotaCompanyUsersReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its user-seat limit. Deactivate a member or revoke a pending invitation before inviting someone new.'**
+  String get failureQuotaCompanyUsersReached;
+
+  /// No description provided for @failureQuotaCombinedVehiclesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.'**
+  String get failureQuotaCombinedVehiclesReached;
+
+  /// No description provided for @failureQuotaUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
+  String get failureQuotaUnavailable;
+
   String get failureCompanyAuthRequired;
 
   /// No description provided for @failureCompanyInvitationIdRequired.

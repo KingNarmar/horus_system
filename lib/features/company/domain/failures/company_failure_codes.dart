@@ -38,6 +38,8 @@ abstract final class CompanyFailureCodes {
   static const companyNotAvailable = 'company_not_available';
   static const notFound = 'company_not_found';
 
+  static const quotaCompanyUsersReached = 'quota_company_users_reached';
+
   static const invitationInvalid = 'company_invitation_invalid';
   static const invitationEmailInvalid = 'company_invitation_email_invalid';
   static const invitationExpired = 'company_invitation_expired';

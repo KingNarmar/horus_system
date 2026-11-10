@@ -2796,6 +2796,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invitationContinueButton => 'Continue';
 
   @override
+  @override
+  String get failureQuotaCompanyUsersReached => 'The company has reached its user-seat limit. Deactivate a member or revoke a pending invitation before inviting someone new.';
+
+  @override
+  String get failureQuotaCombinedVehiclesReached => 'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.';
+
+  @override
+  String get failureQuotaUnavailable => 'Plan limits cannot be verified right now. No additional capacity was consumed.';
+
   String get failureCompanyAuthRequired =>
       'Sign in to complete this company action.';
 

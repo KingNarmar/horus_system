@@ -7,6 +7,7 @@ extension CompanyFailureLocalizationX on AppLocalizations {
   String localizedErrorMessage(Failure failure) {
     return switch (failure.code) {
       CompanyFailureCodes.authRequired => failureCompanyAuthRequired,
+      CompanyFailureCodes.quotaCompanyUsersReached => failureQuotaCompanyUsersReached,
       CompanyFailureCodes.validationInvitationIdRequired =>
         failureCompanyInvitationIdRequired,
       CompanyFailureCodes.validationInvitationTokenRequired =>
