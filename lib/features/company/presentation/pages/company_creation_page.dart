@@ -40,7 +40,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CompanyOnboardingCubit>().loadMyCompanies();
+    context.read<CompanyOnboardingCubit>().prepareForCreation();
   }
 
   @override

@@ -28,6 +28,21 @@ import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
   testWidgets(
+    'existing company membership does not replace the creation form',
+    (tester) async {
+      final harness = await _pumpCreationPage(
+        tester,
+        existingCompanies: const [_otherCompany],
+      );
+
+      expect(find.text('Create company'), findsWidgets);
+      expect(find.byType(TextFormField), findsWidgets);
+      expect(harness.companyRepository.getMyCompaniesCallCount, 0);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'opens app shell only after authoritative company context matches',
     (tester) async {
       final harness = await _pumpCreationPage(tester);
@@ -84,8 +99,11 @@ void main() {
 Future<_CreationPageHarness> _pumpCreationPage(
   WidgetTester tester, {
   List<CurrentCompanyContext> selectedContexts = const [_targetContext],
+  List<Company> existingCompanies = const [],
 }) async {
-  final companyRepository = _FakeCompanyRepository();
+  final companyRepository = _FakeCompanyRepository(
+    existingCompanies: existingCompanies,
+  );
   final contextRepository = _FakeCompanyContextRepository(
     selectedContexts: selectedContexts,
   );
@@ -180,7 +198,11 @@ final class _CreationPageHarness {
 }
 
 final class _FakeCompanyRepository implements CompanyRepository {
+  final List<Company> existingCompanies;
   int createCompanyCallCount = 0;
+  int getMyCompaniesCallCount = 0;
+
+  _FakeCompanyRepository({this.existingCompanies = const []});
 
   @override
   Future<Result<Company>> createCompany({
@@ -200,7 +222,8 @@ final class _FakeCompanyRepository implements CompanyRepository {
 
   @override
   Future<Result<List<Company>>> getMyCompanies() async {
-    return const Success(<Company>[]);
+    getMyCompaniesCallCount += 1;
+    return Success(existingCompanies);
   }
 }
 

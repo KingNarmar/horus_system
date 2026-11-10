@@ -11,6 +11,18 @@ import 'package:horus_system/features/company/presentation/cubit/company_onboard
 import 'package:test/test.dart';
 
 void main() {
+  test('explicit creation intent is ready without looking up memberships', () {
+    final repository = _FakeCompanyRepository(
+      companiesResult: const Success([_company]),
+    );
+    final cubit = _createCubit(repository);
+    addTearDown(cubit.close);
+
+    cubit.prepareForCreation();
+
+    expect(cubit.state, isA<CompanyOnboardingReady>());
+  });
+
   test('create company exposes a distinct created state', () async {
     final repository = _FakeCompanyRepository(
       createResult: const Success(_company),

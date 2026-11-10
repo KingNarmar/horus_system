@@ -19,11 +19,13 @@ import '../extensions/company_role_localization.dart';
 final class CompanySwitcherPanel extends StatefulWidget {
   final String? activeCompanyId;
   final VoidCallback? onJoin;
+  final VoidCallback? onCreate;
   final VoidCallback? onSwitchSucceeded;
 
   const CompanySwitcherPanel({
     required this.activeCompanyId,
     this.onJoin,
+    this.onCreate,
     this.onSwitchSucceeded,
     super.key,
   });
@@ -128,6 +130,14 @@ final class _CompanySwitcherPanelState extends State<CompanySwitcherPanel> {
                 CompanyFailureLocalizationX(
                   l10n,
                 ).localizedErrorMessage(_switchFailure!),
+              ),
+            ],
+            if (widget.onCreate != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              FilledButton.icon(
+                onPressed: busy ? null : widget.onCreate,
+                icon: const Icon(AppIcons.add),
+                label: Text(l10n.createCompanyTitle),
               ),
             ],
             if (widget.onJoin != null) ...[

@@ -44,6 +44,7 @@ void main() {
       expect(find.text('Second Company'), findsOneWidget);
       expect(find.text('Accountant'), findsOneWidget);
       expect(find.text('Join another company'), findsOneWidget);
+      expect(find.text('Create company'), findsOneWidget);
 
       await tester.tap(find.text('Second Company'));
       await tester.pumpAndSettle();
@@ -55,6 +56,34 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('offers creation even if the account belongs to other companies', (
+    tester,
+  ) async {
+    final repository = _MembershipRepository();
+    final current = _currentCubit(repository);
+    final choices = _choicesCubit(repository);
+    addTearDown(current.close);
+    addTearDown(choices.close);
+    await current.loadCurrentCompanyContext();
+    await choices.load();
+    var createRequests = 0;
+
+    await tester.pumpWidget(
+      _app(
+        current: current,
+        choices: choices,
+        onCreate: () => createRequests++,
+      ),
+    );
+
+    await tester.tap(find.text('Create company'));
+    await tester.pumpAndSettle();
+
+    expect(createRequests, 1);
+    expect(current.state, isA<CurrentCompanyLoaded>());
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('renders the company picker correctly in Arabic RTL', (
     tester,
@@ -72,6 +101,9 @@ void main() {
     );
 
     expect(find.text('شركاتك'), findsOneWidget);
+    final create = find.text('إنشاء شركة');
+    expect(create, findsOneWidget);
+    expect(Directionality.of(tester.element(create)), TextDirection.rtl);
     final join = find.text('الانضمام إلى شركة أخرى');
     expect(join, findsOneWidget);
     expect(Directionality.of(tester.element(join)), TextDirection.rtl);
@@ -84,6 +116,7 @@ Widget _app({
   required CompanySwitcherCubit choices,
   Locale locale = const Locale('en'),
   VoidCallback? onSwitchSucceeded,
+  VoidCallback? onCreate,
 }) => MultiBlocProvider(
   providers: [
     BlocProvider<CurrentCompanyCubit>.value(value: current),
@@ -99,6 +132,7 @@ Widget _app({
           activeCompanyId: 'company-a',
           onSwitchSucceeded: onSwitchSucceeded,
           onJoin: () {},
+          onCreate: onCreate ?? () {},
         ),
       ),
     ),

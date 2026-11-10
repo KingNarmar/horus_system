@@ -83,6 +83,15 @@ class _AppShellPageState extends State<AppShellPage> {
     setState(() => _selectedFinanceSection = section);
   }
 
+  void _navigateFromCompanySwitcher(
+    BuildContext sheetContext,
+    String route,
+  ) {
+    Navigator.of(sheetContext).pop();
+    if (!mounted) return;
+    Navigator.of(context).pushNamed(route);
+  }
+
   void _openCompanySwitcher() {
     final createSwitcher = widget.createCompanySwitcherCubit;
     if (createSwitcher == null) return;
@@ -107,14 +116,14 @@ class _AppShellPageState extends State<AppShellPage> {
                   activeCompanyId: widget.currentCompanyContext.companyId,
                   // The app-level session scope resets Navigator ownership
                   // after an authoritative company change.
-                  onJoin: () {
-                    Navigator.of(sheetContext).pop();
-                    if (mounted) {
-                      Navigator.of(
-                        context,
-                      ).pushNamed(AppRoutes.companyInvitation);
-                    }
-                  },
+                  onJoin: () => _navigateFromCompanySwitcher(
+                    sheetContext,
+                    AppRoutes.companyInvitation,
+                  ),
+                  onCreate: () => _navigateFromCompanySwitcher(
+                    sheetContext,
+                    AppRoutes.companyCreation,
+                  ),
                 ),
               ),
             ),
