@@ -69,39 +69,44 @@ void main() {
       expect(operations, ['add_driver']);
     });
 
-    test('quota-denied driver insert cleans newly uploaded images and keeps the typed failure', () async {
-      final operations = <String>[];
-      final images = _FakeDriverImagesRemoteDataSource(operations: operations);
-      final repository = _repository(
-        remoteDataSource: _FakeDriversRemoteDataSource(
-          _driverModel,
-          addError: const PostgrestException(
-            code: 'P2860',
-            message: QuotaFailureCodes.driversReached,
-          ),
+    test(
+      'quota-denied driver insert cleans newly uploaded images and keeps the typed failure',
+      () async {
+        final operations = <String>[];
+        final images = _FakeDriverImagesRemoteDataSource(
           operations: operations,
-        ),
-        imagesRemoteDataSource: images,
-      );
-
-      final result = await repository.addDriver(
-        data: _writeData,
-        actorRole: 'owner',
-        imageUploads: DriverImageUploadSet(
-          profileImage: DriverImageFile(
-            bytes: Uint8List.fromList([1, 2, 3]),
-            fileName: 'driver.png',
+        );
+        final repository = _repository(
+          remoteDataSource: _FakeDriversRemoteDataSource(
+            _driverModel,
+            addError: const PostgrestException(
+              code: 'P2860',
+              message: QuotaFailureCodes.driversReached,
+            ),
+            operations: operations,
           ),
-        ),
-      );
+          imagesRemoteDataSource: images,
+        );
 
-      expect(result.failureOrNull, isA<ConflictFailure>());
-      expect(result.failureOrNull?.code, QuotaFailureCodes.driversReached);
-      expect(result.failureOrNull?.message, isNull);
-      expect(operations, ['upload', 'add_driver', 'cleanup']);
-      expect(images.removedPaths, hasLength(1));
-      expect(images.removedPaths.single, contains(_companyId));
-    });
+        final result = await repository.addDriver(
+          data: _writeData,
+          actorRole: 'owner',
+          imageUploads: DriverImageUploadSet(
+            profileImage: DriverImageFile(
+              bytes: Uint8List.fromList([1, 2, 3]),
+              fileName: 'driver.png',
+            ),
+          ),
+        );
+
+        expect(result.failureOrNull, isA<ConflictFailure>());
+        expect(result.failureOrNull?.code, QuotaFailureCodes.driversReached);
+        expect(result.failureOrNull?.message, isNull);
+        expect(operations, ['upload', 'add_driver', 'cleanup']);
+        expect(images.removedPaths, hasLength(1));
+        expect(images.removedPaths.single, contains(_companyId));
+      },
+    );
 
     test('adds a driver through the server-audited mutation path', () async {
       final operations = <String>[];

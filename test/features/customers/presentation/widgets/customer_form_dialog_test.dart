@@ -9,45 +9,58 @@ import 'package:horus_system/l10n/app_localizations_ar.dart';
 
 void main() {
   for (final locale in [const Locale('en'), const Locale('ar')]) {
-    testWidgets('quota refusal keeps customer inputs and shows localized failure: ${locale.languageCode}', (tester) async {
-      var submitted = 0;
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: CustomerFormDialog(
-              onSubmit: (_) async {
-                submitted++;
-                return const ConflictFailure(
-                  code: QuotaFailureCodes.customersReached,
-                );
-              },
+    testWidgets(
+      'quota refusal keeps customer inputs and shows localized failure: ${locale.languageCode}',
+      (tester) async {
+        var submitted = 0;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CustomerFormDialog(
+                onSubmit: (_) async {
+                  submitted++;
+                  return const ConflictFailure(
+                    code: QuotaFailureCodes.customersReached,
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.enterText(find.byType(TextFormField).first, 'Customer preserved');
-      await tester.tap(find.widgetWithText(FilledButton,
-          locale.languageCode == 'ar' ? AppLocalizationsAr().saveButton
-              : AppLocalizationsEn().saveButton));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      final expected = locale.languageCode == 'ar'
-          ? AppLocalizationsAr().failureQuotaCustomersReached
-          : AppLocalizationsEn().failureQuotaCustomersReached;
-      expect(submitted, 1);
-      expect(find.text('Customer preserved'), findsOneWidget);
-      expect(find.text(expected), findsOneWidget);
-      expect(find.byType(CustomerFormDialog), findsOneWidget);
-      if (locale.languageCode == 'ar') {
-        expect(Directionality.of(tester.element(find.byType(CustomerFormDialog))),
-            TextDirection.rtl);
-      }
-      expect(tester.takeException(), isNull);
-    });
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          'Customer preserved',
+        );
+        await tester.tap(
+          find.widgetWithText(
+            FilledButton,
+            locale.languageCode == 'ar'
+                ? AppLocalizationsAr().saveButton
+                : AppLocalizationsEn().saveButton,
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        final expected = locale.languageCode == 'ar'
+            ? AppLocalizationsAr().failureQuotaCustomersReached
+            : AppLocalizationsEn().failureQuotaCustomersReached;
+        expect(submitted, 1);
+        expect(find.text('Customer preserved'), findsOneWidget);
+        expect(find.text(expected), findsOneWidget);
+        expect(find.byType(CustomerFormDialog), findsOneWidget);
+        if (locale.languageCode == 'ar') {
+          expect(
+            Directionality.of(tester.element(find.byType(CustomerFormDialog))),
+            TextDirection.rtl,
+          );
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   testWidgets('rejects malformed optional customer email before submission', (
