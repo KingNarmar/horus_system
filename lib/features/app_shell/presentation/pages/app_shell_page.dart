@@ -83,10 +83,7 @@ class _AppShellPageState extends State<AppShellPage> {
     setState(() => _selectedFinanceSection = section);
   }
 
-  void _navigateFromCompanySwitcher(
-    BuildContext sheetContext,
-    String route,
-  ) {
+  void _navigateFromCompanySwitcher(BuildContext sheetContext, String route) {
     Navigator.of(sheetContext).pop();
     if (!mounted) return;
     Navigator.of(context).pushNamed(route);
