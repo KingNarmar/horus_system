@@ -2,19 +2,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
-import '../../domain/entities/company_entitlement.dart';
-import '../../domain/usecases/get_company_entitlement_usecase.dart';
+import '../../domain/entities/company_quota_snapshot.dart';
+import '../../domain/usecases/get_company_quota_usage_usecase.dart';
 import 'subscriptions_state.dart';
 
 final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
-  final GetCompanyEntitlementUseCase _getCompanyEntitlementUseCase;
+  final GetCompanyQuotaUsageUseCase _getCompanyQuotaUsageUseCase;
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
 
   SubscriptionsCubit({
-    required GetCompanyEntitlementUseCase getCompanyEntitlementUseCase,
-  }) : _getCompanyEntitlementUseCase = getCompanyEntitlementUseCase,
+    required GetCompanyQuotaUsageUseCase getCompanyQuotaUsageUseCase,
+  }) : _getCompanyQuotaUsageUseCase = getCompanyQuotaUsageUseCase,
        super(const SubscriptionsInitial());
 
   Future<void> load(CurrentCompanyContext currentCompanyContext) async {
@@ -22,8 +22,8 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
     final requestId = ++_loadRequestId;
     emit(const SubscriptionsLoading());
 
-    final result = await _getCompanyEntitlementUseCase(
-      GetCompanyEntitlementParams(currentCompanyContext: currentCompanyContext),
+    final result = await _getCompanyQuotaUsageUseCase(
+      GetCompanyQuotaUsageParams(currentCompanyContext: currentCompanyContext),
     );
     if (isClosed ||
         requestId != _loadRequestId ||
@@ -32,7 +32,7 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
       return;
     }
 
-    if (result is FailureResult<CompanyEntitlement>) {
+    if (result is FailureResult<CompanyQuotaSnapshot>) {
       emit(SubscriptionsFailure(result.failure));
       return;
     }
@@ -40,7 +40,7 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
     emit(
       SubscriptionsLoaded(
         currentCompanyContext: currentCompanyContext,
-        entitlement: (result as Success<CompanyEntitlement>).data,
+        quota: (result as Success<CompanyQuotaSnapshot>).data,
       ),
     );
   }
