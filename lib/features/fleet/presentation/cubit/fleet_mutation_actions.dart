@@ -47,10 +47,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
       ),
     );
     if (!owner._isCurrentFleetContext(context)) return;
-    result.when(
-      success: _upsertTractorHead,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertTractorHead, failure: _emitMutationFailure);
   }
 
   Future<void> saveTrailer({
@@ -95,10 +92,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
       ),
     );
     if (!owner._isCurrentFleetContext(context)) return;
-    result.when(
-      success: _upsertTrailer,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertTrailer, failure: _emitMutationFailure);
   }
 
   Future<void> deactivateTractorHead(TractorHead item) {
@@ -146,10 +140,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
     );
     if (!owner._isCurrentFleetContext(context)) return;
     _setAssetActionRunning(id, false);
-    result.when(
-      success: _upsertTractorHead,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertTractorHead, failure: _emitMutationFailure);
   }
 
   Future<void> _changeTrailerActiveState(
@@ -172,10 +163,7 @@ mixin FleetMutationActions on Cubit<FleetState> {
     );
     if (!owner._isCurrentFleetContext(context)) return;
     _setAssetActionRunning(id, false);
-    result.when(
-      success: _upsertTrailer,
-      failure: _emitMutationFailure,
-    );
+    result.when(success: _upsertTrailer, failure: _emitMutationFailure);
   }
 
   /// A rejected write must not discard the last authorized fleet snapshot.

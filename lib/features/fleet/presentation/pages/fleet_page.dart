@@ -190,8 +190,7 @@ class _FleetPageState extends State<FleetPage> {
           return false;
         }
         return previous is! FleetLoaded ||
-            previous.mutationFailureSequence !=
-                current.mutationFailureSequence;
+            previous.mutationFailureSequence != current.mutationFailureSequence;
       },
       listener: (context, state) {
         final loaded = state as FleetLoaded;
@@ -206,66 +205,65 @@ class _FleetPageState extends State<FleetPage> {
         );
       },
       child: BlocBuilder<FleetCubit, FleetState>(
-      builder: (context, state) {
-        final cubit = context.read<FleetCubit>();
+        builder: (context, state) {
+          final cubit = context.read<FleetCubit>();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.fleetTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.fleetTitle,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                if (state is FleetLoaded && state.canManageFleet)
-                  _AddButton(
-                    selectedTab: state.selectedTab,
-                    onAddTractorHead: () => _openTractorHeadForm(),
-                    onAddTrailer: () => _openTrailerForm(),
+                  if (state is FleetLoaded && state.canManageFleet)
+                    _AddButton(
+                      selectedTab: state.selectedTab,
+                      onAddTractorHead: () => _openTractorHeadForm(),
+                      onAddTrailer: () => _openTrailerForm(),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              if (state is FleetInitial || state is FleetLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (state is FleetFailure)
+                _MessageCard(
+                  message: l10n.localizedFleetFailureMessage(state.failure),
+                  action: OutlinedButton(
+                    onPressed: () =>
+                        cubit.loadFleet(widget.currentCompanyContext),
+                    child: Text(l10n.retryButton),
                   ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is FleetInitial || state is FleetLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state is FleetFailure)
-              _MessageCard(
-                message: l10n.localizedFleetFailureMessage(state.failure),
-                action: OutlinedButton(
-                  onPressed: () =>
-                      cubit.loadFleet(widget.currentCompanyContext),
-                  child: Text(l10n.retryButton),
+                )
+              else if (state is FleetLoaded) ...[
+                FleetFilters(
+                  selectedTab: state.selectedTab,
+                  statusFilter: state.statusFilter,
+                  onTabChanged: cubit.selectTab,
+                  onSearchChanged: cubit.setSearchQuery,
+                  onStatusFilterChanged: cubit.setStatusFilter,
                 ),
-              )
-            else if (state is FleetLoaded) ...[
-              FleetFilters(
-                selectedTab: state.selectedTab,
-                statusFilter: state.statusFilter,
-                onTabChanged: cubit.selectTab,
-                onSearchChanged: cubit.setSearchQuery,
-                onStatusFilterChanged: cubit.setStatusFilter,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _FleetAssetBody(
-                state: state,
-                onEditTractorHead: (item) =>
-                    _openTractorHeadForm(tractorHead: item),
-                onDeactivateTractorHead: _deactivateTractorHead,
-                onReactivateTractorHead: _reactivateTractorHead,
-                onEditTrailer: (item) => _openTrailerForm(trailer: item),
-                onDeactivateTrailer: _deactivateTrailer,
-                onReactivateTrailer: _reactivateTrailer,
-              ),
+                const SizedBox(height: AppSpacing.md),
+                _FleetAssetBody(
+                  state: state,
+                  onEditTractorHead: (item) =>
+                      _openTractorHeadForm(tractorHead: item),
+                  onDeactivateTractorHead: _deactivateTractorHead,
+                  onReactivateTractorHead: _reactivateTractorHead,
+                  onEditTrailer: (item) => _openTrailerForm(trailer: item),
+                  onDeactivateTrailer: _deactivateTrailer,
+                  onReactivateTrailer: _reactivateTrailer,
+                ),
+              ],
             ],
-          ],
-        );
-      },
-    ),
+          );
+        },
+      ),
     );
   }
 }

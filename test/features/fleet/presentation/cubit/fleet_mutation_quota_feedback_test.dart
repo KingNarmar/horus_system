@@ -56,27 +56,39 @@ const _quotaFailure = ConflictFailure(
 );
 
 void main() {
-  test('denied creates preserve loaded assets, tab and individual feedback events', () async {
-    final cubit = _realCubit();
-    addTearDown(cubit.close);
-    await cubit.loadFleet(_companyContext);
-    cubit.selectTab(FleetAssetTab.trailers);
+  test(
+    'denied creates preserve loaded assets, tab and individual feedback events',
+    () async {
+      final cubit = _realCubit();
+      addTearDown(cubit.close);
+      await cubit.loadFleet(_companyContext);
+      cubit.selectTab(FleetAssetTab.trailers);
 
-    await cubit.saveTrailer(plateNumber: 'TR-NEW', status: VehicleStatus.available);
-    final first = cubit.state as FleetLoaded;
-    expect(first.allTractorHeads, [_tractor]);
-    expect(first.allTrailers, [_inactiveTrailer]);
-    expect(first.selectedTab, FleetAssetTab.trailers);
-    expect(first.mutationFailure?.code, QuotaFailureCodes.combinedVehiclesReached);
-    expect(first.mutationFailureSequence, 1);
+      await cubit.saveTrailer(
+        plateNumber: 'TR-NEW',
+        status: VehicleStatus.available,
+      );
+      final first = cubit.state as FleetLoaded;
+      expect(first.allTractorHeads, [_tractor]);
+      expect(first.allTrailers, [_inactiveTrailer]);
+      expect(first.selectedTab, FleetAssetTab.trailers);
+      expect(
+        first.mutationFailure?.code,
+        QuotaFailureCodes.combinedVehiclesReached,
+      );
+      expect(first.mutationFailureSequence, 1);
 
-    await cubit.saveTractorHead(plateNumber: 'T-NEW', status: VehicleStatus.available);
-    final second = cubit.state as FleetLoaded;
-    expect(second.allTractorHeads, [_tractor]);
-    expect(second.allTrailers, [_inactiveTrailer]);
-    expect(second.selectedTab, FleetAssetTab.trailers);
-    expect(second.mutationFailureSequence, 2);
-  });
+      await cubit.saveTractorHead(
+        plateNumber: 'T-NEW',
+        status: VehicleStatus.available,
+      );
+      final second = cubit.state as FleetLoaded;
+      expect(second.allTractorHeads, [_tractor]);
+      expect(second.allTrailers, [_inactiveTrailer]);
+      expect(second.selectedTab, FleetAssetTab.trailers);
+      expect(second.mutationFailureSequence, 2);
+    },
+  );
 
   test('denied trailer reactivation retains its inactive row', () async {
     final cubit = _realCubit();
@@ -93,46 +105,54 @@ void main() {
   });
 
   for (final locale in [const Locale('en'), const Locale('ar')]) {
-    testWidgets('quota denial keeps fleet visible with localized one-shot feedback: ${locale.languageCode}', (tester) async {
-      tester.view.physicalSize = const Size(1280, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'quota denial keeps fleet visible with localized one-shot feedback: ${locale.languageCode}',
+      (tester) async {
+        tester.view.physicalSize = const Size(1280, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cubit = _PageFleetCubit();
-      addTearDown(cubit.close);
-      await tester.pumpWidget(
-        BlocProvider<FleetCubit>.value(
-          value: cubit,
-          child: MaterialApp(
-            locale: locale,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            home: Scaffold(body: FleetPage(currentCompanyContext: _companyContext)),
+        final cubit = _PageFleetCubit();
+        addTearDown(cubit.close);
+        await tester.pumpWidget(
+          BlocProvider<FleetCubit>.value(
+            value: cubit,
+            child: MaterialApp(
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              home: Scaffold(
+                body: FleetPage(currentCompanyContext: _companyContext),
+              ),
+            ),
           ),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.text('T-100'), findsWidgets);
-      cubit.publishQuotaFailure();
-      await tester.pump();
-
-      final translated = locale.languageCode == 'ar'
-          ? AppLocalizationsAr().failureQuotaCombinedVehiclesReached
-          : AppLocalizationsEn().failureQuotaCombinedVehiclesReached;
-      expect(find.text(translated), findsOneWidget);
-      expect(find.text('T-100'), findsWidgets);
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text(locale.languageCode == 'ar' ? 'إعادة المحاولة' : 'Retry'), findsNothing);
-      if (locale.languageCode == 'ar') {
-        expect(
-          Directionality.of(tester.element(find.byType(FleetPage))),
-          TextDirection.rtl,
         );
-      }
-      expect(tester.takeException(), isNull);
-    });
+        await tester.pump();
+
+        expect(find.text('T-100'), findsWidgets);
+        cubit.publishQuotaFailure();
+        await tester.pump();
+
+        final translated = locale.languageCode == 'ar'
+            ? AppLocalizationsAr().failureQuotaCombinedVehiclesReached
+            : AppLocalizationsEn().failureQuotaCombinedVehiclesReached;
+        expect(find.text(translated), findsOneWidget);
+        expect(find.text('T-100'), findsWidgets);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(
+          find.text(locale.languageCode == 'ar' ? 'إعادة المحاولة' : 'Retry'),
+          findsNothing,
+        );
+        if (locale.languageCode == 'ar') {
+          expect(
+            Directionality.of(tester.element(find.byType(FleetPage))),
+            TextDirection.rtl,
+          );
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 }
 
@@ -153,19 +173,22 @@ FleetCubit _realCubit() {
         const ConvertInstantsToBusinessLocalDateTimesUseCase(
           FakeBusinessTimeZoneConverter(),
         ),
-    getCompanyBusinessDateUseCase:
-        GetCompanyBusinessDateUseCase(_FixedDateProvider()),
+    getCompanyBusinessDateUseCase: GetCompanyBusinessDateUseCase(
+      _FixedDateProvider(),
+    ),
   );
 }
 
 class _QuotaRepository implements FleetRepository {
   @override
-  Future<Result<List<TractorHead>>> getTractorHeads({required String companyId}) async =>
-      const Success<List<TractorHead>>([_tractor]);
+  Future<Result<List<TractorHead>>> getTractorHeads({
+    required String companyId,
+  }) async => const Success<List<TractorHead>>([_tractor]);
 
   @override
-  Future<Result<List<TrailerEntity>>> getTrailers({required String companyId}) async =>
-      const Success<List<TrailerEntity>>([_inactiveTrailer]);
+  Future<Result<List<TrailerEntity>>> getTrailers({
+    required String companyId,
+  }) async => const Success<List<TrailerEntity>>([_inactiveTrailer]);
 
   @override
   Future<Result<TractorHead>> addTractorHead({
@@ -210,24 +233,26 @@ class _NoAuditRepository implements AuditLogRepository {
 /// Only the stream contract is faked here; Cubit mutation behavior is tested above.
 class _PageFleetCubit extends Cubit<FleetState> implements FleetCubit {
   _PageFleetCubit()
-      : super(
-          const FleetLoaded(
-            currentCompanyContext: _companyContext,
-            allTractorHeads: [_tractor],
-            allTrailers: [_inactiveTrailer],
-            canManageFleet: true,
-          ),
-        );
+    : super(
+        const FleetLoaded(
+          currentCompanyContext: _companyContext,
+          allTractorHeads: [_tractor],
+          allTrailers: [_inactiveTrailer],
+          canManageFleet: true,
+        ),
+      );
 
   @override
   Future<void> loadFleet(CurrentCompanyContext _) async {}
 
   void publishQuotaFailure() {
     final current = state as FleetLoaded;
-    emit(current.copyWith(
-      mutationFailure: _quotaFailure,
-      mutationFailureSequence: current.mutationFailureSequence + 1,
-    ));
+    emit(
+      current.copyWith(
+        mutationFailure: _quotaFailure,
+        mutationFailureSequence: current.mutationFailureSequence + 1,
+      ),
+    );
   }
 
   @override
