@@ -63,8 +63,8 @@ def main():
     nonce = secrets.token_hex(7)
     actors = {
         name: api.create_session(name, nonce)
-        for name in ("owner", "invitee", "admin", "operations", "viewer",
-                     "driver", "foreign", "legacy", "legacy_member_a",
+        for name in ("owner", "invitee", "admin", "operations", "accountant",
+                     "viewer", "driver", "foreign", "legacy", "legacy_member_a",
                      "legacy_member_b", "legacy_member_c")
     }
     owner_id, owner_jwt = actors["owner"]
@@ -173,6 +173,44 @@ def main():
           one_row(quota(api, owner_jwt, company), "after abort")
           ["usage"]["company_users"] == 2)
 
+    # Reactivation must consume a seat even when a prior membership exists.
+    waiting_a = one_row(
+        prepare(api, owner_jwt, company,
+                f"horus32-reserved-a-{nonce}@example.test")[1],
+        "reserve seat before member deactivation",
+    )
+    member_args = {
+        "p_company_id": company, "p_membership_id": accepted["membership_id"],
+    }
+    one_row(rpc(api, owner_jwt, "deactivate_company_member", member_args),
+            "deactivate existing membership frees active seat")
+    waiting_b = one_row(
+        prepare(api, owner_jwt, company,
+                f"horus32-reserved-b-{nonce}@example.test")[1],
+        "two live pending reservations fill all seats",
+    )
+    denied(rpc(api, owner_jwt, "reactivate_company_member", member_args),
+           "P2860", "reactivation denied while reserved capacity is full")
+    one_row(
+        rpc(api, owner_jwt, "revoke_company_invitation", {
+            "p_company_id": company,
+            "p_invitation_id": waiting_b["invitation_id"],
+        }),
+        "revoke pending seat before reactivation",
+    )
+    one_row(rpc(api, owner_jwt, "reactivate_company_member", member_args),
+            "reactivation succeeds after a reservation is revoked")
+    one_row(
+        rpc(api, owner_jwt, "revoke_company_invitation", {
+            "p_company_id": company,
+            "p_invitation_id": waiting_a["invitation_id"],
+        }),
+        "cleanup reserved seat after reactivation",
+    )
+    check("member reactivation and revoked invites preserve original usage",
+          one_row(quota(api, owner_jwt, company), "seat lifecycle snapshot")
+          ["usage"]["company_users"] == 2)
+
     # Signed REST bypass and cross-table contention: five assets then race.
     for i in range(5):
         table = "tractor_heads" if i % 2 == 0 else "trailers"
@@ -234,20 +272,63 @@ def main():
     )
     check("non-consuming edit remains allowed", status == 200)
 
+    # Multi-row REST requests must fail atomically, without partial writes.
+    for table_name, asset_id in [
+        ("tractor_heads", current_id), ("trailers", parked_id),
+    ]:
+        status, _ = api.call(
+            "PATCH", "/rest/v1/" + table_name, token=owner_jwt,
+            query={"company_id": "eq." + company, "id": "eq." + asset_id},
+            payload={"is_active": False},
+        )
+        check("deactivation releases active vehicle capacity", status == 200)
+    check("two deactivations free exactly two shared slots",
+          active_fleet(db, company) == 4)
+    audit_before_bulk = count(db, "audit_logs", company)
+    status, payload = api.call(
+        "POST", "/rest/v1/trailers", token=owner_jwt,
+        payload=[
+            {"company_id": company,
+             "plate_number": "Q32-BULK-" + str(i) + "-" + nonce}
+            for i in range(3)
+        ],
+    )
+    check("three-row insertion cannot exceed only two free vehicle slots",
+          status >= 400 and isinstance(payload, dict)
+          and payload.get("code") == "P2860"
+          and active_fleet(db, company) == 4)
+    check("failed bulk write generates no partial audit rows",
+          count(db, "audit_logs", company) == audit_before_bulk)
+    for table_name, asset_id in [
+        ("tractor_heads", current_id), ("trailers", parked_id),
+    ]:
+        status, _ = api.call(
+            "PATCH", "/rest/v1/" + table_name, token=owner_jwt,
+            query={"company_id": "eq." + company, "id": "eq." + asset_id},
+            payload={"is_active": True},
+        )
+        check("reactivation uses restored shared capacity", status == 200)
+    check("all restored assets fit the same 6-vehicle cap",
+          active_fleet(db, company) == 6)
+
     # Roles, tenant boundaries and company_id mutation are DB-enforced.
     membership(db, company, actors["admin"][0], "admin", owner_id)
     membership(db, company, actors["operations"][0], "operations", owner_id)
+    membership(db, company, actors["accountant"][0], "accountant", owner_id)
     membership(db, company, actors["viewer"][0], "viewer", owner_id)
     membership(db, company, actors["driver"][0], "driver", owner_id)
     check("legacy over-cap members are kept intact",
           one_row(quota(api, owner_jwt, company), "historical occupancy")
-          ["usage"]["company_users"] == 6)
+          ["usage"]["company_users"] == 7)
     check("admin may see own usage",
           quota(api, actors["admin"][1], company)[0] == 200)
-    for role in ("operations", "viewer", "driver"):
+    for role in ("operations", "accountant", "viewer", "driver"):
         denied(quota(api, actors[role][1], company), "P2863",
                role + " cannot read full usage")
-    for role in ("viewer", "driver", "foreign"):
+    denied(fleet(api, actors["operations"][1], company, "trailers",
+                 "Q32-OPS-CAP-" + nonce),
+           "P2860", "operations may manage Fleet but cannot exceed capacity")
+    for role in ("accountant", "viewer", "driver", "foreign"):
         status, _ = fleet(api, actors[role][1], company, "trailers",
                           "Q32-DENIED-" + role + "-" + nonce)
         check(role + " cannot bypass RLS", status >= 400)
