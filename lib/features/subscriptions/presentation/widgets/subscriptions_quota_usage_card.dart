@@ -22,7 +22,10 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.usageTitle, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.usageTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.usageDescription),
             const SizedBox(height: AppSpacing.md),

@@ -5267,7 +5267,7 @@ abstract class AppLocalizations {
   /// No description provided for @failureCompanyInvitationDeliveryFailed.
   ///
   /// In en, this message translates to:
-  /// **'The invitation is pending, but the email could not be sent. You can resend it.'**
+  /// **'The email was rejected. The new invitation was canceled; an existing invitation, if any, remains available.'**
   String get failureCompanyInvitationDeliveryFailed;
 
   /// No description provided for @failureCompanyInvitationDeliveryConfirmationUnknown.

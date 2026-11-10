@@ -23,7 +23,9 @@ final class GetCompanyQuotaUsageUseCase
 
   @override
   Future<Result<CompanyQuotaSnapshot>> call(GetCompanyQuotaUsageParams params) {
-    if (!EntitlementVisibilityPolicy.canView(params.currentCompanyContext.role)) {
+    if (!EntitlementVisibilityPolicy.canView(
+      params.currentCompanyContext.role,
+    )) {
       return Future.value(
         const FailureResult<CompanyQuotaSnapshot>(
           PermissionFailure(code: QuotaFailureCodes.permissionDenied),

@@ -51,9 +51,9 @@ final class SubscriptionsLocalizations {
   String get usageDescription => _value('usageDescription');
   String get usageOverCap => _value('usageOverCap');
 
-  String usageCount(int used, String max) => _value('usageCount')
-      .replaceFirst('{used}', used.toString())
-      .replaceFirst('{max}', max);
+  String usageCount(int used, String max) => _value(
+    'usageCount',
+  ).replaceFirst('{used}', used.toString()).replaceFirst('{max}', max);
 
   String pricePerMonth(String price) {
     return _value('pricePerMonth').replaceFirst('{price}', price);

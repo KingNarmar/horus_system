@@ -2833,7 +2833,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryFailed =>
-      'الدعوة ما زالت معلقة، لكن تعذر إرسال البريد الإلكتروني. يمكنك إعادة الإرسال.';
+      'رفض مزود البريد إرسال الرسالة. أُلغيت الدعوة الجديدة وتظل أي دعوة سابقة متاحة.';
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>

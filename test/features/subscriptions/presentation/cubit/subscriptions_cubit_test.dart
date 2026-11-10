@@ -17,26 +17,29 @@ import 'package:horus_system/features/subscriptions/presentation/cubit/subscript
 import 'package:test/test.dart';
 
 void main() {
-  test('owner and admin load one server-authoritative usage projection', () async {
-    for (final role in [CompanyRole.owner, CompanyRole.admin]) {
-      final repository = _FakeCompanyQuotaRepository();
-      final cubit = _cubit(repository);
-      addTearDown(cubit.close);
+  test(
+    'owner and admin load one server-authoritative usage projection',
+    () async {
+      for (final role in [CompanyRole.owner, CompanyRole.admin]) {
+        final repository = _FakeCompanyQuotaRepository();
+        final cubit = _cubit(repository);
+        addTearDown(cubit.close);
 
-      await cubit.load(_context(role: role));
-      final state = cubit.state as SubscriptionsLoaded;
+        await cubit.load(_context(role: role));
+        final state = cubit.state as SubscriptionsLoaded;
 
-      expect(state.entitlement.planCode, 'free_starter');
-      expect(state.entitlement.expiresAt, isNull);
-      expect(state.quota.usageFor(EntitlementResource.companyUsers).used, 4);
-      expect(
-        state.quota.usageFor(EntitlementResource.companyUsers).isOverLimit,
-        isTrue,
-      );
-      expect(repository.callCount, 1);
-      expect(repository.lastCompanyId, 'company-1');
-    }
-  });
+        expect(state.entitlement.planCode, 'free_starter');
+        expect(state.entitlement.expiresAt, isNull);
+        expect(state.quota.usageFor(EntitlementResource.companyUsers).used, 4);
+        expect(
+          state.quota.usageFor(EntitlementResource.companyUsers).isOverLimit,
+          isTrue,
+        );
+        expect(repository.callCount, 1);
+        expect(repository.lastCompanyId, 'company-1');
+      }
+    },
+  );
 
   test('viewer never queries company usage', () async {
     final repository = _FakeCompanyQuotaRepository();

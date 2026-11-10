@@ -19,37 +19,50 @@ final class _Remote implements CompanyQuotaRemoteDataSource {
 
 void main() {
   test('missing server projection yields safe typed failure', () async {
-    final result = await CompanyQuotaRepositoryImpl(_Remote())
-        .getUsage(companyId: 'company-1');
+    final result = await CompanyQuotaRepositoryImpl(
+      _Remote(),
+    ).getUsage(companyId: 'company-1');
     expect(result.failureOrNull?.code, QuotaFailureCodes.unavailable);
   });
 
   test('foreign tenant and malformed server state fail closed', () async {
-    final source = _Remote(response: {
-      'entitlement': {'company_id': 'another-company'},
-      'usage': {'company_users': 1, 'combined_vehicles': 0},
-    });
-    final result = await CompanyQuotaRepositoryImpl(source)
-        .getUsage(companyId: 'company-1');
+    final source = _Remote(
+      response: {
+        'entitlement': {'company_id': 'another-company'},
+        'usage': {'company_users': 1, 'combined_vehicles': 0},
+      },
+    );
+    final result = await CompanyQuotaRepositoryImpl(
+      source,
+    ).getUsage(companyId: 'company-1');
     expect(result.failureOrNull?.code, QuotaFailureCodes.corrupt);
   });
 
   test('DB role denial never leaks raw message to UI', () async {
     final result = await CompanyQuotaRepositoryImpl(
-      _Remote(error: const PostgrestException(
-        message: 'private schema detail', code: 'P2863',
-      )),
+      _Remote(
+        error: const PostgrestException(
+          message: 'private schema detail',
+          code: 'P2863',
+        ),
+      ),
     ).getUsage(companyId: 'company-1');
     expect(result.failureOrNull?.code, QuotaFailureCodes.permissionDenied);
     expect(result.failureOrNull?.message, isNull);
   });
 
-  test('backend unavailability stays distinct from permission denial', () async {
-    final result = await CompanyQuotaRepositoryImpl(
-      _Remote(error: const PostgrestException(
-        message: 'backend state unavailable', code: 'P2861',
-      )),
-    ).getUsage(companyId: 'company-1');
-    expect(result.failureOrNull?.code, QuotaFailureCodes.unavailable);
-  });
+  test(
+    'backend unavailability stays distinct from permission denial',
+    () async {
+      final result = await CompanyQuotaRepositoryImpl(
+        _Remote(
+          error: const PostgrestException(
+            message: 'backend state unavailable',
+            code: 'P2861',
+          ),
+        ),
+      ).getUsage(companyId: 'company-1');
+      expect(result.failureOrNull?.code, QuotaFailureCodes.unavailable);
+    },
+  );
 }

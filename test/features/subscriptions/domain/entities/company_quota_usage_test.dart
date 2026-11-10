@@ -4,17 +4,20 @@ import 'package:horus_system/features/subscriptions/domain/entities/entitlement_
 import 'package:test/test.dart';
 
 void main() {
-  test('finite limit retains historical over-cap usage without negative space', () {
-    final usage = CompanyQuotaUsage(
-      resource: EntitlementResource.companyUsers,
-      limit: EntitlementLimit.finite(3),
-      used: 10,
-    );
-    expect(usage.used, 10);
-    expect(usage.remaining, 0);
-    expect(usage.isOverLimit, isTrue);
-    expect(usage.isAtCapacity, isTrue);
-  });
+  test(
+    'finite limit retains historical over-cap usage without negative space',
+    () {
+      final usage = CompanyQuotaUsage(
+        resource: EntitlementResource.companyUsers,
+        limit: EntitlementLimit.finite(3),
+        used: 10,
+      );
+      expect(usage.used, 10);
+      expect(usage.remaining, 0);
+      expect(usage.isOverLimit, isTrue);
+      expect(usage.isAtCapacity, isTrue);
+    },
+  );
 
   test('available and exactly full capacity are distinct', () {
     final available = CompanyQuotaUsage(

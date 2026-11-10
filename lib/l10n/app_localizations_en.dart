@@ -2868,7 +2868,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureCompanyInvitationDeliveryFailed =>
-      'The invitation is pending, but the email could not be sent. You can resend it.';
+      'The email was rejected. The new invitation was canceled; an existing invitation, if any, remains available.';
 
   @override
   String get failureCompanyInvitationDeliveryConfirmationUnknown =>

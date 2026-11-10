@@ -43,34 +43,37 @@ CompanyQuotaSnapshot _quota() {
 
 void main() {
   for (final locale in [const Locale('en'), const Locale('ar')]) {
-    testWidgets('usage shows counts and over-cap note for ${locale.languageCode}', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: locale,
-          supportedLocales: const [Locale('en'), Locale('ar')],
-          home: Scaffold(
-            body: SubscriptionsQuotaUsageCard(quota: _quota()),
+    testWidgets(
+      'usage shows counts and over-cap note for ${locale.languageCode}',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: locale,
+            supportedLocales: const [Locale('en'), Locale('ar')],
+            home: Scaffold(body: SubscriptionsQuotaUsageCard(quota: _quota())),
           ),
-        ),
-      );
-      expect(
-        find.text(locale.languageCode == 'ar'
-            ? 'المستخدم 4 من 3'
-            : '4 of 3 used'),
-        findsOneWidget,
-      );
-      expect(
-        find.text(locale.languageCode == 'ar'
-            ? 'المستخدم 2 من 6'
-            : '2 of 6 used'),
-        findsOneWidget,
-      );
-      expect(
-        find.text(locale.languageCode == 'ar'
-            ? 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.'
-            : 'Above the plan limit; existing records remain accessible.'),
-        findsOneWidget,
-      );
-    });
+        );
+        expect(
+          find.text(
+            locale.languageCode == 'ar' ? 'المستخدم 4 من 3' : '4 of 3 used',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.text(
+            locale.languageCode == 'ar' ? 'المستخدم 2 من 6' : '2 of 6 used',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.text(
+            locale.languageCode == 'ar'
+                ? 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.'
+                : 'Above the plan limit; existing records remain accessible.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   }
 }

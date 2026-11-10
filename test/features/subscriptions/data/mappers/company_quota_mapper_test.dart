@@ -23,12 +23,15 @@ Map<String, dynamic> _payload() => {
       'lifetime_invoices': 10,
       'business_documents': 50,
     },
-    'enabled_features': ['company_branding', 'invoice_pdf', 'report_pdf', 'report_xlsx', 'document_upload'],
+    'enabled_features': [
+      'company_branding',
+      'invoice_pdf',
+      'report_pdf',
+      'report_xlsx',
+      'document_upload',
+    ],
   },
-  'usage': {
-    'company_users': 10,
-    'combined_vehicles': 6,
-  },
+  'usage': {'company_users': 10, 'combined_vehicles': 6},
 };
 
 void main() {

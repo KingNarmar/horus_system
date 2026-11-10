@@ -14,7 +14,9 @@ final class _Repository implements CompanyQuotaRepository {
   int calls = 0;
 
   @override
-  Future<Result<CompanyQuotaSnapshot>> getUsage({required String companyId}) async {
+  Future<Result<CompanyQuotaSnapshot>> getUsage({
+    required String companyId,
+  }) async {
     calls++;
     this.companyId = companyId;
     return const FailureResult(
