@@ -46,21 +46,17 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Arabic creation subtitle does not imply first company',
-    (tester) async {
-      await _pumpCreationPage(
-        tester,
-        existingCompanies: const [_otherCompany],
-        locale: const Locale('ar'),
-      );
+  testWidgets('Arabic creation subtitle does not imply first company', (
+    tester,
+  ) async {
+    await _pumpCreationPage(
+      tester,
+      existingCompanies: const [_otherCompany],
+      locale: const Locale('ar'),
+    );
 
-      expect(
-        find.text('أنشئ مساحة عمل لشركتك داخل نظام حورس.'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('أنشئ مساحة عمل لشركتك داخل نظام حورس.'), findsOneWidget);
+  });
 
   testWidgets(
     'opens app shell only after authoritative company context matches',
