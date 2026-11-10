@@ -132,6 +132,7 @@ void main() {
         expect(find.text('T-100'), findsWidgets);
         cubit.publishQuotaFailure();
         await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
         final translated = locale.languageCode == 'ar'
             ? AppLocalizationsAr().failureQuotaCombinedVehiclesReached
