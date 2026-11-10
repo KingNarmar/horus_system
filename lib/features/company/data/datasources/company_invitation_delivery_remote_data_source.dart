@@ -96,7 +96,8 @@ class SupabaseCompanyInvitationDeliveryRemoteDataSource
   static String? _semanticCode(Object? payload) {
     if (payload is! Map) return null;
     final value = payload['code'];
-    if (value is! String || !value.startsWith('company_')) return null;
-    return value;
+    if (value is! String) return null;
+    if (value == CompanyFailureCodes.quotaCompanyUsersReached) return value;
+    return value.startsWith('company_') ? value : null;
   }
 }

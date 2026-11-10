@@ -154,6 +154,33 @@ void main() {
       );
       expect(classify(error), CompanyFailureCodes.invitationPermissionDenied);
     });
+    test('full invitation seats preserve typed localized quota failure', () {
+      final error = FunctionException(
+        status: 400,
+        details: {'code': CompanyFailureCodes.quotaCompanyUsersReached},
+      );
+      final code = classify(error);
+      final failure = const CompanyCommandFailureMapper().fromCode(code);
+
+      expect(code, CompanyFailureCodes.quotaCompanyUsersReached);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, CompanyFailureCodes.quotaCompanyUsersReached);
+      expect(failure.message, isNull);
+    });
+
+    test('unrecognized quota codes and backend messages remain sanitized', () {
+      final unknownQuota = FunctionException(
+        status: 400,
+        details: {'code': 'quota_unrecognized_internal_detail'},
+      );
+      final rawBackend = FunctionException(
+        status: 400,
+        details: {'code': 'private_database_error'},
+      );
+
+      expect(classify(unknownQuota), FailureCodes.serverError);
+      expect(classify(rawBackend), FailureCodes.serverError);
+    });
   });
 
   group('CompanyCommandFailureMapper', () {

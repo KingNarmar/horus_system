@@ -305,6 +305,7 @@ function extractSemanticCode(data: unknown): string | null {
   if (!data || typeof data !== 'object') return null
   const message = (data as Record<string, unknown>).message
   if (typeof message !== 'string') return null
+  if (message === 'quota_company_users_reached') return message
   return message.startsWith('company_') ? message : null
 }
 
