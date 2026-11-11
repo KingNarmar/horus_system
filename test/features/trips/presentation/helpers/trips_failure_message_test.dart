@@ -26,16 +26,8 @@ void main() {
       const rejected = ConflictFailure(
         code: QuotaFailureCodes.lifetimeTripsReached,
       );
-      final english = await _messageFor(
-        tester,
-        const Locale('en'),
-        rejected,
-      );
-      final arabic = await _messageFor(
-        tester,
-        const Locale('ar'),
-        rejected,
-      );
+      final english = await _messageFor(tester, const Locale('en'), rejected);
+      final arabic = await _messageFor(tester, const Locale('ar'), rejected);
       expect(english, contains('lifetime trip creation limit'));
       expect(arabic, contains('الحد الإجمالي لإنشاء الرحلات'));
     });
