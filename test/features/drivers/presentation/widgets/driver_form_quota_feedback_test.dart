@@ -63,9 +63,7 @@ void main() {
         expect(find.byType(SnackBar), findsNothing);
         expect(
           Directionality.of(tester.element(find.byType(DriverFormDialog))),
-          locale.languageCode == 'ar'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
+          locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
         );
         expect(tester.takeException(), isNull);
       },

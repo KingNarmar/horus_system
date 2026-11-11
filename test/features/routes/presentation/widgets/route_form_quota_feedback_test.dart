@@ -55,9 +55,7 @@ void main() {
         expect(find.text('Sharjah'), findsOneWidget);
         expect(
           Directionality.of(tester.element(find.byType(RouteFormDialog))),
-          locale.languageCode == 'ar'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
+          locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
         );
         expect(tester.takeException(), isNull);
       },

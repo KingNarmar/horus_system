@@ -17,7 +17,8 @@ void main() {
                 child: SizedBox(
                   width: 280,
                   child: AppFormFailureNotice(
-                    message: 'A capacity limit has been reached. '
+                    message:
+                        'A capacity limit has been reached. '
                         'An existing record must be deactivated before '
                         'another record can be added or reactivated.',
                   ),
