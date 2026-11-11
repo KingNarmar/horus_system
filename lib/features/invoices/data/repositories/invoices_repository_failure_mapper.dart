@@ -5,6 +5,7 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/invoice_failure_codes.dart';
 import '../constants/invoices_rpc_error_codes.dart';
 
@@ -20,6 +21,17 @@ final class InvoicesRepositoryFailureMapper {
     required String permissionCode,
   }) {
     return switch (error.code) {
+      InvoicesRpcErrorCodes.quotaReached
+          when error.message == QuotaFailureCodes.lifetimeInvoicesReached =>
+        const ConflictFailure(code: QuotaFailureCodes.lifetimeInvoicesReached),
+      InvoicesRpcErrorCodes.quotaUnavailable =>
+        const ServerFailure(code: QuotaFailureCodes.unavailable),
+      InvoicesRpcErrorCodes.quotaInvalid =>
+        const ServerFailure(code: QuotaFailureCodes.corrupt),
+      InvoicesRpcErrorCodes.idempotencyPayloadConflict =>
+        const ConflictFailure(code: QuotaFailureCodes.idempotencyPayloadConflict),
+      InvoicesRpcErrorCodes.idempotentRecordUnavailable =>
+        const ConflictFailure(code: QuotaFailureCodes.idempotentRecordUnavailable),
       InvoicesRpcErrorCodes.noRowsReturned ||
       InvoicesRpcErrorCodes.invoiceNotFound => const NotFoundFailure(
         code: InvoiceFailureCodes.notFound,

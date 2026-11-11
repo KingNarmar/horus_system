@@ -4,6 +4,7 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../domain/failures/trip_failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../constants/trip_db_contract.dart';
 
 final class TripRepositoryFailureMapper {
@@ -11,6 +12,17 @@ final class TripRepositoryFailureMapper {
 
   Failure fromPostgrest(PostgrestException error) {
     return switch (error.code) {
+      TripDbErrorCodes.quotaReached
+          when error.message == QuotaFailureCodes.lifetimeTripsReached =>
+        const ConflictFailure(code: QuotaFailureCodes.lifetimeTripsReached),
+      TripDbErrorCodes.quotaUnavailable =>
+        const ServerFailure(code: QuotaFailureCodes.unavailable),
+      TripDbErrorCodes.quotaInvalid =>
+        const ServerFailure(code: QuotaFailureCodes.corrupt),
+      TripDbErrorCodes.idempotencyPayloadConflict =>
+        const ConflictFailure(code: QuotaFailureCodes.idempotencyPayloadConflict),
+      TripDbErrorCodes.idempotentRecordUnavailable =>
+        const ConflictFailure(code: QuotaFailureCodes.idempotentRecordUnavailable),
       TripDbErrorCodes.managementPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripsManagement,
       ),

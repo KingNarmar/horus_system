@@ -1,5 +1,6 @@
 abstract final class TripDbRpcs {
   static const create = 'create_trip_atomic';
+  static const createIdempotent = 'create_trip_idempotent';
   static const save = 'save_trip_atomic';
   static const saveChecked = 'save_trip_checked_atomic';
   static const updateStatus = 'update_trip_status_atomic';
@@ -8,6 +9,7 @@ abstract final class TripDbRpcs {
 
 abstract final class TripDbRpcParams {
   static const companyId = 'p_company_id';
+  static const requestId = 'p_request_id';
   static const tripId = 'p_trip_id';
   static const expectedUpdatedAt = 'p_expected_updated_at';
   static const customerId = 'p_customer_id';
@@ -44,6 +46,11 @@ abstract final class TripDbErrorCodes {
   static const invoiceFinancialTermsLocked = 'P3436';
   static const financeQuantityRequired = 'P3437';
   static const checkViolation = '23514';
+  static const quotaReached = 'P2860';
+  static const quotaUnavailable = 'P2861';
+  static const quotaInvalid = 'P2862';
+  static const idempotencyPayloadConflict = 'P2865';
+  static const idempotentRecordUnavailable = 'P2866';
 }
 
 abstract final class TripDbConstraints {

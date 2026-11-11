@@ -37,6 +37,16 @@ abstract final class CompanyQuotaMapper {
           limit: entitlement.limitFor(EntitlementResource.routes),
           used: usage[CompanyQuotaRpc.routes] as int,
         ),
+        EntitlementResource.lifetimeTrips: CompanyQuotaUsage(
+          resource: EntitlementResource.lifetimeTrips,
+          limit: entitlement.limitFor(EntitlementResource.lifetimeTrips),
+          used: usage[CompanyQuotaRpc.lifetimeTrips] as int,
+        ),
+        EntitlementResource.lifetimeInvoices: CompanyQuotaUsage(
+          resource: EntitlementResource.lifetimeInvoices,
+          limit: entitlement.limitFor(EntitlementResource.lifetimeInvoices),
+          used: usage[CompanyQuotaRpc.lifetimeInvoices] as int,
+        ),
       },
     );
   }

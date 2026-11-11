@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/creation_retry_registry.dart';
 import '../../../../core/data/utils/db_date.dart';
 import '../../domain/value_objects/invoice_date.dart';
 import '../constants/invoices_db_fields.dart';
@@ -55,7 +56,9 @@ final class SupabaseInvoicesRemoteDataSource
     implements InvoicesRemoteDataSource {
   final SupabaseClient _client;
 
-  const SupabaseInvoicesRemoteDataSource(this._client);
+  SupabaseInvoicesRemoteDataSource(this._client);
+
+  final CreationRetryRegistry _creationRequests = CreationRetryRegistry();
 
   @override
   Future<List<InvoiceModel>> getInvoices({required String companyId}) async {
@@ -129,15 +132,22 @@ final class SupabaseInvoicesRemoteDataSource
   Future<InvoiceModel> createDraft({
     required InvoiceDraftWriteModel data,
   }) async {
+    final params = data.createParams();
+    final requestId = _creationRequests.keyFor(params);
     final response = await _client.rpc(
-      InvoicesRpcConstants.createDraft,
-      params: data.createParams(),
+      InvoicesRpcConstants.createDraftIdempotent,
+      params: {...params, InvoicesRpcConstants.requestId: requestId},
     );
     final invoiceId = InvoiceDataParser.requiredString(
       response,
-      InvoicesRpcConstants.createDraft,
+      InvoicesRpcConstants.createDraftIdempotent,
     );
-    return getInvoiceDetails(companyId: data.companyId, invoiceId: invoiceId);
+    final invoice = await getInvoiceDetails(
+      companyId: data.companyId,
+      invoiceId: invoiceId,
+    );
+    _creationRequests.markSucceeded(params);
+    return invoice;
   }
 
   @override
