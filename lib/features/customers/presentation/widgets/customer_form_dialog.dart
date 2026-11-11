@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/widgets/app_form_failure_notice.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/validators/app_validators.dart';
 import '../../domain/entities/customer.dart';
@@ -192,10 +193,9 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                 ),
                 if (_submissionFailure != null) ...[
                   const SizedBox(height: AppSpacing.md),
-                  Text(
-                    l10n.localizedCustomerFailureMessage(_submissionFailure!),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                  AppFormFailureNotice(
+                    message: l10n.localizedCustomerFailureMessage(
+                      _submissionFailure!,
                     ),
                   ),
                 ],

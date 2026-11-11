@@ -208,7 +208,7 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     }
   }
 
-  Future<bool> saveRoute({
+  Future<Failure?> saveRoute({
     RouteEntity? route,
     required String loadingLocation,
     required String unloadingLocation,
@@ -218,7 +218,7 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     String? notes,
   }) async {
     final context = _currentCompanyContext;
-    if (context == null || isClosed) return false;
+    if (context == null || isClosed) return const UnexpectedFailure();
 
     final result = await saveRouteUseCase(
       SaveRouteParams(
@@ -234,17 +234,16 @@ class RoutesCubit extends Cubit<RoutesState> with RoutesRealtimeActions {
     );
 
     if (isClosed || _currentCompanyContext?.companyId != context.companyId) {
-      return false;
+      return const UnexpectedFailure();
     }
     final failure = result.failureOrNull;
-    if (failure != null) {
-      _emitMutationFailure(failure);
-      return false;
-    }
+    if (failure != null) return failure;
+
     final saved = result.dataOrNull;
-    if (saved == null) return false;
+    if (saved == null) return const UnexpectedFailure();
+
     _upsertRoute(saved);
-    return true;
+    return null;
   }
 
   Future<void> deactivateRoute(RouteEntity route) {

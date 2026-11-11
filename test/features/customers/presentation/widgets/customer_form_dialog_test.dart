@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/widgets/app_form_failure_notice.dart';
 import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:horus_system/features/customers/presentation/widgets/customer_form_dialog.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
@@ -51,6 +52,7 @@ void main() {
         expect(submitted, 1);
         expect(find.text('Customer preserved'), findsOneWidget);
         expect(find.text(expected), findsOneWidget);
+        expect(find.byType(AppFormFailureNotice), findsOneWidget);
         expect(find.byType(CustomerFormDialog), findsOneWidget);
         if (locale.languageCode == 'ar') {
           expect(
