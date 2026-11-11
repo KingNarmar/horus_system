@@ -54,12 +54,12 @@ void main() {
         expect(find.text(expected), findsOneWidget);
         expect(find.byType(AppFormFailureNotice), findsOneWidget);
         // Error must be visible without scrolling long form fields.
-        final noticeTop = tester.getTopLeft(
-          find.byType(AppFormFailureNotice),
-        ).dy;
-        final formScrollTop = tester.getTopLeft(
-          find.byType(SingleChildScrollView).first,
-        ).dy;
+        final noticeTop = tester
+            .getTopLeft(find.byType(AppFormFailureNotice))
+            .dy;
+        final formScrollTop = tester
+            .getTopLeft(find.byType(SingleChildScrollView).first)
+            .dy;
         expect(noticeTop, lessThan(formScrollTop));
         expect(find.byType(CustomerFormDialog), findsOneWidget);
         if (locale.languageCode == 'ar') {

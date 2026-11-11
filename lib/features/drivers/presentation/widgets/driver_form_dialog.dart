@@ -119,14 +119,14 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
+            widget.driver == null
+                ? l10n.addDriverButton
+                : l10n.editDriverButton,
           ),
           if (_submissionFailure != null) ...[
             const SizedBox(height: AppSpacing.md),
             AppFormFailureNotice(
-              message: l10n.localizedDriverFailureMessage(
-                _submissionFailure!,
-              ),
+              message: l10n.localizedDriverFailureMessage(_submissionFailure!),
             ),
           ],
         ],

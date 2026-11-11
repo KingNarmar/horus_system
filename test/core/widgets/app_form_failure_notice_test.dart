@@ -32,10 +32,12 @@ void main() {
       expect(find.byType(AppFormFailureNotice), findsOneWidget);
       expect(find.byIcon(AppIcons.bootstrapFailure), findsOneWidget);
       final notice = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(AppFormFailureNotice),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(AppFormFailureNotice),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final colors = Theme.of(
         tester.element(find.byType(AppFormFailureNotice)),

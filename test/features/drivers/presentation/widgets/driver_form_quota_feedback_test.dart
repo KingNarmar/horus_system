@@ -59,12 +59,12 @@ void main() {
         expect(find.byType(DriverFormDialog), findsOneWidget);
         expect(find.byType(AppFormFailureNotice), findsOneWidget);
         // Error must be visible without scrolling long form fields.
-        final noticeTop = tester.getTopLeft(
-          find.byType(AppFormFailureNotice),
-        ).dy;
-        final formScrollTop = tester.getTopLeft(
-          find.byType(SingleChildScrollView).first,
-        ).dy;
+        final noticeTop = tester
+            .getTopLeft(find.byType(AppFormFailureNotice))
+            .dy;
+        final formScrollTop = tester
+            .getTopLeft(find.byType(SingleChildScrollView).first)
+            .dy;
         expect(noticeTop, lessThan(formScrollTop));
         expect(find.text(l10n.failureQuotaDriversReached), findsOneWidget);
         expect(find.text('Driver remains editable'), findsOneWidget);
