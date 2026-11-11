@@ -165,6 +165,16 @@ def main():
         "p_company_id": company, "p_customer_id": a_customer,
         "p_route_id": a_route,
     }), "P2860", "older Trip RPC cannot bypass full quota")
+    status, _ = rpc(api, owner_jwt, "update_trip_status_atomic", {
+        "p_company_id": company, "p_trip_id": first["id"],
+        "p_new_status": "cancelled", "p_notes": "local-only cancellation",
+    })
+    check("cancelling an existing Trip is allowed after cap", status == 200)
+    check("cancelled Trip never returns lifetime capacity",
+          used(db, company, "lifetime_trips") == 30)
+    denied(creation(api, owner_jwt, str(uuid.uuid4()), company,
+                    a_customer, a_route), "P2860",
+           "fresh Trip creation remains denied after prior cancellation")
     check("other company Trip quota independent",
           used(db, other, "lifetime_trips") == 0)
 
@@ -270,6 +280,9 @@ def main():
     denied(draft(api, foreign_jwt, invoice_request, other,
                  b_customer, trips[0]), "P2866",
            "deleted original invoice cannot be recreated by retry")
+    denied(draft(api, foreign_jwt, str(uuid.uuid4()), other,
+                 b_customer, trips[0]), "P2860",
+           "fresh invoice request remains denied after old record deletion")
     status, data = rpc(api, foreign_jwt, "get_company_quota_usage", {
         "p_company_id": other
     })

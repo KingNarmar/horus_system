@@ -141,6 +141,54 @@ void main() {
   );
 
   testWidgets(
+    'Arabic lifetime invoice quota denial is visible on narrow RTL layout',
+    (tester) async {
+      await _setSurfaceSize(tester, const Size(390, 844));
+      final trips = [
+        _billableTrip(id: 'trip-quota-ar', tripNumber: 'TRP-2026-000030'),
+      ];
+      await _pumpLocalized(
+        tester,
+        locale: const Locale('ar'),
+        child: InvoiceDraftDialog(
+          billableTrips: trips,
+          currencyFractionDigits: 2,
+          onCalculatePreview: ({required customerId, required trips}) async {
+            return _previewFor(trips);
+          },
+          onSubmit: (_) async => false,
+          getSubmitFailure: () => const ConflictFailure(
+            code: QuotaFailureCodes.lifetimeInvoicesReached,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftCustomerField')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Customer One').last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftTrip-trip-quota-ar')),
+      );
+      await tester.pumpAndSettle();
+      final save = find.byKey(const ValueKey('invoiceDraftSaveButton'));
+      await tester.ensureVisible(save);
+      await tester.tap(save);
+      await tester.pumpAndSettle();
+
+      final notice = find.byType(AppFormFailureNotice);
+      expect(notice, findsOneWidget);
+      expect(
+        find.textContaining('الحد الإجمالي لإنشاء الفواتير'),
+        findsOneWidget,
+      );
+      expect(Directionality.of(tester.element(notice)), TextDirection.rtl);
+      expect(find.byType(InvoiceDraftDialog), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'grouped invoice draft stays responsive in Arabic at narrow width',
     (tester) async {
       await _setSurfaceSize(tester, const Size(390, 844));
