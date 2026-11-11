@@ -99,9 +99,13 @@ def main():
 
     request = str(uuid.uuid4())
     first_args = (api, owner_jwt, request, company, a_customer, a_route)
-    first = successful(creation(*first_args), "first Trip creation")
-    replay = successful(creation(*first_args), "same-key Trip replay")
-    check("Trip retry returns same id and consumes once",
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        responses = list(pool.map(lambda _: creation(*first_args), range(2)))
+    first, replay = [
+        successful(response, "simultaneous same-key Trip replay")
+        for response in responses
+    ]
+    check("parallel Trip retry returns same id and consumes once",
           replay["id"] == first["id"] and used(db, company, "lifetime_trips") == 1)
 
     different = rpc(api, owner_jwt, "create_trip_idempotent", {
@@ -157,6 +161,10 @@ def main():
     denied(creation(api, owner_jwt, str(uuid.uuid4()), company,
                     a_customer, a_route),
            "P2860", "Trip #31 denied")
+    denied(rpc(api, owner_jwt, "create_trip_atomic", {
+        "p_company_id": company, "p_customer_id": a_customer,
+        "p_route_id": a_route,
+    }), "P2860", "older Trip RPC cannot bypass full quota")
     check("other company Trip quota independent",
           used(db, other, "lifetime_trips") == 0)
 
@@ -187,15 +195,17 @@ def main():
     check("anonymous invoice denied", status >= 400)
 
     invoice_request = str(uuid.uuid4())
-    first_invoice = successful(
-        draft(api, foreign_jwt, invoice_request, other, b_customer, trips[0]),
-        "first invoice draft"
-    )
-    retried_invoice = successful(
-        draft(api, foreign_jwt, invoice_request, other, b_customer, trips[0]),
-        "same-key invoice draft retry"
-    )
-    check("invoice retry preserves ID and counts once",
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        responses = list(pool.map(
+            lambda _: draft(api, foreign_jwt, invoice_request,
+                            other, b_customer, trips[0]),
+            range(2),
+        ))
+    first_invoice, retried_invoice = [
+        successful(response, "simultaneous same-key Invoice replay")
+        for response in responses
+    ]
+    check("parallel Invoice retry preserves ID and counts once",
           first_invoice == retried_invoice
           and used(db, other, "lifetime_invoices") == 1)
     denied(draft(api, foreign_jwt, invoice_request, other,
@@ -250,6 +260,16 @@ def main():
     check("cancellation never restores lifetime invoice quota",
           used(db, other, "lifetime_invoices") == 10)
 
+    # Local-only hard deletion is allowed to demonstrate monotonic history.
+    psql(db, "DELETE FROM public.invoices WHERE company_id='"
+         + other + "' AND id='" + first_invoice + "';")
+    check("hard deletion cannot restore lifetime capacity",
+          used(db, other, "lifetime_invoices") == 10
+          and private_count(db, "company_lifetime_creation_events",
+                            other, "lifetime_invoices") == 10)
+    denied(draft(api, foreign_jwt, invoice_request, other,
+                 b_customer, trips[0]), "P2866",
+           "deleted original invoice cannot be recreated by retry")
     status, data = rpc(api, foreign_jwt, "get_company_quota_usage", {
         "p_company_id": other
     })
