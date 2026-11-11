@@ -111,7 +111,19 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     final l10n = context.l10n;
 
     return AlertDialog(
-      title: Text(widget.title),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.title),
+          if (_submissionFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: routesFailureMessage(context, _submissionFailure!),
+            ),
+          ],
+        ],
+      ),
       content: SizedBox(
         width: AppSizes.formDialogMaxWidth,
         child: SingleChildScrollView(
@@ -184,12 +196,6 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
                   decoration: InputDecoration(labelText: l10n.routeNotesLabel),
                   maxLines: 3,
                 ),
-                if (_submissionFailure != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  AppFormFailureNotice(
-                    message: routesFailureMessage(context, _submissionFailure!),
-                  ),
-                ],
               ],
             ),
           ),

@@ -49,6 +49,14 @@ void main() {
         expect(submits, 1);
         expect(find.byType(RouteFormDialog), findsOneWidget);
         expect(find.byType(AppFormFailureNotice), findsOneWidget);
+        // Error must be visible without scrolling long form fields.
+        final noticeTop = tester.getTopLeft(
+          find.byType(AppFormFailureNotice),
+        ).dy;
+        final formScrollTop = tester.getTopLeft(
+          find.byType(SingleChildScrollView).first,
+        ).dy;
+        expect(noticeTop, lessThan(formScrollTop));
         expect(find.text(l10n.failureQuotaRoutesReached), findsOneWidget);
         expect(find.byType(SnackBar), findsNothing);
         expect(find.text('Dubai'), findsOneWidget);

@@ -18,21 +18,21 @@ class AppFormFailureNotice extends StatelessWidget {
       liveRegion: true,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.errorContainer,
-          border: Border.all(color: colors.error),
+          // Match the Material 3 SnackBar tone used elsewhere in H.O.R.U.S.
+          color: colors.inverseSurface,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(AppIcons.bootstrapFailure, color: colors.onErrorContainer),
+            Icon(AppIcons.bootstrapFailure, color: colors.onInverseSurface),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
                 message,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.onErrorContainer,
+                  color: colors.onInverseSurface,
                 ),
               ),
             ),

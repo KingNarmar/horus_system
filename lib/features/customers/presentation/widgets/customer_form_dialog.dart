@@ -134,7 +134,21 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
     final isEditing = widget.customer != null;
 
     return AlertDialog(
-      title: Text(isEditing ? l10n.editCustomerTitle : l10n.addCustomerTitle),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(isEditing ? l10n.editCustomerTitle : l10n.addCustomerTitle),
+          if (_submissionFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: l10n.localizedCustomerFailureMessage(
+                _submissionFailure!,
+              ),
+            ),
+          ],
+        ],
+      ),
       content: SizedBox(
         width: 560,
         child: SingleChildScrollView(
@@ -191,14 +205,6 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                     return null;
                   },
                 ),
-                if (_submissionFailure != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  AppFormFailureNotice(
-                    message: l10n.localizedCustomerFailureMessage(
-                      _submissionFailure!,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

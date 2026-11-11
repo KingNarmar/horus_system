@@ -114,8 +114,22 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return AlertDialog(
-      title: Text(
-        widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
+          ),
+          if (_submissionFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: l10n.localizedDriverFailureMessage(
+                _submissionFailure!,
+              ),
+            ),
+          ],
+        ],
       ),
       content: SizedBox(width: 520, child: _content(context)),
       actions: [

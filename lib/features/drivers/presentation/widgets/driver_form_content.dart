@@ -11,14 +11,6 @@ extension _DriverFormContent on _DriverFormDialogState {
             _identityFields(context),
             const SizedBox(height: AppSpacing.md),
             _documentImageFields(context),
-            if (_submissionFailure != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              AppFormFailureNotice(
-                message: context.l10n.localizedDriverFailureMessage(
-                  _submissionFailure!,
-                ),
-              ),
-            ],
           ],
         ),
       ),
