@@ -175,6 +175,18 @@ def main():
     denied(creation(api, owner_jwt, str(uuid.uuid4()), company,
                     a_customer, a_route), "P2860",
            "fresh Trip creation remains denied after prior cancellation")
+    # An authenticated direct Data API INSERT must not bypass the RPC cap.
+    status, _ = api.call("POST", "/rest/v1/trips", token=owner_jwt,
+                         query={"select": "id"},
+                         payload={"company_id": company,
+                                  "customer_id": a_customer,
+                                  "route_id": a_route})
+    check("direct REST Trip INSERT cannot bypass lifetime cap", status >= 400)
+    check("denied direct Trip INSERT cannot consume or release capacity",
+          used(db, company, "lifetime_trips") == 30
+          and private_count(db, "company_lifetime_creation_events",
+                            company, "lifetime_trips") == 30)
+
     check("other company Trip quota independent",
           used(db, other, "lifetime_trips") == 0)
 
@@ -289,6 +301,27 @@ def main():
     check("canonical projection returns monotonic totals",
           status == 200 and data["usage"]["lifetime_trips"] == 11
           and data["usage"]["lifetime_invoices"] == 10)
+    # Direct REST writes use the same creation boundary as legacy RPCs.
+    status, _ = api.call("POST", "/rest/v1/invoices", token=foreign_jwt,
+                         query={"select": "id"},
+                         payload={"company_id": other,
+                                  "customer_id": b_customer,
+                                  "status": "draft",
+                                  "currency_code": "AED",
+                                  "customer_name": "HORUS356 Direct Probe",
+                                  "subtotal_minor_units": 100,
+                                  "discount_minor_units": 0,
+                                  "taxable_minor_units": 100,
+                                  "tax_rate_basis_points": 0,
+                                  "tax_minor_units": 0,
+                                  "total_minor_units": 100,
+                                  "created_by": foreign})
+    check("direct REST Invoice INSERT cannot bypass lifetime cap", status >= 400)
+    check("denied direct Invoice INSERT cannot change historical usage",
+          used(db, other, "lifetime_invoices") == 10
+          and private_count(db, "company_lifetime_creation_events",
+                            other, "lifetime_invoices") == 10)
+
     check("cross-tenant quota stays independent",
           used(db, company, "lifetime_invoices") == 0)
     print("Issue #356 disposable signed-JWT lifetime security PASS", flush=True)
