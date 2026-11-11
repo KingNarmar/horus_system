@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/widgets/app_form_failure_notice.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../core/utils/search_text_normalizer.dart';
@@ -12,6 +14,7 @@ import '../../domain/entities/billable_trip.dart';
 import '../../domain/entities/invoice_totals.dart';
 import '../cubit/invoice_draft_form_input.dart';
 import '../helpers/invoice_formatters.dart';
+import '../localization/invoice_failure_localizations_x.dart';
 import '../localization/invoices_localizations.dart';
 import 'invoice_draft_trip_selection.dart';
 
@@ -26,12 +29,14 @@ final class InvoiceDraftDialog extends StatefulWidget {
   final int currencyFractionDigits;
   final InvoiceDraftPreviewCallback onCalculatePreview;
   final Future<bool> Function(InvoiceDraftFormInput input) onSubmit;
+  final Failure? Function()? getSubmitFailure;
 
   const InvoiceDraftDialog({
     required this.billableTrips,
     required this.currencyFractionDigits,
     required this.onCalculatePreview,
     required this.onSubmit,
+    this.getSubmitFailure,
     super.key,
   });
 
@@ -53,6 +58,7 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
   bool _isCalculatingPreview = false;
   bool _isSubmitting = false;
   bool _showTripRequired = false;
+  Failure? _submitFailure;
   int _previewGeneration = 0;
 
   @override
@@ -67,7 +73,19 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
     final dateRange = _dateRange;
 
     return AlertDialog(
-      title: Text(strings.createDraftTitle),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(strings.createDraftTitle),
+          if (_submitFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: context.localizedInvoiceFailure(_submitFailure!),
+            ),
+          ],
+        ],
+      ),
       content: SizedBox(
         width: AppSizes.detailsDialogMaxWidth,
         child: SingleChildScrollView(
@@ -327,7 +345,10 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
       if (!mounted || _preview == null) return;
     }
 
-    setState(() => _isSubmitting = true);
+    setState(() {
+      _isSubmitting = true;
+      _submitFailure = null;
+    });
     final saved = await widget.onSubmit(
       InvoiceDraftFormInput.fromBillableTrips(
         trips,
@@ -340,7 +361,10 @@ final class _InvoiceDraftDialogState extends State<InvoiceDraftDialog> {
       Navigator.of(context).pop();
       return;
     }
-    setState(() => _isSubmitting = false);
+    setState(() {
+      _isSubmitting = false;
+      _submitFailure = widget.getSubmitFailure?.call();
+    });
   }
 
   String? _optional(String value) {

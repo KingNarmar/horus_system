@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/business_timezone_localizations.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/invoice_failure_codes.dart';
 import 'invoices_localizations.dart';
 
@@ -14,6 +15,13 @@ extension InvoiceFailureLocalizationsX on BuildContext {
   String localizedInvoiceFailure(Failure failure) {
     final strings = invoicesL10n;
     return switch (failure.code) {
+      QuotaFailureCodes.lifetimeInvoicesReached =>
+        l10n.failureQuotaLifetimeInvoicesReached,
+      QuotaFailureCodes.idempotencyPayloadConflict =>
+        l10n.failureQuotaCreationRetryConflict,
+      QuotaFailureCodes.idempotentRecordUnavailable =>
+        l10n.failureQuotaCreationRecordUnavailable,
+      QuotaFailureCodes.unavailable => l10n.failureQuotaUnavailable,
       FailureCodes.permissionInvoicesView => strings.permissionViewFailure,
       FailureCodes.permissionInvoicesManagement ||
       FailureCodes.permissionInvoicesIssue ||

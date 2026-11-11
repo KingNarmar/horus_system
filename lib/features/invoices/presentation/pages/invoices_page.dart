@@ -33,6 +33,7 @@ final class InvoicesPage extends StatefulWidget {
 
 final class _InvoicesPageState extends State<InvoicesPage> {
   InvoiceDetailsCubit? _activeDetailsCubit;
+  bool _draftDialogOpen = false;
   @override
   void initState() {
     super.initState();
@@ -53,16 +54,26 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   Future<void> _openCreateDraft(InvoicesLoaded state) async {
     if (state.billableTrips.isEmpty || state.isBillableTripsLoading) return;
     final cubit = context.read<InvoicesCubit>();
-    await showDialog<void>(
-      context: context,
-      builder: (_) => InvoiceDraftDialog(
-        billableTrips: state.billableTrips,
-        currencyFractionDigits:
-            state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0,
-        onCalculatePreview: cubit.calculateDraftPreview,
-        onSubmit: cubit.createDraft,
-      ),
-    );
+    _draftDialogOpen = true;
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (_) => InvoiceDraftDialog(
+          billableTrips: state.billableTrips,
+          currencyFractionDigits:
+              state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0,
+          onCalculatePreview: cubit.calculateDraftPreview,
+          onSubmit: cubit.createDraft,
+          getSubmitFailure: () {
+            final current = cubit.state;
+            return current is InvoicesLoaded ? current.mutationFailure : null;
+          },
+        ),
+      );
+    } finally {
+      _draftDialogOpen = false;
+      cubit.clearFeedback();
+    }
   }
 
   Future<void> _openDetails(Invoice invoice) async {
@@ -90,6 +101,11 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   }
 
   void _showListFeedback(BuildContext context, InvoicesLoaded state) {
+    if (_draftDialogOpen &&
+        state.feedback == null &&
+        state.mutationFailure != null) {
+      return; // Creation failures are displayed in the still-open dialog.
+    }
     final strings = context.invoicesL10n;
     final message = switch (state.feedback) {
       InvoiceListFeedback.draftCreated => strings.draftCreated,

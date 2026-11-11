@@ -6,6 +6,7 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/trip_document_failure_codes.dart';
 import '../../domain/failures/trip_failure_codes.dart';
 
@@ -13,6 +14,13 @@ String tripsFailureMessage(BuildContext context, Failure failure) {
   final l10n = context.l10n;
 
   return switch (failure.code) {
+    QuotaFailureCodes.lifetimeTripsReached =>
+      l10n.failureQuotaLifetimeTripsReached,
+    QuotaFailureCodes.idempotencyPayloadConflict =>
+      l10n.failureQuotaCreationRetryConflict,
+    QuotaFailureCodes.idempotentRecordUnavailable =>
+      l10n.failureQuotaCreationRecordUnavailable,
+    QuotaFailureCodes.unavailable => l10n.failureQuotaUnavailable,
     FailureCodes.validationTripQuantityNegative ||
     FailureCodes.validationTripQuantityInvalid ||
     FailureCodes.validationTripFreightPriceNegative ||

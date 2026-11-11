@@ -48,12 +48,12 @@ WITH candidates AS (
   SELECT company_id, 'lifetime_invoices', id::text, created_at, 'record_backfill'
   FROM public.invoices
   UNION ALL
-  SELECT company_id, 'lifetime_trips', entity_id, created_at, 'audit_backfill'
+  SELECT company_id, 'lifetime_trips', pg_catalog.lower(entity_id), created_at, 'audit_backfill'
   FROM public.audit_logs
   WHERE module='trips' AND entity_type='trip' AND action='created'
     AND entity_id ~ '^[0-9a-fA-F-]{36}$'
   UNION ALL
-  SELECT company_id, 'lifetime_invoices', entity_id, created_at, 'audit_backfill'
+  SELECT company_id, 'lifetime_invoices', pg_catalog.lower(entity_id), created_at, 'audit_backfill'
   FROM public.audit_logs
   WHERE module='invoices' AND entity_type='invoice' AND action='created'
     AND entity_id ~ '^[0-9a-fA-F-]{36}$'
@@ -104,12 +104,15 @@ LANGUAGE plpgsql
 SET search_path=pg_catalog
 AS $$
 BEGIN
-  IF TG_OP='DELETE' OR (TG_TABLE_NAME='company_lifetime_creation_events'
-                       AND TG_OP='UPDATE')
-    OR (TG_OP='UPDATE' AND
-        (NEW.used < OLD.used OR NEW.company_id IS DISTINCT FROM OLD.company_id
-         OR NEW.resource IS DISTINCT FROM OLD.resource
-         OR NEW.baseline_evidence IS DISTINCT FROM OLD.baseline_evidence)) THEN
+  IF TG_TABLE_NAME='company_lifetime_creation_events'
+     OR TG_OP='DELETE' THEN
+    RAISE EXCEPTION USING ERRCODE='P2862',
+      MESSAGE='quota_lifetime_history_immutable';
+  END IF;
+  IF NEW.used < OLD.used
+     OR NEW.company_id IS DISTINCT FROM OLD.company_id
+     OR NEW.resource IS DISTINCT FROM OLD.resource
+     OR NEW.baseline_evidence IS DISTINCT FROM OLD.baseline_evidence THEN
     RAISE EXCEPTION USING ERRCODE='P2862',
       MESSAGE='quota_lifetime_history_immutable';
   END IF;
@@ -124,6 +127,28 @@ CREATE TRIGGER company_lifetime_creation_events_immutable
 CREATE TRIGGER company_lifetime_usage_counters_monotonic
   BEFORE UPDATE OR DELETE ON private.company_lifetime_usage_counters
   FOR EACH ROW EXECUTE FUNCTION private.reject_lifetime_history_reduction();
+
+-- Every newly created company gets both zero-use counters transactionally.
+-- Re-creating a previously known company ID never resets recorded consumption.
+CREATE FUNCTION private.seed_company_lifetime_counters()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path=pg_catalog
+AS $
+BEGIN
+  INSERT INTO private.company_lifetime_usage_counters
+    (company_id,resource,used)
+  VALUES (NEW.id,'lifetime_trips',0),(NEW.id,'lifetime_invoices',0)
+  ON CONFLICT (company_id,resource) DO NOTHING;
+  RETURN NEW;
+END;
+$;
+REVOKE ALL ON FUNCTION private.seed_company_lifetime_counters()
+  FROM PUBLIC,anon,authenticated;
+CREATE TRIGGER companies_seed_lifetime_counters
+  AFTER INSERT ON public.companies
+  FOR EACH ROW EXECUTE FUNCTION private.seed_company_lifetime_counters();
 
 -- Extend the same canonical entitlement reader, company lock, and usage API.
 CREATE OR REPLACE FUNCTION private.company_quota_used(

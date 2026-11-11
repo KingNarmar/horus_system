@@ -5190,6 +5190,30 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
+  /// No description provided for @failureQuotaLifetimeTripsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your company has reached its lifetime trip creation limit. Existing trips can still be managed.'**
+  String get failureQuotaLifetimeTripsReached;
+
+  /// No description provided for @failureQuotaLifetimeInvoicesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.'**
+  String get failureQuotaLifetimeInvoicesReached;
+
+  /// No description provided for @failureQuotaCreationRetryConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has already been used with different details. Refresh and start a new creation.'**
+  String get failureQuotaCreationRetryConflict;
+
+  /// No description provided for @failureQuotaCreationRecordUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The original creation cannot be safely replayed. Refresh the list before trying again.'**
+  String get failureQuotaCreationRecordUnavailable;
+
   String get failureQuotaUnavailable;
 
   /// No description provided for @failureCompanyAuthRequired.
