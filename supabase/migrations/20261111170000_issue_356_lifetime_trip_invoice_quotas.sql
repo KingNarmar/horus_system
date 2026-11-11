@@ -135,7 +135,7 @@ RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path=pg_catalog
-AS $
+AS $$
 BEGIN
   INSERT INTO private.company_lifetime_usage_counters
     (company_id,resource,used)
@@ -143,7 +143,7 @@ BEGIN
   ON CONFLICT (company_id,resource) DO NOTHING;
   RETURN NEW;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION private.seed_company_lifetime_counters()
   FROM PUBLIC,anon,authenticated;
 CREATE TRIGGER companies_seed_lifetime_counters
