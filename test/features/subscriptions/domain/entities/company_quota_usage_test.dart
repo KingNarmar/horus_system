@@ -4,22 +4,25 @@ import 'package:horus_system/features/subscriptions/domain/entities/entitlement_
 import 'package:test/test.dart';
 
 void main() {
-  test('lifetime creation counters are monotonic occupancy, not free slots', () {
-    final trips = CompanyQuotaUsage(
-      resource: EntitlementResource.lifetimeTrips,
-      limit: EntitlementLimit.finite(30),
-      used: 31,
-    );
-    final invoices = CompanyQuotaUsage(
-      resource: EntitlementResource.lifetimeInvoices,
-      limit: EntitlementLimit.finite(10),
-      used: 9,
-    );
-    expect(trips.used, 31);
-    expect(trips.remaining, 0);
-    expect(trips.isOverLimit, isTrue);
-    expect(invoices.remaining, 1);
-  });
+  test(
+    'lifetime creation counters are monotonic occupancy, not free slots',
+    () {
+      final trips = CompanyQuotaUsage(
+        resource: EntitlementResource.lifetimeTrips,
+        limit: EntitlementLimit.finite(30),
+        used: 31,
+      );
+      final invoices = CompanyQuotaUsage(
+        resource: EntitlementResource.lifetimeInvoices,
+        limit: EntitlementLimit.finite(10),
+        used: 9,
+      );
+      expect(trips.used, 31);
+      expect(trips.remaining, 0);
+      expect(trips.isOverLimit, isTrue);
+      expect(invoices.remaining, 1);
+    },
+  );
 
   test(
     'finite limit retains historical over-cap usage without negative space',
