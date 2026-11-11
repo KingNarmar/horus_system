@@ -108,7 +108,8 @@ final class SubscriptionsLocalizations {
 
   static const Map<String, String> _en = {
     'usageTitle': 'Current resource usage',
-    'usageDescription': 'Server-verified active, lifetime and reserved-seat usage.',
+    'usageDescription':
+        'Server-verified active, lifetime and reserved-seat usage.',
     'usageOverCap': 'Above the plan limit; existing records remain accessible.',
     'usageRemaining': '{count} remaining',
     'usageCount': '{used} of {max} used',
@@ -169,7 +170,8 @@ final class SubscriptionsLocalizations {
 
   static const Map<String, String> _ar = {
     'usageTitle': 'استخدام موارد الشركة',
-    'usageDescription': 'الاستخدام النشط والتراكمي والمقاعد المحجوزة حسب سجلات الخادم.',
+    'usageDescription':
+        'الاستخدام النشط والتراكمي والمقاعد المحجوزة حسب سجلات الخادم.',
     'usageOverCap': 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.',
     'usageRemaining': 'المتبقي {count}',
     'usageCount': 'المستخدم {used} من {max}',

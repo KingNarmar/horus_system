@@ -61,7 +61,8 @@ final class _InvoicesPageState extends State<InvoicesPage> {
         builder: (_) => InvoiceDraftDialog(
           billableTrips: state.billableTrips,
           currencyFractionDigits:
-              state.currentCompanyContext.company.baseCurrencyFractionDigits ?? 0,
+              state.currentCompanyContext.company.baseCurrencyFractionDigits ??
+              0,
           onCalculatePreview: cubit.calculateDraftPreview,
           onSubmit: cubit.createDraft,
           getSubmitFailure: () {

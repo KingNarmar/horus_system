@@ -24,14 +24,19 @@ final class InvoicesRepositoryFailureMapper {
       InvoicesRpcErrorCodes.quotaReached
           when error.message == QuotaFailureCodes.lifetimeInvoicesReached =>
         const ConflictFailure(code: QuotaFailureCodes.lifetimeInvoicesReached),
-      InvoicesRpcErrorCodes.quotaUnavailable =>
-        const ServerFailure(code: QuotaFailureCodes.unavailable),
-      InvoicesRpcErrorCodes.quotaInvalid =>
-        const ServerFailure(code: QuotaFailureCodes.corrupt),
-      InvoicesRpcErrorCodes.idempotencyPayloadConflict =>
-        const ConflictFailure(code: QuotaFailureCodes.idempotencyPayloadConflict),
+      InvoicesRpcErrorCodes.quotaUnavailable => const ServerFailure(
+        code: QuotaFailureCodes.unavailable,
+      ),
+      InvoicesRpcErrorCodes.quotaInvalid => const ServerFailure(
+        code: QuotaFailureCodes.corrupt,
+      ),
+      InvoicesRpcErrorCodes.idempotencyPayloadConflict => const ConflictFailure(
+        code: QuotaFailureCodes.idempotencyPayloadConflict,
+      ),
       InvoicesRpcErrorCodes.idempotentRecordUnavailable =>
-        const ConflictFailure(code: QuotaFailureCodes.idempotentRecordUnavailable),
+        const ConflictFailure(
+          code: QuotaFailureCodes.idempotentRecordUnavailable,
+        ),
       InvoicesRpcErrorCodes.noRowsReturned ||
       InvoicesRpcErrorCodes.invoiceNotFound => const NotFoundFailure(
         code: InvoiceFailureCodes.notFound,

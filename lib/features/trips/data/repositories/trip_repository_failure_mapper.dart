@@ -15,14 +15,18 @@ final class TripRepositoryFailureMapper {
       TripDbErrorCodes.quotaReached
           when error.message == QuotaFailureCodes.lifetimeTripsReached =>
         const ConflictFailure(code: QuotaFailureCodes.lifetimeTripsReached),
-      TripDbErrorCodes.quotaUnavailable =>
-        const ServerFailure(code: QuotaFailureCodes.unavailable),
-      TripDbErrorCodes.quotaInvalid =>
-        const ServerFailure(code: QuotaFailureCodes.corrupt),
-      TripDbErrorCodes.idempotencyPayloadConflict =>
-        const ConflictFailure(code: QuotaFailureCodes.idempotencyPayloadConflict),
-      TripDbErrorCodes.idempotentRecordUnavailable =>
-        const ConflictFailure(code: QuotaFailureCodes.idempotentRecordUnavailable),
+      TripDbErrorCodes.quotaUnavailable => const ServerFailure(
+        code: QuotaFailureCodes.unavailable,
+      ),
+      TripDbErrorCodes.quotaInvalid => const ServerFailure(
+        code: QuotaFailureCodes.corrupt,
+      ),
+      TripDbErrorCodes.idempotencyPayloadConflict => const ConflictFailure(
+        code: QuotaFailureCodes.idempotencyPayloadConflict,
+      ),
+      TripDbErrorCodes.idempotentRecordUnavailable => const ConflictFailure(
+        code: QuotaFailureCodes.idempotentRecordUnavailable,
+      ),
       TripDbErrorCodes.managementPermissionDenied => const PermissionFailure(
         code: FailureCodes.permissionTripsManagement,
       ),

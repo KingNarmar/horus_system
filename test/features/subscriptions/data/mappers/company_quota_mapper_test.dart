@@ -58,7 +58,10 @@ void main() {
     expect(snapshot.usageFor(EntitlementResource.drivers).isOverLimit, isTrue);
     expect(snapshot.usageFor(EntitlementResource.routes).used, 3);
     expect(snapshot.usageFor(EntitlementResource.lifetimeTrips).remaining, 1);
-    expect(snapshot.usageFor(EntitlementResource.lifetimeInvoices).remaining, 0);
+    expect(
+      snapshot.usageFor(EntitlementResource.lifetimeInvoices).remaining,
+      0,
+    );
     expect(snapshot.entitlement.policyVersion, 1);
   });
 

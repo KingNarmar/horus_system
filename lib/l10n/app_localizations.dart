@@ -5186,10 +5186,6 @@ abstract class AppLocalizations {
   /// **'The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.'**
   String get failureQuotaRoutesReached;
 
-  /// No description provided for @failureQuotaUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
   /// No description provided for @failureQuotaLifetimeTripsReached.
   ///
   /// In en, this message translates to:
@@ -5214,6 +5210,10 @@ abstract class AppLocalizations {
   /// **'The original creation cannot be safely replayed. Refresh the list before trying again.'**
   String get failureQuotaCreationRecordUnavailable;
 
+  /// No description provided for @failureQuotaUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan limits cannot be verified right now. No additional capacity was consumed.'**
   String get failureQuotaUnavailable;
 
   /// No description provided for @failureCompanyAuthRequired.
