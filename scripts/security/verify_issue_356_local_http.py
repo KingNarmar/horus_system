@@ -103,8 +103,6 @@ def main():
     replay = successful(creation(*first_args), "same-key Trip replay")
     check("Trip retry returns same id and consumes once",
           replay["id"] == first["id"] and used(db, company, "lifetime_trips") == 1)
-    denied(creation(api, owner_jwt, request, company, a_customer, a_route),
-           "P9999", "placeholder") if False else None
 
     different = rpc(api, owner_jwt, "create_trip_idempotent", {
         "p_request_id": request, "p_company_id": company,

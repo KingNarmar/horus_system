@@ -33,7 +33,7 @@ final class InvoicesPage extends StatefulWidget {
 
 final class _InvoicesPageState extends State<InvoicesPage> {
   InvoiceDetailsCubit? _activeDetailsCubit;
-  bool _draftDialogOpen = false;
+  bool _draftSaveInProgress = false;
   @override
   void initState() {
     super.initState();
@@ -54,7 +54,6 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   Future<void> _openCreateDraft(InvoicesLoaded state) async {
     if (state.billableTrips.isEmpty || state.isBillableTripsLoading) return;
     final cubit = context.read<InvoicesCubit>();
-    _draftDialogOpen = true;
     try {
       await showDialog<void>(
         context: context,
@@ -64,7 +63,14 @@ final class _InvoicesPageState extends State<InvoicesPage> {
               state.currentCompanyContext.company.baseCurrencyFractionDigits ??
               0,
           onCalculatePreview: cubit.calculateDraftPreview,
-          onSubmit: cubit.createDraft,
+          onSubmit: (input) async {
+            _draftSaveInProgress = true;
+            try {
+              return await cubit.createDraft(input);
+            } finally {
+              _draftSaveInProgress = false;
+            }
+          },
           getSubmitFailure: () {
             final current = cubit.state;
             return current is InvoicesLoaded ? current.mutationFailure : null;
@@ -72,8 +78,7 @@ final class _InvoicesPageState extends State<InvoicesPage> {
         ),
       );
     } finally {
-      _draftDialogOpen = false;
-      cubit.clearFeedback();
+      if (!cubit.isClosed) cubit.clearFeedback();
     }
   }
 
@@ -102,7 +107,7 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   }
 
   void _showListFeedback(BuildContext context, InvoicesLoaded state) {
-    if (_draftDialogOpen &&
+    if (_draftSaveInProgress &&
         state.feedback == null &&
         state.mutationFailure != null) {
       return; // Creation failures are displayed in the still-open dialog.
