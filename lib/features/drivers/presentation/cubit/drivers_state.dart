@@ -37,6 +37,8 @@ class DriversLoaded extends DriversState {
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? refreshFailure;
+  final Failure? mutationFailure;
+  final int mutationFailureSequence;
 
   const DriversLoaded({
     required this.currentCompanyContext,
@@ -55,6 +57,8 @@ class DriversLoaded extends DriversState {
     this.isActivityLoading = false,
     this.activityFailure,
     this.refreshFailure,
+    this.mutationFailure,
+    this.mutationFailureSequence = 0,
   });
 
   BusinessLocalDateTime? activityTimestampFor(String logId) {
@@ -95,6 +99,8 @@ class DriversLoaded extends DriversState {
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? refreshFailure = _notSet,
+    Object? mutationFailure = _notSet,
+    int? mutationFailureSequence,
   }) {
     return DriversLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -126,6 +132,11 @@ class DriversLoaded extends DriversState {
       refreshFailure: refreshFailure == _notSet
           ? this.refreshFailure
           : refreshFailure as Failure?,
+      mutationFailure: mutationFailure == _notSet
+          ? this.mutationFailure
+          : mutationFailure as Failure?,
+      mutationFailureSequence:
+          mutationFailureSequence ?? this.mutationFailureSequence,
     );
   }
 }

@@ -22,6 +22,21 @@ abstract final class CompanyQuotaMapper {
           limit: entitlement.limitFor(EntitlementResource.combinedVehicles),
           used: usage[CompanyQuotaRpc.combinedVehicles] as int,
         ),
+        EntitlementResource.customers: CompanyQuotaUsage(
+          resource: EntitlementResource.customers,
+          limit: entitlement.limitFor(EntitlementResource.customers),
+          used: usage[CompanyQuotaRpc.customers] as int,
+        ),
+        EntitlementResource.drivers: CompanyQuotaUsage(
+          resource: EntitlementResource.drivers,
+          limit: entitlement.limitFor(EntitlementResource.drivers),
+          used: usage[CompanyQuotaRpc.drivers] as int,
+        ),
+        EntitlementResource.routes: CompanyQuotaUsage(
+          resource: EntitlementResource.routes,
+          limit: entitlement.limitFor(EntitlementResource.routes),
+          used: usage[CompanyQuotaRpc.routes] as int,
+        ),
       },
     );
   }

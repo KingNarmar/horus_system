@@ -8,6 +8,7 @@ import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/customer.dart';
 import '../cubit/customers_cubit.dart';
 import '../cubit/customers_state.dart';
+import '../localization/customers_localizations_x.dart';
 import '../dialogs/customer_details_dialog.dart';
 import '../widgets/customer_form_dialog.dart';
 import '../widgets/customers_state_view.dart';
@@ -104,59 +105,86 @@ class _CustomersPageState extends State<CustomersPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return BlocBuilder<CustomersCubit, CustomersState>(
-      builder: (context, state) {
-        final cubit = context.read<CustomersCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.customersTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (state is CustomersLoaded && state.canManageCustomers)
-                  FilledButton.icon(
-                    onPressed: () => _openCustomerForm(),
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.addCustomerButton),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (state is CustomersLoaded && state.refreshFailure != null) ...[
-              MaterialBanner(
-                content: Text(
-                  l10n.localizedErrorMessage(state.refreshFailure!),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () =>
-                        cubit.refreshCustomers(widget.currentCompanyContext),
-                    child: Text(l10n.networkRetryButton),
-                  ),
-                ],
+    return BlocListener<CustomersCubit, CustomersState>(
+      listenWhen: (previous, current) {
+        if (current is! CustomersLoaded || current.mutationFailure == null) {
+          return false;
+        }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! CustomersLoaded ||
+            previous.mutationFailureSequence != current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final loaded = state as CustomersLoaded;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.l10n.localizedCustomerFailureMessage(
+                loaded.mutationFailure!,
               ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-            CustomersStateView(
-              state: state,
-              onRetry: () => cubit.loadCustomers(widget.currentCompanyContext),
-              onViewDetails: _openCustomerDetails,
-              onEdit: (customer) => _openCustomerForm(customer: customer),
-              onDeactivate: cubit.deactivateCustomer,
-              onReactivate: cubit.reactivateCustomer,
-              onSearchChanged: cubit.setSearchQuery,
-              onStatusFilterChanged: cubit.setStatusFilter,
             ),
-          ],
+          ),
         );
       },
+      child: BlocBuilder<CustomersCubit, CustomersState>(
+        builder: (context, state) {
+          final cubit = context.read<CustomersCubit>();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.customersTitle,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  if (state is CustomersLoaded && state.canManageCustomers)
+                    FilledButton.icon(
+                      onPressed: () => _openCustomerForm(),
+                      icon: const Icon(AppIcons.add),
+                      label: Text(l10n.addCustomerButton),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              if (state is CustomersLoaded && state.refreshFailure != null) ...[
+                MaterialBanner(
+                  content: Text(
+                    l10n.localizedErrorMessage(state.refreshFailure!),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          cubit.refreshCustomers(widget.currentCompanyContext),
+                      child: Text(l10n.networkRetryButton),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+              CustomersStateView(
+                state: state,
+                onRetry: () =>
+                    cubit.loadCustomers(widget.currentCompanyContext),
+                onViewDetails: _openCustomerDetails,
+                onEdit: (customer) => _openCustomerForm(customer: customer),
+                onDeactivate: cubit.deactivateCustomer,
+                onReactivate: cubit.reactivateCustomer,
+                onSearchChanged: cubit.setSearchQuery,
+                onStatusFilterChanged: cubit.setStatusFilter,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

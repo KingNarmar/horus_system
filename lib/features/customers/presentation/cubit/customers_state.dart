@@ -33,6 +33,8 @@ class CustomersLoaded extends CustomersState {
   final bool isActivityLoading;
   final Failure? activityFailure;
   final Failure? refreshFailure;
+  final Failure? mutationFailure;
+  final int mutationFailureSequence;
 
   const CustomersLoaded({
     required this.currentCompanyContext,
@@ -47,6 +49,8 @@ class CustomersLoaded extends CustomersState {
     this.isActivityLoading = false,
     this.activityFailure,
     this.refreshFailure,
+    this.mutationFailure,
+    this.mutationFailureSequence = 0,
   });
 
   List<Customer> get customers {
@@ -87,6 +91,8 @@ class CustomersLoaded extends CustomersState {
     bool? isActivityLoading,
     Object? activityFailure = _notSet,
     Object? refreshFailure = _notSet,
+    Object? mutationFailure = _notSet,
+    int? mutationFailureSequence,
   }) {
     return CustomersLoaded(
       currentCompanyContext: currentCompanyContext,
@@ -112,6 +118,11 @@ class CustomersLoaded extends CustomersState {
       refreshFailure: refreshFailure == _notSet
           ? this.refreshFailure
           : refreshFailure as Failure?,
+      mutationFailure: mutationFailure == _notSet
+          ? this.mutationFailure
+          : mutationFailure as Failure?,
+      mutationFailureSequence:
+          mutationFailureSequence ?? this.mutationFailureSequence,
     );
   }
 }

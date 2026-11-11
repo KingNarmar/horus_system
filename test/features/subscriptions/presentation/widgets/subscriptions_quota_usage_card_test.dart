@@ -38,6 +38,16 @@ CompanyQuotaSnapshot _quota() {
         limit: entitlement.limitFor(EntitlementResource.combinedVehicles),
         used: 2,
       ),
+      for (final resource in [
+        EntitlementResource.customers,
+        EntitlementResource.drivers,
+        EntitlementResource.routes,
+      ])
+        resource: CompanyQuotaUsage(
+          resource: resource,
+          limit: entitlement.limitFor(resource),
+          used: resource == EntitlementResource.drivers ? 7 : 1,
+        ),
     },
   );
 }
@@ -72,12 +82,24 @@ void main() {
           findsOneWidget,
         );
         expect(
+          find.text(locale.languageCode == 'ar' ? 'العملاء' : 'Customers'),
+          findsOneWidget,
+        );
+        expect(
+          find.text(locale.languageCode == 'ar' ? 'السائقون' : 'Drivers'),
+          findsOneWidget,
+        );
+        expect(
+          find.text(locale.languageCode == 'ar' ? 'المسارات' : 'Routes'),
+          findsOneWidget,
+        );
+        expect(
           find.text(
             locale.languageCode == 'ar'
                 ? 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.'
                 : 'Above the plan limit; existing records remain accessible.',
           ),
-          findsOneWidget,
+          findsNWidgets(2),
         );
       },
     );

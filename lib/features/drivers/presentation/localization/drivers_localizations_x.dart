@@ -1,8 +1,19 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 import '../../domain/entities/driver_status.dart';
 
 extension DriversLocalizationsX on AppLocalizations {
+  String localizedDriverFailureMessage(Failure failure) {
+    return switch (failure.code) {
+      QuotaFailureCodes.driversReached => failureQuotaDriversReached,
+      QuotaFailureCodes.unavailable => failureQuotaUnavailable,
+      _ => localizedErrorMessage(failure),
+    };
+  }
+
   String get basicInfo => driverBasicInfo;
 
   String get accountability => driverAccountability;

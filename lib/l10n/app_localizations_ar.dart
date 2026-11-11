@@ -2771,6 +2771,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'وصلت الشركة إلى الحد المشترك للجرارات والمقطورات. عطّل مركبة غير مستخدمة قبل إضافة أو إعادة تنشيط أخرى.';
 
   @override
+  String get failureQuotaCustomersReached =>
+      'وصلت الشركة إلى الحد الأقصى للعملاء النشطين. عطّل عميلًا غير مستخدم قبل إضافة عميل آخر أو إعادة تفعيله.';
+
+  @override
+  String get failureQuotaDriversReached =>
+      'وصلت الشركة إلى الحد الأقصى للسائقين النشطين. عطّل سائقًا غير مستخدم قبل إضافة سائق آخر أو إعادة تفعيله.';
+
+  @override
+  String get failureQuotaRoutesReached =>
+      'وصلت الشركة إلى الحد الأقصى للمسارات النشطة. عطّل مسارًا غير مستخدم قبل إضافة مسار آخر أو إعادة تفعيله.';
+
+  @override
   String get failureQuotaUnavailable =>
       'تعذر التحقق من حدود الخطة حاليًا. لم تتم إضافة سعة جديدة.';
 

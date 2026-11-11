@@ -130,6 +130,16 @@ final class _FakeCompanyQuotaRepository implements CompanyQuotaRepository {
             limit: entitlement.limitFor(EntitlementResource.combinedVehicles),
             used: 2,
           ),
+          for (final resource in [
+            EntitlementResource.customers,
+            EntitlementResource.drivers,
+            EntitlementResource.routes,
+          ])
+            resource: CompanyQuotaUsage(
+              resource: resource,
+              limit: entitlement.limitFor(resource),
+              used: resource == EntitlementResource.drivers ? 7 : 1,
+            ),
         },
       ),
     );

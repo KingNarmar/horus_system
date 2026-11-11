@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/errors/failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/drivers/data/datasources/driver_images_remote_data_source.dart';
 import 'package:horus_system/features/drivers/data/datasources/drivers_remote_data_source.dart';
@@ -65,6 +68,45 @@ void main() {
       _expectSanitizedUnexpectedFailure(result.failureOrNull);
       expect(operations, ['add_driver']);
     });
+
+    test(
+      'quota-denied driver insert cleans newly uploaded images and keeps the typed failure',
+      () async {
+        final operations = <String>[];
+        final images = _FakeDriverImagesRemoteDataSource(
+          operations: operations,
+        );
+        final repository = _repository(
+          remoteDataSource: _FakeDriversRemoteDataSource(
+            _driverModel,
+            addError: const PostgrestException(
+              code: 'P2860',
+              message: QuotaFailureCodes.driversReached,
+            ),
+            operations: operations,
+          ),
+          imagesRemoteDataSource: images,
+        );
+
+        final result = await repository.addDriver(
+          data: _writeData,
+          actorRole: 'owner',
+          imageUploads: DriverImageUploadSet(
+            profileImage: DriverImageFile(
+              bytes: Uint8List.fromList([1, 2, 3]),
+              fileName: 'driver.png',
+            ),
+          ),
+        );
+
+        expect(result.failureOrNull, isA<ConflictFailure>());
+        expect(result.failureOrNull?.code, QuotaFailureCodes.driversReached);
+        expect(result.failureOrNull?.message, isNull);
+        expect(operations, ['upload', 'add_driver', 'cleanup']);
+        expect(images.removedPaths, hasLength(1));
+        expect(images.removedPaths.single, contains(_companyId));
+      },
+    );
 
     test('adds a driver through the server-audited mutation path', () async {
       final operations = <String>[];
@@ -270,8 +312,10 @@ class _FakeDriversRemoteDataSource implements DriversRemoteDataSource {
 class _FakeDriverImagesRemoteDataSource
     implements DriverImagesRemoteDataSource {
   final Object? signedUrlError;
+  final List<String>? operations;
+  final List<String> removedPaths = [];
 
-  const _FakeDriverImagesRemoteDataSource({this.signedUrlError});
+  _FakeDriverImagesRemoteDataSource({this.signedUrlError, this.operations});
 
   @override
   Future<String> uploadDriverImage({
@@ -279,8 +323,9 @@ class _FakeDriverImagesRemoteDataSource
     required String driverId,
     required String folder,
     required DriverImageFile image,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    operations?.add('upload');
+    return '$companyId/$driverId/$folder/${image.fileName}';
   }
 
   @override
@@ -291,7 +336,10 @@ class _FakeDriverImagesRemoteDataSource
   }
 
   @override
-  Future<void> removeImages({required List<String> paths}) async {}
+  Future<void> removeImages({required List<String> paths}) async {
+    operations?.add('cleanup');
+    removedPaths.addAll(paths);
+  }
 }
 
 final class _ThrowingDriverModel extends DriverModel {

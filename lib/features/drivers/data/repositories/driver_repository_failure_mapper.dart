@@ -4,11 +4,19 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 
 final class DriverRepositoryFailureMapper {
   const DriverRepositoryFailureMapper();
 
-  Failure fromPostgrest(PostgrestException _) {
+  Failure fromPostgrest(PostgrestException error) {
+    if (error.code == 'P2860' &&
+        error.message == QuotaFailureCodes.driversReached) {
+      return const ConflictFailure(code: QuotaFailureCodes.driversReached);
+    }
+    if (error.code == 'P2861' || error.code == 'P2862') {
+      return const ServerFailure(code: QuotaFailureCodes.unavailable);
+    }
     return const ServerFailure(code: FailureCodes.serverError);
   }
 

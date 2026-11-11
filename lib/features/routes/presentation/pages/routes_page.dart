@@ -167,14 +167,30 @@ class _RoutesPageState extends State<RoutesPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RoutesCubit, RoutesState>(
-      listener: (context, state) {
-        if (state is RoutesFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(routesFailureMessage(context, state.failure)),
-            ),
-          );
+      listenWhen: (previous, current) {
+        if (current is RoutesFailure) return true;
+        if (current is! RoutesLoaded || current.mutationFailure == null) {
+          return false;
         }
+        if (current.currentCompanyContext.companyId !=
+                widget.currentCompanyContext.companyId ||
+            current.currentCompanyContext.role !=
+                widget.currentCompanyContext.role) {
+          return false;
+        }
+        return previous is! RoutesLoaded ||
+            previous.mutationFailureSequence != current.mutationFailureSequence;
+      },
+      listener: (context, state) {
+        final failure = switch (state) {
+          RoutesFailure(:final failure) => failure,
+          RoutesLoaded(:final mutationFailure) => mutationFailure,
+          _ => null,
+        };
+        if (failure == null) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(routesFailureMessage(context, failure))),
+        );
       },
       builder: (context, state) {
         return Column(

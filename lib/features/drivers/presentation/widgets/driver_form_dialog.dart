@@ -5,6 +5,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/widgets/app_form_failure_notice.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -12,6 +13,7 @@ import '../../domain/entities/driver.dart';
 import '../../domain/entities/driver_image_file.dart';
 import '../../domain/policies/driver_license_expiry_policy.dart';
 import '../../domain/services/driver_image_upload_validator.dart';
+import '../localization/drivers_localizations_x.dart';
 import 'driver_form_date_helpers.dart';
 import 'driver_form_image_picker_tile.dart';
 
@@ -112,8 +114,22 @@ class _DriverFormDialogState extends State<DriverFormDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return AlertDialog(
-      title: Text(
-        widget.driver == null ? l10n.addDriverButton : l10n.editDriverButton,
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.driver == null
+                ? l10n.addDriverButton
+                : l10n.editDriverButton,
+          ),
+          if (_submissionFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: l10n.localizedDriverFailureMessage(_submissionFailure!),
+            ),
+          ],
+        ],
       ),
       content: SizedBox(width: 520, child: _content(context)),
       actions: [

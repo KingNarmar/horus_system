@@ -165,10 +165,19 @@ mixin DriversMutationActions on Cubit<DriversState> {
 
   void _emitMutationFailure(Failure failure) {
     final currentState = state;
-    if (currentState is DriversLoaded) {
-      emit(currentState.copyWith(pendingActionDriverId: null));
+    if (currentState is DriversLoaded &&
+        failure is! AuthFailure &&
+        failure is! PermissionFailure) {
+      emit(
+        currentState.copyWith(
+          pendingActionDriverId: null,
+          mutationFailure: failure,
+          mutationFailureSequence: currentState.mutationFailureSequence + 1,
+        ),
+      );
+    } else {
+      emit(DriversFailure(failure));
     }
-    emit(DriversFailure(failure));
   }
 
   void _upsertDriver(Driver driver) {
@@ -195,6 +204,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
         currentState.copyWith(
           allDrivers: updatedDrivers,
           pendingActionDriverId: null,
+          mutationFailure: null,
           selectedDriver: driver,
         ),
       );
@@ -205,6 +215,7 @@ mixin DriversMutationActions on Cubit<DriversState> {
       currentState.copyWith(
         allDrivers: updatedDrivers,
         pendingActionDriverId: null,
+        mutationFailure: null,
       ),
     );
   }

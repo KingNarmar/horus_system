@@ -1,7 +1,18 @@
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../../audit/presentation/localization/audit_display_localizations_x.dart';
 
 extension CustomersLocalizationsX on AppLocalizations {
+  String localizedCustomerFailureMessage(Failure failure) {
+    return switch (failure.code) {
+      QuotaFailureCodes.customersReached => failureQuotaCustomersReached,
+      QuotaFailureCodes.unavailable => failureQuotaUnavailable,
+      _ => localizedErrorMessage(failure),
+    };
+  }
+
   String customerAuditActionLabel(String action) {
     return auditActionValueDisplayLabel(action);
   }

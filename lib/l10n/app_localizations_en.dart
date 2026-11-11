@@ -2804,6 +2804,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'The company has reached its combined tractor and trailer limit. Deactivate an unused vehicle before adding or reactivating another.';
 
   @override
+  String get failureQuotaCustomersReached =>
+      'The company has reached its active customer limit. Deactivate an unused customer before adding or reactivating another.';
+
+  @override
+  String get failureQuotaDriversReached =>
+      'The company has reached its active driver limit. Deactivate an unused driver before adding or reactivating another.';
+
+  @override
+  String get failureQuotaRoutesReached =>
+      'The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.';
+
+  @override
   String get failureQuotaUnavailable =>
       'Plan limits cannot be verified right now. No additional capacity was consumed.';
 

@@ -30,6 +30,9 @@ final class SubscriptionsLocalizations {
   String get unlimited => _value('unlimited');
   String get users => _value('users');
   String get vehicles => _value('vehicles');
+  String get customers => _value('customers');
+  String get drivers => _value('drivers');
+  String get routes => _value('routes');
   String get tripsPerMonth => _value('tripsPerMonth');
   String get driverApp => _value('driverApp');
   String get advancedReports => _value('advancedReports');
@@ -120,6 +123,9 @@ final class SubscriptionsLocalizations {
     'unlimited': 'Unlimited',
     'users': 'Users',
     'vehicles': 'Vehicles',
+    'customers': 'Customers',
+    'drivers': 'Drivers',
+    'routes': 'Routes',
     'tripsPerMonth': 'Trips per month',
     'driverApp': 'Driver app',
     'advancedReports': 'Advanced reports',
@@ -173,6 +179,9 @@ final class SubscriptionsLocalizations {
     'unlimited': 'غير محدود',
     'users': 'المستخدمون',
     'vehicles': 'المركبات',
+    'customers': 'العملاء',
+    'drivers': 'السائقون',
+    'routes': 'المسارات',
     'tripsPerMonth': 'الرحلات شهريًا',
     'driverApp': 'تطبيق السائق',
     'advancedReports': 'تقارير متقدمة',

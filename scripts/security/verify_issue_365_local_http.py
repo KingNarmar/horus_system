@@ -158,6 +158,18 @@ def main():
                  " VALUES('" + company + "','" + userid + "','" +
                  ("owner" if role == "foreign_owner" else role) +
                  "',true,'" + userid + "');")
+    # These fixtures predate #354's onboarding RPC. Give both manually
+    # created local-only companies the same canonical Free Starter entitlement
+    # so #355's fail-closed capacity guard permits the intended #365 route test.
+    # No hosted Supabase project or migrations are modified by this fixture.
+    psql(db, "INSERT INTO public.company_subscriptions "
+         "(company_id,plan_id,policy_version,status,effective_at,"
+         "expires_at,grant_source,created_by,updated_by) "
+         "SELECT c.id,sp.id,1,'active',now(),NULL,'free_starter',"
+         "c.created_by,c.created_by FROM public.companies c "
+         "CROSS JOIN public.subscription_plans sp "
+         "WHERE c.id IN ('" + a + "','" + b + "') "
+         "AND sp.code='free_starter' ON CONFLICT (company_id) DO NOTHING;")
     check("two local companies; six real JWT role logins", True)
 
     def create_route(token, company, amount, label):

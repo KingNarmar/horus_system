@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/widgets/app_form_failure_notice.dart';
 import '../../../../core/domain/services/money_decimal_codec.dart';
 import '../../../../core/domain/services/money_input_parser.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/route_entity.dart';
 import '../localization/routes_localizations_x.dart';
+import '../helpers/routes_failure_message.dart';
 
 class RouteFormData {
   final String loadingLocation;
@@ -33,7 +36,7 @@ class RouteFormDialog extends StatefulWidget {
   final bool canEditFreightRate;
   final RouteEntity? route;
   final CurrencyConfiguration? financialConfiguration;
-  final Future<bool> Function(RouteFormData data) onSubmit;
+  final Future<Failure?> Function(RouteFormData data) onSubmit;
 
   const RouteFormDialog({
     required this.title,
@@ -62,6 +65,7 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
   late final TextEditingController _notesController;
 
   bool _isSubmitting = false;
+  Failure? _submissionFailure;
 
   // Existing Route prices are edited only in the financial-rate dialog.
   bool get _canEnterInitialRate =>
@@ -107,7 +111,19 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     final l10n = context.l10n;
 
     return AlertDialog(
-      title: Text(widget.title),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.title),
+          if (_submissionFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: routesFailureMessage(context, _submissionFailure!),
+            ),
+          ],
+        ],
+      ),
       content: SizedBox(
         width: AppSizes.formDialogMaxWidth,
         child: SingleChildScrollView(
@@ -202,9 +218,12 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSubmitting = true);
+    setState(() {
+      _isSubmitting = true;
+      _submissionFailure = null;
+    });
 
-    final saved = await widget.onSubmit(
+    final failure = await widget.onSubmit(
       RouteFormData(
         loadingLocation: _loadingController.text.trim(),
         unloadingLocation: _unloadingController.text.trim(),
@@ -218,11 +237,14 @@ class _RouteFormDialogState extends State<RouteFormDialog> {
     );
 
     if (!mounted) return;
-    if (saved) {
+    if (failure == null) {
       Navigator.of(context).pop();
-    } else {
-      setState(() => _isSubmitting = false);
+      return;
     }
+    setState(() {
+      _isSubmitting = false;
+      _submissionFailure = failure;
+    });
   }
 
   bool get _defaultFreightRateValid {

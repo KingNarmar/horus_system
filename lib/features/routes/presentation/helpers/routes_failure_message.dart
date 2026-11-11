@@ -5,12 +5,15 @@ import '../../../../core/errors/failure_codes.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/localization/financial_readiness_localizations.dart';
 import '../../../company/domain/failures/company_failure_codes.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/route_failure_codes.dart';
 
 String routesFailureMessage(BuildContext context, Failure failure) {
   final l10n = context.l10n;
 
   return switch (failure.code) {
+    QuotaFailureCodes.routesReached => l10n.failureQuotaRoutesReached,
+    QuotaFailureCodes.unavailable => l10n.failureQuotaUnavailable,
     RouteFailureCodes.financialTermsPermissionDenied =>
       l10n.routeFreightRatePermissionDenied,
     RouteFailureCodes.staleFinancialSnapshot =>

@@ -16,6 +16,9 @@ final class CompanyQuotaSnapshot {
     for (final resource in const [
       EntitlementResource.companyUsers,
       EntitlementResource.combinedVehicles,
+      EntitlementResource.customers,
+      EntitlementResource.drivers,
+      EntitlementResource.routes,
     ]) {
       if (!this.usage.containsKey(resource)) {
         throw ArgumentError.value(resource, 'usage', 'Missing quota counter');
