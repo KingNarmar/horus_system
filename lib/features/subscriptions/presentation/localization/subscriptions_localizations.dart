@@ -33,6 +33,8 @@ final class SubscriptionsLocalizations {
   String get customers => _value('customers');
   String get drivers => _value('drivers');
   String get routes => _value('routes');
+  String get lifetimeTrips => _value('lifetimeTrips');
+  String get lifetimeInvoices => _value('lifetimeInvoices');
   String get tripsPerMonth => _value('tripsPerMonth');
   String get driverApp => _value('driverApp');
   String get advancedReports => _value('advancedReports');
@@ -53,6 +55,8 @@ final class SubscriptionsLocalizations {
   String get usageTitle => _value('usageTitle');
   String get usageDescription => _value('usageDescription');
   String get usageOverCap => _value('usageOverCap');
+  String usageRemaining(int count) =>
+      _value('usageRemaining').replaceFirst('{count}', count.toString());
 
   String usageCount(int used, String max) => _value(
     'usageCount',
@@ -104,8 +108,9 @@ final class SubscriptionsLocalizations {
 
   static const Map<String, String> _en = {
     'usageTitle': 'Current resource usage',
-    'usageDescription': 'Server-verified active usage and reserved seats.',
+    'usageDescription': 'Server-verified active, lifetime and reserved-seat usage.',
     'usageOverCap': 'Above the plan limit; existing records remain accessible.',
+    'usageRemaining': '{count} remaining',
     'usageCount': '{used} of {max} used',
     'title': 'Subscriptions',
     'description':
@@ -126,6 +131,8 @@ final class SubscriptionsLocalizations {
     'customers': 'Customers',
     'drivers': 'Drivers',
     'routes': 'Routes',
+    'lifetimeTrips': 'Trips created (lifetime)',
+    'lifetimeInvoices': 'Invoices created (lifetime)',
     'tripsPerMonth': 'Trips per month',
     'driverApp': 'Driver app',
     'advancedReports': 'Advanced reports',
@@ -162,8 +169,9 @@ final class SubscriptionsLocalizations {
 
   static const Map<String, String> _ar = {
     'usageTitle': 'استخدام موارد الشركة',
-    'usageDescription': 'الاستخدام النشط والمقاعد المحجوزة حسب سجلات الخادم.',
+    'usageDescription': 'الاستخدام النشط والتراكمي والمقاعد المحجوزة حسب سجلات الخادم.',
     'usageOverCap': 'تجاوز تاريخي للحد؛ تظل السجلات الحالية متاحة.',
+    'usageRemaining': 'المتبقي {count}',
     'usageCount': 'المستخدم {used} من {max}',
     'title': 'الاشتراكات',
     'description': 'راجع خطة الوصول الحالية للشركة وحالة انتهاء صلاحيتها.',
@@ -182,6 +190,8 @@ final class SubscriptionsLocalizations {
     'customers': 'العملاء',
     'drivers': 'السائقون',
     'routes': 'المسارات',
+    'lifetimeTrips': 'الرحلات المُنشأة إجمالًا',
+    'lifetimeInvoices': 'الفواتير المُنشأة إجمالًا',
     'tripsPerMonth': 'الرحلات شهريًا',
     'driverApp': 'تطبيق السائق',
     'advancedReports': 'تقارير متقدمة',

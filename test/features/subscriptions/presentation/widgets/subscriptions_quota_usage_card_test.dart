@@ -42,6 +42,8 @@ CompanyQuotaSnapshot _quota() {
         EntitlementResource.customers,
         EntitlementResource.drivers,
         EntitlementResource.routes,
+        EntitlementResource.lifetimeTrips,
+        EntitlementResource.lifetimeInvoices,
       ])
         resource: CompanyQuotaUsage(
           resource: resource,
