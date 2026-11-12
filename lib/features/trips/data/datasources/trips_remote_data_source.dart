@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/constants/authorized_business_records_db_contract.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
+import '../../../../core/data/utils/creation_retry_registry.dart';
 import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../domain/entities/trip_status.dart';
 import '../../domain/entities/trip_write_data.dart';
@@ -57,7 +58,9 @@ abstract class TripsRemoteDataSource {
 class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
   final SupabaseClient client;
 
-  const SupabaseTripsRemoteDataSource(this.client);
+  SupabaseTripsRemoteDataSource(this.client);
+
+  final CreationRetryRegistry _creationRequests = CreationRetryRegistry();
 
   @override
   Future<List<TripModel>> getTrips({required String companyId}) async {
@@ -137,14 +140,17 @@ class SupabaseTripsRemoteDataSource implements TripsRemoteDataSource {
     required TripWriteData data,
     required CurrencyConfiguration? financialConfiguration,
   }) async {
-    final result = await client.rpc(
-      TripDbRpcs.create,
-      params: data.toMutationRpcParams(
-        financialConfiguration: financialConfiguration,
-      ),
+    final params = data.toMutationRpcParams(
+      financialConfiguration: financialConfiguration,
     );
-
-    return TripModel.fromMap(_rpcMap(result));
+    final requestId = _creationRequests.keyFor(params);
+    final result = await client.rpc(
+      TripDbRpcs.createIdempotent,
+      params: {...params, TripDbRpcParams.requestId: requestId},
+    );
+    final model = TripModel.fromMap(_rpcMap(result));
+    _creationRequests.markSucceeded(params);
+    return model;
   }
 
   @override

@@ -19,6 +19,8 @@ final class CompanyQuotaSnapshot {
       EntitlementResource.customers,
       EntitlementResource.drivers,
       EntitlementResource.routes,
+      EntitlementResource.lifetimeTrips,
+      EntitlementResource.lifetimeInvoices,
     ]) {
       if (!this.usage.containsKey(resource)) {
         throw ArgumentError.value(resource, 'usage', 'Missing quota counter');

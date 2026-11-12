@@ -5186,6 +5186,30 @@ abstract class AppLocalizations {
   /// **'The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.'**
   String get failureQuotaRoutesReached;
 
+  /// No description provided for @failureQuotaLifetimeTripsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your company has reached its lifetime trip creation limit. Existing trips can still be managed.'**
+  String get failureQuotaLifetimeTripsReached;
+
+  /// No description provided for @failureQuotaLifetimeInvoicesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.'**
+  String get failureQuotaLifetimeInvoicesReached;
+
+  /// No description provided for @failureQuotaCreationRetryConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This request has already been used with different details. Refresh and start a new creation.'**
+  String get failureQuotaCreationRetryConflict;
+
+  /// No description provided for @failureQuotaCreationRecordUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The original creation cannot be safely replayed. Refresh the list before trying again.'**
+  String get failureQuotaCreationRecordUnavailable;
+
   /// No description provided for @failureQuotaUnavailable.
   ///
   /// In en, this message translates to:

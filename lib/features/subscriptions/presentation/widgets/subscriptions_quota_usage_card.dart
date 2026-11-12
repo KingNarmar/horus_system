@@ -6,7 +6,7 @@ import '../../domain/entities/company_quota_usage.dart';
 import '../../domain/entities/entitlement_resource.dart';
 import '../localization/subscriptions_localizations.dart';
 
-/// Server-confirmed capacity usage for #32 and #355. Full reporting is #360.
+/// Server-confirmed quota usage for #32, #355 and #356. Full reporting is #360.
 /// The complete company usage dashboard remains in #360.
 final class SubscriptionsQuotaUsageCard extends StatelessWidget {
   final CompanyQuotaSnapshot quota;
@@ -53,6 +53,18 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
               label: l10n.routes,
               usage: quota.usageFor(EntitlementResource.routes),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.lifetimeTrips,
+              usage: quota.usageFor(EntitlementResource.lifetimeTrips),
+              showRemaining: true,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.lifetimeInvoices,
+              usage: quota.usageFor(EntitlementResource.lifetimeInvoices),
+              showRemaining: true,
+            ),
           ],
         ),
       ),
@@ -63,8 +75,13 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
 final class _QuotaLine extends StatelessWidget {
   final String label;
   final CompanyQuotaUsage usage;
+  final bool showRemaining;
 
-  const _QuotaLine({required this.label, required this.usage});
+  const _QuotaLine({
+    required this.label,
+    required this.usage,
+    this.showRemaining = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +102,8 @@ final class _QuotaLine extends StatelessWidget {
             Text(count),
           ],
         ),
+        if (showRemaining && usage.remaining != null)
+          Text(l10n.usageRemaining(usage.remaining!)),
         if (usage.isOverLimit)
           Text(
             l10n.usageOverCap,

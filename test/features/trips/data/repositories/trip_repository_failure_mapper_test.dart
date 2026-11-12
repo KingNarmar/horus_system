@@ -3,12 +3,25 @@ import 'package:horus_system/core/errors/failure_codes.dart';
 import 'package:horus_system/features/trips/data/constants/trip_db_contract.dart';
 import 'package:horus_system/features/trips/data/repositories/trip_repository_failure_mapper.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:test/test.dart';
 
 void main() {
   group('TripRepositoryFailureMapper', () {
     const mapper = TripRepositoryFailureMapper();
+
+    test('maps lifetime quota rejection without exposing server details', () {
+      const error = PostgrestException(
+        message: 'quota_lifetime_trips_reached',
+        code: TripDbErrorCodes.quotaReached,
+        details: 'private quota state',
+      );
+      final failure = mapper.fromPostgrest(error);
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, QuotaFailureCodes.lifetimeTripsReached);
+      expect(failure.message, isNull);
+    });
 
     test('maps management permission denial to typed failure', () {
       const error = PostgrestException(

@@ -37,6 +37,8 @@ Map<String, dynamic> _payload() => {
     'customers': 8,
     'drivers': 7,
     'routes': 3,
+    'lifetime_trips': 29,
+    'lifetime_invoices': 10,
   },
 };
 
@@ -55,6 +57,11 @@ void main() {
     expect(snapshot.usageFor(EntitlementResource.customers).used, 8);
     expect(snapshot.usageFor(EntitlementResource.drivers).isOverLimit, isTrue);
     expect(snapshot.usageFor(EntitlementResource.routes).used, 3);
+    expect(snapshot.usageFor(EntitlementResource.lifetimeTrips).remaining, 1);
+    expect(
+      snapshot.usageFor(EntitlementResource.lifetimeInvoices).remaining,
+      0,
+    );
     expect(snapshot.entitlement.policyVersion, 1);
   });
 

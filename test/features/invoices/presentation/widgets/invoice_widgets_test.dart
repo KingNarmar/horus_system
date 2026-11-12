@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:horus_system/core/domain/value_objects/business_local_date_time.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
+import 'package:horus_system/core/widgets/app_form_failure_notice.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
@@ -20,6 +22,7 @@ import 'package:horus_system/features/invoices/presentation/cubit/invoice_draft_
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_details_dialog.dart';
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_draft_dialog.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
@@ -82,6 +85,105 @@ void main() {
         submittedInput!.tripIds,
         containsAll(<String>[firstTripId, secondTripId]),
       );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'lifetime quota rejection stays in invoice dialog and preserves draft',
+    (tester) async {
+      final trips = [
+        _billableTrip(id: 'trip-quota', tripNumber: 'TRP-2026-000030'),
+      ];
+      await _pumpLocalized(
+        tester,
+        child: InvoiceDraftDialog(
+          billableTrips: trips,
+          currencyFractionDigits: 2,
+          onCalculatePreview: ({required customerId, required trips}) async {
+            return _previewFor(trips);
+          },
+          onSubmit: (_) async => false,
+          getSubmitFailure: () => const ConflictFailure(
+            code: QuotaFailureCodes.lifetimeInvoicesReached,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftCustomerField')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Customer One').last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftTrip-trip-quota')),
+      );
+      await tester.pumpAndSettle();
+
+      final notes = find.byType(TextFormField).last;
+      await tester.enterText(notes, 'Keep invoice draft');
+      final save = find.byKey(const ValueKey('invoiceDraftSaveButton'));
+      await tester.ensureVisible(save);
+      await tester.tap(save);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InvoiceDraftDialog), findsOneWidget);
+      expect(find.byType(AppFormFailureNotice), findsOneWidget);
+      expect(
+        find.textContaining('lifetime invoice creation limit'),
+        findsOneWidget,
+      );
+      expect(
+        tester.widget<TextFormField>(notes).controller!.text,
+        'Keep invoice draft',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Arabic lifetime invoice quota denial is visible on narrow RTL layout',
+    (tester) async {
+      await _setSurfaceSize(tester, const Size(390, 844));
+      final trips = [
+        _billableTrip(id: 'trip-quota-ar', tripNumber: 'TRP-2026-000030'),
+      ];
+      await _pumpLocalized(
+        tester,
+        locale: const Locale('ar'),
+        child: InvoiceDraftDialog(
+          billableTrips: trips,
+          currencyFractionDigits: 2,
+          onCalculatePreview: ({required customerId, required trips}) async {
+            return _previewFor(trips);
+          },
+          onSubmit: (_) async => false,
+          getSubmitFailure: () => const ConflictFailure(
+            code: QuotaFailureCodes.lifetimeInvoicesReached,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('invoiceDraftCustomerField')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Customer One').last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('invoiceDraftTrip-trip-quota-ar')),
+      );
+      await tester.pumpAndSettle();
+      final save = find.byKey(const ValueKey('invoiceDraftSaveButton'));
+      await tester.ensureVisible(save);
+      await tester.tap(save);
+      await tester.pumpAndSettle();
+
+      final notice = find.byType(AppFormFailureNotice);
+      expect(notice, findsOneWidget);
+      expect(
+        find.textContaining('الحد الإجمالي لإنشاء الفواتير'),
+        findsOneWidget,
+      );
+      expect(Directionality.of(tester.element(notice)), TextDirection.rtl);
+      expect(find.byType(InvoiceDraftDialog), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

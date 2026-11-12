@@ -10,6 +10,7 @@ import '../../../../core/domain/value_objects/currency_configuration.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../../../core/widgets/app_form_failure_notice.dart';
 import '../../domain/entities/trip_business_local_timestamps.dart';
 import '../../domain/entities/trip_entity.dart';
 import '../../domain/entities/trip_form_lookups.dart';
@@ -161,7 +162,19 @@ class _TripFormDialogState extends State<TripFormDialog> {
     final l10n = context.l10n;
 
     return AlertDialog(
-      title: Text(widget.title),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.title),
+          if (_submitFailure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AppFormFailureNotice(
+              message: tripsFailureMessage(context, _submitFailure!),
+            ),
+          ],
+        ],
+      ),
       content: SizedBox(
         width: AppSizes.formDialogMaxWidth,
         child: _content(context),
@@ -250,14 +263,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
     setState(() {
       _isSubmitting = false;
       _submitFailure = failure;
-    });
-
-    // The error is above the scrollable fields; reveal it after rebuilding.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_formScrollController.hasClients) return;
-      _formScrollController.jumpTo(
-        _formScrollController.position.minScrollExtent,
-      );
     });
   }
 

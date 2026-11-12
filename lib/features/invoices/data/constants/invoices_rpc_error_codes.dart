@@ -1,5 +1,10 @@
 abstract final class InvoicesRpcErrorCodes {
   static const noRowsReturned = 'PGRST116';
+  static const quotaReached = 'P2860';
+  static const quotaUnavailable = 'P2861';
+  static const quotaInvalid = 'P2862';
+  static const idempotencyPayloadConflict = 'P2865';
+  static const idempotentRecordUnavailable = 'P2866';
   static const permissionDenied = 'P2610';
   static const regionalSettingsNotConfigured = 'P2611';
   static const settingsNotConfigured = 'P2612';

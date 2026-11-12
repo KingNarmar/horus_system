@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/widgets/app_form_failure_notice.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_entity.dart';
 import 'package:horus_system/features/trips/domain/entities/trip_form_lookups.dart';
@@ -79,7 +80,15 @@ void main() {
 
         final error = find.text(localization.tripConcurrentModificationFailure);
         expect(error, findsOneWidget);
-        expect(formScroll.offset, formScroll.position.minScrollExtent);
+        expect(find.byType(AppFormFailureNotice), findsOneWidget);
+        final scrollRegion = find.ancestor(
+          of: find.byType(Form),
+          matching: find.byType(SingleChildScrollView),
+        );
+        expect(
+          tester.getTopLeft(find.byType(AppFormFailureNotice)).dy,
+          lessThan(tester.getTopLeft(scrollRegion).dy),
+        );
         expect(find.byType(TripFormDialog), findsOneWidget);
         expect(
           tester.widget<TextFormField>(notesField).controller!.text,

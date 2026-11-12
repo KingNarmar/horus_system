@@ -4,12 +4,27 @@ import 'package:horus_system/features/company/domain/failures/company_failure_co
 import 'package:horus_system/features/invoices/data/constants/invoices_rpc_error_codes.dart';
 import 'package:horus_system/features/invoices/data/repositories/invoices_repository_failure_mapper.dart';
 import 'package:horus_system/features/invoices/domain/failures/invoice_failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('InvoicesRepositoryFailureMapper', () {
     const mapper = InvoicesRepositoryFailureMapper();
+
+    test('maps lifetime invoice quota rejection to sanitized conflict', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'quota_lifetime_invoices_reached',
+          code: InvoicesRpcErrorCodes.quotaReached,
+          details: 'sensitive company count',
+        ),
+        permissionCode: FailureCodes.permissionInvoicesManagement,
+      );
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, QuotaFailureCodes.lifetimeInvoicesReached);
+      expect(failure.message, isNull);
+    });
 
     test('maps auth exceptions to the existing auth-required failure', () {
       final failure = mapper.fromAuthException(AuthException('expired'));

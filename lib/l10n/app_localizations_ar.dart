@@ -2783,6 +2783,22 @@ class AppLocalizationsAr extends AppLocalizations {
       'وصلت الشركة إلى الحد الأقصى للمسارات النشطة. عطّل مسارًا غير مستخدم قبل إضافة مسار آخر أو إعادة تفعيله.';
 
   @override
+  String get failureQuotaLifetimeTripsReached =>
+      'وصلت الشركة إلى الحد الإجمالي لإنشاء الرحلات طوال عمر الاشتراك. لا يزال بإمكانك إدارة الرحلات الموجودة.';
+
+  @override
+  String get failureQuotaLifetimeInvoicesReached =>
+      'وصلت الشركة إلى الحد الإجمالي لإنشاء الفواتير طوال عمر الاشتراك. لا يزال بإمكانك إدارة الفواتير الموجودة.';
+
+  @override
+  String get failureQuotaCreationRetryConflict =>
+      'تم استخدام طلب الإنشاء هذا ببيانات مختلفة. حدّث الصفحة وابدأ عملية إنشاء جديدة.';
+
+  @override
+  String get failureQuotaCreationRecordUnavailable =>
+      'تعذرت إعادة نتيجة الإنشاء السابقة بأمان. حدّث القائمة قبل المحاولة مرة أخرى.';
+
+  @override
   String get failureQuotaUnavailable =>
       'تعذر التحقق من حدود الخطة حاليًا. لم تتم إضافة سعة جديدة.';
 

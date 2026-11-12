@@ -35,16 +35,6 @@ extension _TripFormContent on _TripFormDialogState {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_submitFailure != null) ...[
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(
-                  tripsFailureMessage(context, _submitFailure!),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
             _requiredDropdown(
               label: l10n.tripCustomerHeader,
               value: _validSelectedValue(_customerId, lookups.customers),

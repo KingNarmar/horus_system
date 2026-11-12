@@ -8,4 +8,6 @@ abstract final class CompanyQuotaRpc {
   static const customers = 'customers';
   static const drivers = 'drivers';
   static const routes = 'routes';
+  static const lifetimeTrips = 'lifetime_trips';
+  static const lifetimeInvoices = 'lifetime_invoices';
 }

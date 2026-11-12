@@ -2816,6 +2816,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.';
 
   @override
+  String get failureQuotaLifetimeTripsReached =>
+      'Your company has reached its lifetime trip creation limit. Existing trips can still be managed.';
+
+  @override
+  String get failureQuotaLifetimeInvoicesReached =>
+      'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.';
+
+  @override
+  String get failureQuotaCreationRetryConflict =>
+      'This request has already been used with different details. Refresh and start a new creation.';
+
+  @override
+  String get failureQuotaCreationRecordUnavailable =>
+      'The original creation cannot be safely replayed. Refresh the list before trying again.';
+
+  @override
   String get failureQuotaUnavailable =>
       'Plan limits cannot be verified right now. No additional capacity was consumed.';
 

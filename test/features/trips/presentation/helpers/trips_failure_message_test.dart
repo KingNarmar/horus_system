@@ -10,6 +10,7 @@ import 'package:horus_system/features/audit/domain/entities/audit_module.dart';
 import 'package:horus_system/features/company/domain/failures/company_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_document_failure_codes.dart';
 import 'package:horus_system/features/trips/domain/failures/trip_failure_codes.dart';
+import 'package:horus_system/features/subscriptions/domain/failures/quota_failure_codes.dart';
 import 'package:horus_system/features/trips/presentation/helpers/trips_failure_message.dart';
 import 'package:horus_system/features/trips/presentation/localization/trips_localizations_x.dart';
 import 'package:horus_system/features/trips/presentation/widgets/trip_details_helpers.dart';
@@ -19,6 +20,18 @@ import 'package:horus_system/l10n/app_localizations_en.dart';
 
 void main() {
   group('PC-07 Trip presentation hardening', () {
+    testWidgets('localizes lifetime Trip quota refusal in EN and AR', (
+      tester,
+    ) async {
+      const rejected = ConflictFailure(
+        code: QuotaFailureCodes.lifetimeTripsReached,
+      );
+      final english = await _messageFor(tester, const Locale('en'), rejected);
+      final arabic = await _messageFor(tester, const Locale('ar'), rejected);
+      expect(english, contains('lifetime trip creation limit'));
+      expect(arabic, contains('الحد الإجمالي لإنشاء الرحلات'));
+    });
+
     test(
       'distinguishes agreed rate per ton from commercial amount in audit',
       () {
