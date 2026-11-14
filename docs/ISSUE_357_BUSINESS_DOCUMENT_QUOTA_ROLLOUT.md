@@ -1,6 +1,6 @@
 # Issue #357 — Business-document quota rollout and recovery plan
 
-**Status:** #357 quota/guard migrations deployed on Development (169 migrations). Cleanup scheduler rollout is in progress on Development only. PR remains Draft; Production untouched.  
+**Status:** All five #357 migrations deployed and tested on Development (**172 total migrations**). Cleanup worker v2 remains protected by Vault and is scheduled once daily. PR remains Draft; Production untouched (**167 migrations**).  
 **Branch:** `feature/357-business-document-quota-lifecycle`.  
 **Parent:** [#191](https://github.com/KingNarmar/horus_system/issues/191).  
 **Contract:** [#207](https://github.com/KingNarmar/horus_system/issues/207).
@@ -36,9 +36,15 @@ The DB ledger is authoritative for pending operations; only committed metadata c
 
 ## Idle-Cron optimization (#357)
 
-Migration `20261114183000_issue_357_conditional_document_cleanup.sql` retains the same 15-minute `pg_cron` cadence but gates `net.http_post` behind a **private, read-only EXISTS predicate**. It mirrors the existing cleanup-claim eligibility rule (expired reservations, sufficiently old released reservations, or retryable stale `cleanup_pending` leases) and excludes files referenced by any current or historic business metadata. There is **no Edge request** when the table has no eligible work; an inexpensive PostgreSQL probe still runs once per tick. A pending reservation or recently failed upload does not bypass its grace period.
+Migration `20261114183000_issue_357_conditional_document_cleanup.sql` originally retained the 15-minute `pg_cron` cadence and gated `net.http_post` behind a **private, read-only EXISTS predicate**. It mirrors the existing cleanup-claim eligibility rule (expired reservations, sufficiently old released reservations, or retryable stale `cleanup_pending` leases) and excludes files referenced by any current or historic business metadata. There is **no Edge request** when the table has no eligible work; an inexpensive PostgreSQL probe still runs once per tick. A pending reservation or recently failed upload does not bypass its grace period.
 
 The migration updates **only an existing active postgres-owned** cleanup job; local replay without a configured job is a no-op. It does not create or reactivate paused schedules, does not change the token/Vault security contract or document quotas, and adds no unapproved tenant API. The helper is not executable by `anon` or `authenticated`. Regression tests cover idle state, fresh pending reservations, due released objects, in-flight claims, deleted-account orphans and terminal cleanup. Never edit the already applied #357 migration files in place; treat this as a separate versioned rollout to Development and independently authorize Production.
+
+## Daily cleanup schedule (Development-approved, 2026-11-14)
+
+Migration `20261114190000_issue_357_daily_document_cleanup.sql` changes only the existing active `postgres`-owned cleanup job's schedule using `cron.alter_job`. The job is scheduled for **`10 2 * * *`**, i.e. **02:10 GMT / 06:10 Dubai every day** (verified hosted `cron.timezone=GMT`). The private due-work predicate remains, so idle days incur one small DB query and **zero Edge HTTP calls**. The identity, SQL command, Vault authentication, active flag, grants and RLS are unchanged. The migration is idempotent, fails closed if the active job contract has been modified unexpectedly, and does not create or reactivate absent/paused jobs in disposable replay.
+
+[CI for daily Cron migration and signed-JWT storage lifecycle](https://github.com/KingNarmar/horus_system/actions/runs/43588932054), [migration replay](https://github.com/KingNarmar/horus_system/actions/runs/43588931991), and rollback-only hosted Dev `cron.alter_job` verification all pass. The hosted Development migration has been applied; its history was aligned to the repository migration version. There is no Production deployment. The cleanup worker retains its **25-items-per-invocation** batch size, so with daily scheduling unresolved items above the daily batch can require later days. Monitor backlog and re-evaluate cadence only with evidence rather than adding unnecessary recurring requests.
 
 ## Recovery behavior
 
@@ -47,6 +53,6 @@ Failed/cancelled operations must release capacity immediately when possible. For
 ## Known preflight gates
 
 - Full CI has verified Flutter formatting, analyze, tests, Windows/Android builds, signed JWT/Storage tests and the prior migration replay; rerun after changes to the scheduler migration and Edge source.
-- The initial Development Edge v1 was safely deployed without a schedule. The revised Vault-authenticated v2 and 15-minute schedule must pass isolated tests before hosted activation.
+- Development Vault-authenticated Edge v2 and daily scheduled job are deployed and tested. The normal next automatic daily execution may be verified by reviewing `cron.job_run_details` after its scheduled time; do not confuse a simulated rollback-only schedule with a natural execution.
 - Migration and strict RLS changes are not backward-compatible with older upload clients; rollout is staged.
 - #357 remains **work in progress** until Development recovery, audit/realtime and client manual smoke tests pass and a separate merge authorization is given.
