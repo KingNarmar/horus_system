@@ -182,10 +182,38 @@ def main():
             "FROM auth.sessions s LEFT JOIN auth.mfa_factors f ON f.id=s.factor_id "
             "WHERE s.user_id='" + operator_id + "') t;")
         error = listed if isinstance(listed, dict) else {}
+        # Only boolean diagnostics and non-sensitive auth assurance values.
+        claims_raw = aal2.split(".")[1]
+        claims = json.loads(base64.urlsafe_b64decode(
+            claims_raw + "=" * (-len(claims_raw) % 4)))
+        claim_state = {
+            "aal": claims.get("aal"), "role": claims.get("role"),
+            "sub_matches": claims.get("sub") == operator_id,
+            "session_present": bool(claims.get("session_id")),
+            "exp_numeric": isinstance(claims.get("exp"), int),
+            "exp_future": isinstance(claims.get("exp"), int)
+                          and claims["exp"] > time.time()
+        }
+        database_state = psql(db,
+            "SELECT row_to_json(t)::text FROM (SELECT "
+            "EXISTS(SELECT 1 FROM private.platform_operator_access o "
+            " WHERE o.user_id='" + operator_id + "' "
+            " AND o.revoked_at IS NULL "
+            " AND 'tenant_read'=ANY(o.permissions)) AS access_allowed, "
+            "EXISTS(SELECT 1 FROM public.user_profiles p "
+            " WHERE p.id='" + operator_id + "' "
+            " AND p.is_platform_admin IS TRUE) AS profile_allowed, "
+            "EXISTS(SELECT 1 FROM auth.users u "
+            " WHERE u.id='" + operator_id + "' "
+            " AND u.deleted_at IS NULL AND u.is_anonymous IS NOT TRUE "
+            " AND (u.banned_until IS NULL OR u.banned_until<=now())) "
+            " AS account_allowed) t;")
         print("DIAGNOSTIC operator directory: HTTP", status,
               "error_code", error.get("code"),
               "error_message", error.get("message"),
-              "session_factor_state", factor_state, flush=True)
+              "claim_state", claim_state,
+              "session_factor_state", factor_state,
+              "database_state", database_state, flush=True)
     check("verified operator gets minimal directory",
           status == 200 and isinstance(listed, list)
           and any(row.get("company_id") == company for row in listed)
