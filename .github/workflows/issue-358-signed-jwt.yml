@@ -10,6 +10,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_358_operator_backend.py'
+      - 'scripts/security/verify_issue_370_local_http.py'
       - '.github/workflows/issue-358-signed-jwt.yml'
   workflow_dispatch:
 
@@ -30,7 +31,7 @@ jobs:
         with:
           node-version: '24'
       - name: Python security harness syntax
-        run: python -m py_compile scripts/security/verify_issue_358_operator_backend.py
+        run: python -m py_compile scripts/security/verify_issue_358_operator_backend.py scripts/security/verify_issue_370_local_http.py
       - name: Ensure isolated test environment
         shell: bash
         run: |
@@ -45,6 +46,8 @@ jobs:
           npx --yes supabase@3.0.0 db reset --local --no-seed
       - name: Signed JWT, MFA, RLS, quota, audit and concurrency assertions
         run: python scripts/security/verify_issue_358_operator_backend.py
+      - name: Legacy #370 operator recovery regression with scoped MFA
+        run: python scripts/security/verify_issue_370_local_http.py
       - name: Stop and discard ephemeral local Supabase
         if: always()
         run: |
