@@ -13,6 +13,8 @@ import '../cubit/current_company_cubit.dart';
 ///
 /// Kept above the Navigator so a protected deep link cannot bypass session
 /// validation, and route transitions cannot create duplicate subscriptions.
+/// Window focus/visibility alone never triggers validation; identity, membership,
+/// and connectivity signals remain the authoritative reconciliation triggers.
 final class CompanySessionLifecycleBoundary extends StatefulWidget {
   final Widget child;
 
@@ -24,8 +26,7 @@ final class CompanySessionLifecycleBoundary extends StatefulWidget {
 }
 
 final class _CompanySessionLifecycleBoundaryState
-    extends State<CompanySessionLifecycleBoundary>
-    with WidgetsBindingObserver {
+    extends State<CompanySessionLifecycleBoundary> {
   late final CurrentCompanyCubit _companyCubit;
   String? _activeUserId;
   int? _sessionRevision;
@@ -35,15 +36,7 @@ final class _CompanySessionLifecycleBoundaryState
   void initState() {
     super.initState();
     _companyCubit = context.read<CurrentCompanyCubit>();
-    WidgetsBinding.instance.addObserver(this);
     _handleAuthState(context.read<AuthCubit>().state);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _revalidate();
-    }
   }
 
   void _handleAuthState(AuthState state) {
@@ -97,7 +90,6 @@ final class _CompanySessionLifecycleBoundaryState
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _activeUserId = null;
     ++_identityGeneration;
     unawaited(_companyCubit.stopWatchingMembership());
