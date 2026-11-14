@@ -328,4 +328,32 @@ REVOKE ALL ON FUNCTION public.platform_get_company_usage(uuid)
   FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.platform_get_company_usage(uuid)
   TO authenticated;
+-- Recovery lookup is intentionally scoped to ONE known membership. It
+-- replaces the legacy unrestricted Platform Admin direct membership SELECT.
+CREATE FUNCTION public.platform_get_membership_for_recovery(
+  p_company_id uuid, p_membership_id uuid
+)
+RETURNS TABLE(
+  membership_id uuid,membership_role public.company_role,
+  membership_active boolean,membership_updated_at timestamptz
+)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog
+AS $
+BEGIN
+  PERFORM private.require_platform_operator('membership_recovery',true);
+  IF p_company_id IS NULL OR p_membership_id IS NULL THEN
+    RAISE EXCEPTION USING ERRCODE='22023',
+      MESSAGE='platform_recovery_invalid_target';
+  END IF;
+  RETURN QUERY
+  SELECT m.id,m.role,m.is_active,m.updated_at
+  FROM public.company_users m
+  WHERE m.company_id=p_company_id AND m.id=p_membership_id;
+END;
+$;
+REVOKE ALL ON FUNCTION public.platform_get_membership_for_recovery(uuid,uuid)
+  FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.platform_get_membership_for_recovery(uuid,uuid)
+  TO authenticated;
+
 COMMIT;
