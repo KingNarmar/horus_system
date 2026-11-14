@@ -177,6 +177,34 @@ void main() {
     );
   });
 
+  testWidgets('missed revocation while offline is enforced on reconnect', (
+    tester,
+  ) async {
+    final fixture = _SessionFixture();
+    addTearDown(fixture.close);
+    await fixture.mount(tester, showCompanyView: true);
+    await fixture.networkCubit.startWatching();
+
+    fixture.networkRepository.notify(NetworkConnectionStatus.online);
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('draft')), 'old company data');
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    fixture.networkRepository.notify(NetworkConnectionStatus.offline);
+    await tester.pump();
+
+    // The user loses membership while disconnected. No Realtime hint arrives.
+    fixture.companyRepository.contexts = const [];
+
+    fixture.networkRepository.notify(NetworkConnectionStatus.online);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+
+    expect(fixture.companyRepository.loads, 2);
+    expect(fixture.companyCubit.state, isA<CurrentCompanyEmpty>());
+    expect(find.byKey(const Key('draft')), findsNothing);
+  });
+
   testWidgets('network recovery still performs one membership recheck', (
     tester,
   ) async {
