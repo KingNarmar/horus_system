@@ -142,7 +142,7 @@ void main() {
         final formatted = MaterialLocalizations.of(
           context,
         ).formatShortDate(DateTime(2026, 11, 28));
-        final isolatedDate = '\\u2066$formatted\\u2069';
+        final isolatedDate = '\u2066$formatted\u2069';
 
         expect(find.text(isolatedDate), findsOneWidget);
         expect(
@@ -151,7 +151,10 @@ void main() {
         );
         expect(tester.takeException(), isNull);
 
-        await tester.drag(find.byType(SingleChildScrollView).first, const Offset(0, -700));
+        await tester.drag(
+          find.byType(SingleChildScrollView).first,
+          const Offset(0, -700),
+        );
         await tester.pumpAndSettle();
         expect(find.text(l10n.fleetActivityTimeline), findsOneWidget);
         expect(tester.takeException(), isNull);
