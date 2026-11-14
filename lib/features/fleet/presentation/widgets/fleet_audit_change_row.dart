@@ -50,10 +50,7 @@ final class _AuditValue extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.labelSmall),
         Text(
           value,
           textDirection: Bidi.detectRtlDirectionality(value)
