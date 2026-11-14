@@ -42,9 +42,18 @@ def elevate_to_aal2(api, aal1_token):
         "POST", "/auth/v1/factors", token=aal1_token,
         payload={"factor_type": "totp", "friendly_name": "HORUS358-LOCAL"}
     )
-    check("TOTP enrolled with GoTrue", status in (200, 201)
-          and isinstance(enrollment, dict) and enrollment.get("id")
-          and enrollment.get("totp", {}).get("secret"))
+    if not (status in (200, 201) and isinstance(enrollment, dict)
+            and enrollment.get("id")
+            and isinstance(enrollment.get("totp"), dict)
+            and enrollment["totp"].get("secret")):
+        # Only status, field names and error *code*; never print MFA secrets.
+        safe_keys = sorted(enrollment.keys()) if isinstance(enrollment, dict) else []
+        error_code = enrollment.get("code") if isinstance(enrollment, dict) else None
+        raise AssertionError(
+            f"TOTP enrollment failed: HTTP {status}, code={error_code}, "
+            f"field_names={safe_keys}"
+        )
+    check("TOTP enrolled with GoTrue", True)
     factor_id = enrollment["id"]
     secret = enrollment["totp"]["secret"]
 
@@ -197,8 +206,7 @@ def main():
             "PATCH", "/rest/v1/" + table, token=owner_token,
             query={"id": "eq." + str(uuid.uuid4())}, payload=payload
         )
-        check("owner direct write denied on " + table, status >= 400
-              or table == "platform_entitlement_overrides")
+        check("owner direct write denied on " + table, status >= 400)
     denied(grant(api, owner_token, company, 1, "resource",
                  "customers", 12, str(uuid.uuid4())), "42501",
            "owner cannot grant entitlement")
