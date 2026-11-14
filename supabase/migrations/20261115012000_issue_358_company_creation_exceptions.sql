@@ -5,7 +5,7 @@ BEGIN;
 -- Unlike tenant quotas, creation capacity belongs to the ORIGINAL creator.
 -- It is an absolute extra slot allowance, not an unbounded additive counter.
 CREATE TABLE private.platform_company_creation_capacity (
-  user_id uuid PRIMARY KEY REFERENCES auth.users(id),
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   extra_slots integer NOT NULL CHECK (extra_slots BETWEEN 0 AND 1000),
   effective_at timestamptz NOT NULL,
   expires_at timestamptz,
