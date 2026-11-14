@@ -545,7 +545,7 @@ CREATE FUNCTION public.release_business_document_upload_by_reference(
 )
 RETURNS void
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
-AS $
+AS $document_release$
 BEGIN
   IF auth.uid() IS NULL OR p_company_id IS NULL OR p_storage_reference IS NULL THEN
     RAISE EXCEPTION USING ERRCODE='42501',
@@ -557,7 +557,7 @@ BEGIN
   WHERE r.company_id=p_company_id AND r.storage_reference=p_storage_reference
     AND r.actor_user_id=auth.uid() AND r.state='reserved';
 END;
-$;
+$document_release$;
 REVOKE ALL ON FUNCTION public.release_business_document_upload_by_reference(uuid,text)
   FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.release_business_document_upload_by_reference(uuid,text)
