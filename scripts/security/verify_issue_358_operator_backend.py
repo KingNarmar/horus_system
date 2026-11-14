@@ -169,12 +169,16 @@ def diagnose_local_operator_request(api, jwt, db):
       TO authenticated;
     """
     psql(db, ddl)
+    # PostgREST doesn't discover temporary SQL routines until schema reload.
+    psql(db, "SELECT pg_notify('pgrst','reload schema');")
+    time.sleep(1)
     try:
         status, result = rpc(api, jwt, "local_issue_358_auth_debug", {})
         print("DIAGNOSTIC disposable REST SQL checks:", status, result,
               flush=True)
     finally:
         psql(db, "DROP FUNCTION IF EXISTS public.local_issue_358_auth_debug();")
+        psql(db, "SELECT pg_notify('pgrst','reload schema');")
 
 def main():
     url, public, admin, db = local_stack()
