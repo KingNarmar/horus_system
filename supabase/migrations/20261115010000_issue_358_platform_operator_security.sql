@@ -6,7 +6,7 @@ BEGIN;
 -- registry; initial trusted operators require an independently reviewed,
 -- audited operator-provisioning migration.
 CREATE TABLE private.platform_operator_access (
-  user_id uuid PRIMARY KEY REFERENCES auth.users(id),
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   permissions text[] NOT NULL,
   approved_reason text NOT NULL CHECK (
     length(btrim(approved_reason)) BETWEEN 8 AND 500
@@ -77,6 +77,17 @@ CREATE FUNCTION private.audit_platform_operator_access()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
 AS $$
 BEGIN
+  IF TG_OP = 'DELETE' THEN
+    INSERT INTO private.platform_operator_audit (
+      target_user_id,actor_user_id,action,reason,old_values,new_values
+    ) VALUES (
+      OLD.user_id,auth.uid(),'operator_access_deleted',
+      'Trusted account-deletion lifecycle removed operator access',
+      jsonb_build_object('permissions',OLD.permissions,
+        'revoked_at',OLD.revoked_at),NULL
+    );
+    RETURN NULL;
+  END IF;
   IF TG_OP = 'INSERT' THEN
     INSERT INTO private.platform_operator_audit (
       target_user_id,actor_user_id,actor_session_id,action,reason,
@@ -112,7 +123,7 @@ BEGIN
 END;
 $$;
 CREATE TRIGGER platform_operator_access_audit
-AFTER INSERT OR UPDATE ON private.platform_operator_access
+AFTER INSERT OR UPDATE OR DELETE ON private.platform_operator_access
 FOR EACH ROW EXECUTE FUNCTION private.audit_platform_operator_access();
 
 -- A signed JWT is necessary but insufficient for privileged operations.
