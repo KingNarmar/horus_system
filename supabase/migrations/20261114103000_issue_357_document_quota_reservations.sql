@@ -265,7 +265,10 @@ DECLARE
   v_asset_type text;
 BEGIN
   IF auth.uid() IS NULL OR p_company_id IS NULL
-     OR private.business_document_company_id(p_path) IS DISTINCT FROM p_company_id
+     OR (CASE p_bucket
+       WHEN 'driver-documents' THEN private.driver_document_company_id(p_path)
+       ELSE private.business_document_company_id(p_path)
+     END) IS DISTINCT FROM p_company_id
      OR v_kind IS NULL THEN
     RETURN false;
   END IF;
@@ -313,11 +316,13 @@ RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_cata
 AS $$
 DECLARE
   v_kind text := private.business_document_upload_kind(p_bucket,p_new_path);
-  v_entity_id uuid := pg_catalog.split_part(p_new_path,'/',4)::uuid;
+  v_entity_id uuid;
   v_folder text := pg_catalog.split_part(p_new_path,'/',5);
   v_asset_type text;
 BEGIN
   IF p_old_path IS NULL THEN RETURN true; END IF;
+  IF v_kind IS NULL THEN RETURN false; END IF;
+  v_entity_id := pg_catalog.split_part(p_new_path,'/',4)::uuid;
   IF v_kind='trip' THEN
     RETURN EXISTS (
       SELECT 1 FROM public.trip_documents d
