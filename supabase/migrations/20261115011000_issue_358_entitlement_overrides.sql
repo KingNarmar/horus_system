@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE TABLE private.platform_entitlement_overrides (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id uuid NOT NULL REFERENCES public.companies(id),
+  company_id uuid NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
   scope_kind text NOT NULL CHECK (scope_kind IN ('resource','feature')),
   scope_key text NOT NULL,
   override_value jsonb NOT NULL,
@@ -24,6 +24,7 @@ CREATE TABLE private.platform_entitlement_overrides (
   CONSTRAINT platform_override_revocation_pair CHECK(
     (revoked_at IS NULL AND revoked_by IS NULL AND revoke_reason IS NULL AND revoked_revision IS NULL)
     OR (revoked_at IS NOT NULL AND revoked_by IS NOT NULL
+        AND revoke_reason IS NOT NULL
         AND length(btrim(revoke_reason)) BETWEEN 8 AND 500
         AND revoked_revision IS NOT NULL)
   ),
