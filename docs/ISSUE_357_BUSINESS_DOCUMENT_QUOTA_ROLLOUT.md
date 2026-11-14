@@ -1,6 +1,6 @@
 # Issue #357 — Business-document quota rollout and recovery plan
 
-**Status:** All five #357 migrations deployed and tested on Development (**172 total migrations**). Cleanup worker v2 remains protected by Vault and is scheduled once daily. PR remains Draft; Production untouched (**167 migrations**).  
+**Status:** All six #357 migrations deployed and tested on Development (**173 total migrations**). Cleanup worker v2 remains protected by Vault and is scheduled once daily. PR remains Draft; Production untouched (**167 migrations**).  
 **Branch:** `feature/357-business-document-quota-lifecycle`.  
 **Parent:** [#191](https://github.com/KingNarmar/horus_system/issues/191).  
 **Contract:** [#207](https://github.com/KingNarmar/horus_system/issues/207).
@@ -45,6 +45,12 @@ The migration updates **only an existing active postgres-owned** cleanup job; lo
 Migration `20261114190000_issue_357_daily_document_cleanup.sql` changes only the existing active `postgres`-owned cleanup job's schedule using `cron.alter_job`. The job is scheduled for **`10 2 * * *`**, i.e. **02:10 GMT / 06:10 Dubai every day** (verified hosted `cron.timezone=GMT`). The private due-work predicate remains, so idle days incur one small DB query and **zero Edge HTTP calls**. The identity, SQL command, Vault authentication, active flag, grants and RLS are unchanged. The migration is idempotent, fails closed if the active job contract has been modified unexpectedly, and does not create or reactivate absent/paused jobs in disposable replay.
 
 [CI for daily Cron migration and signed-JWT storage lifecycle](https://github.com/KingNarmar/horus_system/actions/runs/43588932054), [migration replay](https://github.com/KingNarmar/horus_system/actions/runs/43588931991), and rollback-only hosted Dev `cron.alter_job` verification all pass. The hosted Development migration has been applied; its history was aligned to the repository migration version. There is no Production deployment. The cleanup worker retains its **25-items-per-invocation** batch size, so with daily scheduling unresolved items above the daily batch can require later days. Monitor backlog and re-evaluate cadence only with evidence rather than adding unnecessary recurring requests.
+
+## Uploader FK performance index (Development-approved, 2026-11-14)
+
+Migration `20261114210000_issue_357_index_reservation_actor_user_id.sql` creates one full B-tree index on `private.business_document_upload_reservations(actor_user_id)`, covering the existing `auth.users(id)` foreign key that uses `ON DELETE SET NULL`. The index has no partial predicate so it supports the FK relationship including historical committed reservations; it changes no app code, quota semantics, table rows, grants, RLS, audit or Storage policies. Existing applied migration files remain immutable.
+
+[Isolated #357 security test and actor-FK-index catalog/RLS regression](https://github.com/KingNarmar/horus_system/actions/runs/43593704962) **PASS** and [full disposable migration replay](https://github.com/KingNarmar/horus_system/actions/runs/43593704936) **PASS** before Dev deployment. Hosted Development verification confirms the new valid index, unchanged FK `ON DELETE SET NULL`, RLS and denied `anon/authenticated` direct reads. The formerly reported `unindexed_foreign_keys` finding for this FK is **absent** from current [Supabase Performance Advisor](https://supabase.com/docs/guides/observability/advisors?queryGroups=lint&lint=0001_unindexed_foreign_keys). The Dev migration version was reconciled to the exact repository filename, and Production has not been changed.
 
 ## Recovery behavior
 
