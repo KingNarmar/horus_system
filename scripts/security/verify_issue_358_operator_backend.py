@@ -48,7 +48,7 @@ def elevate_to_aal2(api, aal1_token):
             and enrollment["totp"].get("secret")):
         # Only status, field names and error *code*; never print MFA secrets.
         safe_keys = sorted(enrollment.keys()) if isinstance(enrollment, dict) else []
-        error_code = enrollment.get("code") if isinstance(enrollment, dict) else None
+        error_code = enrollment.get("error_code") if isinstance(enrollment, dict) else None
         raise AssertionError(
             f"TOTP enrollment failed: HTTP {status}, code={error_code}, "
             f"field_names={safe_keys}"
