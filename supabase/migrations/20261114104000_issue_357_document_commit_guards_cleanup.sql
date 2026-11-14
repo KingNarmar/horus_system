@@ -63,6 +63,13 @@ LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
 AS $$
 DECLARE v_old_reference text;
 BEGIN
+  IF private.trip_document_storage_trip_id(NEW.storage_reference)
+       IS DISTINCT FROM NEW.trip_id
+     OR private.trip_document_storage_kind(NEW.storage_reference)
+       IS DISTINCT FROM NEW.document_kind THEN
+    RAISE EXCEPTION USING ERRCODE='P2873',
+      MESSAGE='document_upload_reservation_required';
+  END IF;
   IF NEW.replaces_document_id IS NOT NULL THEN
     SELECT d.storage_reference INTO v_old_reference
     FROM public.trip_documents d
@@ -90,6 +97,22 @@ LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
 AS $$
 DECLARE v_old_reference text;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.fleet_license_documents d
+    WHERE d.company_id=NEW.company_id
+      AND d.id=NEW.license_document_id
+      AND (
+        (d.tractor_head_id IS NOT NULL
+          AND d.tractor_head_id=private.fleet_license_document_storage_asset_id(NEW.storage_reference)
+          AND private.fleet_license_document_storage_asset_type(NEW.storage_reference)='tractor_head')
+        OR (d.trailer_id IS NOT NULL
+          AND d.trailer_id=private.fleet_license_document_storage_asset_id(NEW.storage_reference)
+          AND private.fleet_license_document_storage_asset_type(NEW.storage_reference)='trailer')
+      )
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE='P2873',
+      MESSAGE='document_upload_reservation_required';
+  END IF;
   IF NEW.replaces_file_id IS NOT NULL THEN
     SELECT f.storage_reference INTO v_old_reference
     FROM public.fleet_license_document_files f
@@ -112,6 +135,34 @@ CREATE TRIGGER fleet_license_document_files_00_quota_commit
   BEFORE INSERT ON public.fleet_license_document_files
   FOR EACH ROW EXECUTE FUNCTION private.guard_fleet_document_quota_commit();
 
+-- Driver image paths are part of the record's identity: an upload reserved
+-- for Driver A or a licence-front cannot be attached to Driver B or an ID
+-- field, even when both records belong to the same company.
+CREATE FUNCTION private.consume_driver_identity_reservation(
+  p_company_id uuid, p_driver_id uuid, p_folder text,
+  p_reference text, p_old_reference text
+)
+RETURNS void
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
+AS $driver_identity_guard$
+BEGIN
+  IF p_reference IS NULL OR p_driver_id IS NULL
+     OR private.driver_document_company_id(p_reference)
+       IS DISTINCT FROM p_company_id
+     OR private.business_document_upload_kind('driver-documents',p_reference)
+       IS DISTINCT FROM 'driver_identity'
+     OR pg_catalog.split_part(p_reference,'/',4)
+       IS DISTINCT FROM p_driver_id::text
+     OR pg_catalog.split_part(p_reference,'/',5)
+       IS DISTINCT FROM p_folder THEN
+    RAISE EXCEPTION USING ERRCODE='P2873',
+      MESSAGE='document_upload_reservation_required';
+  END IF;
+  PERFORM private.consume_business_document_reservation(
+    p_company_id,'driver-documents',p_reference,p_old_reference);
+END;
+$driver_identity_guard$;
+
 CREATE FUNCTION private.guard_driver_identity_quota_commit()
 RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
@@ -120,44 +171,44 @@ BEGIN
   -- Do not dereference OLD in INSERT triggers; old paths exist only on UPDATE.
   IF TG_OP = 'INSERT' THEN
     IF NEW.license_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_image_path,NULL);
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'license-front',NEW.license_image_path,NULL);
     END IF;
     IF NEW.license_back_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_back_image_path,NULL);
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'license-back',NEW.license_back_image_path,NULL);
     END IF;
     IF NEW.national_id_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.national_id_image_path,NULL);
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'national-id-front',NEW.national_id_image_path,NULL);
     END IF;
     IF NEW.national_id_back_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.national_id_back_image_path,NULL);
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'national-id-back',NEW.national_id_back_image_path,NULL);
     END IF;
   ELSE
     IF NEW.license_image_path IS DISTINCT FROM OLD.license_image_path
        AND NEW.license_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_image_path,
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'license-front',NEW.license_image_path,
         OLD.license_image_path);
     END IF;
     IF NEW.license_back_image_path IS DISTINCT FROM OLD.license_back_image_path
        AND NEW.license_back_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_back_image_path,
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'license-back',NEW.license_back_image_path,
         OLD.license_back_image_path);
     END IF;
     IF NEW.national_id_image_path IS DISTINCT FROM OLD.national_id_image_path
        AND NEW.national_id_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.national_id_image_path,
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'national-id-front',NEW.national_id_image_path,
         OLD.national_id_image_path);
     END IF;
     IF NEW.national_id_back_image_path IS DISTINCT FROM OLD.national_id_back_image_path
        AND NEW.national_id_back_image_path IS NOT NULL THEN
-      PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.national_id_back_image_path,
+      PERFORM private.consume_driver_identity_reservation(
+        NEW.company_id,NEW.id,'national-id-back',NEW.national_id_back_image_path,
         OLD.national_id_back_image_path);
     END IF;
   END IF;
@@ -372,6 +423,8 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION private.consume_business_document_reservation(uuid,text,text,text)
+  FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION private.consume_driver_identity_reservation(uuid,uuid,text,text,text)
   FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON FUNCTION private.guard_trip_document_quota_commit()
   FROM PUBLIC,anon,authenticated;
