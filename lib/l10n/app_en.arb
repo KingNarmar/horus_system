@@ -386,6 +386,8 @@
   "fleetUnknownUser": "Unknown user",
   "fleetNotAvailable": "Not available",
   "fleetChanges": "Changes",
+  "fleetAuditPreviousValueLabel": "Before",
+  "fleetAuditNewValueLabel": "After",
   "fleetDetailsTitle": "Fleet asset details: {plateNumber}",
   "@fleetDetailsTitle": {"placeholders": {"plateNumber": {"type": "String"}}},
   "fleetAuditActionCreated": "Created",
