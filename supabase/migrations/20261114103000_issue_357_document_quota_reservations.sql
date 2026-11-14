@@ -6,7 +6,10 @@ BEGIN;
 CREATE TABLE private.business_document_upload_reservations (
   company_id uuid NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
   operation_id uuid NOT NULL,
-  actor_user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  -- Preserve pending/committed evidence when the uploader account is deleted.
+  -- NULL actors cannot authorize new Storage writes; the trusted cleanup
+  -- worker can still reclaim an uncommitted object after its lease expires.
+  actor_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   bucket_id text NOT NULL CHECK (bucket_id IN ('business-documents', 'driver-documents')),
   storage_reference text NOT NULL,
   replaces_reference text,
