@@ -926,6 +926,8 @@
   "failureQuotaRoutesReached": "The company has reached its active route limit. Deactivate an unused route before adding or reactivating another.",
   "failureQuotaLifetimeTripsReached": "Your company has reached its lifetime trip creation limit. Existing trips can still be managed.",
   "failureQuotaLifetimeInvoicesReached": "Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.",
+  "failureQuotaBusinessDocumentsReached": "The company has reached its business-document limit. You can replace or remove an existing document.",
+  "failureBusinessDocumentCleanupPending": "The upload could not be completed safely. Cleanup is pending; please refresh before trying again.",
   "failureQuotaCreationRetryConflict": "This request has already been used with different details. Refresh and start a new creation.",
   "failureQuotaCreationRecordUnavailable": "The original creation cannot be safely replayed. Refresh the list before trying again.",
   "failureQuotaUnavailable": "Plan limits cannot be verified right now. No additional capacity was consumed.",

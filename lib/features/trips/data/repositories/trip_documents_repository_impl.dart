@@ -184,6 +184,7 @@ final class TripDocumentsRepositoryImpl implements TripDocumentsRepository {
         scope: _documentScope,
         entityId: tripId,
         documentKind: TripDocumentStorageSegments.forKind(current.kind),
+        replacesReference: BusinessDocumentReference(current.storageReference),
       ),
       file: document,
     );

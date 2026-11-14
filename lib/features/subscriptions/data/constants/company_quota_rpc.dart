@@ -10,4 +10,5 @@ abstract final class CompanyQuotaRpc {
   static const routes = 'routes';
   static const lifetimeTrips = 'lifetime_trips';
   static const lifetimeInvoices = 'lifetime_invoices';
+  static const businessDocuments = 'business_documents';
 }

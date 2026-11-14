@@ -5198,6 +5198,18 @@ abstract class AppLocalizations {
   /// **'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.'**
   String get failureQuotaLifetimeInvoicesReached;
 
+  /// No description provided for @failureQuotaBusinessDocumentsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its business-document limit. You can replace or remove an existing document.'**
+  String get failureQuotaBusinessDocumentsReached;
+
+  /// No description provided for @failureBusinessDocumentCleanupPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The upload could not be completed safely. Cleanup is pending; please refresh before trying again.'**
+  String get failureBusinessDocumentCleanupPending;
+
   /// No description provided for @failureQuotaCreationRetryConflict.
   ///
   /// In en, this message translates to:

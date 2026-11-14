@@ -24,6 +24,7 @@ final class CompanyQuotaSnapshotModel {
       CompanyQuotaRpc.routes,
       CompanyQuotaRpc.lifetimeTrips,
       CompanyQuotaRpc.lifetimeInvoices,
+      CompanyQuotaRpc.businessDocuments,
     ]) {
       final count = map[key];
       if (count is! int || count < 0) {

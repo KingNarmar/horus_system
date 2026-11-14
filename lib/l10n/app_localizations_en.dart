@@ -2824,6 +2824,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.';
 
   @override
+  String get failureQuotaBusinessDocumentsReached =>
+      'The company has reached its business-document limit. You can replace or remove an existing document.';
+
+  @override
+  String get failureBusinessDocumentCleanupPending =>
+      'The upload could not be completed safely. Cleanup is pending; please refresh before trying again.';
+
+  @override
   String get failureQuotaCreationRetryConflict =>
       'This request has already been used with different details. Refresh and start a new creation.';
 

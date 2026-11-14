@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../documents/domain/failures/business_document_failure_codes.dart';
 import '../errors/common_failures.dart';
 import '../errors/failure.dart';
 import '../errors/failure_codes.dart';
@@ -27,6 +28,13 @@ extension CommonErrorLocalizationsX on AppLocalizations {
   String localizedErrorMessage(Failure failure) {
     return switch (failure.code) {
       FailureCodes.unexpectedError => _genericUnexpectedErrorMessage,
+      BusinessDocumentFailureCodes.quotaReached =>
+        failureQuotaBusinessDocumentsReached,
+      BusinessDocumentFailureCodes.quotaUnavailable => failureQuotaUnavailable,
+      BusinessDocumentFailureCodes.reservationConflict =>
+        failureQuotaUnavailable,
+      BusinessDocumentFailureCodes.cleanupPending =>
+        failureBusinessDocumentCleanupPending,
       FailureCodes.validationCompanyIdRequired =>
         failureValidationCompanyIdRequired,
       FailureCodes.validationCompanyContextRequired =>

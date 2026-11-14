@@ -136,6 +136,7 @@ final class _FakeCompanyQuotaRepository implements CompanyQuotaRepository {
             EntitlementResource.routes,
             EntitlementResource.lifetimeTrips,
             EntitlementResource.lifetimeInvoices,
+            EntitlementResource.businessDocuments,
           ])
             resource: CompanyQuotaUsage(
               resource: resource,
