@@ -2228,6 +2228,18 @@ abstract class AppLocalizations {
   /// **'Changes'**
   String get fleetChanges;
 
+  /// No description provided for @fleetAuditPreviousValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get fleetAuditPreviousValueLabel;
+
+  /// No description provided for @fleetAuditNewValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get fleetAuditNewValueLabel;
+
   /// No description provided for @fleetDetailsTitle.
   ///
   /// In en, this message translates to:
