@@ -528,4 +528,31 @@ CREATE POLICY business_document_no_overwrite_gate
   USING (bucket_id NOT IN ('business-documents','driver-documents'))
   WITH CHECK (bucket_id NOT IN ('business-documents','driver-documents'));
 
+
+-- Compensation paths carry no operation ID. Release by exact actor-owned
+-- object reference so feature-level error compensation immediately frees a
+-- pending slot, without touching a committed reservation.
+CREATE FUNCTION public.release_business_document_upload_by_reference(
+  p_company_id uuid, p_storage_reference text
+)
+RETURNS void
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
+AS $
+BEGIN
+  IF auth.uid() IS NULL OR p_company_id IS NULL OR p_storage_reference IS NULL THEN
+    RAISE EXCEPTION USING ERRCODE='42501',
+      MESSAGE='document_upload_permission_denied';
+  END IF;
+  PERFORM 1 FROM public.companies c WHERE c.id=p_company_id FOR UPDATE;
+  UPDATE private.business_document_upload_reservations r
+    SET state='released',released_at=pg_catalog.now()
+  WHERE r.company_id=p_company_id AND r.storage_reference=p_storage_reference
+    AND r.actor_user_id=auth.uid() AND r.state='reserved';
+END;
+$;
+REVOKE ALL ON FUNCTION public.release_business_document_upload_by_reference(uuid,text)
+  FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.release_business_document_upload_by_reference(uuid,text)
+  TO authenticated;
+
 COMMIT;
