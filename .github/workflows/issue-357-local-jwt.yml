@@ -7,6 +7,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_357_local_http.py'
+      - 'scripts/security/verify_issue_357_daily_cleanup.py'
       - 'supabase/functions/business-document-cleanup/**'
       - '.github/workflows/issue-357-local-jwt.yml'
 
@@ -43,6 +44,8 @@ jobs:
           npx --yes supabase@3.0.0 db reset --local --no-seed
       - name: Test real signed-JWT quota and Storage lifecycle
         run: python scripts/security/verify_issue_357_local_http.py
+      - name: Verify daily cleanup Cron migration on disposable database
+        run: python scripts/security/verify_issue_357_daily_cleanup.py
       - name: Destroy disposable containers
         if: always()
         run: |
