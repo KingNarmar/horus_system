@@ -197,6 +197,7 @@ void main() {
     fixture.companyRepository.contexts = const [];
 
     fixture.networkRepository.notify(NetworkConnectionStatus.online);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
 
