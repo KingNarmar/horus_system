@@ -1151,6 +1151,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fleetChanges => 'التغييرات';
 
   @override
+  String get fleetAuditPreviousValueLabel => 'قبل';
+
+  @override
+  String get fleetAuditNewValueLabel => 'بعد';
+
+  @override
   String fleetDetailsTitle(String plateNumber) {
     return 'تفاصيل الأصل: $plateNumber';
   }
