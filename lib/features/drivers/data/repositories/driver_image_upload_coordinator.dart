@@ -81,8 +81,14 @@ final class DriverImageUploadCoordinator {
     );
   }
 
-  Future<void> removeUploadedImages({required List<String> paths}) {
-    return imagesRemoteDataSource.removeImages(paths: paths);
+  Future<void> removeUploadedImages({
+    required String companyId,
+    required List<String> paths,
+  }) {
+    return imagesRemoteDataSource.removeImages(
+      companyId: companyId,
+      paths: paths,
+    );
   }
 
   Future<String?> signedUrl(String? path) {
@@ -107,6 +113,7 @@ final class DriverImageUploadCoordinator {
       driverId: driverId,
       folder: folder,
       image: image,
+      replacesReference: fallbackPath,
     );
     uploadedPaths.add(path);
     return path;

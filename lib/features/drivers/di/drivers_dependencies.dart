@@ -1,5 +1,6 @@
 import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
+import '../../../core/documents/data/datasources/business_document_upload_reservation_remote_data_source.dart';
 import '../../../core/usecases/convert_instants_to_business_local_date_times_usecase.dart';
 import '../../../core/usecases/get_company_business_date_usecase.dart';
 import '../../audit/di/audit_dependencies.dart';
@@ -25,6 +26,10 @@ abstract final class DriversDependencies {
       ),
       imagesRemoteDataSource: SupabaseDriverImagesRemoteDataSource(
         SupabaseClientProvider.client,
+        reservationDataSource:
+            SupabaseBusinessDocumentUploadReservationRemoteDataSource(
+              SupabaseClientProvider.client,
+            ),
       ),
     );
   }

@@ -1,4 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show StorageException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show PostgrestException, StorageException;
 
 import '../../../errors/common_failures.dart';
 import '../../../errors/failure.dart';
@@ -42,6 +43,32 @@ final class BusinessDocumentStorageFailureMapper {
     }
 
     return const ServerFailure(code: BusinessDocumentFailureCodes.storageError);
+  }
+
+  Failure fromReservation(PostgrestException error) {
+    if (error.code == 'P2860' &&
+        error.message == BusinessDocumentFailureCodes.quotaReached) {
+      return const ConflictFailure(
+        code: BusinessDocumentFailureCodes.quotaReached,
+      );
+    }
+    return switch (error.code) {
+      '42501' => const PermissionFailure(
+        code: BusinessDocumentFailureCodes.permissionAccess,
+      ),
+      'P2861' || 'P2862' => const ServerFailure(
+        code: BusinessDocumentFailureCodes.quotaUnavailable,
+      ),
+      'P2871' => const ValidationFailure(
+        code: BusinessDocumentFailureCodes.validationLocationInvalid,
+      ),
+      'P2872' || 'P2873' || 'P2874' => const ConflictFailure(
+        code: BusinessDocumentFailureCodes.reservationConflict,
+      ),
+      _ => const ServerFailure(
+        code: BusinessDocumentFailureCodes.storageError,
+      ),
+    };
   }
 
   Failure fromUnexpected(Object _) {

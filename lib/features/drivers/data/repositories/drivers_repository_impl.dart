@@ -76,7 +76,10 @@ class DriversRepositoryImpl implements DriversRepository {
         );
         return Success(model.toEntity());
       } catch (_) {
-        await _imageUploads.removeUploadedImages(paths: uploadedPaths);
+        await _imageUploads.removeUploadedImages(
+          companyId: data.companyId,
+          paths: uploadedPaths,
+        );
         rethrow;
       }
     });

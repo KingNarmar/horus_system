@@ -194,13 +194,18 @@ final class FleetLicenseDocumentsRepositoryImpl
     );
     final currentFailure = currentResult.failureOrNull;
     if (currentFailure != null) return FailureResult(currentFailure);
-    if (currentResult.dataOrNull?.activeFileById(fileId) == null) {
+    final currentFile = currentResult.dataOrNull?.activeFileById(fileId);
+    if (currentFile == null) {
       return const FailureResult(
         NotFoundFailure(code: FleetLicenseDocumentFailureCodes.fileNotFound),
       );
     }
 
-    final uploadedResult = await _uploadFile(target: target, file: replacement);
+    final uploadedResult = await _uploadFile(
+      target: target,
+      file: replacement,
+      replacesReference: BusinessDocumentReference(currentFile.storageReference),
+    );
     final uploadedFailure = uploadedResult.failureOrNull;
     if (uploadedFailure != null) return FailureResult(uploadedFailure);
 
@@ -247,6 +252,7 @@ final class FleetLicenseDocumentsRepositoryImpl
   Future<Result<_UploadedFleetLicenseFile>> _uploadFile({
     required FleetLicenseDocumentTarget target,
     required BusinessDocumentFile file,
+    BusinessDocumentReference? replacesReference,
   }) async {
     final uploadResult = await businessDocumentRepository.upload(
       location: BusinessDocumentLocation(
@@ -254,6 +260,7 @@ final class FleetLicenseDocumentsRepositoryImpl
         scope: FleetLicenseDocumentStorageSegments.scopeFor(target.assetType),
         entityId: target.assetId,
         documentKind: FleetLicenseDocumentStorageSegments.documentKind,
+        replacesReference: replacesReference,
       ),
       file: file,
     );
