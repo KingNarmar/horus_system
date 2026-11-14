@@ -15,8 +15,8 @@ Backfill needs no quota counter migration because committed usage is calculated 
 
 - Domain: reusable file-location references and typed business-document failures, with feature-owned use cases/permissions left intact.
 - Data: per-tenant reservation RPC + Storage bytes upload + feature-specific metadata commit; no Storage or SQL in Cubits.
-- DB migration 1: `20261114103000_issue_357_document_quota_reservations.sql` creates private reservations, aggregate projection and quota assertion, protected reserve/release, restrictive Storage INSERT/UPDATE gate.
-- DB migration 2: `20261114104000_issue_357_document_commit_guards_cleanup.sql` consumes reservation inside the same metadata transaction, protects historical references from direct Storage deletion, gates restores, supports secure cleanup claims.
+- DB migration 1: `20261114103000_issue_357_document_quota_reservations.sql` creates private reservations, aggregate projection and quota assertion, protected reserve/release. **It does not tighten Storage policies**, so a partial rollout cannot block old upload clients.
+- DB migration 2: `20261114104000_issue_357_document_commit_guards_cleanup.sql` consumes reservation inside the same metadata transaction, protects historical references from direct Storage deletion, gates restores, supports secure cleanup claims, and **atomically installs the restrictive Storage INSERT/UPDATE policies only after the metadata guards**.
 - Server cleanup: `supabase/functions/business-document-cleanup/index.ts` uses a server-side service-role key **only** after a private scheduler authenticates with `HORUS_DOCUMENT_CLEANUP_SECRET`; deletes via Storage API and marks a lease cleaned only when the object is gone and not referenced.
 
 The DB ledger is authoritative for pending operations; only committed metadata counts permanently. One company-row lock serializes new lease reservations with existing quota producers, while the metadata commit exchanges the pending slot for the live slot within one DB transaction. Database transactions cannot cover Storage bytes: after error or crashed client, the deferred server worker reconciles safely.
