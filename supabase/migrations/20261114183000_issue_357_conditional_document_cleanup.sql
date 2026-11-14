@@ -6,6 +6,12 @@
 -- Local replay without an active environment-bound job is a safe no-op.
 BEGIN;
 
+-- Keep the idle existence check proportional to outstanding work, not to
+-- permanently retained committed/cleaned history as the SaaS grows.
+CREATE INDEX business_document_cleanup_work_state_idx
+  ON private.business_document_upload_reservations (state)
+  WHERE state IN ('reserved', 'released', 'expired', 'cleanup_pending');
+
 CREATE FUNCTION private.business_document_cleanup_has_work()
 RETURNS boolean
 LANGUAGE sql
