@@ -208,12 +208,35 @@ def main():
             " AND u.deleted_at IS NULL AND u.is_anonymous IS NOT TRUE "
             " AND (u.banned_until IS NULL OR u.banned_until<=now())) "
             " AS account_allowed) t;")
+        session_id = str(uuid.UUID(claims["session_id"]))
+        session_checks = psql(db,
+            "SELECT row_to_json(t)::text FROM (SELECT "
+            "EXISTS(SELECT 1 FROM auth.sessions s "
+            " WHERE s.id='" + session_id + "' AND s.user_id='"
+            + operator_id + "') AS exact_session, "
+            "EXISTS(SELECT 1 FROM auth.sessions s "
+            " WHERE s.id='" + session_id + "' AND "
+            " (s.not_after IS NULL OR s.not_after>now())) AS session_valid, "
+            "EXISTS(SELECT 1 FROM auth.sessions s "
+            " JOIN auth.mfa_factors f ON f.id=s.factor_id "
+            " WHERE s.id='" + session_id + "' "
+            " AND s.user_id=f.user_id "
+            " AND s.aal::text='aal2' AND f.status::text='verified') "
+            " AS matching_verified_factor) t;")
+        # Freshness tied to THIS signed JWT's own amr, not other sessions.
+        claim_state["recent_totp_amr"] = any(
+            m.get("method") == "totp" and
+            isinstance(m.get("timestamp"), int) and
+            m["timestamp"] >= time.time() - 900
+            for m in claims.get("amr", [])
+        )
         print("DIAGNOSTIC operator directory: HTTP", status,
               "error_code", error.get("code"),
               "error_message", error.get("message"),
               "claim_state", claim_state,
               "session_factor_state", factor_state,
-              "database_state", database_state, flush=True)
+              "database_state", database_state,
+              "session_checks", session_checks, flush=True)
     check("verified operator gets minimal directory",
           status == 200 and isinstance(listed, list)
           and any(row.get("company_id") == company for row in listed)
