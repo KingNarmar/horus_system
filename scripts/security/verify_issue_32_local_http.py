@@ -11,6 +11,7 @@ import uuid
 
 from verify_issue_365_local_http import LocalApi, check, local_stack, psql, rpc, uid
 from verify_issue_354_local_http import onboard, successful_company, denied
+from verify_issue_358_operator_backend import elevate_to_aal2
 
 
 def count(db, table, company, extra=""):
@@ -72,6 +73,12 @@ def main():
     operator_id, operator_jwt = actors["operator"]
     psql(db, "UPDATE public.user_profiles SET is_platform_admin=true "
              "WHERE id='" + operator_id + "';")
+    # #358: test a genuinely trusted AAL2 operator, not the legacy flag only.
+    psql(db, "INSERT INTO private.platform_operator_access "
+         "(user_id,permissions,approved_reason) VALUES('"
+         + operator_id + "',ARRAY['membership_recovery']::text[],"
+         "'Isolated quota recovery operator approval test');")
+    operator_jwt = elevate_to_aal2(api, operator_jwt)
     company = successful_company(
         onboard(api, owner_jwt, str(uuid.uuid4()), "HORUS32-" + nonce),
         "owner creates test company through canonical #354 RPC",
