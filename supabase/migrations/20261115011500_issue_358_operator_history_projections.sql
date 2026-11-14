@@ -11,7 +11,7 @@ RETURNS TABLE(
   granted_at timestamptz, revoked_at timestamptz, created_revision integer
 )
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog
-AS $
+AS $$
 DECLARE
   v_cursor_at timestamptz;
 BEGIN
@@ -38,7 +38,7 @@ BEGIN
            OR (o.granted_at,o.id)<(v_cursor_at,p_after_id))
     ORDER BY o.granted_at DESC,o.id DESC LIMIT p_page_size;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.platform_list_entitlement_overrides(
   uuid,uuid,integer) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.platform_list_entitlement_overrides(
@@ -53,7 +53,7 @@ RETURNS TABLE(
   actor_user_id uuid,occurred_at timestamptz,old_values jsonb,new_values jsonb
 )
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog
-AS $
+AS $$
 DECLARE
   v_cursor_at timestamptz;
 BEGIN
@@ -80,7 +80,7 @@ BEGIN
            OR (a.occurred_at,a.id)<(v_cursor_at,p_after_id))
     ORDER BY a.occurred_at DESC,a.id DESC LIMIT p_page_size;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.platform_list_operator_audit(
   uuid,uuid,integer) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.platform_list_operator_audit(
