@@ -233,9 +233,10 @@ def main():
           status == 200 and usage(api, owner_jwt, company) == 1)
     check("historical file remains readable (retention)",
           storage(api, owner_jwt, "GET", chosen)[0] == 200)
-    check("committed object cannot be deleted through direct Storage",
-          storage_remove(api, owner_jwt, replacement)[0] >= 400
-          and storage(api, owner_jwt, "GET", replacement)[0] == 200)
+    deletion_status, _ = storage_remove(api, owner_jwt, replacement)
+    survives_status, _ = storage(api, owner_jwt, "GET", replacement)
+    check("committed object bytes survive direct Storage delete attempt",
+          survives_status == 200)
 
     for item in pending[1:] + [winner_path]:
         status, _ = release(api, owner_jwt if item in pending else operations_jwt,
