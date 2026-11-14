@@ -134,6 +134,11 @@ def main():
           psql(db, "SELECT count(*) FROM cron.job "
                    "WHERE jobname='horus-business-document-cleanup';") == "0")
 
+    check("cleanup probe excludes permanent terminal history via partial index",
+          psql(db, "SELECT count(*) FROM pg_indexes "
+                   "WHERE schemaname='private' "
+                   "AND tablename='business_document_upload_reservations' "
+                   "AND indexname='business_document_cleanup_work_state_idx';") == "1")
     check("idle cleanup has no HTTP work",
           psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
     check("tenants cannot read internal cleanup decision",
