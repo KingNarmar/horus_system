@@ -7,41 +7,43 @@ type CleanupLease = {
   storage_reference: string
 }
 
-function constantTimeMatch(actual: string, expected: string): boolean {
-  const encoder = new TextEncoder()
-  const left = encoder.encode(actual)
-  const right = encoder.encode(expected)
-  let difference = left.length ^ right.length
-  const maxLength = Math.max(left.length, right.length)
-  for (let index = 0; index < maxLength; index++) {
-    difference |= (left[index] ?? 0) ^ (right[index] ?? 0)
-  }
-  return difference === 0
-}
-
 Deno.serve(async (request: Request) => {
   if (request.method !== 'POST') {
     return new Response(null, { status: 405 })
   }
 
-  const secret = Deno.env.get('HORUS_DOCUMENT_CLEANUP_SECRET')
+  // Platform JWT checking is disabled for this scheduled-service endpoint:
+  // a separate 256-bit random token, generated and held only in Vault,
+  // is verified by a service-role-only PostgreSQL RPC before any mutation.
+  const suppliedToken = request.headers.get('authorization')?.match(
+    /^Bearer ([0-9a-f]{64})$/,
+  )?.[1]
+  if (!suppliedToken) {
+    return new Response(null, { status: 401 })
+  }
+
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-  const suppliedSecret = request.headers.get('authorization')?.replace(
-    /^Bearer /i,
-    '',
-  ) ?? ''
-
-  if (!secret || !supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     return new Response(null, { status: 503 })
-  }
-  if (!constantTimeMatch(suppliedSecret, secret)) {
-    return new Response(null, { status: 401 })
   }
 
   const client = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
+
+  // Never return the token or Vault contents in an HTTP response or logs.
+  const { data: authorized, error: authorizationError } = await client.rpc(
+    'authorize_business_document_cleanup',
+    { p_supplied_token: suppliedToken },
+  )
+  if (authorizationError) {
+    console.error('Document cleanup authorization unavailable', authorizationError.code)
+    return new Response(null, { status: 503 })
+  }
+  if (authorized !== true) {
+    return new Response(null, { status: 401 })
+  }
 
   const { data, error } = await client.rpc('claim_business_document_cleanup', {
     p_batch_limit: 25,
