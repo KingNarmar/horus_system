@@ -64,37 +64,42 @@ void main() {
     );
   });
 
-  testWidgets('Windows hide followed by resume performs one verification', (
+  testWidgets('Windows minimize/restore keeps draft without extra reads', (
     tester,
   ) async {
     final fixture = _SessionFixture();
     addTearDown(fixture.close);
-    await fixture.mount(tester);
+    await fixture.mount(tester, showCompanyView: true);
 
-    for (final state in [
-      AppLifecycleState.inactive,
-      AppLifecycleState.hidden,
-      AppLifecycleState.inactive,
-      AppLifecycleState.resumed,
-    ]) {
-      tester.binding.handleAppLifecycleStateChanged(state);
+    await tester.enterText(find.byKey(const Key('draft')), 'keep my draft');
+
+    for (var i = 0; i < 3; i++) {
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pumpAndSettle();
     }
-    await tester.pumpAndSettle();
 
-    expect(fixture.companyRepository.loads, 2);
+    expect(fixture.companyRepository.loads, 1);
     expect(fixture.companyCubit.state, isA<CurrentCompanyLoaded>());
-
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpAndSettle();
-    expect(fixture.companyRepository.loads, 2);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+      'keep my draft',
+    );
   });
 
-  testWidgets('Android background/foreground sequence verifies once', (
+  testWidgets('Android background/foreground keeps the shell without reads', (
     tester,
   ) async {
     final fixture = _SessionFixture();
     addTearDown(fixture.close);
-    await fixture.mount(tester);
+    await fixture.mount(tester, showCompanyView: true);
 
     for (final state in [
       AppLifecycleState.inactive,
@@ -108,11 +113,13 @@ void main() {
     }
     await tester.pumpAndSettle();
 
-    expect(fixture.companyRepository.loads, 2);
+    expect(fixture.companyRepository.loads, 1);
     expect(fixture.companyCubit.state, isA<CurrentCompanyLoaded>());
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byKey(const Key('draft')), findsOneWidget);
   });
 
-  testWidgets('membership signal still applies a role downgrade', (
+  testWidgets('membership signal while hidden still applies a role downgrade', (
     tester,
   ) async {
     final fixture = _SessionFixture();
@@ -120,6 +127,7 @@ void main() {
     await fixture.mount(tester);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     fixture.companyRepository.contexts = [_companyContext(CompanyRole.viewer)];
     fixture.membershipRepository.notify();
     await tester.pumpAndSettle();
@@ -131,7 +139,7 @@ void main() {
     );
   });
 
-  testWidgets('membership revocation while unfocused clears the company', (
+  testWidgets('membership revocation while hidden clears the company', (
     tester,
   ) async {
     final fixture = _SessionFixture();
@@ -139,6 +147,7 @@ void main() {
     await fixture.mount(tester);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     fixture.companyRepository.contexts = const [];
     fixture.membershipRepository.notify();
     await tester.pumpAndSettle();
@@ -154,6 +163,7 @@ void main() {
     addTearDown(fixture.close);
     await fixture.mount(tester);
 
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     fixture.companyRepository.contexts = [
       _companyContext(CompanyRole.operations),
     ];
@@ -179,9 +189,11 @@ void main() {
     await tester.pump();
     expect(fixture.companyRepository.loads, 1);
 
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     fixture.networkRepository.notify(NetworkConnectionStatus.offline);
     await tester.pump();
     fixture.networkRepository.notify(NetworkConnectionStatus.online);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
 
     expect(fixture.companyRepository.loads, 2);
