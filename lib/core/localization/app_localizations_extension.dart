@@ -31,7 +31,8 @@ extension CommonErrorLocalizationsX on AppLocalizations {
       BusinessDocumentFailureCodes.quotaReached =>
         failureQuotaBusinessDocumentsReached,
       BusinessDocumentFailureCodes.quotaUnavailable => failureQuotaUnavailable,
-      BusinessDocumentFailureCodes.reservationConflict => failureQuotaUnavailable,
+      BusinessDocumentFailureCodes.reservationConflict =>
+        failureQuotaUnavailable,
       BusinessDocumentFailureCodes.cleanupPending =>
         failureBusinessDocumentCleanupPending,
       FailureCodes.validationCompanyIdRequired =>

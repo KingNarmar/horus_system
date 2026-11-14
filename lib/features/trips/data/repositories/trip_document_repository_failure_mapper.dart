@@ -11,12 +11,14 @@ final class TripDocumentRepositoryFailureMapper {
 
   Failure fromPostgrest(PostgrestException error) {
     return switch (error.code) {
-      'P2860' when error.message == QuotaFailureCodes.businessDocumentsReached =>
+      'P2860'
+          when error.message == QuotaFailureCodes.businessDocumentsReached =>
         const ConflictFailure(code: QuotaFailureCodes.businessDocumentsReached),
-      'P2861' || 'P2862' =>
-        const ServerFailure(code: QuotaFailureCodes.unavailable),
-      'P2873' || 'P2874' || 'P2872' =>
-        const ConflictFailure(code: QuotaFailureCodes.unavailable),
+      'P2861' ||
+      'P2862' => const ServerFailure(code: QuotaFailureCodes.unavailable),
+      'P2873' ||
+      'P2874' ||
+      'P2872' => const ConflictFailure(code: QuotaFailureCodes.unavailable),
       TripDocumentDbErrorCodes.permissionDenied => const PermissionFailure(
         code: TripDocumentFailureCodes.permissionManage,
       ),

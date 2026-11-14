@@ -188,7 +188,6 @@ final class BusinessDocumentStorageRepositoryImpl
     } catch (error) {
       return FailureResult<void>(failureMapper.fromUnexpected(error));
     }
-
   }
 
   /// Upload may fail after Storage accepts bytes. Always attempt both

@@ -97,7 +97,11 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text(locale.languageCode == 'ar' ? 'مستندات الأعمال' : 'Business documents'),
+          find.text(
+            locale.languageCode == 'ar'
+                ? 'مستندات الأعمال'
+                : 'Business documents',
+          ),
           findsOneWidget,
         );
         expect(

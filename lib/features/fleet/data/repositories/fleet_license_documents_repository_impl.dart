@@ -204,7 +204,9 @@ final class FleetLicenseDocumentsRepositoryImpl
     final uploadedResult = await _uploadFile(
       target: target,
       file: replacement,
-      replacesReference: BusinessDocumentReference(currentFile.storageReference),
+      replacesReference: BusinessDocumentReference(
+        currentFile.storageReference,
+      ),
     );
     final uploadedFailure = uploadedResult.failureOrNull;
     if (uploadedFailure != null) return FailureResult(uploadedFailure);

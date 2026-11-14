@@ -63,7 +63,10 @@ void main() {
       snapshot.usageFor(EntitlementResource.lifetimeInvoices).remaining,
       0,
     );
-    expect(snapshot.usageFor(EntitlementResource.businessDocuments).remaining, 1);
+    expect(
+      snapshot.usageFor(EntitlementResource.businessDocuments).remaining,
+      1,
+    );
     expect(snapshot.entitlement.policyVersion, 1);
   });
 

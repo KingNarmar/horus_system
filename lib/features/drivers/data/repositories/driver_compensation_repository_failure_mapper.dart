@@ -14,10 +14,14 @@ final class DriverCompensationRepositoryFailureMapper {
   }) {
     if (error.code == 'P2860' &&
         error.message == QuotaFailureCodes.businessDocumentsReached) {
-      return const ConflictFailure(code: QuotaFailureCodes.businessDocumentsReached);
+      return const ConflictFailure(
+        code: QuotaFailureCodes.businessDocumentsReached,
+      );
     }
-    if (error.code == 'P2861' || error.code == 'P2862' ||
-        error.code == 'P2873' || error.code == 'P2874') {
+    if (error.code == 'P2861' ||
+        error.code == 'P2862' ||
+        error.code == 'P2873' ||
+        error.code == 'P2874') {
       return const ServerFailure(code: QuotaFailureCodes.unavailable);
     }
     if (error.code == '23P01') {

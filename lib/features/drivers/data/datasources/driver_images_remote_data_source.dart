@@ -73,9 +73,9 @@ class SupabaseDriverImagesRemoteDataSource
     } catch (_) {
       var cleanupFailed = false;
       try {
-        await client.storage.from(DriverStorageConstants.documentsBucket).remove([
-          path,
-        ]);
+        await client.storage
+            .from(DriverStorageConstants.documentsBucket)
+            .remove([path]);
       } catch (_) {
         cleanupFailed = true;
       }
@@ -114,9 +114,9 @@ class SupabaseDriverImagesRemoteDataSource
 
     var cleanupFailed = false;
     try {
-      await client.storage.from(DriverStorageConstants.documentsBucket).remove(
-        paths,
-      );
+      await client.storage
+          .from(DriverStorageConstants.documentsBucket)
+          .remove(paths);
     } catch (_) {
       cleanupFailed = true;
     }

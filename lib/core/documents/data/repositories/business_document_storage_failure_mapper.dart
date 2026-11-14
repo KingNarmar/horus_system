@@ -65,9 +65,7 @@ final class BusinessDocumentStorageFailureMapper {
       'P2872' || 'P2873' || 'P2874' => const ConflictFailure(
         code: BusinessDocumentFailureCodes.reservationConflict,
       ),
-      _ => const ServerFailure(
-        code: BusinessDocumentFailureCodes.storageError,
-      ),
+      _ => const ServerFailure(code: BusinessDocumentFailureCodes.storageError),
     };
   }
 
