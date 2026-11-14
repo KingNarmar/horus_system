@@ -272,7 +272,8 @@ Widget _app(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
-        body: content ??
+        body:
+            content ??
             FleetLicenseDocumentsSection(
               currentLicenseExpiryDate: BusinessDate(
                 year: 2027,
