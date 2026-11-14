@@ -34,6 +34,12 @@ The DB ledger is authoritative for pending operations; only committed metadata c
 8. Align #362 minimum-client-version/update enforcement before introducing restrictive Storage policies in Production; old binaries may otherwise be unable to upload. Obtain fresh Production pre-deploy backup and **separate explicit Production approval**, preserve historic bytes, confirm rollback strategy.
 9. Never mark #357 complete or merge without the above evidence, review and approval. Previous closed quota issues #354/#32/#355/#356 remain closed.
 
+## Idle-Cron optimization (#357)
+
+Migration `20261114183000_issue_357_conditional_document_cleanup.sql` retains the same 15-minute `pg_cron` cadence but gates `net.http_post` behind a **private, read-only EXISTS predicate**. It mirrors the existing cleanup-claim eligibility rule (expired reservations, sufficiently old released reservations, or retryable stale `cleanup_pending` leases) and excludes files referenced by any current or historic business metadata. There is **no Edge request** when the table has no eligible work; an inexpensive PostgreSQL probe still runs once per tick. A pending reservation or recently failed upload does not bypass its grace period.
+
+The migration updates **only an existing active postgres-owned** cleanup job; local replay without a configured job is a no-op. It does not create or reactivate paused schedules, does not change the token/Vault security contract or document quotas, and adds no unapproved tenant API. The helper is not executable by `anon` or `authenticated`. Regression tests cover idle state, fresh pending reservations, due released objects, in-flight claims, deleted-account orphans and terminal cleanup. Never edit the already applied #357 migration files in place; treat this as a separate versioned rollout to Development and independently authorize Production.
+
 ## Recovery behavior
 
 Failed/cancelled operations must release capacity immediately when possible. For ambiguous client/network outcomes, only server-side cleanup after lease expiry/grace may delete an object; it checks **all** live and historical metadata references first. Removal of an object referenced by Trip/Fleet/Driver metadata is forbidden. Cleanup failures remain retriable; no direct `DELETE FROM storage.objects`. Pre-existing unreferenced objects without a matching ledger entry require a separately audited manual review.
