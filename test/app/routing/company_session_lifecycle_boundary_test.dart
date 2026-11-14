@@ -107,7 +107,7 @@ void main() {
     expect(harness.membership.watchCalls, 1);
   });
 
-  testWidgets('resume and reconnect revalidate a protected route', (
+  testWidgets('background resume preserves route; reconnect revalidates', (
     tester,
   ) async {
     final harness = _Harness();
@@ -119,11 +119,13 @@ void main() {
     await tester.pumpAndSettle();
 
     final beforeResume = harness.companyRepository.loads;
-    harness.companyRepository.contexts = [_context(CompanyRole.admin)];
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.text('admin'), findsOneWidget);
-    expect(harness.companyRepository.loads, greaterThan(beforeResume));
+    expect(find.text('owner'), findsOneWidget);
+    expect(harness.companyRepository.loads, beforeResume);
 
     harness.networkRepository.notify(NetworkConnectionStatus.offline);
     await tester.pump();
