@@ -54,6 +54,8 @@ CREATE TABLE private.platform_operator_audit (
 );
 CREATE INDEX platform_operator_audit_company_idx
   ON private.platform_operator_audit (company_id, occurred_at DESC, id DESC);
+CREATE INDEX platform_operator_audit_timeline_idx
+  ON private.platform_operator_audit (occurred_at DESC,id DESC);
 CREATE INDEX platform_operator_audit_target_user_idx
   ON private.platform_operator_audit (target_user_id, occurred_at DESC);
 ALTER TABLE private.platform_operator_audit ENABLE ROW LEVEL SECURITY;
