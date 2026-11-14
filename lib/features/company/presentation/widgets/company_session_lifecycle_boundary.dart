@@ -31,6 +31,10 @@ final class _CompanySessionLifecycleBoundaryState
   int? _sessionRevision;
   int _identityGeneration = 0;
 
+  // An ordinary desktop focus change is inactive -> resumed. Only a genuine
+  // background/hidden transition should trigger a resume membership check.
+  bool _resumeRequiresRevalidation = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +45,20 @@ final class _CompanySessionLifecycleBoundaryState
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _revalidate();
+    switch (state) {
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _resumeRequiresRevalidation = true;
+        break;
+      case AppLifecycleState.resumed:
+        if (!_resumeRequiresRevalidation) return;
+        _resumeRequiresRevalidation = false;
+        _revalidate();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        // Losing window focus alone is not evidence of suspended execution.
+        break;
     }
   }
 
