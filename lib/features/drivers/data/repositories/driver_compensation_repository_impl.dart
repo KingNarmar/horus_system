@@ -215,7 +215,9 @@ final class DriverCompensationRepositoryImpl
     );
     return cleanup.failureOrNull == null
         ? null
-        : const ServerFailure(code: BusinessDocumentFailureCodes.cleanupPending);
+        : const ServerFailure(
+            code: BusinessDocumentFailureCodes.cleanupPending,
+          );
   }
 
   Future<Result<T>> _guard<T>({
