@@ -5,6 +5,8 @@ import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_codes.dart';
 import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
+import '../../../../core/documents/domain/failures/business_document_failure_codes.dart';
+import '../datasources/driver_images_remote_data_source.dart';
 
 final class DriverRepositoryFailureMapper {
   const DriverRepositoryFailureMapper();
@@ -13,6 +15,13 @@ final class DriverRepositoryFailureMapper {
     if (error.code == 'P2860' &&
         error.message == QuotaFailureCodes.driversReached) {
       return const ConflictFailure(code: QuotaFailureCodes.driversReached);
+    }
+    if (error.code == 'P2860' &&
+        error.message == QuotaFailureCodes.businessDocumentsReached) {
+      return const ConflictFailure(code: QuotaFailureCodes.businessDocumentsReached);
+    }
+    if (error.code == 'P2873' || error.code == 'P2874') {
+      return const ServerFailure(code: QuotaFailureCodes.unavailable);
     }
     if (error.code == 'P2861' || error.code == 'P2862') {
       return const ServerFailure(code: QuotaFailureCodes.unavailable);
@@ -40,7 +49,10 @@ final class DriverRepositoryFailureMapper {
     return const ServerFailure(code: FailureCodes.serverError);
   }
 
-  Failure fromUnexpected(Object _) {
+  Failure fromUnexpected(Object error) {
+    if (error is DriverDocumentCleanupPendingException) {
+      return const ServerFailure(code: BusinessDocumentFailureCodes.cleanupPending);
+    }
     return const UnexpectedFailure();
   }
 }

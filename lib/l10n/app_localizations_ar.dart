@@ -2791,6 +2791,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'وصلت الشركة إلى الحد الإجمالي لإنشاء الفواتير طوال عمر الاشتراك. لا يزال بإمكانك إدارة الفواتير الموجودة.';
 
   @override
+  String get failureQuotaBusinessDocumentsReached =>
+      'وصلت الشركة إلى الحد الأقصى للمستندات (50). يمكنك استبدال مستند موجود أو حذفه.';
+
+  @override
+  String get failureBusinessDocumentCleanupPending =>
+      'تعذر إكمال الرفع بأمان. جارٍ تنظيف الملف غير المكتمل؛ حدّث البيانات قبل إعادة المحاولة.';
+
+  @override
   String get failureQuotaCreationRetryConflict =>
       'تم استخدام طلب الإنشاء هذا ببيانات مختلفة. حدّث الصفحة وابدأ عملية إنشاء جديدة.';
 

@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../subscriptions/domain/failures/quota_failure_codes.dart';
 import '../../domain/failures/driver_compensation_failure_codes.dart';
 
 final class DriverCompensationRepositoryFailureMapper {
@@ -11,6 +12,14 @@ final class DriverCompensationRepositoryFailureMapper {
     PostgrestException error, {
     required String permissionCode,
   }) {
+    if (error.code == 'P2860' &&
+        error.message == QuotaFailureCodes.businessDocumentsReached) {
+      return const ConflictFailure(code: QuotaFailureCodes.businessDocumentsReached);
+    }
+    if (error.code == 'P2861' || error.code == 'P2862' ||
+        error.code == 'P2873' || error.code == 'P2874') {
+      return const ServerFailure(code: QuotaFailureCodes.unavailable);
+    }
     if (error.code == '23P01') {
       return const ConflictFailure(
         code: DriverCompensationFailureCodes.conflictOverlap,
