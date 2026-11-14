@@ -2825,7 +2825,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureQuotaBusinessDocumentsReached =>
-      'The company has reached its 50-document limit. You can replace or remove an existing document.';
+      'The company has reached its business-document limit. You can replace or remove an existing document.';
 
   @override
   String get failureBusinessDocumentCleanupPending =>

@@ -5201,7 +5201,7 @@ abstract class AppLocalizations {
   /// No description provided for @failureQuotaBusinessDocumentsReached.
   ///
   /// In en, this message translates to:
-  /// **'The company has reached its 50-document limit. You can replace or remove an existing document.'**
+  /// **'The company has reached its business-document limit. You can replace or remove an existing document.'**
   String get failureQuotaBusinessDocumentsReached;
 
   /// No description provided for @failureBusinessDocumentCleanupPending.

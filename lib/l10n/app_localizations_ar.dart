@@ -2792,7 +2792,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureQuotaBusinessDocumentsReached =>
-      'وصلت الشركة إلى الحد الأقصى للمستندات (50). يمكنك استبدال مستند موجود أو حذفه.';
+      'وصلت الشركة إلى الحد الأقصى لمستندات الأعمال. يمكنك استبدال مستند موجود أو حذفه.';
 
   @override
   String get failureBusinessDocumentCleanupPending =>
