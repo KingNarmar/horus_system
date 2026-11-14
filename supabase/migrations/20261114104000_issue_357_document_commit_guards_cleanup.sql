@@ -25,8 +25,9 @@ BEGIN
       MESSAGE='document_upload_reservation_required';
   END IF;
 
-  PERFORM 1 FROM public.companies c WHERE c.id=p_company_id FOR UPDATE;
-
+  -- The pending slot is already counted; its transition to live metadata
+  -- occurs atomically without locking the company row again.
+  -- Avoid lock inversion with feature RPCs that first lock Trip/Fleet rows.
   SELECT r.* INTO v_record
   FROM private.business_document_upload_reservations r
   WHERE r.company_id=p_company_id
@@ -116,39 +117,54 @@ RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
 AS $$
 BEGIN
-  IF TG_OP='INSERT' OR NEW.license_image_path IS DISTINCT FROM OLD.license_image_path THEN
+  -- Do not dereference OLD in INSERT triggers; old paths exist only on UPDATE.
+  IF TG_OP = 'INSERT' THEN
     IF NEW.license_image_path IS NOT NULL THEN
       PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_image_path,
-        CASE WHEN TG_OP='INSERT' THEN NULL ELSE OLD.license_image_path END);
+        NEW.company_id,'driver-documents',NEW.license_image_path,NULL);
     END IF;
-  END IF;
-  IF TG_OP='INSERT' OR NEW.license_back_image_path IS DISTINCT FROM OLD.license_back_image_path THEN
     IF NEW.license_back_image_path IS NOT NULL THEN
       PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.license_back_image_path,
-        CASE WHEN TG_OP='INSERT' THEN NULL ELSE OLD.license_back_image_path END);
+        NEW.company_id,'driver-documents',NEW.license_back_image_path,NULL);
     END IF;
-  END IF;
-  IF TG_OP='INSERT' OR NEW.national_id_image_path IS DISTINCT FROM OLD.national_id_image_path THEN
     IF NEW.national_id_image_path IS NOT NULL THEN
       PERFORM private.consume_business_document_reservation(
-        NEW.company_id,'driver-documents',NEW.national_id_image_path,
-        CASE WHEN TG_OP='INSERT' THEN NULL ELSE OLD.national_id_image_path END);
+        NEW.company_id,'driver-documents',NEW.national_id_image_path,NULL);
     END IF;
-  END IF;
-  IF TG_OP='INSERT' OR NEW.national_id_back_image_path IS DISTINCT FROM OLD.national_id_back_image_path THEN
     IF NEW.national_id_back_image_path IS NOT NULL THEN
       PERFORM private.consume_business_document_reservation(
+        NEW.company_id,'driver-documents',NEW.national_id_back_image_path,NULL);
+    END IF;
+  ELSE
+    IF NEW.license_image_path IS DISTINCT FROM OLD.license_image_path
+       AND NEW.license_image_path IS NOT NULL THEN
+      PERFORM private.consume_business_document_reservation(
+        NEW.company_id,'driver-documents',NEW.license_image_path,
+        OLD.license_image_path);
+    END IF;
+    IF NEW.license_back_image_path IS DISTINCT FROM OLD.license_back_image_path
+       AND NEW.license_back_image_path IS NOT NULL THEN
+      PERFORM private.consume_business_document_reservation(
+        NEW.company_id,'driver-documents',NEW.license_back_image_path,
+        OLD.license_back_image_path);
+    END IF;
+    IF NEW.national_id_image_path IS DISTINCT FROM OLD.national_id_image_path
+       AND NEW.national_id_image_path IS NOT NULL THEN
+      PERFORM private.consume_business_document_reservation(
+        NEW.company_id,'driver-documents',NEW.national_id_image_path,
+        OLD.national_id_image_path);
+    END IF;
+    IF NEW.national_id_back_image_path IS DISTINCT FROM OLD.national_id_back_image_path
+       AND NEW.national_id_back_image_path IS NOT NULL THEN
+      PERFORM private.consume_business_document_reservation(
         NEW.company_id,'driver-documents',NEW.national_id_back_image_path,
-        CASE WHEN TG_OP='INSERT' THEN NULL ELSE OLD.national_id_back_image_path END);
+        OLD.national_id_back_image_path);
     END IF;
   END IF;
   RETURN NEW;
 END;
 $$;
 
--- On an INSERT there is no OLD. Branch on TG_OP before referencing its fields.
 CREATE TRIGGER drivers_00_document_quota_commit
   BEFORE INSERT OR UPDATE OF
     license_image_path,license_back_image_path,
@@ -161,12 +177,14 @@ RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog
 AS $$
 BEGIN
-  IF NEW.contract_document_reference IS NOT NULL
-     AND (TG_OP='INSERT'
-          OR NEW.contract_document_reference IS DISTINCT FROM OLD.contract_document_reference)
-  THEN
-    -- Employment revisions allow initial contract attachment but prohibit
-    -- replacement of an already committed immutable contract.
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.contract_document_reference IS NOT NULL THEN
+      PERFORM private.consume_business_document_reservation(
+        NEW.company_id,'business-documents',NEW.contract_document_reference,NULL);
+    END IF;
+  ELSIF NEW.contract_document_reference IS DISTINCT FROM OLD.contract_document_reference
+      AND NEW.contract_document_reference IS NOT NULL THEN
+    -- Existing immutable compensation contracts cannot be replaced.
     PERFORM private.consume_business_document_reservation(
       NEW.company_id,'business-documents',NEW.contract_document_reference,NULL);
   END IF;
