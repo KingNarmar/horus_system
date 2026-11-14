@@ -367,6 +367,58 @@ def main():
         db, "SELECT count(*) FROM private.company_creation_ledger WHERE "
         "creator_user_id='" + owner_id + "';") == "2")
 
+    # History must show newest events first (not randomized UUID order)
+    # and use a stable timestamp + UUID keyset cursor.
+    history_args = {"p_company_id": company, "p_after_id": None,
+                    "p_page_size": 1}
+    status, page1 = rpc(api, aal2,
+                        "platform_list_entitlement_overrides", history_args)
+    latest_grant = psql(
+        db, "SELECT id FROM private.platform_entitlement_overrides "
+        "WHERE company_id='" + company +
+        "' ORDER BY granted_at DESC,id DESC LIMIT 1;")
+    check("latest override history ordered by grant timestamp",
+          status == 200 and len(page1) == 1
+          and page1[0]["override_id"] == latest_grant)
+    status, page2 = rpc(api, aal2,
+                        "platform_list_entitlement_overrides",
+                        {**history_args, "p_after_id":
+                         page1[0]["override_id"]})
+    next_grant = psql(
+        db, "SELECT id FROM private.platform_entitlement_overrides "
+        "WHERE company_id='" + company +
+        "' ORDER BY granted_at DESC,id DESC OFFSET 1 LIMIT 1;")
+    check("override cursor fetches next historical record",
+          status == 200 and len(page2) == 1
+          and page2[0]["override_id"] == next_grant)
+    denied(rpc(api, aal2, "platform_list_entitlement_overrides",
+               {**history_args, "p_after_id": str(uuid.uuid4())}),
+           "22023", "invalid history cursor refused")
+
+    audit_args = {"p_company_id": company, "p_after_id": None,
+                  "p_page_size": 1}
+    status, audit1 = rpc(api, aal2,
+                         "platform_list_operator_audit", audit_args)
+    latest_audit = psql(
+        db, "SELECT id FROM private.platform_operator_audit "
+        "WHERE company_id='" + company +
+        "' ORDER BY occurred_at DESC,id DESC LIMIT 1;")
+    check("latest platform audit ordered by event timestamp",
+          status == 200 and len(audit1) == 1
+          and audit1[0]["audit_id"] == latest_audit)
+    status, audit2 = rpc(api, aal2, "platform_list_operator_audit",
+                         {**audit_args, "p_after_id": audit1[0]["audit_id"]})
+    next_audit = psql(
+        db, "SELECT id FROM private.platform_operator_audit "
+        "WHERE company_id='" + company +
+        "' ORDER BY occurred_at DESC,id DESC OFFSET 1 LIMIT 1;")
+    check("audit cursor fetches next event without skipping",
+          status == 200 and len(audit2) == 1
+          and audit2[0]["audit_id"] == next_audit)
+    denied(rpc(api, aal2, "platform_list_operator_audit",
+               {**audit_args, "p_after_id": str(uuid.uuid4())}),
+           "22023", "invalid audit cursor refused")
+
     # A separately approved read-only operator cannot inherit arbitrary
     # write/usage powers. A session deleted from GoTrue is invalid immediately
     # even while its signed JWT has not expired.
