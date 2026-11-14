@@ -1,6 +1,6 @@
 # Issue #358 — Secure Platform Operator Backend
 
-**Status:** Source implementation candidate; **NOT ACCEPTED / NOT DEPLOYED**.
+**Status:** Draft source PR #383 for review; **NOT MERGED / NOT DEPLOYED**.
 **Parent:** #191 · **Backend:** #358 · **Console:** #359 · **Release gate:** #202.
 **Source branch:** `feature/358-platform-operator-backend`.
 
@@ -66,6 +66,10 @@ operator-only credentials no longer grant unrestricted direct SELECT of
 The new `platform_list_tenants` API is a page of only:
 company ID/name/status, plan code, subscription revision and created-at.
 Search length <=80, page size 1..100, UUID keyset pagination.
+Override history and platform audit use **descending event timestamp + UUID**
+keyset ordering, so pages reflect newest events first instead of random UUID
+order. Cursors are resolved only inside the requested company scope; unknown
+or foreign-company cursors fail closed.
 `platform_get_company_usage` reveals only canonical entitlement and
 aggregate counts. No emails, private Storage bytes or financial business rows.
 
@@ -146,16 +150,20 @@ Domain/Data/Presentation), **not** undocumented client snippets in #358.
 
 ## Migration ordering and rollout
 
-1. Operator security/ACL migration adds protected registry, immutable
-   audit, session/MFA gate, privacy-minimal reads and narrower tenant RLS.
-2. Override migration introduces scoped grants, resolver composition,
-   creation capacity and guarded mutations.
-3. Review migration replay and signed-JWT evidence on disposable local DB.
-4. Separately approve *Development* migration application and provision
+1. `20261115010000`: operator security, immutable platform audit,
+   session/MFA gate, minimal read APIs and narrower tenant RLS.
+2. `20261115011000`: canonical entitlement overrides, protected
+   grant/revoke mutations and temporal indexes.
+3. `20261115011500`: read-only, chronological keyset projections for
+   override history and protected audit history.
+4. `20261115012000`: separate, per-original-creator capacity exception,
+   and the existing owner onboarding RPC extension.
+5. Review complete disposable migration replay and real signed-JWT evidence.
+6. Separately approve *Development* migration application and provision
    an approved operator via separately reviewed DB-owner migration.
-5. Test operator MFA, #370 recovery, user/tenant negative reads and quotas
+7. Test operator MFA, #370 recovery, user/tenant negative reads and quotas
    on Development. **No Production modification** under this approval.
-6. Any later Production deployment needs #362 compatibility, backups,
+8. Any later Production deployment needs #362 compatibility, backups,
    rollout/rollback approval and #202 security release gates.
 
 All migrations are additive or replace explicitly reviewed functions/
