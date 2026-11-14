@@ -254,9 +254,8 @@ final class _SessionFixture {
             supportedLocales: AppLocalizations.supportedLocales,
             home: showCompanyView
                 ? CompanyContextAccessView(
-                    builder: (_) => const Scaffold(
-                      body: TextField(key: Key('draft')),
-                    ),
+                    builder: (_) =>
+                        const Scaffold(body: TextField(key: Key('draft'))),
                   )
                 : const SizedBox.shrink(),
           ),
@@ -310,8 +309,9 @@ final class _FakeCompanyContextRepository implements CompanyContextRepository {
 
 final class _FakeMembershipRepository
     implements CompanyMembershipChangesRepository {
-  final _changes =
-      StreamController<Result<CompanyMembershipChange>>.broadcast(sync: true);
+  final _changes = StreamController<Result<CompanyMembershipChange>>.broadcast(
+    sync: true,
+  );
 
   void notify() {
     _changes.add(const Success(CompanyMembershipChange.invalidated));
@@ -325,8 +325,7 @@ final class _FakeMembershipRepository
   Future<void> close() => _changes.close();
 }
 
-final class _FakeAuthSessionRepository
-    implements AuthSessionChangesRepository {
+final class _FakeAuthSessionRepository implements AuthSessionChangesRepository {
   final _changes = StreamController<AuthSessionChange>.broadcast(sync: true);
 
   void notify(AuthSessionChange change) => _changes.add(change);
@@ -338,8 +337,9 @@ final class _FakeAuthSessionRepository
 }
 
 final class _FakeNetworkRepository implements NetworkStatusRepository {
-  final _changes =
-      StreamController<Result<NetworkConnectionStatus>>.broadcast(sync: true);
+  final _changes = StreamController<Result<NetworkConnectionStatus>>.broadcast(
+    sync: true,
+  );
 
   void notify(NetworkConnectionStatus status) => _changes.add(Success(status));
 
