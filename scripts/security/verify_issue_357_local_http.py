@@ -110,6 +110,30 @@ def main():
     api = LocalApi(url, public, admin)
     nonce = secrets.token_hex(6)
 
+    # The local migration creates a secret WITHOUT leaking its value and
+    # intentionally leaves Cron disabled when no environment URL is provided.
+    check("one private cleanup token created in Vault",
+          psql(db, "SELECT count(*) FROM vault.secrets "
+                   "WHERE name='horus_business_document_cleanup_token';") == "1")
+    check("only service_role may execute cleanup authorization RPC",
+          psql(db, "SELECT "
+                   "has_function_privilege('service_role', "
+                   "'public.authorize_business_document_cleanup(text)', "
+                   "'EXECUTE') AND NOT "
+                   "has_function_privilege('authenticated', "
+                   "'public.authorize_business_document_cleanup(text)', "
+                   "'EXECUTE');") == "t")
+    check("Vault-held token verifies without ever returning the secret",
+          psql(db, "SELECT public.authorize_business_document_cleanup("
+                   "(SELECT decrypted_secret FROM vault.decrypted_secrets "
+                   "WHERE name='horus_business_document_cleanup_token'));") == "t")
+    check("arbitrary cleanup tokens are rejected",
+          psql(db, "SELECT NOT public.authorize_business_document_cleanup("
+                   "repeat('0',64));") == "t")
+    check("unconfigured local replay cannot schedule hosted cleanup",
+          psql(db, "SELECT count(*) FROM cron.job "
+                   "WHERE jobname='horus-business-document-cleanup';") == "0")
+
     owner_id, owner_jwt = api.create_session("owner", nonce)
     foreign_id, foreign_jwt = api.create_session("foreign", nonce)
     viewer_id, viewer_jwt = api.create_session("viewer", nonce)
