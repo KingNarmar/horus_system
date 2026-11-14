@@ -198,8 +198,7 @@ BEGIN
     'next_override_change_at',v_next_change
   );
 END;
-$function$
-
+$function$;
 
 REVOKE ALL ON FUNCTION private.resolve_company_effective_entitlement(uuid)
   FROM PUBLIC,anon,authenticated;
@@ -851,8 +850,7 @@ BEGIN
     v_company.base_currency_fraction_digits,
     v_company.business_timezone, v_company.is_active;
 END;
-$function$
-
+$function$;
 
 -- The existing onboarding function's client signature is unchanged.
 -- Its original schema-level grants remain unchanged.
