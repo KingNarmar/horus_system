@@ -119,6 +119,63 @@ def create_customer(api, jwt, company, name):
                     query={"select": "id"})
 
 
+
+def diagnose_local_operator_request(api, jwt, db):
+    """Temporary Boolean-only diagnostic RPC in a VERIFIED disposable DB.
+
+    This function is never committed as a migration and is removed in finally.
+    It reveals no IDs, tokens, factor secrets or tenant business fields.
+    """
+    ddl = """
+    CREATE OR REPLACE FUNCTION public.local_issue_358_auth_debug()
+    RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path=pg_catalog AS $$
+      SELECT pg_catalog.jsonb_build_object(
+        'uid_present',auth.uid() IS NOT NULL,
+        'jwt_sub_match',auth.jwt()->>'sub'=auth.uid()::text,
+        'jwt_role_ok',auth.jwt()->>'role'='authenticated',
+        'jwt_aal2',auth.jwt()->>'aal'='aal2',
+        'jwt_session_format',auth.jwt()->>'session_id'
+          ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        'jwt_exp_format',coalesce(auth.jwt()->>'exp','')
+          ~ '^[0-9]+$',
+        'jwt_exp_future',(auth.jwt()->>'exp')::bigint
+          > extract(epoch from now()),
+        'operator_permission', EXISTS (
+          SELECT 1 FROM private.platform_operator_access o
+          WHERE o.user_id=auth.uid() AND o.revoked_at IS NULL
+            AND 'tenant_read'=ANY(o.permissions)
+        ),
+        'operator_flag', EXISTS (
+          SELECT 1 FROM public.user_profiles p
+          WHERE p.id=auth.uid() AND p.is_platform_admin IS TRUE
+        ),
+        'session_factor_join', EXISTS (
+          SELECT 1 FROM auth.sessions s
+          JOIN auth.mfa_factors f ON f.id=s.factor_id
+             AND f.user_id=s.user_id
+          WHERE s.id=(auth.jwt()->>'session_id')::uuid
+            AND s.user_id=auth.uid()
+            AND (s.not_after IS NULL OR s.not_after>now())
+            AND s.aal::text='aal2'
+            AND f.status::text='verified'
+        ),
+        'operator_gate',private.platform_operator_authorized('tenant_read',false)
+      )
+    $$;
+    REVOKE ALL ON FUNCTION public.local_issue_358_auth_debug()
+      FROM PUBLIC,anon,authenticated;
+    GRANT EXECUTE ON FUNCTION public.local_issue_358_auth_debug()
+      TO authenticated;
+    """
+    psql(db, ddl)
+    try:
+        status, result = rpc(api, jwt, "local_issue_358_auth_debug", {})
+        print("DIAGNOSTIC disposable REST SQL checks:", status, result,
+              flush=True)
+    finally:
+        psql(db, "DROP FUNCTION IF EXISTS public.local_issue_358_auth_debug();")
+
 def main():
     url, public, admin, db = local_stack()
     api = LocalApi(url, public, admin)
@@ -237,6 +294,7 @@ def main():
               "session_factor_state", factor_state,
               "database_state", database_state,
               "session_checks", session_checks, flush=True)
+        diagnose_local_operator_request(api, aal2, db)
     check("verified operator gets minimal directory",
           status == 200 and isinstance(listed, list)
           and any(row.get("company_id") == company for row in listed)
