@@ -1,0 +1,50 @@
+name: Issue 357 Business Documents Signed JWT and Storage Contract
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/security/verify_issue_357_local_http.py'
+      - '.github/workflows/issue-357-local-jwt.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-357-local-jwt-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  documents-security:
+    name: Disposable signed-JWT quota, Storage and tenant isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Compile isolated security test
+        run: python -m py_compile scripts/security/verify_issue_357_local_http.py
+      - name: Verify local-only Supabase environment
+        shell: bash
+        run: |
+          test ! -e supabase/config.toml
+          test ! -e supabase/.temp/project-ref
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          npx --yes supabase@3.0.0 init
+      - name: Start disposable local database and replay migrations
+        run: |
+          npx --yes supabase@3.0.0 start
+          npx --yes supabase@3.0.0 db reset --local --no-seed
+      - name: Test real signed-JWT quota and Storage lifecycle
+        run: python scripts/security/verify_issue_357_local_http.py
+      - name: Destroy disposable containers
+        if: always()
+        run: |
+          if test -e supabase/config.toml; then
+            npx --yes supabase@3.0.0 stop --no-backup || true
+          fi
