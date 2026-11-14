@@ -189,4 +189,3 @@ Future<void> _confirmRemove(
     await onAssetChanged();
   }
 }
-
