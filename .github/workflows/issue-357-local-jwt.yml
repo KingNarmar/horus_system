@@ -8,6 +8,7 @@ on:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_357_local_http.py'
       - 'scripts/security/verify_issue_357_daily_cleanup.py'
+      - 'scripts/security/verify_issue_357_actor_fk_index.py'
       - 'supabase/functions/business-document-cleanup/**'
       - '.github/workflows/issue-357-local-jwt.yml'
 
@@ -29,7 +30,7 @@ jobs:
         with:
           node-version: '24'
       - name: Compile isolated security test
-        run: python -m py_compile scripts/security/verify_issue_357_local_http.py
+        run: python -m py_compile scripts/security/verify_issue_357_local_http.py scripts/security/verify_issue_357_actor_fk_index.py
       - name: Verify local-only Supabase environment
         shell: bash
         run: |
@@ -46,6 +47,8 @@ jobs:
         run: python scripts/security/verify_issue_357_local_http.py
       - name: Verify daily cleanup Cron migration on disposable database
         run: python scripts/security/verify_issue_357_daily_cleanup.py
+      - name: Verify uploader foreign-key index and RLS on disposable database
+        run: python scripts/security/verify_issue_357_actor_fk_index.py
       - name: Destroy disposable containers
         if: always()
         run: |
