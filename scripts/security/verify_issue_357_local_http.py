@@ -130,6 +130,32 @@ def main():
              "VALUES('" + company + "','" + account_id + "','" + role +
              "',true,'" + owner_id + "');")
 
+    # Test both allowed Admin and denied Accountant roles in the other
+    # company without exceeding its Free Starter three-member contract.
+    admin_id, admin_jwt = api.create_session("admin", nonce)
+    accountant_id, accountant_jwt = api.create_session("accountant", nonce)
+    for role, user_id in (("admin", admin_id),
+                          ("accountant", accountant_id)):
+        psql(db, "INSERT INTO public.company_users "
+             "(company_id,user_id,role,is_active,created_by) "
+             "VALUES('" + other + "','" + user_id + "','" + role +
+             "',true,'" + foreign_id + "');")
+    b_customer, b_route = fixture(db, other, nonce + "-roles")
+    b_trip = successful(
+        creation(api, foreign_jwt, str(uuid.uuid4()),
+                 other, b_customer, b_route),
+        "role fixture Trip",
+    )["id"]
+    admin_path = name(other, b_trip)
+    status, result = reserve(api, admin_jwt, other, admin_path)
+    check("Admin can reserve within their company's document quota",
+          status == 200 and result.get("state") == "reserved")
+    status, _ = release(api, admin_jwt, other, admin_path)
+    check("Admin cancellation releases reserved capacity",
+          status in (200, 204))
+    denied(reserve(api, accountant_jwt, other, name(other, b_trip)),
+           "P2871", "Accountant cannot reserve operational documents")
+
     customer, route = fixture(db, company, nonce)
     trip = successful(
         creation(api, owner_jwt, str(uuid.uuid4()),
@@ -201,6 +227,26 @@ def main():
           storage(api, owner_jwt, "POST", path, DOCUMENT)[0] >= 400)
     check("denied reservations leave quota untouched",
           usage(api, owner_jwt, company) == 0 and active_reserved(db, company) == 0)
+
+    # Idempotent retries reuse the same lease; a different payload with the
+    # same operation ID is a hard conflict rather than another quota claim.
+    idem_path = name(company, trip)
+    idem_op = str(uuid.uuid4())
+    status, first_lease = reserve(api, owner_jwt, company,
+                                  idem_path, operation=idem_op)
+    check("first idempotent reservation succeeds",
+          status == 200 and first_lease.get("state") == "reserved")
+    status, retried_lease = reserve(api, owner_jwt, company,
+                                    idem_path, operation=idem_op)
+    check("identical retry returns same reservation, without double count",
+          status == 200 and retried_lease == first_lease
+          and active_reserved(db, company) == 1)
+    denied(reserve(api, owner_jwt, company, name(company, trip),
+                   operation=idem_op),
+           "P2872", "same idempotency key cannot change upload target")
+    release(api, owner_jwt, company, idem_path)
+    check("idempotent test release restores available slots",
+          active_reserved(db, company) == 0)
 
     pending = [name(company, trip) for _ in range(49)]
     for item in pending:

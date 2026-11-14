@@ -521,25 +521,6 @@ REVOKE ALL ON FUNCTION private.business_document_upload_is_reserved(text,text)
 GRANT EXECUTE ON FUNCTION private.business_document_upload_is_reserved(text,text)
   TO authenticated;
 
--- Restrictive gate is ANDed with existing scope/role INSERT policies. This
--- does not accidentally OR a broad reservation permission into Storage RLS.
-CREATE POLICY business_document_reservation_insert_gate
-  ON storage.objects AS RESTRICTIVE FOR INSERT TO authenticated
-  WITH CHECK (
-    bucket_id NOT IN ('business-documents','driver-documents')
-    OR private.business_document_upload_is_reserved(bucket_id,name)
-    OR (bucket_id='driver-documents'
-        AND private.business_document_upload_kind(bucket_id,name)='profile')
-  );
-
--- Never permit in-place overwrite of signed business evidence or ID images.
--- The Flutter uploader must use unique immutable object keys (upsert:false).
-CREATE POLICY business_document_no_overwrite_gate
-  ON storage.objects AS RESTRICTIVE FOR UPDATE TO authenticated
-  USING (bucket_id NOT IN ('business-documents','driver-documents'))
-  WITH CHECK (bucket_id NOT IN ('business-documents','driver-documents'));
-
-
 -- Compensation paths carry no operation ID. Release by exact actor-owned
 -- object reference so feature-level error compensation immediately frees a
 -- pending slot, without touching a committed reservation.

@@ -445,4 +445,24 @@ REVOKE ALL ON FUNCTION public.complete_business_document_cleanup(uuid,uuid)
 GRANT EXECUTE ON FUNCTION public.complete_business_document_cleanup(uuid,uuid)
   TO service_role;
 
+
+-- Enable strict Storage writes only after all metadata guards are installed.
+-- Restrictive gate is ANDed with existing scope/role INSERT policies. This
+-- does not accidentally OR a broad reservation permission into Storage RLS.
+CREATE POLICY business_document_reservation_insert_gate
+  ON storage.objects AS RESTRICTIVE FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id NOT IN ('business-documents','driver-documents')
+    OR private.business_document_upload_is_reserved(bucket_id,name)
+    OR (bucket_id='driver-documents'
+        AND private.business_document_upload_kind(bucket_id,name)='profile')
+  );
+
+-- Never permit in-place overwrite of signed business evidence or ID images.
+-- The Flutter uploader must use unique immutable object keys (upsert:false).
+CREATE POLICY business_document_no_overwrite_gate
+  ON storage.objects AS RESTRICTIVE FOR UPDATE TO authenticated
+  USING (bucket_id NOT IN ('business-documents','driver-documents'))
+  WITH CHECK (bucket_id NOT IN ('business-documents','driver-documents'));
+
 COMMIT;
