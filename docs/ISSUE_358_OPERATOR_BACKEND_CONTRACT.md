@@ -20,7 +20,9 @@ Protected operations must pass all checks **on each server request**:
    not revoked and containing the operation's permission.
 6. JWT and stored session AAL2, verified MFA factor owned by the actor.
 7. Sensitive writes and membership recovery additionally require a
-   **factor challenge within the last 15 minutes**.
+   **factor challenge within the last 15 minutes**, backed by a recent
+   `totp` entry in the *same signed JWT's* `amr` methods array. A challenge
+   on another device/session cannot refresh this JWT's step-up privilege.
 
 Failure is closed. A valid **stolen but still-active** AAL2 JWT within the
 MFA challenge window is not mathematically impossible to abuse; protect
