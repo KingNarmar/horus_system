@@ -1165,6 +1165,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fleetChanges => 'Changes';
 
   @override
+  String get fleetAuditPreviousValueLabel => 'Before';
+
+  @override
+  String get fleetAuditNewValueLabel => 'After';
+
+  @override
   String fleetDetailsTitle(String plateNumber) {
     return 'Fleet asset details: $plateNumber';
   }
@@ -2822,6 +2828,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureQuotaLifetimeInvoicesReached =>
       'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.';
+
+  @override
+  String get failureQuotaBusinessDocumentsReached =>
+      'The company has reached its business-document limit. You can replace or remove an existing document.';
+
+  @override
+  String get failureBusinessDocumentCleanupPending =>
+      'The upload could not be completed safely. Cleanup is pending; please refresh before trying again.';
 
   @override
   String get failureQuotaCreationRetryConflict =>

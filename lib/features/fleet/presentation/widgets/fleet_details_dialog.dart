@@ -13,7 +13,9 @@ import '../../../audit/domain/entities/audit_log.dart';
 import '../../../audit/presentation/helpers/audit_change_builder.dart';
 import '../../domain/entities/vehicle_status.dart';
 import '../cubit/fleet_state.dart';
+import '../helpers/fleet_business_date_formatter.dart';
 import '../localization/fleet_localizations_x.dart';
+import 'fleet_audit_change_row.dart';
 import 'fleet_license_documents_section.dart';
 
 class FleetDetailsDialog extends StatelessWidget {
@@ -95,7 +97,11 @@ class FleetDetailsDialog extends StatelessWidget {
                   ),
                   _DetailRow(
                     label: l10n.vehicleLicenseExpiryDateLabel,
-                    value: _dateOnlyOrEmpty(context, licenseExpiryDate),
+                    value: FleetBusinessDateFormatter.formatOrFallback(
+                      context,
+                      licenseExpiryDate,
+                      fallback: l10n.emptyValue,
+                    ),
                   ),
                   if (expectedFuelConsumption != null)
                     _DetailRow(
@@ -294,13 +300,7 @@ class _TimelineItem extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   ...changes.map(
-                    (change) => Text(
-                      l10n.auditChangeLine(
-                        change.label,
-                        change.oldValue,
-                        change.newValue,
-                      ),
-                    ),
+                    (change) => FleetAuditChangeRow(change: change),
                   ),
                 ],
               ],
@@ -369,13 +369,6 @@ String _formatBusinessLocalDateTime(
   final material = MaterialLocalizations.of(context);
   final carrier = BusinessLocalDateTimeDateTimeAdapter.toDateTime(value);
   return '${material.formatShortDate(carrier)} ${material.formatTimeOfDay(TimeOfDay.fromDateTime(carrier))}';
-}
-
-String _dateOnlyOrEmpty(BuildContext context, BusinessDate? value) {
-  if (value == null) return context.l10n.emptyValue;
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _numberText(double value) {

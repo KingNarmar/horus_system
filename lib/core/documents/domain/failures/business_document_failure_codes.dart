@@ -14,5 +14,9 @@ abstract final class BusinessDocumentFailureCodes {
   static const notFound = 'business_document_not_found';
   static const conflictAlreadyExists = 'conflict_business_document_exists';
   static const storageError = 'business_document_storage_error';
+  static const quotaReached = 'quota_business_documents_reached';
+  static const quotaUnavailable = 'quota_entitlement_unavailable';
+  static const reservationConflict = 'business_document_reservation_conflict';
+  static const cleanupPending = 'business_document_cleanup_pending';
   static const unexpectedError = 'business_document_unexpected_error';
 }

@@ -6,7 +6,7 @@ import '../../domain/entities/company_quota_usage.dart';
 import '../../domain/entities/entitlement_resource.dart';
 import '../localization/subscriptions_localizations.dart';
 
-/// Server-confirmed quota usage for #32, #355 and #356. Full reporting is #360.
+/// Server-confirmed quota usage for #32, #355, #356 and #357. Full reporting is #360.
 /// The complete company usage dashboard remains in #360.
 final class SubscriptionsQuotaUsageCard extends StatelessWidget {
   final CompanyQuotaSnapshot quota;
@@ -63,6 +63,12 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
             _QuotaLine(
               label: l10n.lifetimeInvoices,
               usage: quota.usageFor(EntitlementResource.lifetimeInvoices),
+              showRemaining: true,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _QuotaLine(
+              label: l10n.businessDocuments,
+              usage: quota.usageFor(EntitlementResource.businessDocuments),
               showRemaining: true,
             ),
           ],

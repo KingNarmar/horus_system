@@ -1,0 +1,39 @@
+name: H.O.R.U.S #357 Document Quota Verification
+
+on:
+  push:
+    branches:
+      - feature/357-business-document-quota-lifecycle
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-357
+  cancel-in-progress: true
+
+jobs:
+  flutter-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: "3.41.9"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: git diff --check
+
+  edge-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/business-document-cleanup/index.ts

@@ -16,12 +16,14 @@ import 'package:horus_system/features/fleet/domain/entities/fleet_asset_type.dar
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_file_side.dart';
+import 'package:horus_system/features/fleet/domain/entities/vehicle_status.dart';
 import 'package:horus_system/features/fleet/domain/entities/fleet_license_document_target.dart';
 import 'package:horus_system/features/fleet/domain/repositories/fleet_license_documents_repository.dart';
 import 'package:horus_system/features/fleet/domain/usecases/fleet_license_document_usecases.dart';
 import 'package:horus_system/features/fleet/domain/usecases/fleet_usecases.dart';
 import 'package:horus_system/features/fleet/presentation/cubit/fleet_license_documents_cubit.dart';
 import 'package:horus_system/features/fleet/presentation/widgets/fleet_license_documents_section.dart';
+import 'package:horus_system/features/fleet/presentation/widgets/fleet_details_dialog.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 import 'package:horus_system/l10n/app_localizations_ar.dart';
 import 'package:horus_system/l10n/app_localizations_en.dart';
@@ -95,6 +97,70 @@ void main() {
     expect(Directionality.of(context), TextDirection.rtl);
     expect(tester.takeException(), isNull);
   });
+
+  for (final locale in [const Locale('en'), const Locale('ar')]) {
+    testWidgets(
+      'Fleet details and licence dates match in ${locale.languageCode} on mobile',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final repository = const _FakeRepository();
+        final cubit = _createCubit(repository);
+        addTearDown(cubit.close);
+        await cubit.load(
+          currentCompanyContext: _operationsContext,
+          target: _target,
+        );
+
+        final date = BusinessDate(year: 2026, month: 11, day: 28);
+        final l10n = locale.languageCode == 'ar'
+            ? AppLocalizationsAr()
+            : AppLocalizationsEn();
+
+        await tester.pumpWidget(
+          _app(
+            cubit,
+            locale: locale,
+            content: FleetDetailsDialog(
+              assetId: _target.assetId,
+              plateNumber: 'QA-357-01',
+              status: VehicleStatus.available,
+              isActive: true,
+              licenseExpiryDate: date,
+              notes: null,
+              notesLabel: l10n.vehicleNotesLabel,
+              state: null,
+              onAssetChanged: () async {},
+            ),
+          ),
+        );
+
+        final context = tester.element(find.byType(FleetDetailsDialog));
+        final formatted = MaterialLocalizations.of(
+          context,
+        ).formatShortDate(DateTime(2026, 11, 28));
+        final isolatedDate = '\u2066$formatted\u2069';
+
+        expect(find.text(isolatedDate), findsOneWidget);
+        expect(
+          find.text(l10n.fleetLicenseExpiryCurrent(isolatedDate)),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+
+        await tester.drag(
+          find.byType(SingleChildScrollView).first,
+          const Offset(0, -700),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.fleetActivityTimeline), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('legacy combined file stays visible as one slot', (tester) async {
     final repository = _FakeRepository(document: _combinedDocument);
@@ -197,6 +263,7 @@ FleetLicenseDocumentsCubit _createCubit(
 Widget _app(
   FleetLicenseDocumentsCubit cubit, {
   Locale locale = const Locale('en'),
+  Widget? content,
 }) {
   return BlocProvider.value(
     value: cubit,
@@ -205,14 +272,16 @@ Widget _app(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
-        body: FleetLicenseDocumentsSection(
-          currentLicenseExpiryDate: BusinessDate(
-            year: 2027,
-            month: 12,
-            day: 31,
-          ),
-          onAssetChanged: () async {},
-        ),
+        body:
+            content ??
+            FleetLicenseDocumentsSection(
+              currentLicenseExpiryDate: BusinessDate(
+                year: 2027,
+                month: 12,
+                day: 31,
+              ),
+              onAssetChanged: () async {},
+            ),
       ),
     ),
   );

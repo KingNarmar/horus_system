@@ -35,6 +35,7 @@ final class SubscriptionsLocalizations {
   String get routes => _value('routes');
   String get lifetimeTrips => _value('lifetimeTrips');
   String get lifetimeInvoices => _value('lifetimeInvoices');
+  String get businessDocuments => _value('businessDocuments');
   String get tripsPerMonth => _value('tripsPerMonth');
   String get driverApp => _value('driverApp');
   String get advancedReports => _value('advancedReports');
@@ -134,6 +135,7 @@ final class SubscriptionsLocalizations {
     'routes': 'Routes',
     'lifetimeTrips': 'Trips created (lifetime)',
     'lifetimeInvoices': 'Invoices created (lifetime)',
+    'businessDocuments': 'Business documents',
     'tripsPerMonth': 'Trips per month',
     'driverApp': 'Driver app',
     'advancedReports': 'Advanced reports',
@@ -194,6 +196,7 @@ final class SubscriptionsLocalizations {
     'routes': 'المسارات',
     'lifetimeTrips': 'الرحلات المُنشأة إجمالًا',
     'lifetimeInvoices': 'الفواتير المُنشأة إجمالًا',
+    'businessDocuments': 'مستندات الأعمال',
     'tripsPerMonth': 'الرحلات شهريًا',
     'driverApp': 'تطبيق السائق',
     'advancedReports': 'تقارير متقدمة',

@@ -1151,6 +1151,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fleetChanges => 'التغييرات';
 
   @override
+  String get fleetAuditPreviousValueLabel => 'قبل';
+
+  @override
+  String get fleetAuditNewValueLabel => 'بعد';
+
+  @override
   String fleetDetailsTitle(String plateNumber) {
     return 'تفاصيل الأصل: $plateNumber';
   }
@@ -2789,6 +2795,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get failureQuotaLifetimeInvoicesReached =>
       'وصلت الشركة إلى الحد الإجمالي لإنشاء الفواتير طوال عمر الاشتراك. لا يزال بإمكانك إدارة الفواتير الموجودة.';
+
+  @override
+  String get failureQuotaBusinessDocumentsReached =>
+      'وصلت الشركة إلى الحد الأقصى لمستندات الأعمال. يمكنك استبدال مستند موجود أو حذفه.';
+
+  @override
+  String get failureBusinessDocumentCleanupPending =>
+      'تعذر إكمال الرفع بأمان. جارٍ تنظيف الملف غير المكتمل؛ حدّث البيانات قبل إعادة المحاولة.';
 
   @override
   String get failureQuotaCreationRetryConflict =>

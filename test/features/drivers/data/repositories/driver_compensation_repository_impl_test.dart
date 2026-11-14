@@ -5,6 +5,8 @@ import 'package:horus_system/core/documents/domain/entities/business_document_fi
 import 'package:horus_system/core/documents/domain/entities/business_document_location.dart';
 import 'package:horus_system/core/documents/domain/entities/business_document_reference.dart';
 import 'package:horus_system/core/documents/domain/repositories/business_document_repository.dart';
+import 'package:horus_system/core/documents/domain/failures/business_document_failure_codes.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
@@ -62,6 +64,34 @@ void main() {
       );
       expect(operations, ['upload', 'create_revision', 'delete_document']);
       expect(documents.deletedReferences, hasLength(1));
+    });
+
+    test('reports contract orphan recovery when compensation fails', () async {
+      final operations = <String>[];
+      final remote = _FakeRemoteDataSource(
+        operations: operations,
+        createError: const PostgrestException(
+          message: 'overlap',
+          code: '23P01',
+        ),
+      );
+      final documents = _FakeBusinessDocumentRepository(operations: operations)
+        ..deleteResult = const FailureResult<void>(
+          ServerFailure(code: 'storage_cleanup_failed'),
+        );
+      final repository = _repository(remote, documents);
+
+      final result = await repository.createRevision(
+        data: _writeData(),
+        actorRole: 'owner',
+        contractDocument: _document(),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        BusinessDocumentFailureCodes.cleanupPending,
+      );
+      expect(operations, ['upload', 'create_revision', 'delete_document']);
     });
 
     test('attaches contract without redundant audit snapshot lookup', () async {
@@ -242,6 +272,7 @@ final class _FakeBusinessDocumentRepository
     implements BusinessDocumentRepository {
   final List<String>? operations;
   final List<BusinessDocumentReference> deletedReferences = [];
+  Result<void> deleteResult = const Success<void>(null);
 
   _FakeBusinessDocumentRepository({this.operations});
 
@@ -265,7 +296,7 @@ final class _FakeBusinessDocumentRepository
   }) async {
     operations?.add('delete_document');
     deletedReferences.add(reference);
-    return const Success<void>(null);
+    return deleteResult;
   }
 
   @override

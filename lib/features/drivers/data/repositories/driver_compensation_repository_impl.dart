@@ -6,8 +6,10 @@ import '../../../../core/documents/domain/entities/business_document_file.dart';
 import '../../../../core/documents/domain/entities/business_document_location.dart';
 import '../../../../core/documents/domain/entities/business_document_reference.dart';
 import '../../../../core/documents/domain/repositories/business_document_repository.dart';
+import '../../../../core/documents/domain/failures/business_document_failure_codes.dart';
 import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/driver_compensation_revision.dart';
 import '../../domain/entities/driver_compensation_write_data.dart';
@@ -88,10 +90,11 @@ final class DriverCompensationRepositoryImpl
       );
       return Success(model.toEntity());
     } on PostgrestException catch (error) {
-      await _deleteUploadedReference(
+      final cleanupFailure = await _deleteUploadedReference(
         companyId: data.companyId,
         reference: uploadedReference,
       );
+      if (cleanupFailure != null) return FailureResult(cleanupFailure);
       return FailureResult(
         failureMapper.fromPostgrest(
           error,
@@ -99,10 +102,11 @@ final class DriverCompensationRepositoryImpl
         ),
       );
     } catch (error) {
-      await _deleteUploadedReference(
+      final cleanupFailure = await _deleteUploadedReference(
         companyId: data.companyId,
         reference: uploadedReference,
       );
+      if (cleanupFailure != null) return FailureResult(cleanupFailure);
       return FailureResult(failureMapper.fromUnexpected(error));
     }
   }
@@ -162,10 +166,11 @@ final class DriverCompensationRepositoryImpl
       );
       return Success(model.toEntity());
     } on PostgrestException catch (error) {
-      await _deleteUploadedReference(
+      final cleanupFailure = await _deleteUploadedReference(
         companyId: revision.companyId,
         reference: uploadedReference,
       );
+      if (cleanupFailure != null) return FailureResult(cleanupFailure);
       return FailureResult(
         failureMapper.fromPostgrest(
           error,
@@ -173,10 +178,11 @@ final class DriverCompensationRepositoryImpl
         ),
       );
     } catch (error) {
-      await _deleteUploadedReference(
+      final cleanupFailure = await _deleteUploadedReference(
         companyId: revision.companyId,
         reference: uploadedReference,
       );
+      if (cleanupFailure != null) return FailureResult(cleanupFailure);
       return FailureResult(failureMapper.fromUnexpected(error));
     }
   }
@@ -198,15 +204,20 @@ final class DriverCompensationRepositoryImpl
     );
   }
 
-  Future<void> _deleteUploadedReference({
+  Future<Failure?> _deleteUploadedReference({
     required String companyId,
     required BusinessDocumentReference? reference,
   }) async {
-    if (reference == null) return;
-    await businessDocumentRepository.delete(
+    if (reference == null) return null;
+    final cleanup = await businessDocumentRepository.delete(
       companyId: companyId,
       reference: reference,
     );
+    return cleanup.failureOrNull == null
+        ? null
+        : const ServerFailure(
+            code: BusinessDocumentFailureCodes.cleanupPending,
+          );
   }
 
   Future<Result<T>> _guard<T>({

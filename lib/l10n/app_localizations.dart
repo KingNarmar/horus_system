@@ -2228,6 +2228,18 @@ abstract class AppLocalizations {
   /// **'Changes'**
   String get fleetChanges;
 
+  /// No description provided for @fleetAuditPreviousValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get fleetAuditPreviousValueLabel;
+
+  /// No description provided for @fleetAuditNewValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get fleetAuditNewValueLabel;
+
   /// No description provided for @fleetDetailsTitle.
   ///
   /// In en, this message translates to:
@@ -5197,6 +5209,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your company has reached its lifetime invoice creation limit. Existing invoices can still be managed.'**
   String get failureQuotaLifetimeInvoicesReached;
+
+  /// No description provided for @failureQuotaBusinessDocumentsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'The company has reached its business-document limit. You can replace or remove an existing document.'**
+  String get failureQuotaBusinessDocumentsReached;
+
+  /// No description provided for @failureBusinessDocumentCleanupPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The upload could not be completed safely. Cleanup is pending; please refresh before trying again.'**
+  String get failureBusinessDocumentCleanupPending;
 
   /// No description provided for @failureQuotaCreationRetryConflict.
   ///

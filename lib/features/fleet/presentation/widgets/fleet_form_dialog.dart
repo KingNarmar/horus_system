@@ -7,6 +7,7 @@ import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../domain/entities/vehicle_status.dart';
+import '../helpers/fleet_business_date_formatter.dart';
 import '../localization/fleet_localizations_x.dart';
 
 class FleetFormData {
@@ -83,13 +84,20 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
     _plateController = TextEditingController(
       text: widget.initialPlateNumber ?? '',
     );
-    _dateController = TextEditingController(
-      text: _selectedDate == null ? '' : _dateOnly(_selectedDate!),
-    );
+    _dateController = TextEditingController();
     _rateController = TextEditingController(
       text: _formatDouble(widget.initialExpectedFuelConsumption),
     );
     _notesController = TextEditingController(text: widget.initialNotes ?? '');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final selectedDate = _selectedDate;
+    _dateController.text = selectedDate == null
+        ? ''
+        : FleetBusinessDateFormatter.format(context, selectedDate);
   }
 
   @override
@@ -224,7 +232,10 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
     final pickedBusinessDate = BusinessDateDateTimeAdapter.fromDateTime(picked);
     setState(() {
       _selectedDate = pickedBusinessDate;
-      _dateController.text = _dateOnly(pickedBusinessDate);
+      _dateController.text = FleetBusinessDateFormatter.format(
+        context,
+        pickedBusinessDate,
+      );
     });
   }
 
@@ -255,12 +266,6 @@ class _FleetFormDialogState extends State<FleetFormDialog> {
       ? null
       : double.tryParse(_rateController.text.trim().replaceAll(',', '.'));
   String? _optional(String value) => value.trim().isEmpty ? null : value.trim();
-}
-
-String _dateOnly(BusinessDate value) {
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
 }
 
 String _formatDouble(double? value) {

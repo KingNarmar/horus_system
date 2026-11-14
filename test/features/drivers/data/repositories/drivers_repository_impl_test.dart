@@ -323,6 +323,7 @@ class _FakeDriverImagesRemoteDataSource
     required String driverId,
     required String folder,
     required DriverImageFile image,
+    String? replacesReference,
   }) async {
     operations?.add('upload');
     return '$companyId/$driverId/$folder/${image.fileName}';
@@ -336,7 +337,10 @@ class _FakeDriverImagesRemoteDataSource
   }
 
   @override
-  Future<void> removeImages({required List<String> paths}) async {
+  Future<void> removeImages({
+    required String companyId,
+    required List<String> paths,
+  }) async {
     operations?.add('cleanup');
     removedPaths.addAll(paths);
   }
