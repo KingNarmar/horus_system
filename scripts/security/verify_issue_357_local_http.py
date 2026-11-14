@@ -355,6 +355,61 @@ def main():
     check("cleanup leaves protected historical evidence readable",
           storage(api, owner_jwt, "GET", replacement)[0] == 200)
 
+    # Account deletion must NOT cascade-delete a pending upload ledger row:
+    # otherwise Storage bytes uploaded before a crash become untraceable.
+    transient_id, transient_jwt = api.create_session("transient", nonce)
+    psql(db, "INSERT INTO public.company_users "
+         "(company_id,user_id,role,is_active,created_by) VALUES('" +
+         company + "','" + transient_id + "','operations',true,'" +
+         owner_id + "');")
+    abandoned_path = name(company, trip)
+    assert_reserved(api, transient_jwt, company, abandoned_path)
+    check("transient actor can upload only their reserved object",
+          storage(api, transient_jwt, "POST",
+                  abandoned_path, DOCUMENT)[0] in (200, 201))
+    status, _ = api.call(
+        "DELETE", "/auth/v1/admin/users/" + transient_id,
+        admin=True,
+    )
+    check("disposable Auth account removal succeeds", status in (200, 204))
+    preserved = psql(
+        db, "SELECT coalesce(actor_user_id::text, 'deleted') "
+        "FROM private.business_document_upload_reservations "
+        "WHERE company_id='" + company + "' "
+        "AND storage_reference='" + abandoned_path + "';",
+    )
+    check("deleted actor retains an unauthenticated cleanup claim",
+          preserved == "deleted")
+    psql(
+        db, "UPDATE private.business_document_upload_reservations "
+        "SET created_at=now()-interval '80 minutes', "
+        "expires_at=now()-interval '40 minutes' "
+        "WHERE company_id='" + company + "' "
+        "AND storage_reference='" + abandoned_path + "';",
+    )
+    status, claims = api.call(
+        "POST", "/rest/v1/rpc/claim_business_document_cleanup",
+        admin=True, payload={"p_batch_limit": 25},
+    )
+    check("retained orphan is claimable after actor deletion",
+          status == 200 and isinstance(claims, list)
+          and len(claims) == 1
+          and claims[0].get("storage_reference") == abandoned_path)
+    status, _ = storage_remove(
+        api, api.admin, abandoned_path, admin=True,
+    )
+    check("orphan object remains removable without its uploading account",
+          status in (200, 204))
+    status, _ = api.call(
+        "POST", "/rest/v1/rpc/complete_business_document_cleanup",
+        admin=True,
+        payload={"p_company_id": company,
+                 "p_operation_id": claims[0]["operation_id"]},
+    )
+    check("deleted-actor orphan reaches cleaned terminal state",
+          status in (200, 204)
+          and storage(api, owner_jwt, "GET", abandoned_path)[0] >= 400)
+
     check("a separate company retains independent document quota",
           usage(api, foreign_jwt, other) == 0)
     print("PASS Issue #357 disposable signed-JWT document security", flush=True)
