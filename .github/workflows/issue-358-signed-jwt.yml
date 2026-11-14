@@ -10,6 +10,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_358_operator_backend.py'
+      - 'scripts/security/enable_disposable_totp.py'
       - 'scripts/security/verify_issue_370_local_http.py'
       - '.github/workflows/issue-358-signed-jwt.yml'
   workflow_dispatch:
@@ -31,7 +32,7 @@ jobs:
         with:
           node-version: '24'
       - name: Python security harness syntax
-        run: python -m py_compile scripts/security/verify_issue_358_operator_backend.py scripts/security/verify_issue_370_local_http.py
+        run: python -m py_compile scripts/security/verify_issue_358_operator_backend.py scripts/security/verify_issue_370_local_http.py scripts/security/enable_disposable_totp.py
       - name: Ensure isolated test environment
         shell: bash
         run: |
@@ -41,27 +42,7 @@ jobs:
           test -z "${SUPABASE_DB_PASSWORD:-}"
           npx --yes supabase@3.0.0 init
       - name: Enable TOTP only in ephemeral GoTrue
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          path = Path("supabase/config.toml")
-          text = path.read_text()
-          match = re.search(r'(?ms)^\[auth\.mfa\.totp\][ \t]*\n(.*?)(?=^\[|\Z)', text)
-          if match:
-              body = match.group(1)
-              for name in ("enroll_enabled", "verify_enabled"):
-                  if re.search(rf'(?m)^{name}\s*=', body):
-                      body = re.sub(rf'(?m)^{name}\s*=\s*[^\n]*',
-                                    f'{name} = true', body)
-                  else:
-                      body += f'\n{name} = true\n'
-              text = text[:match.start(1)] + body + text[match.end(1):]
-          else:
-              text += '\n[auth.mfa.totp]\nenroll_enabled = true\nverify_enabled = true\n'
-          path.write_text(text)
-          PY
+        run: python scripts/security/enable_disposable_totp.py
       - name: Replay migrations in ephemeral local Supabase
         run: |
           npx --yes supabase@3.0.0 start
