@@ -72,11 +72,11 @@ def storage(api, jwt, method, path, data=None):
         return failure.code, failure.read()
 
 
-def storage_remove(api, jwt, path):
+def storage_remove(api, jwt, path, *, admin=False):
     """Use Storage API's batch DELETE endpoint, not an unsupported URL."""
     url = api.url + "/storage/v1/object/business-documents"
     headers = {
-        "apikey": api.public,
+        "apikey": api.admin if admin else api.public,
         "Authorization": "Bearer " + jwt,
         "Content-Type": "application/json",
     }
@@ -305,6 +305,54 @@ def main():
           status in (200, 204)
           and usage(api, owner_jwt, company) == 0)
     check("soft-removed object bytes remain protected historical evidence",
+          storage(api, owner_jwt, "GET", replacement)[0] == 200)
+
+    # Simulate crash after successful upload but before business metadata
+    # commit. Private cleanup claims must not sweep committed/historic files.
+    orphan_path = name(company, trip)
+    assert_reserved(api, owner_jwt, company, orphan_path)
+    check("orphan candidate bytes uploaded successfully",
+          storage(api, owner_jwt, "POST", orphan_path, DOCUMENT)[0] in (200, 201))
+    status, _ = release(api, owner_jwt, company, orphan_path)
+    check("failed/cancelled upload releases pending capacity",
+          status in (200, 204) and active_reserved(db, company) == 0)
+
+    status, _ = rpc(api, owner_jwt, "claim_business_document_cleanup",
+                    {"p_batch_limit": 25})
+    check("client cannot invoke cleanup service RPC", status >= 400)
+    psql(db, "UPDATE private.business_document_upload_reservations "
+         "SET released_at=now()-interval '20 minutes' "
+         "WHERE company_id='" + company + "' AND storage_reference='" +
+         orphan_path + "' AND state='released';")
+
+    status, claimed = api.call(
+        "POST", "/rest/v1/rpc/claim_business_document_cleanup",
+        admin=True, payload={"p_batch_limit": 25},
+    )
+    check("only stale and unreferenced reservation is claimable",
+          status == 200 and isinstance(claimed, list)
+          and len(claimed) == 1
+          and claimed[0].get("storage_reference") == orphan_path)
+    status, _ = storage_remove(api, api.admin, orphan_path, admin=True)
+    check("service-owned Storage cleanup removes the orphaned bytes",
+          status in (200, 204)
+          and storage(api, owner_jwt, "GET", orphan_path)[0] >= 400)
+    status, _ = api.call(
+        "POST", "/rest/v1/rpc/complete_business_document_cleanup",
+        admin=True,
+        payload={"p_company_id": company,
+                 "p_operation_id": claimed[0]["operation_id"]},
+    )
+    check("cleanup completion persists a durable terminal record",
+          status in (200, 204)
+          and psql(db, "SELECT state FROM "
+                   "private.business_document_upload_reservations "
+                   "WHERE company_id='" + company +
+                   "' AND storage_reference='" + orphan_path + "';")
+          == "cleaned")
+    check("cleanup cannot consume a live quota slot",
+          usage(api, owner_jwt, company) == 0)
+    check("cleanup leaves protected historical evidence readable",
           storage(api, owner_jwt, "GET", replacement)[0] == 200)
 
     check("a separate company retains independent document quota",
