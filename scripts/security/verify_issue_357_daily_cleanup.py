@@ -11,6 +11,7 @@ from verify_issue_365_local_http import check, local_stack, psql
 JOB_NAME = "horus-business-document-cleanup"
 OLD_SCHEDULE = "*/15 * * * *"
 DAILY_SCHEDULE = "10 2 * * *"
+MIDNIGHT_DUBAI_SCHEDULE = "0 20 * * *"
 
 
 def main():
@@ -19,6 +20,10 @@ def main():
                  / "supabase/migrations"
                  / "20261114190000_issue_357_daily_document_cleanup.sql")
     content = migration.read_text(encoding="utf-8")
+    midnight_migration = (Path(__file__).resolve().parents[2]
+                          / "supabase/migrations"
+                          / "20261114195441_issue_357_midnight_dubai_document_cleanup.sql")
+    midnight_content = midnight_migration.read_text(encoding="utf-8")
 
     check("local replay does not create a hosted cleanup job",
           psql(db, "SELECT count(*) FROM cron.job "
@@ -56,6 +61,23 @@ def main():
               psql(db, "SELECT schedule FROM cron.job WHERE jobid="
                    + job_id + ";") == DAILY_SCHEDULE)
 
+        psql(db, midnight_content)
+        check("midnight Dubai migration updates only the daily tick",
+              psql(db, "SELECT schedule FROM cron.job WHERE jobid="
+                   + job_id + ";") == MIDNIGHT_DUBAI_SCHEDULE)
+        check("midnight migration preserves command and Vault handling",
+              psql(db, "SELECT command FROM cron.job WHERE jobid="
+                   + job_id + ";") == original_command)
+        check("midnight migration preserves job identity, owner and active state",
+              psql(db, "SELECT count(*) FROM cron.job WHERE jobid="
+                   + job_id + " AND jobname='" + JOB_NAME
+                   + "' AND username='postgres' AND active;") == "1")
+
+        psql(db, midnight_content)
+        check("midnight migration safely replays",
+              psql(db, "SELECT schedule FROM cron.job WHERE jobid="
+                   + job_id + ";") == MIDNIGHT_DUBAI_SCHEDULE)
+
         psql(db, "SELECT cron.alter_job(job_id:=" + job_id
              + ",schedule:='" + OLD_SCHEDULE + "',active:=false);")
         psql(db, content)
@@ -63,14 +85,20 @@ def main():
               psql(db, "SELECT count(*) FROM cron.job WHERE jobid="
                    + job_id + " AND NOT active AND schedule='"
                    + OLD_SCHEDULE + "';") == "1")
+        psql(db, midnight_content)
+        check("midnight migration cannot reactivate disabled jobs",
+              psql(db, "SELECT count(*) FROM cron.job WHERE jobid="
+                   + job_id + " AND NOT active AND schedule='"
+                   + OLD_SCHEDULE + "';") == "1")
     finally:
         psql(db, "SELECT cron.unschedule('" + JOB_NAME + "');")
 
     psql(db, content)
+    psql(db, midnight_content)
     check("no job is created without environment configuration",
           psql(db, "SELECT count(*) FROM cron.job WHERE jobname='"
                + JOB_NAME + "';") == "0")
-    print("PASS Issue #357 daily cleanup schedule migration", flush=True)
+    print("PASS Issue #357 daily and midnight Dubai cleanup schedules", flush=True)
 
 
 if __name__ == "__main__":
