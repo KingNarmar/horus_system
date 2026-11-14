@@ -13,6 +13,8 @@ import '../cubit/current_company_cubit.dart';
 ///
 /// Kept above the Navigator so a protected deep link cannot bypass session
 /// validation, and route transitions cannot create duplicate subscriptions.
+/// Window focus/visibility alone never triggers validation; identity, membership,
+/// and connectivity signals remain the authoritative reconciliation triggers.
 final class CompanySessionLifecycleBoundary extends StatefulWidget {
   final Widget child;
 
@@ -24,42 +26,17 @@ final class CompanySessionLifecycleBoundary extends StatefulWidget {
 }
 
 final class _CompanySessionLifecycleBoundaryState
-    extends State<CompanySessionLifecycleBoundary>
-    with WidgetsBindingObserver {
+    extends State<CompanySessionLifecycleBoundary> {
   late final CurrentCompanyCubit _companyCubit;
   String? _activeUserId;
   int? _sessionRevision;
   int _identityGeneration = 0;
 
-  // An ordinary desktop focus change is inactive -> resumed. Only a genuine
-  // background/hidden transition should trigger a resume membership check.
-  bool _resumeRequiresRevalidation = false;
-
   @override
   void initState() {
     super.initState();
     _companyCubit = context.read<CurrentCompanyCubit>();
-    WidgetsBinding.instance.addObserver(this);
     _handleAuthState(context.read<AuthCubit>().state);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-        _resumeRequiresRevalidation = true;
-        break;
-      case AppLifecycleState.resumed:
-        if (!_resumeRequiresRevalidation) return;
-        _resumeRequiresRevalidation = false;
-        _revalidate();
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.detached:
-        // Losing window focus alone is not evidence of suspended execution.
-        break;
-    }
   }
 
   void _handleAuthState(AuthState state) {
@@ -113,7 +90,6 @@ final class _CompanySessionLifecycleBoundaryState
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _activeUserId = null;
     ++_identityGeneration;
     unawaited(_companyCubit.stopWatchingMembership());
