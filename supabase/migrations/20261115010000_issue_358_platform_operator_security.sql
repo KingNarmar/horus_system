@@ -338,7 +338,7 @@ RETURNS TABLE(
   membership_active boolean,membership_updated_at timestamptz
 )
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog
-AS $
+AS $$
 BEGIN
   PERFORM private.require_platform_operator('membership_recovery',true);
   IF p_company_id IS NULL OR p_membership_id IS NULL THEN
@@ -350,7 +350,7 @@ BEGIN
   FROM public.company_users m
   WHERE m.company_id=p_company_id AND m.id=p_membership_id;
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.platform_get_membership_for_recovery(uuid,uuid)
   FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.platform_get_membership_for_recovery(uuid,uuid)
