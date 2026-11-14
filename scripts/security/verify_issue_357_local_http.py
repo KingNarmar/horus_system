@@ -134,6 +134,13 @@ def main():
           psql(db, "SELECT count(*) FROM cron.job "
                    "WHERE jobname='horus-business-document-cleanup';") == "0")
 
+    check("idle cleanup has no HTTP work",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
+    check("tenants cannot read internal cleanup decision",
+          psql(db, "SELECT NOT has_function_privilege('authenticated', "
+                   "'private.business_document_cleanup_has_work()', "
+                   "'EXECUTE');") == "t")
+
     owner_id, owner_jwt = api.create_session("owner", nonce)
     foreign_id, foreign_jwt = api.create_session("foreign", nonce)
     viewer_id, viewer_jwt = api.create_session("viewer", nonce)
@@ -280,6 +287,9 @@ def main():
     check("pending uploads do not become committed usage",
           usage(api, owner_jwt, company) == 0 and active_reserved(db, company) == 49)
 
+    check("fresh active upload reservations are not ready for cleanup",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
+
     contenders = [name(company, trip), name(company, trip)]
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(
@@ -395,6 +405,8 @@ def main():
          "WHERE company_id='" + company + "' AND storage_reference='" +
          orphan_path + "' AND state='released';")
 
+    check("stale unreferenced released file triggers conditional cleanup",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "t")
     status, claimed = api.call(
         "POST", "/rest/v1/rpc/claim_business_document_cleanup",
         admin=True, payload={"p_batch_limit": 25},
@@ -403,6 +415,8 @@ def main():
           status == 200 and isinstance(claimed, list)
           and len(claimed) == 1
           and claimed[0].get("storage_reference") == orphan_path)
+    check("newly claimed work does not cause duplicate HTTP calls",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
     status, _ = storage_remove(api, api.admin, orphan_path, admin=True)
     check("service-owned Storage cleanup removes the orphaned bytes",
           status in (200, 204)
@@ -420,6 +434,8 @@ def main():
                    "WHERE company_id='" + company +
                    "' AND storage_reference='" + orphan_path + "';")
           == "cleaned")
+    check("completed cleanup no longer triggers HTTP",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
     check("cleanup cannot consume a live quota slot",
           usage(api, owner_jwt, company) == 0)
     check("cleanup leaves protected historical evidence readable",
@@ -457,6 +473,8 @@ def main():
         "WHERE company_id='" + company + "' "
         "AND storage_reference='" + abandoned_path + "';",
     )
+    check("expired upload from deleted account remains retryable",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "t")
     status, claims = api.call(
         "POST", "/rest/v1/rpc/claim_business_document_cleanup",
         admin=True, payload={"p_batch_limit": 25},
@@ -480,6 +498,8 @@ def main():
           status in (200, 204)
           and storage(api, owner_jwt, "GET", abandoned_path)[0] >= 400)
 
+    check("cleanup never calls Edge for terminal historical rows",
+          psql(db, "SELECT private.business_document_cleanup_has_work();") == "f")
     check("a separate company retains independent document quota",
           usage(api, foreign_jwt, other) == 0)
     print("PASS Issue #357 disposable signed-JWT document security", flush=True)
