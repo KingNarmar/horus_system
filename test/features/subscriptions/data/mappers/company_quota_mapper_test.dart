@@ -39,6 +39,7 @@ Map<String, dynamic> _payload() => {
     'routes': 3,
     'lifetime_trips': 29,
     'lifetime_invoices': 10,
+    'business_documents': 49,
   },
 };
 
@@ -62,6 +63,7 @@ void main() {
       snapshot.usageFor(EntitlementResource.lifetimeInvoices).remaining,
       0,
     );
+    expect(snapshot.usageFor(EntitlementResource.businessDocuments).remaining, 1);
     expect(snapshot.entitlement.policyVersion, 1);
   });
 
@@ -74,6 +76,15 @@ void main() {
         throwsFormatException,
       );
     }
+  });
+
+  test('missing document occupancy fails closed', () {
+    final payload = _payload();
+    (payload['usage'] as Map<String, dynamic>).remove('business_documents');
+    expect(
+      () => CompanyQuotaMapper.toEntity(CompanyQuotaSnapshotModel(payload)),
+      throwsFormatException,
+    );
   });
 
   test('corrupt entitlement cannot be replaced with default limits', () {

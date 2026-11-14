@@ -47,6 +47,11 @@ abstract final class CompanyQuotaMapper {
           limit: entitlement.limitFor(EntitlementResource.lifetimeInvoices),
           used: usage[CompanyQuotaRpc.lifetimeInvoices] as int,
         ),
+        EntitlementResource.businessDocuments: CompanyQuotaUsage(
+          resource: EntitlementResource.businessDocuments,
+          limit: entitlement.limitFor(EntitlementResource.businessDocuments),
+          used: usage[CompanyQuotaRpc.businessDocuments] as int,
+        ),
       },
     );
   }

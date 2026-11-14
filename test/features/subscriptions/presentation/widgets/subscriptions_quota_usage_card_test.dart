@@ -44,6 +44,7 @@ CompanyQuotaSnapshot _quota() {
         EntitlementResource.routes,
         EntitlementResource.lifetimeTrips,
         EntitlementResource.lifetimeInvoices,
+        EntitlementResource.businessDocuments,
       ])
         resource: CompanyQuotaUsage(
           resource: resource,
@@ -93,6 +94,10 @@ void main() {
         );
         expect(
           find.text(locale.languageCode == 'ar' ? 'المسارات' : 'Routes'),
+          findsOneWidget,
+        );
+        expect(
+          find.text(locale.languageCode == 'ar' ? 'مستندات الأعمال' : 'Business documents'),
           findsOneWidget,
         );
         expect(
