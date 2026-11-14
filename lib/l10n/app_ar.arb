@@ -390,6 +390,8 @@
   "fleetUnknownUser": "مستخدم غير معروف",
   "fleetNotAvailable": "غير متاح",
   "fleetChanges": "التغييرات",
+  "fleetAuditPreviousValueLabel": "قبل",
+  "fleetAuditNewValueLabel": "بعد",
   "fleetDetailsTitle": "تفاصيل الأصل: {plateNumber}",
   "@fleetDetailsTitle": {"placeholders": {"plateNumber": {"type": "String"}}},
   "fleetAuditActionCreated": "تم الإنشاء",
