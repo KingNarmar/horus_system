@@ -9,6 +9,7 @@ import '../../domain/entities/fleet_license_document.dart';
 import '../../domain/entities/fleet_license_document_file_side.dart';
 import '../cubit/fleet_license_documents_cubit.dart';
 import '../cubit/fleet_license_documents_state.dart';
+import '../helpers/fleet_business_date_formatter.dart';
 import '../helpers/fleet_license_document_failure_message.dart';
 import 'fleet_license_document_file_slot.dart';
 
@@ -42,7 +43,11 @@ final class FleetLicenseDocumentsSection extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   l10n.fleetLicenseExpiryCurrent(
-                    _dateText(currentLicenseExpiryDate, l10n.fleetNotAvailable),
+                    FleetBusinessDateFormatter.formatOrFallback(
+                      context,
+                      currentLicenseExpiryDate,
+                      fallback: l10n.fleetNotAvailable,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -185,9 +190,3 @@ Future<void> _confirmRemove(
   }
 }
 
-String _dateText(BusinessDate? value, String fallback) {
-  if (value == null) return fallback;
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
