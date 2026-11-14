@@ -267,6 +267,42 @@ def main():
     check("expiry reverts only FUTURE route capacity",
           effective(api, owner_token, company)["limits"]["routes"] == 10)
 
+    # Two distinct operator requests with the SAME expected revision
+    # must not both win even if they target different resource scopes.
+    contenders = (("drivers", 6), ("combined_vehicles", 7))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        attempts = list(pool.map(
+            lambda item: grant(api, aal2, company, 4, "resource",
+                               item[0], item[1], str(uuid.uuid4())),
+            contenders
+        ))
+    accepted = [body for status, body in attempts if status == 200]
+    rejected = [body for status, body in attempts if status >= 400]
+    check("different simultaneous grants are serialized by revision",
+          len(accepted) == 1 and len(rejected) == 1
+          and rejected[0].get("code") == "P3583"
+          and accepted[0]["revision"] == 5)
+    status, _ = revoke(api, aal2, company, accepted[0]["override_id"], 5)
+    check("concurrent winning resource grant is reversible",
+          status == 200
+          and effective(api, owner_token, company)["revision"] == 6)
+
+    # A temporary premium feature is an entitlement declaration only.
+    # It must not modify immutable Free Starter output feature rights.
+    status, feature = grant(
+        api, aal2, company, 6, "feature", "advanced_reports", True,
+        str(uuid.uuid4())
+    )
+    check("operator can enable approved feature", status == 200
+          and "advanced_reports" in
+          effective(api, owner_token, company)["enabled_features"]
+          and "invoice_pdf" in
+          effective(api, owner_token, company)["enabled_features"])
+    status, _ = revoke(api, aal2, company, feature["override_id"], 7)
+    check("feature revocation restores baseline", status == 200
+          and "advanced_reports" not in
+          effective(api, owner_token, company)["enabled_features"])
+
     denied(onboard(api, owner_token, str(uuid.uuid4()),
                    "HORUS358-Unapproved-" + nonce), "P2836",
            "second owner-created company rejected without operator exception")
