@@ -8,7 +8,6 @@ import base64
 import concurrent.futures
 import hashlib
 import hmac
-import json
 import secrets
 import struct
 import time
@@ -120,66 +119,6 @@ def create_customer(api, jwt, company, name):
 
 
 
-def diagnose_local_operator_request(api, jwt, db):
-    """Temporary Boolean-only diagnostic RPC in a VERIFIED disposable DB.
-
-    This function is never committed as a migration and is removed in finally.
-    It reveals no IDs, tokens, factor secrets or tenant business fields.
-    """
-    ddl = """
-    CREATE OR REPLACE FUNCTION public.local_issue_358_auth_debug()
-    RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER
-    SET search_path=pg_catalog AS $$
-      SELECT pg_catalog.jsonb_build_object(
-        'uid_present',auth.uid() IS NOT NULL,
-        'jwt_sub_match',auth.jwt()->>'sub'=auth.uid()::text,
-        'jwt_role_ok',auth.jwt()->>'role'='authenticated',
-        'jwt_aal2',auth.jwt()->>'aal'='aal2',
-        'jwt_session_format',auth.jwt()->>'session_id'
-          ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-        'jwt_exp_format',coalesce(auth.jwt()->>'exp','')
-          ~ '^[0-9]+$',
-        'jwt_exp_future',(auth.jwt()->>'exp')::bigint
-          > extract(epoch from now()),
-        'operator_permission', EXISTS (
-          SELECT 1 FROM private.platform_operator_access o
-          WHERE o.user_id=auth.uid() AND o.revoked_at IS NULL
-            AND 'tenant_read'=ANY(o.permissions)
-        ),
-        'operator_flag', EXISTS (
-          SELECT 1 FROM public.user_profiles p
-          WHERE p.id=auth.uid() AND p.is_platform_admin IS TRUE
-        ),
-        'session_factor_join', EXISTS (
-          SELECT 1 FROM auth.sessions s
-          JOIN auth.mfa_factors f ON f.id=s.factor_id
-             AND f.user_id=s.user_id
-          WHERE s.id=(auth.jwt()->>'session_id')::uuid
-            AND s.user_id=auth.uid()
-            AND (s.not_after IS NULL OR s.not_after>now())
-            AND s.aal::text='aal2'
-            AND f.status::text='verified'
-        ),
-        'operator_gate',private.platform_operator_authorized('tenant_read',false)
-      )
-    $$;
-    REVOKE ALL ON FUNCTION public.local_issue_358_auth_debug()
-      FROM PUBLIC,anon,authenticated;
-    GRANT EXECUTE ON FUNCTION public.local_issue_358_auth_debug()
-      TO authenticated;
-    """
-    psql(db, ddl)
-    # PostgREST doesn't discover temporary SQL routines until schema reload.
-    psql(db, "SELECT pg_notify('pgrst','reload schema');")
-    time.sleep(1)
-    try:
-        status, result = rpc(api, jwt, "local_issue_358_auth_debug", {})
-        print("DIAGNOSTIC disposable REST SQL checks:", status, result,
-              flush=True)
-    finally:
-        psql(db, "DROP FUNCTION IF EXISTS public.local_issue_358_auth_debug();")
-        psql(db, "SELECT pg_notify('pgrst','reload schema');")
-
 def main():
     url, public, admin, db = local_stack()
     api = LocalApi(url, public, admin)
@@ -230,75 +169,6 @@ def main():
 
     aal2 = elevate_to_aal2(api, aal1)
     status, listed = rpc(api, aal2, "platform_list_tenants", directory_args)
-    if status != 200 or not isinstance(listed, list):
-        # Safe, local-only diagnostics. Never reveal JWTs, IDs or MFA secrets.
-        factor_state = psql(db,
-            "SELECT row_to_json(t)::text FROM (SELECT "
-            "count(*) AS sessions, "
-            "count(*) FILTER (WHERE s.aal::text='aal2') AS session_aal2, "
-            "count(*) FILTER (WHERE s.factor_id IS NOT NULL) AS factor_attached, "
-            "count(*) FILTER (WHERE f.status::text='verified') AS verified_factor, "
-            "count(*) FILTER (WHERE f.last_challenged_at>now()-interval '15 minutes') "
-            "AS recent_challenge "
-            "FROM auth.sessions s LEFT JOIN auth.mfa_factors f ON f.id=s.factor_id "
-            "WHERE s.user_id='" + operator_id + "') t;")
-        error = listed if isinstance(listed, dict) else {}
-        # Only boolean diagnostics and non-sensitive auth assurance values.
-        claims_raw = aal2.split(".")[1]
-        claims = json.loads(base64.urlsafe_b64decode(
-            claims_raw + "=" * (-len(claims_raw) % 4)))
-        claim_state = {
-            "aal": claims.get("aal"), "role": claims.get("role"),
-            "sub_matches": claims.get("sub") == operator_id,
-            "session_present": bool(claims.get("session_id")),
-            "exp_numeric": isinstance(claims.get("exp"), int),
-            "exp_future": isinstance(claims.get("exp"), int)
-                          and claims["exp"] > time.time()
-        }
-        database_state = psql(db,
-            "SELECT row_to_json(t)::text FROM (SELECT "
-            "EXISTS(SELECT 1 FROM private.platform_operator_access o "
-            " WHERE o.user_id='" + operator_id + "' "
-            " AND o.revoked_at IS NULL "
-            " AND 'tenant_read'=ANY(o.permissions)) AS access_allowed, "
-            "EXISTS(SELECT 1 FROM public.user_profiles p "
-            " WHERE p.id='" + operator_id + "' "
-            " AND p.is_platform_admin IS TRUE) AS profile_allowed, "
-            "EXISTS(SELECT 1 FROM auth.users u "
-            " WHERE u.id='" + operator_id + "' "
-            " AND u.deleted_at IS NULL AND u.is_anonymous IS NOT TRUE "
-            " AND (u.banned_until IS NULL OR u.banned_until<=now())) "
-            " AS account_allowed) t;")
-        session_id = str(uuid.UUID(claims["session_id"]))
-        session_checks = psql(db,
-            "SELECT row_to_json(t)::text FROM (SELECT "
-            "EXISTS(SELECT 1 FROM auth.sessions s "
-            " WHERE s.id='" + session_id + "' AND s.user_id='"
-            + operator_id + "') AS exact_session, "
-            "EXISTS(SELECT 1 FROM auth.sessions s "
-            " WHERE s.id='" + session_id + "' AND "
-            " (s.not_after IS NULL OR s.not_after>now())) AS session_valid, "
-            "EXISTS(SELECT 1 FROM auth.sessions s "
-            " JOIN auth.mfa_factors f ON f.id=s.factor_id "
-            " WHERE s.id='" + session_id + "' "
-            " AND s.user_id=f.user_id "
-            " AND s.aal::text='aal2' AND f.status::text='verified') "
-            " AS matching_verified_factor) t;")
-        # Freshness tied to THIS signed JWT's own amr, not other sessions.
-        claim_state["recent_totp_amr"] = any(
-            m.get("method") == "totp" and
-            isinstance(m.get("timestamp"), int) and
-            m["timestamp"] >= time.time() - 900
-            for m in claims.get("amr", [])
-        )
-        print("DIAGNOSTIC operator directory: HTTP", status,
-              "error_code", error.get("code"),
-              "error_message", error.get("message"),
-              "claim_state", claim_state,
-              "session_factor_state", factor_state,
-              "database_state", database_state,
-              "session_checks", session_checks, flush=True)
-        diagnose_local_operator_request(api, aal2, db)
     check("verified operator gets minimal directory",
           status == 200 and isinstance(listed, list)
           and any(row.get("company_id") == company for row in listed)
