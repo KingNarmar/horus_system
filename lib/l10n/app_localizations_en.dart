@@ -1165,6 +1165,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fleetChanges => 'Changes';
 
   @override
+  String get fleetAuditPreviousValueLabel => 'Before';
+
+  @override
+  String get fleetAuditNewValueLabel => 'After';
+
+  @override
   String fleetDetailsTitle(String plateNumber) {
     return 'Fleet asset details: $plateNumber';
   }
