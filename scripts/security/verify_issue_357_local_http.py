@@ -137,6 +137,48 @@ def main():
         "Trip quota fixture",
     )["id"]
 
+    # Negative direct Data API mutations may not reassign a reserved Driver
+    # licence image to a different Driver or an unrelated ID-image field.
+    driver_a = psql(db, "INSERT INTO public.drivers(company_id,full_name) "
+                    "VALUES('" + company + "','HORUS357-A') RETURNING id;")
+    driver_b = psql(db, "INSERT INTO public.drivers(company_id,full_name) "
+                    "VALUES('" + company + "','HORUS357-B') RETURNING id;")
+    driver_path = ("companies/" + company + "/drivers/" + driver_a +
+                   "/license-front/1790000000000000.png")
+    status, leased = rpc(api, owner_jwt, "reserve_business_document_upload", {
+        "p_company_id": company,
+        "p_operation_id": str(uuid.uuid4()),
+        "p_bucket_id": "driver-documents",
+        "p_storage_reference": driver_path,
+        "p_replaces_reference": None,
+    })
+    check("Driver identity upload reservation is tenant-scoped",
+          status == 200 and leased.get("state") == "reserved")
+    status, body = api.call(
+        "PATCH", "/rest/v1/drivers", token=owner_jwt,
+        query={"company_id": "eq." + company, "id": "eq." + driver_b,
+               "select": "id"},
+        payload={"license_image_path": driver_path},
+    )
+    check("Driver B cannot attach Driver A reserved licence image",
+          status >= 400 and isinstance(body, dict)
+          and body.get("code") == "P2873")
+    status, body = api.call(
+        "PATCH", "/rest/v1/drivers", token=owner_jwt,
+        query={"company_id": "eq." + company, "id": "eq." + driver_a,
+               "select": "id"},
+        payload={"national_id_back_image_path": driver_path},
+    )
+    check("driver licence cannot be attached into a national ID field",
+          status >= 400 and isinstance(body, dict)
+          and body.get("code") == "P2873")
+    check("forged attachment does not consume pending or committed quota",
+          usage(api, owner_jwt, company) == 0
+          and active_reserved(db, company) == 1)
+    release(api, owner_jwt, company, driver_path)
+    check("negative Driver attachment leaves no reserved capacity",
+          active_reserved(db, company) == 0)
+
     check("document usage starts at zero",
           usage(api, owner_jwt, company) == 0)
     denied(rpc(api, foreign_jwt, "get_company_quota_usage",
