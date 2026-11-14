@@ -130,54 +130,78 @@ FOR EACH ROW EXECUTE FUNCTION private.audit_platform_operator_access();
 -- Verify the *current* server-owned operator privilege, active user, live
 -- session and verified MFA factor on EACH protected RPC. Sensitive mutations
 -- additionally require a recent MFA challenge (not merely token refresh).
+-- Use a single claim snapshot and declarative, reviewable predicates.
+-- Both current operator privileges and the actual GoTrue session are checked
+-- on every call. Sensitive actions require MFA evidence from THIS JWT, not
+-- another device's last challenge timestamp.
 CREATE FUNCTION private.platform_operator_authorized(
   p_permission text, p_sensitive boolean DEFAULT false
 )
-RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER
-SET search_path = pg_catalog
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path=pg_catalog
 AS $$
-DECLARE
-  v_actor uuid := auth.uid();
-  v_claims jsonb := auth.jwt();
-  v_session_id text := auth.jwt()->>'session_id';
-BEGIN
-  IF v_actor IS NULL
-    OR p_permission IS NULL
-    OR v_session_id IS NULL
-    OR v_session_id !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-    OR v_claims->>'sub' IS DISTINCT FROM v_actor::text
-    OR v_claims->>'role' IS DISTINCT FROM 'authenticated'
-    OR v_claims->>'aal' IS DISTINCT FROM 'aal2'
-    OR COALESCE(v_claims->>'exp','') !~ '^[0-9]+$'
-    OR (v_claims->>'exp')::bigint <= extract(epoch FROM now())
-  THEN
-    RETURN false;
-  END IF;
-
-  RETURN EXISTS (
+WITH principal AS MATERIALIZED (
+  SELECT auth.uid() AS actor, auth.jwt() AS jwt
+), claims AS MATERIALIZED (
+  SELECT
+    p.actor,p.jwt,
+    CASE WHEN p.jwt->>'session_id' ~*
+      '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      THEN (p.jwt->>'session_id')::uuid ELSE NULL END AS session_id,
+    CASE WHEN coalesce(p.jwt->>'exp','') ~ '^[0-9]+$'
+      THEN (p.jwt->>'exp')::bigint ELSE NULL END AS expires_epoch
+  FROM principal p
+)
+SELECT coalesce(
+  c.actor IS NOT NULL
+  AND p_permission IS NOT NULL
+  AND p_sensitive IS NOT NULL
+  AND c.session_id IS NOT NULL
+  AND c.jwt->>'sub'=c.actor::text
+  AND c.jwt->>'role'='authenticated'
+  AND c.jwt->>'aal'='aal2'
+  AND c.expires_epoch>extract(epoch FROM pg_catalog.now())
+  AND EXISTS (
     SELECT 1 FROM private.platform_operator_access access
     JOIN public.user_profiles profile ON profile.id=access.user_id
     JOIN auth.users account ON account.id=access.user_id
-    JOIN auth.sessions session ON session.id=v_session_id::uuid
+    JOIN auth.sessions session ON session.id=c.session_id
       AND session.user_id=access.user_id
     JOIN auth.mfa_factors factor ON factor.id=session.factor_id
       AND factor.user_id=access.user_id
-    WHERE access.user_id=v_actor
+    WHERE access.user_id=c.actor
       AND access.revoked_at IS NULL
       AND p_permission=ANY(access.permissions)
       AND profile.is_platform_admin IS TRUE
       AND account.deleted_at IS NULL
       AND account.is_anonymous IS NOT TRUE
-      AND (account.banned_until IS NULL OR account.banned_until<=now())
-      AND (session.not_after IS NULL OR session.not_after>now())
+      AND (account.banned_until IS NULL
+           OR account.banned_until<=pg_catalog.now())
+      AND (session.not_after IS NULL
+           OR session.not_after>pg_catalog.now())
       AND session.aal::text='aal2'
       AND factor.status::text='verified'
-      AND (NOT p_sensitive OR (
-        factor.last_challenged_at IS NOT NULL
-        AND factor.last_challenged_at >= now()-interval '15 minutes'
-      ))
-  );
-END;
+      AND (
+        p_sensitive IS FALSE
+        OR (
+          factor.last_challenged_at IS NOT NULL
+          AND factor.last_challenged_at>=pg_catalog.now()-interval '15 minutes'
+          AND EXISTS (
+            SELECT 1 FROM pg_catalog.jsonb_array_elements(
+              CASE WHEN pg_catalog.jsonb_typeof(c.jwt->'amr')='array'
+                THEN c.jwt->'amr' ELSE '[]'::jsonb END
+            ) m
+            WHERE m->>'method'='totp'
+              AND coalesce(m->>'timestamp','') ~ '^[0-9]+$'
+              AND (m->>'timestamp')::bigint >=
+                extract(epoch FROM pg_catalog.now()-interval '15 minutes')
+              AND (m->>'timestamp')::bigint <=
+                extract(epoch FROM pg_catalog.now()+interval '1 minute')
+          )
+        )
+      )
+  ),false)
+FROM claims c;
 $$;
 REVOKE ALL ON FUNCTION private.platform_operator_authorized(text,boolean)
   FROM PUBLIC,anon,authenticated;
