@@ -169,6 +169,23 @@ def main():
 
     aal2 = elevate_to_aal2(api, aal1)
     status, listed = rpc(api, aal2, "platform_list_tenants", directory_args)
+    if status != 200 or not isinstance(listed, list):
+        # Safe, local-only diagnostics. Never reveal JWTs, IDs or MFA secrets.
+        factor_state = psql(db,
+            "SELECT row_to_json(t)::text FROM (SELECT "
+            "count(*) AS sessions, "
+            "count(*) FILTER (WHERE s.aal::text='aal2') AS session_aal2, "
+            "count(*) FILTER (WHERE s.factor_id IS NOT NULL) AS factor_attached, "
+            "count(*) FILTER (WHERE f.status::text='verified') AS verified_factor, "
+            "count(*) FILTER (WHERE f.last_challenged_at>now()-interval '15 minutes') "
+            "AS recent_challenge "
+            "FROM auth.sessions s LEFT JOIN auth.mfa_factors f ON f.id=s.factor_id "
+            "WHERE s.user_id='" + operator_id + "') t;")
+        error = listed if isinstance(listed, dict) else {}
+        print("DIAGNOSTIC operator directory: HTTP", status,
+              "error_code", error.get("code"),
+              "error_message", error.get("message"),
+              "session_factor_state", factor_state, flush=True)
     check("verified operator gets minimal directory",
           status == 200 and isinstance(listed, list)
           and any(row.get("company_id") == company for row in listed)
