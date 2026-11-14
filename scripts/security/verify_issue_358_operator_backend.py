@@ -6,6 +6,7 @@ Secrets, JWTs and MFA enrollment material are never printed.
 """
 import base64
 import concurrent.futures
+import json
 import hashlib
 import hmac
 import secrets
@@ -211,6 +212,35 @@ def main():
                  "customers", 12, str(uuid.uuid4())), "42501",
            "owner cannot grant entitlement")
 
+    # Expired session and old MFA challenge must fail independently.
+    # All updates touch ONLY the disposable local GoTrue database.
+    session_payload = aal2.split(".")[1]
+    session_claims = json.loads(base64.urlsafe_b64decode(
+        session_payload + "=" * (-len(session_payload) % 4)
+    ))
+    session_id = str(uuid.UUID(session_claims["session_id"]))
+    psql(db, "UPDATE auth.sessions SET not_after=now()-interval '1 minute' "
+         "WHERE id='" + session_id + "';")
+    denied(rpc(api, aal2, "platform_list_tenants", directory_args),
+           "42501", "signed AAL2 token cannot outlive its DB session")
+    psql(db, "UPDATE auth.sessions SET not_after=NULL WHERE id='"
+         + session_id + "';")
+    status, _ = rpc(api, aal2, "platform_list_tenants", directory_args)
+    check("restored local session allows scoped directory", status == 200)
+
+    psql(db, "UPDATE auth.mfa_factors SET last_challenged_at="
+         "now()-interval '16 minutes' WHERE id=(SELECT factor_id "
+         "FROM auth.sessions WHERE id='" + session_id + "');")
+    denied(grant(api, aal2, company, 1, "resource", "customers", 12,
+                 str(uuid.uuid4())), "42501",
+           "expired MFA step-up cannot mutate entitlements")
+    psql(db, "UPDATE auth.mfa_factors SET last_challenged_at=now() "
+         "WHERE id=(SELECT factor_id FROM auth.sessions WHERE id='"
+         + session_id + "');")
+    check("denied expired-MFA grant produces no audit",
+          operator_audit_count(
+              db, company, "entitlement_override_granted") == 0)
+
     request_id = str(uuid.uuid4())
     args = (api, aal2, company, 1, "resource", "customers", 12, request_id)
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
@@ -336,6 +366,36 @@ def main():
     check("creation ledger preserved both companies", psql(
         db, "SELECT count(*) FROM private.company_creation_ledger WHERE "
         "creator_user_id='" + owner_id + "';") == "2")
+
+    # A separately approved read-only operator cannot inherit arbitrary
+    # write/usage powers. A session deleted from GoTrue is invalid immediately
+    # even while its signed JWT has not expired.
+    limited_id, limited_aal1 = api.create_session("limited_operator", nonce)
+    psql(db, "UPDATE public.user_profiles SET is_platform_admin=true "
+         "WHERE id='" + limited_id + "';")
+    psql(db, "INSERT INTO private.platform_operator_access "
+         "(user_id,permissions,approved_reason) VALUES('"
+         + limited_id + "',ARRAY['tenant_read']::text[],"
+         "'Disposable read-only operator permission check');")
+    limited_jwt = elevate_to_aal2(api, limited_aal1)
+    status, _ = rpc(api, limited_jwt, "platform_list_tenants",
+                    directory_args)
+    check("read-only operator can list tenants", status == 200)
+    denied(rpc(api, limited_jwt, "platform_get_company_usage",
+               {"p_company_id": company}), "42501",
+           "read-only operator cannot read usage without scope")
+    denied(grant(api, limited_jwt, company, 8, "resource", "drivers",
+                 7, str(uuid.uuid4())), "42501",
+           "read-only operator cannot grant quotas")
+    limited_claims_raw = limited_jwt.split(".")[1]
+    limited_claims = json.loads(base64.urlsafe_b64decode(
+        limited_claims_raw + "=" * (-len(limited_claims_raw) % 4)
+    ))
+    limited_session = str(uuid.UUID(limited_claims["session_id"]))
+    psql(db, "DELETE FROM auth.sessions WHERE id='"
+         + limited_session + "';")
+    denied(rpc(api, limited_jwt, "platform_list_tenants", directory_args),
+           "42501", "revoked server session invalidates a signed JWT")
 
     # Operator identity is checked from server data EACH time, not a stale
     # role claim. Test same still-valid AAL2 JWT after security revocation.
