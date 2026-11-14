@@ -51,7 +51,9 @@ def usage(api, jwt, company):
 
 def storage(api, jwt, method, path, data=None):
     """Exercise the same Storage REST upload/download boundary as Flutter."""
-    url = api.url + "/storage/v1/object/" + urllib.parse.quote(
+    endpoint = ("/storage/v1/object/authenticated/" if method == "GET"
+                else "/storage/v1/object/")
+    url = api.url + endpoint + urllib.parse.quote(
         "business-documents/" + path, safe="/"
     )
     headers = {
@@ -63,6 +65,25 @@ def storage(api, jwt, method, path, data=None):
         headers["x-upsert"] = "false"
     request = urllib.request.Request(url, data=data, headers=headers,
                                      method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return response.status, response.read()
+    except urllib.error.HTTPError as failure:
+        return failure.code, failure.read()
+
+
+def storage_remove(api, jwt, path):
+    """Use Storage API's batch DELETE endpoint, not an unsupported URL."""
+    url = api.url + "/storage/v1/object/business-documents"
+    headers = {
+        "apikey": api.public,
+        "Authorization": "Bearer " + jwt,
+        "Content-Type": "application/json",
+    }
+    request = urllib.request.Request(
+        url, data=json.dumps({"prefixes": [path]}).encode(),
+        headers=headers, method="DELETE"
+    )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             return response.status, response.read()
@@ -213,7 +234,8 @@ def main():
     check("historical file remains readable (retention)",
           storage(api, owner_jwt, "GET", chosen)[0] == 200)
     check("committed object cannot be deleted through direct Storage",
-          storage(api, owner_jwt, "DELETE", replacement)[0] >= 400)
+          storage_remove(api, owner_jwt, replacement)[0] >= 400
+          and storage(api, owner_jwt, "GET", replacement)[0] == 200)
 
     for item in pending[1:] + [winner_path]:
         status, _ = release(api, owner_jwt if item in pending else operations_jwt,
