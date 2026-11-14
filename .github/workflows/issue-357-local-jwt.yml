@@ -7,6 +7,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_357_local_http.py'
+      - 'supabase/functions/business-document-cleanup/**'
       - '.github/workflows/issue-357-local-jwt.yml'
 
 permissions:
@@ -48,3 +49,13 @@ jobs:
           if test -e supabase/config.toml; then
             npx --yes supabase@3.0.0 stop --no-backup || true
           fi
+
+  edge-typecheck:
+    name: Document cleanup Edge function typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/business-document-cleanup/index.ts
