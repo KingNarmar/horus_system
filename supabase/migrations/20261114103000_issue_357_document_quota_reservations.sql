@@ -498,6 +498,9 @@ $$;
 
 REVOKE ALL ON FUNCTION private.business_document_upload_kind(text,text)
   FROM PUBLIC,anon,authenticated;
+-- Storage INSERT RLS invokes this helper as authenticated.
+GRANT EXECUTE ON FUNCTION private.business_document_upload_kind(text,text)
+  TO authenticated;
 REVOKE ALL ON FUNCTION private.business_document_upload_target_allowed(uuid,text,text)
   FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON FUNCTION private.business_document_replacement_allowed(uuid,text,text,text)
