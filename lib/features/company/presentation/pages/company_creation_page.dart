@@ -111,7 +111,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         if (state is CompanyOnboardingCreated &&
             _logoUploadErrorMessage != null) {
           final brandingL10n = context.companyBrandingL10n;
-          final mustVerify = _logoUploadFailureCode ==
+          final mustVerify =
+              _logoUploadFailureCode ==
                   CompanyBrandingFailureCodes.uploadCompletionUnknown ||
               _logoUploadFailureCode ==
                   CompanyBrandingFailureCodes.uploadCleanupPending;
@@ -134,7 +135,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
                     const SizedBox(height: AppSpacing.lg),
                     if (!mustVerify) ...[
                       OutlinedButton(
-                        onPressed: () => _uploadCreatedCompanyLogo(state.company),
+                        onPressed: () =>
+                            _uploadCreatedCompanyLogo(state.company),
                         child: Text(brandingL10n.uploadRetry),
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -290,8 +292,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
       setState(() {
         _logoUploadInFlight = false;
         _logoUploadFailureCode = failure.code;
-        _logoUploadErrorMessage =
-            context.companyBrandingL10n.errorMessage(failure);
+        _logoUploadErrorMessage = context.companyBrandingL10n.errorMessage(
+          failure,
+        );
       });
       return;
     }

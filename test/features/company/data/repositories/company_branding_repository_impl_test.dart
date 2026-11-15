@@ -11,30 +11,37 @@ import 'package:test/test.dart';
 void main() {
   const companyId = '11111111-1111-1111-1111-111111111111';
   CompanyBrandLogoFile validLogo() => CompanyBrandLogoFile(
-        fileName: 'logo.png',
-        bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
+    fileName: 'logo.png',
+    bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
+  );
+
+  test(
+    'uploads only after reservation then commits immutable company key',
+    () async {
+      final source = _FakeBrandingSource();
+      final repo = CompanyBrandingRepositoryImpl(source);
+      final result = await repo.updateLogo(
+        companyId: companyId,
+        expectedLogoPath: null,
+        logo: validLogo(),
       );
 
-  test('uploads only after reservation then commits immutable company key',
-      () async {
-    final source = _FakeBrandingSource();
-    final repo = CompanyBrandingRepositoryImpl(source);
-    final result = await repo.updateLogo(
-      companyId: companyId,
-      expectedLogoPath: null,
-      logo: validLogo(),
-    );
-
-    expect(result.isSuccess, isTrue);
-    expect(source.events, ['reserve', 'upload', 'setLogo']);
-    expect(source.lastUploadPath, matches(RegExp(
-      r'^companies/11111111-1111-1111-1111-111111111111/logos/'
-      r'[0-9a-f-]{36}[.]png$',
-    )));
-    expect(source.lastContentType, 'image/png');
-    expect(result.dataOrNull?.logoPath, source.lastUploadPath);
-    expect(source.removedPaths, isEmpty);
-  });
+      expect(result.isSuccess, isTrue);
+      expect(source.events, ['reserve', 'upload', 'setLogo']);
+      expect(
+        source.lastUploadPath,
+        matches(
+          RegExp(
+            r'^companies/11111111-1111-1111-1111-111111111111/logos/'
+            r'[0-9a-f-]{36}[.]png$',
+          ),
+        ),
+      );
+      expect(source.lastContentType, 'image/png');
+      expect(result.dataOrNull?.logoPath, source.lastUploadPath);
+      expect(source.removedPaths, isEmpty);
+    },
+  );
 
   test('Storage failure compensates both bytes and upload lease', () async {
     final source = _FakeBrandingSource()..uploadError = StateError('offline');
@@ -59,25 +66,36 @@ void main() {
       expectedLogoPath: null,
       logo: validLogo(),
     );
-    expect(result.failureOrNull?.code,
-        CompanyBrandingFailureCodes.profileConflict);
-    expect(source.events, ['reserve', 'upload', 'setLogo', 'remove', 'release']);
+    expect(
+      result.failureOrNull?.code,
+      CompanyBrandingFailureCodes.profileConflict,
+    );
+    expect(source.events, [
+      'reserve',
+      'upload',
+      'setLogo',
+      'remove',
+      'release',
+    ]);
   });
 
-  test('unknown HTTP result is reconciled if server already committed', () async {
-    final source = _FakeBrandingSource()
-      ..commitBeforeSetError = true
-      ..setError = StateError('response lost');
-    final result = await CompanyBrandingRepositoryImpl(source).updateLogo(
-      companyId: companyId,
-      expectedLogoPath: null,
-      logo: validLogo(),
-    );
-    expect(result.isSuccess, isTrue);
-    expect(result.dataOrNull?.logoPath, source.lastUploadPath);
-    expect(source.events, ['reserve', 'upload', 'setLogo', 'loadProfile']);
-    expect(source.removedPaths, isEmpty);
-  });
+  test(
+    'unknown HTTP result is reconciled if server already committed',
+    () async {
+      final source = _FakeBrandingSource()
+        ..commitBeforeSetError = true
+        ..setError = StateError('response lost');
+      final result = await CompanyBrandingRepositoryImpl(source).updateLogo(
+        companyId: companyId,
+        expectedLogoPath: null,
+        logo: validLogo(),
+      );
+      expect(result.isSuccess, isTrue);
+      expect(result.dataOrNull?.logoPath, source.lastUploadPath);
+      expect(source.events, ['reserve', 'upload', 'setLogo', 'loadProfile']);
+      expect(source.removedPaths, isEmpty);
+    },
+  );
 
   test('unresolved write never deletes possibly issued logo bytes', () async {
     final source = _FakeBrandingSource()
@@ -88,8 +106,10 @@ void main() {
       expectedLogoPath: null,
       logo: validLogo(),
     );
-    expect(result.failureOrNull?.code,
-        CompanyBrandingFailureCodes.uploadCompletionUnknown);
+    expect(
+      result.failureOrNull?.code,
+      CompanyBrandingFailureCodes.uploadCompletionUnknown,
+    );
     expect(source.events, ['reserve', 'upload', 'setLogo', 'loadProfile']);
     expect(source.removedPaths, isEmpty);
   });
@@ -103,8 +123,10 @@ void main() {
       expectedLogoPath: null,
       logo: validLogo(),
     );
-    expect(result.failureOrNull?.code,
-        CompanyBrandingFailureCodes.uploadCleanupPending);
+    expect(
+      result.failureOrNull?.code,
+      CompanyBrandingFailureCodes.uploadCleanupPending,
+    );
     expect(source.events, ['reserve', 'upload', 'remove', 'release']);
   });
 

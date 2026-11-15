@@ -174,9 +174,7 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
       // A read failure cannot prove the mutation was rolled back.
     }
     return const FailureResult(
-      ServerFailure(
-        code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
-      ),
+      ServerFailure(code: CompanyBrandingFailureCodes.uploadCompletionUnknown),
     );
   }
 
