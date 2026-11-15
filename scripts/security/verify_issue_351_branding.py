@@ -257,7 +257,7 @@ def main():
           "reference", referenced, "remaining", retained_objects,
           flush=True)
     check("invoice-referenced old logo bytes/metadata remain protected",
-          referenced == "t" and retained_objects == 1)
+          referenced == "true" and retained_objects == 1)
     check("old invoice still has captured logo version",
           psql(db, "SELECT issuer_logo_path FROM public.invoices WHERE id='"
                + invoice + "';") == path)
