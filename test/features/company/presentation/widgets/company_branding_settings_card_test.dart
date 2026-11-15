@@ -10,6 +10,11 @@ import 'package:horus_system/features/company/domain/entities/company_brand_prof
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
 import 'package:horus_system/features/company/domain/repositories/company_branding_repository.dart';
+import 'package:horus_system/features/company/domain/repositories/company_context_repository.dart';
+import 'package:horus_system/features/company/domain/usecases/clear_current_company_context_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/load_current_company_context_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
+import 'package:horus_system/features/company/domain/usecases/select_current_company_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/download_company_brand_logo_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/get_company_brand_profile_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/remove_company_brand_logo_usecase.dart';
@@ -17,10 +22,93 @@ import 'package:horus_system/features/company/domain/usecases/update_company_bra
 import 'package:horus_system/features/company/domain/usecases/update_company_brand_profile_usecase.dart';
 import 'package:horus_system/features/company/domain/usecases/validate_company_brand_logo_usecase.dart';
 import 'package:horus_system/features/company/presentation/cubit/company_branding_cubit.dart';
+import 'package:horus_system/features/company/presentation/cubit/current_company_cubit.dart';
+import 'package:horus_system/features/company/presentation/cubit/current_company_state.dart';
+import 'package:horus_system/features/company/presentation/widgets/company_context_access_view.dart';
 import 'package:horus_system/features/company/presentation/widgets/company_branding_settings_card.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
+  testWidgets(
+    'saving branding keeps Settings mounted and preserves unrelated draft',
+    (tester) async {
+      final contextRepository = _FakeCompanyContextRepository();
+      final currentCompanyCubit = CurrentCompanyCubit(
+        loadCurrentCompanyContextUseCase:
+            LoadCurrentCompanyContextUseCase(contextRepository),
+        selectCurrentCompanyUseCase:
+            SelectCurrentCompanyUseCase(contextRepository),
+        refreshSelectedCompanyContextUseCase:
+            RefreshSelectedCompanyContextUseCase(contextRepository),
+        clearCurrentCompanyContextUseCase:
+            ClearCurrentCompanyContextUseCase(contextRepository),
+      );
+      final brandingRepository = _FakeBrandingRepository();
+      final brandingCubit = CompanyBrandingCubit(
+        getProfile: GetCompanyBrandProfileUseCase(brandingRepository),
+        updateProfile: UpdateCompanyBrandProfileUseCase(brandingRepository),
+        updateLogo: UpdateCompanyBrandLogoUseCase(brandingRepository),
+        removeLogo: RemoveCompanyBrandLogoUseCase(brandingRepository),
+        downloadLogo: DownloadCompanyBrandLogoUseCase(brandingRepository),
+        validateLogo: const ValidateCompanyBrandLogoUseCase(),
+      );
+      addTearDown(currentCompanyCubit.close);
+      addTearDown(brandingCubit.close);
+      await currentCompanyCubit.loadCurrentCompanyContext();
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<CurrentCompanyCubit>.value(
+              value: currentCompanyCubit,
+            ),
+            BlocProvider<CompanyBrandingCubit>.value(value: brandingCubit),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: CompanyContextAccessView(
+              builder: (companyContext) => Scaffold(
+                body: Column(
+                  children: [
+                    const TextField(key: Key('unsaved-draft')),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: CompanyBrandingSettingsCard(
+                          currentCompanyContext: companyContext,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('unsaved-draft')),
+        'keep this draft in Settings',
+      );
+
+      await tester.ensureVisible(find.text('Save company profile'));
+      await tester.tap(find.text('Save company profile'));
+      await tester.pumpAndSettle();
+
+      expect(contextRepository.loads, 2);
+      expect(currentCompanyCubit.state, isA<CurrentCompanyLoaded>());
+      expect(find.text('Company profile and branding'), findsOneWidget);
+      expect(find.byKey(const Key('unsaved-draft')), findsOneWidget);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText).first)
+            .controller.text,
+        'keep this draft in Settings',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('owner sees editable company branding and profile fields', (
     tester,
   ) async {
@@ -142,4 +230,31 @@ final class _FakeBrandingRepository implements CompanyBrandingRepository {
     required String companyId,
     required String storagePath,
   }) async => Success(Uint8List(0));
+}
+
+final class _FakeCompanyContextRepository implements CompanyContextRepository {
+  static const currentContext = CurrentCompanyContext(
+    company: Company(id: 'company-1', name: 'Transport'),
+    role: CompanyRole.owner,
+  );
+
+  int loads = 0;
+
+  @override
+  Future<Result<List<CurrentCompanyContext>>> loadUserCompanyContexts() async {
+    loads += 1;
+    return const Success([currentContext]);
+  }
+
+  @override
+  Future<Result<CurrentCompanyContext>> selectCompany(String companyId) async =>
+      const Success(currentContext);
+
+  @override
+  Future<Result<CurrentCompanyContext?>> getCurrentCompanyContext() async =>
+      const Success<CurrentCompanyContext?>(currentContext);
+
+  @override
+  Future<Result<void>> clearCurrentCompanyContext() async =>
+      const Success<void>(null);
 }
