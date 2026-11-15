@@ -8,17 +8,21 @@ import json
 import secrets
 
 from verify_issue_365_local_http import LocalApi, check, local_stack, psql, rpc, uid
+from verify_issue_358_operator_backend import elevate_to_aal2
 
 
-def member(api, jwt, membership_id):
-    status, rows = api.call(
-        "GET", "/rest/v1/company_users", token=jwt,
-        query={"select": "id,role,is_active,updated_at",
-               "id": "eq." + membership_id},
-    )
-    check("platform operator can read recovery target", status == 200
+def member(api, jwt, company_id, membership_id):
+    # #358 removed platform-wide direct membership SELECT from tenant RLS.
+    # The recovery API exposes only a known company+membership target.
+    status, rows = rpc(api, jwt, "platform_get_membership_for_recovery", {
+        "p_company_id": company_id, "p_membership_id": membership_id,
+    })
+    check("operator can inspect one recovery target", status == 200
           and isinstance(rows, list) and len(rows) == 1)
-    return rows[0]
+    m = rows[0]
+    return {"id": m["membership_id"], "role": m["membership_role"],
+            "is_active": m["membership_active"],
+            "updated_at": m["membership_updated_at"]}
 
 
 def recover(api, token, company_id, membership_id, expected,
@@ -68,6 +72,11 @@ def main():
     # Test-only setup in the disposable stack; never permit remote endpoints.
     psql(db, "UPDATE public.user_profiles SET is_platform_admin=true "
              "WHERE id='" + operator_id + "';")
+    psql(db, "INSERT INTO private.platform_operator_access "
+         "(user_id,permissions,approved_reason) VALUES('"
+         + operator_id + "',ARRAY['membership_recovery']::text[],"
+         "'Local audited recovery operator provisioned with MFA');")
+    operator_jwt = elevate_to_aal2(api, operator_jwt)
     company_a = uid(psql(
         db, "INSERT INTO public.companies(name,base_currency_code,"
         "base_currency_fraction_digits,created_by) "
@@ -98,7 +107,7 @@ def main():
                "company_id='" + company_a + "' AND user_id='"
                + operator_id + "';") == "0")
 
-    current = member(api, operator_jwt, target_membership)
+    current = member(api, operator_jwt, company_a, target_membership)
     initial_updated_at = current["updated_at"]
 
     for label, token in (("operator", operator_jwt), ("owner", owner_jwt)):
@@ -138,7 +147,7 @@ def main():
     check("operator can recover tenant membership",
           status == 200 and isinstance(rows, list) and len(rows) == 1
           and rows[0].get("membership_role") == "admin")
-    changed = member(api, operator_jwt, target_membership)
+    changed = member(api, operator_jwt, company_a, target_membership)
     check("membership recovery persisted", changed["role"] == "admin")
 
     raw = psql(
@@ -171,16 +180,16 @@ def main():
           status == 200 and isinstance(rows, list) and len(rows) == 1
           and count_recovery_events(db, company_a, target_membership) == 1)
     check("no-op leaves snapshot unchanged",
-          member(api, operator_jwt, target_membership)["updated_at"]
+          member(api, operator_jwt, company_a, target_membership)["updated_at"]
           == changed["updated_at"])
 
-    owner = member(api, operator_jwt, owner_membership)
+    owner = member(api, operator_jwt, company_a, owner_membership)
     denied("last active owner cannot be deactivated",
            recover(api, operator_jwt, company_a, owner_membership,
                    owner["updated_at"], active=False),
            "P3703")
     check("last owner stays active",
-          member(api, operator_jwt, owner_membership)["is_active"] is True)
+          member(api, operator_jwt, company_a, owner_membership)["is_active"] is True)
 
     # Existing SECDEF membership APIs must still work after direct UPDATE revoke.
     status, rows = rpc(api, owner_jwt, "change_company_member_role", {

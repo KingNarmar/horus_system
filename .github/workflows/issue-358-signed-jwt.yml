@@ -1,0 +1,75 @@
+name: H.O.R.U.S #358 Operator Security and Entitlements
+
+on:
+  push:
+    branches:
+      - feature/358-platform-operator-backend
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/security/verify_issue_358_operator_backend.py'
+      - 'scripts/security/enable_disposable_totp.py'
+      - 'scripts/security/verify_issue_370_local_http.py'
+      - '.github/workflows/issue-358-signed-jwt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-358-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  operator-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Python security harness syntax
+        run: python -m py_compile scripts/security/verify_issue_358_operator_backend.py scripts/security/verify_issue_370_local_http.py scripts/security/enable_disposable_totp.py
+      - name: Ensure isolated test environment
+        shell: bash
+        run: |
+          test ! -e supabase/config.toml
+          test ! -e supabase/.temp/project-ref
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          npx --yes supabase@3.0.0 init
+      - name: Enable TOTP only in ephemeral GoTrue
+        run: python scripts/security/enable_disposable_totp.py
+      - name: Replay migrations in ephemeral local Supabase
+        run: |
+          npx --yes supabase@3.0.0 start
+          npx --yes supabase@3.0.0 db reset --local --no-seed
+      - name: Signed JWT, MFA, RLS, quota, audit and concurrency assertions
+        run: python scripts/security/verify_issue_358_operator_backend.py
+      - name: Legacy #370 operator recovery regression with scoped MFA
+        run: python scripts/security/verify_issue_370_local_http.py
+      - name: Stop and discard ephemeral local Supabase
+        if: always()
+        run: |
+          if test -e supabase/config.toml; then
+            npx --yes supabase@3.0.0 stop --no-backup || true
+          fi
+
+  source-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: git diff --check

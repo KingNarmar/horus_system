@@ -7,6 +7,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/security/verify_issue_370_local_http.py'
+      - 'scripts/security/enable_disposable_totp.py'
       - '.github/workflows/issue-370-local-jwt.yml'
 
 permissions:
@@ -32,7 +33,7 @@ jobs:
           node-version: '24'
 
       - name: Check test script syntax
-        run: python -m py_compile scripts/security/verify_issue_370_local_http.py
+        run: python -m py_compile scripts/security/verify_issue_370_local_http.py scripts/security/enable_disposable_totp.py
 
       - name: Verify isolated local stack and credentials
         shell: bash
@@ -42,6 +43,9 @@ jobs:
           test -z "${SUPABASE_ACCESS_TOKEN:-}"
           test -z "${SUPABASE_DB_PASSWORD:-}"
           npx --yes supabase@3.0.0 init
+
+      - name: Enable TOTP for scoped MFA recovery regression
+        run: python scripts/security/enable_disposable_totp.py
 
       - name: Start disposable local Supabase
         run: npx --yes supabase@3.0.0 start
