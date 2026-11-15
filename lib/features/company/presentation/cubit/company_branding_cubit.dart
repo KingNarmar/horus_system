@@ -71,11 +71,13 @@ final class CompanyBrandingCubit extends Cubit<CompanyBrandingState> {
     );
     if (!_isCurrent(request)) return;
 
-    emit(CompanyBrandingReady(
-      profile: profile,
-      logoBytes: downloaded.dataOrNull,
-      failure: downloaded.failureOrNull,
-    ));
+    emit(
+      CompanyBrandingReady(
+        profile: profile,
+        logoBytes: downloaded.dataOrNull,
+        failure: downloaded.failureOrNull,
+      ),
+    );
   }
 
   Future<void> saveProfile({
@@ -95,21 +97,26 @@ final class CompanyBrandingCubit extends Cubit<CompanyBrandingState> {
       return;
     }
     final request = ++_requestGeneration;
-    emit(CompanyBrandingSaving(
-      profile: current.profile, logoBytes: current.logoBytes,
-    ));
-    final result = await _updateProfile(UpdateCompanyBrandProfileParams(
-      companyContext: companyContext,
-      expectedUpdatedAt: current.profile.updatedAt,
-      name: name,
-      businessType: businessType,
-      phone: phone,
-      email: email,
-      country: country,
-      city: city,
-      address: address,
-      taxRegistrationNumber: taxRegistrationNumber,
-    ));
+    emit(
+      CompanyBrandingSaving(
+        profile: current.profile,
+        logoBytes: current.logoBytes,
+      ),
+    );
+    final result = await _updateProfile(
+      UpdateCompanyBrandProfileParams(
+        companyContext: companyContext,
+        expectedUpdatedAt: current.profile.updatedAt,
+        name: name,
+        businessType: businessType,
+        phone: phone,
+        email: email,
+        country: country,
+        city: city,
+        address: address,
+        taxRegistrationNumber: taxRegistrationNumber,
+      ),
+    );
     if (!_isCurrent(request)) return;
     _resolve(
       result: result,
@@ -126,39 +133,48 @@ final class CompanyBrandingCubit extends Cubit<CompanyBrandingState> {
   }) async {
     final current = state;
     if (current is CompanyBrandingSaving) {
-      return const FailureResult(ConflictFailure(
-        code: CompanyBrandingFailureCodes.profileConflict,
-      ));
+      return const FailureResult(
+        ConflictFailure(code: CompanyBrandingFailureCodes.profileConflict),
+      );
     }
-    final ready = current is CompanyBrandingReady &&
+    final ready =
+        current is CompanyBrandingReady &&
             current.profile.companyId == companyContext.companyId
         ? current
         : null;
     final request = ++_requestGeneration;
-    emit(CompanyBrandingSaving(
-      profile: ready?.profile,
-      logoBytes: ready?.logoBytes,
-    ));
-    final result = await _updateLogo(UpdateCompanyBrandLogoParams(
-      companyContext: companyContext,
-      expectedLogoPath: ready?.profile.logoPath ??
-          companyContext.company.logoUrl,
-      logo: logo,
-    ));
+    emit(
+      CompanyBrandingSaving(
+        profile: ready?.profile,
+        logoBytes: ready?.logoBytes,
+      ),
+    );
+    final result = await _updateLogo(
+      UpdateCompanyBrandLogoParams(
+        companyContext: companyContext,
+        expectedLogoPath:
+            ready?.profile.logoPath ?? companyContext.company.logoUrl,
+        logo: logo,
+      ),
+    );
     if (!_isCurrent(request)) return result;
     final profile = result.dataOrNull;
     if (profile != null) {
-      emit(CompanyBrandingReady(
-        profile: profile,
-        logoBytes: logo.bytes,
-        notice: CompanyBrandingNotice.logoSaved,
-      ));
+      emit(
+        CompanyBrandingReady(
+          profile: profile,
+          logoBytes: logo.bytes,
+          notice: CompanyBrandingNotice.logoSaved,
+        ),
+      );
     } else if (ready != null) {
-      emit(CompanyBrandingReady(
-        profile: ready.profile,
-        logoBytes: ready.logoBytes,
-        failure: result.failureOrNull,
-      ));
+      emit(
+        CompanyBrandingReady(
+          profile: ready.profile,
+          logoBytes: ready.logoBytes,
+          failure: result.failureOrNull,
+        ),
+      );
     } else {
       emit(CompanyBrandingFailure(result.failureOrNull!));
     }
@@ -173,13 +189,18 @@ final class CompanyBrandingCubit extends Cubit<CompanyBrandingState> {
       return;
     }
     final request = ++_requestGeneration;
-    emit(CompanyBrandingSaving(
-      profile: current.profile, logoBytes: current.logoBytes,
-    ));
-    final result = await _removeLogo(RemoveCompanyBrandLogoParams(
-      companyContext: companyContext,
-      expectedLogoPath: current.profile.logoPath,
-    ));
+    emit(
+      CompanyBrandingSaving(
+        profile: current.profile,
+        logoBytes: current.logoBytes,
+      ),
+    );
+    final result = await _removeLogo(
+      RemoveCompanyBrandLogoParams(
+        companyContext: companyContext,
+        expectedLogoPath: current.profile.logoPath,
+      ),
+    );
     if (!_isCurrent(request)) return;
     _resolve(
       result: result,
@@ -195,17 +216,19 @@ final class CompanyBrandingCubit extends Cubit<CompanyBrandingState> {
     required CompanyBrandingNotice notice,
     bool clearLogoBytes = false,
   }) {
-    emit(CompanyBrandingReady(
-      profile: result.dataOrNull ?? before.profile,
-      logoBytes: result.dataOrNull != null && clearLogoBytes
-          ? null : before.logoBytes,
-      failure: result.failureOrNull,
-      notice: result.dataOrNull == null ? null : notice,
-    ));
+    emit(
+      CompanyBrandingReady(
+        profile: result.dataOrNull ?? before.profile,
+        logoBytes: result.dataOrNull != null && clearLogoBytes
+            ? null
+            : before.logoBytes,
+        failure: result.failureOrNull,
+        notice: result.dataOrNull == null ? null : notice,
+      ),
+    );
   }
 
-  bool _isCurrent(int request) =>
-      !isClosed && request == _requestGeneration;
+  bool _isCurrent(int request) => !isClosed && request == _requestGeneration;
 
   @override
   Future<void> close() async {

@@ -23,11 +23,15 @@ final class RemoveCompanyBrandLogoUseCase
   const RemoveCompanyBrandLogoUseCase(this._repository);
 
   @override
-  Future<Result<CompanyBrandProfile>> call(RemoveCompanyBrandLogoParams params) {
+  Future<Result<CompanyBrandProfile>> call(
+    RemoveCompanyBrandLogoParams params,
+  ) {
     if (!params.companyContext.canManageCompany) {
-      return Future.value(const FailureResult(
-        PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
-      ));
+      return Future.value(
+        const FailureResult(
+          PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
+        ),
+      );
     }
     return _repository.removeLogo(
       companyId: params.companyContext.companyId,

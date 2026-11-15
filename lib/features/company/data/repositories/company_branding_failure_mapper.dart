@@ -9,9 +9,8 @@ import '../../domain/failures/company_branding_failure_codes.dart';
 final class CompanyBrandingFailureMapper {
   const CompanyBrandingFailureMapper();
 
-  Failure fromAuth(AuthException _) => const AuthFailure(
-    code: CompanyBrandingFailureCodes.permissionDenied,
-  );
+  Failure fromAuth(AuthException _) =>
+      const AuthFailure(code: CompanyBrandingFailureCodes.permissionDenied);
 
   Failure fromDatabase(PostgrestException error) => switch (error.code) {
     'P3510' || '42501' => const PermissionFailure(
@@ -50,6 +49,5 @@ final class CompanyBrandingFailureMapper {
     );
   }
 
-  Failure fromUnexpected(Object _) =>
-      const UnexpectedFailure();
+  Failure fromUnexpected(Object _) => const UnexpectedFailure();
 }

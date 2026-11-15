@@ -9,9 +9,7 @@ final class ValidateCompanyBrandLogoUseCase
   const ValidateCompanyBrandLogoUseCase();
 
   @override
-  Future<Result<CompanyBrandLogoFile>> call(
-    CompanyBrandLogoFile file,
-  ) async {
+  Future<Result<CompanyBrandLogoFile>> call(CompanyBrandLogoFile file) async {
     final failure = CompanyBrandLogoPolicy.validate(file);
     if (failure != null) {
       return FailureResult(ValidationFailure(code: failure));

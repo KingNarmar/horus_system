@@ -60,8 +60,14 @@ final class _CompanyBrandingSettingsCardState
   @override
   void dispose() {
     for (final controller in [
-      _name, _businessType, _phone, _email,
-      _country, _city, _address, _registration,
+      _name,
+      _businessType,
+      _phone,
+      _email,
+      _country,
+      _city,
+      _address,
+      _registration,
     ]) {
       controller.dispose();
     }
@@ -101,12 +107,9 @@ final class _CompanyBrandingSettingsCardState
           final notice = state.notice;
           if (notice != null) {
             final message = switch (notice) {
-              CompanyBrandingNotice.profileSaved =>
-                brandingL10n.profileUpdated,
-              CompanyBrandingNotice.logoSaved =>
-                brandingL10n.logoUpdated,
-              CompanyBrandingNotice.logoRemoved =>
-                brandingL10n.logoRemoved,
+              CompanyBrandingNotice.profileSaved => brandingL10n.profileUpdated,
+              CompanyBrandingNotice.logoSaved => brandingL10n.logoUpdated,
+              CompanyBrandingNotice.logoRemoved => brandingL10n.logoRemoved,
             };
             _showMessage(message);
             await context.read<CurrentCompanyCubit>().refreshAndSelectCompany(
@@ -162,9 +165,9 @@ final class _CompanyBrandingSettingsCardState
                     enabled: !saving && canManage,
                     onChoose: canManage ? _chooseLogo : null,
                     onRemove: canManage && profile.logoPath != null
-                        ? () => context
-                              .read<CompanyBrandingCubit>()
-                              .removeLogo(widget.currentCompanyContext)
+                        ? () => context.read<CompanyBrandingCubit>().removeLogo(
+                            widget.currentCompanyContext,
+                          )
                         : null,
                   ),
                   const SizedBox(height: AppSpacing.xl),
@@ -172,8 +175,8 @@ final class _CompanyBrandingSettingsCardState
                     key: _formKey,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        final width = constraints.maxWidth >=
-                                AppSizes.dataTableBreakpoint
+                        final width =
+                            constraints.maxWidth >= AppSizes.dataTableBreakpoint
                             ? (constraints.maxWidth - AppSpacing.md) / 2
                             : constraints.maxWidth;
                         return Wrap(
@@ -181,36 +184,52 @@ final class _CompanyBrandingSettingsCardState
                           runSpacing: AppSpacing.md,
                           children: [
                             _field(
-                              width, _name, l10n.companyNameLabel,
+                              width,
+                              _name,
+                              l10n.companyNameLabel,
                               readOnly: !canManage || saving,
                               requiredName: true,
                             ),
                             _field(
-                              width, _businessType, l10n.businessTypeLabel,
+                              width,
+                              _businessType,
+                              l10n.businessTypeLabel,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _phone, l10n.phoneLabel,
+                              width,
+                              _phone,
+                              l10n.phoneLabel,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _email, l10n.emailLabel,
+                              width,
+                              _email,
+                              l10n.emailLabel,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _country, l10n.countryLabel,
+                              width,
+                              _country,
+                              l10n.countryLabel,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _city, l10n.cityLabel,
+                              width,
+                              _city,
+                              l10n.cityLabel,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _address, brandingL10n.address,
+                              width,
+                              _address,
+                              brandingL10n.address,
                               readOnly: !canManage || saving,
                             ),
                             _field(
-                              width, _registration, brandingL10n.registration,
+                              width,
+                              _registration,
+                              brandingL10n.registration,
                               readOnly: !canManage || saving,
                             ),
                           ],
@@ -252,11 +271,13 @@ final class _CompanyBrandingSettingsCardState
         controller: controller,
         readOnly: readOnly,
         decoration: InputDecoration(
-          labelText: label, border: const OutlineInputBorder(),
+          labelText: label,
+          border: const OutlineInputBorder(),
         ),
         validator: requiredName
             ? (value) => value?.trim().isEmpty ?? true
-                ? context.companyBrandingL10n.nameRequired : null
+                  ? context.companyBrandingL10n.nameRequired
+                  : null
             : null,
       ),
     );
@@ -294,8 +315,6 @@ final class _CompanyBrandingSettingsCardState
 
   void _showMessage(String value) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(value)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
   }
 }

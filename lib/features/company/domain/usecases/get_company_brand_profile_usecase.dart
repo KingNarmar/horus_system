@@ -14,9 +14,13 @@ final class GetCompanyBrandProfileUseCase
   @override
   Future<Result<CompanyBrandProfile>> call(String companyId) {
     if (companyId.trim().isEmpty) {
-      return Future.value(const FailureResult(
-        ValidationFailure(code: CompanyBrandingFailureCodes.companyUnavailable),
-      ));
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(
+            code: CompanyBrandingFailureCodes.companyUnavailable,
+          ),
+        ),
+      );
     }
     return _repository.getProfile(companyId.trim());
   }

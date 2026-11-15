@@ -61,9 +61,7 @@ import '../presentation/cubit/company_timezone_cubit.dart';
 abstract final class CompanyDependencies {
   static CompanyBrandingRepository createBrandingRepository() {
     return CompanyBrandingRepositoryImpl(
-      SupabaseCompanyBrandingRemoteDataSource(
-        SupabaseClientProvider.client,
-      ),
+      SupabaseCompanyBrandingRemoteDataSource(SupabaseClientProvider.client),
     );
   }
 

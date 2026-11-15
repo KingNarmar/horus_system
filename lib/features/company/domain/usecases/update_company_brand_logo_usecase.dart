@@ -27,11 +27,15 @@ final class UpdateCompanyBrandLogoUseCase
   const UpdateCompanyBrandLogoUseCase(this._repository);
 
   @override
-  Future<Result<CompanyBrandProfile>> call(UpdateCompanyBrandLogoParams params) {
+  Future<Result<CompanyBrandProfile>> call(
+    UpdateCompanyBrandLogoParams params,
+  ) {
     if (!params.companyContext.canManageCompany) {
-      return Future.value(const FailureResult(
-        PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
-      ));
+      return Future.value(
+        const FailureResult(
+          PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
+        ),
+      );
     }
     final code = CompanyBrandLogoPolicy.validate(params.logo);
     if (code != null) {

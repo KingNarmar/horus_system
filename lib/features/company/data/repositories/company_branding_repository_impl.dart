@@ -44,8 +44,9 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
   }) => _guard(() async {
     final result = await _source.updateProfile({
       CompanyBrandingConstants.companyIdArg: companyId,
-      CompanyBrandingConstants.expectedUpdatedAtArg:
-          expectedUpdatedAt.toUtc().toIso8601String(),
+      CompanyBrandingConstants.expectedUpdatedAtArg: expectedUpdatedAt
+          .toUtc()
+          .toIso8601String(),
       CompanyRpcConstants.companyName: name,
       CompanyRpcConstants.businessType: businessType,
       CompanyRpcConstants.phone: phone,
@@ -76,7 +77,8 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
     required String companyId,
     required String storagePath,
   }) => _guard(() {
-    final prefix = '${CompanyBrandingConstants.storageRoot}/$companyId/'
+    final prefix =
+        '${CompanyBrandingConstants.storageRoot}/$companyId/'
         '${CompanyBrandingConstants.storageLogoFolder}/';
     if (!storagePath.startsWith(prefix)) {
       throw const FormatException('Invalid company branding object key');
@@ -92,12 +94,13 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
   }) async {
     final extension = CompanyBrandLogoPolicy.extensionFor(logo);
     if (extension == null) {
-      return const FailureResult(ValidationFailure(
-        code: CompanyBrandingFailureCodes.imageUnsupported,
-      ));
+      return const FailureResult(
+        ValidationFailure(code: CompanyBrandingFailureCodes.imageUnsupported),
+      );
     }
     final operationId = newUuidV4();
-    final path = '${CompanyBrandingConstants.storageRoot}/$companyId/'
+    final path =
+        '${CompanyBrandingConstants.storageRoot}/$companyId/'
         '${CompanyBrandingConstants.storageLogoFolder}/'
         '$operationId.$extension';
     final contentType = switch (extension) {
@@ -122,7 +125,9 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
 
     try {
       await _source.upload(
-        path: path, bytes: logo.bytes, contentType: contentType,
+        path: path,
+        bytes: logo.bytes,
+        contentType: contentType,
       );
     } on StorageException catch (error) {
       final pending = await _compensate(companyId, operationId, path);
@@ -147,18 +152,24 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
         final pending = await _compensate(companyId, operationId, path);
         return FailureResult(pending ?? _mapper.fromDatabase(error));
       }
-      return const FailureResult(ServerFailure(
-        code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
-      ));
+      return const FailureResult(
+        ServerFailure(
+          code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
+        ),
+      );
     } catch (_) {
-      return const FailureResult(ServerFailure(
-        code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
-      ));
+      return const FailureResult(
+        ServerFailure(
+          code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
+        ),
+      );
     }
   }
 
   Future<ServerFailure?> _compensate(
-    String companyId, String operationId, String path,
+    String companyId,
+    String operationId,
+    String path,
   ) async {
     var failed = false;
     try {
@@ -168,7 +179,8 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
     }
     try {
       await _source.releaseUpload(
-        companyId: companyId, operationId: operationId,
+        companyId: companyId,
+        operationId: operationId,
       );
     } catch (_) {
       failed = true;

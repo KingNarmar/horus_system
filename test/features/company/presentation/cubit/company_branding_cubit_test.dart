@@ -62,11 +62,10 @@ CompanyBrandingCubit _build(CompanyBrandingRepository repository) =>
       validateLogo: const ValidateCompanyBrandLogoUseCase(),
     );
 
-CurrentCompanyContext _context(CompanyRole role) =>
-    CurrentCompanyContext(
-      company: const Company(id: 'tenant-1', name: 'Example'),
-      role: role,
-    );
+CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
+  company: const Company(id: 'tenant-1', name: 'Example'),
+  role: role,
+);
 
 final class _FakeRepository implements CompanyBrandingRepository {
   String? companyId;

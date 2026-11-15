@@ -41,9 +41,8 @@ final class CompanyBrandLogoSelector extends StatelessWidget {
             child: Image.memory(
               imageBytes!,
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => const Icon(
-                AppIcons.image, size: AppSizes.iconXl,
-              ),
+              errorBuilder: (_, _, _) =>
+                  const Icon(AppIcons.image, size: AppSizes.iconXl),
             ),
           )
         else

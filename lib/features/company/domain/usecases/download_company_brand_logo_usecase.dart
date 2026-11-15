@@ -25,9 +25,11 @@ final class DownloadCompanyBrandLogoUseCase
   @override
   Future<Result<Uint8List>> call(DownloadCompanyBrandLogoParams params) {
     if (!params.path.startsWith('companies/${params.companyId}/logos/')) {
-      return Future.value(const FailureResult(
-        ValidationFailure(code: CompanyBrandingFailureCodes.uploadInvalid),
-      ));
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(code: CompanyBrandingFailureCodes.uploadInvalid),
+        ),
+      );
     }
     return _repository.downloadLogo(
       companyId: params.companyId,

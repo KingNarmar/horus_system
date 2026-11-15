@@ -43,16 +43,20 @@ final class UpdateCompanyBrandProfileUseCase
     UpdateCompanyBrandProfileParams params,
   ) {
     if (!params.companyContext.canManageCompany) {
-      return Future.value(const FailureResult(
-        PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
-      ));
+      return Future.value(
+        const FailureResult(
+          PermissionFailure(code: CompanyBrandingFailureCodes.permissionDenied),
+        ),
+      );
     }
 
     final name = params.name.trim();
     if (name.isEmpty || name.length > 200) {
-      return Future.value(const FailureResult(
-        ValidationFailure(code: CompanyBrandingFailureCodes.profileInvalid),
-      ));
+      return Future.value(
+        const FailureResult(
+          ValidationFailure(code: CompanyBrandingFailureCodes.profileInvalid),
+        ),
+      );
     }
 
     final normalized = <String?>[
@@ -67,9 +71,11 @@ final class UpdateCompanyBrandProfileUseCase
     const limits = [120, 80, 254, 120, 120, 500, 120];
     for (var index = 0; index < normalized.length; index++) {
       if ((normalized[index]?.length ?? 0) > limits[index]) {
-        return Future.value(const FailureResult(
-          ValidationFailure(code: CompanyBrandingFailureCodes.profileInvalid),
-        ));
+        return Future.value(
+          const FailureResult(
+            ValidationFailure(code: CompanyBrandingFailureCodes.profileInvalid),
+          ),
+        );
       }
     }
 

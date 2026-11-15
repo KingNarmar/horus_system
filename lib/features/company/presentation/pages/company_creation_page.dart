@@ -121,10 +121,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Text(
-                      _logoUploadErrorMessage!,
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(_logoUploadErrorMessage!, textAlign: TextAlign.center),
                     const SizedBox(height: AppSpacing.lg),
                     OutlinedButton(
                       onPressed: () => _uploadCreatedCompanyLogo(state.company),
@@ -271,8 +268,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     final failure = result.failureOrNull;
     if (failure != null) {
       setState(
-        () => _logoUploadErrorMessage =
-            context.companyBrandingL10n.errorMessage(failure),
+        () => _logoUploadErrorMessage = context.companyBrandingL10n
+            .errorMessage(failure),
       );
       return;
     }

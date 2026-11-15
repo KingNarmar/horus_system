@@ -132,14 +132,15 @@ final class SupabaseCompanyBrandingRemoteDataSource
 
   @override
   Future<void> remove(String path) async {
-    await _client.storage
-        .from(CompanyBrandingConstants.storageBucket)
-        .remove([path]);
+    await _client.storage.from(CompanyBrandingConstants.storageBucket).remove([
+      path,
+    ]);
   }
 
   @override
-  Future<Uint8List> download(String path) =>
-      _client.storage.from(CompanyBrandingConstants.storageBucket).download(path);
+  Future<Uint8List> download(String path) => _client.storage
+      .from(CompanyBrandingConstants.storageBucket)
+      .download(path);
 }
 
 final _companyBrandProfileProjection = <String>[

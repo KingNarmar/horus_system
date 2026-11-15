@@ -10,8 +10,8 @@ final class CompanyBrandingLocalizations {
 
   factory CompanyBrandingLocalizations.forLocale(Locale locale) =>
       locale.languageCode == 'ar'
-          ? const CompanyBrandingLocalizations._(_ar)
-          : const CompanyBrandingLocalizations._(_en);
+      ? const CompanyBrandingLocalizations._(_ar)
+      : const CompanyBrandingLocalizations._(_en);
 
   String _value(String key) => _messages[key]!;
 
@@ -67,7 +67,8 @@ final class CompanyBrandingLocalizations {
 
   static const _en = <String, String>{
     'title': 'Company profile and branding',
-    'description': 'Business details used on future documents. Existing issued invoices keep their recorded identity.',
+    'description':
+        'Business details used on future documents. Existing issued invoices keep their recorded identity.',
     'logoTitle': 'Company logo',
     'logoOptional': 'Optional. PNG, JPEG or WebP, up to 2 MB.',
     'selectLogo': 'Select logo',
@@ -81,9 +82,11 @@ final class CompanyBrandingLocalizations {
     'retry': 'Retry',
     'uploadRetry': 'Retry logo upload',
     'continueWithoutLogo': 'Continue without logo',
-    'createLogoRecovery': 'Your company was created successfully, but its logo could not be saved. Retry the logo or continue without it. The company will not be created again.',
+    'createLogoRecovery':
+        'Your company was created successfully, but its logo could not be saved. Retry the logo or continue without it. The company will not be created again.',
     'logoUpdated': 'Company logo saved.',
-    'logoRemoved': 'Company logo removed from the current profile. Historical invoices remain unchanged.',
+    'logoRemoved':
+        'Company logo removed from the current profile. Historical invoices remain unchanged.',
     'profileUpdated': 'Company profile saved.',
     'nameRequired': 'Company name is required.',
     'permissionDenied': 'You do not have permission to edit company branding.',
@@ -95,14 +98,17 @@ final class CompanyBrandingLocalizations {
     'imageUnsupported': 'Select a valid PNG, JPEG or WebP image.',
     'imageReadFailed': 'Unable to read the selected image.',
     'imageDownloadFailed': 'Unable to display the private company logo.',
-    'cleanupPending': 'The upload could not be fully recovered. Contact support before retrying.',
-    'completionUnknown': 'The upload result is uncertain. Reload the company before trying again.',
+    'cleanupPending':
+        'The upload could not be fully recovered. Contact support before retrying.',
+    'completionUnknown':
+        'The upload result is uncertain. Reload the company before trying again.',
     'operationFailed': 'Unable to update company branding. Please try again.',
   };
 
   static const _ar = <String, String>{
     'title': 'بيانات الشركة والهوية البصرية',
-    'description': 'تُستخدم بيانات الشركة في المستندات الجديدة، وتظل بيانات الفواتير الصادرة سابقًا محفوظة كما هي.',
+    'description':
+        'تُستخدم بيانات الشركة في المستندات الجديدة، وتظل بيانات الفواتير الصادرة سابقًا محفوظة كما هي.',
     'logoTitle': 'شعار الشركة',
     'logoOptional': 'اختياري. PNG أو JPEG أو WebP بحد أقصى ٢ ميجابايت.',
     'selectLogo': 'اختيار شعار',
@@ -116,7 +122,8 @@ final class CompanyBrandingLocalizations {
     'retry': 'إعادة المحاولة',
     'uploadRetry': 'إعادة رفع الشعار',
     'continueWithoutLogo': 'المتابعة بدون شعار',
-    'createLogoRecovery': 'تم إنشاء الشركة بنجاح، لكن تعذر حفظ الشعار. يمكنك إعادة رفعه أو المتابعة بدونه، ولن يتم إنشاء الشركة مرة أخرى.',
+    'createLogoRecovery':
+        'تم إنشاء الشركة بنجاح، لكن تعذر حفظ الشعار. يمكنك إعادة رفعه أو المتابعة بدونه، ولن يتم إنشاء الشركة مرة أخرى.',
     'logoUpdated': 'تم حفظ شعار الشركة.',
     'logoRemoved': 'تمت إزالة الشعار الحالي مع الاحتفاظ بنسخ الفواتير القديمة.',
     'profileUpdated': 'تم حفظ بيانات الشركة.',
@@ -130,8 +137,10 @@ final class CompanyBrandingLocalizations {
     'imageUnsupported': 'اختر صورة PNG أو JPEG أو WebP صالحة.',
     'imageReadFailed': 'تعذر قراءة الصورة المحددة.',
     'imageDownloadFailed': 'تعذر عرض شعار الشركة المحمي.',
-    'cleanupPending': 'تعذر إكمال معالجة فشل رفع الشعار. تواصل مع الدعم قبل إعادة المحاولة.',
-    'completionUnknown': 'نتيجة رفع الشعار غير مؤكدة. حدّث بيانات الشركة قبل إعادة المحاولة.',
+    'cleanupPending':
+        'تعذر إكمال معالجة فشل رفع الشعار. تواصل مع الدعم قبل إعادة المحاولة.',
+    'completionUnknown':
+        'نتيجة رفع الشعار غير مؤكدة. حدّث بيانات الشركة قبل إعادة المحاولة.',
     'operationFailed': 'تعذر تعديل بيانات الشركة. حاول مجددًا.',
   };
 }

@@ -15,24 +15,28 @@ import 'package:horus_system/features/company/domain/usecases/validate_company_b
 import 'package:test/test.dart';
 
 void main() {
-  test('owner updates only the current tenant profile after normalization',
-      () async {
-    final repository = _BrandingRepository();
-    final useCase = UpdateCompanyBrandProfileUseCase(repository);
-    final result = await useCase(UpdateCompanyBrandProfileParams(
-      companyContext: _context(CompanyRole.owner),
-      expectedUpdatedAt: DateTime.utc(2026, 11, 15),
-      name: '  Example Hauling  ',
-      city: '  Dubai  ',
-      address: '  Warehouse Road  ',
-    ));
-    expect(result.failureOrNull, isNull);
-    expect(repository.updateCount, 1);
-    expect(repository.companyId, 'tenant-1');
-    expect(repository.updatedName, 'Example Hauling');
-    expect(repository.updatedCity, 'Dubai');
-    expect(repository.updatedAddress, 'Warehouse Road');
-  });
+  test(
+    'owner updates only the current tenant profile after normalization',
+    () async {
+      final repository = _BrandingRepository();
+      final useCase = UpdateCompanyBrandProfileUseCase(repository);
+      final result = await useCase(
+        UpdateCompanyBrandProfileParams(
+          companyContext: _context(CompanyRole.owner),
+          expectedUpdatedAt: DateTime.utc(2026, 11, 15),
+          name: '  Example Hauling  ',
+          city: '  Dubai  ',
+          address: '  Warehouse Road  ',
+        ),
+      );
+      expect(result.failureOrNull, isNull);
+      expect(repository.updateCount, 1);
+      expect(repository.companyId, 'tenant-1');
+      expect(repository.updatedName, 'Example Hauling');
+      expect(repository.updatedCity, 'Dubai');
+      expect(repository.updatedAddress, 'Warehouse Road');
+    },
+  );
 
   test('viewer denied before any profile write', () async {
     final repository = _BrandingRepository();
@@ -43,8 +47,10 @@ void main() {
         name: 'Forbidden',
       ),
     );
-    expect(result.failureOrNull?.code,
-        CompanyBrandingFailureCodes.permissionDenied);
+    expect(
+      result.failureOrNull?.code,
+      CompanyBrandingFailureCodes.permissionDenied,
+    );
     expect(repository.updateCount, 0);
   });
 
@@ -57,79 +63,98 @@ void main() {
         name: '   ',
       ),
     );
-    expect(result.failureOrNull?.code,
-        CompanyBrandingFailureCodes.profileInvalid);
+    expect(
+      result.failureOrNull?.code,
+      CompanyBrandingFailureCodes.profileInvalid,
+    );
     expect(repository.updateCount, 0);
   });
 
-  test('image validation prevents spoofed extension and oversized payloads',
-      () async {
-    const useCase = ValidateCompanyBrandLogoUseCase();
-    final invalid = await useCase(CompanyBrandLogoFile(
-      bytes: Uint8List.fromList([0, 1, 2]),
-      fileName: 'logo.png',
-    ));
-    expect(invalid.failureOrNull?.code,
-        CompanyBrandingFailureCodes.imageUnsupported);
-    final oversize = await useCase(CompanyBrandLogoFile(
-      bytes: Uint8List(2 * 1024 * 1024 + 1),
-      fileName: 'logo.jpg',
-    ));
-    expect(oversize.failureOrNull?.code,
-        CompanyBrandingFailureCodes.imageTooLarge);
-    final valid = await useCase(CompanyBrandLogoFile(
-      bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
-      fileName: 'logo.png',
-    ));
-    expect(valid.failureOrNull, isNull);
-  });
+  test(
+    'image validation prevents spoofed extension and oversized payloads',
+    () async {
+      const useCase = ValidateCompanyBrandLogoUseCase();
+      final invalid = await useCase(
+        CompanyBrandLogoFile(
+          bytes: Uint8List.fromList([0, 1, 2]),
+          fileName: 'logo.png',
+        ),
+      );
+      expect(
+        invalid.failureOrNull?.code,
+        CompanyBrandingFailureCodes.imageUnsupported,
+      );
+      final oversize = await useCase(
+        CompanyBrandLogoFile(
+          bytes: Uint8List(2 * 1024 * 1024 + 1),
+          fileName: 'logo.jpg',
+        ),
+      );
+      expect(
+        oversize.failureOrNull?.code,
+        CompanyBrandingFailureCodes.imageTooLarge,
+      );
+      final valid = await useCase(
+        CompanyBrandLogoFile(
+          bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
+          fileName: 'logo.png',
+        ),
+      );
+      expect(valid.failureOrNull, isNull);
+    },
+  );
 
-  test('logo replacement and read reject foreign or unauthorized use',
-      () async {
-    final repository = _BrandingRepository();
-    final image = CompanyBrandLogoFile(
-      bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
-      fileName: 'logo.png',
-    );
-    final rejected = await UpdateCompanyBrandLogoUseCase(repository)(
-      UpdateCompanyBrandLogoParams(
-        companyContext: _context(CompanyRole.operations),
-        expectedLogoPath: null,
-        logo: image,
-      ),
-    );
-    expect(rejected.failureOrNull?.code,
-        CompanyBrandingFailureCodes.permissionDenied);
-    expect(repository.uploadCount, 0);
+  test(
+    'logo replacement and read reject foreign or unauthorized use',
+    () async {
+      final repository = _BrandingRepository();
+      final image = CompanyBrandLogoFile(
+        bytes: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10]),
+        fileName: 'logo.png',
+      );
+      final rejected = await UpdateCompanyBrandLogoUseCase(repository)(
+        UpdateCompanyBrandLogoParams(
+          companyContext: _context(CompanyRole.operations),
+          expectedLogoPath: null,
+          logo: image,
+        ),
+      );
+      expect(
+        rejected.failureOrNull?.code,
+        CompanyBrandingFailureCodes.permissionDenied,
+      );
+      expect(repository.uploadCount, 0);
 
-    final accepted = await UpdateCompanyBrandLogoUseCase(repository)(
-      UpdateCompanyBrandLogoParams(
-        companyContext: _context(CompanyRole.admin),
-        expectedLogoPath: null,
-        logo: image,
-      ),
-    );
-    expect(accepted.failureOrNull, isNull);
-    expect(repository.uploadCount, 1);
-    expect(repository.companyId, 'tenant-1');
+      final accepted = await UpdateCompanyBrandLogoUseCase(repository)(
+        UpdateCompanyBrandLogoParams(
+          companyContext: _context(CompanyRole.admin),
+          expectedLogoPath: null,
+          logo: image,
+        ),
+      );
+      expect(accepted.failureOrNull, isNull);
+      expect(repository.uploadCount, 1);
+      expect(repository.companyId, 'tenant-1');
 
-    final read = await DownloadCompanyBrandLogoUseCase(repository)(
-      const DownloadCompanyBrandLogoParams(
-        companyId: 'tenant-1',
-        path: 'companies/tenant-2/logos/foreign.png',
-      ),
-    );
-    expect(read.failureOrNull?.code,
-        CompanyBrandingFailureCodes.uploadInvalid);
-    expect(repository.downloadCount, 0);
-  });
+      final read = await DownloadCompanyBrandLogoUseCase(repository)(
+        const DownloadCompanyBrandLogoParams(
+          companyId: 'tenant-1',
+          path: 'companies/tenant-2/logos/foreign.png',
+        ),
+      );
+      expect(
+        read.failureOrNull?.code,
+        CompanyBrandingFailureCodes.uploadInvalid,
+      );
+      expect(repository.downloadCount, 0);
+    },
+  );
 }
 
-CurrentCompanyContext _context(CompanyRole role) =>
-    CurrentCompanyContext(
-      company: const Company(id: 'tenant-1', name: 'Example'),
-      role: role,
-    );
+CurrentCompanyContext _context(CompanyRole role) => CurrentCompanyContext(
+  company: const Company(id: 'tenant-1', name: 'Example'),
+  role: role,
+);
 
 final class _BrandingRepository implements CompanyBrandingRepository {
   int updateCount = 0;

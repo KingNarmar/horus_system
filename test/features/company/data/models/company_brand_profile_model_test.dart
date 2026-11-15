@@ -2,8 +2,7 @@ import 'package:horus_system/features/company/data/models/company_brand_profile_
 import 'package:test/test.dart';
 
 void main() {
-  test('company identity is mapped without leaking financial settings',
-      () {
+  test('company identity is mapped without leaking financial settings', () {
     final model = CompanyBrandProfileModel.fromMap(const {
       'id': 'company-1',
       'name': 'Hauling LLC',
