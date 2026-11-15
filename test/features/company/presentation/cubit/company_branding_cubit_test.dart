@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,26 @@ void main() {
     expect(ready.notice, CompanyBrandingNotice.profileSaved);
     expect(repo.updatedName, 'New Profile');
     expect(repo.companyId, 'tenant-1');
+  });
+
+  test('switching tenants ignores an earlier, slower profile load', () async {
+    final repo = _FakeRepository()
+      ..blockedFirstLoad = Completer<Result<CompanyBrandProfile>>();
+    final cubit = _build(repo);
+    addTearDown(cubit.close);
+
+    final olderRequest = cubit.load(_context(CompanyRole.owner));
+    const otherContext = CurrentCompanyContext(
+      company: Company(id: 'tenant-2', name: 'Second Company'),
+      role: CompanyRole.owner,
+    );
+    await cubit.load(otherContext);
+    expect((cubit.state as CompanyBrandingReady).profile.companyId, 'tenant-2');
+
+    repo.blockedFirstLoad!.complete(Success(repo.profile));
+    await olderRequest;
+
+    expect((cubit.state as CompanyBrandingReady).profile.companyId, 'tenant-2');
   });
 
   test('unauthorized role cannot change logo', () async {
@@ -71,6 +92,7 @@ final class _FakeRepository implements CompanyBrandingRepository {
   String? companyId;
   String? updatedName;
   int uploads = 0;
+  Completer<Result<CompanyBrandProfile>>? blockedFirstLoad;
   final profile = CompanyBrandProfile(
     companyId: 'tenant-1',
     name: 'Example',
@@ -78,8 +100,20 @@ final class _FakeRepository implements CompanyBrandingRepository {
   );
 
   @override
-  Future<Result<CompanyBrandProfile>> getProfile(String companyId) async =>
-      Success(profile);
+  Future<Result<CompanyBrandProfile>> getProfile(String companyId) {
+    if (companyId == 'tenant-1' && blockedFirstLoad != null) {
+      return blockedFirstLoad!.future;
+    }
+    return Future.value(
+      Success(
+        CompanyBrandProfile(
+          companyId: companyId,
+          name: companyId,
+          updatedAt: DateTime.utc(2026, 11, 15),
+        ),
+      ),
+    );
+  }
 
   @override
   Future<Result<CompanyBrandProfile>> updateProfile({
