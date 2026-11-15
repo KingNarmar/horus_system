@@ -264,7 +264,8 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       if (failure.code == CompanyFailureCodes.contextConnectionUnavailable &&
           (state is CurrentCompanyVerifying ||
               connectionFallbackContext != null)) {
-        final previous = connectionFallbackContext ??
+        final previous =
+            connectionFallbackContext ??
             (state as CurrentCompanyVerifying).context;
         emit(CurrentCompanyVerifying(previous, connectionFailure: failure));
         return;

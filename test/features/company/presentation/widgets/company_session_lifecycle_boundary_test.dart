@@ -46,7 +46,10 @@ void main() {
       addTearDown(fixture.close);
       await fixture.mount(tester, showCompanyView: true);
 
-      await tester.enterText(find.byKey(const Key('draft')), 'draft in Settings');
+      await tester.enterText(
+        find.byKey(const Key('draft')),
+        'draft in Settings',
+      );
       fixture.companyRepository.contexts = [
         const CurrentCompanyContext(
           company: Company(id: 'company-a', name: 'Updated Branding'),
@@ -64,7 +67,10 @@ void main() {
         'draft in Settings',
       );
       expect(
-        (fixture.companyCubit.state as CurrentCompanyLoaded).context.company.name,
+        (fixture.companyCubit.state as CurrentCompanyLoaded)
+            .context
+            .company
+            .name,
         'Updated Branding',
       );
       expect(find.byType(CircularProgressIndicator), findsNothing);
