@@ -4,7 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
+import '../../domain/entities/company.dart';
+import '../../domain/entities/company_brand_logo_file.dart';
+import '../../domain/entities/company_role.dart';
+import '../../domain/entities/current_company_context.dart';
 import '../../domain/failures/company_failure_codes.dart';
+import '../cubit/company_branding_cubit.dart';
+import '../helpers/company_brand_logo_file_picker.dart';
+import '../localization/company_branding_localizations.dart';
 import '../cubit/company_onboarding_cubit.dart';
 import '../cubit/company_onboarding_state.dart';
 import '../cubit/company_timezone_cubit.dart';
@@ -36,6 +43,9 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   int? _selectedFractionDigits;
   String? _selectedTimezone;
   String? _contextSyncErrorMessage;
+  String? _logoUploadErrorMessage;
+  CompanyBrandLogoFile? _selectedLogo;
+  final _logoPicker = const CompanyBrandLogoFilePicker();
 
   @override
   void initState() {
@@ -64,7 +74,7 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
     return BlocConsumer<CompanyOnboardingCubit, CompanyOnboardingState>(
       listener: (context, state) async {
         if (state is CompanyOnboardingCreated) {
-          await _openCreatedCompany(state.company.id);
+          await _completeCreatedCompany(state.company);
           return;
         }
 
@@ -95,6 +105,43 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         }
       },
       builder: (context, state) {
+        if (state is CompanyOnboardingCreated &&
+            _logoUploadErrorMessage != null) {
+          final brandingL10n = context.companyBrandingL10n;
+          return Scaffold(
+            appBar: AppBar(title: Text(l10n.appTitle)),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      brandingL10n.createLogoRecovery,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      _logoUploadErrorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    OutlinedButton(
+                      onPressed: () => _uploadCreatedCompanyLogo(state.company),
+                      child: Text(brandingL10n.uploadRetry),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    FilledButton(
+                      onPressed: () => _openCreatedCompany(state.company.id),
+                      child: Text(brandingL10n.continueWithoutLogo),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (state is CompanyOnboardingCreated &&
             _contextSyncErrorMessage != null) {
           return Scaffold(
@@ -161,11 +208,77 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
               onRetryTimezones: () =>
                   context.read<CompanyTimezoneCubit>().loadOptions(),
               onSubmit: _submit,
+              selectedLogoBytes: _selectedLogo?.bytes,
+              onChooseLogo: _chooseLogo,
+              onRemoveLogo: () => setState(() => _selectedLogo = null),
             );
           },
         );
       },
     );
+  }
+
+  Future<void> _chooseLogo() async {
+    try {
+      final selected = await _logoPicker.pick();
+      if (!mounted || selected == null) return;
+      final result = await context
+          .read<CompanyBrandingCubit>()
+          .validateSelection(selected);
+      if (!mounted) return;
+      final failure = result.failureOrNull;
+      if (failure != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.companyBrandingL10n.errorMessage(failure)),
+          ),
+        );
+        return;
+      }
+      setState(() => _selectedLogo = result.dataOrNull);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.companyBrandingL10n.imageReadFailed)),
+      );
+    }
+  }
+
+  Future<void> _completeCreatedCompany(Company company) async {
+    if (_selectedLogo == null) {
+      await _openCreatedCompany(company.id);
+      return;
+    }
+    await _uploadCreatedCompanyLogo(company);
+  }
+
+  Future<void> _uploadCreatedCompanyLogo(Company company) async {
+    final logo = _selectedLogo;
+    if (logo == null) {
+      await _openCreatedCompany(company.id);
+      return;
+    }
+    setState(() => _logoUploadErrorMessage = null);
+    final result = await context.read<CompanyBrandingCubit>().uploadLogo(
+      companyContext: CurrentCompanyContext(
+        company: company,
+        role: CompanyRole.owner,
+      ),
+      logo: logo,
+    );
+    if (!mounted) return;
+
+    final failure = result.failureOrNull;
+    if (failure != null) {
+      setState(
+        () => _logoUploadErrorMessage =
+            context.companyBrandingL10n.errorMessage(failure),
+      );
+      return;
+    }
+
+    _selectedLogo = null;
+    await _openCreatedCompany(company.id);
   }
 
   Future<void> _openCreatedCompany(String companyId) async {

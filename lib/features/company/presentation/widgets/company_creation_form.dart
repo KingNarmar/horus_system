@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
@@ -7,6 +9,7 @@ import '../../../../core/responsive/responsive_layout.dart';
 import '../cubit/company_timezone_state.dart';
 import '../helpers/company_timezone_failure_message.dart';
 import '../localization/company_timezone_localizations.dart';
+import 'company_brand_logo_selector.dart';
 import 'company_logout_button.dart';
 import 'company_onboarding_financial_fields.dart';
 import 'company_timezone_selector.dart';
@@ -29,6 +32,9 @@ class CompanyCreationForm extends StatelessWidget {
   final ValueChanged<String?> onTimezoneChanged;
   final VoidCallback onRetryTimezones;
   final VoidCallback onSubmit;
+  final Uint8List? selectedLogoBytes;
+  final VoidCallback? onChooseLogo;
+  final VoidCallback? onRemoveLogo;
 
   const CompanyCreationForm({
     required this.formKey,
@@ -48,6 +54,9 @@ class CompanyCreationForm extends StatelessWidget {
     required this.onTimezoneChanged,
     required this.onRetryTimezones,
     required this.onSubmit,
+    this.selectedLogoBytes,
+    this.onChooseLogo,
+    this.onRemoveLogo,
     super.key,
   });
 
@@ -76,6 +85,9 @@ class CompanyCreationForm extends StatelessWidget {
           onTimezoneChanged: onTimezoneChanged,
           onRetryTimezones: onRetryTimezones,
           onSubmit: onSubmit,
+          selectedLogoBytes: selectedLogoBytes,
+          onChooseLogo: onChooseLogo,
+          onRemoveLogo: onRemoveLogo,
         );
 
     return Scaffold(
@@ -117,6 +129,9 @@ class _CompanyCreationFormBody extends StatelessWidget {
   final ValueChanged<String?> onTimezoneChanged;
   final VoidCallback onRetryTimezones;
   final VoidCallback onSubmit;
+  final Uint8List? selectedLogoBytes;
+  final VoidCallback? onChooseLogo;
+  final VoidCallback? onRemoveLogo;
 
   const _CompanyCreationFormBody({
     required this.maxWidth,
@@ -138,6 +153,9 @@ class _CompanyCreationFormBody extends StatelessWidget {
     required this.onTimezoneChanged,
     required this.onRetryTimezones,
     required this.onSubmit,
+    this.selectedLogoBytes,
+    this.onChooseLogo,
+    this.onRemoveLogo,
   });
 
   @override
@@ -232,6 +250,16 @@ class _CompanyCreationFormBody extends StatelessWidget {
                     border: const OutlineInputBorder(),
                   ),
                 ),
+                if (onChooseLogo != null) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  CompanyBrandLogoSelector(
+                    imageBytes: selectedLogoBytes,
+                    hasLogo: selectedLogoBytes != null,
+                    enabled: true,
+                    onChoose: onChooseLogo,
+                    onRemove: selectedLogoBytes != null ? onRemoveLogo : null,
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.xl),
                 CompanyOnboardingFinancialFields(
                   selectedCurrency: selectedCurrency,
