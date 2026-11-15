@@ -113,9 +113,11 @@ final class _CompanyBrandingSettingsCardState
               CompanyBrandingNotice.logoRemoved => brandingL10n.logoRemoved,
             };
             _showMessage(message);
-            await context.read<CurrentCompanyCubit>().refreshAndSelectCompany(
-              widget.currentCompanyContext.companyId,
-            );
+            await context
+                .read<CurrentCompanyCubit>()
+                .refreshSelectedCompanyInPlace(
+                  widget.currentCompanyContext.companyId,
+                );
           }
         } else if (state is CompanyBrandingFailure) {
           _showMessage(brandingL10n.errorMessage(state.failure));

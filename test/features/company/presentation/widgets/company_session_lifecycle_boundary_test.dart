@@ -39,6 +39,38 @@ import 'package:horus_system/features/company/presentation/widgets/company_sessi
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
+  testWidgets(
+    'same-company branding refresh preserves the mounted workspace draft',
+    (tester) async {
+      final fixture = _SessionFixture();
+      addTearDown(fixture.close);
+      await fixture.mount(tester, showCompanyView: true);
+
+      await tester.enterText(find.byKey(const Key('draft')), 'draft in Settings');
+      fixture.companyRepository.contexts = [
+        const CurrentCompanyContext(
+          company: Company(id: 'company-a', name: 'Updated Branding'),
+          role: CompanyRole.owner,
+        ),
+      ];
+
+      await fixture.companyCubit.refreshSelectedCompanyInPlace('company-a');
+      await tester.pumpAndSettle();
+
+      expect(fixture.companyRepository.loads, 2);
+      expect(find.byKey(const Key('draft')), findsOneWidget);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'draft in Settings',
+      );
+      expect(
+        (fixture.companyCubit.state as CurrentCompanyLoaded).context.company.name,
+        'Updated Branding',
+      );
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    },
+  );
+
   testWidgets('desktop focus-only resumes keep the shell and avoid reads', (
     tester,
   ) async {

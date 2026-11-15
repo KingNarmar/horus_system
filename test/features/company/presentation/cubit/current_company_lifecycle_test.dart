@@ -19,6 +19,114 @@ import 'package:horus_system/features/company/presentation/cubit/current_company
 import 'package:test/test.dart';
 
 void main() {
+  test(
+    'same-company profile update refreshes context without loading or losing route',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.loadCurrentCompanyContext();
+      final states = <CurrentCompanyState>[];
+      final subscription = cubit.stream.listen(states.add);
+      addTearDown(subscription.cancel);
+
+      final pending = Completer<Result<List<CurrentCompanyContext>>>();
+      repository.pendingLoad = pending;
+      repository.contexts = [
+        const CurrentCompanyContext(
+          company: Company(id: 'company-a', name: 'Renamed Company'),
+          role: CompanyRole.owner,
+        ),
+      ];
+
+      final refresh = cubit.refreshSelectedCompanyInPlace('company-a');
+      expect(cubit.state, isA<CurrentCompanyLoaded>());
+      expect(
+        (cubit.state as CurrentCompanyLoaded).context.company.name,
+        'Test Company',
+      );
+
+      pending.complete(Success(repository.contexts));
+      await refresh;
+
+      expect(
+        (cubit.state as CurrentCompanyLoaded).context.company.name,
+        'Renamed Company',
+      );
+      expect(states.whereType<CurrentCompanyLoading>(), isEmpty);
+      expect(states.whereType<CurrentCompanyVerifying>(), isEmpty);
+      expect(repository.loads, 2);
+    },
+  );
+
+  test(
+    'branding refresh enforces revoked membership and clears company',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.loadCurrentCompanyContext();
+
+      repository.contexts = const [];
+      await cubit.refreshSelectedCompanyInPlace('company-a');
+
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
+      expect(repository.clears, 1);
+    },
+  );
+
+  test(
+    'branding refresh blocks old company UI if network verification fails',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.loadCurrentCompanyContext();
+
+      repository.nextLoadResult = const FailureResult(
+        NetworkFailure(code: CompanyFailureCodes.contextConnectionUnavailable),
+      );
+      await cubit.refreshSelectedCompanyInPlace('company-a');
+
+      final blocked = cubit.state as CurrentCompanyVerifying;
+      expect(blocked.context.companyId, 'company-a');
+      expect(blocked.connectionFailure, isA<NetworkFailure>());
+    },
+  );
+
+  test(
+    'late branding refresh cannot overwrite explicit tenant switch',
+    () async {
+      final repository = _FakeCompanyContextRepository();
+      final cubit = _createCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.loadCurrentCompanyContext();
+
+      final pending = Completer<Result<List<CurrentCompanyContext>>>();
+      repository.pendingLoad = pending;
+      final olderRefresh = cubit.refreshSelectedCompanyInPlace('company-a');
+      repository.pendingLoad = null;
+      repository.contexts = [
+        _context(CompanyRole.owner),
+        const CurrentCompanyContext(
+          company: Company(id: 'company-b', name: 'Other Company'),
+          role: CompanyRole.admin,
+        ),
+      ];
+
+      final switchResult = await cubit.switchActiveCompany('company-b');
+      expect(switchResult.failureOrNull, isNull);
+      pending.complete(Success(repository.contexts));
+      await olderRefresh;
+
+      expect(
+        (cubit.state as CurrentCompanyLoaded).context.companyId,
+        'company-b',
+      );
+    },
+  );
+
   test('revalidation applies authoritative role downgrade', () async {
     final repository = _FakeCompanyContextRepository();
     final cubit = _createCubit(repository);
