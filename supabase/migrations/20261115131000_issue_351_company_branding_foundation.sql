@@ -304,14 +304,14 @@ DECLARE
   v_actor uuid := auth.uid();
   v_before public.companies%ROWTYPE;
   v_after public.companies%ROWTYPE;
-  v_name text := pg_catalog.nullif(pg_catalog.btrim(p_name), '');
-  v_business_type text := pg_catalog.nullif(pg_catalog.btrim(p_business_type), '');
-  v_phone text := pg_catalog.nullif(pg_catalog.btrim(p_phone), '');
-  v_email text := pg_catalog.nullif(pg_catalog.btrim(p_email), '');
-  v_country text := pg_catalog.nullif(pg_catalog.btrim(p_country), '');
-  v_city text := pg_catalog.nullif(pg_catalog.btrim(p_city), '');
-  v_address text := pg_catalog.nullif(pg_catalog.btrim(p_address), '');
-  v_tax text := pg_catalog.nullif(pg_catalog.btrim(p_tax_registration_number), '');
+  v_name text := NULLIF(pg_catalog.btrim(p_name), '');
+  v_business_type text := NULLIF(pg_catalog.btrim(p_business_type), '');
+  v_phone text := NULLIF(pg_catalog.btrim(p_phone), '');
+  v_email text := NULLIF(pg_catalog.btrim(p_email), '');
+  v_country text := NULLIF(pg_catalog.btrim(p_country), '');
+  v_city text := NULLIF(pg_catalog.btrim(p_city), '');
+  v_address text := NULLIF(pg_catalog.btrim(p_address), '');
+  v_tax text := NULLIF(pg_catalog.btrim(p_tax_registration_number), '');
 BEGIN
   IF v_actor IS NULL OR NOT private.has_company_role(
     p_company_id, ARRAY['owner','admin']::public.company_role[]
@@ -320,13 +320,13 @@ BEGIN
       MESSAGE = 'company_branding_permission_denied';
   END IF;
   IF v_name IS NULL OR pg_catalog.length(v_name) > 200
-    OR pg_catalog.length(pg_catalog.coalesce(v_business_type, '')) > 120
-    OR pg_catalog.length(pg_catalog.coalesce(v_phone, '')) > 80
-    OR pg_catalog.length(pg_catalog.coalesce(v_email, '')) > 254
-    OR pg_catalog.length(pg_catalog.coalesce(v_country, '')) > 120
-    OR pg_catalog.length(pg_catalog.coalesce(v_city, '')) > 120
-    OR pg_catalog.length(pg_catalog.coalesce(v_address, '')) > 500
-    OR pg_catalog.length(pg_catalog.coalesce(v_tax, '')) > 120
+    OR pg_catalog.length(COALESCE(v_business_type, '')) > 120
+    OR pg_catalog.length(COALESCE(v_phone, '')) > 80
+    OR pg_catalog.length(COALESCE(v_email, '')) > 254
+    OR pg_catalog.length(COALESCE(v_country, '')) > 120
+    OR pg_catalog.length(COALESCE(v_city, '')) > 120
+    OR pg_catalog.length(COALESCE(v_address, '')) > 500
+    OR pg_catalog.length(COALESCE(v_tax, '')) > 120
   THEN
     RAISE EXCEPTION USING ERRCODE = 'P3511',
       MESSAGE = 'company_branding_profile_invalid';
