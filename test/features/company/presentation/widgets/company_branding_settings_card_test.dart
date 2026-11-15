@@ -34,14 +34,17 @@ void main() {
     (tester) async {
       final contextRepository = _FakeCompanyContextRepository();
       final currentCompanyCubit = CurrentCompanyCubit(
-        loadCurrentCompanyContextUseCase:
-            LoadCurrentCompanyContextUseCase(contextRepository),
-        selectCurrentCompanyUseCase:
-            SelectCurrentCompanyUseCase(contextRepository),
+        loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+          contextRepository,
+        ),
+        selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
+          contextRepository,
+        ),
         refreshSelectedCompanyContextUseCase:
             RefreshSelectedCompanyContextUseCase(contextRepository),
-        clearCurrentCompanyContextUseCase:
-            ClearCurrentCompanyContextUseCase(contextRepository),
+        clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+          contextRepository,
+        ),
       );
       final brandingRepository = _FakeBrandingRepository();
       final brandingCubit = CompanyBrandingCubit(
@@ -59,9 +62,7 @@ void main() {
       await tester.pumpWidget(
         MultiBlocProvider(
           providers: [
-            BlocProvider<CurrentCompanyCubit>.value(
-              value: currentCompanyCubit,
-            ),
+            BlocProvider<CurrentCompanyCubit>.value(value: currentCompanyCubit),
             BlocProvider<CompanyBrandingCubit>.value(value: brandingCubit),
           ],
           child: MaterialApp(
@@ -101,8 +102,10 @@ void main() {
       expect(find.text('Company profile and branding'), findsOneWidget);
       expect(find.byKey(const Key('unsaved-draft')), findsOneWidget);
       expect(
-        tester.widget<EditableText>(find.byType(EditableText).first)
-            .controller.text,
+        tester
+            .widget<EditableText>(find.byType(EditableText).first)
+            .controller
+            .text,
         'keep this draft in Settings',
       );
       expect(tester.takeException(), isNull);
