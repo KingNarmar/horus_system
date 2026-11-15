@@ -100,49 +100,8 @@ BEGIN
     -- Store an immutable private Storage OBJECT KEY, never a signed/public URL.
     NEW.issuer_logo_path := CASE
       WHEN v_company.logo_url ~
-        '^companies/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logos/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[.](png|jpg|jpeg|webp)
-    NEW.issuer_snapshot_source := 'issuance';
-    NEW.issuer_captured_at := pg_catalog.now();
-  ELSIF OLD.issued_at IS NOT NULL THEN
-    IF OLD.company_id IS DISTINCT FROM NEW.company_id
-       OR ROW(
-         OLD.issuer_company_name, OLD.issuer_business_type, OLD.issuer_phone,
-         OLD.issuer_email, OLD.issuer_address, OLD.issuer_city,
-         OLD.issuer_country, OLD.issuer_tax_registration_number,
-         OLD.issuer_logo_path, OLD.issuer_snapshot_source,
-         OLD.issuer_captured_at
-       ) IS DISTINCT FROM ROW(
-         NEW.issuer_company_name, NEW.issuer_business_type, NEW.issuer_phone,
-         NEW.issuer_email, NEW.issuer_address, NEW.issuer_city,
-         NEW.issuer_country, NEW.issuer_tax_registration_number,
-         NEW.issuer_logo_path, NEW.issuer_snapshot_source,
-         NEW.issuer_captured_at
-       ) THEN
-      RAISE EXCEPTION USING ERRCODE = 'P3514',
-        MESSAGE = 'invoice_issuer_identity_immutable';
-    END IF;
-  END IF;
-
-  RETURN NEW;
-END;
-$$;
-
-REVOKE ALL ON FUNCTION private.capture_invoice_issuer_identity()
-  FROM PUBLIC, anon, authenticated;
-
-CREATE TRIGGER invoices_capture_issuer_identity
-BEFORE UPDATE ON public.invoices
-FOR EACH ROW EXECUTE FUNCTION private.capture_invoice_issuer_identity();
-
-COMMENT ON COLUMN public.invoices.issuer_snapshot_source
-  IS 'issuance = transaction-time verified identity; legacy_baseline = current company identity at migration, not historical proof';
-COMMENT ON COLUMN public.invoices.issuer_logo_path
-  IS 'Private, versioned company logo Storage object key captured at issuance; do not replace with a transient signed URL';
-
-COMMIT;
-
-        AND pg_catalog.split_part(v_company.logo_url, '/', 2)::uuid
-          = NEW.company_id
+        '^companies/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logos/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[.](png|jpg|jpeg|webp)$'
+        AND pg_catalog.split_part(v_company.logo_url, '/', 2)::uuid = NEW.company_id
       THEN v_company.logo_url
       ELSE NULL
     END;
