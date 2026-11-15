@@ -53,6 +53,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('ar'),
+        supportedLocales: const [Locale('en'), Locale('ar')],
         home: Scaffold(
           body: CompanyBrandLogoSelector(
             imageBytes: null,
