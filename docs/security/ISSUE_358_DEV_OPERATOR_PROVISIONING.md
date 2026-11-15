@@ -15,6 +15,8 @@ in the SQL file.
 
 - SQL artifact: `supabase/development_only_migrations/20261115_issue_358_dev_operator_bootstrap.sql`
 - Managed operation name: `issue_358_dev_only_operator_bootstrap_20261115`
+- Applied on Development through Supabase managed migration: version
+  `20261115114601` (**SUCCESS** on 2026-11-15).
 - The SQL is intentionally outside **`supabase/migrations/`**: never copy it
   into the shared automatic migration chain, CI replay or Production deploy.
 - Execute only via an operator-authenticated managed Supabase **migration**
