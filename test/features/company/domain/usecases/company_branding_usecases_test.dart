@@ -137,10 +137,7 @@ void main() {
       expect(repository.companyId, 'tenant-1');
 
       final read = await DownloadCompanyBrandLogoUseCase(repository)(
-        const DownloadCompanyBrandLogoParams(
-          companyId: 'tenant-1',
-          path: '',
-        ),
+        const DownloadCompanyBrandLogoParams(companyId: 'tenant-1', path: ''),
       );
       expect(
         read.failureOrNull?.code,
