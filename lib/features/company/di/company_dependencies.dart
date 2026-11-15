@@ -2,6 +2,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../../core/domain/services/company_business_date_provider.dart';
+import '../data/datasources/company_branding_remote_data_source.dart';
+import '../data/repositories/company_branding_repository_impl.dart';
+import '../domain/repositories/company_branding_repository.dart';
+import '../domain/usecases/download_company_brand_logo_usecase.dart';
+import '../domain/usecases/get_company_brand_profile_usecase.dart';
+import '../domain/usecases/remove_company_brand_logo_usecase.dart';
+import '../domain/usecases/update_company_brand_logo_usecase.dart';
+import '../domain/usecases/update_company_brand_profile_usecase.dart';
+import '../domain/usecases/validate_company_brand_logo_usecase.dart';
+import '../presentation/cubit/company_branding_cubit.dart';
 import '../data/datasources/company_business_date_remote_data_source.dart';
 import '../data/datasources/company_financial_settings_remote_data_source.dart';
 import '../data/datasources/company_invitation_delivery_remote_data_source.dart';
@@ -49,6 +59,26 @@ import '../presentation/cubit/company_member_actions_cubit.dart';
 import '../presentation/cubit/company_timezone_cubit.dart';
 
 abstract final class CompanyDependencies {
+  static CompanyBrandingRepository createBrandingRepository() {
+    return CompanyBrandingRepositoryImpl(
+      SupabaseCompanyBrandingRemoteDataSource(
+        SupabaseClientProvider.client,
+      ),
+    );
+  }
+
+  static CompanyBrandingCubit createBrandingCubit() {
+    final repository = createBrandingRepository();
+    return CompanyBrandingCubit(
+      getProfile: GetCompanyBrandProfileUseCase(repository),
+      updateProfile: UpdateCompanyBrandProfileUseCase(repository),
+      updateLogo: UpdateCompanyBrandLogoUseCase(repository),
+      removeLogo: RemoveCompanyBrandLogoUseCase(repository),
+      downloadLogo: DownloadCompanyBrandLogoUseCase(repository),
+      validateLogo: const ValidateCompanyBrandLogoUseCase(),
+    );
+  }
+
   static CompanyRegionalSettingsRepository createRegionalSettingsRepository() {
     return CompanyRegionalSettingsRepositoryImpl(
       SupabaseCompanyRegionalSettingsRemoteDataSource(
