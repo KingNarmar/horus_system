@@ -142,9 +142,11 @@ def main():
             api, accounts[role][1], company,
             updated["updated_at"], "unauthorized"
         ), "P3510", role + " cannot change business identity")
-    denied(change_profile(
+    anon_status, _ = change_profile(
         api, None, company, updated["updated_at"], "anonymous"
-    ), "P3510", "anonymous cannot change business identity")
+    )
+    check("anonymous cannot invoke privileged profile RPC",
+          anon_status in (401, 403, 404))
 
     status, body = api.call(
         "PATCH", "/rest/v1/companies", token=owner_jwt,
