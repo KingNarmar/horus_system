@@ -30,6 +30,9 @@ final class CompanyBrandingLocalizations {
   String get retry => _value('retry');
   String get uploadRetry => _value('uploadRetry');
   String get continueWithoutLogo => _value('continueWithoutLogo');
+  String get continueToCompany => _value('continueToCompany');
+  String get createLogoReview => _value('createLogoReview');
+  String get reloadProfile => _value('reloadProfile');
   String get createLogoRecovery => _value('createLogoRecovery');
   String get logoUpdated => _value('logoUpdated');
   String get logoRemoved => _value('logoRemoved');
@@ -82,6 +85,10 @@ final class CompanyBrandingLocalizations {
     'retry': 'Retry',
     'uploadRetry': 'Retry logo upload',
     'continueWithoutLogo': 'Continue without logo',
+    'continueToCompany': 'Go to company',
+    'createLogoReview':
+        'Your company is created. The logo upload outcome needs verification. Open the company profile to review its logo; do not retry the upload until it is checked.',
+    'reloadProfile': 'Reload company branding',
     'createLogoRecovery':
         'Your company was created successfully, but its logo could not be saved. Retry the logo or continue without it. The company will not be created again.',
     'logoUpdated': 'Company logo saved.',
@@ -122,6 +129,10 @@ final class CompanyBrandingLocalizations {
     'retry': 'إعادة المحاولة',
     'uploadRetry': 'إعادة رفع الشعار',
     'continueWithoutLogo': 'المتابعة بدون شعار',
+    'continueToCompany': 'الانتقال إلى الشركة',
+    'createLogoReview':
+        'تم إنشاء الشركة. يجب التأكد من نتيجة رفع الشعار. انتقل إلى بيانات الشركة لمراجعة الشعار قبل محاولة رفعه مجددًا.',
+    'reloadProfile': 'تحديث بيانات الشركة والشعار',
     'createLogoRecovery':
         'تم إنشاء الشركة بنجاح، لكن تعذر حفظ الشعار. يمكنك إعادة رفعه أو المتابعة بدونه، ولن يتم إنشاء الشركة مرة أخرى.',
     'logoUpdated': 'تم حفظ شعار الشركة.',

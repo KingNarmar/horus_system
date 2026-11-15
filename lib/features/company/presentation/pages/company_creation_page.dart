@@ -9,6 +9,7 @@ import '../../domain/entities/company_brand_logo_file.dart';
 import '../../domain/entities/company_role.dart';
 import '../../domain/entities/current_company_context.dart';
 import '../../domain/failures/company_failure_codes.dart';
+import '../../domain/failures/company_branding_failure_codes.dart';
 import '../cubit/company_branding_cubit.dart';
 import '../helpers/company_brand_logo_file_picker.dart';
 import '../localization/company_branding_localizations.dart';
@@ -44,6 +45,8 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   String? _selectedTimezone;
   String? _contextSyncErrorMessage;
   String? _logoUploadErrorMessage;
+  String? _logoUploadFailureCode;
+  bool _logoUploadInFlight = false;
   CompanyBrandLogoFile? _selectedLogo;
   final _logoPicker = const CompanyBrandLogoFilePicker();
 
@@ -108,6 +111,10 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
         if (state is CompanyOnboardingCreated &&
             _logoUploadErrorMessage != null) {
           final brandingL10n = context.companyBrandingL10n;
+          final mustVerify = _logoUploadFailureCode ==
+                  CompanyBrandingFailureCodes.uploadCompletionUnknown ||
+              _logoUploadFailureCode ==
+                  CompanyBrandingFailureCodes.uploadCleanupPending;
           return Scaffold(
             appBar: AppBar(title: Text(l10n.appTitle)),
             body: Center(
@@ -117,20 +124,28 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      brandingL10n.createLogoRecovery,
+                      mustVerify
+                          ? brandingL10n.createLogoReview
+                          : brandingL10n.createLogoRecovery,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(_logoUploadErrorMessage!, textAlign: TextAlign.center),
                     const SizedBox(height: AppSpacing.lg),
-                    OutlinedButton(
-                      onPressed: () => _uploadCreatedCompanyLogo(state.company),
-                      child: Text(brandingL10n.uploadRetry),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
+                    if (!mustVerify) ...[
+                      OutlinedButton(
+                        onPressed: () => _uploadCreatedCompanyLogo(state.company),
+                        child: Text(brandingL10n.uploadRetry),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     FilledButton(
                       onPressed: () => _openCreatedCompany(state.company.id),
-                      child: Text(brandingL10n.continueWithoutLogo),
+                      child: Text(
+                        mustVerify
+                            ? brandingL10n.continueToCompany
+                            : brandingL10n.continueWithoutLogo,
+                      ),
                     ),
                   ],
                 ),
@@ -250,12 +265,17 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
   }
 
   Future<void> _uploadCreatedCompanyLogo(Company company) async {
+    if (_logoUploadInFlight) return;
     final logo = _selectedLogo;
     if (logo == null) {
       await _openCreatedCompany(company.id);
       return;
     }
-    setState(() => _logoUploadErrorMessage = null);
+    setState(() {
+      _logoUploadInFlight = true;
+      _logoUploadErrorMessage = null;
+      _logoUploadFailureCode = null;
+    });
     final result = await context.read<CompanyBrandingCubit>().uploadLogo(
       companyContext: CurrentCompanyContext(
         company: company,
@@ -267,13 +287,16 @@ class _CompanyCreationPageState extends State<CompanyCreationPage> {
 
     final failure = result.failureOrNull;
     if (failure != null) {
-      setState(
-        () => _logoUploadErrorMessage = context.companyBrandingL10n
-            .errorMessage(failure),
-      );
+      setState(() {
+        _logoUploadInFlight = false;
+        _logoUploadFailureCode = failure.code;
+        _logoUploadErrorMessage =
+            context.companyBrandingL10n.errorMessage(failure);
+      });
       return;
     }
 
+    _logoUploadInFlight = false;
     _selectedLogo = null;
     await _openCreatedCompany(company.id);
   }

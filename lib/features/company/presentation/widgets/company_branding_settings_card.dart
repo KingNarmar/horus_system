@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations_extension.dart';
 import '../../domain/entities/company_brand_profile.dart';
 import '../../domain/entities/current_company_context.dart';
+import '../../domain/failures/company_branding_failure_codes.dart';
 import '../cubit/company_branding_cubit.dart';
 import '../cubit/company_branding_state.dart';
 import '../cubit/current_company_cubit.dart';
@@ -132,6 +133,15 @@ final class _CompanyBrandingSettingsCardState
           _ => null,
         };
         final saving = state is CompanyBrandingSaving;
+        final logoFailure = state is CompanyBrandingReady
+            ? state.failure?.code
+            : null;
+        final mustVerifyLogo =
+            logoFailure == CompanyBrandingFailureCodes.uploadCompletionUnknown;
+        final cleanupPending =
+            logoFailure == CompanyBrandingFailureCodes.uploadCleanupPending;
+        final canChangeLogo =
+            !saving && canManage && !mustVerifyLogo && !cleanupPending;
 
         return Card(
           child: Padding(
@@ -162,7 +172,7 @@ final class _CompanyBrandingSettingsCardState
                   CompanyBrandLogoSelector(
                     imageBytes: logoBytes,
                     hasLogo: profile.logoPath != null,
-                    enabled: !saving && canManage,
+                    enabled: canChangeLogo,
                     onChoose: canManage ? _chooseLogo : null,
                     onRemove: canManage && profile.logoPath != null
                         ? () => context.read<CompanyBrandingCubit>().removeLogo(
@@ -170,6 +180,15 @@ final class _CompanyBrandingSettingsCardState
                           )
                         : null,
                   ),
+                  if (mustVerifyLogo) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    OutlinedButton(
+                      onPressed: () => context
+                          .read<CompanyBrandingCubit>()
+                          .load(widget.currentCompanyContext),
+                      child: Text(brandingL10n.reloadProfile),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.xl),
                   Form(
                     key: _formKey,

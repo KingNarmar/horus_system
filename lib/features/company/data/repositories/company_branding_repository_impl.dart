@@ -152,18 +152,32 @@ final class CompanyBrandingRepositoryImpl implements CompanyBrandingRepository {
         final pending = await _compensate(companyId, operationId, path);
         return FailureResult(pending ?? _mapper.fromDatabase(error));
       }
-      return const FailureResult(
-        ServerFailure(
-          code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
-        ),
-      );
+      return _reconcileUnknownLogoWrite(companyId, path);
     } catch (_) {
-      return const FailureResult(
-        ServerFailure(
-          code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
-        ),
-      );
+      return _reconcileUnknownLogoWrite(companyId, path);
     }
+  }
+
+  /// A transport failure can happen AFTER the logo switch commits.
+  /// Never delete the uploaded bytes on an unknown outcome: invoices could
+  /// already have captured this exact immutable asset.
+  Future<Result<CompanyBrandProfile>> _reconcileUnknownLogoWrite(
+    String companyId,
+    String uploadedPath,
+  ) async {
+    try {
+      final current = await _source.loadProfile(companyId);
+      if (current.logoPath == uploadedPath) {
+        return Success(current.toEntity());
+      }
+    } catch (_) {
+      // A read failure cannot prove the mutation was rolled back.
+    }
+    return const FailureResult(
+      ServerFailure(
+        code: CompanyBrandingFailureCodes.uploadCompletionUnknown,
+      ),
+    );
   }
 
   Future<ServerFailure?> _compensate(
