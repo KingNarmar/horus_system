@@ -12,8 +12,8 @@
 -- It is an identity MATCH guard, not a password, authenticator or access token.
 -- Full trusted SQL audit comes from the existing access registry trigger.
 --
--- Approval: explicitly authorized by the platform owner on 2026-11-15 for
--- adlymina99@gmail.com, DEVELOPMENT ONLY, retaining all tenant memberships.
+-- Approval: explicitly authorized by the platform owner on 2026-11-15,
+-- DEVELOPMENT ONLY, retaining all tenant memberships.
 -- Scope: tenant_read, usage_read, override_read, override_write,
 -- creation_grant_write, audit_read and membership_recovery.
 -- Deliberately EXCLUDES operator_manage.
