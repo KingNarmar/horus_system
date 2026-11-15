@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/features/company/presentation/widgets/company_brand_logo_selector.dart';
+import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
   testWidgets('logo selection is optional and can be replaced or removed', (
@@ -53,7 +54,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('ar'),
-        supportedLocales: const [Locale('en'), Locale('ar')],
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: Scaffold(
           body: CompanyBrandLogoSelector(
             imageBytes: null,
