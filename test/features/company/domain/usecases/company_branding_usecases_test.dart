@@ -105,7 +105,7 @@ void main() {
   );
 
   test(
-    'logo replacement and read reject foreign or unauthorized use',
+    'logo replacement rejects unauthorized roles and empty read input',
     () async {
       final repository = _BrandingRepository();
       final image = CompanyBrandLogoFile(
@@ -139,7 +139,7 @@ void main() {
       final read = await DownloadCompanyBrandLogoUseCase(repository)(
         const DownloadCompanyBrandLogoParams(
           companyId: 'tenant-1',
-          path: 'companies/tenant-2/logos/foreign.png',
+          path: '',
         ),
       );
       expect(

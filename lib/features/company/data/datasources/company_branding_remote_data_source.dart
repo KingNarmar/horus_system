@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/data/constants/db_common_fields.dart';
 import '../constants/company_branding_constants.dart';
 import '../constants/company_db_fields.dart';
-import '../constants/company_rpc_constants.dart';
 import '../models/company_brand_profile_model.dart';
 
 abstract class CompanyBrandingRemoteDataSource {
