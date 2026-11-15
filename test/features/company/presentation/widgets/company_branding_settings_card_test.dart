@@ -21,8 +21,9 @@ import 'package:horus_system/features/company/presentation/widgets/company_brand
 import 'package:horus_system/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('owner sees editable company branding and profile fields',
-      (tester) async {
+  testWidgets('owner sees editable company branding and profile fields', (
+    tester,
+  ) async {
     await _pumpSettings(tester, role: CompanyRole.owner);
 
     expect(find.text('Company profile and branding'), findsOneWidget);
@@ -32,8 +33,9 @@ void main() {
     expect(find.text('Registration / tax number (optional)'), findsOneWidget);
   });
 
-  testWidgets('viewer can read identity but not mutate company branding',
-      (tester) async {
+  testWidgets('viewer can read identity but not mutate company branding', (
+    tester,
+  ) async {
     await _pumpSettings(tester, role: CompanyRole.viewer);
 
     expect(find.text('Company profile and branding'), findsOneWidget);
