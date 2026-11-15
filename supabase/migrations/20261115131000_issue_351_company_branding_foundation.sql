@@ -122,7 +122,7 @@ USING (
   )
 );
 CREATE POLICY company_branding_read_boundary
-AS RESTRICTIVE ON storage.objects FOR SELECT TO authenticated
+ON storage.objects AS RESTRICTIVE FOR SELECT TO authenticated
 USING (
   bucket_id <> 'company-branding'
   OR private.has_company_role(
@@ -143,7 +143,7 @@ WITH CHECK (
   AND private.company_branding_upload_is_reserved(name)
 );
 CREATE POLICY company_branding_insert_boundary
-AS RESTRICTIVE ON storage.objects FOR INSERT TO authenticated
+ON storage.objects AS RESTRICTIVE FOR INSERT TO authenticated
 WITH CHECK (
   bucket_id <> 'company-branding'
   OR (
@@ -157,7 +157,7 @@ WITH CHECK (
 
 -- Object immutability: never overwrite a logo used by an issued invoice.
 CREATE POLICY company_branding_no_overwrite
-AS RESTRICTIVE ON storage.objects FOR UPDATE TO authenticated
+ON storage.objects AS RESTRICTIVE FOR UPDATE TO authenticated
 USING (bucket_id <> 'company-branding')
 WITH CHECK (bucket_id <> 'company-branding');
 
@@ -172,7 +172,7 @@ USING (
   AND NOT private.company_branding_logo_is_referenced(name)
 );
 CREATE POLICY company_branding_delete_boundary
-AS RESTRICTIVE ON storage.objects FOR DELETE TO authenticated
+ON storage.objects AS RESTRICTIVE FOR DELETE TO authenticated
 USING (
   bucket_id <> 'company-branding'
   OR (
