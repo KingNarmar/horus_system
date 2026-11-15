@@ -19,6 +19,8 @@ abstract final class AppSizes {
   static const double detailsStackBreakpoint = 420;
   static const double detailsLabelWidth = 190;
 
+  static const double companyLogoPreviewHeight = 120;
+
   static const double iconSm = 18;
   static const double iconMd = 24;
   static const double iconLg = 32;
