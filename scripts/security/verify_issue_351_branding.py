@@ -244,10 +244,20 @@ def main():
         "p_company_id": company, "p_expected_logo_path": path,
         "p_new_logo_path": None
     }), "owner removes current logo without deleting invoice history")
-    check("invoice-referenced old logo remains protected",
-          psql(db, "SELECT private.company_branding_logo_is_referenced('"
-               + path + "')::text;") == "t"
-          and storage(api, owner_jwt, "DELETE", path) >= 400)
+    referenced = psql(
+        db, "SELECT private.company_branding_logo_is_referenced('"
+            + path + "')::text;"
+    )
+    delete_status = storage(api, owner_jwt, "DELETE", path)
+    retained_objects = count(
+        db, "storage.objects",
+        "bucket_id='company-branding' AND name='" + path + "'"
+    )
+    print("Referenced logo delete probe: HTTP", delete_status,
+          "reference", referenced, "remaining", retained_objects,
+          flush=True)
+    check("invoice-referenced old logo bytes/metadata remain protected",
+          referenced == "t" and retained_objects == 1)
     check("old invoice still has captured logo version",
           psql(db, "SELECT issuer_logo_path FROM public.invoices WHERE id='"
                + invoice + "';") == path)
