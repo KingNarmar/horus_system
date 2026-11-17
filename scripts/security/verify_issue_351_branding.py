@@ -277,8 +277,17 @@ def main():
         "p_customer_id": customer,
         "p_route_id": route,
     }), "signed owner creates a billable trip")["id"]
-    # Set operational evidence on the disposable local fixture only.
+    # Fixture-only evidence metadata: the real issue_invoice RPC checks the
+    # trip evidence invariant when transitioning it to "invoiced". The tested
+    # feature is issuer identity; real document uploads are covered by #357.
+    # Never use this fixture method in hosted Development or Production.
     psql(db, "BEGIN; SET LOCAL session_replication_role=replica; "
+         "INSERT INTO public.trip_documents "
+         "(company_id,trip_id,document_kind,storage_reference,"
+         "original_file_name,mime_type,size_bytes,uploaded_by) VALUES ('"
+         + company + "','" + trip
+         + "','waybill','local-test/issue-351-waybill',"
+         "'issue-351-waybill.png','image/png',1,'" + owner_id + "'); "
          "UPDATE public.trips SET status='documents_received',"
          "freight_price=100,quantity_tons=1 "
          "WHERE company_id='" + company + "' AND id='" + trip + "'; COMMIT;")
