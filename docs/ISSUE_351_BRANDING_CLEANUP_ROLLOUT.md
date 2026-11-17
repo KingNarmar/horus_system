@@ -1,13 +1,15 @@
 # Issue #351 — Company-branding Storage cleanup (source-only rollout contract)
 
-**Status:** implementation and disposable CI verification; **NOT AUTHORIZED FOR HOSTED DEPLOYMENT**.
+**Status (2026-11-17):** Approved Development-only managed migration `20261117121333_issue_351_branding_cleanup` **applied and verified** on `zwnfmszssxtfxkaofnhq`. The six retired logos remain in Storage (0 deletions, 0 cleanup claims); the hosted `business-document-cleanup` Edge Function is still v2, and the new branding worker is **NOT DEPLOYED**. Production, PR merge and automatic cleanup activation remain separate gates.
+
+**Migration-history note:** The Development-only #358 operator bootstrap `20261115114601` is intentionally stored outside the shared migrations directory, under `supabase/development_only_migrations/`; never copy it into the shared chain or use `migration repair --status reverted` to bypass history drift. The managed Development migration received version `20261117121333`, so the shared source filename was realigned without re-executing its SQL. The SQL content was retained unchanged to match the already applied migration exactly. Before future environment-specific CLI deployments, reconcile the known Development-only history safely; do not silently repair or reapply it.
 
 ## Ownership and boundaries
 
 Company logo version selection remains an Owner/Admin operation through the existing
 `set_company_brand_logo` company-scoped RPC. The branding cleanup ledger, expiry,
 reference checks, lease claim and completion belong to private PostgreSQL/DB service
-functions in `supabase/migrations/20261117130000_issue_351_branding_cleanup.sql`.
+functions in `supabase/migrations/20261117121333_issue_351_branding_cleanup.sql`.
 
 The existing Vault-authenticated, service-role-only `business-document-cleanup`
 Edge Function orchestrates BOTH the original #357 document cleanup and this
