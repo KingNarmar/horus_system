@@ -8,6 +8,7 @@ import secrets
 import time
 import urllib.error
 import urllib.request
+import uuid
 
 from verify_issue_365_local_http import LocalApi, check, local_stack, psql, rpc
 from verify_issue_351_branding import logo_key, onboard, row, storage, PNG
@@ -38,9 +39,7 @@ def main():
     _, owner_jwt = api.create_session("edge-branding", nonce)
     company = onboard(api, owner_jwt, nonce)
     logo = logo_key(company)
-    operation_id = secrets.token_hex(16)
     # This is a disposable UUID, not a user account or project secret.
-    import uuid
     operation_id = str(uuid.uuid4())
 
     status, _ = rpc(api, owner_jwt, "reserve_company_branding_upload", {
