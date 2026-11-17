@@ -4,6 +4,7 @@ Runs ONLY against a locally booted Supabase CLI instance. No hosted keys.
 The full invoice-issue RPC needs a separate integration fixture; this script
 proves the database issuer trigger, row immutability and private Storage RLS.
 """
+from datetime import datetime, timezone
 import base64
 import secrets
 import urllib.error
@@ -115,6 +116,22 @@ def main():
              + company + "','" + user_id + "','" + role + "',true,'"
              + owner_id + "');")
 
+    # Read access is tenant-scoped, including Viewer and Admin membership.
+    for role in ("viewer", "admin"):
+        status, rows = api.call(
+            "GET", "/rest/v1/companies", token=accounts[role][1],
+            query={"id": "eq." + company, "select": "id,name"}
+        )
+        check(role + " reads own tenant company identity",
+              status == 200 and isinstance(rows, list)
+              and len(rows) == 1 and rows[0]["id"] == company)
+    status, foreign_rows = api.call(
+        "GET", "/rest/v1/companies", token=accounts["foreign"][1],
+        query={"id": "eq." + company, "select": "id"}
+    )
+    check("foreign tenant cannot read this company's brand identity",
+          status == 200 and foreign_rows == [])
+
     initial = profile(api, owner_jwt, company)
     original_name = initial["name"]
     before_audit = count(db, "public.audit_logs",
@@ -160,6 +177,23 @@ def main():
                 "company_id='" + company
                 + "' AND metadata->>'audit_event'="
                   "'company_brand_profile_updated'") == before_audit + 1)
+
+    admin_updated = row(change_profile(
+        api, accounts["admin"][1], company,
+        updated["updated_at"], edited_name + "-ADMIN"
+    ), "authorized Admin can edit tenant business identity")
+    check("Admin profile change stays company scoped",
+          admin_updated["id"] == company
+          and admin_updated["name"] == edited_name + "-ADMIN")
+    restored = row(change_profile(
+        api, owner_jwt, company, admin_updated["updated_at"], edited_name
+    ), "owner restores company identity after Admin edit")
+    check("Admin mutation and owner restoration both audited",
+          restored["name"] == edited_name
+          and count(db, "public.audit_logs",
+                    "company_id='" + company
+                    + "' AND metadata->>'audit_event'="
+                      "'company_brand_profile_updated'") == before_audit + 3)
 
     path = logo_key(company)
     reserve = lambda jwt, company_id, op, key: rpc(
@@ -230,6 +264,53 @@ def main():
                "WHERE id='" + invoice + "';")
           == edited_name + "|" + path + "|issuance")
 
+    # Exercise the genuine signed-JWT Invoice issue RPC, not only a
+    # privileged SQL fixture that triggers the same database hook.
+    route = uid(psql(
+        db, "INSERT INTO public.routes"
+            "(company_id,loading_location,unloading_location) VALUES ('"
+            + company + "','ISSUE351-START','ISSUE351-END') RETURNING id;"
+    ))
+    trip = row(rpc(api, owner_jwt, "create_trip_idempotent", {
+        "p_request_id": str(uuid.uuid4()),
+        "p_company_id": company,
+        "p_customer_id": customer,
+        "p_route_id": route,
+    }), "signed owner creates a billable trip")["id"]
+    # Set operational evidence on the disposable local fixture only.
+    psql(db, "BEGIN; SET LOCAL session_replication_role=replica; "
+         "UPDATE public.trips SET status='documents_received',"
+         "freight_price=100,quantity_tons=1 "
+         "WHERE company_id='" + company + "' AND id='" + trip + "'; COMMIT;")
+    status, live_draft = rpc(api, owner_jwt,
+                             "create_invoice_draft_idempotent", {
+        "p_request_id": str(uuid.uuid4()),
+        "p_company_id": company,
+        "p_customer_id": customer,
+        "p_trip_ids": [trip],
+        "p_discount_minor_units": 0,
+        "p_tax_rate_basis_points": 0,
+        "p_issue_date": None,
+        "p_due_date": None,
+        "p_notes": "local-only issuer snapshot acceptance",
+    })
+    check("signed owner creates valid invoice draft",
+          status == 200 and isinstance(live_draft, str))
+    today = datetime.now(timezone.utc).date().isoformat()
+    status, live_issued = rpc(api, owner_jwt, "issue_invoice", {
+        "p_company_id": company,
+        "p_invoice_id": live_draft,
+        "p_issue_date": today,
+        "p_due_date": today,
+    })
+    check("signed owner issues invoice through actual RPC",
+          status == 200 and live_issued == live_draft)
+    check("real invoice issuance captures correct issuer name and logo",
+          psql(db, "SELECT issuer_company_name || '|' || issuer_logo_path "
+                  "|| '|' || issuer_snapshot_source FROM public.invoices "
+                  "WHERE id='" + live_draft + "';")
+          == edited_name + "|" + path + "|issuance")
+
     newest = profile(api, owner_jwt, company)
     row(change_profile(
         api, owner_jwt, company, newest["updated_at"], edited_name + "-NEW"
@@ -237,6 +318,11 @@ def main():
     check("old invoice identity remains frozen after current name change",
           psql(db, "SELECT issuer_company_name FROM public.invoices "
                "WHERE id='" + invoice + "';") == edited_name)
+
+    check("real issued invoice remains immutable after a profile edit",
+          psql(db, "SELECT issuer_company_name || '|' || issuer_logo_path "
+                  "FROM public.invoices WHERE id='" + live_draft + "';")
+          == edited_name + "|" + path)
 
     # A protected Storage delete must refuse even after the CURRENT logo
     # is removed: the old invoice continues to reference that version.
@@ -261,6 +347,34 @@ def main():
     check("old invoice still has captured logo version",
           psql(db, "SELECT issuer_logo_path FROM public.invoices WHERE id='"
                + invoice + "';") == path)
+
+    # Admin can independently reserve, upload and select its own logo
+    # without using the Owner's reservation, and can remove it later.
+    admin_path = logo_key(company)
+    admin_operation = str(uuid.uuid4())
+    admin_jwt = accounts["admin"][1]
+    admin_status, _ = reserve(admin_jwt, company,
+                              admin_operation, admin_path)
+    check("Admin can reserve tenant branding upload",
+          admin_status in (200, 204))
+    check("Admin can upload its reserved private logo",
+          storage(api, admin_jwt, "POST", admin_path, PNG) in (200, 201))
+    admin_selected = row(rpc(api, admin_jwt, "set_company_brand_logo", {
+        "p_company_id": company,
+        "p_expected_logo_path": None,
+        "p_new_logo_path": admin_path,
+    }), "authorized Admin selects private company logo")
+    check("Admin logo selection scoped to the correct company",
+          admin_selected["logo_url"] == admin_path)
+    admin_removed = row(rpc(api, admin_jwt, "set_company_brand_logo", {
+        "p_company_id": company,
+        "p_expected_logo_path": admin_path,
+        "p_new_logo_path": None,
+    }), "authorized Admin removes private company logo")
+    check("Admin can remove current logo while issued history remains frozen",
+          admin_removed["logo_url"] is None
+          and psql(db, "SELECT issuer_logo_path FROM public.invoices "
+                   "WHERE id='" + live_draft + "';") == path)
 
     print("Issue #351 disposable signed-JWT branding contract: PASS",
           flush=True)
