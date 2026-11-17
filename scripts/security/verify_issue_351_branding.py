@@ -255,7 +255,7 @@ def main():
         + "','AED','ISSUER SNAPSHOT TEST',100,100,0,100) RETURNING id;"))
     psql(db,
         "UPDATE public.invoices SET status='issued',"
-        "invoice_number='HORUS351-2026-000001',"
+        "invoice_number='HORUS351-2026-000999',"
         "issue_date=CURRENT_DATE,due_date=CURRENT_DATE,"
         "issued_at=now(),issued_by='" + owner_id + "' WHERE id='" + invoice + "';")
     check("issuer name and immutable logo captured at issuance",
@@ -303,6 +303,12 @@ def main():
         "p_issue_date": today,
         "p_due_date": today,
     })
+    if status != 200 or live_issued != live_draft:
+        # Safe diagnostic: no client tokens, user identifiers or raw payloads.
+        error_code = (live_issued.get("code")
+                      if isinstance(live_issued, dict) else None)
+        print("ISSUE351_LIVE_INVOICE_ISSUE_DIAGNOSTIC",
+              "http", status, "sqlstate", error_code, flush=True)
     check("signed owner issues invoice through actual RPC",
           status == 200 and live_issued == live_draft)
     check("real invoice issuance captures correct issuer name and logo",
