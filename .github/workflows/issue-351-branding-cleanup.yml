@@ -8,6 +8,7 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/functions/business-document-cleanup/**'
       - 'scripts/security/verify_issue_351_cleanup.py'
+      - 'scripts/security/verify_issue_351_cleanup_edge.py'
       - '.github/workflows/issue-351-branding-cleanup.yml'
 
 permissions:
@@ -29,7 +30,7 @@ jobs:
           node-version: '24'
 
       - name: Validate isolated test syntax
-        run: python -m py_compile scripts/security/verify_issue_351_cleanup.py
+        run: python -m py_compile scripts/security/verify_issue_351_cleanup.py scripts/security/verify_issue_351_cleanup_edge.py
 
       - name: Prepare disposable Supabase only
         shell: bash
@@ -47,6 +48,23 @@ jobs:
 
       - name: Verify tenant/role/grace, cleanup leases and Storage API removal
         run: python scripts/security/verify_issue_351_cleanup.py
+
+      - name: Start disposable Edge runtime (no hosted deployment)
+        shell: bash
+        run: |
+          npx --yes supabase@3.0.0 functions serve business-document-cleanup --no-verify-jwt > "$RUNNER_TEMP/branding-edge.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/branding-edge.pid"
+
+      - name: Verify real Edge/Vault/Storage cleanup idempotence
+        run: python scripts/security/verify_issue_351_cleanup_edge.py
+
+      - name: Stop disposable Edge runtime
+        if: always()
+        shell: bash
+        run: |
+          if test -f "$RUNNER_TEMP/branding-edge.pid"; then
+            kill "$(cat "$RUNNER_TEMP/branding-edge.pid")" || true
+          fi
 
       - name: Dispose local stack and fixtures
         if: always()
