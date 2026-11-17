@@ -1,0 +1,74 @@
+name: Issue 351 Branding Cleanup and Storage Lifecycle
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/business-document-cleanup/**'
+      - 'scripts/security/verify_issue_351_cleanup.py'
+      - 'scripts/security/verify_issue_351_cleanup_edge.py'
+      - '.github/workflows/issue-351-branding-cleanup.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horus-351-branding-cleanup-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  branding-cleanup:
+    name: Disposable branding cleanup and Storage API contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Validate isolated test syntax
+        run: python -m py_compile scripts/security/verify_issue_351_cleanup.py scripts/security/verify_issue_351_cleanup_edge.py
+
+      - name: Prepare disposable Supabase only
+        shell: bash
+        run: |
+          test ! -e supabase/config.toml
+          test ! -e supabase/.temp/project-ref
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          npx --yes supabase@3.0.0 init
+
+      - name: Replay migrations on disposable database
+        run: |
+          npx --yes supabase@3.0.0 start
+          npx --yes supabase@3.0.0 db reset --local --no-seed
+
+      - name: Verify tenant/role/grace, cleanup leases and Storage API removal
+        run: python scripts/security/verify_issue_351_cleanup.py
+
+      - name: Start disposable Edge runtime (no hosted deployment)
+        shell: bash
+        run: |
+          npx --yes supabase@3.0.0 functions serve business-document-cleanup --no-verify-jwt > "$RUNNER_TEMP/branding-edge.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/branding-edge.pid"
+
+      - name: Verify real Edge/Vault/Storage cleanup idempotence
+        run: python scripts/security/verify_issue_351_cleanup_edge.py
+
+      - name: Stop disposable Edge runtime
+        if: always()
+        shell: bash
+        run: |
+          if test -f "$RUNNER_TEMP/branding-edge.pid"; then
+            kill "$(cat "$RUNNER_TEMP/branding-edge.pid")" || true
+          fi
+
+      - name: Dispose local stack and fixtures
+        if: always()
+        run: |
+          if test -e supabase/config.toml; then
+            npx --yes supabase@3.0.0 stop --no-backup || true
+          fi
