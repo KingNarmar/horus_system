@@ -1,6 +1,6 @@
-# Issue #351 — Company-branding Storage cleanup (source-only rollout contract)
+# Issue #351 — Company-branding Storage cleanup (Development verified; Production pending)
 
-**Status (2026-11-17):** Approved Development-only managed migration `20261117121333_issue_351_branding_cleanup` **applied and verified** on `zwnfmszssxtfxkaofnhq`. The six retired logos remain in Storage (0 deletions, 0 cleanup claims); the hosted `business-document-cleanup` Edge Function is still v2, and the new branding worker is **NOT DEPLOYED**. Production, PR merge and automatic cleanup activation remain separate gates.
+**Status (2026-11-17):** Approved Development-only managed migration `20261117121333_issue_351_branding_cleanup` **APPLIED** on `zwnfmszssxtfxkaofnhq`; `business-document-cleanup` Edge Function **v3 ACTIVE** with exact PR #385 `index.ts` and `branding_cleanup.ts`. Controlled Vault-authenticated HTTP smoke returned 200 and successfully cleaned six explicitly disposable, unreferenced retired logos (6/6), with 0 deferrals, 0 remaining Storage objects and 0 pending leases. Existing #357 document cleanup reported 0 due documents in that smoke. The existing Cron stays active and unchanged. **Production and PR merges remain NOT AUTHORIZED.**
 
 **Migration-history note:** The Development-only #358 operator bootstrap `20261115114601` is intentionally stored outside the shared migrations directory, under `supabase/development_only_migrations/`; never copy it into the shared chain or use `migration repair --status reverted` to bypass history drift. The managed Development migration received version `20261117121333`, so the shared source filename was realigned without re-executing its SQL. The SQL content was retained unchanged to match the already applied migration exactly. Before future environment-specific CLI deployments, reconcile the known Development-only history safely; do not silently repair or reapply it.
 
@@ -54,7 +54,17 @@ company and issued-invoice references again before calling Storage, verifies
 deletion through the completion RPC, and tracks deferred errors by stable
 codes. No user secrets, Storage paths or JWTs appear in HTTP responses.
 
-## Mandatory verification before hosting
+## Hosted Development rollout evidence (2026-11-17)
+
+- **Database:** Managed migration version `20261117121333`, already aligned with its shared source filename; existing Development-only #358 history preserved without repair.
+- **Deployment:** Edge Function `business-document-cleanup` updated from v2 to v3 with `verify_jwt=false` unchanged. Both hosted file contents verified byte-for-byte against the reviewed PR A sources; Vault Bearer-token authorization and service-role RPC checks are retained.
+- **Smoke:** A single explicitly authorized Development-only invocation using the existing pg_cron Vault endpoint/token returned HTTP **200**: `status=completed`, `inspected=0`, `cleaned=0`, `deferred=0`, `branding_inspected=6`, `branding_cleaned=6`, `branding_deferred=0`. The six existing retired logos were all known disposable test assets; the owner explicitly confirmed their loss was acceptable, so a single-asset-only smoke was replaced with this six-asset controlled smoke.
+- **Post-run verification:** All six records moved to `cleaned` with non-null `cleaned_at`; 0 `retired`/`cleanup_pending`, 0 pending errors, 0 still-present Storage objects, 0 cleaned records referenced by active company branding or issued invoices, 0 active logo rows at the time of this verification. No hosted active-logo or issued-invoice fixture existed to exercise that preservation end-to-end; mandatory protection continues to be covered by isolated CI and the DB reference checks.
+- **Scheduler:** Existing `horus-business-document-cleanup` remains active at `0 20 * * *` in GMT (Dubai midnight). Command, username, Vault references and HTTP endpoint unchanged. **No Cron was created, disabled, rescheduled or replaced.**
+- **Regression/CI:** PR A's 13 GitHub workflow runs all succeeded at head `3cb7ccd5`; stacked PR B's UI Quality run succeeded at head `33ce5e23`. Automated #357 signed-JWT and Storage contract regressions passed. The hosted smoke had 0 due #357 documents, so no document deletions were attempted.
+- **Scope / remaining gates:** No Production deployment, no PR merge, no source changes to app code; next actions require a separate review of PR readiness, user-facing smoke as relevant, and explicit approvals for merges and later Production rollout.
+
+## Mandatory verification before Production
 
 1. CI: full migration replay, #351 signed-JWT baseline, new cleanup contract
    with a disposable local Supabase stack and real Storage REST DELETE,
@@ -69,10 +79,9 @@ codes. No user secrets, Storage paths or JWTs appear in HTTP responses.
    both successful and failed/retried Storage deletion.
 5. Confirm existing #357 Cron command, schedule, status and Vault token are
    unchanged by the migration. If inactive, it must remain inactive.
-6. Run a separately approved Development Edge runtime smoke with a single
-   disposable retired test logo **before allowing any automatic cleanup**;
-   then review ledger outcomes, 0 newly orphaned objects, audit and
-   company isolation. Do not touch Production as part of this check.
+6. Development Edge runtime smoke completed using all six expressly disposable
+   retired test logos after explicit owner confirmation (see evidence above).
+   Revalidate new active-logo and issued-invoice cases before any Production rollout.
 7. Separately review Production backups, storage reference counts, schema/
    migration alignment, old-client compatibility and an operational rollback
    before Production changes or store release.
