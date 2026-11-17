@@ -3,6 +3,7 @@
 This script uses ONLY the local Supabase CLI stack. No hosted project keys,
 test company data or Production services are touched or imported.
 """
+import concurrent.futures
 import json
 import secrets
 import urllib.error
@@ -87,9 +88,9 @@ def mark_old(db, company, a, b, orphan):
          "AND storage_path='" + orphan + "';")
 
 
-def claim(api):
+def claim(api, batch_limit=25):
     status, rows = service(api, "claim_company_branding_cleanup",
-                           {"p_batch_limit": 25})
+                           {"p_batch_limit": batch_limit})
     check("service role claims bounded private cleanup leases",
           status == 200 and isinstance(rows, list))
     return rows
@@ -174,6 +175,8 @@ def main():
     active, active_op = created_logo(api, owner_jwt, company)
     select_logo(api, owner_jwt, company, b, active)
     orphan, orphan_op = created_logo(api, owner_jwt, company)
+    check("retired assets receive a DB-owned retirement timestamp",
+          count(db, company, "state='retired' AND retired_at IS NOT NULL") == 2)
     mark_old(db, company, a, b, orphan)
 
     check("retired, referenced invoice logo cannot be claimed",
@@ -182,7 +185,12 @@ def main():
     check("existing #357 Cron due-work predicate includes branding backlog",
           psql(db, "SELECT private.business_document_cleanup_has_work()"
                "::text;") == "true")
-    leases = claim(api)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        batches = list(pool.map(lambda _: claim(api, batch_limit=1), range(2)))
+    leases = [lease for batch in batches for lease in batch]
+    check("parallel cleanup claims do not double-claim a lease",
+          len(leases) == 2 and
+          len({lease["operation_id"] for lease in leases}) == 2)
     selected = {r["storage_reference"]: r for r in leases}
     check("only expired orphan and unreferenced retired logo claimed",
           set(selected) == {b, orphan} and len(leases) == 2)
