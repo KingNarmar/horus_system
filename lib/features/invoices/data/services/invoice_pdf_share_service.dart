@@ -8,9 +8,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../domain/repositories/invoice_pdf_delivery_repository.dart';
 import '../constants/invoice_pdf_share_constants.dart';
 
-typedef InvoicePdfShareCallback = Future<ShareResult> Function(
-  ShareParams params,
-);
+typedef InvoicePdfShareCallback =
+    Future<ShareResult> Function(ShareParams params);
 
 /// Stages PDFs in app-private cache for the native share sheet.
 /// A recipient might read after the chooser closes, so successful/unknown

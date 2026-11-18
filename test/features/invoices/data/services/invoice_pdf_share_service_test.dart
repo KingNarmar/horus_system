@@ -109,8 +109,9 @@ void main() {
     );
     await root.create(recursive: true);
     final stale = await root.createTemp('invoice_share_');
-    await File('${stale.path}${Platform.pathSeparator}secret.pdf')
-        .writeAsString('secret');
+    await File(
+      '${stale.path}${Platform.pathSeparator}secret.pdf',
+    ).writeAsString('secret');
     final unrelated = Directory(
       '${root.path}${Platform.pathSeparator}not_an_invoice',
     );

@@ -194,7 +194,8 @@ final class InvoicesLocalizations {
     'pdfSaved': 'Invoice PDF saved.',
     'pdfPrinted': 'Invoice sent to print.',
     'pdfShared': 'Sharing completed in the selected app.',
-    'pdfShareInitiated': 'Sharing opened. Choose a destination to send the PDF.',
+    'pdfShareInitiated':
+        'Sharing opened. Choose a destination to send the PDF.',
     'pdfInvalidFailure': 'This invoice PDF document is invalid.',
     'pdfRenderFailure': 'Could not generate the invoice PDF.',
     'pdfSnapshotFailure':
