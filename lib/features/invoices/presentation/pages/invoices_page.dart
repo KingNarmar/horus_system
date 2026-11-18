@@ -249,53 +249,53 @@ final class _InvoiceDetailsHost extends StatelessWidget {
     return BlocListener<InvoicePdfCubit, InvoicePdfState>(
       listener: _handlePdfState,
       child: BlocConsumer<InvoiceDetailsCubit, InvoiceDetailsState>(
-      listenWhen: (previous, current) {
-        if (current is! InvoiceDetailsLoaded) return false;
-        if (previous is! InvoiceDetailsLoaded) {
-          return current.feedback != null || current.mutationFailure != null;
-        }
-        return previous.feedback != current.feedback ||
-            previous.mutationFailure != current.mutationFailure;
-      },
-      listener: (context, state) {
-        if (state is! InvoiceDetailsLoaded) return;
-        final strings = context.invoicesL10n;
-        final message = switch (state.feedback) {
-          InvoiceDetailsFeedback.issued => strings.invoiceIssued,
-          InvoiceDetailsFeedback.cancelled => strings.invoiceCancelled,
-          null =>
-            state.mutationFailure == null
-                ? null
-                : context.localizedInvoiceFailure(state.mutationFailure!),
-        };
-        if (message == null) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(message)));
-        context.read<InvoiceDetailsCubit>().clearFeedback();
-      },
-      builder: (context, state) {
-        final cubit = context.read<InvoiceDetailsCubit>();
-        return BlocBuilder<InvoicePdfCubit, InvoicePdfState>(
-          builder: (context, pdfState) => InvoiceDetailsDialog(
-          state: state,
-          isPdfBusy: pdfState is InvoicePdfBusy,
-          onPdfAction: state is InvoiceDetailsLoaded
-              ? (action) => _runPdfAction(context, state, action)
-              : null,
-          onRetry: () => cubit.loadInvoiceDetails(
-            currentCompanyContext: currentCompanyContext,
-            invoiceId: invoiceId,
-          ),
-          onIssue: (_, dates) => cubit.issueInvoice(
-            issueDate: dates.issueDate,
-            dueDate: dates.dueDate,
-          ),
-          onCancel: (_, reason) => cubit.cancelInvoice(reason: reason),
-          ),
-        );
-      },
-    ),
+        listenWhen: (previous, current) {
+          if (current is! InvoiceDetailsLoaded) return false;
+          if (previous is! InvoiceDetailsLoaded) {
+            return current.feedback != null || current.mutationFailure != null;
+          }
+          return previous.feedback != current.feedback ||
+              previous.mutationFailure != current.mutationFailure;
+        },
+        listener: (context, state) {
+          if (state is! InvoiceDetailsLoaded) return;
+          final strings = context.invoicesL10n;
+          final message = switch (state.feedback) {
+            InvoiceDetailsFeedback.issued => strings.invoiceIssued,
+            InvoiceDetailsFeedback.cancelled => strings.invoiceCancelled,
+            null =>
+              state.mutationFailure == null
+                  ? null
+                  : context.localizedInvoiceFailure(state.mutationFailure!),
+          };
+          if (message == null) return;
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(message)));
+          context.read<InvoiceDetailsCubit>().clearFeedback();
+        },
+        builder: (context, state) {
+          final cubit = context.read<InvoiceDetailsCubit>();
+          return BlocBuilder<InvoicePdfCubit, InvoicePdfState>(
+            builder: (context, pdfState) => InvoiceDetailsDialog(
+              state: state,
+              isPdfBusy: pdfState is InvoicePdfBusy,
+              onPdfAction: state is InvoiceDetailsLoaded
+                  ? (action) => _runPdfAction(context, state, action)
+                  : null,
+              onRetry: () => cubit.loadInvoiceDetails(
+                currentCompanyContext: currentCompanyContext,
+                invoiceId: invoiceId,
+              ),
+              onIssue: (_, dates) => cubit.issueInvoice(
+                issueDate: dates.issueDate,
+                dueDate: dates.dueDate,
+              ),
+              onCancel: (_, reason) => cubit.cancelInvoice(reason: reason),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -304,8 +304,10 @@ final class _InvoiceDetailsHost extends StatelessWidget {
     InvoiceDetailsLoaded state,
     InvoicePdfAction action,
   ) {
-    final stem = (state.invoice.number?.value ?? state.invoice.id)
-        .replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
+    final stem = (state.invoice.number?.value ?? state.invoice.id).replaceAll(
+      RegExp(r'[^A-Za-z0-9_-]'),
+      '_',
+    );
     final filename = '$stem.pdf';
     unawaited(
       context.read<InvoicePdfCubit>().perform(

@@ -195,7 +195,8 @@ final class InvoicesLocalizations {
     'pdfShared': 'Invoice PDF shared.',
     'pdfInvalidFailure': 'This invoice PDF document is invalid.',
     'pdfRenderFailure': 'Could not generate the invoice PDF.',
-    'pdfSnapshotFailure': 'This issued invoice is missing its recorded issuer identity. Export is unavailable.',
+    'pdfSnapshotFailure':
+        'This issued invoice is missing its recorded issuer identity. Export is unavailable.',
     'pdfSaveFailure': 'Could not save the invoice PDF.',
     'pdfPrintFailure': 'Could not print the invoice PDF.',
     'pdfShareFailure': 'Could not share the invoice PDF.',
@@ -206,7 +207,8 @@ final class InvoicesLocalizations {
     'pdfQuantity': 'Quantity (t)',
     'pdfAmount': 'Amount',
     'pdfPage': 'Page',
-    'pdfLegacyWarning': 'Historical identity notice: issuer details reflect a legacy baseline, not a verified snapshot from the original issue date.',
+    'pdfLegacyWarning':
+        'Historical identity notice: issuer details reflect a legacy baseline, not a verified snapshot from the original issue date.',
     'invoiceLines': 'Invoice lines',
     'activity': 'Activity timeline',
     'noActivity': 'No invoice activity found.',
@@ -325,7 +327,8 @@ final class InvoicesLocalizations {
     'pdfShared': 'تمت مشاركة ملف الفاتورة.',
     'pdfInvalidFailure': 'ملف الفاتورة غير صالح.',
     'pdfRenderFailure': 'تعذر إنشاء ملف PDF للفاتورة.',
-    'pdfSnapshotFailure': 'بيانات هوية الشركة وقت إصدار هذه الفاتورة غير متوفرة، ولا يمكن تصديرها.',
+    'pdfSnapshotFailure':
+        'بيانات هوية الشركة وقت إصدار هذه الفاتورة غير متوفرة، ولا يمكن تصديرها.',
     'pdfSaveFailure': 'تعذر حفظ ملف PDF للفاتورة.',
     'pdfPrintFailure': 'تعذرت طباعة الفاتورة.',
     'pdfShareFailure': 'تعذرت مشاركة ملف الفاتورة.',
@@ -336,7 +339,8 @@ final class InvoicesLocalizations {
     'pdfQuantity': 'الكمية (طن)',
     'pdfAmount': 'المبلغ',
     'pdfPage': 'صفحة',
-    'pdfLegacyWarning': 'تنويه تاريخي: بيانات الشركة مأخوذة من سجل أساسي قديم، وليست نسخة موثقة من بيانات يوم إصدار الفاتورة.',
+    'pdfLegacyWarning':
+        'تنويه تاريخي: بيانات الشركة مأخوذة من سجل أساسي قديم، وليست نسخة موثقة من بيانات يوم إصدار الفاتورة.',
     'invoiceLines': 'بنود الفاتورة',
     'activity': 'سجل النشاط',
     'noActivity': 'لا يوجد نشاط مسجل لهذه الفاتورة.',

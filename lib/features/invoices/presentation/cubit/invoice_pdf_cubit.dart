@@ -63,10 +63,7 @@ final class InvoicePdfCubit extends Cubit<InvoicePdfState> {
       return;
     }
 
-    final params = InvoicePdfDeliveryParams(
-      bytes: bytes,
-      fileName: fileName,
-    );
+    final params = InvoicePdfDeliveryParams(bytes: bytes, fileName: fileName);
     final Result<InvoicePdfDeliveryOutcome> delivery;
     switch (action) {
       case InvoicePdfAction.save:
@@ -92,8 +89,6 @@ final class InvoicePdfCubit extends Cubit<InvoicePdfState> {
   }
 
   bool _isCurrent(int generation, String companyId) {
-    return !isClosed &&
-        generation == _generation &&
-        _companyId == companyId;
+    return !isClosed && generation == _generation && _companyId == companyId;
   }
 }
