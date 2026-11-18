@@ -79,10 +79,7 @@ void main() {
 
   test('no logo path renders without a storage download', () async {
     final invoices = _Invoices()
-      ..invoice = _invoice(
-        InvoiceStatus.paid,
-        logoPath: null,
-      );
+      ..invoice = _invoice(InvoiceStatus.paid, logoPath: null);
     final branding = _Branding();
     final result = await _prepare(invoices, branding)(
       PrepareInvoicePdfParams(

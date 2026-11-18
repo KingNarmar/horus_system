@@ -51,9 +51,7 @@ final class PrepareInvoicePdfUseCase {
       );
     }
 
-    final readiness = CompanyFinancialReadinessPolicy.evaluate(
-      context.company,
-    );
+    final readiness = CompanyFinancialReadinessPolicy.evaluate(context.company);
     final configuration = readiness.configuration;
     if (!readiness.isReady || configuration == null) {
       return const FailureResult(
