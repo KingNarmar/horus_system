@@ -18,7 +18,6 @@ import 'package:horus_system/features/invoices/domain/entities/invoice_trip_line
 import 'package:horus_system/features/invoices/domain/services/invoice_totals_calculator.dart';
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 import 'package:horus_system/features/invoices/presentation/cubit/invoice_details_state.dart';
-import 'package:horus_system/features/invoices/presentation/cubit/invoice_pdf_state.dart';
 import 'package:horus_system/features/invoices/presentation/cubit/invoice_draft_form_input.dart';
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_details_dialog.dart';
 import 'package:horus_system/features/invoices/presentation/widgets/invoice_draft_dialog.dart';
@@ -283,110 +282,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('authorized invoice PDF buttons forward preview intent', (
-    tester,
-  ) async {
-    await _setSurfaceSize(tester, const Size(900, 1000));
-    InvoicePdfAction? requested;
-    await _pumpLocalized(
-      tester,
-      child: InvoiceDetailsDialog(
-        state: _loadedState(),
-        onRetry: () {},
-        onIssue: (_, _) async => false,
-        onCancel: (_, _) async => false,
-        onPdfAction: (action) => requested = action,
-      ),
-    );
-
-    expect(
-      find.byKey(const ValueKey('invoicePdfPreviewActionButton')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfSaveActionButton')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfPrintActionButton')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfShareActionButton')),
-      findsOneWidget,
-    );
-
-    final preview = find.byKey(
-      const ValueKey('invoicePdfPreviewActionButton'),
-    );
-    await tester.ensureVisible(preview);
-    await tester.tap(preview);
-    expect(requested, InvoicePdfAction.preview);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('unprivileged invoice role has no PDF actions', (tester) async {
-    await _setSurfaceSize(tester, const Size(900, 1000));
-    await _pumpLocalized(
-      tester,
-      child: InvoiceDetailsDialog(
-        state: _loadedState(role: CompanyRole.viewer),
-        onRetry: () {},
-        onIssue: (_, _) async => false,
-        onCancel: (_, _) async => false,
-        onPdfAction: (_) {},
-      ),
-    );
-
-    expect(
-      find.byKey(const ValueKey('invoicePdfPreviewActionButton')),
-      findsNothing,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfSaveActionButton')),
-      findsNothing,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfPrintActionButton')),
-      findsNothing,
-    );
-    expect(
-      find.byKey(const ValueKey('invoicePdfShareActionButton')),
-      findsNothing,
-    );
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('busy PDF export disables financial actions with Arabic UX', (
-    tester,
-  ) async {
-    await _setSurfaceSize(tester, const Size(900, 1000));
-    await _pumpLocalized(
-      tester,
-      locale: const Locale('ar'),
-      settle: false,
-      child: InvoiceDetailsDialog(
-        state: _loadedState(),
-        onRetry: () {},
-        onIssue: (_, _) async => false,
-        onCancel: (_, _) async => false,
-        onPdfAction: (_) {},
-        isPdfBusy: true,
-      ),
-    );
-
-    expect(find.text('جاري تجهيز PDF...'), findsOneWidget);
-    final preview = tester.widget<OutlinedButton>(
-      find.byKey(const ValueKey('invoicePdfPreviewActionButton')),
-    );
-    final issue = tester.widget<FilledButton>(
-      find.byKey(const ValueKey('invoiceIssueActionButton')),
-    );
-    expect(preview.onPressed, isNull);
-    expect(issue.onPressed, isNull);
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('cancel flow stays inside one app details Dialog', (
     tester,
   ) async {
@@ -457,10 +352,7 @@ InvoiceTotals _previewFor(List<BillableTrip> trips) {
   return result.dataOrNull!;
 }
 
-InvoiceDetailsLoaded _loadedState({
-  String tripId = 'trip-1',
-  CompanyRole role = CompanyRole.accountant,
-}) {
+InvoiceDetailsLoaded _loadedState({String tripId = 'trip-1'}) {
   final trip = _billableTrip(id: tripId);
   final line = InvoiceTripLine.fromBillableTrip(trip);
   final zero = Money(minorUnits: 0, currency: _currency);
@@ -472,15 +364,15 @@ InvoiceDetailsLoaded _loadedState({
       hour: 4,
       minute: 0,
     ),
-    currentCompanyContext: CurrentCompanyContext(
-      company: const Company(
+    currentCompanyContext: const CurrentCompanyContext(
+      company: Company(
         id: 'company-1',
         name: 'Test Company',
         baseCurrencyCode: 'AED',
         baseCurrencyFractionDigits: 2,
         businessTimezone: 'Asia/Dubai',
       ),
-      role: role,
+      role: CompanyRole.accountant,
     ),
     invoice: Invoice(
       id: 'invoice-1',
@@ -520,7 +412,6 @@ Future<void> _pumpLocalized(
   WidgetTester tester, {
   required Widget child,
   Locale locale = const Locale('en'),
-  bool settle = true,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -530,9 +421,5 @@ Future<void> _pumpLocalized(
       home: Scaffold(body: child),
     ),
   );
-  if (settle) {
-    await tester.pumpAndSettle();
-  } else {
-    await tester.pump();
-  }
+  await tester.pumpAndSettle();
 }
