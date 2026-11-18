@@ -7,6 +7,7 @@ import '../data/datasources/invoice_settings_remote_data_source.dart';
 import '../data/datasources/invoices_remote_data_source.dart';
 import '../data/repositories/invoice_settings_repository_impl.dart';
 import '../data/repositories/invoices_repository_impl.dart';
+import '../data/services/invoice_pdf_renderer_impl.dart';
 import '../domain/repositories/invoice_settings_repository.dart';
 import '../domain/repositories/invoices_repository.dart';
 import '../domain/usecases/calculate_invoice_draft_preview_usecase.dart';
@@ -16,6 +17,7 @@ import '../domain/usecases/invoice_lifecycle_usecases.dart';
 import '../domain/usecases/invoice_query_usecases.dart';
 import '../domain/usecases/invoice_settings_usecases.dart';
 import '../domain/usecases/prepare_invoice_pdf_usecase.dart';
+import '../domain/usecases/generate_invoice_pdf_usecase.dart';
 import '../presentation/cubit/invoice_details_cubit.dart';
 import '../presentation/cubit/invoices_cubit.dart';
 
@@ -30,6 +32,13 @@ abstract final class InvoicesDependencies {
     return PrepareInvoicePdfUseCase(
       invoices: createRepository(),
       branding: CompanyDependencies.createBrandingRepository(),
+    );
+  }
+
+  static GenerateInvoicePdfUseCase createGenerateInvoicePdfUseCase() {
+    return GenerateInvoicePdfUseCase(
+      prepare: createPrepareInvoicePdfUseCase(),
+      renderer: InvoicePdfRendererImpl(),
     );
   }
 
