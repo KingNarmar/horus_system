@@ -17,7 +17,7 @@ import 'package:horus_system/features/invoices/domain/failures/invoice_failure_c
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 
 void main() {
-  test('isolates LTR route order inside an RTL invoice', () {
+  test('uses a font-independent vector arrow for RTL invoice routes', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: 'Route1',
       unloadingLocation: 'Dubai',
@@ -25,25 +25,35 @@ void main() {
     );
 
     final direction = cell as pw.Directionality;
-    final content = direction.child as pw.Text;
+    final content = direction.child as pw.RichText;
+    final spans = (content.text as pw.TextSpan).children!;
     expect(direction.textDirection, pw.TextDirection.ltr);
     expect(content.textDirection, pw.TextDirection.ltr);
-    expect((content.text as pw.TextSpan).text, 'Route1 → Dubai');
     expect(content.softWrap, isTrue);
+    expect((spans[0] as pw.TextSpan).text, 'Route1 ');
+    expect((spans[1] as pw.WidgetSpan).child, isA<pw.CustomPaint>());
+    expect((spans[2] as pw.TextSpan).text, ' Dubai');
+    expect(
+      spans.whereType<pw.TextSpan>().any((span) => span.text?.contains('→') ?? false),
+      isFalse,
+    );
   });
 
-  test('preserves mixed Arabic/English and trims route locations', () {
+  test('keeps mixed Arabic/English locations in the correct business order', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: '  جبل علي  ',
       unloadingLocation: '  Dubai Route 1  ',
       unavailable: 'غير متاح',
     );
 
-    final content = (cell as pw.Directionality).child as pw.Text;
-    expect((content.text as pw.TextSpan).text, 'جبل علي → Dubai Route 1');
+    final content = (cell as pw.Directionality).child as pw.RichText;
+    final spans = (content.text as pw.TextSpan).children!;
+    expect((spans.first as pw.TextSpan).text, 'جبل علي ');
+    expect((spans.last as pw.TextSpan).text, ' Dubai Route 1');
+    expect(spans[1], isA<pw.WidgetSpan>());
   });
 
-  test('shows a localized fallback when both route ends are absent', () {
+  test('shows localized fallback when both route ends are absent', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: ' ',
       unloadingLocation: null,
@@ -51,6 +61,16 @@ void main() {
     );
     final content = (cell as pw.Directionality).child as pw.Text;
     expect((content.text as pw.TextSpan).text, 'غير متاح');
+  });
+
+  test('one-sided route remains readable without an arrow', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: 'Jebel Ali',
+      unloadingLocation: null,
+      unavailable: 'N/A',
+    );
+    final content = (cell as pw.Directionality).child as pw.Text;
+    expect((content.text as pw.TextSpan).text, 'Jebel Ali');
   });
 
   testWidgets('renders long route names on a multi-page invoice', (

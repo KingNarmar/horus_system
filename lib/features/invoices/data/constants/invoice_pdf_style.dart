@@ -18,6 +18,10 @@ abstract final class InvoicePdfStyle {
   static const double tripColumnFlex = 1.6;
   static const double dateColumnFlex = 1.3;
   static const double routeColumnFlex = 2.6;
+  static const double routeArrowWidth = 10;
+  static const double routeArrowHeight = 9;
+  static const double routeArrowHeadSize = 4;
+  static const double routeArrowStroke = 0.9;
   static const double quantityColumnFlex = 1.2;
   static const double amountColumnFlex = 1.3;
   static const double statusPadding = 8;
