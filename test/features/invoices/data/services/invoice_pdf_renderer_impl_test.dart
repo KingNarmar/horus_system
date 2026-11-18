@@ -349,7 +349,8 @@ Future<({pw.Font regular, pw.Font bold})> _loadOfflineFixtureFonts() async {
     throw StateError('Set both fixture font paths on non-Windows systems.');
   }
 
-  final windowsFonts = '${Platform.environment['WINDIR'] ?? r'C:\Windows'}'
+  final windowsFonts =
+      '${Platform.environment['WINDIR'] ?? r'C:\Windows'}'
       '${Platform.pathSeparator}Fonts';
   final regularPath = regularOverride.isNotEmpty
       ? regularOverride
@@ -366,10 +367,7 @@ Future<({pw.Font regular, pw.Font bold})> _loadOfflineFixtureFonts() async {
     return pw.Font.ttf(ByteData.sublistView(await file.readAsBytes()));
   }
 
-  return (
-    regular: await readFont(regularPath),
-    bold: await readFont(boldPath),
-  );
+  return (regular: await readFont(regularPath), bold: await readFont(boldPath));
 }
 
 const InvoicePdfLabels _arabicLabels = InvoicePdfLabels(
