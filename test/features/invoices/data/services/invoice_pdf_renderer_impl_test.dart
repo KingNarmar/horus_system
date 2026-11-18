@@ -131,12 +131,17 @@ void main() {
     expect(tripIds, hasLength(90));
     expect(tripIds.toSet(), Set<int>.from(List.generate(90, (i) => i)));
 
-    // Ninety lines at AED 100.00 each: subtotal, taxable, and grand total.
-    expect(RegExp(r'\(9000\.00 AED\)').allMatches(pageContent).length, 3);
-    expect(pageContent, contains('(Total)'));
+    // Ninety lines at AED 100.00 each: subtotal, taxable, and grand
+    // total. The PDF writer may split currency text into multiple TJ runs.
+    // Match the amount, not the PDF's parenthesis/word-span layout.
+    expect(RegExp(r'9000\.00').allMatches(pageContent).length, 3);
+    expect(pageContent, contains('Total'));
+  });
 
-    // Optional local visual evidence (EN/AR with the production Cairo fonts).
-    // This is disabled in CI and writes nothing unless explicitly requested.
+  testWidgets('exports EN/AR multipage fixtures when explicitly requested', (
+    tester,
+  ) async {
+    // Independent of assertions in the other tests, and disabled in CI.
     await _exportMultipageFixturesIfRequested();
   });
 
