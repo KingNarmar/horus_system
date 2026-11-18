@@ -43,8 +43,12 @@ final class InvoiceIssuerSnapshotModel {
       businessType: InvoiceDataParser.optionalString(
         map[InvoicesDbFields.issuerBusinessType],
       ),
-      phone: InvoiceDataParser.optionalString(map[InvoicesDbFields.issuerPhone]),
-      email: InvoiceDataParser.optionalString(map[InvoicesDbFields.issuerEmail]),
+      phone: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.issuerPhone],
+      ),
+      email: InvoiceDataParser.optionalString(
+        map[InvoicesDbFields.issuerEmail],
+      ),
       address: InvoiceDataParser.optionalString(
         map[InvoicesDbFields.issuerAddress],
       ),
