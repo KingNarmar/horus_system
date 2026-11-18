@@ -203,7 +203,10 @@ Invoice _invoice(
   );
 }
 
-final class _Invoices extends Fake implements InvoicesRepository {
+final class _Invoices implements InvoicesRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   Invoice invoice = _invoice(InvoiceStatus.issued);
   int reads = 0;
 
@@ -217,7 +220,10 @@ final class _Invoices extends Fake implements InvoicesRepository {
   }
 }
 
-final class _Branding extends Fake implements CompanyBrandingRepository {
+final class _Branding implements CompanyBrandingRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   int profileReads = 0;
   int logoReads = 0;
   String? lastLogoPath;

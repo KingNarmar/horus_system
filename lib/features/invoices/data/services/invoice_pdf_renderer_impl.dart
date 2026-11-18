@@ -46,10 +46,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
           textDirection: rightToLeft
               ? pw.TextDirection.rtl
               : pw.TextDirection.ltr,
-          theme: pw.ThemeData.withFont(
-            base: fonts.regular,
-            bold: fonts.bold,
-          ),
+          theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
           build: (context) => [
             _issuerHeader(document, labels, logo, fonts.bold),
             pw.SizedBox(height: InvoicePdfStyle.sectionGap),
@@ -69,9 +66,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
               pw.SizedBox(height: InvoicePdfStyle.sectionGap),
               pw.Text(
                 labels.legacyIdentityNotice,
-                style: const pw.TextStyle(
-                  fontSize: InvoicePdfStyle.smallSize,
-                ),
+                style: const pw.TextStyle(fontSize: InvoicePdfStyle.smallSize),
               ),
             ],
           ],
@@ -79,9 +74,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
             alignment: pw.Alignment.center,
             child: pw.Text(
               '${labels.page} ${context.pageNumber} / ${context.pagesCount}',
-              style: const pw.TextStyle(
-                fontSize: InvoicePdfStyle.smallSize,
-              ),
+              style: const pw.TextStyle(fontSize: InvoicePdfStyle.smallSize),
             ),
           ),
         ),
@@ -242,22 +235,24 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
     InvoicePdfLabels labels,
     pw.Font bold,
   ) {
-    final rows = document.invoice.lines.map((line) {
-      final route = [
-        line.loadingLocation,
-        line.unloadingLocation,
-      ].whereType<String>().where((value) => value.trim().isNotEmpty);
-      return <String>[
-        line.tripNumber ??
-            line.loadingOrderNumber ??
-            line.waybillNumber ??
-            labels.unavailable,
-        _date(line.serviceDate, labels),
-        route.isEmpty ? labels.unavailable : route.join(' → '),
-        line.quantityTons?.toString() ?? labels.unavailable,
-        _money(line.amount, document.currencyFractionDigits),
-      ];
-    }).toList(growable: false);
+    final rows = document.invoice.lines
+        .map((line) {
+          final route = [
+            line.loadingLocation,
+            line.unloadingLocation,
+          ].whereType<String>().where((value) => value.trim().isNotEmpty);
+          return <String>[
+            line.tripNumber ??
+                line.loadingOrderNumber ??
+                line.waybillNumber ??
+                labels.unavailable,
+            _date(line.serviceDate, labels),
+            route.isEmpty ? labels.unavailable : route.join(' → '),
+            line.quantityTons?.toString() ?? labels.unavailable,
+            _money(line.amount, document.currencyFractionDigits),
+          ];
+        })
+        .toList(growable: false);
     return pw.Table.fromTextArray(
       headers: [
         labels.trip,
@@ -267,10 +262,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
         labels.amount,
       ],
       data: rows,
-      headerStyle: pw.TextStyle(
-        font: bold,
-        fontSize: InvoicePdfStyle.bodySize,
-      ),
+      headerStyle: pw.TextStyle(font: bold, fontSize: InvoicePdfStyle.bodySize),
       cellStyle: const pw.TextStyle(fontSize: InvoicePdfStyle.bodySize),
       cellPadding: const pw.EdgeInsets.all(InvoicePdfStyle.tablePadding),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
@@ -289,10 +281,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
       children: [
         _field(labels.subtotal, _money(totals.subtotal, digits)),
         _field(labels.discount, _money(totals.discount, digits)),
-        _field(
-          labels.taxableAmount,
-          _money(totals.taxableAmount, digits),
-        ),
+        _field(labels.taxableAmount, _money(totals.taxableAmount, digits)),
         _field(labels.tax, _money(totals.taxAmount, digits)),
         pw.SizedBox(height: InvoicePdfStyle.itemGap),
         pw.Row(
