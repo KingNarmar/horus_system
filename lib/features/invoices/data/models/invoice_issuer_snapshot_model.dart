@@ -29,9 +29,7 @@ final class InvoiceIssuerSnapshotModel {
     required this.capturedAt,
   });
 
-  static InvoiceIssuerSnapshotModel? fromInvoiceMap(
-    Map<String, dynamic> map,
-  ) {
+  static InvoiceIssuerSnapshotModel? fromInvoiceMap(Map<String, dynamic> map) {
     final source = InvoiceDataParser.optionalString(
       map[InvoicesDbFields.issuerSnapshotSource],
     );

@@ -16,7 +16,10 @@ void main() {
       expect(invoice.customer.customerId, 'customer-1');
       expect(invoice.status, InvoiceStatus.issued);
       expect(invoice.issuerSnapshot?.companyName, 'Original Issuer');
-      expect(invoice.issuerSnapshot?.logoPath, 'companies/company-1/logos/old.png');
+      expect(
+        invoice.issuerSnapshot?.logoPath,
+        'companies/company-1/logos/old.png',
+      );
       expect(
         invoice.issuerSnapshot?.source,
         InvoiceIssuerSnapshotSource.issuance,
@@ -53,7 +56,10 @@ void main() {
         ..['issuer_logo_path'] = null;
       final invoice = InvoiceModel.fromMap(map).toEntity();
 
-      expect(invoice.issuerSnapshot?.source, InvoiceIssuerSnapshotSource.legacyBaseline);
+      expect(
+        invoice.issuerSnapshot?.source,
+        InvoiceIssuerSnapshotSource.legacyBaseline,
+      );
       expect(invoice.issuerSnapshot?.logoPath, isNull);
     });
 

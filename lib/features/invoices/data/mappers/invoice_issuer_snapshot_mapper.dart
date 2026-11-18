@@ -5,7 +5,9 @@ extension InvoiceIssuerSnapshotModelMapper on InvoiceIssuerSnapshotModel {
   InvoiceIssuerSnapshot toEntity() {
     final parsedSource = InvoiceIssuerSnapshotSource.tryFromValue(source);
     if (parsedSource == null) {
-      throw FormatException('Invalid persisted invoice issuer snapshot source.');
+      throw FormatException(
+        'Invalid persisted invoice issuer snapshot source.',
+      );
     }
     return InvoiceIssuerSnapshot(
       companyName: companyName,
