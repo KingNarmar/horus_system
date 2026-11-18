@@ -20,6 +20,8 @@ import '../../../auth/presentation/widgets/auth_user_identity_summary.dart';
 import '../../../company/di/company_dependencies.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/policies/company_permission_policy.dart';
+import '../../../company/presentation/cubit/company_branding_cubit.dart';
+import '../../../company/presentation/widgets/company_branding_settings_card.dart';
 import '../../../company/presentation/cubit/company_financial_settings_cubit.dart';
 import '../../../company/presentation/cubit/company_timezone_cubit.dart';
 import '../../../company/presentation/extensions/company_role_localization.dart';
@@ -213,6 +215,9 @@ class AppShellContent extends StatelessWidget {
           BlocProvider<ExpenseTypesCubit>(
             create: (_) => ExpenseTypesDependencies.createCubit(),
           ),
+          BlocProvider<CompanyBrandingCubit>(
+            create: (_) => CompanyDependencies.createBrandingCubit(),
+          ),
           BlocProvider<CompanyFinancialSettingsCubit>(
             create: (_) => CompanyDependencies.createFinancialSettingsCubit(),
           ),
@@ -246,6 +251,8 @@ class AppShellContent extends StatelessWidget {
         context.read<ExpenseTypesCubit>().loadExpenseTypes(contextData),
       );
     }
+
+    refreshes.add(context.read<CompanyBrandingCubit>().load(contextData));
 
     if (contextData.canManageCompany) {
       refreshes.add(context.read<CompanyTimezoneCubit>().loadOptions());
@@ -312,6 +319,8 @@ class _SettingsContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SettingsCard(contextData: contextData),
+        const SizedBox(height: AppSpacing.xl),
+        CompanyBrandingSettingsCard(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),
         CompanyFinancialSettingsCard(currentCompanyContext: contextData),
         const SizedBox(height: AppSpacing.xl),

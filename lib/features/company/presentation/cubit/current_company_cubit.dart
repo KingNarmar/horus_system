@@ -188,6 +188,28 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     await _refreshSelected(companyId, request);
   }
 
+  /// Re-fetch the current company's verified membership and display details
+  /// after editing its profile. Unlike an explicit company switch, keep the
+  /// current route, sidebar and unsaved form state mounted on success.
+  ///
+  /// On lost membership or a failed verification, access is still revoked or
+  /// blocked by the existing authoritative failure handling. Concurrent
+  /// session checks and tenant switches invalidate this response.
+  Future<void> refreshSelectedCompanyInPlace(String companyId) async {
+    final previous = state;
+    if (previous is! CurrentCompanyLoaded ||
+        previous.context.companyId != companyId) {
+      return;
+    }
+
+    final request = ++_requestGeneration;
+    await _refreshSelected(
+      companyId,
+      request,
+      connectionFallbackContext: previous.context,
+    );
+  }
+
   /// On resumed/reconnected/renewed sessions, re-check active membership and
   /// role on the server before exposing the company shell again.
   Future<void> revalidateSelectedCompany() async {
@@ -224,7 +246,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     await _refreshSelected(context.companyId, request);
   }
 
-  Future<void> _refreshSelected(String companyId, int request) async {
+  Future<void> _refreshSelected(
+    String companyId,
+    int request, {
+    CurrentCompanyContext? connectionFallbackContext,
+  }) async {
     final result = await _refreshSelectedCompanyContextUseCase(
       RefreshSelectedCompanyContextParams(companyId: companyId),
     );
@@ -236,8 +262,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       // membership or role changed. Keep the last verified route mounted but
       // completely inaccessible until the server can revalidate access.
       if (failure.code == CompanyFailureCodes.contextConnectionUnavailable &&
-          state is CurrentCompanyVerifying) {
-        final previous = (state as CurrentCompanyVerifying).context;
+          (state is CurrentCompanyVerifying ||
+              connectionFallbackContext != null)) {
+        final previous =
+            connectionFallbackContext ??
+            (state as CurrentCompanyVerifying).context;
         emit(CurrentCompanyVerifying(previous, connectionFailure: failure));
         return;
       }

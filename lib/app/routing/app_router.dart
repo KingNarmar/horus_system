@@ -12,6 +12,7 @@ import '../../features/auth/presentation/pages/auth_gate.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/company/di/company_dependencies.dart';
+import '../../features/company/presentation/cubit/company_branding_cubit.dart';
 import '../../features/company/presentation/cubit/company_timezone_cubit.dart';
 import '../../features/company/presentation/pages/company_creation_page.dart';
 import '../../features/company/presentation/pages/company_invitation_acceptance_page.dart';
@@ -55,9 +56,16 @@ abstract final class AppRouter {
         ),
       ),
       AppRoutes.companyCreation => AuthenticatedRouteGuard(
-        child: BlocProvider<CompanyTimezoneCubit>(
-          create: (_) =>
-              CompanyDependencies.createTimezoneCubit()..loadOptions(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<CompanyTimezoneCubit>(
+              create: (_) =>
+                  CompanyDependencies.createTimezoneCubit()..loadOptions(),
+            ),
+            BlocProvider<CompanyBrandingCubit>(
+              create: (_) => CompanyDependencies.createBrandingCubit(),
+            ),
+          ],
           child: const CompanyCreationPage(),
         ),
       ),
