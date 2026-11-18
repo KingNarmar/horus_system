@@ -16,6 +16,7 @@ import '../cubit/invoice_details_cubit.dart';
 import '../cubit/invoice_details_state.dart';
 import '../cubit/invoice_pdf_cubit.dart';
 import '../cubit/invoice_pdf_state.dart';
+import '../../domain/repositories/invoice_pdf_delivery_repository.dart';
 import '../cubit/invoices_cubit.dart';
 import '../cubit/invoices_state.dart';
 import '../localization/invoice_failure_localizations_x.dart';

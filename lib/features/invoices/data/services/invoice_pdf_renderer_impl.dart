@@ -253,7 +253,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
           ];
         })
         .toList(growable: false);
-    return pw.Table.fromTextArray(
+    return pw.TableHelper.fromTextArray(
       headers: [
         labels.trip,
         labels.serviceDate,
