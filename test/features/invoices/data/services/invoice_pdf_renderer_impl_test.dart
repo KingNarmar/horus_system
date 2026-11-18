@@ -289,50 +289,68 @@ String _decodedPdfStreams(Uint8List bytes) {
   return output.toString();
 }
 
-/// Test-only fixture export for visual pagination, RTL and wrapping review.
-/// CI never exports fixtures, and opt-in exports use offline, local TTF files.
-/// Windows Tahoma is a layout stand-in; specify local Cairo files for a
-/// typography-faithful review of the production PDF renderer.
+/// Test-only fixture export for visual pagination and RTL review.
+/// English uses offline Type 1 fonts to avoid heavy TTF subset work for 90
+/// lines. Arabic is a separate smaller layout sample using local Tahoma.
+/// The two scenarios are deliberately independent to isolate slow rendering.
 Future<void> _exportMultipageFixturesIfRequested() async {
-  const exportFixtures = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
-  if (!exportFixtures) return;
+  const enabled = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
+  if (!enabled) return;
 
-  final renderer = InvoicePdfRendererImpl(loadFonts: _loadOfflineFixtureFonts);
+  const language = String.fromEnvironment(
+    'HORUS_352_FIXTURE_LANGUAGE',
+    defaultValue: 'en',
+  );
+
+  final InvoicePdfRendererImpl renderer;
+  final InvoicePdfDocument document;
+  final InvoicePdfLabels labels;
+  final String fileName;
+
+  if (language == 'en') {
+    renderer = InvoicePdfRendererImpl(
+      loadFonts: () async =>
+          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
+    );
+    document = _document(
+      lineCount: 90,
+      loadingLocation: 'Jebel Ali Free Zone Industrial Area Gate Six',
+      unloadingLocation: 'Dubai South Logistics District Cargo Terminal',
+    );
+    labels = _labels;
+    fileName = 'invoice_multipage_en.pdf';
+  } else if (language == 'ar') {
+    renderer = InvoicePdfRendererImpl(loadFonts: _loadOfflineFixtureFonts);
+    document = _document(
+      lineCount: 18,
+      loadingLocation: 'ميناء جبل علي المنطقة الصناعية السادسة',
+      unloadingLocation: 'منطقة دبي الجنوب للخدمات اللوجستية',
+    );
+    labels = _arabicLabels;
+    fileName = 'invoice_multipage_ar.pdf';
+  } else {
+    throw StateError('Unsupported PDF fixture language: $language');
+  }
+
+  // Show which stage is slow when an explicitly requested fixture is built.
+  // No user or tenant data is involved in these synthetic records.
+  // ignore: avoid_print
+  print('Issue #352 fixture $language: starting PDF render');
+  final result = await renderer.render(document: document, labels: labels);
+  // ignore: avoid_print
+  print('Issue #352 fixture $language: PDF render finished');
+  expect(
+    result.failureOrNull,
+    isNull,
+    reason: 'Failed to render $fileName for manual inspection',
+  );
+
   final output = Directory('build/issue_352_pdf_fixtures');
   await output.create(recursive: true);
-
-  for (final fixture in [
-    (
-      name: 'invoice_multipage_en.pdf',
-      document: _document(
-        lineCount: 90,
-        loadingLocation: 'Jebel Ali Free Zone Industrial Area Gate Six',
-        unloadingLocation: 'Dubai South Logistics District Cargo Terminal',
-      ),
-      labels: _labels,
-    ),
-    (
-      name: 'invoice_multipage_ar.pdf',
-      document: _document(
-        lineCount: 90,
-        loadingLocation: 'ميناء جبل علي المنطقة الصناعية السادسة',
-        unloadingLocation: 'منطقة دبي الجنوب للخدمات اللوجستية',
-      ),
-      labels: _arabicLabels,
-    ),
-  ]) {
-    final result = await renderer.render(
-      document: fixture.document,
-      labels: fixture.labels,
-    );
-    expect(
-      result.failureOrNull,
-      isNull,
-      reason: 'Failed to render ${fixture.name} for manual inspection',
-    );
-    final file = File('${output.path}${Platform.pathSeparator}${fixture.name}');
-    await file.writeAsBytes(result.dataOrNull!, flush: true);
-  }
+  final file = File('${output.path}${Platform.pathSeparator}$fileName');
+  await file.writeAsBytes(result.dataOrNull!, flush: true);
+  // ignore: avoid_print
+  print('Issue #352 fixture saved: ${file.absolute.path}');
 }
 
 /// Resolve fonts from the operator's machine, without HTTP or font assets.
