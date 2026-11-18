@@ -34,24 +34,29 @@ void main() {
     expect((spans[1] as pw.WidgetSpan).child, isA<pw.CustomPaint>());
     expect((spans[2] as pw.TextSpan).text, ' Dubai');
     expect(
-      spans.whereType<pw.TextSpan>().any((span) => span.text?.contains('→') ?? false),
+      spans.whereType<pw.TextSpan>().any(
+        (span) => span.text?.contains('→') ?? false,
+      ),
       isFalse,
     );
   });
 
-  test('keeps mixed Arabic/English locations in the correct business order', () {
-    final cell = InvoicePdfRouteCell.build(
-      loadingLocation: '  جبل علي  ',
-      unloadingLocation: '  Dubai Route 1  ',
-      unavailable: 'غير متاح',
-    );
+  test(
+    'keeps mixed Arabic/English locations in the correct business order',
+    () {
+      final cell = InvoicePdfRouteCell.build(
+        loadingLocation: '  جبل علي  ',
+        unloadingLocation: '  Dubai Route 1  ',
+        unavailable: 'غير متاح',
+      );
 
-    final content = (cell as pw.Directionality).child as pw.RichText;
-    final spans = (content.text as pw.TextSpan).children!;
-    expect((spans.first as pw.TextSpan).text, 'جبل علي ');
-    expect((spans.last as pw.TextSpan).text, ' Dubai Route 1');
-    expect(spans[1], isA<pw.WidgetSpan>());
-  });
+      final content = (cell as pw.Directionality).child as pw.RichText;
+      final spans = (content.text as pw.TextSpan).children!;
+      expect((spans.first as pw.TextSpan).text, 'جبل علي ');
+      expect((spans.last as pw.TextSpan).text, ' Dubai Route 1');
+      expect(spans[1], isA<pw.WidgetSpan>());
+    },
+  );
 
   test('shows localized fallback when both route ends are absent', () {
     final cell = InvoicePdfRouteCell.build(
