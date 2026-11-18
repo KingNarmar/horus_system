@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4'
+import { cleanupCompanyBranding } from './branding_cleanup.ts'
 
 type CleanupLease = {
   company_id: string
@@ -94,10 +95,21 @@ Deno.serve(async (request: Request) => {
     }
   }
 
+  // Same Vault-authenticated scheduler: a focused tenant-branding worker
+  // reuses the existing service role and Storage API. Document quota and
+  // document cleanup behavior above are unchanged.
+  const branding = await cleanupCompanyBranding(client)
+  if (branding.failedToClaim) {
+    return Response.json({ status: 'branding_claim_unavailable' }, { status: 503 })
+  }
+
   return Response.json({
     status: 'completed',
     inspected: leases.length,
     cleaned,
     deferred,
+    branding_inspected: branding.inspected,
+    branding_cleaned: branding.cleaned,
+    branding_deferred: branding.deferred,
   })
 })
