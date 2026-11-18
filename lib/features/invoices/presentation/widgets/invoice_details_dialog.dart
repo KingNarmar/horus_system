@@ -132,11 +132,27 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     final actionButtons = _detailsActionButtons(context, currentState);
     return _InvoiceDialogShell(
       title: strings.invoiceDetails,
-      canClose: !currentState.isMutationPending,
+      canClose: !currentState.isMutationPending && !widget.isPdfBusy,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InvoiceDetailsContent(state: currentState),
+          if (widget.isPdfBusy) ...[
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                const SizedBox(
+                  width: AppSizes.loadingIndicatorSm,
+                  height: AppSizes.loadingIndicatorSm,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: Text(strings.pdfPreparing)),
+              ],
+            ),
+          ],
           if (actionButtons.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.lg),
             Wrap(
@@ -207,7 +223,7 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       if (state.canCancel)
         OutlinedButton.icon(
           key: const ValueKey('invoiceCancelActionButton'),
-          onPressed: state.isMutationPending
+          onPressed: state.isMutationPending || widget.isPdfBusy
               ? null
               : () => _showView(_InvoiceDetailsView.cancel),
           icon: const Icon(AppIcons.deactivate),
@@ -216,7 +232,7 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       if (state.canIssue)
         FilledButton.icon(
           key: const ValueKey('invoiceIssueActionButton'),
-          onPressed: state.isMutationPending
+          onPressed: state.isMutationPending || widget.isPdfBusy
               ? null
               : () => _showView(_InvoiceDetailsView.issue),
           icon: const Icon(AppIcons.statusUpdate),

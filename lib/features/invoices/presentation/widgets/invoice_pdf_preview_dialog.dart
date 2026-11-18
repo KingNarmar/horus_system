@@ -45,6 +45,12 @@ final class InvoicePdfPreviewDialog extends StatelessWidget {
             Expanded(
               child: PdfPreview(
                 build: (_) async => bytes,
+                onError: (context, error) => Center(
+                  child: Text(
+                    strings.pdfRenderFailure,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
                 allowPrinting: false,
                 allowSharing: false,
                 canChangeOrientation: false,

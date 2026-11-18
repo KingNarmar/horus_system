@@ -1,0 +1,29 @@
+name: Issue 352 Resolved Lock Inspection
+
+on:
+  push:
+    branches:
+      - feature/352-company-branded-invoice-pdf
+
+permissions:
+  contents: read
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+      - name: Resolve pinned project dependencies
+        run: flutter pub get
+      - name: Emit resolved lockfile diff
+        shell: bash
+        run: |
+          echo HORUS_LOCK_DIFF_BEGIN
+          git diff -- pubspec.lock
+          echo HORUS_LOCK_DIFF_END

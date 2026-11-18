@@ -139,6 +139,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
+              pw.Text(labels.issuer),
               pw.Text(
                 issuer.name,
                 style: pw.TextStyle(
@@ -147,6 +148,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
                 ),
               ),
               ..._addressLines([
+                issuer.businessType,
                 issuer.address,
                 issuer.city,
                 issuer.country,
@@ -191,7 +193,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
         pw.Container(
           padding: const pw.EdgeInsets.all(InvoicePdfStyle.statusPadding),
           decoration: pw.BoxDecoration(
-            border: pw.Border.all(color: PdfColors.grey500),
+            border: pw.Border.all(color: InvoicePdfStyle.statusBorder),
           ),
           child: pw.Text(statusLabel, style: pw.TextStyle(font: bold)),
         ),
@@ -209,12 +211,20 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
       children: [
         _field(
           labels.invoiceNumber,
-          invoice.number?.value ?? labels.statusDraft,
+          invoice.number?.value ??
+              (invoice.status == InvoiceStatus.draft
+                  ? labels.statusDraft
+                  : labels.unavailable),
         ),
         _field(labels.issueDate, _date(invoice.issueDate?.value, labels)),
         _field(labels.dueDate, _date(invoice.dueDate?.value, labels)),
         pw.SizedBox(height: InvoicePdfStyle.itemGap),
-        pw.Text(labels.customer, style: pw.TextStyle(fontSize: 11)),
+        pw.Text(
+          labels.customer,
+          style: const pw.TextStyle(
+            fontSize: InvoicePdfStyle.customerHeadingSize,
+          ),
+        ),
         pw.Text(invoice.customer.name),
         ..._addressLines([
           invoice.customer.address,
@@ -265,7 +275,9 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
       headerStyle: pw.TextStyle(font: bold, fontSize: InvoicePdfStyle.bodySize),
       cellStyle: const pw.TextStyle(fontSize: InvoicePdfStyle.bodySize),
       cellPadding: const pw.EdgeInsets.all(InvoicePdfStyle.tablePadding),
-      headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
+      headerDecoration: const pw.BoxDecoration(
+        color: InvoicePdfStyle.tableHeader,
+      ),
     );
   }
 

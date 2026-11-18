@@ -1,3 +1,5 @@
+import 'package:pdf/pdf.dart';
+
 /// Fixed page-style tokens for issued business documents. This is a PDF
 /// design system, intentionally independent from Flutter screen dimensions.
 abstract final class InvoicePdfStyle {
@@ -9,6 +11,9 @@ abstract final class InvoicePdfStyle {
   static const double sectionGap = 18;
   static const double itemGap = 6;
   static const double logoSize = 68;
+  static const double customerHeadingSize = 11;
+  static const PdfColor statusBorder = PdfColors.grey500;
+  static const PdfColor tableHeader = PdfColors.grey200;
   static const double tablePadding = 6;
   static const double statusPadding = 8;
 }
