@@ -9,10 +9,7 @@ final class InvoicePdfDeliveryParams {
   final Uint8List bytes;
   final String fileName;
 
-  const InvoicePdfDeliveryParams({
-    required this.bytes,
-    required this.fileName,
-  });
+  const InvoicePdfDeliveryParams({required this.bytes, required this.fileName});
 }
 
 abstract class _InvoicePdfDeliveryValidator {

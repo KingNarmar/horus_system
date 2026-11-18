@@ -20,6 +20,7 @@ import '../domain/usecases/invoice_settings_usecases.dart';
 import '../domain/usecases/prepare_invoice_pdf_usecase.dart';
 import '../domain/usecases/generate_invoice_pdf_usecase.dart';
 import '../domain/usecases/invoice_pdf_delivery_usecases.dart';
+import '../presentation/cubit/invoice_pdf_cubit.dart';
 import '../presentation/cubit/invoice_details_cubit.dart';
 import '../presentation/cubit/invoices_cubit.dart';
 
@@ -58,6 +59,15 @@ abstract final class InvoicesDependencies {
 
   static ShareInvoicePdfUseCase createShareInvoicePdfUseCase() {
     return ShareInvoicePdfUseCase(createPdfDeliveryRepository());
+  }
+
+  static InvoicePdfCubit createInvoicePdfCubit() {
+    return InvoicePdfCubit(
+      generate: createGenerateInvoicePdfUseCase(),
+      save: createSaveInvoicePdfUseCase(),
+      print: createPrintInvoicePdfUseCase(),
+      share: createShareInvoicePdfUseCase(),
+    );
   }
 
   static InvoiceSettingsRepository createSettingsRepository() {
