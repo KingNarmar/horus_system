@@ -118,13 +118,13 @@ void main() {
 
     // Count real /Page dictionaries, excluding the parent /Pages node.
     final serialized = latin1.decode(bytes);
-    final pageCount = RegExp(r'/Type\\s*/Page\\b').allMatches(serialized).length;
+    final pageCount = RegExp(r'/Type\s*/Page\b').allMatches(serialized).length;
     expect(pageCount, greaterThan(1));
 
     // The synthetic test uses Type 1 fonts so these page-stream text values
     // stay inspectable without network fonts or a third-party PDF parser.
     final pageContent = _decodedPdfStreams(bytes);
-    final tripIds = RegExp(r'\\(TRIP-(\\d+)\\)')
+    final tripIds = RegExp(r'\(TRIP-(\d+)\)')
         .allMatches(pageContent)
         .map((match) => int.parse(match.group(1)!))
         .toList(growable: false);
@@ -133,7 +133,7 @@ void main() {
 
     // Ninety lines at AED 100.00 each: subtotal, taxable, and grand total.
     expect(
-      RegExp(r'\\(9000\\.00 AED\\)').allMatches(pageContent).length,
+      RegExp(r'\(9000\.00 AED\)').allMatches(pageContent).length,
       3,
     );
     expect(pageContent, contains('(Total)'));
@@ -191,7 +191,10 @@ InvoicePdfDocument _document({
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 10000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
-  final total = Money(minorUnits: amount.minorUnits * lineCount, currency: currency);
+  final total = Money(
+    minorUnits: amount.minorUnits * lineCount,
+    currency: currency,
+  );
   final invoice = Invoice(
     id: 'invoice-1',
     companyId: 'company-1',
@@ -261,13 +264,12 @@ const InvoicePdfLabels _labels = InvoicePdfLabels(
   legacyIdentityNotice: 'Identity unverified',
 );
 
-
 /// Decode compressed page-content streams to inspect text drawn by Type 1
 /// fonts. This is a targeted test probe, not a general-purpose PDF parser.
 String _decodedPdfStreams(Uint8List bytes) {
   final serialized = latin1.decode(bytes);
   final output = StringBuffer();
-  for (final marker in RegExp(r'stream\\r?\\n').allMatches(serialized)) {
+  for (final marker in RegExp(r'stream\r?\n').allMatches(serialized)) {
     final end = serialized.indexOf('endstream', marker.end);
     if (end < 0) continue;
 
@@ -278,7 +280,7 @@ String _decodedPdfStreams(Uint8List bytes) {
     final compressed = bytes.sublist(marker.end, streamEnd);
     try {
       output.writeln(latin1.decode(zlib.decode(compressed)));
-    } on FormatException {
+    } on Exception {
       // Ignore non-Flate binary streams, such as embedded font data.
     }
   }
@@ -288,8 +290,10 @@ String _decodedPdfStreams(Uint8List bytes) {
 /// Test-only fixture export for visual pagination, RTL and wrapping review.
 /// Normal CI runs never create files or fetch Cairo fonts.
 Future<void> _exportMultipageFixturesIfRequested() async {
-  const export = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
-  if (!export) return;
+  const exportFixtures = bool.fromEnvironment(
+    'HORUS_352_EXPORT_PDF_FIXTURES',
+  );
+  if (!exportFixtures) return;
 
   final output = Directory('build/issue_352_pdf_fixtures');
   await output.create(recursive: true);
