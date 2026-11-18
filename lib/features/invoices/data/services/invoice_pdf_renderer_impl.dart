@@ -16,6 +16,7 @@ import '../../domain/entities/invoice_issuer_snapshot.dart';
 import '../../domain/failures/invoice_failure_codes.dart';
 import '../../domain/services/invoice_pdf_renderer.dart';
 import '../constants/invoice_pdf_style.dart';
+import 'invoice_pdf_route_cell.dart';
 
 typedef InvoicePdfFontLoader =
     Future<({pw.Font regular, pw.Font bold})> Function();
@@ -244,17 +245,17 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
   ) {
     final rows = document.invoice.lines
         .map((line) {
-          final route = [
-            line.loadingLocation,
-            line.unloadingLocation,
-          ].whereType<String>().where((value) => value.trim().isNotEmpty);
-          return <String>[
+          return <dynamic>[
             line.tripNumber ??
                 line.loadingOrderNumber ??
                 line.waybillNumber ??
                 labels.unavailable,
             _date(line.serviceDate, labels),
-            route.isEmpty ? labels.unavailable : route.join(' → '),
+            InvoicePdfRouteCell.build(
+              loadingLocation: line.loadingLocation,
+              unloadingLocation: line.unloadingLocation,
+              unavailable: labels.unavailable,
+            ),
             line.quantityTons?.toString() ?? labels.unavailable,
             _money(line.amount, document.currencyFractionDigits),
           ];
@@ -272,6 +273,13 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
       headerStyle: pw.TextStyle(font: bold, fontSize: InvoicePdfStyle.bodySize),
       cellStyle: const pw.TextStyle(fontSize: InvoicePdfStyle.bodySize),
       cellPadding: const pw.EdgeInsets.all(InvoicePdfStyle.tablePadding),
+      columnWidths: const {
+        0: pw.FlexColumnWidth(InvoicePdfStyle.tripColumnFlex),
+        1: pw.FlexColumnWidth(InvoicePdfStyle.dateColumnFlex),
+        2: pw.FlexColumnWidth(InvoicePdfStyle.routeColumnFlex),
+        3: pw.FlexColumnWidth(InvoicePdfStyle.quantityColumnFlex),
+        4: pw.FlexColumnWidth(InvoicePdfStyle.amountColumnFlex),
+      },
       headerDecoration: const pw.BoxDecoration(
         color: InvoicePdfStyle.tableHeader,
       ),

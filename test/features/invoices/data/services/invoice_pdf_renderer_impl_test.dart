@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
 import 'package:horus_system/features/invoices/data/services/invoice_pdf_renderer_impl.dart';
+import 'package:horus_system/features/invoices/data/services/invoice_pdf_route_cell.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_customer_snapshot.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_pdf_document.dart';
@@ -16,6 +17,62 @@ import 'package:horus_system/features/invoices/domain/failures/invoice_failure_c
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 
 void main() {
+  test('isolates LTR route order inside an RTL invoice', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: 'Route1',
+      unloadingLocation: 'Dubai',
+      unavailable: 'N/A',
+    );
+
+    final direction = cell as pw.Directionality;
+    final content = direction.child as pw.Text;
+    expect(direction.textDirection, pw.TextDirection.ltr);
+    expect(content.textDirection, pw.TextDirection.ltr);
+    expect((content.text as pw.TextSpan).text, 'Route1 → Dubai');
+    expect(content.softWrap, isTrue);
+  });
+
+  test('preserves mixed Arabic/English and trims route locations', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: '  جبل علي  ',
+      unloadingLocation: '  Dubai Route 1  ',
+      unavailable: 'غير متاح',
+    );
+
+    final content = (cell as pw.Directionality).child as pw.Text;
+    expect((content.text as pw.TextSpan).text, 'جبل علي → Dubai Route 1');
+  });
+
+  test('shows a localized fallback when both route ends are absent', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: ' ',
+      unloadingLocation: null,
+      unavailable: 'غير متاح',
+    );
+    final content = (cell as pw.Directionality).child as pw.Text;
+    expect((content.text as pw.TextSpan).text, 'غير متاح');
+  });
+
+  testWidgets('renders long route names on a multi-page invoice', (
+    tester,
+  ) async {
+    final renderer = InvoicePdfRendererImpl(
+      loadFonts: () async =>
+          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
+    );
+    final result = await renderer.render(
+      document: _document(
+        lineCount: 90,
+        loadingLocation: 'Jebel Ali Free Zone Industrial Area Gate Six',
+        unloadingLocation: 'Dubai South Logistics District Cargo Terminal',
+      ),
+      labels: _labels,
+    );
+
+    expect(result.failureOrNull, isNull);
+    expect(result.dataOrNull!.sublist(0, 4), [37, 80, 68, 70]);
+  });
+
   testWidgets('generates a multipage invoice without network fonts', (
     tester,
   ) async {
@@ -73,7 +130,12 @@ void main() {
   });
 }
 
-InvoicePdfDocument _document({required int lineCount, Uint8List? logoBytes}) {
+InvoicePdfDocument _document({
+  required int lineCount,
+  Uint8List? logoBytes,
+  String? loadingLocation,
+  String? unloadingLocation,
+}) {
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 10000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
@@ -92,6 +154,8 @@ InvoicePdfDocument _document({required int lineCount, Uint8List? logoBytes}) {
       (index) => InvoiceTripLine(
         tripId: 'trip-$index',
         tripNumber: 'TRIP-$index',
+        loadingLocation: loadingLocation,
+        unloadingLocation: unloadingLocation,
         amount: amount,
       ),
     ),
