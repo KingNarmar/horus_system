@@ -132,10 +132,7 @@ void main() {
     expect(tripIds.toSet(), Set<int>.from(List.generate(90, (i) => i)));
 
     // Ninety lines at AED 100.00 each: subtotal, taxable, and grand total.
-    expect(
-      RegExp(r'\(9000\.00 AED\)').allMatches(pageContent).length,
-      3,
-    );
+    expect(RegExp(r'\(9000\.00 AED\)').allMatches(pageContent).length, 3);
     expect(pageContent, contains('(Total)'));
 
     // Optional local visual evidence (EN/AR with the production Cairo fonts).
@@ -290,9 +287,7 @@ String _decodedPdfStreams(Uint8List bytes) {
 /// Test-only fixture export for visual pagination, RTL and wrapping review.
 /// Normal CI runs never create files or fetch Cairo fonts.
 Future<void> _exportMultipageFixturesIfRequested() async {
-  const exportFixtures = bool.fromEnvironment(
-    'HORUS_352_EXPORT_PDF_FIXTURES',
-  );
+  const exportFixtures = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
   if (!exportFixtures) return;
 
   final output = Directory('build/issue_352_pdf_fixtures');
@@ -328,9 +323,7 @@ Future<void> _exportMultipageFixturesIfRequested() async {
       isNull,
       reason: 'Failed to render ${fixture.name} for manual inspection',
     );
-    final file = File(
-      '${output.path}${Platform.pathSeparator}${fixture.name}',
-    );
+    final file = File('${output.path}${Platform.pathSeparator}${fixture.name}');
     await file.writeAsBytes(result.dataOrNull!, flush: true);
   }
 }
