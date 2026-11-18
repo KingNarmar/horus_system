@@ -11,12 +11,11 @@ abstract final class InvoicePdfRouteCell {
     required String? unloadingLocation,
     required String unavailable,
   }) {
-    final route = [
-      loadingLocation,
-      unloadingLocation,
-    ].whereType<String>().map((value) => value.trim()).where(
-      (value) => value.isNotEmpty,
-    ).join(' → ');
+    final route = [loadingLocation, unloadingLocation]
+        .whereType<String>()
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .join(' → ');
 
     return pw.Directionality(
       textDirection: pw.TextDirection.ltr,
