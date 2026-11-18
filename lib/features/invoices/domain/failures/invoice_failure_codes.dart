@@ -13,6 +13,8 @@ abstract final class InvoiceFailureCodes {
   static const conflictSequenceExhausted =
       'conflict_invoice_sequence_exhausted';
   static const conflictHasPayments = 'conflict_invoice_has_payments';
+  static const pdfIssuerSnapshotMissing =
+      'invoice_pdf_issuer_snapshot_missing';
   static const notFound = 'invoice_not_found';
   static const customerNotFound = 'invoice_customer_not_found';
 }

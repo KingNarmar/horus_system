@@ -15,6 +15,7 @@ import '../domain/usecases/invoice_draft_usecases.dart';
 import '../domain/usecases/invoice_lifecycle_usecases.dart';
 import '../domain/usecases/invoice_query_usecases.dart';
 import '../domain/usecases/invoice_settings_usecases.dart';
+import '../domain/usecases/prepare_invoice_pdf_usecase.dart';
 import '../presentation/cubit/invoice_details_cubit.dart';
 import '../presentation/cubit/invoices_cubit.dart';
 
@@ -22,6 +23,13 @@ abstract final class InvoicesDependencies {
   static InvoicesRepository createRepository() {
     return InvoicesRepositoryImpl(
       SupabaseInvoicesRemoteDataSource(SupabaseClientProvider.client),
+    );
+  }
+
+  static PrepareInvoicePdfUseCase createPrepareInvoicePdfUseCase() {
+    return PrepareInvoicePdfUseCase(
+      invoices: createRepository(),
+      branding: CompanyDependencies.createBrandingRepository(),
     );
   }
 
