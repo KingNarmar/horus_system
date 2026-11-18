@@ -51,9 +51,7 @@ void main() {
       findsOneWidget,
     );
 
-    final preview = find.byKey(
-      const ValueKey('invoicePdfPreviewActionButton'),
-    );
+    final preview = find.byKey(const ValueKey('invoicePdfPreviewActionButton'));
     await tester.ensureVisible(preview);
     await tester.tap(preview);
     expect(requested, InvoicePdfAction.preview);
@@ -121,12 +119,9 @@ void main() {
     expect(issue.onPressed, isNull);
     expect(tester.takeException(), isNull);
   });
-
 }
 
-InvoiceDetailsLoaded _loadedState({
-  CompanyRole role = CompanyRole.accountant,
-}) {
+InvoiceDetailsLoaded _loadedState({CompanyRole role = CompanyRole.accountant}) {
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 12000000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
