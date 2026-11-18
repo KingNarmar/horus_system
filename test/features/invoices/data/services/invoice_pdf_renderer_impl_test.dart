@@ -73,10 +73,7 @@ void main() {
   });
 }
 
-InvoicePdfDocument _document({
-  required int lineCount,
-  Uint8List? logoBytes,
-}) {
+InvoicePdfDocument _document({required int lineCount, Uint8List? logoBytes}) {
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 10000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
