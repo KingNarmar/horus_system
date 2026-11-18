@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -98,7 +100,7 @@ void main() {
     expect(result.dataOrNull!.sublist(0, 4), [37, 80, 68, 70]);
   });
 
-  testWidgets('generates a multipage invoice without network fonts', (
+  testWidgets('90 invoice lines survive A4 pagination exactly once', (
     tester,
   ) async {
     final renderer = InvoicePdfRendererImpl(
@@ -112,8 +114,33 @@ void main() {
 
     expect(result.failureOrNull, isNull);
     final bytes = result.dataOrNull!;
-    expect(bytes.length, greaterThan(100));
     expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
+
+    // Count real /Page dictionaries, excluding the parent /Pages node.
+    final serialized = latin1.decode(bytes);
+    final pageCount = RegExp(r'/Type\\s*/Page\\b').allMatches(serialized).length;
+    expect(pageCount, greaterThan(1));
+
+    // The synthetic test uses Type 1 fonts so these page-stream text values
+    // stay inspectable without network fonts or a third-party PDF parser.
+    final pageContent = _decodedPdfStreams(bytes);
+    final tripIds = RegExp(r'\\(TRIP-(\\d+)\\)')
+        .allMatches(pageContent)
+        .map((match) => int.parse(match.group(1)!))
+        .toList(growable: false);
+    expect(tripIds, hasLength(90));
+    expect(tripIds.toSet(), Set<int>.from(List.generate(90, (i) => i)));
+
+    // Ninety lines at AED 100.00 each: subtotal, taxable, and grand total.
+    expect(
+      RegExp(r'\\(9000\\.00 AED\\)').allMatches(pageContent).length,
+      3,
+    );
+    expect(pageContent, contains('(Total)'));
+
+    // Optional local visual evidence (EN/AR with the production Cairo fonts).
+    // This is disabled in CI and writes nothing unless explicitly requested.
+    await _exportMultipageFixturesIfRequested();
   });
 
   testWidgets('damaged private logo returns typed failure, not silent loss', (
@@ -164,6 +191,7 @@ InvoicePdfDocument _document({
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 10000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
+  final total = Money(minorUnits: amount.minorUnits * lineCount, currency: currency);
   final invoice = Invoice(
     id: 'invoice-1',
     companyId: 'company-1',
@@ -185,12 +213,12 @@ InvoicePdfDocument _document({
       ),
     ),
     totals: InvoiceTotals(
-      subtotal: amount,
+      subtotal: total,
       discount: zero,
-      taxableAmount: amount,
+      taxableAmount: total,
       taxRate: TaxRate.tryCreate(0)!,
       taxAmount: zero,
-      grandTotal: amount,
+      grandTotal: total,
     ),
     createdAt: DateTime.utc(2026, 11, 18),
     updatedAt: DateTime.utc(2026, 11, 18),
@@ -231,4 +259,104 @@ const InvoicePdfLabels _labels = InvoicePdfLabels(
   page: 'Page',
   unavailable: 'N/A',
   legacyIdentityNotice: 'Identity unverified',
+);
+
+
+/// Decode compressed page-content streams to inspect text drawn by Type 1
+/// fonts. This is a targeted test probe, not a general-purpose PDF parser.
+String _decodedPdfStreams(Uint8List bytes) {
+  final serialized = latin1.decode(bytes);
+  final output = StringBuffer();
+  for (final marker in RegExp(r'stream\\r?\\n').allMatches(serialized)) {
+    final end = serialized.indexOf('endstream', marker.end);
+    if (end < 0) continue;
+
+    var streamEnd = end;
+    if (streamEnd > marker.end && bytes[streamEnd - 1] == 10) streamEnd--;
+    if (streamEnd > marker.end && bytes[streamEnd - 1] == 13) streamEnd--;
+
+    final compressed = bytes.sublist(marker.end, streamEnd);
+    try {
+      output.writeln(latin1.decode(zlib.decode(compressed)));
+    } on FormatException {
+      // Ignore non-Flate binary streams, such as embedded font data.
+    }
+  }
+  return output.toString();
+}
+
+/// Test-only fixture export for visual pagination, RTL and wrapping review.
+/// Normal CI runs never create files or fetch Cairo fonts.
+Future<void> _exportMultipageFixturesIfRequested() async {
+  const export = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
+  if (!export) return;
+
+  final output = Directory('build/issue_352_pdf_fixtures');
+  await output.create(recursive: true);
+  final renderer = InvoicePdfRendererImpl();
+
+  for (final fixture in [
+    (
+      name: 'invoice_multipage_en.pdf',
+      document: _document(
+        lineCount: 90,
+        loadingLocation: 'Jebel Ali Free Zone Industrial Area Gate Six',
+        unloadingLocation: 'Dubai South Logistics District Cargo Terminal',
+      ),
+      labels: _labels,
+    ),
+    (
+      name: 'invoice_multipage_ar.pdf',
+      document: _document(
+        lineCount: 90,
+        loadingLocation: 'ميناء جبل علي المنطقة الصناعية السادسة',
+        unloadingLocation: 'منطقة دبي الجنوب للخدمات اللوجستية',
+      ),
+      labels: _arabicLabels,
+    ),
+  ]) {
+    final result = await renderer.render(
+      document: fixture.document,
+      labels: fixture.labels,
+    );
+    expect(
+      result.failureOrNull,
+      isNull,
+      reason: 'Failed to render ${fixture.name} for manual inspection',
+    );
+    final file = File(
+      '${output.path}${Platform.pathSeparator}${fixture.name}',
+    );
+    await file.writeAsBytes(result.dataOrNull!, flush: true);
+  }
+}
+
+const InvoicePdfLabels _arabicLabels = InvoicePdfLabels(
+  isRtl: true,
+  title: 'فاتورة',
+  statusDraft: 'مسودة',
+  statusIssued: 'صادرة',
+  statusPartiallyPaid: 'مدفوعة جزئياً',
+  statusPaid: 'مدفوعة',
+  statusCancelled: 'ملغاة',
+  issuer: 'الشركة',
+  customer: 'العميل',
+  taxRegistration: 'رقم التسجيل الضريبي',
+  invoiceNumber: 'رقم الفاتورة',
+  issueDate: 'تاريخ الإصدار',
+  dueDate: 'تاريخ الاستحقاق',
+  trip: 'الرحلة',
+  serviceDate: 'تاريخ الخدمة',
+  route: 'المسار',
+  quantity: 'الكمية',
+  amount: 'المبلغ',
+  subtotal: 'الإجمالي الفرعي',
+  discount: 'الخصم',
+  taxableAmount: 'المبلغ الخاضع للضريبة',
+  tax: 'الضريبة',
+  total: 'الإجمالي',
+  notes: 'ملاحظات',
+  page: 'صفحة',
+  unavailable: 'غير متاح',
+  legacyIdentityNotice: 'تعذر تأكيد الهوية التاريخية',
 );
