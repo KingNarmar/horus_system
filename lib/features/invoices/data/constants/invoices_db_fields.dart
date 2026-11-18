@@ -9,6 +9,18 @@ abstract final class InvoicesDbFields {
   static const invoiceNumber = 'invoice_number';
   static const currencyCode = 'currency_code';
 
+  static const issuerCompanyName = 'issuer_company_name';
+  static const issuerBusinessType = 'issuer_business_type';
+  static const issuerPhone = 'issuer_phone';
+  static const issuerEmail = 'issuer_email';
+  static const issuerAddress = 'issuer_address';
+  static const issuerCity = 'issuer_city';
+  static const issuerCountry = 'issuer_country';
+  static const issuerTaxRegistrationNumber = 'issuer_tax_registration_number';
+  static const issuerLogoPath = 'issuer_logo_path';
+  static const issuerSnapshotSource = 'issuer_snapshot_source';
+  static const issuerCapturedAt = 'issuer_captured_at';
+
   static const customerName = 'customer_name';
   static const customerTaxRegistrationNumber =
       'customer_tax_registration_number';

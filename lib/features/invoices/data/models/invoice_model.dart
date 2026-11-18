@@ -3,6 +3,7 @@ import '../../../../core/domain/value_objects/business_date.dart';
 import '../constants/invoices_db_fields.dart';
 import '../utils/invoice_data_parser.dart';
 import 'invoice_customer_snapshot_model.dart';
+import 'invoice_issuer_snapshot_model.dart';
 import 'invoice_totals_model.dart';
 import 'invoice_trip_line_model.dart';
 
@@ -10,6 +11,7 @@ final class InvoiceModel {
   final String id;
   final String companyId;
   final InvoiceCustomerSnapshotModel customer;
+  final InvoiceIssuerSnapshotModel? issuerSnapshot;
   final String status;
   final String? invoiceNumber;
   final String currencyCode;
@@ -26,6 +28,7 @@ final class InvoiceModel {
     required this.id,
     required this.companyId,
     required this.customer,
+    this.issuerSnapshot,
     required this.status,
     this.invoiceNumber,
     required this.currencyCode,
@@ -60,6 +63,7 @@ final class InvoiceModel {
         DbCommonFields.companyId,
       ),
       customer: InvoiceCustomerSnapshotModel.fromInvoiceMap(map),
+      issuerSnapshot: InvoiceIssuerSnapshotModel.fromInvoiceMap(map),
       status: InvoiceDataParser.requiredString(
         map[InvoicesDbFields.status],
         InvoicesDbFields.status,
