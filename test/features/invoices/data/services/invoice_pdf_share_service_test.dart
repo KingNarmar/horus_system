@@ -26,7 +26,11 @@ void main() {
         captured = params;
         expect(params.text, 'INV-2026-0001.pdf');
         expect(params.files, hasLength(1));
-        expect(await File(params.files!.single.path).readAsBytes(), bytes);
+        final path = params.files!.single.path.replaceAll(
+          '\\',
+          Platform.pathSeparator,
+        );
+        expect(await File(path).readAsBytes(), bytes);
         return const ShareResult('', ShareResultStatus.success);
       },
     );
@@ -96,7 +100,7 @@ void main() {
     final share = InvoicePdfShareService(
       isWindows: false,
       temporaryDirectory: () async => cache,
-      now: () => DateTime.utc(2026, 11, 18, 10),
+      now: () => DateTime.now().add(const Duration(days: 3)),
       nativeShare: (_) async =>
           const ShareResult('', ShareResultStatus.dismissed),
     );
@@ -107,7 +111,6 @@ void main() {
     final stale = await root.createTemp('invoice_share_');
     await File('${stale.path}${Platform.pathSeparator}secret.pdf')
         .writeAsString('secret');
-    await stale.setLastModified(DateTime.utc(2026, 11, 16, 10));
     final unrelated = Directory(
       '${root.path}${Platform.pathSeparator}not_an_invoice',
     );
