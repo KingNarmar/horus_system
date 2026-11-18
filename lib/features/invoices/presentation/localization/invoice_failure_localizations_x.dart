@@ -65,6 +65,13 @@ extension InvoiceFailureLocalizationsX on BuildContext {
         businessTimezoneL10n.configurationRequired,
       InvoiceFailureCodes.conflictSettingsNotConfigured ||
       InvoiceFailureCodes.validationPrefixInvalid => strings.settingsFailure,
+      InvoiceFailureCodes.pdfIssuerSnapshotMissing =>
+        strings.pdfSnapshotFailure,
+      InvoiceFailureCodes.pdfRenderUnavailable => strings.pdfRenderFailure,
+      InvoiceFailureCodes.pdfInvalidDocument => strings.pdfInvalidFailure,
+      InvoiceFailureCodes.pdfSaveUnavailable => strings.pdfSaveFailure,
+      InvoiceFailureCodes.pdfPrintUnavailable => strings.pdfPrintFailure,
+      InvoiceFailureCodes.pdfShareUnavailable => strings.pdfShareFailure,
       InvoiceFailureCodes.notFound ||
       FailureCodes.validationInvoiceIdRequired =>
         strings.invoiceNotFoundFailure,
