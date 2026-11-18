@@ -138,10 +138,9 @@ void main() {
     expect(pageContent, contains('Total'));
   });
 
-  testWidgets('exports EN/AR multipage fixtures when explicitly requested', (
-    tester,
-  ) async {
-    // Independent of assertions in the other tests, and disabled in CI.
+  test('exports EN/AR multipage fixtures when explicitly requested', () async {
+    // Uses real asynchronous file I/O, unlike testWidgets' fake async zone.
+    // Independent of the renderer assertions and disabled in CI.
     await _exportMultipageFixturesIfRequested();
   });
 
