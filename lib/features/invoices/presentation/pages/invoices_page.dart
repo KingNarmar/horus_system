@@ -339,13 +339,18 @@ final class _InvoiceDetailsHost extends StatelessWidget {
     String? message;
     if (state is InvoicePdfFailed) {
       message = context.localizedInvoiceFailure(state.failure);
-    } else if (state is InvoicePdfCompleted &&
-        state.outcome == InvoicePdfDeliveryOutcome.completed) {
-      message = switch (state.action) {
-        InvoicePdfAction.save => strings.pdfSaved,
-        InvoicePdfAction.print => strings.pdfPrinted,
-        InvoicePdfAction.share => strings.pdfShared,
-        InvoicePdfAction.preview => null,
+    } else if (state is InvoicePdfCompleted) {
+      message = switch ((state.action, state.outcome)) {
+        (_, InvoicePdfDeliveryOutcome.cancelled) => null,
+        (InvoicePdfAction.share, InvoicePdfDeliveryOutcome.initiated) =>
+          strings.pdfShareInitiated,
+        (InvoicePdfAction.share, InvoicePdfDeliveryOutcome.completed) =>
+          strings.pdfShared,
+        (InvoicePdfAction.save, InvoicePdfDeliveryOutcome.completed) =>
+          strings.pdfSaved,
+        (InvoicePdfAction.print, InvoicePdfDeliveryOutcome.completed) =>
+          strings.pdfPrinted,
+        _ => null,
       };
     }
 

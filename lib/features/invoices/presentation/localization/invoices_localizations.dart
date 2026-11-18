@@ -63,6 +63,7 @@ final class InvoicesLocalizations {
   String get pdfSaved => _value('pdfSaved');
   String get pdfPrinted => _value('pdfPrinted');
   String get pdfShared => _value('pdfShared');
+  String get pdfShareInitiated => _value('pdfShareInitiated');
   String get pdfInvalidFailure => _value('pdfInvalidFailure');
   String get pdfRenderFailure => _value('pdfRenderFailure');
   String get pdfSnapshotFailure => _value('pdfSnapshotFailure');
@@ -192,7 +193,8 @@ final class InvoicesLocalizations {
     'pdfPreparing': 'Preparing PDF...',
     'pdfSaved': 'Invoice PDF saved.',
     'pdfPrinted': 'Invoice sent to print.',
-    'pdfShared': 'Invoice PDF shared.',
+    'pdfShared': 'Sharing completed in the selected app.',
+    'pdfShareInitiated': 'Sharing opened. Choose a destination to send the PDF.',
     'pdfInvalidFailure': 'This invoice PDF document is invalid.',
     'pdfRenderFailure': 'Could not generate the invoice PDF.',
     'pdfSnapshotFailure':
@@ -324,7 +326,8 @@ final class InvoicesLocalizations {
     'pdfPreparing': 'جاري تجهيز PDF...',
     'pdfSaved': 'تم حفظ ملف الفاتورة.',
     'pdfPrinted': 'تم إرسال الفاتورة للطباعة.',
-    'pdfShared': 'تمت مشاركة ملف الفاتورة.',
+    'pdfShared': 'اكتملت المشاركة عبر التطبيق المحدد.',
+    'pdfShareInitiated': 'تم فتح المشاركة. اختر الوجهة لإرسال ملف PDF.',
     'pdfInvalidFailure': 'ملف الفاتورة غير صالح.',
     'pdfRenderFailure': 'تعذر إنشاء ملف PDF للفاتورة.',
     'pdfSnapshotFailure':

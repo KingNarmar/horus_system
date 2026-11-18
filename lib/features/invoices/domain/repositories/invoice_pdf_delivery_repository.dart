@@ -2,7 +2,8 @@ import 'dart:typed_data';
 
 import '../../../../core/utils/result.dart';
 
-enum InvoicePdfDeliveryOutcome { completed, cancelled }
+/// Initiated means native sharing was offered without a verifiable delivery.
+enum InvoicePdfDeliveryOutcome { completed, cancelled, initiated }
 
 /// Pure delivery contract. Platform plugins are Data implementation details.
 abstract interface class InvoicePdfDeliveryRepository {
