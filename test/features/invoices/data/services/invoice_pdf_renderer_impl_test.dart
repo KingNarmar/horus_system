@@ -290,14 +290,16 @@ String _decodedPdfStreams(Uint8List bytes) {
 }
 
 /// Test-only fixture export for visual pagination, RTL and wrapping review.
-/// Normal CI runs never create files or fetch Cairo fonts.
+/// CI never exports fixtures, and opt-in exports use offline, local TTF files.
+/// Windows Tahoma is a layout stand-in; specify local Cairo files for a
+/// typography-faithful review of the production PDF renderer.
 Future<void> _exportMultipageFixturesIfRequested() async {
   const exportFixtures = bool.fromEnvironment('HORUS_352_EXPORT_PDF_FIXTURES');
   if (!exportFixtures) return;
 
+  final renderer = InvoicePdfRendererImpl(loadFonts: _loadOfflineFixtureFonts);
   final output = Directory('build/issue_352_pdf_fixtures');
   await output.create(recursive: true);
-  final renderer = InvoicePdfRendererImpl();
 
   for (final fixture in [
     (
@@ -331,6 +333,43 @@ Future<void> _exportMultipageFixturesIfRequested() async {
     final file = File('${output.path}${Platform.pathSeparator}${fixture.name}');
     await file.writeAsBytes(result.dataOrNull!, flush: true);
   }
+}
+
+/// Resolve fonts from the operator's machine, without HTTP or font assets.
+/// Explicit paths allow testing the same Cairo family used by production.
+Future<({pw.Font regular, pw.Font bold})> _loadOfflineFixtureFonts() async {
+  const regularOverride = String.fromEnvironment('HORUS_352_FONT_REGULAR_PATH');
+  const boldOverride = String.fromEnvironment('HORUS_352_FONT_BOLD_PATH');
+
+  if ((regularOverride.isEmpty && boldOverride.isNotEmpty) ||
+      (regularOverride.isNotEmpty && boldOverride.isEmpty)) {
+    throw StateError('Both fixture font paths must be supplied together.');
+  }
+  if (!Platform.isWindows && regularOverride.isEmpty) {
+    throw StateError('Set both fixture font paths on non-Windows systems.');
+  }
+
+  final windowsFonts = '${Platform.environment['WINDIR'] ?? r'C:\Windows'}'
+      '${Platform.pathSeparator}Fonts';
+  final regularPath = regularOverride.isNotEmpty
+      ? regularOverride
+      : '$windowsFonts${Platform.pathSeparator}tahoma.ttf';
+  final boldPath = boldOverride.isNotEmpty
+      ? boldOverride
+      : '$windowsFonts${Platform.pathSeparator}tahomabd.ttf';
+
+  Future<pw.Font> readFont(String path) async {
+    final file = File(path);
+    if (!await file.exists()) {
+      throw StateError('Fixture font not found: $path');
+    }
+    return pw.Font.ttf(ByteData.sublistView(await file.readAsBytes()));
+  }
+
+  return (
+    regular: await readFont(regularPath),
+    bold: await readFont(boldPath),
+  );
 }
 
 const InvoicePdfLabels _arabicLabels = InvoicePdfLabels(
