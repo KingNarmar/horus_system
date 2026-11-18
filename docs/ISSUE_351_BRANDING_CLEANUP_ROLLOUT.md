@@ -1,6 +1,6 @@
 # Issue #351 — Company-branding Storage cleanup (Development verified; Production pending)
 
-**Status (2026-11-17):** Approved Development-only managed migration `20261117121333_issue_351_branding_cleanup` **APPLIED** on `zwnfmszssxtfxkaofnhq`; `business-document-cleanup` Edge Function **v3 ACTIVE** with exact PR #385 `index.ts` and `branding_cleanup.ts`. Controlled Vault-authenticated HTTP smoke returned 200 and successfully cleaned six explicitly disposable, unreferenced retired logos (6/6), with 0 deferrals, 0 remaining Storage objects and 0 pending leases. Existing #357 document cleanup reported 0 due documents in that smoke. The existing Cron stays active and unchanged. **Production and PR merges remain NOT AUTHORIZED.**
+**Status (2026-11-18):** Development managed migration `20261117121333_issue_351_branding_cleanup` **APPLIED** on `zwnfmszssxtfxkaofnhq`; `business-document-cleanup` Edge Function **v3 ACTIVE**. Vault-authenticated HTTP smoke 200 cleaned six disposable, unreferenced retired logos (6/6) with 0 deferrals. Hosted authorized Windows UI smoke subsequently proved an issued invoice retains its original private logo version after the company's logo changes. PR #385 was squash-merged into `main` as `fc815d90`; PR #386 UI integration remains a separately gated merge. **Production unchanged and requires separate approval.**
 
 **Migration-history note:** The Development-only #358 operator bootstrap `20261115114601` is intentionally stored outside the shared migrations directory, under `supabase/development_only_migrations/`; never copy it into the shared chain or use `migration repair --status reverted` to bypass history drift. The managed Development migration received version `20261117121333`, so the shared source filename was realigned without re-executing its SQL. The SQL content was retained unchanged to match the already applied migration exactly. Before future environment-specific CLI deployments, reconcile the known Development-only history safely; do not silently repair or reapply it.
 
@@ -64,6 +64,14 @@ codes. No user secrets, Storage paths or JWTs appear in HTTP responses.
 - **Regression/CI:** PR A's 13 GitHub workflow runs all succeeded at head `3cb7ccd5`; stacked PR B's UI Quality run succeeded at head `33ce5e23`. Automated #357 signed-JWT and Storage contract regressions passed. The hosted smoke had 0 due #357 documents, so no document deletions were attempted.
 - **Scope / remaining gates:** No Production deployment, no PR merge, no source changes to app code; next actions require a separate review of PR readiness, user-facing smoke as relevant, and explicit approvals for merges and later Production rollout.
 
+## Hosted immutable invoice-logo preservation (2026-11-18)
+
+- **Real authorized Windows + Development test:** The Owner uploaded the first company logo, issued invoice `f7dd98af-7be4-43b0-93de-e74518780708` in `HORUS 354 Free Starter Test`, then replaced the company's current logo with a second version using the normal app UI.
+- **Read-only PostgreSQL evidence:** Invoice remained `issued` with `issuer_snapshot_source='issuance'` and stored old immutable `issuer_logo_path` ending `cb2ae31c-c066-47a6-b163-89ea81ce66d4.png`, while current `public.companies.logo_url` points to the new `bd911689-e0e9-4000-a48e-e30c2ae61e1e.png` version.
+- **Storage and lifecycle:** Both files are physically present in the private company-branding bucket; new company logo ledger state = `active`; original invoice-logo ledger state = `retired`. Both are referenced/protected according to `private.company_branding_logo_is_referenced`, with **zero protected cleaned** records.
+- **Boundary:** No hosted post-grace cleanup invocation was made against these protected fixtures. Negative claims/nondeletions were tested in passing isolated signed-JWT and Storage contract CI. This verification does not constitute PDF preview/print output testing; that is Issue #352.
+- **GitHub:** PR #385 merged into `main` at `fc815d90`; PR #386 retargeted to `main` for an independent UI-only diff and required CI. **Production not modified.**
+
 ## Mandatory verification before Production
 
 1. CI: full migration replay, #351 signed-JWT baseline, new cleanup contract
@@ -113,6 +121,7 @@ for any hosted deployment. No SQL from this document is authorized for write.
 
 ## Current issue gates
 
-PR #385 (backend) and stacked PR #386 (Flutter) remain DRAFT until evidence
-and explicit merge approval. Applying a migration or deploying any hosted Edge
-Function requires **separate owner approval for Development and Production**.
+PR #385 (backend) was squash-merged to `main` after Development verification;
+PR #386 (Flutter) is a separate UI PR with owner approval conditional on
+required GitHub checks. Production database migration and Edge deployment remain
+separate, explicit owner-approval gates. No merger authorizes Production rollout.
