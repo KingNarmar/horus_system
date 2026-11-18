@@ -95,25 +95,22 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
 
   static Future<pw.MemoryImage?> _decodeLogo(Uint8List? bytes) async {
     if (bytes == null || bytes.isEmpty) return null;
+    final codec = await ui.instantiateImageCodec(bytes);
     try {
-      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
       try {
-        final frame = await codec.getNextFrame();
-        try {
-          final data = await frame.image.toByteData(
-            format: ui.ImageByteFormat.png,
-          );
-          if (data == null) return null;
-          return pw.MemoryImage(data.buffer.asUint8List());
-        } finally {
-          frame.image.dispose();
+        final data = await frame.image.toByteData(
+          format: ui.ImageByteFormat.png,
+        );
+        if (data == null) {
+          throw const FormatException('Unrenderable invoice issuer logo.');
         }
+        return pw.MemoryImage(data.buffer.asUint8List());
       } finally {
-        codec.dispose();
+        frame.image.dispose();
       }
-    } catch (_) {
-      // The document remains usable if a non-essential logo is damaged.
-      return null;
+    } finally {
+      codec.dispose();
     }
   }
 

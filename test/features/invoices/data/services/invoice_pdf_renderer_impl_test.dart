@@ -34,6 +34,27 @@ void main() {
     expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
   });
 
+  testWidgets('damaged private logo returns typed failure, not silent loss', (
+    tester,
+  ) async {
+    final renderer = InvoicePdfRendererImpl(
+      loadFonts: () async =>
+          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
+    );
+    final result = await renderer.render(
+      document: _document(
+        lineCount: 1,
+        logoBytes: Uint8List.fromList([1, 2, 3]),
+      ),
+      labels: _labels,
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      InvoiceFailureCodes.pdfRenderUnavailable,
+    );
+  });
+
   testWidgets('unavailable font reports typed rendering failure', (
     tester,
   ) async {
@@ -52,7 +73,10 @@ void main() {
   });
 }
 
-InvoicePdfDocument _document({required int lineCount}) {
+InvoicePdfDocument _document({
+  required int lineCount,
+  Uint8List? logoBytes,
+}) {
   final currency = CurrencyCode.tryParse('AED')!;
   final amount = Money(minorUnits: 10000, currency: currency);
   final zero = Money(minorUnits: 0, currency: currency);
@@ -88,7 +112,7 @@ InvoicePdfDocument _document({required int lineCount}) {
   return InvoicePdfDocument(
     invoice: invoice,
     issuer: const InvoicePdfIssuerIdentity(name: 'Issuer'),
-    logoBytes: Uint8List(0),
+    logoBytes: logoBytes ?? Uint8List(0),
     currencyFractionDigits: 2,
   );
 }
