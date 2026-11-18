@@ -10,10 +10,7 @@ void main() {
   test('invalid PDF is rejected before calling the platform', () async {
     final repository = _Delivery();
     final result = await SaveInvoicePdfUseCase(repository)(
-      InvoicePdfDeliveryParams(
-        bytes: Uint8List(0),
-        fileName: 'invoice.pdf',
-      ),
+      InvoicePdfDeliveryParams(bytes: Uint8List(0), fileName: 'invoice.pdf'),
     );
     expect(result.failureOrNull?.code, InvoiceFailureCodes.pdfInvalidDocument);
     expect(repository.saves, 0);
@@ -23,10 +20,7 @@ void main() {
     final repository = _Delivery();
     final bytes = Uint8List.fromList([37, 80, 68, 70]);
     final result = await SaveInvoicePdfUseCase(repository)(
-      InvoicePdfDeliveryParams(
-        bytes: bytes,
-        fileName: 'INV-2026-0001.pdf',
-      ),
+      InvoicePdfDeliveryParams(bytes: bytes, fileName: 'INV-2026-0001.pdf'),
     );
     expect(result.dataOrNull, InvoicePdfDeliveryOutcome.completed);
     expect(repository.bytes, same(bytes));

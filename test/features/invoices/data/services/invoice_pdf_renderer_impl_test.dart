@@ -20,10 +20,8 @@ void main() {
     tester,
   ) async {
     final renderer = InvoicePdfRendererImpl(
-      loadFonts: () async => (
-        regular: pw.Font.helvetica(),
-        bold: pw.Font.helveticaBold(),
-      ),
+      loadFonts: () async =>
+          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
     );
     final result = await renderer.render(
       document: _document(lineCount: 90),
