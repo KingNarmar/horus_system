@@ -14,11 +14,15 @@ import '../../di/invoices_dependencies.dart';
 import '../../domain/entities/invoice.dart';
 import '../cubit/invoice_details_cubit.dart';
 import '../cubit/invoice_details_state.dart';
+import '../cubit/invoice_pdf_cubit.dart';
+import '../cubit/invoice_pdf_state.dart';
 import '../cubit/invoices_cubit.dart';
 import '../cubit/invoices_state.dart';
 import '../localization/invoice_failure_localizations_x.dart';
+import '../localization/invoice_pdf_labels_x.dart';
 import '../localization/invoices_localizations.dart';
 import '../widgets/invoice_details_dialog.dart';
+import '../widgets/invoice_pdf_preview_dialog.dart';
 import '../widgets/invoice_draft_dialog.dart';
 import '../widgets/invoices_state_view.dart';
 
@@ -85,15 +89,22 @@ final class _InvoicesPageState extends State<InvoicesPage> {
   Future<void> _openDetails(Invoice invoice) async {
     await showDialog<void>(
       context: context,
-      builder: (_) => BlocProvider<InvoiceDetailsCubit>(
-        create: (_) {
-          final cubit = InvoicesDependencies.createInvoiceDetailsCubit();
-          _activeDetailsCubit = cubit;
-          return cubit..loadInvoiceDetails(
-            currentCompanyContext: widget.currentCompanyContext,
-            invoiceId: invoice.id,
-          );
-        },
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider<InvoiceDetailsCubit>(
+            create: (_) {
+              final cubit = InvoicesDependencies.createInvoiceDetailsCubit();
+              _activeDetailsCubit = cubit;
+              return cubit..loadInvoiceDetails(
+                currentCompanyContext: widget.currentCompanyContext,
+                invoiceId: invoice.id,
+              );
+            },
+          ),
+          BlocProvider<InvoicePdfCubit>(
+            create: (_) => InvoicesDependencies.createInvoicePdfCubit(),
+          ),
+        ],
         child: _InvoiceDetailsHost(
           currentCompanyContext: widget.currentCompanyContext,
           invoiceId: invoice.id,
@@ -235,7 +246,9 @@ final class _InvoiceDetailsHost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<InvoiceDetailsCubit, InvoiceDetailsState>(
+    return BlocListener<InvoicePdfCubit, InvoicePdfState>(
+      listener: _handlePdfState,
+      child: BlocConsumer<InvoiceDetailsCubit, InvoiceDetailsState>(
       listenWhen: (previous, current) {
         if (current is! InvoiceDetailsLoaded) return false;
         if (previous is! InvoiceDetailsLoaded) {
@@ -263,8 +276,13 @@ final class _InvoiceDetailsHost extends StatelessWidget {
       },
       builder: (context, state) {
         final cubit = context.read<InvoiceDetailsCubit>();
-        return InvoiceDetailsDialog(
+        return BlocBuilder<InvoicePdfCubit, InvoicePdfState>(
+          builder: (context, pdfState) => InvoiceDetailsDialog(
           state: state,
+          isPdfBusy: pdfState is InvoicePdfBusy,
+          onPdfAction: state is InvoiceDetailsLoaded
+              ? (action) => _runPdfAction(context, state, action)
+              : null,
           onRetry: () => cubit.loadInvoiceDetails(
             currentCompanyContext: currentCompanyContext,
             invoiceId: invoiceId,
@@ -274,8 +292,67 @@ final class _InvoiceDetailsHost extends StatelessWidget {
             dueDate: dates.dueDate,
           ),
           onCancel: (_, reason) => cubit.cancelInvoice(reason: reason),
+          ),
         );
       },
+    ),
     );
+  }
+
+  void _runPdfAction(
+    BuildContext context,
+    InvoiceDetailsLoaded state,
+    InvoicePdfAction action,
+  ) {
+    final stem = (state.invoice.number?.value ?? state.invoice.id)
+        .replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
+    final filename = '$stem.pdf';
+    unawaited(
+      context.read<InvoicePdfCubit>().perform(
+        action: action,
+        currentCompanyContext: state.currentCompanyContext,
+        invoiceId: state.invoice.id,
+        labels: context.invoicePdfLabels,
+        fileName: filename,
+      ),
+    );
+  }
+
+  void _handlePdfState(BuildContext context, InvoicePdfState state) {
+    if (!context.mounted) return;
+    final pdfCubit = context.read<InvoicePdfCubit>();
+    if (state is InvoicePdfPreviewReady) {
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => InvoicePdfPreviewDialog(bytes: state.bytes),
+        ),
+      );
+      pdfCubit.clearFeedback();
+      return;
+    }
+
+    final strings = context.invoicesL10n;
+    String? message;
+    if (state is InvoicePdfFailed) {
+      message = context.localizedInvoiceFailure(state.failure);
+    } else if (state is InvoicePdfCompleted &&
+        state.outcome == InvoicePdfDeliveryOutcome.completed) {
+      message = switch (state.action) {
+        InvoicePdfAction.save => strings.pdfSaved,
+        InvoicePdfAction.print => strings.pdfPrinted,
+        InvoicePdfAction.share => strings.pdfShared,
+        InvoicePdfAction.preview => null,
+      };
+    }
+
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+    if (state is InvoicePdfFailed || state is InvoicePdfCompleted) {
+      pdfCubit.clearFeedback();
+    }
   }
 }

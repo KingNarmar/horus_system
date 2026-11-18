@@ -8,6 +8,8 @@ import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 import '../../domain/entities/invoice.dart';
 import '../cubit/invoice_details_state.dart';
+import '../cubit/invoice_pdf_state.dart';
+import '../../domain/policies/invoices_permission_policy.dart';
 import '../localization/invoice_failure_localizations_x.dart';
 import '../localization/invoices_localizations.dart';
 import 'invoice_cancel_form.dart';
@@ -21,12 +23,16 @@ final class InvoiceDetailsDialog extends StatefulWidget {
   final VoidCallback onRetry;
   final Future<bool> Function(Invoice invoice, InvoiceIssueDates dates) onIssue;
   final Future<bool> Function(Invoice invoice, String reason) onCancel;
+  final ValueChanged<InvoicePdfAction>? onPdfAction;
+  final bool isPdfBusy;
 
   const InvoiceDetailsDialog({
     required this.state,
     required this.onRetry,
     required this.onIssue,
     required this.onCancel,
+    this.onPdfAction,
+    this.isPdfBusy = false,
     super.key,
   });
 
@@ -161,6 +167,43 @@ final class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   ) {
     final strings = context.invoicesL10n;
     return [
+      if (widget.onPdfAction != null &&
+          InvoicesPermissionPolicy.canViewInvoices(
+            state.currentCompanyContext.role,
+          )) ...[
+        OutlinedButton.icon(
+          key: const ValueKey('invoicePdfPreviewActionButton'),
+          onPressed: widget.isPdfBusy || state.isMutationPending
+              ? null
+              : () => widget.onPdfAction!(InvoicePdfAction.preview),
+          icon: const Icon(AppIcons.view),
+          label: Text(strings.pdfPreview),
+        ),
+        OutlinedButton.icon(
+          key: const ValueKey('invoicePdfSaveActionButton'),
+          onPressed: widget.isPdfBusy || state.isMutationPending
+              ? null
+              : () => widget.onPdfAction!(InvoicePdfAction.save),
+          icon: const Icon(AppIcons.download),
+          label: Text(strings.pdfSave),
+        ),
+        OutlinedButton.icon(
+          key: const ValueKey('invoicePdfPrintActionButton'),
+          onPressed: widget.isPdfBusy || state.isMutationPending
+              ? null
+              : () => widget.onPdfAction!(InvoicePdfAction.print),
+          icon: const Icon(AppIcons.print),
+          label: Text(strings.pdfPrint),
+        ),
+        OutlinedButton.icon(
+          key: const ValueKey('invoicePdfShareActionButton'),
+          onPressed: widget.isPdfBusy || state.isMutationPending
+              ? null
+              : () => widget.onPdfAction!(InvoicePdfAction.share),
+          icon: const Icon(AppIcons.share),
+          label: Text(strings.pdfShare),
+        ),
+      ],
       if (state.canCancel)
         OutlinedButton.icon(
           key: const ValueKey('invoiceCancelActionButton'),

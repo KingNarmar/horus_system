@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/result.dart';
+
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/invoice_pdf_labels.dart';
 import '../../domain/repositories/invoice_pdf_delivery_repository.dart';
