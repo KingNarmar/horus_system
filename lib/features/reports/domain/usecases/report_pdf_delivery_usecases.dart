@@ -29,8 +29,9 @@ final class SaveReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null)
+    if (checked.failureOrNull != null) {
       return FailureResult(checked.failureOrNull!);
+    }
     return _repository.save(bytes: params.bytes, fileName: params.fileName);
   }
 }
@@ -43,8 +44,9 @@ final class PrintReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null)
+    if (checked.failureOrNull != null) {
       return FailureResult(checked.failureOrNull!);
+    }
     return _repository.print(bytes: params.bytes, fileName: params.fileName);
   }
 }
@@ -57,8 +59,9 @@ final class ShareReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null)
+    if (checked.failureOrNull != null) {
       return FailureResult(checked.failureOrNull!);
+    }
     return _repository.share(bytes: params.bytes, fileName: params.fileName);
   }
 }
