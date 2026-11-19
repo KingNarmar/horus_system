@@ -97,7 +97,9 @@ final class ReportExportTable {
     required List<ReportExportTotal> totals,
     required this.currencyFractionDigits,
   }) : columns = List.unmodifiable(columns),
-       rows = List.unmodifiable(rows.map((row) => List<ReportExportCell>.unmodifiable(row))),
+       rows = List.unmodifiable(
+         rows.map((row) => List<ReportExportCell>.unmodifiable(row)),
+       ),
        totals = List.unmodifiable(totals);
 
   int get rowCount => rows.length;
