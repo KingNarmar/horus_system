@@ -2000,19 +2000,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfCompleted => 'PDF action completed.';
 
   @override
-  String get reportsExportPdfShareInitiated => 'Share options opened; delivery is not confirmed.';
+  String get reportsExportPdfShareInitiated =>
+      'Share options opened; delivery is not confirmed.';
 
   @override
   String get reportsExportPdfCancelled => 'PDF action cancelled.';
 
   @override
-  String get reportsExportPdfRenderFailure => 'Could not generate the report PDF.';
+  String get reportsExportPdfRenderFailure =>
+      'Could not generate the report PDF.';
 
   @override
   String get reportsExportPdfSaveFailure => 'Could not save the report PDF.';
 
   @override
-  String get reportsExportPdfPrintFailure => 'Could not open report PDF printing.';
+  String get reportsExportPdfPrintFailure =>
+      'Could not open report PDF printing.';
 
   @override
   String get reportsExportPdfShareFailure => 'Could not share the report PDF.';
