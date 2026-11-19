@@ -36,8 +36,7 @@ void main() {
     expect(repository.saveCalls, 0);
   });
 
-  test('print and share reject invalid documents before platform access', (
-  ) async {
+  test('invalid print and share are denied', () async {
     final repository = _DeliveryRepository();
     final invalid = ReportPdfDeliveryParams(
       bytes: validBytes,
@@ -76,8 +75,7 @@ void main() {
     expect(repository.shareCalls, 0);
   });
 
-  test('print cancellation and share initiated outcomes are preserved', (
-  ) async {
+  test('print cancellation and share initiation are preserved', () async {
     final repository = _DeliveryRepository(
       printResult: const Success(ReportPdfDeliveryOutcome.cancelled),
       shareResult: const Success(ReportPdfDeliveryOutcome.initiated),
