@@ -109,4 +109,5 @@ void main() {
     final content = (cell as pw.Directionality).child as pw.Text;
     expect((content.text as pw.TextSpan).text, 'ميناء جدة الإسلامي');
     expect(content.textDirection, pw.TextDirection.rtl);
-  });}
+  };
+}
