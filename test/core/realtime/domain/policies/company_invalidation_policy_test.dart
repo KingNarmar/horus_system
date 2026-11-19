@@ -32,13 +32,10 @@ void main() {
       CompanyDataResource.fleetLicenseDocuments,
     );
 
-    expect(
-      affected,
-      {
-        CompanyInvalidationResource.fleetLicenseDocuments,
-        CompanyInvalidationResource.quotaUsage,
-      },
-    );
+    expect(affected, {
+      CompanyInvalidationResource.fleetLicenseDocuments,
+      CompanyInvalidationResource.quotaUsage,
+    });
   });
 
   test('server-backed mutation sources invalidate the usage projection', () {
