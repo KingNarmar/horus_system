@@ -59,6 +59,7 @@ import '../../../routes/presentation/widgets/routes_realtime_boundary.dart';
 import '../../../subscriptions/di/subscriptions_dependencies.dart';
 import '../../../subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import '../../../subscriptions/presentation/pages/subscriptions_page.dart';
+import '../../../subscriptions/presentation/widgets/subscriptions_realtime_boundary.dart';
 import '../../../trips/presentation/cubit/trips_cubit.dart';
 import '../../../trips/presentation/cubit/trip_freight_rate_cubit.dart';
 import '../../../trips/presentation/pages/trips_page.dart';
@@ -242,7 +243,7 @@ class AppShellContent extends StatelessWidget {
   Future<void> _refreshSettings(BuildContext context) async {
     final refreshes = <Future<void>>[
       context.read<AccountDeletionCubit>().load(),
-      context.read<SubscriptionsCubit>().load(contextData),
+      context.read<SubscriptionsCubit>().refresh(contextData),
       context.read<PaymentMethodsCubit>().loadPaymentMethods(contextData),
     ];
 
@@ -330,7 +331,10 @@ class _SettingsContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
         const LegalSupportSettingsCard(),
         const SizedBox(height: AppSpacing.xl),
-        SubscriptionsPage(currentCompanyContext: contextData),
+        SubscriptionsRealtimeBoundary(
+          currentCompanyContext: contextData,
+          child: SubscriptionsPage(currentCompanyContext: contextData),
+        ),
         const SizedBox(height: AppSpacing.xl),
         PaymentMethodsPage(currentCompanyContext: contextData),
         if (canViewExpenseTypes) ...[
@@ -377,8 +381,12 @@ class _SettingsCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             if (permissions.canViewCompanyUsers)
               FilledButton.icon(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.companyUsers),
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed(AppRoutes.companyUsers);
+                  if (context.mounted) {
+                    await context.read<SubscriptionsCubit>().refresh(contextData);
+                  }
+                },
                 icon: const Icon(AppIcons.unavailableModule),
                 label: Text(l10n.manageUsers),
               )
