@@ -11,10 +11,7 @@ final class GenerateReportPdfParams {
   final PrepareReportExportParams report;
   final ReportExportLabels labels;
 
-  const GenerateReportPdfParams({
-    required this.report,
-    required this.labels,
-  });
+  const GenerateReportPdfParams({required this.report, required this.labels});
 }
 
 /// Export authorization and source retrieval happen before PDF serialization.
@@ -31,7 +28,9 @@ final class GenerateReportPdfUseCase {
        _renderer = renderer,
        _projector = projector;
 
-  Future<Result<GeneratedReportPdf>> call(GenerateReportPdfParams params) async {
+  Future<Result<GeneratedReportPdf>> call(
+    GenerateReportPdfParams params,
+  ) async {
     final prepared = await _prepare(params.report);
     if (prepared is FailureResult<ReportExportDocument>) {
       return FailureResult(prepared.failure);
@@ -46,12 +45,14 @@ final class GenerateReportPdfUseCase {
     if (rendered.failureOrNull != null) {
       return FailureResult(rendered.failureOrNull!);
     }
-    return Success(GeneratedReportPdf(
-      bytes: rendered.dataOrNull!,
-      fileName: ReportExportFileNamePolicy.pdf(
-        kind: document.kind,
-        generatedAtUtc: document.generatedAtUtc,
+    return Success(
+      GeneratedReportPdf(
+        bytes: rendered.dataOrNull!,
+        fileName: ReportExportFileNamePolicy.pdf(
+          kind: document.kind,
+          generatedAtUtc: document.generatedAtUtc,
+        ),
       ),
-    ));
+    );
   }
 }
