@@ -7,7 +7,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import '../../../../core/domain/value_objects/business_date.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
@@ -17,6 +16,8 @@ import '../../domain/entities/report_export_table.dart';
 import '../../domain/failures/reports_failure_codes.dart';
 import '../../domain/services/report_pdf_renderer.dart';
 import '../constants/report_pdf_style.dart';
+import 'report_pdf_column_widths.dart';
+import 'report_pdf_date_formatter.dart';
 
 typedef ReportPdfFontLoader =
     Future<({pw.Font regular, pw.Font bold})> Function();
@@ -83,7 +84,8 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
               style: const pw.TextStyle(fontSize: ReportPdfStyle.textSize),
             ),
             pw.Text(
-              '${labels.generatedAt}: ${document.generatedAtUtc.toIso8601String()}',
+              '${labels.generatedAt}: '
+              '${ReportPdfDateFormatter.generatedAtUtc(document.generatedAtUtc, labels.localeName)}',
               style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
             ),
             pw.SizedBox(height: ReportPdfStyle.sectionGap),
@@ -111,7 +113,13 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
                   color: ReportPdfStyle.tableBorder,
                   width: 0.4,
                 ),
-                cellAlignment: pw.Alignment.centerLeft,
+                columnWidths: ReportPdfColumnWidths.forColumns(table.columns),
+                headerAlignment: labels.isRtl
+                    ? pw.Alignment.centerRight
+                    : pw.Alignment.centerLeft,
+                cellAlignment: labels.isRtl
+                    ? pw.Alignment.centerRight
+                    : pw.Alignment.centerLeft,
               ),
             if (table.totals.isNotEmpty) ...[
               pw.SizedBox(height: ReportPdfStyle.sectionGap),
@@ -205,14 +213,10 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
   ) {
     final from = document.dateRange.fromDate;
     final to = document.dateRange.toDate;
-    return '${from == null ? labels.allDates : _date(from, labels.localeName)}'
+    return '${from == null ? labels.allDates : ReportPdfDateFormatter.businessDate(from, labels.localeName)}'
         ' - '
-        '${to == null ? labels.allDates : _date(to, labels.localeName)}';
+        '${to == null ? labels.allDates : ReportPdfDateFormatter.businessDate(to, labels.localeName)}';
   }
-
-  static String _date(BusinessDate date, String localeName) => DateFormat.yMd(
-    localeName,
-  ).format(DateTime(date.year, date.month, date.day));
 
   static String _display(
     ReportExportCell cell,
@@ -221,9 +225,12 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
   ) => switch (cell) {
     ReportExportTextCell(:final value) =>
       value.trim().isEmpty ? labels.unassigned : value,
-    ReportExportDateCell(:final value) => _date(value, labels.localeName),
+    ReportExportDateCell(:final value) =>
+      ReportPdfDateFormatter.businessDate(value, labels.localeName),
     ReportExportOptionalDateCell(:final value) =>
-      value == null ? labels.unavailable : _date(value, labels.localeName),
+      value == null
+          ? labels.unavailable
+          : ReportPdfDateFormatter.businessDate(value, labels.localeName),
     ReportExportCountCell(:final value) => NumberFormat.decimalPattern(
       labels.localeName,
     ).format(value),
