@@ -138,6 +138,40 @@ void main() {
     expect(pageContent, contains('Total'));
   });
 
+  testWidgets('keeps all invoice totals on the same page', (tester) async {
+    final renderer = InvoicePdfRendererImpl(
+      loadFonts: () async =>
+          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
+    );
+    final result = await renderer.render(
+      document: _document(
+        lineCount: 90,
+        loadingLocation: 'Jebel Ali Free Zone Industrial Area Gate Six',
+        unloadingLocation: 'Dubai South Logistics District Cargo Terminal',
+      ),
+      labels: _labels,
+    );
+
+    expect(result.failureOrNull, isNull);
+
+    // Type 1 fixture content streams preserve the PDF's page boundaries.
+    // This assertion failed before totals were marked inseparable: the
+    // subtotal appeared on page 6 and the grand total alone on page 7.
+    final streams = _decodedPdfStreamsSeparately(result.dataOrNull!);
+    final totalsPages = streams.where((page) {
+      return page.contains('(Subtotal)') || page.contains('(Total)');
+    }).toList(growable: false);
+
+    expect(totalsPages, hasLength(1));
+    final totalsPage = totalsPages.single;
+    expect(totalsPage, contains('(Subtotal)'));
+    expect(totalsPage, contains('(Discount)'));
+    expect(totalsPage, contains('(Taxable)'));
+    expect(totalsPage, contains('(Tax)'));
+    expect(totalsPage, contains('(Total)'));
+    expect(RegExp(r'\(9000\.00\)').allMatches(totalsPage), hasLength(3));
+  });
+
   test('exports EN/AR multipage fixtures when explicitly requested', () async {
     // Uses real asynchronous file I/O, unlike testWidgets' fake async zone.
     // Independent of the renderer assertions and disabled in CI.
@@ -267,9 +301,12 @@ const InvoicePdfLabels _labels = InvoicePdfLabels(
 
 /// Decode compressed page-content streams to inspect text drawn by Type 1
 /// fonts. This is a targeted test probe, not a general-purpose PDF parser.
-String _decodedPdfStreams(Uint8List bytes) {
+String _decodedPdfStreams(Uint8List bytes) =>
+    _decodedPdfStreamsSeparately(bytes).join('\n');
+
+List<String> _decodedPdfStreamsSeparately(Uint8List bytes) {
   final serialized = latin1.decode(bytes);
-  final output = StringBuffer();
+  final output = <String>[];
   for (final marker in RegExp(r'stream\r?\n').allMatches(serialized)) {
     final end = serialized.indexOf('endstream', marker.end);
     if (end < 0) continue;
@@ -280,12 +317,12 @@ String _decodedPdfStreams(Uint8List bytes) {
 
     final compressed = bytes.sublist(marker.end, streamEnd);
     try {
-      output.writeln(latin1.decode(zlib.decode(compressed)));
+      output.add(latin1.decode(zlib.decode(compressed)));
     } on Exception {
       // Ignore non-Flate binary streams, such as embedded font data.
     }
   }
-  return output.toString();
+  return output;
 }
 
 /// Test-only fixture export for visual pagination and RTL review.
