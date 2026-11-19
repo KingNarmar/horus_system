@@ -1,6 +1,7 @@
 import '../../../../core/utils/result.dart';
 import '../entities/generated_report_pdf.dart';
 import '../entities/report_export_document.dart';
+import '../failures/report_export_cancelled_failure.dart';
 import '../entities/report_export_labels.dart';
 import '../services/report_export_projector.dart';
 import '../services/report_pdf_renderer.dart';
@@ -32,6 +33,9 @@ final class GenerateReportPdfUseCase {
     GenerateReportPdfParams params,
   ) async {
     final prepared = await _prepare(params.report);
+    if (params.report.cancellation?.isCancelled ?? false) {
+      return const FailureResult(ReportExportCancelledFailure());
+    }
     if (prepared is FailureResult<ReportExportDocument>) {
       return FailureResult(prepared.failure);
     }
@@ -42,6 +46,10 @@ final class GenerateReportPdfUseCase {
       table: _projector.project(document),
       labels: params.labels,
     );
+    // An in-flight render cannot be interrupted; discard its output instead.
+    if (params.report.cancellation?.isCancelled ?? false) {
+      return const FailureResult(ReportExportCancelledFailure());
+    }
     if (rendered.failureOrNull != null) {
       return FailureResult(rendered.failureOrNull!);
     }

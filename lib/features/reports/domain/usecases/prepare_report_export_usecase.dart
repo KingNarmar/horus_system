@@ -5,9 +5,11 @@ import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../../company/domain/repositories/company_branding_repository.dart';
 import '../entities/report_date_range.dart';
+import '../entities/report_export_cancellation.dart';
 import '../entities/report_export_document.dart';
 import '../entities/report_export_kind.dart';
 import '../failures/reports_failure_codes.dart';
+import '../failures/report_export_cancelled_failure.dart';
 import 'get_open_invoices_report_usecase.dart';
 import 'get_operational_report_usecase.dart';
 import 'get_trip_expenses_report_usecase.dart';
@@ -18,11 +20,13 @@ final class PrepareReportExportParams {
   final CurrentCompanyContext currentCompanyContext;
   final ReportExportKind kind;
   final ReportDateRange dateRange;
+  final ReportExportCancellation? cancellation;
 
   const PrepareReportExportParams({
     required this.currentCompanyContext,
     required this.kind,
     required this.dateRange,
+    this.cancellation,
   });
 }
 
@@ -53,6 +57,9 @@ final class PrepareReportExportUseCase {
   Future<Result<ReportExportDocument>> call(
     PrepareReportExportParams params,
   ) async {
+    if (params.cancellation?.isCancelled ?? false) {
+      return const FailureResult(ReportExportCancelledFailure());
+    }
     final context = params.currentCompanyContext;
     if (!params.kind.canView(context.role)) {
       return const FailureResult(
@@ -61,11 +68,17 @@ final class PrepareReportExportUseCase {
     }
 
     final report = await _loadAuthorizedContent(params);
+    if (params.cancellation?.isCancelled ?? false) {
+      return const FailureResult(ReportExportCancelledFailure());
+    }
     if (report is FailureResult<ReportExportContent>) {
       return FailureResult(report.failure);
     }
 
     final profileResult = await _branding.getProfile(context.companyId);
+    if (params.cancellation?.isCancelled ?? false) {
+      return const FailureResult(ReportExportCancelledFailure());
+    }
     if (profileResult.failureOrNull != null) {
       return FailureResult(profileResult.failureOrNull!);
     }
@@ -83,6 +96,9 @@ final class PrepareReportExportUseCase {
         companyId: context.companyId,
         storagePath: path,
       );
+      if (params.cancellation?.isCancelled ?? false) {
+        return const FailureResult(ReportExportCancelledFailure());
+      }
       if (logo.failureOrNull != null) {
         return FailureResult(logo.failureOrNull!);
       }

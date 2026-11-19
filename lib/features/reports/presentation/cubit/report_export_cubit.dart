@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/report_date_range.dart';
+import '../../domain/entities/report_export_cancellation.dart';
 import '../../domain/entities/report_export_kind.dart';
 import '../../domain/entities/report_export_labels.dart';
 import '../../domain/repositories/report_pdf_delivery_repository.dart';
@@ -20,6 +21,7 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
 
   int _generation = 0;
   String? _companyId;
+  ReportExportCancellation? _activeCancellation;
 
   ReportExportCubit({
     required GenerateReportPdfUseCase generate,
@@ -43,6 +45,9 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
   }) async {
     if (isBusy || isClosed) return;
     final generation = ++_generation;
+    _activeCancellation?.cancel();
+    final cancellation = ReportExportCancellation();
+    _activeCancellation = cancellation;
     _companyId = currentCompanyContext.companyId;
     emit(ReportExportBusy(action));
 
@@ -52,6 +57,7 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
           currentCompanyContext: currentCompanyContext,
           kind: kind,
           dateRange: dateRange,
+          cancellation: cancellation,
         ),
         labels: labels,
       ),
@@ -93,9 +99,19 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
 
   /// Discard in-flight results when report parameters or tenant change.
   void invalidate() {
+    _activeCancellation?.cancel();
+    _activeCancellation = null;
     ++_generation;
     _companyId = null;
     if (!isClosed) emit(const ReportExportIdle());
+  }
+
+  @override
+  Future<void> close() {
+    _activeCancellation?.cancel();
+    _activeCancellation = null;
+    ++_generation;
+    return super.close();
   }
 
   void clearFeedback() {
