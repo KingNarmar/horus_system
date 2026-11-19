@@ -15,10 +15,10 @@ final class ReportPdfDeliveryParams {
 abstract final class _PdfDeliveryValidation {
   static Result<void> validate(ReportPdfDeliveryParams params) =>
       params.bytes.isNotEmpty && params.fileName.endsWith('.pdf')
-          ? const Success<void>(null)
-          : const FailureResult<void>(
-              ValidationFailure(code: ReportsFailureCodes.pdfInvalidDocument),
-            );
+      ? const Success<void>(null)
+      : const FailureResult<void>(
+          ValidationFailure(code: ReportsFailureCodes.pdfInvalidDocument),
+        );
 }
 
 final class SaveReportPdfUseCase {
@@ -29,7 +29,8 @@ final class SaveReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null) return FailureResult(checked.failureOrNull!);
+    if (checked.failureOrNull != null)
+      return FailureResult(checked.failureOrNull!);
     return _repository.save(bytes: params.bytes, fileName: params.fileName);
   }
 }
@@ -42,7 +43,8 @@ final class PrintReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null) return FailureResult(checked.failureOrNull!);
+    if (checked.failureOrNull != null)
+      return FailureResult(checked.failureOrNull!);
     return _repository.print(bytes: params.bytes, fileName: params.fileName);
   }
 }
@@ -55,7 +57,8 @@ final class ShareReportPdfUseCase {
     ReportPdfDeliveryParams params,
   ) async {
     final checked = _PdfDeliveryValidation.validate(params);
-    if (checked.failureOrNull != null) return FailureResult(checked.failureOrNull!);
+    if (checked.failureOrNull != null)
+      return FailureResult(checked.failureOrNull!);
     return _repository.share(bytes: params.bytes, fileName: params.fileName);
   }
 }
