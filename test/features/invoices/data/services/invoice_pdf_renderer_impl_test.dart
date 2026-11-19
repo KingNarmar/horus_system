@@ -158,9 +158,11 @@ void main() {
     // This assertion failed before totals were marked inseparable: the
     // subtotal appeared on page 6 and the grand total alone on page 7.
     final streams = _decodedPdfStreamsSeparately(result.dataOrNull!);
-    final totalsPages = streams.where((page) {
-      return page.contains('(Subtotal)') || page.contains('(Total)');
-    }).toList(growable: false);
+    final totalsPages = streams
+        .where((page) {
+          return page.contains('(Subtotal)') || page.contains('(Total)');
+        })
+        .toList(growable: false);
 
     expect(totalsPages, hasLength(1));
     final totalsPage = totalsPages.single;
