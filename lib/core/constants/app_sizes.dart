@@ -1,6 +1,8 @@
 abstract final class AppSizes {
   static const double invoicePdfPreviewMaxWidth = 900;
   static const double invoicePdfPreviewMaxHeight = 950;
+  static const double reportPdfPreviewMaxWidth = 900;
+  static const double reportPdfPreviewMaxHeight = 950;
   static const double minButtonWidth = 120;
   static const double buttonHeight = 48;
   static const int formErrorMaxLines = 4;
