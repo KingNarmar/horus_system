@@ -64,6 +64,7 @@ final class SubscriptionsLocalizations {
   String get usageNormal => _value('usageNormal');
   String get usageOutputsUnaffected => _value('usageOutputsUnaffected');
   String get usageRefreshing => _value('usageRefreshing');
+  String get refreshUsage => _value('refreshUsage');
   String get capacityRequestTitle => _value('capacityRequestTitle');
   String get capacityRequestDescription => _value('capacityRequestDescription');
   String get capacityRequestButton => _value('capacityRequestButton');
@@ -160,6 +161,7 @@ final class SubscriptionsLocalizations {
     'usageOutputsUnaffected':
         'Reaching a quota does not remove existing records or basic PDF/XLSX exports.',
     'usageRefreshing': 'Refreshing server usage; values may be outdated.',
+    'refreshUsage': 'Refresh usage',
     'capacityRequestTitle': 'Need more capacity?',
     'capacityRequestDescription':
         'Ask support to review the company limits. No upgrade is applied automatically.',
@@ -241,6 +243,7 @@ final class SubscriptionsLocalizations {
     'usageOutputsUnaffected':
         'بلوغ الحصة لا يحذف السجلات الحالية ولا يمنع تصدير PDF أو Excel XLSX الأساسي.',
     'usageRefreshing': 'جارٍ تحديث الاستخدام من الخادم؛ قد تكون الأرقام المعروضة قديمة.',
+    'refreshUsage': 'تحديث الاستخدام',
     'capacityRequestTitle': 'محتاج سعة أكبر؟',
     'capacityRequestDescription':
         'اطلب من الدعم مراجعة حدود الشركة؛ لن تُمنح أي زيادة تلقائيًا.',
