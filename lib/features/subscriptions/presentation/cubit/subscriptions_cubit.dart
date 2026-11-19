@@ -13,14 +13,17 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
 
   CurrentCompanyContext? _currentCompanyContext;
   int _loadRequestId = 0;
+  bool _replayRefresh = false;
 
   SubscriptionsCubit({
     required GetCompanyQuotaUsageUseCase getCompanyQuotaUsageUseCase,
   }) : _getCompanyQuotaUsageUseCase = getCompanyQuotaUsageUseCase,
        super(const SubscriptionsInitial());
 
-  Future<void> load(CurrentCompanyContext currentCompanyContext) =>
-      _request(currentCompanyContext);
+  Future<void> load(CurrentCompanyContext currentCompanyContext) {
+    _replayRefresh = false;
+    return _request(currentCompanyContext);
+  }
 
   /// Refreshes the visible company only, without pretending old values are new.
   /// A change of company or role always discards the previous snapshot.
@@ -32,9 +35,13 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
         previous.currentCompanyContext.role == currentCompanyContext.role &&
         _currentCompanyContext?.companyId == currentCompanyContext.companyId &&
         _currentCompanyContext?.role == currentCompanyContext.role) {
-      if (previous.isRefreshing) return Future.value();
+      if (previous.isRefreshing) {
+        _replayRefresh = true;
+        return Future.value();
+      }
       return _request(currentCompanyContext, previous: previous);
     }
+    _replayRefresh = false;
     return _request(currentCompanyContext);
   }
 
@@ -69,24 +76,29 @@ final class SubscriptionsCubit extends Cubit<SubscriptionsState> {
 
     if (result is FailureResult<CompanyQuotaSnapshot>) {
       emit(SubscriptionsFailure(result.failure));
-      return;
+    } else {
+      final snapshot = (result as Success<CompanyQuotaSnapshot>).data;
+      if (snapshot.entitlement.companyId != currentCompanyContext.companyId) {
+        emit(
+          const SubscriptionsFailure(
+            ServerFailure(code: QuotaFailureCodes.corrupt),
+          ),
+        );
+      } else {
+        emit(
+          SubscriptionsLoaded(
+            currentCompanyContext: currentCompanyContext,
+            quota: snapshot,
+          ),
+        );
+      }
     }
 
-    final snapshot = (result as Success<CompanyQuotaSnapshot>).data;
-    if (snapshot.entitlement.companyId != currentCompanyContext.companyId) {
-      emit(
-        const SubscriptionsFailure(
-          ServerFailure(code: QuotaFailureCodes.corrupt),
-        ),
-      );
-      return;
+    // A mutation may arrive while an earlier read is in flight. Perform one
+    // additional authoritative read instead of silently dropping that signal.
+    if (_replayRefresh) {
+      _replayRefresh = false;
+      await refresh(currentCompanyContext);
     }
-
-    emit(
-      SubscriptionsLoaded(
-        currentCompanyContext: currentCompanyContext,
-        quota: snapshot,
-      ),
-    );
   }
 }
