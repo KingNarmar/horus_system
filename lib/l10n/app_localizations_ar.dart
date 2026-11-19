@@ -1972,7 +1972,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsExportPdfCompleted => 'اكتمل إجراء ملف PDF.';
 
   @override
-  String get reportsExportPdfShareInitiated => 'تم فتح خيارات المشاركة؛ لم يتم تأكيد الإرسال.';
+  String get reportsExportPdfShareInitiated =>
+      'تم فتح خيارات المشاركة؛ لم يتم تأكيد الإرسال.';
 
   @override
   String get reportsExportPdfCancelled => 'تم إلغاء إجراء PDF.';
