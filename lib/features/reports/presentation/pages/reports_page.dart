@@ -230,7 +230,10 @@ final class _ReportsPageState extends State<ReportsPage> {
     final route = _activePreviewRoute;
     _activePreviewRoute = null;
     final navigator = route?.navigator;
-    if (route != null && navigator != null && navigator.mounted && route.isActive) {
+    if (route != null &&
+        navigator != null &&
+        navigator.mounted &&
+        route.isActive) {
       navigator.removeRoute(route);
     }
   }
