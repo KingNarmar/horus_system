@@ -21,13 +21,13 @@ final class ReportExportProjector {
     if (report.dimension != OperationalReportDimension.day) {
       return ReportExportTable(
         columns: const [
-          ReportExportColumn.group,
+          _groupColumn(report.dimension),
           ReportExportColumn.tripCount,
         ],
         rows: [
           for (final group in report.groups)
             [
-              ReportExportTextCell(_groupLabel(group)),
+              ReportExportTextCell(_groupLabel(report.dimension, group)),
               ReportExportCountCell(group.tripCount),
             ],
         ],
@@ -196,10 +196,25 @@ final class ReportExportProjector {
     currencyFractionDigits: report.metadata.baseCurrencyFractionDigits,
   );
 
-  String _groupLabel(OperationalTripReportGroup group) {
+  ReportExportColumn _groupColumn(OperationalReportDimension dimension) =>
+      switch (dimension) {
+        OperationalReportDimension.day => ReportExportColumn.date,
+        OperationalReportDimension.customer => ReportExportColumn.customer,
+        OperationalReportDimension.route => ReportExportColumn.route,
+        OperationalReportDimension.driver => ReportExportColumn.driver,
+        OperationalReportDimension.tractorHead => ReportExportColumn.tractorHead,
+        OperationalReportDimension.trailer => ReportExportColumn.trailer,
+      };
+
+  String _groupLabel(
+    OperationalReportDimension dimension,
+    OperationalTripReportGroup group,
+  ) {
     final label = _text(group.entityLabel);
     if (label != null) return label;
-    if (group.rows.isEmpty) return '';
+    if (dimension != OperationalReportDimension.route || group.rows.isEmpty) {
+      return '';
+    }
     return _route(
       group.rows.first.loadingLocation,
       group.rows.first.unloadingLocation,
