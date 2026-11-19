@@ -129,7 +129,7 @@ final class _QuotaUsageItem extends StatelessWidget {
               l10n.quotaLevelLabel(level),
               style: theme.textTheme.bodySmall?.copyWith(color: color),
             ),
-            if (usage.remaining case final remaining?) ...[
+            if (usage.remaining != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
                 l10n.usageRemaining(remaining),
