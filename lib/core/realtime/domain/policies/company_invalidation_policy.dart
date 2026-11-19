@@ -10,6 +10,7 @@ abstract final class CompanyInvalidationPolicy {
   static const Map<CompanyDataResource, Set<CompanyInvalidationResource>>
   _dependencies = {
     CompanyDataResource.customers: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.customers,
       CompanyInvalidationResource.tripFormLookups,
       CompanyInvalidationResource.customerStatements,
@@ -18,6 +19,7 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.tripNetProfitReport,
     },
     CompanyDataResource.drivers: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.drivers,
       CompanyInvalidationResource.tripFormLookups,
       CompanyInvalidationResource.companyExpenseLookups,
@@ -26,6 +28,7 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.tripNetProfitReport,
     },
     CompanyDataResource.fleet: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.fleet,
       CompanyInvalidationResource.tripFormLookups,
       CompanyInvalidationResource.companyExpenseLookups,
@@ -34,6 +37,7 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.dashboard,
     },
     CompanyDataResource.routes: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.routes,
       CompanyInvalidationResource.trips,
       CompanyInvalidationResource.tripFormLookups,
@@ -42,6 +46,7 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.tripNetProfitReport,
     },
     CompanyDataResource.trips: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.trips,
       CompanyInvalidationResource.tripStatusHistory,
       CompanyInvalidationResource.companyExpenseLookups,
@@ -59,9 +64,11 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.trips,
     },
     CompanyDataResource.tripDocuments: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.tripDocuments,
     },
     CompanyDataResource.fleetLicenseDocuments: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.fleetLicenseDocuments,
     },
     CompanyDataResource.expenseLedger: {
@@ -95,6 +102,7 @@ abstract final class CompanyInvalidationPolicy {
       CompanyInvalidationResource.driverBalances,
     },
     CompanyDataResource.invoices: {
+      CompanyInvalidationResource.quotaUsage,
       CompanyInvalidationResource.invoices,
       CompanyInvalidationResource.billableTrips,
       CompanyInvalidationResource.paymentFormLookups,
