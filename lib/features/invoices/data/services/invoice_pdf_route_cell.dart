@@ -34,19 +34,19 @@ abstract final class InvoicePdfRouteCell {
               text: pw.TextSpan(
                 style: const pw.TextStyle(fontSize: InvoicePdfStyle.bodySize),
                 children: [
-                  pw.WidgetSpan(child: _locationText(loading)),
+                  pw.WidgetSpan(child: _locationText(loading!)),
                   const pw.TextSpan(text: ' '),
                   pw.WidgetSpan(child: _directionArrow()),
                   const pw.TextSpan(text: ' '),
-                  pw.WidgetSpan(child: _locationText(unloading)),
+                  pw.WidgetSpan(child: _locationText(unloading!)),
                 ],
               ),
             )
           : _locationText(
               hasLoading
-                  ? loading
+                  ? loading!
                   : hasUnloading
-                  ? unloading
+                  ? unloading!
                   : unavailable,
             ),
     );
