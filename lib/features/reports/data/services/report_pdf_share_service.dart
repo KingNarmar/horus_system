@@ -39,7 +39,9 @@ final class ReportPdfShareService {
     await root.create(recursive: true);
     await _deleteExpiredShares(root);
 
-    final session = await root.createTemp(ReportPdfShareConstants.sessionPrefix);
+    final session = await root.createTemp(
+      ReportPdfShareConstants.sessionPrefix,
+    );
     try {
       final safeName = fileName.replaceAll(
         ReportPdfShareConstants.unsafeFileNameChars,
@@ -76,9 +78,10 @@ final class ReportPdfShareService {
   Future<void> _deleteExpiredShares(Directory root) async {
     await for (final entry in root.list(followLinks: false)) {
       if (entry is! Directory) continue;
-      if (!entry.path.split(Platform.pathSeparator).last.startsWith(
-            ReportPdfShareConstants.sessionPrefix,
-          )) {
+      if (!entry.path
+          .split(Platform.pathSeparator)
+          .last
+          .startsWith(ReportPdfShareConstants.sessionPrefix)) {
         continue;
       }
       final age = _now().difference((await entry.stat()).modified);
