@@ -50,6 +50,7 @@ import '../../../payment_methods/presentation/cubit/payment_methods_cubit.dart';
 import '../../../payment_methods/presentation/pages/payment_methods_page.dart';
 import '../../../reports/di/reports_dependencies.dart';
 import '../../../reports/presentation/cubit/reports_cubit.dart';
+import '../../../reports/presentation/cubit/report_export_cubit.dart';
 import '../../../reports/presentation/pages/reports_page.dart';
 import '../../../reports/presentation/widgets/open_invoices_realtime_boundary.dart';
 import '../../../routes/presentation/cubit/routes_cubit.dart';
@@ -195,8 +196,15 @@ class AppShellContent extends StatelessWidget {
         selectedSection: selectedFinanceSection,
         onSectionSelected: onFinanceSectionSelected,
       ),
-      AppShellModule.reports => BlocProvider<ReportsCubit>(
-        create: (_) => ReportsDependencies.createCubit(),
+      AppShellModule.reports => MultiBlocProvider(
+        providers: [
+          BlocProvider<ReportsCubit>(
+            create: (_) => ReportsDependencies.createCubit(),
+          ),
+          BlocProvider<ReportExportCubit>(
+            create: (_) => ReportsDependencies.createExportCubit(),
+          ),
+        ],
         child: OpenInvoicesRealtimeBoundary(
           currentCompanyContext: contextData,
           child: ReportsPage(currentCompanyContext: contextData),
