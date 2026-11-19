@@ -14,8 +14,7 @@ String reportsFailureMessage(BuildContext context, Failure failure) {
     ReportsFailureCodes.permissionFinancialView ||
     ReportsFailureCodes.permissionOpenInvoicesView ||
     ReportsFailureCodes.permissionExport => strings.permissionFailure,
-    ReportsFailureCodes.pdfRenderUnavailable =>
-      strings.exportPdfRenderFailure,
+    ReportsFailureCodes.pdfRenderUnavailable => strings.exportPdfRenderFailure,
     ReportsFailureCodes.pdfSaveUnavailable => strings.exportPdfSaveFailure,
     ReportsFailureCodes.pdfPrintUnavailable => strings.exportPdfPrintFailure,
     ReportsFailureCodes.pdfShareUnavailable => strings.exportPdfShareFailure,
