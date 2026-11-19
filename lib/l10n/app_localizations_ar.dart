@@ -1951,6 +1951,57 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsInvoiceStatusCancelled => 'ملغاة';
 
   @override
+  String get reportsExportPdfPreview => 'معاينة PDF';
+
+  @override
+  String get reportsExportPdfSave => 'حفظ PDF';
+
+  @override
+  String get reportsExportPdfPrint => 'طباعة PDF';
+
+  @override
+  String get reportsExportPdfShare => 'مشاركة PDF';
+
+  @override
+  String get reportsExportPdfBusy => 'جارٍ تجهيز تقرير PDF...';
+
+  @override
+  String get reportsExportPdfPreviewTitle => 'معاينة تقرير PDF';
+
+  @override
+  String get reportsExportPdfCompleted => 'اكتمل إجراء ملف PDF.';
+
+  @override
+  String get reportsExportPdfShareInitiated => 'تم فتح خيارات المشاركة؛ لم يتم تأكيد الإرسال.';
+
+  @override
+  String get reportsExportPdfCancelled => 'تم إلغاء إجراء PDF.';
+
+  @override
+  String get reportsExportPdfRenderFailure => 'تعذّر إنشاء ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfSaveFailure => 'تعذّر حفظ ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfPrintFailure => 'تعذّر فتح الطباعة لملف PDF.';
+
+  @override
+  String get reportsExportPdfShareFailure => 'تعذّرت مشاركة ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfInvalidFailure => 'ملف PDF الناتج غير صالح.';
+
+  @override
+  String get reportsExportPdfGeneratedAt => 'تاريخ الإنشاء (UTC)';
+
+  @override
+  String get reportsExportPdfPeriod => 'الفترة';
+
+  @override
+  String get reportsExportPdfPage => 'الصفحة';
+
+  @override
   String get reportsPermissionFailure =>
       'هذا الدور غير مسموح له بعرض التقرير المحدد.';
 
