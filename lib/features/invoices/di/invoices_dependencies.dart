@@ -7,6 +7,8 @@ import '../data/datasources/invoice_settings_remote_data_source.dart';
 import '../data/datasources/invoices_remote_data_source.dart';
 import '../data/repositories/invoice_settings_repository_impl.dart';
 import '../data/repositories/invoices_repository_impl.dart';
+import '../data/services/invoice_pdf_renderer_impl.dart';
+import '../data/repositories/invoice_pdf_delivery_repository_impl.dart';
 import '../domain/repositories/invoice_settings_repository.dart';
 import '../domain/repositories/invoices_repository.dart';
 import '../domain/usecases/calculate_invoice_draft_preview_usecase.dart';
@@ -15,6 +17,10 @@ import '../domain/usecases/invoice_draft_usecases.dart';
 import '../domain/usecases/invoice_lifecycle_usecases.dart';
 import '../domain/usecases/invoice_query_usecases.dart';
 import '../domain/usecases/invoice_settings_usecases.dart';
+import '../domain/usecases/prepare_invoice_pdf_usecase.dart';
+import '../domain/usecases/generate_invoice_pdf_usecase.dart';
+import '../domain/usecases/invoice_pdf_delivery_usecases.dart';
+import '../presentation/cubit/invoice_pdf_cubit.dart';
 import '../presentation/cubit/invoice_details_cubit.dart';
 import '../presentation/cubit/invoices_cubit.dart';
 
@@ -22,6 +28,45 @@ abstract final class InvoicesDependencies {
   static InvoicesRepository createRepository() {
     return InvoicesRepositoryImpl(
       SupabaseInvoicesRemoteDataSource(SupabaseClientProvider.client),
+    );
+  }
+
+  static PrepareInvoicePdfUseCase createPrepareInvoicePdfUseCase() {
+    return PrepareInvoicePdfUseCase(
+      invoices: createRepository(),
+      branding: CompanyDependencies.createBrandingRepository(),
+    );
+  }
+
+  static GenerateInvoicePdfUseCase createGenerateInvoicePdfUseCase() {
+    return GenerateInvoicePdfUseCase(
+      prepare: createPrepareInvoicePdfUseCase(),
+      renderer: InvoicePdfRendererImpl(),
+    );
+  }
+
+  static InvoicePdfDeliveryRepositoryImpl createPdfDeliveryRepository() {
+    return InvoicePdfDeliveryRepositoryImpl();
+  }
+
+  static SaveInvoicePdfUseCase createSaveInvoicePdfUseCase() {
+    return SaveInvoicePdfUseCase(createPdfDeliveryRepository());
+  }
+
+  static PrintInvoicePdfUseCase createPrintInvoicePdfUseCase() {
+    return PrintInvoicePdfUseCase(createPdfDeliveryRepository());
+  }
+
+  static ShareInvoicePdfUseCase createShareInvoicePdfUseCase() {
+    return ShareInvoicePdfUseCase(createPdfDeliveryRepository());
+  }
+
+  static InvoicePdfCubit createInvoicePdfCubit() {
+    return InvoicePdfCubit(
+      generate: createGenerateInvoicePdfUseCase(),
+      save: createSaveInvoicePdfUseCase(),
+      print: createPrintInvoicePdfUseCase(),
+      share: createShareInvoicePdfUseCase(),
     );
   }
 

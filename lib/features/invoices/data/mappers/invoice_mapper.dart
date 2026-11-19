@@ -5,6 +5,7 @@ import '../../domain/value_objects/invoice_date.dart';
 import '../../domain/value_objects/invoice_number.dart';
 import '../models/invoice_model.dart';
 import 'invoice_customer_snapshot_mapper.dart';
+import 'invoice_issuer_snapshot_mapper.dart';
 import 'invoice_totals_mapper.dart';
 import 'invoice_trip_line_mapper.dart';
 
@@ -63,6 +64,7 @@ extension InvoiceModelMapper on InvoiceModel {
       id: id,
       companyId: companyId,
       customer: customerEntity,
+      issuerSnapshot: issuerSnapshot?.toEntity(),
       status: parsedStatus,
       number: parsedNumber,
       currency: currency,

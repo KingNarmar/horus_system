@@ -54,6 +54,30 @@ final class InvoicesLocalizations {
   String get actions => _value('actions');
   String get details => _value('details');
   String get invoiceDetails => _value('invoiceDetails');
+  String get pdfTitle => _value('pdfTitle');
+  String get pdfPreview => _value('pdfPreview');
+  String get pdfSave => _value('pdfSave');
+  String get pdfPrint => _value('pdfPrint');
+  String get pdfShare => _value('pdfShare');
+  String get pdfPreparing => _value('pdfPreparing');
+  String get pdfSaved => _value('pdfSaved');
+  String get pdfPrinted => _value('pdfPrinted');
+  String get pdfShared => _value('pdfShared');
+  String get pdfShareInitiated => _value('pdfShareInitiated');
+  String get pdfInvalidFailure => _value('pdfInvalidFailure');
+  String get pdfRenderFailure => _value('pdfRenderFailure');
+  String get pdfSnapshotFailure => _value('pdfSnapshotFailure');
+  String get pdfSaveFailure => _value('pdfSaveFailure');
+  String get pdfPrintFailure => _value('pdfPrintFailure');
+  String get pdfShareFailure => _value('pdfShareFailure');
+  String get pdfIssuer => _value('pdfIssuer');
+  String get pdfTaxRegistration => _value('pdfTaxRegistration');
+  String get pdfServiceDate => _value('pdfServiceDate');
+  String get pdfRoute => _value('pdfRoute');
+  String get pdfQuantity => _value('pdfQuantity');
+  String get pdfAmount => _value('pdfAmount');
+  String get pdfPage => _value('pdfPage');
+  String get pdfLegacyWarning => _value('pdfLegacyWarning');
   String get invoiceLines => _value('invoiceLines');
   String get activity => _value('activity');
   String get noActivity => _value('noActivity');
@@ -161,6 +185,33 @@ final class InvoicesLocalizations {
     'actions': 'Actions',
     'details': 'Details',
     'invoiceDetails': 'Invoice details',
+    'pdfTitle': 'INVOICE',
+    'pdfPreview': 'Preview PDF',
+    'pdfSave': 'Save PDF',
+    'pdfPrint': 'Print',
+    'pdfShare': 'Share',
+    'pdfPreparing': 'Preparing PDF...',
+    'pdfSaved': 'Invoice PDF saved.',
+    'pdfPrinted': 'Invoice sent to print.',
+    'pdfShared': 'Sharing completed in the selected app.',
+    'pdfShareInitiated':
+        'Sharing opened. Choose a destination to send the PDF.',
+    'pdfInvalidFailure': 'This invoice PDF document is invalid.',
+    'pdfRenderFailure': 'Could not generate the invoice PDF.',
+    'pdfSnapshotFailure':
+        'This issued invoice is missing its recorded issuer identity. Export is unavailable.',
+    'pdfSaveFailure': 'Could not save the invoice PDF.',
+    'pdfPrintFailure': 'Could not print the invoice PDF.',
+    'pdfShareFailure': 'Could not share the invoice PDF.',
+    'pdfIssuer': 'Company',
+    'pdfTaxRegistration': 'Tax registration number',
+    'pdfServiceDate': 'Service date',
+    'pdfRoute': 'Route',
+    'pdfQuantity': 'Quantity (t)',
+    'pdfAmount': 'Amount',
+    'pdfPage': 'Page',
+    'pdfLegacyWarning':
+        'Historical identity notice: issuer details reflect a legacy baseline, not a verified snapshot from the original issue date.',
     'invoiceLines': 'Invoice lines',
     'activity': 'Activity timeline',
     'noActivity': 'No invoice activity found.',
@@ -268,6 +319,32 @@ final class InvoicesLocalizations {
     'actions': 'الإجراءات',
     'details': 'التفاصيل',
     'invoiceDetails': 'تفاصيل الفاتورة',
+    'pdfTitle': 'فاتورة',
+    'pdfPreview': 'معاينة PDF',
+    'pdfSave': 'حفظ PDF',
+    'pdfPrint': 'طباعة',
+    'pdfShare': 'مشاركة',
+    'pdfPreparing': 'جاري تجهيز PDF...',
+    'pdfSaved': 'تم حفظ ملف الفاتورة.',
+    'pdfPrinted': 'تم إرسال الفاتورة للطباعة.',
+    'pdfShared': 'اكتملت المشاركة عبر التطبيق المحدد.',
+    'pdfShareInitiated': 'تم فتح المشاركة. اختر الوجهة لإرسال ملف PDF.',
+    'pdfInvalidFailure': 'ملف الفاتورة غير صالح.',
+    'pdfRenderFailure': 'تعذر إنشاء ملف PDF للفاتورة.',
+    'pdfSnapshotFailure':
+        'بيانات هوية الشركة وقت إصدار هذه الفاتورة غير متوفرة، ولا يمكن تصديرها.',
+    'pdfSaveFailure': 'تعذر حفظ ملف PDF للفاتورة.',
+    'pdfPrintFailure': 'تعذرت طباعة الفاتورة.',
+    'pdfShareFailure': 'تعذرت مشاركة ملف الفاتورة.',
+    'pdfIssuer': 'الشركة',
+    'pdfTaxRegistration': 'رقم التسجيل الضريبي',
+    'pdfServiceDate': 'تاريخ الخدمة',
+    'pdfRoute': 'المسار',
+    'pdfQuantity': 'الكمية (طن)',
+    'pdfAmount': 'المبلغ',
+    'pdfPage': 'صفحة',
+    'pdfLegacyWarning':
+        'تنويه تاريخي: بيانات الشركة مأخوذة من سجل أساسي قديم، وليست نسخة موثقة من بيانات يوم إصدار الفاتورة.',
     'invoiceLines': 'بنود الفاتورة',
     'activity': 'سجل النشاط',
     'noActivity': 'لا يوجد نشاط مسجل لهذه الفاتورة.',

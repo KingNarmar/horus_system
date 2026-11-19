@@ -1,5 +1,6 @@
 import '../../../../core/domain/value_objects/currency_code.dart';
 import 'invoice_customer_snapshot.dart';
+import 'invoice_issuer_snapshot.dart';
 import 'invoice_status.dart';
 import 'invoice_totals.dart';
 import 'invoice_trip_line.dart';
@@ -10,6 +11,7 @@ final class Invoice {
   final String id;
   final String companyId;
   final InvoiceCustomerSnapshot customer;
+  final InvoiceIssuerSnapshot? issuerSnapshot;
   final InvoiceStatus status;
   final InvoiceNumber? number;
   final CurrencyCode currency;
@@ -26,6 +28,7 @@ final class Invoice {
     required this.id,
     required this.companyId,
     required this.customer,
+    this.issuerSnapshot,
     required this.status,
     this.number,
     required this.currency,

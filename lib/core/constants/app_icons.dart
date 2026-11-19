@@ -50,6 +50,8 @@ abstract final class AppIcons {
   static const IconData terms = Icons.description_outlined;
   static const IconData support = Icons.support_agent_outlined;
   static const IconData openExternal = Icons.open_in_new;
+  static const IconData print = Icons.print_outlined;
+  static const IconData share = Icons.share_outlined;
   static const IconData payments = Icons.payments_outlined;
   static const IconData paymentsSelected = Icons.payments;
   static const IconData phone = Icons.phone_outlined;

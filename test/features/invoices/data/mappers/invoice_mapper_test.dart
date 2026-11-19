@@ -3,6 +3,7 @@ import 'package:horus_system/features/invoices/data/mappers/invoice_mapper.dart'
 import 'package:horus_system/features/invoices/data/models/invoice_customer_snapshot_model.dart';
 import 'package:horus_system/features/invoices/data/models/invoice_model.dart';
 import 'package:horus_system/features/invoices/domain/entities/invoice_status.dart';
+import 'package:horus_system/features/invoices/domain/entities/invoice_issuer_snapshot.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,6 +15,15 @@ void main() {
       expect(invoice.companyId, 'company-1');
       expect(invoice.customer.customerId, 'customer-1');
       expect(invoice.status, InvoiceStatus.issued);
+      expect(invoice.issuerSnapshot?.companyName, 'Original Issuer');
+      expect(
+        invoice.issuerSnapshot?.logoPath,
+        'companies/company-1/logos/old.png',
+      );
+      expect(
+        invoice.issuerSnapshot?.source,
+        InvoiceIssuerSnapshotSource.issuance,
+      );
       expect(invoice.number?.value, 'INV-2026-000001');
       expect(invoice.currency.value, 'AED');
       expect(invoice.lines, hasLength(2));
@@ -38,6 +48,43 @@ void main() {
         invoice.dueDate?.value,
         BusinessDate(year: 2026, month: 9, day: 4),
       );
+    });
+
+    test('marks legacy baseline without asserting issuance-time identity', () {
+      final map = _invoiceMap()
+        ..['issuer_snapshot_source'] = 'legacy_baseline'
+        ..['issuer_logo_path'] = null;
+      final invoice = InvoiceModel.fromMap(map).toEntity();
+
+      expect(
+        invoice.issuerSnapshot?.source,
+        InvoiceIssuerSnapshotSource.legacyBaseline,
+      );
+      expect(invoice.issuerSnapshot?.logoPath, isNull);
+    });
+
+    test('draft has no issued issuer snapshot', () {
+      final map = _invoiceMap()
+        ..['status'] = 'draft'
+        ..['issuer_snapshot_source'] = null
+        ..['issuer_company_name'] = null
+        ..['issuer_captured_at'] = null;
+      final invoice = InvoiceModel.fromMap(map).toEntity();
+
+      expect(invoice.issuerSnapshot, isNull);
+    });
+
+    test('rejects unknown persisted issuer snapshot source', () {
+      final map = _invoiceMap()..['issuer_snapshot_source'] = 'unknown';
+      expect(
+        () => InvoiceModel.fromMap(map).toEntity(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('rejects missing company name in a persisted issuer snapshot', () {
+      final map = _invoiceMap()..['issuer_company_name'] = null;
+      expect(() => InvoiceModel.fromMap(map), throwsA(isA<FormatException>()));
     });
 
     test('rejects a customer snapshot from another tenant', () {
@@ -107,6 +154,17 @@ Map<String, dynamic> _invoiceMap() {
     'invoice_number': 'INV-2026-000001',
     'currency_code': 'AED',
     'customer_name': 'Customer One',
+    'issuer_company_name': 'Original Issuer',
+    'issuer_business_type': 'Transport',
+    'issuer_phone': '+971000000000',
+    'issuer_email': 'accounts@example.com',
+    'issuer_address': 'Original address',
+    'issuer_city': 'Dubai',
+    'issuer_country': 'AE',
+    'issuer_tax_registration_number': 'TRN-ISSUER',
+    'issuer_logo_path': 'companies/company-1/logos/old.png',
+    'issuer_snapshot_source': 'issuance',
+    'issuer_captured_at': '2026-08-05T10:00:00Z',
     'customer_tax_registration_number': 'TRN-1',
     'customer_address': 'Address',
     'customer_city': 'Dubai',
