@@ -35,11 +35,14 @@ void main() {
         ReportExportColumn.date,
         ReportExportColumn.amount,
       ],
-      rows: List.generate(100, (index) => [
-        ReportExportTextCell('TRIP-$index'),
-        ReportExportDateCell(BusinessDate(year: 2026, month: 11, day: 19)),
-        ReportExportMoneyCell(amount),
-      ]),
+      rows: List.generate(
+        100,
+        (index) => [
+          ReportExportTextCell('TRIP-$index'),
+          ReportExportDateCell(BusinessDate(year: 2026, month: 11, day: 19)),
+          ReportExportMoneyCell(amount),
+        ],
+      ),
       totals: [
         ReportExportTotal(
           label: ReportExportColumn.totalExpenses,
@@ -59,7 +62,10 @@ void main() {
     final bytes = result.dataOrNull!;
     expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
     final serialized = latin1.decode(bytes);
-    expect(RegExp(r'/Type\s*/Page\b').allMatches(serialized).length, greaterThan(1));
+    expect(
+      RegExp(r'/Type\s*/Page\b').allMatches(serialized).length,
+      greaterThan(1),
+    );
 
     final streams = _decodedStreams(bytes);
     final ids = RegExp(r'\(TRIP-(\d+)\)')
@@ -84,7 +90,10 @@ void main() {
       ),
       labels: _labels,
     );
-    expect(result.failureOrNull?.code, ReportsFailureCodes.pdfRenderUnavailable);
+    expect(
+      result.failureOrNull?.code,
+      ReportsFailureCodes.pdfRenderUnavailable,
+    );
   });
 
   testWidgets('unavailable offline fonts produce a typed failure', (
@@ -103,32 +112,34 @@ void main() {
       ),
       labels: _labels,
     );
-    expect(result.failureOrNull?.code, ReportsFailureCodes.pdfRenderUnavailable);
+    expect(
+      result.failureOrNull?.code,
+      ReportsFailureCodes.pdfRenderUnavailable,
+    );
   });
 }
 
-ReportExportDocument _document({Uint8List? logo}) =>
-    ReportExportDocument(
-      companyId: 'company-a',
-      companyName: 'Tenant A',
-      logoBytes: logo,
-      kind: ReportExportKind.dailyTrips,
-      dateRange: const ReportDateRange(),
-      generatedAtUtc: DateTime.utc(2026, 11, 19),
-      content: ReportExportOperationalContent(
-        OperationalTripReport(
-          metadata: OperationalReportSourceMetadata(
-            companyId: 'company-a',
-            businessTimezone: 'Asia/Dubai',
-            businessDate: BusinessDate(year: 2026, month: 11, day: 19),
-            fromDate: null,
-            toDate: null,
-          ),
-          dimension: OperationalReportDimension.day,
-          groups: [],
-        ),
+ReportExportDocument _document({Uint8List? logo}) => ReportExportDocument(
+  companyId: 'company-a',
+  companyName: 'Tenant A',
+  logoBytes: logo,
+  kind: ReportExportKind.dailyTrips,
+  dateRange: const ReportDateRange(),
+  generatedAtUtc: DateTime.utc(2026, 11, 19),
+  content: ReportExportOperationalContent(
+    OperationalTripReport(
+      metadata: OperationalReportSourceMetadata(
+        companyId: 'company-a',
+        businessTimezone: 'Asia/Dubai',
+        businessDate: BusinessDate(year: 2026, month: 11, day: 19),
+        fromDate: null,
+        toDate: null,
       ),
-    );
+      dimension: OperationalReportDimension.day,
+      groups: [],
+    ),
+  ),
+);
 
 final ReportExportLabels _labels = ReportExportLabels(
   isRtl: false,
