@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/entities/company_quota_snapshot.dart';
 import '../../domain/entities/company_quota_usage.dart';
 import '../../domain/entities/entitlement_resource.dart';
+import '../../domain/policies/quota_usage_display_policy.dart';
 import '../localization/subscriptions_localizations.dart';
 
-/// Server-confirmed quota usage for #32, #355, #356 and #357. Full reporting is #360.
-/// The complete company usage dashboard remains in #360.
+/// Displays the authoritative server counters; never calculates quotas locally.
 final class SubscriptionsQuotaUsageCard extends StatelessWidget {
   final CompanyQuotaSnapshot quota;
 
   const SubscriptionsQuotaUsageCard({required this.quota, super.key});
 
+  static const _resources = <EntitlementResource>[
+    EntitlementResource.companyUsers,
+    EntitlementResource.combinedVehicles,
+    EntitlementResource.customers,
+    EntitlementResource.drivers,
+    EntitlementResource.routes,
+    EntitlementResource.lifetimeTrips,
+    EntitlementResource.lifetimeInvoices,
+    EntitlementResource.businessDocuments,
+  ];
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.subscriptionsL10n;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -28,48 +42,35 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(l10n.usageDescription),
-            const SizedBox(height: AppSpacing.md),
-            _QuotaLine(
-              label: l10n.users,
-              usage: quota.usageFor(EntitlementResource.companyUsers),
+            const SizedBox(height: AppSpacing.lg),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final twoColumns =
+                    constraints.maxWidth >= AppSizes.dataTableBreakpoint;
+                final itemWidth = twoColumns
+                    ? (constraints.maxWidth - AppSpacing.md) / 2
+                    : constraints.maxWidth;
+
+                return Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.md,
+                  children: [
+                    for (final resource in _resources)
+                      SizedBox(
+                        width: itemWidth,
+                        child: _QuotaUsageItem(
+                          label: l10n.resourceLabel(resource),
+                          usage: quota.usageFor(resource),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.vehicles,
-              usage: quota.usageFor(EntitlementResource.combinedVehicles),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.customers,
-              usage: quota.usageFor(EntitlementResource.customers),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.drivers,
-              usage: quota.usageFor(EntitlementResource.drivers),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.routes,
-              usage: quota.usageFor(EntitlementResource.routes),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.lifetimeTrips,
-              usage: quota.usageFor(EntitlementResource.lifetimeTrips),
-              showRemaining: true,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.lifetimeInvoices,
-              usage: quota.usageFor(EntitlementResource.lifetimeInvoices),
-              showRemaining: true,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _QuotaLine(
-              label: l10n.businessDocuments,
-              usage: quota.usageFor(EntitlementResource.businessDocuments),
-              showRemaining: true,
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              l10n.usageOutputsUnaffected,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
@@ -78,44 +79,66 @@ final class SubscriptionsQuotaUsageCard extends StatelessWidget {
   }
 }
 
-final class _QuotaLine extends StatelessWidget {
+final class _QuotaUsageItem extends StatelessWidget {
   final String label;
   final CompanyQuotaUsage usage;
-  final bool showRemaining;
 
-  const _QuotaLine({
-    required this.label,
-    required this.usage,
-    this.showRemaining = false,
-  });
+  const _QuotaUsageItem({required this.label, required this.usage});
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.subscriptionsL10n;
+    final theme = Theme.of(context);
+    final level = QuotaUsageDisplayPolicy.levelFor(usage);
     final limit = usage.limit.value;
     final count = l10n.usageCount(
       usage.used,
       limit == null ? l10n.unlimited : limit.toString(),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: AppSpacing.md,
+    final color = switch (level) {
+      QuotaUsageLevel.atLimit || QuotaUsageLevel.overLimit =>
+        theme.colorScheme.error,
+      QuotaUsageLevel.nearLimit => theme.colorScheme.tertiary,
+      QuotaUsageLevel.normal || QuotaUsageLevel.unlimited => null,
+    };
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: Theme.of(context).textTheme.titleSmall),
+            Text(label, style: theme.textTheme.titleSmall),
+            const SizedBox(height: AppSpacing.xs),
             Text(count),
+            if (level != QuotaUsageLevel.unlimited) ...[
+              const SizedBox(height: AppSpacing.sm),
+              LinearProgressIndicator(
+                value: QuotaUsageDisplayPolicy.progressFor(usage),
+                color: color,
+                semanticsLabel: label,
+                semanticsValue: count,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.quotaLevelLabel(level),
+              style: theme.textTheme.bodySmall?.copyWith(color: color),
+            ),
+            if (usage.remaining case final remaining?) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                l10n.usageRemaining(remaining),
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
           ],
         ),
-        if (showRemaining && usage.remaining != null)
-          Text(l10n.usageRemaining(usage.remaining!)),
-        if (usage.isOverLimit)
-          Text(
-            l10n.usageOverCap,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-      ],
+      ),
     );
   }
 }
