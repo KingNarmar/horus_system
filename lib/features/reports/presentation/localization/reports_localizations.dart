@@ -94,6 +94,24 @@ final class ReportsLocalizations {
     };
   }
 
+  String get exportPdfPreview => _l10n.reportsExportPdfPreview;
+  String get exportPdfSave => _l10n.reportsExportPdfSave;
+  String get exportPdfPrint => _l10n.reportsExportPdfPrint;
+  String get exportPdfShare => _l10n.reportsExportPdfShare;
+  String get exportPdfBusy => _l10n.reportsExportPdfBusy;
+  String get exportPdfPreviewTitle => _l10n.reportsExportPdfPreviewTitle;
+  String get exportPdfCompleted => _l10n.reportsExportPdfCompleted;
+  String get exportPdfShareInitiated => _l10n.reportsExportPdfShareInitiated;
+  String get exportPdfCancelled => _l10n.reportsExportPdfCancelled;
+  String get exportPdfRenderFailure => _l10n.reportsExportPdfRenderFailure;
+  String get exportPdfSaveFailure => _l10n.reportsExportPdfSaveFailure;
+  String get exportPdfPrintFailure => _l10n.reportsExportPdfPrintFailure;
+  String get exportPdfShareFailure => _l10n.reportsExportPdfShareFailure;
+  String get exportPdfInvalidFailure => _l10n.reportsExportPdfInvalidFailure;
+  String get exportPdfGeneratedAt => _l10n.reportsExportPdfGeneratedAt;
+  String get exportPdfPeriod => _l10n.reportsExportPdfPeriod;
+  String get exportPdfPage => _l10n.reportsExportPdfPage;
+
   String get permissionFailure => _l10n.reportsPermissionFailure;
   String get invalidDateRangeFailure => _l10n.reportsInvalidDateRangeFailure;
   String get regionalSettingsFailure => _l10n.reportsRegionalSettingsFailure;
