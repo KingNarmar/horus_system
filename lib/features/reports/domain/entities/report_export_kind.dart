@@ -31,8 +31,8 @@ enum ReportExportKind {
     tripsByDriver ||
     tripsByTractorHead ||
     tripsByTrailer => ReportsPermissionPolicy.canViewOperationalReports(role),
-    tripExpenses || tripNetProfit =>
-      ReportsPermissionPolicy.canViewFinancialReports(role),
+    tripExpenses ||
+    tripNetProfit => ReportsPermissionPolicy.canViewFinancialReports(role),
     openInvoices => ReportsPermissionPolicy.canViewOpenInvoicesReport(role),
   };
 }
