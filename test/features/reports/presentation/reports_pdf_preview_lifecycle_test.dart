@@ -3,7 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/network/domain/entities/network_connection_status.dart';
+import 'package:horus_system/core/network/domain/repositories/network_status_repository.dart';
+import 'package:horus_system/core/network/domain/usecases/get_network_status_usecase.dart';
+import 'package:horus_system/core/network/domain/usecases/watch_network_status_usecase.dart';
+import 'package:horus_system/core/network/presentation/cubit/network_status_cubit.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_brand_logo_file.dart';
@@ -45,11 +51,23 @@ void main() {
     final reportsRepository = _ReportsRepository();
     final reportsCubit = _reportsCubit(reportsRepository);
     final exportCubit = _exportCubit(reportsRepository);
+    final networkRepository = _NetworkRepository();
+    final networkCubit = NetworkStatusCubit(
+      getNetworkStatusUseCase: GetNetworkStatusUseCase(networkRepository),
+      watchNetworkStatusUseCase: WatchNetworkStatusUseCase(networkRepository),
+      pollingEnabled: false,
+    );
+    addTearDown(networkCubit.close);
     addTearDown(reportsCubit.close);
     addTearDown(exportCubit.close);
 
     await tester.pumpWidget(
-      _app('company-a', reportsCubit: reportsCubit, exportCubit: exportCubit),
+      _app(
+        'company-a',
+        reportsCubit: reportsCubit,
+        exportCubit: exportCubit,
+        networkCubit: networkCubit,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -61,7 +79,12 @@ void main() {
     expect(find.byType(ReportPdfPreviewDialog), findsOneWidget);
 
     await tester.pumpWidget(
-      _app('company-b', reportsCubit: reportsCubit, exportCubit: exportCubit),
+      _app(
+        'company-b',
+        reportsCubit: reportsCubit,
+        exportCubit: exportCubit,
+        networkCubit: networkCubit,
+      ),
     );
     await tester.pump();
 
@@ -74,6 +97,7 @@ Widget _app(
   String companyId, {
   required ReportsCubit reportsCubit,
   required ReportExportCubit exportCubit,
+  required NetworkStatusCubit networkCubit,
 }) => MaterialApp(
   locale: const Locale('en'),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -82,6 +106,7 @@ Widget _app(
     providers: [
       BlocProvider<ReportsCubit>.value(value: reportsCubit),
       BlocProvider<ReportExportCubit>.value(value: exportCubit),
+      BlocProvider<NetworkStatusCubit>.value(value: networkCubit),
     ],
     child: Scaffold(
       body: SingleChildScrollView(
@@ -211,13 +236,29 @@ final class _Branding implements CompanyBrandingRepository {
   }) => throw StateError('Unexpected logo write.');
 }
 
+final class _NetworkRepository implements NetworkStatusRepository {
+  @override
+  Future<Result<NetworkConnectionStatus>> getCurrentStatus() async =>
+      const Success(NetworkConnectionStatus.online);
+
+  @override
+  Stream<Result<NetworkConnectionStatus>> watchStatus() =>
+      Stream<Result<NetworkConnectionStatus>>.value(
+        const Success(NetworkConnectionStatus.online),
+      );
+}
+
 final class _Renderer implements ReportPdfRenderer {
   @override
   Future<Result<Uint8List>> render({
     required ReportExportDocument document,
     required ReportExportTable table,
     required ReportExportLabels labels,
-  }) async => Success(Uint8List.fromList([37, 80, 68, 70]));
+  }) async {
+    final pdf = pw.Document();
+    pdf.addPage(pw.Page(build: (_) => pw.Text('Report preview')));
+    return Success(await pdf.save());
+  }
 }
 
 final class _Delivery implements ReportPdfDeliveryRepository {
