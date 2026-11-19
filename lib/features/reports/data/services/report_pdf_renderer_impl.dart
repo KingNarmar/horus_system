@@ -132,7 +132,13 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
         ),
       );
       return Success(await pdf.save());
-    } catch (_) {
+    } catch (error, stackTrace) {
+      assert(() {
+        // Temporary CI diagnostic, to be removed before review.
+        // ignore: avoid_print
+        print('Issue #353 PDF render diagnostic: $error\n$stackTrace');
+        return true;
+      }());
       return const FailureResult(
         ServerFailure(code: ReportsFailureCodes.pdfRenderUnavailable),
       );
