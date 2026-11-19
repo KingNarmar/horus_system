@@ -20,10 +20,7 @@ final class ReportExportProjector {
   ReportExportTable _operational(OperationalTripReport report) {
     if (report.dimension != OperationalReportDimension.day) {
       return ReportExportTable(
-        columns: [
-          _groupColumn(report.dimension),
-          ReportExportColumn.tripCount,
-        ],
+        columns: [_groupColumn(report.dimension), ReportExportColumn.tripCount],
         rows: [
           for (final group in report.groups)
             [
