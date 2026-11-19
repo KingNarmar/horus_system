@@ -315,7 +315,7 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
         ],
       ),
     );
-    }
+  }
 
   static pw.Widget _field(String label, String value) {
     return pw.Row(
