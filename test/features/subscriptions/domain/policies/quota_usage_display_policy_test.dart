@@ -49,10 +49,7 @@ void main() {
       limit: const EntitlementLimit.unlimited(),
       used: 100,
     );
-    expect(
-      QuotaUsageDisplayPolicy.levelFor(usage),
-      QuotaUsageLevel.unlimited,
-    );
+    expect(QuotaUsageDisplayPolicy.levelFor(usage), QuotaUsageLevel.unlimited);
     expect(QuotaUsageDisplayPolicy.progressFor(usage), 0);
   });
 }
