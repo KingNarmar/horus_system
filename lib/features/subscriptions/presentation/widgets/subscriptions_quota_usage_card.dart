@@ -121,7 +121,6 @@ final class _QuotaUsageItem extends StatelessWidget {
                 value: QuotaUsageDisplayPolicy.progressFor(usage),
                 color: color,
                 semanticsLabel: label,
-                semanticsValue: count,
               ),
             ],
             const SizedBox(height: AppSpacing.sm),
