@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:horus_system/features/company/domain/entities/company_role.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
