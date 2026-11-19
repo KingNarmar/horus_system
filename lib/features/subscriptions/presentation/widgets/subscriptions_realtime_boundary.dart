@@ -27,9 +27,8 @@ final class SubscriptionsRealtimeBoundary extends StatelessWidget {
     return CompanyResourceInvalidationBoundary(
       companyId: currentCompanyContext.companyId,
       resources: const {CompanyInvalidationResource.quotaUsage},
-      onInvalidate: (context) => context.read<SubscriptionsCubit>().refresh(
-        currentCompanyContext,
-      ),
+      onInvalidate: (context) =>
+          context.read<SubscriptionsCubit>().refresh(currentCompanyContext),
       child: child,
     );
   }
