@@ -14,8 +14,7 @@ abstract final class QuotaUsageDisplayPolicy {
     if (limit == null) return QuotaUsageLevel.unlimited;
     if (usage.used > limit) return QuotaUsageLevel.overLimit;
     if (usage.used == limit) return QuotaUsageLevel.atLimit;
-    if (usage.used * nearLimitDenominator >=
-        limit * nearLimitNumerator) {
+    if (usage.used * nearLimitDenominator >= limit * nearLimitNumerator) {
       return QuotaUsageLevel.nearLimit;
     }
     return QuotaUsageLevel.normal;
