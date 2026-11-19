@@ -2024,7 +2024,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfInvalidFailure => 'The generated PDF is invalid.';
 
   @override
-  String get reportsExportPdfGeneratedAt => 'Generated (UTC)';
+  String get reportsExportPdfGeneratedAt => 'Generated';
 
   @override
   String get reportsExportPdfPeriod => 'Period';

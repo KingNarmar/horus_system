@@ -1994,7 +1994,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsExportPdfInvalidFailure => 'ملف PDF الناتج غير صالح.';
 
   @override
-  String get reportsExportPdfGeneratedAt => 'تاريخ الإنشاء (UTC)';
+  String get reportsExportPdfGeneratedAt => 'تاريخ الإنشاء';
 
   @override
   String get reportsExportPdfPeriod => 'الفترة';

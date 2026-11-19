@@ -667,7 +667,7 @@
   "reportsExportPdfPrintFailure": "Could not open report PDF printing.",
   "reportsExportPdfShareFailure": "Could not share the report PDF.",
   "reportsExportPdfInvalidFailure": "The generated PDF is invalid.",
-  "reportsExportPdfGeneratedAt": "Generated (UTC)",
+  "reportsExportPdfGeneratedAt": "Generated",
   "reportsExportPdfPeriod": "Period",
   "reportsExportPdfPage": "Page",
   "reportsPermissionFailure": "This role cannot view the selected report.",

@@ -671,7 +671,7 @@
   "reportsExportPdfPrintFailure": "تعذّر فتح الطباعة لملف PDF.",
   "reportsExportPdfShareFailure": "تعذّرت مشاركة ملف PDF للتقرير.",
   "reportsExportPdfInvalidFailure": "ملف PDF الناتج غير صالح.",
-  "reportsExportPdfGeneratedAt": "تاريخ الإنشاء (UTC)",
+  "reportsExportPdfGeneratedAt": "تاريخ الإنشاء",
   "reportsExportPdfPeriod": "الفترة",
   "reportsExportPdfPage": "الصفحة",
   "reportsPermissionFailure": "هذا الدور غير مسموح له بعرض التقرير المحدد.",

@@ -25,6 +25,11 @@ void main() {
       },
     );
 
+    test('export timestamp labels do not duplicate UTC timezone suffix', () {
+      expect(english.exportPdfGeneratedAt, 'Generated');
+      expect(arabic.exportPdfGeneratedAt, 'تاريخ الإنشاء');
+    });
+
     test('maps every report type through generated localization', () {
       expect(english.reportTypeLabel(ReportType.dailyTrips), 'Daily trips');
       expect(
