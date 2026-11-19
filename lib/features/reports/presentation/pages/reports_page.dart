@@ -41,6 +41,7 @@ final class _ReportsPageState extends State<ReportsPage> {
   BusinessDate? _fromDate;
   BusinessDate? _toDate;
   late ReportType _reportType;
+  DialogRoute<void>? _activePreviewRoute;
 
   List<ReportType> get _availableReports => ReportType.values
       .where((type) => type.canView(widget.currentCompanyContext.role))
@@ -71,6 +72,7 @@ final class _ReportsPageState extends State<ReportsPage> {
       return;
     }
 
+    _dismissPreview();
     context.read<ReportExportCubit>().invalidate();
     _fromDate = null;
     _toDate = null;
@@ -84,6 +86,12 @@ final class _ReportsPageState extends State<ReportsPage> {
         dateRange: const ReportDateRange(),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _dismissPreview();
+    super.dispose();
   }
 
   @override
@@ -147,11 +155,18 @@ final class _ReportsPageState extends State<ReportsPage> {
     if (!context.mounted) return;
     final exportCubit = context.read<ReportExportCubit>();
     if (state is ReportExportPreviewReady) {
+      _dismissPreview();
+      final route = DialogRoute<void>(
+        context: context,
+        builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
+      );
+      _activePreviewRoute = route;
       unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
-        ),
+        Navigator.of(context, rootNavigator: true).push(route).whenComplete(() {
+          if (identical(_activePreviewRoute, route)) {
+            _activePreviewRoute = null;
+          }
+        }),
       );
       exportCubit.clearFeedback();
       return;
@@ -202,12 +217,22 @@ final class _ReportsPageState extends State<ReportsPage> {
   }
 
   void _load() {
+    _dismissPreview();
     context.read<ReportExportCubit>().invalidate();
     context.read<ReportsCubit>().load(
       currentCompanyContext: widget.currentCompanyContext,
       reportType: _reportType,
       dateRange: ReportDateRange(fromDate: _fromDate, toDate: _toDate),
     );
+  }
+
+  void _dismissPreview() {
+    final route = _activePreviewRoute;
+    _activePreviewRoute = null;
+    final navigator = route?.navigator;
+    if (route != null && navigator != null && navigator.mounted && route.isActive) {
+      navigator.removeRoute(route);
+    }
   }
 
   Future<void> _pickDate({required bool isFrom}) async {
