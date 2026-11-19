@@ -49,9 +49,7 @@ void main() {
         home: Scaffold(
           body: SingleChildScrollView(
             child: SubscriptionsCurrentPlanCard(
-              entitlement: _grant(
-                expiresAt: DateTime.utc(2026, 11, 10),
-              ),
+              entitlement: _grant(expiresAt: DateTime.utc(2026, 11, 10)),
             ),
           ),
         ),
