@@ -1,6 +1,9 @@
 import 'package:flutter/widgets.dart';
 
 import '../../domain/entities/company_entitlement.dart';
+import '../../domain/entities/entitlement_feature.dart';
+import '../../domain/entities/entitlement_resource.dart';
+import '../../domain/policies/quota_usage_display_policy.dart';
 import '../../domain/entities/subscription_status.dart';
 
 final class SubscriptionsLocalizations {
@@ -56,6 +59,48 @@ final class SubscriptionsLocalizations {
   String get usageTitle => _value('usageTitle');
   String get usageDescription => _value('usageDescription');
   String get usageOverCap => _value('usageOverCap');
+  String get usageNearCap => _value('usageNearCap');
+  String get usageAtCap => _value('usageAtCap');
+  String get usageNormal => _value('usageNormal');
+  String get usageOutputsUnaffected => _value('usageOutputsUnaffected');
+  String get usageRefreshing => _value('usageRefreshing');
+  String get capacityRequestTitle => _value('capacityRequestTitle');
+  String get capacityRequestDescription => _value('capacityRequestDescription');
+  String get capacityRequestButton => _value('capacityRequestButton');
+  String get capacityRequestFailed => _value('capacityRequestFailed');
+  String get entitlementInactiveNotice => _value('entitlementInactiveNotice');
+  String resourceLabel(EntitlementResource resource) => switch (resource) {
+    EntitlementResource.ownerCreatedCompanies => _value('companies'),
+    EntitlementResource.companyUsers => users,
+    EntitlementResource.customers => customers,
+    EntitlementResource.drivers => drivers,
+    EntitlementResource.combinedVehicles => vehicles,
+    EntitlementResource.routes => routes,
+    EntitlementResource.lifetimeTrips => lifetimeTrips,
+    EntitlementResource.lifetimeInvoices => lifetimeInvoices,
+    EntitlementResource.businessDocuments => businessDocuments,
+  };
+
+  String featureLabel(EntitlementFeature feature) => switch (feature) {
+    EntitlementFeature.companyBranding => _value('featureCompanyBranding'),
+    EntitlementFeature.invoicePdf => _value('featureInvoicePdf'),
+    EntitlementFeature.reportPdf => _value('featureReportPdf'),
+    EntitlementFeature.reportXlsx => _value('featureReportXlsx'),
+    EntitlementFeature.documentUpload => documentUpload,
+    EntitlementFeature.driverApp => driverApp,
+    EntitlementFeature.advancedReports => advancedReports,
+    EntitlementFeature.maintenance => maintenance,
+    EntitlementFeature.whatsappNotifications => whatsappNotifications,
+  };
+
+  String quotaLevelLabel(QuotaUsageLevel level) => switch (level) {
+    QuotaUsageLevel.normal => usageNormal,
+    QuotaUsageLevel.nearLimit => usageNearCap,
+    QuotaUsageLevel.atLimit => usageAtCap,
+    QuotaUsageLevel.overLimit => usageOverCap,
+    QuotaUsageLevel.unlimited => unlimited,
+  };
+
   String usageRemaining(int count) =>
       _value('usageRemaining').replaceFirst('{count}', count.toString());
 
@@ -108,6 +153,24 @@ final class SubscriptionsLocalizations {
   }
 
   static const Map<String, String> _en = {
+    'companies': 'Companies',
+    'usageNormal': 'Within limit',
+    'usageNearCap': 'Approaching the plan limit',
+    'usageAtCap': 'Plan limit reached; existing records remain accessible.',
+    'usageOutputsUnaffected':
+        'Reaching a quota does not remove existing records or basic PDF/XLSX exports.',
+    'usageRefreshing': 'Refreshing server usage; values may be outdated.',
+    'capacityRequestTitle': 'Need more capacity?',
+    'capacityRequestDescription':
+        'Ask support to review the company limits. No upgrade is applied automatically.',
+    'capacityRequestButton': 'Request more capacity',
+    'capacityRequestFailed': 'Could not open the support page.',
+    'entitlementInactiveNotice':
+        'This plan is not currently effective. Features shown are not active access.',
+    'featureCompanyBranding': 'Company branding',
+    'featureInvoicePdf': 'Invoice PDF',
+    'featureReportPdf': 'Report PDF',
+    'featureReportXlsx': 'Report Excel (XLSX)',
     'usageTitle': 'Current resource usage',
     'usageDescription':
         'Server-verified active, lifetime and reserved-seat usage.',
@@ -171,6 +234,24 @@ final class SubscriptionsLocalizations {
   };
 
   static const Map<String, String> _ar = {
+    'companies': 'الشركات',
+    'usageNormal': 'داخل الحد المسموح',
+    'usageNearCap': 'الاقتراب من الحد المسموح',
+    'usageAtCap': 'تم بلوغ الحد؛ تظل السجلات الحالية متاحة.',
+    'usageOutputsUnaffected':
+        'بلوغ الحصة لا يحذف السجلات الحالية ولا يمنع تصدير PDF أو Excel XLSX الأساسي.',
+    'usageRefreshing': 'جارٍ تحديث الاستخدام من الخادم؛ قد تكون الأرقام المعروضة قديمة.',
+    'capacityRequestTitle': 'محتاج سعة أكبر؟',
+    'capacityRequestDescription':
+        'اطلب من الدعم مراجعة حدود الشركة؛ لن تُمنح أي زيادة تلقائيًا.',
+    'capacityRequestButton': 'طلب زيادة السعة',
+    'capacityRequestFailed': 'تعذر فتح صفحة الدعم.',
+    'entitlementInactiveNotice':
+        'الخطة غير سارية حاليًا، وعرض المزايا لا يعني تفعيل صلاحية استخدامها.',
+    'featureCompanyBranding': 'هوية الشركة',
+    'featureInvoicePdf': 'فواتير PDF',
+    'featureReportPdf': 'تقارير PDF',
+    'featureReportXlsx': 'تقارير Excel XLSX',
     'usageTitle': 'استخدام موارد الشركة',
     'usageDescription':
         'الاستخدام النشط والتراكمي والمقاعد المحجوزة حسب سجلات الخادم.',
