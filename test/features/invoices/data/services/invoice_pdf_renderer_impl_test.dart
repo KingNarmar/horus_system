@@ -19,7 +19,7 @@ import 'package:horus_system/features/invoices/domain/failures/invoice_failure_c
 import 'package:horus_system/features/invoices/domain/value_objects/tax_rate.dart';
 
 void main() {
-  test('uses a font-independent vector arrow for RTL invoice routes', () {
+  test('keeps the route arrow vector-based and travel order LTR', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: 'Route1',
       unloadingLocation: 'Dubai',
@@ -32,9 +32,14 @@ void main() {
     expect(direction.textDirection, pw.TextDirection.ltr);
     expect(content.textDirection, pw.TextDirection.ltr);
     expect(content.softWrap, isTrue);
-    expect((spans[0] as pw.TextSpan).text, 'Route1 ');
-    expect((spans[1] as pw.WidgetSpan).child, isA<pw.CustomPaint>());
-    expect((spans[2] as pw.TextSpan).text, ' Dubai');
+    expect(spans, hasLength(5));
+    final loading = (spans[0] as pw.WidgetSpan).child as pw.Text;
+    final unloading = (spans[4] as pw.WidgetSpan).child as pw.Text;
+    expect((loading.text as pw.TextSpan).text, 'Route1');
+    expect((unloading.text as pw.TextSpan).text, 'Dubai');
+    expect(loading.textDirection, pw.TextDirection.ltr);
+    expect(unloading.textDirection, pw.TextDirection.ltr);
+    expect((spans[2] as pw.WidgetSpan).child, isA<pw.CustomPaint>());
     expect(
       spans.whereType<pw.TextSpan>().any(
         (span) => span.text?.contains('→') ?? false,
@@ -43,24 +48,53 @@ void main() {
     );
   });
 
-  test(
-    'keeps mixed Arabic/English locations in the correct business order',
-    () {
-      final cell = InvoicePdfRouteCell.build(
-        loadingLocation: '  جبل علي  ',
-        unloadingLocation: '  Dubai Route 1  ',
-        unavailable: 'غير متاح',
-      );
+  test('shapes mixed Arabic/English locations without reversing the trip', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: '  جبل علي  ',
+      unloadingLocation: '  Dubai Route 1  ',
+      unavailable: 'غير متاح',
+    );
 
-      final content = (cell as pw.Directionality).child as pw.RichText;
-      final spans = (content.text as pw.TextSpan).children!;
-      expect((spans.first as pw.TextSpan).text, 'جبل علي ');
-      expect((spans.last as pw.TextSpan).text, ' Dubai Route 1');
-      expect(spans[1], isA<pw.WidgetSpan>());
-    },
-  );
+    final content = (cell as pw.Directionality).child as pw.RichText;
+    final spans = (content.text as pw.TextSpan).children!;
+    final loading = (spans.first as pw.WidgetSpan).child as pw.Text;
+    final unloading = (spans.last as pw.WidgetSpan).child as pw.Text;
+    expect((loading.text as pw.TextSpan).text, 'جبل علي');
+    expect(loading.textDirection, pw.TextDirection.rtl);
+    expect((unloading.text as pw.TextSpan).text, 'Dubai Route 1');
+    expect(unloading.textDirection, pw.TextDirection.ltr);
+    expect((spans[2] as pw.WidgetSpan).child, isA<pw.CustomPaint>());
+  });
 
-  test('shows localized fallback when both route ends are absent', () {
+  test('both Arabic route endpoints use RTL text shaping', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: 'ميناء جبل علي المنطقة الصناعية السادسة',
+      unloadingLocation: 'منطقة دبي الجنوب للخدمات اللوجستية',
+      unavailable: 'غير متاح',
+    );
+
+    final direction = cell as pw.Directionality;
+    final content = direction.child as pw.RichText;
+    final spans = (content.text as pw.TextSpan).children!;
+    expect(direction.textDirection, pw.TextDirection.ltr);
+    expect(content.textDirection, pw.TextDirection.ltr);
+    final loading = (spans.first as pw.WidgetSpan).child as pw.Text;
+    final unloading = (spans.last as pw.WidgetSpan).child as pw.Text;
+    expect(loading.textDirection, pw.TextDirection.rtl);
+    expect(unloading.textDirection, pw.TextDirection.rtl);
+    expect(loading.softWrap, isTrue);
+    expect(unloading.softWrap, isTrue);
+    expect(
+      (loading.text as pw.TextSpan).text,
+      'ميناء جبل علي المنطقة الصناعية السادسة',
+    );
+    expect(
+      (unloading.text as pw.TextSpan).text,
+      'منطقة دبي الجنوب للخدمات اللوجستية',
+    );
+  });
+
+  test('Arabic fallback preserves RTL when both route ends are absent', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: ' ',
       unloadingLocation: null,
@@ -68,9 +102,10 @@ void main() {
     );
     final content = (cell as pw.Directionality).child as pw.Text;
     expect((content.text as pw.TextSpan).text, 'غير متاح');
+    expect(content.textDirection, pw.TextDirection.rtl);
   });
 
-  test('one-sided route remains readable without an arrow', () {
+  test('one-sided Latin route remains LTR without an arrow', () {
     final cell = InvoicePdfRouteCell.build(
       loadingLocation: 'Jebel Ali',
       unloadingLocation: null,
@@ -78,6 +113,18 @@ void main() {
     );
     final content = (cell as pw.Directionality).child as pw.Text;
     expect((content.text as pw.TextSpan).text, 'Jebel Ali');
+    expect(content.textDirection, pw.TextDirection.ltr);
+  });
+
+  test('one-sided Arabic route remains RTL without an arrow', () {
+    final cell = InvoicePdfRouteCell.build(
+      loadingLocation: null,
+      unloadingLocation: 'ميناء جدة الإسلامي',
+      unavailable: 'غير متاح',
+    );
+    final content = (cell as pw.Directionality).child as pw.Text;
+    expect((content.text as pw.TextSpan).text, 'ميناء جدة الإسلامي');
+    expect(content.textDirection, pw.TextDirection.rtl);
   });
 
   testWidgets('renders long route names on a multi-page invoice', (
