@@ -149,6 +149,37 @@ void main() {
     });
   }
 
+  for (final width in [360.0, 680.0, 1200.0]) {
+    testWidgets('Arabic RTL quota layout fits width $width', (tester) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: SubscriptionsQuotaUsageCard(quota: _quota()),
+            ),
+          ),
+        ),
+      );
+
+      final label = find.text('المستخدم 4 من 3');
+      expect(label, findsOneWidget);
+      expect(Directionality.of(tester.element(label)), TextDirection.rtl);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('unlimited is explicit and has no finite progress bar', (
     tester,
   ) async {
