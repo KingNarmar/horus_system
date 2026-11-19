@@ -1,0 +1,341 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/utils/result.dart';
+import 'package:horus_system/features/company/domain/entities/company.dart';
+import 'package:horus_system/features/company/domain/entities/company_brand_logo_file.dart';
+import 'package:horus_system/features/company/domain/entities/company_brand_profile.dart';
+import 'package:horus_system/features/company/domain/entities/company_role.dart';
+import 'package:horus_system/features/company/domain/entities/current_company_context.dart';
+import 'package:horus_system/features/company/domain/repositories/company_branding_repository.dart';
+import 'package:horus_system/features/reports/domain/entities/open_invoices_report.dart';
+import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
+import 'package:horus_system/features/reports/domain/entities/report_date_range.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_document.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_labels.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_table.dart';
+import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
+import 'package:horus_system/features/reports/domain/entities/trip_expenses_report.dart';
+import 'package:horus_system/features/reports/domain/entities/trip_net_profit_report.dart';
+import 'package:horus_system/features/reports/domain/failures/reports_failure_codes.dart';
+import 'package:horus_system/features/reports/domain/repositories/report_pdf_delivery_repository.dart';
+import 'package:horus_system/features/reports/domain/repositories/reports_repository.dart';
+import 'package:horus_system/features/reports/domain/services/report_pdf_renderer.dart';
+import 'package:horus_system/features/reports/domain/usecases/generate_report_pdf_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/get_open_invoices_report_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/get_operational_report_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/get_trip_expenses_report_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/get_trip_net_profit_report_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/prepare_report_export_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/report_pdf_delivery_usecases.dart';
+import 'package:horus_system/features/reports/presentation/cubit/report_export_cubit.dart';
+import 'package:horus_system/features/reports/presentation/cubit/report_export_state.dart';
+
+void main() {
+  test('invalidating a pending export discards its PDF', () async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    final request = _preview(cubit, 'company-a');
+    expect(cubit.state, isA<ReportExportBusy>());
+    expect(source.requestedCompanies, ['company-a']);
+
+    cubit.invalidate();
+    source.complete('company-a');
+    await request;
+
+    expect(cubit.state, isA<ReportExportIdle>());
+    expect(renderer.renderedCompanies, isEmpty);
+    expect(delivery.calls, 0);
+  });
+
+  test('a late old-tenant response cannot overwrite new-tenant PDF', () async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    final oldRequest = _preview(cubit, 'company-a');
+    cubit.invalidate();
+    final newRequest = _preview(cubit, 'company-b');
+
+    source.complete('company-b');
+    await newRequest;
+    final ready = cubit.state;
+    expect(ready, isA<ReportExportPreviewReady>());
+    expect((ready as ReportExportPreviewReady).bytes, renderer.pdfBytes);
+
+    source.complete('company-a');
+    await oldRequest;
+    expect(cubit.state, same(ready));
+    expect(renderer.renderedCompanies, ['company-b']);
+    expect(delivery.calls, 0);
+  });
+
+  test('unauthorized driver is denied before data access or rendering', (
+  ) async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    await cubit.perform(
+      action: ReportPdfAction.preview,
+      currentCompanyContext: _context('company-a', CompanyRole.driver),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+
+    expect(
+      (cubit.state as ReportExportFailed).failure.code,
+      ReportsFailureCodes.permissionExport,
+    );
+    expect(source.requestedCompanies, isEmpty);
+    expect(renderer.renderedCompanies, isEmpty);
+    expect(delivery.calls, 0);
+  });
+
+  test('while an export is busy, repeated actions are ignored', () async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    final first = cubit.perform(
+      action: ReportPdfAction.save,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    await cubit.perform(
+      action: ReportPdfAction.save,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    expect(source.requestedCompanies, ['company-a']);
+    expect(cubit.state, isA<ReportExportBusy>());
+
+    source.complete('company-a');
+    await first;
+    expect(cubit.state, isA<ReportExportCompleted>());
+    expect(delivery.calls, 1);
+    expect(renderer.renderedCompanies, ['company-a']);
+  });
+}
+
+Future<void> _preview(ReportExportCubit cubit, String companyId) =>
+    cubit.perform(
+      action: ReportPdfAction.preview,
+      currentCompanyContext: _context(companyId, CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+
+CurrentCompanyContext _context(String companyId, CompanyRole role) =>
+    CurrentCompanyContext(
+      company: Company(
+        id: companyId,
+        name: companyId,
+        businessTimezone: 'Asia/Dubai',
+      ),
+      role: role,
+    );
+
+ReportExportLabels _labels() => ReportExportLabels(
+  isRtl: false,
+  localeName: 'en',
+  period: 'Period',
+  generatedAt: 'Generated',
+  page: 'Page',
+  noRows: 'No rows',
+  allDates: 'All dates',
+  unassigned: 'Unassigned',
+  unavailable: 'N/A',
+  titles: const {},
+  columns: const {},
+  tripStatuses: const {},
+  invoiceStatuses: const {},
+  fundingSources: const {},
+);
+
+ReportExportCubit _createCubit(
+  _PendingReportSource source,
+  _RecordingRenderer renderer,
+  _RecordingDelivery delivery,
+) {
+  final prepare = PrepareReportExportUseCase(
+    operational: GetOperationalReportUseCase(repository: source),
+    expenses: GetTripExpensesReportUseCase(source),
+    profit: GetTripNetProfitReportUseCase(repository: source),
+    invoices: GetOpenInvoicesReportUseCase(repository: source),
+    branding: _Branding(),
+    clock: () => DateTime.utc(2026, 11, 19),
+  );
+  return ReportExportCubit(
+    generate: GenerateReportPdfUseCase(prepare: prepare, renderer: renderer),
+    save: SaveReportPdfUseCase(delivery),
+    print: PrintReportPdfUseCase(delivery),
+    share: ShareReportPdfUseCase(delivery),
+  );
+}
+
+final class _PendingReportSource implements ReportsRepository {
+  final Map<String, Completer<Result<OperationalTripReportSource>>> _pending =
+      {};
+  final List<String> requestedCompanies = [];
+
+  @override
+  Future<Result<OperationalTripReportSource>> getOperationalTripSource({
+    required String companyId,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
+  }) {
+    requestedCompanies.add(companyId);
+    final completer = Completer<Result<OperationalTripReportSource>>();
+    _pending[companyId] = completer;
+    return completer.future;
+  }
+
+  void complete(String companyId) {
+    _pending[companyId]!.complete(
+      Success(
+        OperationalTripReportSource(
+          metadata: OperationalReportSourceMetadata(
+            companyId: companyId,
+            businessTimezone: 'Asia/Dubai',
+            businessDate: BusinessDate(year: 2026, month: 11, day: 19),
+            fromDate: null,
+            toDate: null,
+          ),
+          rows: [],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<Result<TripExpensesReportSource>> getTripExpensesSource({
+    required String companyId,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
+  }) => throw StateError('Unexpected financial source call.');
+
+  @override
+  Future<Result<TripNetProfitReportSource>> getTripNetProfitSource({
+    required String companyId,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
+  }) => throw StateError('Unexpected financial source call.');
+
+  @override
+  Future<Result<OpenInvoicesReportSource>> getOpenInvoicesSource({
+    required String companyId,
+    required BusinessDate? fromDate,
+    required BusinessDate? toDate,
+  }) => throw StateError('Unexpected financial source call.');
+}
+
+final class _Branding implements CompanyBrandingRepository {
+  @override
+  Future<Result<CompanyBrandProfile>> getProfile(String companyId) async =>
+      Success(
+        CompanyBrandProfile(
+          companyId: companyId,
+          name: companyId,
+          updatedAt: DateTime.utc(2026, 11, 19),
+        ),
+      );
+
+  @override
+  Future<Result<Uint8List>> downloadLogo({
+    required String companyId,
+    required String storagePath,
+  }) => throw StateError('Unexpected logo request.');
+
+  @override
+  Future<Result<CompanyBrandProfile>> updateProfile({
+    required String companyId,
+    required DateTime expectedUpdatedAt,
+    required String name,
+    String? businessType,
+    String? phone,
+    String? email,
+    String? country,
+    String? city,
+    String? address,
+    String? taxRegistrationNumber,
+  }) => throw StateError('Unexpected brand write.');
+
+  @override
+  Future<Result<CompanyBrandProfile>> updateLogo({
+    required String companyId,
+    required String? expectedLogoPath,
+    required CompanyBrandLogoFile logo,
+  }) => throw StateError('Unexpected brand write.');
+
+  @override
+  Future<Result<CompanyBrandProfile>> removeLogo({
+    required String companyId,
+    required String? expectedLogoPath,
+  }) => throw StateError('Unexpected brand write.');
+}
+
+final class _RecordingRenderer implements ReportPdfRenderer {
+  final List<String> renderedCompanies = [];
+  final Uint8List pdfBytes = Uint8List.fromList([37, 80, 68, 70]);
+
+  @override
+  Future<Result<Uint8List>> render({
+    required ReportExportDocument document,
+    required ReportExportTable table,
+    required ReportExportLabels labels,
+  }) async {
+    renderedCompanies.add(document.companyId);
+    return Success(pdfBytes);
+  }
+}
+
+final class _RecordingDelivery implements ReportPdfDeliveryRepository {
+  int calls = 0;
+
+  @override
+  Future<Result<ReportPdfDeliveryOutcome>> save({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    calls++;
+    return const Success(ReportPdfDeliveryOutcome.completed);
+  }
+
+  @override
+  Future<Result<ReportPdfDeliveryOutcome>> print({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    calls++;
+    return const Success(ReportPdfDeliveryOutcome.completed);
+  }
+
+  @override
+  Future<Result<ReportPdfDeliveryOutcome>> share({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    calls++;
+    return const Success(ReportPdfDeliveryOutcome.completed);
+  }
+}
