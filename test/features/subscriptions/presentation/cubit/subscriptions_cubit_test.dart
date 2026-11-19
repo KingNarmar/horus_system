@@ -119,6 +119,32 @@ void main() {
     },
   );
 
+  test('concurrent invalidations coalesce into a final server read', () async {
+    final repository = _DeferredQuotaRepository();
+    final cubit = _cubit(repository);
+    addTearDown(cubit.close);
+    final company = _context();
+
+    final initial = cubit.load(company);
+    await repository.resolve(0, companyId: company.companyId);
+    await initial;
+
+    final refreshing = cubit.refresh(company);
+    await cubit.refresh(company);
+    await cubit.refresh(company);
+    expect(repository.pending.length, 2);
+
+    await repository.resolve(1, companyId: company.companyId);
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.pending.length, 3);
+    expect((cubit.state as SubscriptionsLoaded).isRefreshing, isTrue);
+
+    await repository.resolve(2, companyId: company.companyId);
+    await refreshing;
+    expect((cubit.state as SubscriptionsLoaded).isRefreshing, isFalse);
+    expect(repository.pending.length, 3);
+  });
+
   test('role revocation discards an in-flight authorized refresh', () async {
     final repository = _DeferredQuotaRepository();
     final cubit = _cubit(repository);
