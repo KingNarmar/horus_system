@@ -55,19 +55,23 @@ final class ReportExportProjector {
         for (final group in report.groups)
           for (final row in group.rows)
             [
-              ReportExportTextCell(_tripReference(
-                tripNumber: row.tripNumber,
-                loadingOrder: row.loadingOrderNumber,
-                waybill: row.waybillNumber,
-                loading: row.loadingLocation,
-                unloading: row.unloadingLocation,
-              )),
+              ReportExportTextCell(
+                _tripReference(
+                  tripNumber: row.tripNumber,
+                  loadingOrder: row.loadingOrderNumber,
+                  waybill: row.waybillNumber,
+                  loading: row.loadingLocation,
+                  unloading: row.unloadingLocation,
+                ),
+              ),
               ReportExportDateCell(row.operationalDate),
               ReportExportTextCell(row.customerName),
               ReportExportTextCell(row.driverName ?? ''),
               ReportExportTextCell(row.tractorHeadPlateNumber ?? ''),
               ReportExportTextCell(row.trailerPlateNumber ?? ''),
-              ReportExportTextCell(_route(row.loadingLocation, row.unloadingLocation)),
+              ReportExportTextCell(
+                _route(row.loadingLocation, row.unloadingLocation),
+              ),
               ReportExportTripStatusCell(row.status),
             ],
       ],
@@ -94,13 +98,15 @@ final class ReportExportProjector {
       for (final row in report.rows)
         [
           ReportExportDateCell(row.expenseDate),
-          ReportExportTextCell(_tripReference(
-            tripNumber: row.tripNumber,
-            loadingOrder: row.loadingOrderNumber,
-            waybill: row.waybillNumber,
-            loading: row.loadingLocation,
-            unloading: row.unloadingLocation,
-          )),
+          ReportExportTextCell(
+            _tripReference(
+              tripNumber: row.tripNumber,
+              loadingOrder: row.loadingOrderNumber,
+              waybill: row.waybillNumber,
+              loading: row.loadingLocation,
+              unloading: row.unloadingLocation,
+            ),
+          ),
           ReportExportTextCell(row.customerName),
           ReportExportTextCell(row.expenseName),
           ReportExportFundingCell(row.fundingSource),
@@ -129,13 +135,15 @@ final class ReportExportProjector {
     rows: [
       for (final row in report.rows)
         [
-          ReportExportTextCell(_tripReference(
-            tripNumber: row.trip.tripNumber,
-            loadingOrder: row.trip.loadingOrderNumber,
-            waybill: row.trip.waybillNumber,
-            loading: row.trip.loadingLocation,
-            unloading: row.trip.unloadingLocation,
-          )),
+          ReportExportTextCell(
+            _tripReference(
+              tripNumber: row.trip.tripNumber,
+              loadingOrder: row.trip.loadingOrderNumber,
+              waybill: row.trip.waybillNumber,
+              loading: row.trip.loadingLocation,
+              unloading: row.trip.unloadingLocation,
+            ),
+          ),
           ReportExportDateCell(row.trip.operationalDate),
           ReportExportTextCell(row.trip.customerName),
           ReportExportTripStatusCell(row.trip.status),
@@ -202,7 +210,8 @@ final class ReportExportProjector {
         OperationalReportDimension.customer => ReportExportColumn.customer,
         OperationalReportDimension.route => ReportExportColumn.route,
         OperationalReportDimension.driver => ReportExportColumn.driver,
-        OperationalReportDimension.tractorHead => ReportExportColumn.tractorHead,
+        OperationalReportDimension.tractorHead =>
+          ReportExportColumn.tractorHead,
         OperationalReportDimension.trailer => ReportExportColumn.trailer,
       };
 
