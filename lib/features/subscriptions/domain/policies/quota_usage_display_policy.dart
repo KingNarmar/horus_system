@@ -26,6 +26,6 @@ abstract final class QuotaUsageDisplayPolicy {
     final limit = usage.limit.value;
     if (limit == null) return 0;
     if (limit == 0) return 1;
-    return (usage.used / limit).clamp(0.0, 1.0);
+    return (usage.used / limit).clamp(0.0, 1.0).toDouble();
   }
 }
