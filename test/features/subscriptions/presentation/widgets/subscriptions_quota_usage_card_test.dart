@@ -9,7 +9,11 @@ import 'package:horus_system/features/subscriptions/domain/entities/entitlement_
 import 'package:horus_system/features/subscriptions/domain/entities/entitlement_resource.dart';
 import 'package:horus_system/features/subscriptions/presentation/widgets/subscriptions_quota_usage_card.dart';
 
-CompanyQuotaSnapshot _quota() {
+CompanyQuotaSnapshot _quota({
+  int userUsage = 4,
+  int userLimit = 3,
+  bool unlimitedUsers = false,
+}) {
   final entitlement = CompanyEntitlement(
     companyId: 'company-1',
     planCode: 'free_starter',
@@ -19,9 +23,11 @@ CompanyQuotaSnapshot _quota() {
     status: CompanyEntitlementStatus.active,
     limits: {
       for (final resource in EntitlementResource.values)
-        resource: EntitlementLimit.finite(
-          resource == EntitlementResource.companyUsers ? 3 : 6,
-        ),
+        resource: resource == EntitlementResource.companyUsers && unlimitedUsers
+            ? const EntitlementLimit.unlimited()
+            : EntitlementLimit.finite(
+                resource == EntitlementResource.companyUsers ? userLimit : 6,
+              ),
     },
     enabledFeatures: const {EntitlementFeature.invoicePdf},
   );
@@ -31,7 +37,7 @@ CompanyQuotaSnapshot _quota() {
       EntitlementResource.companyUsers: CompanyQuotaUsage(
         resource: EntitlementResource.companyUsers,
         limit: entitlement.limitFor(EntitlementResource.companyUsers),
-        used: 4,
+        used: userUsage,
       ),
       EntitlementResource.combinedVehicles: CompanyQuotaUsage(
         resource: EntitlementResource.combinedVehicles,
@@ -69,7 +75,11 @@ void main() {
               GlobalCupertinoLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
             ],
-            home: Scaffold(body: SubscriptionsQuotaUsageCard(quota: _quota())),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: SubscriptionsQuotaUsageCard(quota: _quota()),
+              ),
+            ),
           ),
         );
         expect(
@@ -115,4 +125,76 @@ void main() {
       },
     );
   }
+
+  for (final (used, limit, message) in [
+    (1, 5, 'Within limit'),
+    (4, 5, 'Approaching the plan limit'),
+    (5, 5, 'Plan limit reached; existing records remain accessible.'),
+    (7, 5, 'Above the plan limit; existing records remain accessible.'),
+  ]) {
+    testWidgets('quota level for $used of $limit is distinct', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: SubscriptionsQuotaUsageCard(
+                quota: _quota(userUsage: used, userLimit: limit),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.text(message), findsWidgets);
+      expect(find.byType(LinearProgressIndicator), findsNWidgets(8));
+    });
+  }
+
+  for (final width in [360.0, 680.0, 1200.0]) {
+    testWidgets('Arabic RTL quota layout fits width $width', (tester) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: SubscriptionsQuotaUsageCard(quota: _quota()),
+            ),
+          ),
+        ),
+      );
+
+      final label = find.text('المستخدم 4 من 3');
+      expect(label, findsOneWidget);
+      expect(Directionality.of(tester.element(label)), TextDirection.rtl);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('unlimited is explicit and has no finite progress bar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: SubscriptionsQuotaUsageCard(
+              quota: _quota(unlimitedUsers: true),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('4 of Unlimited used'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNWidgets(7));
+  });
 }

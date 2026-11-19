@@ -25,23 +25,55 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: Scaffold(
-            body: SubscriptionsCurrentPlanCard(entitlement: _grant()),
+            body: SingleChildScrollView(
+              child: SubscriptionsCurrentPlanCard(entitlement: _grant()),
+            ),
           ),
         ),
       );
 
       expect(find.text(planName), findsOneWidget);
       expect(find.text(noExpiration), findsOneWidget);
+      expect(find.byType(Chip), findsNWidgets(9));
     });
   }
+
+  testWidgets('expired grant never shows enabled feature access', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: SubscriptionsCurrentPlanCard(
+              entitlement: _grant(expiresAt: DateTime.utc(2026, 11, 10)),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      find.text(
+        'This plan is not currently effective. Features shown are not active access.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Invoice PDF (Not included)'), findsOneWidget);
+  });
 }
 
-CompanyEntitlement _grant() => CompanyEntitlement(
+CompanyEntitlement _grant({DateTime? expiresAt}) => CompanyEntitlement(
   companyId: 'company-1',
   planCode: 'free_starter',
   policyVersion: 1,
   revision: 1,
   effectiveAt: DateTime.utc(2026, 11, 9),
+  expiresAt: expiresAt,
   status: CompanyEntitlementStatus.active,
   limits: {
     for (final resource in EntitlementResource.values)

@@ -19,9 +19,13 @@ final class SubscriptionsLoaded extends SubscriptionsState {
   final CurrentCompanyContext currentCompanyContext;
   final CompanyQuotaSnapshot quota;
 
+  /// Previous values are explicitly marked stale while a refresh is pending.
+  final bool isRefreshing;
+
   const SubscriptionsLoaded({
     required this.currentCompanyContext,
     required this.quota,
+    this.isRefreshing = false,
   });
 
   CompanyEntitlement get entitlement => quota.entitlement;

@@ -32,7 +32,29 @@ void main() {
       CompanyDataResource.fleetLicenseDocuments,
     );
 
-    expect(affected, {CompanyInvalidationResource.fleetLicenseDocuments});
+    expect(affected, {
+      CompanyInvalidationResource.fleetLicenseDocuments,
+      CompanyInvalidationResource.quotaUsage,
+    });
+  });
+
+  test('server-backed mutation sources invalidate the usage projection', () {
+    for (final source in [
+      CompanyDataResource.customers,
+      CompanyDataResource.drivers,
+      CompanyDataResource.fleet,
+      CompanyDataResource.routes,
+      CompanyDataResource.trips,
+      CompanyDataResource.invoices,
+      CompanyDataResource.tripDocuments,
+      CompanyDataResource.fleetLicenseDocuments,
+    ]) {
+      expect(
+        CompanyInvalidationPolicy.affectedBy(source),
+        contains(CompanyInvalidationResource.quotaUsage),
+        reason: source.name,
+      );
+    }
   });
 
   test('Company Expenses invalidation stays out of Trip financial refresh', () {

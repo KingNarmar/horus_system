@@ -9,6 +9,7 @@ import '../cubit/subscriptions_cubit.dart';
 import '../cubit/subscriptions_state.dart';
 import '../helpers/subscriptions_failure_message.dart';
 import '../localization/subscriptions_localizations.dart';
+import '../widgets/subscriptions_capacity_request_action.dart';
 import '../widgets/subscriptions_current_plan_card.dart';
 import '../widgets/subscriptions_quota_usage_card.dart';
 
@@ -49,6 +50,13 @@ final class _SubscriptionsPageState extends State<SubscriptionsPage> {
         const SizedBox(height: AppSpacing.lg),
         BlocBuilder<SubscriptionsCubit, SubscriptionsState>(
           builder: (context, state) {
+            if (state is SubscriptionsLoaded &&
+                (state.currentCompanyContext.companyId !=
+                        widget.currentCompanyContext.companyId ||
+                    state.currentCompanyContext.role !=
+                        widget.currentCompanyContext.role)) {
+              return _LoadingState(l10n: l10n);
+            }
             return switch (state) {
               SubscriptionsInitial() ||
               SubscriptionsLoading() => _LoadingState(l10n: l10n),
@@ -169,12 +177,44 @@ final class _LoadedState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.subscriptionsL10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (state.isRefreshing) ...[
+          Row(
+            children: [
+              const SizedBox(
+                width: AppSizes.loadingIndicatorSm,
+                height: AppSizes.loadingIndicatorSm,
+                child: CircularProgressIndicator(
+                  strokeWidth: AppSizes.loadingIndicatorStrokeWidth,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: Text(l10n.usageRefreshing)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: OutlinedButton.icon(
+            onPressed: state.isRefreshing
+                ? null
+                : () => context.read<SubscriptionsCubit>().refresh(
+                    state.currentCompanyContext,
+                  ),
+            icon: const Icon(AppIcons.resend),
+            label: Text(l10n.refreshUsage),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
         SubscriptionsCurrentPlanCard(entitlement: state.entitlement),
         const SizedBox(height: AppSpacing.md),
         SubscriptionsQuotaUsageCard(quota: state.quota),
+        const SizedBox(height: AppSpacing.md),
+        const SubscriptionsCapacityRequestAction(),
       ],
     );
   }
