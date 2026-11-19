@@ -79,30 +79,32 @@ void main() {
     expect(delivery.calls, 0);
   });
 
-  test('unauthorized driver is denied before data access or rendering', (
-  ) async {
-    final source = _PendingReportSource();
-    final renderer = _RecordingRenderer();
-    final delivery = _RecordingDelivery();
-    final cubit = _createCubit(source, renderer, delivery);
-    addTearDown(cubit.close);
+  test(
+    'unauthorized driver is denied before data access or rendering',
+    () async {
+      final source = _PendingReportSource();
+      final renderer = _RecordingRenderer();
+      final delivery = _RecordingDelivery();
+      final cubit = _createCubit(source, renderer, delivery);
+      addTearDown(cubit.close);
 
-    await cubit.perform(
-      action: ReportPdfAction.preview,
-      currentCompanyContext: _context('company-a', CompanyRole.driver),
-      kind: ReportExportKind.dailyTrips,
-      dateRange: const ReportDateRange(),
-      labels: _labels(),
-    );
+      await cubit.perform(
+        action: ReportPdfAction.preview,
+        currentCompanyContext: _context('company-a', CompanyRole.driver),
+        kind: ReportExportKind.dailyTrips,
+        dateRange: const ReportDateRange(),
+        labels: _labels(),
+      );
 
-    expect(
-      (cubit.state as ReportExportFailed).failure.code,
-      ReportsFailureCodes.permissionExport,
-    );
-    expect(source.requestedCompanies, isEmpty);
-    expect(renderer.renderedCompanies, isEmpty);
-    expect(delivery.calls, 0);
-  });
+      expect(
+        (cubit.state as ReportExportFailed).failure.code,
+        ReportsFailureCodes.permissionExport,
+      );
+      expect(source.requestedCompanies, isEmpty);
+      expect(renderer.renderedCompanies, isEmpty);
+      expect(delivery.calls, 0);
+    },
+  );
 
   test('while an export is busy, repeated actions are ignored', () async {
     final source = _PendingReportSource();
