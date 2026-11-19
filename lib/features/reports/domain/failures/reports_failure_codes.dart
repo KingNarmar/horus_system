@@ -1,4 +1,5 @@
 abstract final class ReportsFailureCodes {
+  static const permissionExport = 'reports.permission.export';
   static const permissionOperationalView =
       'reports.permission.operational_view';
   static const permissionFinancialView = 'reports.permission.financial_view';
