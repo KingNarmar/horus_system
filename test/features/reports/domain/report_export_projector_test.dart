@@ -86,10 +86,12 @@ void main() {
       dimension: OperationalReportDimension.day,
       groups: [group],
     );
-    final result = projector.project(document(
-      ReportExportOperationalContent(report),
-      ReportExportKind.dailyTrips,
-    ));
+    final result = projector.project(
+      document(
+        ReportExportOperationalContent(report),
+        ReportExportKind.dailyTrips,
+      ),
+    );
     expect(result.rowCount, 1);
     expect(result.columns, contains(ReportExportColumn.date));
     expect(result.rows.single[1], isA<ReportExportDateCell>());
@@ -110,10 +112,12 @@ void main() {
         dimension: dimension,
         groups: [group],
       );
-      final value = projector.project(document(
-        ReportExportOperationalContent(report),
-        ReportExportKind.tripsByCustomer,
-      ));
+      final value = projector.project(
+        document(
+          ReportExportOperationalContent(report),
+          ReportExportKind.tripsByCustomer,
+        ),
+      );
       expect(value.rowCount, 1);
       expect(value.columns.length, 2);
       expect(value.rows.single.first, isA<ReportExportTextCell>());
@@ -145,10 +149,12 @@ void main() {
         ),
       ],
     );
-    final value = projector.project(document(
-      ReportExportExpensesContent(report),
-      ReportExportKind.tripExpenses,
-    ));
+    final value = projector.project(
+      document(
+        ReportExportExpensesContent(report),
+        ReportExportKind.tripExpenses,
+      ),
+    );
     expect(value.currencyFractionDigits, 2);
     expect(value.rows.single[4], isA<ReportExportFundingCell>());
     expect((value.rows.single.last as ReportExportMoneyCell).value, expense);
@@ -189,10 +195,12 @@ void main() {
       totalExpenses: expense,
       totalNetProfit: profit,
     );
-    final value = projector.project(document(
-      ReportExportProfitContent(report),
-      ReportExportKind.tripNetProfit,
-    ));
+    final value = projector.project(
+      document(
+        ReportExportProfitContent(report),
+        ReportExportKind.tripNetProfit,
+      ),
+    );
     expect(value.rowCount, 1);
     expect(
       (value.rows.single.last as ReportExportMoneyCell).value.minorUnits,
@@ -216,18 +224,16 @@ void main() {
     final report = OpenInvoicesReport(
       metadata: financialMetadata,
       rows: [
-        OpenInvoiceReportRow(
-          invoice: invoice,
-          paid: expense,
-          remaining: total,
-        ),
+        OpenInvoiceReportRow(invoice: invoice, paid: expense, remaining: total),
       ],
       totalOutstanding: total,
     );
-    final value = projector.project(document(
-      ReportExportInvoicesContent(report),
-      ReportExportKind.openInvoices,
-    ));
+    final value = projector.project(
+      document(
+        ReportExportInvoicesContent(report),
+        ReportExportKind.openInvoices,
+      ),
+    );
     expect(value.rowCount, 1);
     expect(value.rows.single[2], isA<ReportExportDateCell>());
     expect(value.rows.single[3], isA<ReportExportOptionalDateCell>());
