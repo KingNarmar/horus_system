@@ -108,36 +108,37 @@ final class _ReportsPageState extends State<ReportsPage> {
     return BlocListener<ReportExportCubit, ReportExportState>(
       listener: _handleExportState,
       child: NetworkReconnectRefreshBoundary(
-      onReconnect: () async => _load(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _Title(text: strings.title),
-          const SizedBox(height: AppSpacing.lg),
-          ReportFilters(
-            role: widget.currentCompanyContext.role,
-            reportType: _reportType,
-            fromDate: _fromDate,
-            toDate: _toDate,
-            onReportChanged: _changeReport,
-            onPickFromDate: () => _pickDate(isFrom: true),
-            onPickToDate: () => _pickDate(isFrom: false),
-            onApply: _load,
-            onClearDates: _clearDates,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          BlocBuilder<ReportExportCubit, ReportExportState>(
-            builder: (context, exportState) => BlocBuilder<ReportsCubit, ReportsState>(
-              builder: (context, state) => _ReportsStateView(
-                state: state,
-                onRetry: _load,
-                onExport: _export,
-                isExportBusy: exportState is ReportExportBusy,
-              ),
+        onReconnect: () async => _load(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Title(text: strings.title),
+            const SizedBox(height: AppSpacing.lg),
+            ReportFilters(
+              role: widget.currentCompanyContext.role,
+              reportType: _reportType,
+              fromDate: _fromDate,
+              toDate: _toDate,
+              onReportChanged: _changeReport,
+              onPickFromDate: () => _pickDate(isFrom: true),
+              onPickToDate: () => _pickDate(isFrom: false),
+              onApply: _load,
+              onClearDates: _clearDates,
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: AppSpacing.lg),
+            BlocBuilder<ReportExportCubit, ReportExportState>(
+              builder: (context, exportState) =>
+                  BlocBuilder<ReportsCubit, ReportsState>(
+                    builder: (context, state) => _ReportsStateView(
+                      state: state,
+                      onRetry: _load,
+                      onExport: _export,
+                      isExportBusy: exportState is ReportExportBusy,
+                    ),
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -146,10 +147,12 @@ final class _ReportsPageState extends State<ReportsPage> {
     if (!context.mounted) return;
     final exportCubit = context.read<ReportExportCubit>();
     if (state is ReportExportPreviewReady) {
-      unawaited(showDialog<void>(
-        context: context,
-        builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
-      ));
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
+        ),
+      );
       exportCubit.clearFeedback();
       return;
     }
