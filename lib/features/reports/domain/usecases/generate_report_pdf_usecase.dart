@@ -1,10 +1,10 @@
-import 'dart:typed_data';
-
 import '../../../../core/utils/result.dart';
+import '../entities/generated_report_pdf.dart';
 import '../entities/report_export_document.dart';
 import '../entities/report_export_labels.dart';
 import '../services/report_export_projector.dart';
 import '../services/report_pdf_renderer.dart';
+import '../policies/report_export_file_name_policy.dart';
 import 'prepare_report_export_usecase.dart';
 
 final class GenerateReportPdfParams {
@@ -31,17 +31,27 @@ final class GenerateReportPdfUseCase {
        _renderer = renderer,
        _projector = projector;
 
-  Future<Result<Uint8List>> call(GenerateReportPdfParams params) async {
+  Future<Result<GeneratedReportPdf>> call(GenerateReportPdfParams params) async {
     final prepared = await _prepare(params.report);
     if (prepared is FailureResult<ReportExportDocument>) {
       return FailureResult(prepared.failure);
     }
 
     final document = (prepared as Success<ReportExportDocument>).data;
-    return _renderer.render(
+    final rendered = await _renderer.render(
       document: document,
       table: _projector.project(document),
       labels: params.labels,
     );
+    if (rendered.failureOrNull != null) {
+      return FailureResult(rendered.failureOrNull!);
+    }
+    return Success(GeneratedReportPdf(
+      bytes: rendered.dataOrNull!,
+      fileName: ReportExportFileNamePolicy.pdf(
+        kind: document.kind,
+        generatedAtUtc: document.generatedAtUtc,
+      ),
+    ));
   }
 }
