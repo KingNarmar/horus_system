@@ -87,7 +87,7 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
             if (rows.isEmpty)
               pw.Text(labels.noRows)
             else
-              pw.Table.fromTextArray(
+              pw.TableHelper.fromTextArray(
                 headers: headings,
                 data: rows,
                 headerCount: 1,
