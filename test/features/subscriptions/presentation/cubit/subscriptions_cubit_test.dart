@@ -55,62 +55,69 @@ void main() {
     expect(repository.callCount, 0);
   });
 
-  test('switching companies drops late results from the previous tenant', () async {
-    final repository = _DeferredQuotaRepository();
-    final cubit = _cubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'switching companies drops late results from the previous tenant',
+    () async {
+      final repository = _DeferredQuotaRepository();
+      final cubit = _cubit(repository);
+      addTearDown(cubit.close);
 
-    final loadA = cubit.load(_context(companyId: 'company-a'));
-    final loadB = cubit.load(_context(companyId: 'company-b'));
-    await repository.resolve(1, companyId: 'company-b');
-    await loadB;
-    expect(
-      (cubit.state as SubscriptionsLoaded).currentCompanyContext.companyId,
-      'company-b',
-    );
-    await repository.resolve(0, companyId: 'company-a');
-    await loadA;
-    expect(
-      (cubit.state as SubscriptionsLoaded).quota.entitlement.companyId,
-      'company-b',
-    );
-  });
+      final loadA = cubit.load(_context(companyId: 'company-a'));
+      final loadB = cubit.load(_context(companyId: 'company-b'));
+      await repository.resolve(1, companyId: 'company-b');
+      await loadB;
+      expect(
+        (cubit.state as SubscriptionsLoaded).currentCompanyContext.companyId,
+        'company-b',
+      );
+      await repository.resolve(0, companyId: 'company-a');
+      await loadA;
+      expect(
+        (cubit.state as SubscriptionsLoaded).quota.entitlement.companyId,
+        'company-b',
+      );
+    },
+  );
 
-  test('refresh labels the old snapshot and replaces it from the server', () async {
-    final repository = _DeferredQuotaRepository();
-    final cubit = _cubit(repository);
-    addTearDown(cubit.close);
-    final company = _context();
+  test(
+    'refresh labels the old snapshot and replaces it from the server',
+    () async {
+      final repository = _DeferredQuotaRepository();
+      final cubit = _cubit(repository);
+      addTearDown(cubit.close);
+      final company = _context();
 
-    final first = cubit.load(company);
-    await repository.resolve(0, companyId: company.companyId);
-    await first;
-    final refreshing = cubit.refresh(company);
-    expect((cubit.state as SubscriptionsLoaded).isRefreshing, isTrue);
-    expect(repository.pending.length, 2);
-    await repository.resolve(1, companyId: company.companyId);
-    await refreshing;
-    expect((cubit.state as SubscriptionsLoaded).isRefreshing, isFalse);
-  });
+      final first = cubit.load(company);
+      await repository.resolve(0, companyId: company.companyId);
+      await first;
+      final refreshing = cubit.refresh(company);
+      expect((cubit.state as SubscriptionsLoaded).isRefreshing, isTrue);
+      expect(repository.pending.length, 2);
+      await repository.resolve(1, companyId: company.companyId);
+      await refreshing;
+      expect((cubit.state as SubscriptionsLoaded).isRefreshing, isFalse);
+    },
+  );
 
-  test('failed refresh removes the stale snapshot rather than presenting it as current', () async {
-    final repository = _DeferredQuotaRepository();
-    final cubit = _cubit(repository);
-    addTearDown(cubit.close);
-    final company = _context();
+  test(
+    'failed refresh removes the stale snapshot rather than presenting it as current',
+    () async {
+      final repository = _DeferredQuotaRepository();
+      final cubit = _cubit(repository);
+      addTearDown(cubit.close);
+      final company = _context();
 
-    final first = cubit.load(company);
-    await repository.resolve(0, companyId: company.companyId);
-    await first;
-    final refreshing = cubit.refresh(company);
-    repository.pending[1].complete(
-      const FailureResult(
-        ServerFailure(code: QuotaFailureCodes.unavailable),
-      ),
-    );
-    await refreshing;
-    expect(cubit.state, isA<SubscriptionsFailure>());
-  });
+      final first = cubit.load(company);
+      await repository.resolve(0, companyId: company.companyId);
+      await first;
+      final refreshing = cubit.refresh(company);
+      repository.pending[1].complete(
+        const FailureResult(ServerFailure(code: QuotaFailureCodes.unavailable)),
+      );
+      await refreshing;
+      expect(cubit.state, isA<SubscriptionsFailure>());
+    },
+  );
 
   test('role revocation discards an in-flight authorized refresh', () async {
     final repository = _DeferredQuotaRepository();
@@ -130,19 +137,22 @@ void main() {
     expect(cubit.state, isA<SubscriptionsFailure>());
   });
 
-  test('unexpected foreign snapshot is rejected even from a fake repository', () async {
-    final repository = _DeferredQuotaRepository();
-    final cubit = _cubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'unexpected foreign snapshot is rejected even from a fake repository',
+    () async {
+      final repository = _DeferredQuotaRepository();
+      final cubit = _cubit(repository);
+      addTearDown(cubit.close);
 
-    final first = cubit.load(_context(companyId: 'company-a'));
-    await repository.resolve(0, companyId: 'company-other');
-    await first;
-    expect(
-      (cubit.state as SubscriptionsFailure).failure.code,
-      QuotaFailureCodes.corrupt,
-    );
-  });
+      final first = cubit.load(_context(companyId: 'company-a'));
+      await repository.resolve(0, companyId: 'company-other');
+      await first;
+      expect(
+        (cubit.state as SubscriptionsFailure).failure.code,
+        QuotaFailureCodes.corrupt,
+      );
+    },
+  );
 
   test('missing server projection never shows a permissive plan', () async {
     final repository = _FakeCompanyQuotaRepository(missing: true);
@@ -247,9 +257,7 @@ final class _DeferredQuotaRepository implements CompanyQuotaRepository {
   final List<Completer<Result<CompanyQuotaSnapshot>>> pending = [];
 
   @override
-  Future<Result<CompanyQuotaSnapshot>> getUsage({
-    required String companyId,
-  }) {
+  Future<Result<CompanyQuotaSnapshot>> getUsage({required String companyId}) {
     final completer = Completer<Result<CompanyQuotaSnapshot>>();
     pending.add(completer);
     return completer.future;
