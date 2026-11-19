@@ -242,7 +242,8 @@ final class SubscriptionsLocalizations {
     'usageAtCap': 'تم بلوغ الحد؛ تظل السجلات الحالية متاحة.',
     'usageOutputsUnaffected':
         'بلوغ الحصة لا يحذف السجلات الحالية ولا يمنع تصدير PDF أو Excel XLSX الأساسي.',
-    'usageRefreshing': 'جارٍ تحديث الاستخدام من الخادم؛ قد تكون الأرقام المعروضة قديمة.',
+    'usageRefreshing':
+        'جارٍ تحديث الاستخدام من الخادم؛ قد تكون الأرقام المعروضة قديمة.',
     'refreshUsage': 'تحديث الاستخدام',
     'capacityRequestTitle': 'محتاج سعة أكبر؟',
     'capacityRequestDescription':
