@@ -225,8 +225,10 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
   ) => switch (cell) {
     ReportExportTextCell(:final value) =>
       value.trim().isEmpty ? labels.unassigned : value,
-    ReportExportDateCell(:final value) =>
-      ReportPdfDateFormatter.businessDate(value, labels.localeName),
+    ReportExportDateCell(:final value) => ReportPdfDateFormatter.businessDate(
+      value,
+      labels.localeName,
+    ),
     ReportExportOptionalDateCell(:final value) =>
       value == null
           ? labels.unavailable
