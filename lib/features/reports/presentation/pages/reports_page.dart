@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,13 +10,19 @@ import '../../../../core/utils/business_date_date_time_adapter.dart';
 import '../../../company/domain/entities/current_company_context.dart';
 import '../../domain/entities/report_date_range.dart';
 import '../cubit/report_type.dart';
+import '../cubit/report_export_cubit.dart';
+import '../cubit/report_export_state.dart';
+import '../../domain/repositories/report_pdf_delivery_repository.dart';
 import '../cubit/reports_cubit.dart';
 import '../cubit/reports_state.dart';
 import '../helpers/reports_failure_message.dart';
 import '../helpers/reports_formatters.dart';
 import '../helpers/reports_presentation_constants.dart';
 import '../localization/reports_localizations.dart';
+import '../localization/report_export_labels_x.dart';
 import '../widgets/open_invoices_report_view.dart';
+import '../widgets/report_export_actions.dart';
+import '../widgets/report_pdf_preview_dialog.dart';
 import '../widgets/operational_report_view.dart';
 import '../widgets/report_filters.dart';
 import '../widgets/trip_expenses_report_view.dart';
@@ -63,6 +71,7 @@ final class _ReportsPageState extends State<ReportsPage> {
       return;
     }
 
+    context.read<ReportExportCubit>().invalidate();
     _fromDate = null;
     _toDate = null;
     _reportType = _availableReports.isEmpty
@@ -96,7 +105,9 @@ final class _ReportsPageState extends State<ReportsPage> {
       );
     }
 
-    return NetworkReconnectRefreshBoundary(
+    return BlocListener<ReportExportCubit, ReportExportState>(
+      listener: _handleExportState,
+      child: NetworkReconnectRefreshBoundary(
       onReconnect: () async => _load(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,13 +126,62 @@ final class _ReportsPageState extends State<ReportsPage> {
             onClearDates: _clearDates,
           ),
           const SizedBox(height: AppSpacing.lg),
-          BlocBuilder<ReportsCubit, ReportsState>(
-            builder: (context, state) {
-              return _ReportsStateView(state: state, onRetry: _load);
-            },
+          BlocBuilder<ReportExportCubit, ReportExportState>(
+            builder: (context, exportState) => BlocBuilder<ReportsCubit, ReportsState>(
+              builder: (context, state) => _ReportsStateView(
+                state: state,
+                onRetry: _load,
+                onExport: _export,
+                isExportBusy: exportState is ReportExportBusy,
+              ),
+            ),
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  void _handleExportState(BuildContext context, ReportExportState state) {
+    if (!context.mounted) return;
+    final exportCubit = context.read<ReportExportCubit>();
+    if (state is ReportExportPreviewReady) {
+      unawaited(showDialog<void>(
+        context: context,
+        builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
+      ));
+      exportCubit.clearFeedback();
+      return;
+    }
+
+    final strings = context.reportsL10n;
+    String? message;
+    if (state is ReportExportFailed) {
+      message = reportsFailureMessage(context, state.failure);
+    } else if (state is ReportExportCompleted) {
+      message = switch (state.outcome) {
+        ReportPdfDeliveryOutcome.cancelled => null,
+        ReportPdfDeliveryOutcome.initiated => strings.exportPdfShareInitiated,
+        ReportPdfDeliveryOutcome.completed => strings.exportPdfCompleted,
+      };
+    }
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+    if (state is ReportExportFailed || state is ReportExportCompleted) {
+      exportCubit.clearFeedback();
+    }
+  }
+
+  void _export(ReportsLoaded loaded, ReportPdfAction action) {
+    context.read<ReportExportCubit>().perform(
+      action: action,
+      currentCompanyContext: widget.currentCompanyContext,
+      kind: loaded.reportType.exportKind,
+      dateRange: loaded.dateRange,
+      labels: context.reportExportLabels,
     );
   }
 
@@ -139,6 +199,7 @@ final class _ReportsPageState extends State<ReportsPage> {
   }
 
   void _load() {
+    context.read<ReportExportCubit>().invalidate();
     context.read<ReportsCubit>().load(
       currentCompanyContext: widget.currentCompanyContext,
       reportType: _reportType,
@@ -195,8 +256,15 @@ final class _Title extends StatelessWidget {
 final class _ReportsStateView extends StatelessWidget {
   final ReportsState state;
   final VoidCallback onRetry;
+  final void Function(ReportsLoaded, ReportPdfAction) onExport;
+  final bool isExportBusy;
 
-  const _ReportsStateView({required this.state, required this.onRetry});
+  const _ReportsStateView({
+    required this.state,
+    required this.onRetry,
+    required this.onExport,
+    required this.isExportBusy,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +298,11 @@ final class _ReportsStateView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _AppliedPeriod(dateRange: dateRange),
+          const SizedBox(height: AppSpacing.md),
+          ReportExportActions(
+            isBusy: isExportBusy,
+            onAction: (action) => onExport(currentState, action),
+          ),
           const SizedBox(height: AppSpacing.md),
           switch (content) {
             OperationalReportsContent(:final report) => OperationalReportView(
