@@ -384,7 +384,9 @@ class _SettingsCard extends StatelessWidget {
                 onPressed: () async {
                   await Navigator.of(context).pushNamed(AppRoutes.companyUsers);
                   if (context.mounted) {
-                    await context.read<SubscriptionsCubit>().refresh(contextData);
+                    await context.read<SubscriptionsCubit>().refresh(
+                      contextData,
+                    );
                   }
                 },
                 icon: const Icon(AppIcons.unavailableModule),
