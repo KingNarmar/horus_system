@@ -74,7 +74,7 @@ void main() {
         .toList(growable: false);
     expect(ids, hasLength(100));
     expect(ids.toSet(), Set<int>.from(List.generate(100, (i) => i)));
-    expect(streams, contains('12345.67'));
+    expect(streams, contains('12,345.67'));
   });
 
   testWidgets('unreadable company logo fails with typed render error', (
