@@ -1979,6 +1979,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsInvoiceStatusCancelled => 'Cancelled';
 
   @override
+  String get reportsExportPdfPreview => 'Preview PDF';
+
+  @override
+  String get reportsExportPdfSave => 'Save PDF';
+
+  @override
+  String get reportsExportPdfPrint => 'Print PDF';
+
+  @override
+  String get reportsExportPdfShare => 'Share PDF';
+
+  @override
+  String get reportsExportPdfBusy => 'Preparing report PDF...';
+
+  @override
+  String get reportsExportPdfPreviewTitle => 'Report PDF preview';
+
+  @override
+  String get reportsExportPdfCompleted => 'PDF action completed.';
+
+  @override
+  String get reportsExportPdfShareInitiated => 'Share options opened; delivery is not confirmed.';
+
+  @override
+  String get reportsExportPdfCancelled => 'PDF action cancelled.';
+
+  @override
+  String get reportsExportPdfRenderFailure => 'Could not generate the report PDF.';
+
+  @override
+  String get reportsExportPdfSaveFailure => 'Could not save the report PDF.';
+
+  @override
+  String get reportsExportPdfPrintFailure => 'Could not open report PDF printing.';
+
+  @override
+  String get reportsExportPdfShareFailure => 'Could not share the report PDF.';
+
+  @override
+  String get reportsExportPdfInvalidFailure => 'The generated PDF is invalid.';
+
+  @override
+  String get reportsExportPdfGeneratedAt => 'Generated (UTC)';
+
+  @override
+  String get reportsExportPdfPeriod => 'Period';
+
+  @override
+  String get reportsExportPdfPage => 'Page';
+
+  @override
   String get reportsPermissionFailure =>
       'This role cannot view the selected report.';
 
