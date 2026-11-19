@@ -25,7 +25,9 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: Scaffold(
-            body: SubscriptionsCurrentPlanCard(entitlement: _grant()),
+            body: SingleChildScrollView(
+              child: SubscriptionsCurrentPlanCard(entitlement: _grant()),
+            ),
           ),
         ),
       );
