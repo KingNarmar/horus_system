@@ -132,7 +132,7 @@ final class _QuotaUsageItem extends StatelessWidget {
             if (usage.remaining != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
-                l10n.usageRemaining(remaining),
+                l10n.usageRemaining(usage.remaining!),
                 style: theme.textTheme.bodySmall,
               ),
             ],
