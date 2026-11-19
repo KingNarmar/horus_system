@@ -18,9 +18,9 @@ void main() {
       expected,
     );
     expect(
-      ReportExportKind.values.skip(6).every(
-        (kind) => kind.operationalDimension == null,
-      ),
+      ReportExportKind.values
+          .skip(6)
+          .every((kind) => kind.operationalDimension == null),
       isTrue,
     );
   });
