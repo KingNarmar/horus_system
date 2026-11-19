@@ -207,10 +207,9 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
         '${to == null ? labels.allDates : _date(to, labels.localeName)}';
   }
 
-  static String _date(BusinessDate date, String localeName) =>
-      DateFormat.yMd(localeName).format(
-        DateTime(date.year, date.month, date.day),
-      );
+  static String _date(BusinessDate date, String localeName) => DateFormat.yMd(
+    localeName,
+  ).format(DateTime(date.year, date.month, date.day));
 
   static String _display(
     ReportExportCell cell,
@@ -220,18 +219,20 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
     ReportExportTextCell(:final value) =>
       value.trim().isEmpty ? labels.unassigned : value,
     ReportExportDateCell(:final value) => _date(value, labels.localeName),
-    ReportExportOptionalDateCell(:final value) => value == null
-        ? labels.unavailable
-        : _date(value, labels.localeName),
-    ReportExportCountCell(:final value) =>
-      NumberFormat.decimalPattern(labels.localeName).format(value),
-    ReportExportMoneyCell(:final value) =>
-      _money(value, fractionDigits, labels.localeName),
+    ReportExportOptionalDateCell(:final value) =>
+      value == null ? labels.unavailable : _date(value, labels.localeName),
+    ReportExportCountCell(:final value) => NumberFormat.decimalPattern(
+      labels.localeName,
+    ).format(value),
+    ReportExportMoneyCell(:final value) => _money(
+      value,
+      fractionDigits,
+      labels.localeName,
+    ),
     ReportExportTripStatusCell(:final value) => labels.tripStatuses[value]!,
     ReportExportInvoiceStatusCell(:final value) =>
       labels.invoiceStatuses[value]!,
-    ReportExportFundingCell(:final value) =>
-      labels.fundingSources[value]!,
+    ReportExportFundingCell(:final value) => labels.fundingSources[value]!,
   };
 
   /// Avoid converting Money.minorUnits to double before formatting.
