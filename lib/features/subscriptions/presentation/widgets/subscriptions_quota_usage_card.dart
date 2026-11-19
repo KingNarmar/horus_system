@@ -96,8 +96,8 @@ final class _QuotaUsageItem extends StatelessWidget {
       limit == null ? l10n.unlimited : limit.toString(),
     );
     final color = switch (level) {
-      QuotaUsageLevel.atLimit || QuotaUsageLevel.overLimit =>
-        theme.colorScheme.error,
+      QuotaUsageLevel.atLimit ||
+      QuotaUsageLevel.overLimit => theme.colorScheme.error,
       QuotaUsageLevel.nearLimit => theme.colorScheme.tertiary,
       QuotaUsageLevel.normal || QuotaUsageLevel.unlimited => null,
     };
