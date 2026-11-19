@@ -32,7 +32,7 @@ void main() {
     );
 
     expect(result, endsWith(' UTC'));
-    expect(result, isNot(contains('T')));
+    expect(result, isNot(contains('2026-11-19T')));
     expect(result, isNot(contains('.630')));
     expect(
       RegExp(
