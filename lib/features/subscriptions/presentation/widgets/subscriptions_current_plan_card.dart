@@ -24,10 +24,7 @@ final class SubscriptionsCurrentPlanCard extends StatelessWidget {
         ? l10n.noExpiration
         : MaterialLocalizations.of(context).formatShortDate(expiry.toLocal());
     final now = DateTime.now().toUtc();
-    final effective = EntitlementAccessPolicy.isEffective(
-      entitlement,
-      at: now,
-    );
+    final effective = EntitlementAccessPolicy.isEffective(entitlement, at: now);
 
     return Card(
       child: Padding(
@@ -108,9 +105,7 @@ final class _FeatureChip extends StatelessWidget {
         enabled ? AppIcons.reactivate : AppIcons.deactivate,
         size: AppSizes.iconSm,
       ),
-      label: Text(
-        '$label (${enabled ? l10n.included : l10n.notIncluded})',
-      ),
+      label: Text('$label (${enabled ? l10n.included : l10n.notIncluded})'),
     );
   }
 }
