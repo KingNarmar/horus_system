@@ -27,33 +27,29 @@ import 'package:horus_system/features/reports/domain/usecases/prepare_report_exp
 void main() {
   final clock = DateTime.utc(2026, 11, 19, 8, 30);
 
-  PrepareReportExportUseCase create(
-    _Source source,
-    _Branding branding,
-  ) => PrepareReportExportUseCase(
-    operational: GetOperationalReportUseCase(repository: source),
-    expenses: GetTripExpensesReportUseCase(source),
-    profit: GetTripNetProfitReportUseCase(repository: source),
-    invoices: GetOpenInvoicesReportUseCase(repository: source),
-    branding: branding,
-    clock: () => clock,
-  );
+  PrepareReportExportUseCase create(_Source source, _Branding branding) =>
+      PrepareReportExportUseCase(
+        operational: GetOperationalReportUseCase(repository: source),
+        expenses: GetTripExpensesReportUseCase(source),
+        profit: GetTripNetProfitReportUseCase(repository: source),
+        invoices: GetOpenInvoicesReportUseCase(repository: source),
+        branding: branding,
+        clock: () => clock,
+      );
 
-  PrepareReportExportParams request(
-    CompanyRole role,
-    ReportExportKind kind,
-  ) => PrepareReportExportParams(
-    currentCompanyContext: CurrentCompanyContext(
-      company: const Company(
-        id: 'company-a',
-        name: 'Tenant A',
-        businessTimezone: 'Asia/Dubai',
-      ),
-      role: role,
-    ),
-    kind: kind,
-    dateRange: const ReportDateRange(),
-  );
+  PrepareReportExportParams request(CompanyRole role, ReportExportKind kind) =>
+      PrepareReportExportParams(
+        currentCompanyContext: CurrentCompanyContext(
+          company: const Company(
+            id: 'company-a',
+            name: 'Tenant A',
+            businessTimezone: 'Asia/Dubai',
+          ),
+          role: role,
+        ),
+        kind: kind,
+        dateRange: const ReportDateRange(),
+      );
 
   test('driver denied before any backend or branding access', () async {
     final source = _Source();
@@ -88,20 +84,23 @@ void main() {
     expect(branding.profileCalls, 1);
   });
 
-  test('authorized operational export refreshes source and trusted scope', () async {
-    final source = _Source();
-    final branding = _Branding();
-    final result = await create(source, branding)(
-      request(CompanyRole.operations, ReportExportKind.dailyTrips),
-    );
-    final document = result.dataOrNull;
-    expect(result.failureOrNull, isNull);
-    expect(document?.companyId, 'company-a');
-    expect(document?.companyName, 'Tenant A');
-    expect(document?.generatedAtUtc, clock);
-    expect(source.calls, 1);
-    expect(branding.profileCalls, 1);
-  });
+  test(
+    'authorized operational export refreshes source and trusted scope',
+    () async {
+      final source = _Source();
+      final branding = _Branding();
+      final result = await create(source, branding)(
+        request(CompanyRole.operations, ReportExportKind.dailyTrips),
+      );
+      final document = result.dataOrNull;
+      expect(result.failureOrNull, isNull);
+      expect(document?.companyId, 'company-a');
+      expect(document?.companyName, 'Tenant A');
+      expect(document?.generatedAtUtc, clock);
+      expect(source.calls, 1);
+      expect(branding.profileCalls, 1);
+    },
+  );
 }
 
 final class _Source implements ReportsRepository {
