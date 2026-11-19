@@ -293,27 +293,29 @@ final class InvoicePdfRendererImpl implements InvoicePdfRenderer {
   ) {
     final totals = document.invoice.totals;
     final digits = document.currencyFractionDigits;
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      children: [
-        _field(labels.subtotal, _money(totals.subtotal, digits)),
-        _field(labels.discount, _money(totals.discount, digits)),
-        _field(labels.taxableAmount, _money(totals.taxableAmount, digits)),
-        _field(labels.tax, _money(totals.taxAmount, digits)),
-        pw.SizedBox(height: InvoicePdfStyle.itemGap),
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(labels.total, style: pw.TextStyle(font: bold)),
-            pw.Text(
-              _money(totals.grandTotal, digits),
-              style: pw.TextStyle(font: bold),
-            ),
-          ],
-        ),
-      ],
+    return pw.Inseparable(
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+        children: [
+          _field(labels.subtotal, _money(totals.subtotal, digits)),
+          _field(labels.discount, _money(totals.discount, digits)),
+          _field(labels.taxableAmount, _money(totals.taxableAmount, digits)),
+          _field(labels.tax, _money(totals.taxAmount, digits)),
+          pw.SizedBox(height: InvoicePdfStyle.itemGap),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(labels.total, style: pw.TextStyle(font: bold)),
+              pw.Text(
+                _money(totals.grandTotal, digits),
+                style: pw.TextStyle(font: bold),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
-  }
+    }
 
   static pw.Widget _field(String label, String value) {
     return pw.Row(
