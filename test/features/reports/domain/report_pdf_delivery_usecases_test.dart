@@ -16,16 +16,10 @@ void main() {
     final useCase = SaveReportPdfUseCase(repository);
 
     final empty = await useCase(
-      ReportPdfDeliveryParams(
-        bytes: Uint8List(0),
-        fileName: 'report.pdf',
-      ),
+      ReportPdfDeliveryParams(bytes: Uint8List(0), fileName: 'report.pdf'),
     );
     final extension = await useCase(
-      ReportPdfDeliveryParams(
-        bytes: validBytes,
-        fileName: 'report.txt',
-      ),
+      ReportPdfDeliveryParams(bytes: validBytes, fileName: 'report.txt'),
     );
 
     expect(empty.failureOrNull?.code, ReportsFailureCodes.pdfInvalidDocument);
