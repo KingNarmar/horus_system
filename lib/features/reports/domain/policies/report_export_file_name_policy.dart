@@ -7,5 +7,6 @@ abstract final class ReportExportFileNamePolicy {
   static String pdf({
     required ReportExportKind kind,
     required DateTime generatedAtUtc,
-  }) => '${prefix}_${kind.name}_${generatedAtUtc.toUtc().millisecondsSinceEpoch}.pdf';
+  }) =>
+      '${prefix}_${kind.name}_${generatedAtUtc.toUtc().millisecondsSinceEpoch}.pdf';
 }
