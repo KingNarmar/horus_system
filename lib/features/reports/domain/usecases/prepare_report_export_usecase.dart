@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../../../company/domain/entities/current_company_context.dart';
