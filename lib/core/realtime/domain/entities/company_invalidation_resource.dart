@@ -4,6 +4,7 @@
 /// A resource becomes live only when a server change source is connected.
 enum CompanyInvalidationResource {
   customers,
+  quotaUsage,
   drivers,
   fleet,
   routes,
