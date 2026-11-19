@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -34,6 +35,8 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
     required ReportExportLabels labels,
   }) async {
     try {
+      // Date formatting must also work outside a Flutter app bootstrap.
+      await initializeDateFormatting(labels.localeName);
       final fonts = await _loadFonts();
       final image = await _logo(document.logoBytes);
       final pdf = pw.Document();
@@ -132,13 +135,7 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
         ),
       );
       return Success(await pdf.save());
-    } catch (error, stackTrace) {
-      assert(() {
-        // Temporary CI diagnostic, to be removed before review.
-        // ignore: avoid_print
-        print('Issue #353 PDF render diagnostic: $error\n$stackTrace');
-        return true;
-      }());
+    } catch (_) {
       return const FailureResult(
         ServerFailure(code: ReportsFailureCodes.pdfRenderUnavailable),
       );
