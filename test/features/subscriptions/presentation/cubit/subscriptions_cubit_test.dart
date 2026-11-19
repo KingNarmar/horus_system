@@ -145,28 +145,31 @@ void main() {
     expect(repository.pending.length, 3);
   });
 
-  test('offline company switch never falls back to prior tenant usage', () async {
-    final repository = _DeferredQuotaRepository();
-    final cubit = _cubit(repository);
-    addTearDown(cubit.close);
+  test(
+    'offline company switch never falls back to prior tenant usage',
+    () async {
+      final repository = _DeferredQuotaRepository();
+      final cubit = _cubit(repository);
+      addTearDown(cubit.close);
 
-    final companyA = _context(companyId: 'company-a');
-    final first = cubit.load(companyA);
-    await repository.resolve(0, companyId: companyA.companyId);
-    await first;
-    expect(cubit.state, isA<SubscriptionsLoaded>());
+      final companyA = _context(companyId: 'company-a');
+      final first = cubit.load(companyA);
+      await repository.resolve(0, companyId: companyA.companyId);
+      await first;
+      expect(cubit.state, isA<SubscriptionsLoaded>());
 
-    final companyB = _context(companyId: 'company-b');
-    final second = cubit.load(companyB);
-    expect(cubit.state, isA<SubscriptionsLoading>());
-    repository.pending[1].complete(
-      const FailureResult(
-        NetworkFailure(code: QuotaFailureCodes.unavailable),
-      ),
-    );
-    await second;
-    expect(cubit.state, isA<SubscriptionsFailure>());
-  });
+      final companyB = _context(companyId: 'company-b');
+      final second = cubit.load(companyB);
+      expect(cubit.state, isA<SubscriptionsLoading>());
+      repository.pending[1].complete(
+        const FailureResult(
+          NetworkFailure(code: QuotaFailureCodes.unavailable),
+        ),
+      );
+      await second;
+      expect(cubit.state, isA<SubscriptionsFailure>());
+    },
+  );
 
   test('role revocation discards an in-flight authorized refresh', () async {
     final repository = _DeferredQuotaRepository();
