@@ -2,6 +2,10 @@ import 'package:pdf/pdf.dart';
 
 /// PDF-specific dimensions; independent from responsive Flutter UI tokens.
 abstract final class ReportPdfStyle {
+  /// Report rows may each need a page; reserve pages for title and totals.
+  /// Unlike a fixed page cap, this preserves complete large exports while
+  /// keeping the PDF engine's runaway-pagination guard enabled.
+  static const int nonTablePaginationPages = 3;
   static const double margin = 32;
   static const double logoSize = 56;
   static const double headingSize = 16;
