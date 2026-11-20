@@ -26,20 +26,27 @@ void main() {
       ]);
     });
 
-    test('hides PostgreSQL aliases and posix duplicates from choices', () async {
-      final repository = CompanyTimezoneRepositoryImpl(
-        _FakeCompanyTimezoneRemoteDataSource(
-          options: const [
-            'Egypt', 'posix/Egypt', 'Africa/Cairo', 'Asia/Dubai',
-          ],
-        ),
-      );
-      final result = await repository.getTimezoneOptions();
-      expect(result.failureOrNull, isNull);
-      expect(result.dataOrNull?.map((zone) => zone.value).toList(), [
-        'Africa/Cairo', 'Asia/Dubai',
-      ]);
-    });
+    test(
+      'hides PostgreSQL aliases and posix duplicates from choices',
+      () async {
+        final repository = CompanyTimezoneRepositoryImpl(
+          _FakeCompanyTimezoneRemoteDataSource(
+            options: const [
+              'Egypt',
+              'posix/Egypt',
+              'Africa/Cairo',
+              'Asia/Dubai',
+            ],
+          ),
+        );
+        final result = await repository.getTimezoneOptions();
+        expect(result.failureOrNull, isNull);
+        expect(result.dataOrNull?.map((zone) => zone.value).toList(), [
+          'Africa/Cairo',
+          'Asia/Dubai',
+        ]);
+      },
+    );
 
     test('does not submit a legacy alias to Supabase', () async {
       final source = _FakeCompanyTimezoneRemoteDataSource();
@@ -48,8 +55,10 @@ void main() {
         companyId: 'company-1',
         businessTimezone: CompanyTimezone.tryParse('Egypt')!,
       );
-      expect(result.failureOrNull?.code,
-          CompanyFailureCodes.validationBusinessTimezoneInvalid);
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBusinessTimezoneInvalid,
+      );
       expect(source.lastCompanyId, isNull);
     });
 

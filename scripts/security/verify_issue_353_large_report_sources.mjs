@@ -283,6 +283,33 @@ async function assertDenied(label, kind, companyId, token) {
 async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
+
+  // The selector and the write RPC must agree with the IANA canonical catalog.
+  const listed = await request(apiUrl + '/rest/v1/rpc/list_company_timezones', {
+    token: tokens.get('ownerA'),
+    body: {},
+  });
+  assert.equal(listed.ok, true, 'Canonical timezone RPC must be available');
+  const source = localPsql(['-A', '-t', '-c',
+    "SELECT count(*) FROM pg_catalog.pg_timezone_names WHERE name IN ('Africa/Cairo','Asia/Dubai')",
+  ]).trim();
+  assert.equal(Number(source), 2);
+  const names = listed.json.map((zone) => zone.name);
+  assert.equal(names.length, 420, 'unexpected canonical timezone count');
+  assert.ok(names.includes('Africa/Cairo'));
+  assert.ok(names.includes('Asia/Dubai'));
+  assert.ok(!names.includes('Egypt'));
+  assert.ok(!names.some((zone) => zone.startsWith('posix/') ||
+    zone.startsWith('right/')));
+  const forbidden = await request(
+    apiUrl + '/rest/v1/rpc/update_company_business_timezone', {
+      token: tokens.get('ownerA'),
+      body: { p_company_id: companyA, p_business_timezone: 'Egypt' },
+    },
+  );
+  assert.equal(forbidden.ok, false, 'legacy alias must not be newly saved');
+  assert.equal(forbidden.json.code, 'P2604');
+
   const independent = countIndependentSources();
   // Bulk fixture inserts need planner statistics, just as a long-lived
   // production table receives from auto-analyze. Keep every real RLS rule.

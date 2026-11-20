@@ -18,8 +18,7 @@ final class CompanyTimezoneRepositoryImpl implements CompanyTimezoneRepository {
 
   const CompanyTimezoneRepositoryImpl(
     this._remoteDataSource, {
-    IanaBusinessTimeZoneCatalog catalog =
-        const IanaBusinessTimeZoneCatalog(),
+    IanaBusinessTimeZoneCatalog catalog = const IanaBusinessTimeZoneCatalog(),
   }) : _catalog = catalog;
 
   static const _failureMapper = CompanyTimezoneRepositoryFailureMapper();

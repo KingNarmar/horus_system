@@ -95,8 +95,9 @@ final class TimezoneBusinessTimeZoneConverter
     if (normalized.isEmpty) return null;
     if (normalized == 'UTC') return tz.UTC;
 
-    final canonical =
-        const IanaBusinessTimeZoneCatalog().canonicalForLookup(normalized);
+    final canonical = const IanaBusinessTimeZoneCatalog().canonicalForLookup(
+      normalized,
+    );
     try {
       return tz.getLocation(canonical ?? normalized);
     } on tz.LocationNotFoundException {
