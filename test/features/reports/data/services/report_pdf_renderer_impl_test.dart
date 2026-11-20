@@ -77,7 +77,9 @@ void main() {
     expect(streams, contains('12,345.67'));
   });
 
-  testWidgets('large report keeps all rows beyond twenty pages', (tester) async {
+  testWidgets('large report keeps all rows beyond twenty pages', (
+    tester,
+  ) async {
     final currency = CurrencyCode.tryParse('AED')!;
     final amount = Money(minorUnits: 1234567, currency: currency);
     const rowCount = 1000;
