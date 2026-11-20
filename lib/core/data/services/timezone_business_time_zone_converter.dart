@@ -1,6 +1,7 @@
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'iana_business_time_zone_catalog.dart';
 import '../../domain/services/business_time_zone_converter.dart';
 import '../../domain/value_objects/business_local_date_time.dart';
 import '../../errors/common_failures.dart';
@@ -94,8 +95,10 @@ final class TimezoneBusinessTimeZoneConverter
     if (normalized.isEmpty) return null;
     if (normalized == 'UTC') return tz.UTC;
 
+    final canonical =
+        const IanaBusinessTimeZoneCatalog().canonicalForLookup(normalized);
     try {
-      return tz.getLocation(normalized);
+      return tz.getLocation(canonical ?? normalized);
     } on tz.LocationNotFoundException {
       return null;
     }

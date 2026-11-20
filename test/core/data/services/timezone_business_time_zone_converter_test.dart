@@ -68,6 +68,25 @@ void main() {
       );
     });
 
+    test('supports persisted Egypt and PostgreSQL legacy aliases', () {
+      for (final zone in ['Egypt', 'Africa/Cairo', 'posix/Egypt']) {
+        final result = converter.toBusinessLocalDateTime(
+          instant: DateTime.utc(2026, 11, 20, 12, 0),
+          timeZoneId: zone,
+        );
+        expect(result, isA<Success<BusinessLocalDateTime>>(), reason: zone);
+        expect(result.dataOrNull, _local(2026, 11, 20, 14, 0), reason: zone);
+      }
+    });
+
+    test('applies Egypt daylight saving during July', () {
+      final result = converter.toBusinessLocalDateTime(
+        instant: DateTime.utc(2026, 7, 20, 12, 0),
+        timeZoneId: 'Egypt',
+      );
+      expect(result.dataOrNull, _local(2026, 7, 20, 15, 0));
+    });
+
     test('rejects non-UTC instant input at the data boundary', () {
       final result = converter.toBusinessLocalDateTime(
         instant: DateTime(2026, 9, 6, 20, 30),

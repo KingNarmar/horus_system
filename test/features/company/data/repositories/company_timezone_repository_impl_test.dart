@@ -26,6 +26,33 @@ void main() {
       ]);
     });
 
+    test('hides PostgreSQL aliases and posix duplicates from choices', () async {
+      final repository = CompanyTimezoneRepositoryImpl(
+        _FakeCompanyTimezoneRemoteDataSource(
+          options: const [
+            'Egypt', 'posix/Egypt', 'Africa/Cairo', 'Asia/Dubai',
+          ],
+        ),
+      );
+      final result = await repository.getTimezoneOptions();
+      expect(result.failureOrNull, isNull);
+      expect(result.dataOrNull?.map((zone) => zone.value).toList(), [
+        'Africa/Cairo', 'Asia/Dubai',
+      ]);
+    });
+
+    test('does not submit a legacy alias to Supabase', () async {
+      final source = _FakeCompanyTimezoneRemoteDataSource();
+      final repository = CompanyTimezoneRepositoryImpl(source);
+      final result = await repository.updateBusinessTimezone(
+        companyId: 'company-1',
+        businessTimezone: CompanyTimezone.tryParse('Egypt')!,
+      );
+      expect(result.failureOrNull?.code,
+          CompanyFailureCodes.validationBusinessTimezoneInvalid);
+      expect(source.lastCompanyId, isNull);
+    });
+
     test('sanitizes malformed catalog data as a server failure', () async {
       final repository = CompanyTimezoneRepositoryImpl(
         _FakeCompanyTimezoneRemoteDataSource(

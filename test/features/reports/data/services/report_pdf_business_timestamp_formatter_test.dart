@@ -51,6 +51,16 @@ void main() {
     expect(result.dataOrNull, '2026-11-20 16:50 Asia/Kolkata');
   });
 
+  test('handles persisted Egypt in November', () {
+    final result = formatter.format(
+      utcInstant: DateTime.utc(2026, 11, 20, 11, 20),
+      businessTimezone: 'Egypt',
+      localeName: 'en',
+    );
+    expect(result.failureOrNull, isNull);
+    expect(result.dataOrNull, '2026-11-20 13:20 Egypt');
+  });
+
   test('returns typed failure for an unknown company timezone', () {
     final result = formatter.format(
       utcInstant: DateTime.utc(2026, 11, 20, 11, 20),

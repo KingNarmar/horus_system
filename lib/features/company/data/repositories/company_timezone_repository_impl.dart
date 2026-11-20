@@ -1,7 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException;
 
+import '../../../../core/data/services/iana_business_time_zone_catalog.dart';
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
+import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/entities/company.dart';
 import '../../domain/repositories/company_timezone_repository.dart';
 import '../../domain/value_objects/company_timezone.dart';
@@ -11,8 +14,13 @@ import 'company_timezone_repository_failure_mapper.dart';
 
 final class CompanyTimezoneRepositoryImpl implements CompanyTimezoneRepository {
   final CompanyTimezoneRemoteDataSource _remoteDataSource;
+  final IanaBusinessTimeZoneCatalog _catalog;
 
-  const CompanyTimezoneRepositoryImpl(this._remoteDataSource);
+  const CompanyTimezoneRepositoryImpl(
+    this._remoteDataSource, {
+    IanaBusinessTimeZoneCatalog catalog =
+        const IanaBusinessTimeZoneCatalog(),
+  }) : _catalog = catalog;
 
   static const _failureMapper = CompanyTimezoneRepositoryFailureMapper();
 
@@ -28,6 +36,7 @@ final class CompanyTimezoneRepositoryImpl implements CompanyTimezoneRepository {
             }
             return option;
           })
+          .where((option) => _catalog.isSelectable(option.value))
           .toList(growable: false);
     });
   }
@@ -37,6 +46,15 @@ final class CompanyTimezoneRepositoryImpl implements CompanyTimezoneRepository {
     required String companyId,
     required CompanyTimezone businessTimezone,
   }) {
+    if (!_catalog.isSelectable(businessTimezone.value)) {
+      return Future.value(
+        const FailureResult<Company>(
+          ValidationFailure(
+            code: CompanyFailureCodes.validationBusinessTimezoneInvalid,
+          ),
+        ),
+      );
+    }
     return _guard(
       () async => (await _remoteDataSource.updateBusinessTimezone(
         companyId: companyId,

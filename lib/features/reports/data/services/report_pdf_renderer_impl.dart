@@ -44,17 +44,6 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
       // Date formatting must also work outside a Flutter app bootstrap.
       await initializeDateFormatting(labels.localeName);
       final businessTimezone = document.businessTimezone;
-      final generatedAt = _timestampFormatter.format(
-        utcInstant: document.generatedAtUtc,
-        businessTimezone: businessTimezone,
-        localeName: labels.localeName,
-      );
-      if (generatedAt.failureOrNull != null) {
-        return const FailureResult(
-          ServerFailure(code: ReportsFailureCodes.pdfRenderUnavailable),
-        );
-      }
-
       String sourceTime = labels.unavailable;
       final sourceInstant = document.sourceAsOfUtc;
       if (sourceInstant != null) {
@@ -116,11 +105,6 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
             pw.Text(
               '${labels.period}: ${_dateRange(document, labels)}',
               style: const pw.TextStyle(fontSize: ReportPdfStyle.textSize),
-            ),
-            pw.Text(
-              '${labels.generatedAt}: '
-              '${generatedAt.dataOrNull!}',
-              style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
             ),
             pw.Text(
               '${labels.sourceAsOf}: '

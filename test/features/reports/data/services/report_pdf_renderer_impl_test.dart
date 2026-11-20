@@ -83,6 +83,7 @@ void main() {
     expect(streams, contains('12,345.67'));
     // The PDF text engine emits separate positioned word segments.
     expect(streams, contains('[(Source)]'));
+    expect(streams, isNot(contains('[(Generated)]')));
     expect(streams, contains('[(12:20)]'));
     expect(streams, contains('[(Asia/Dubai)]'));
   });
@@ -138,8 +139,30 @@ void main() {
     expect(streams, contains('12,345.67'));
     // The PDF text engine emits separate positioned word segments.
     expect(streams, contains('[(Source)]'));
+    expect(streams, isNot(contains('[(Generated)]')));
     expect(streams, contains('[(12:20)]'));
     expect(streams, contains('[(Asia/Dubai)]'));
+  });
+
+  testWidgets('legacy Egypt company renders one meaningful timestamp', (
+    tester,
+  ) async {
+    final result = await renderer.render(
+      document: _document(businessTimezone: 'Egypt'),
+      table: ReportExportTable(
+        columns: const [ReportExportColumn.trip],
+        rows: const [],
+        totals: const [],
+        currencyFractionDigits: 0,
+      ),
+      labels: _labels,
+    );
+    expect(result.failureOrNull, isNull);
+    final streams = _decodedStreams(result.dataOrNull!);
+    expect(streams, contains('[(10:20)]'));
+    expect(streams, contains('[(Egypt)]'));
+    expect(streams, isNot(contains('[(Generated)]')));
+    expect(RegExp(r'\[\(Source\)\]').allMatches(streams), hasLength(1));
   });
 
   testWidgets('unknown company timezone fails rather than showing UTC', (
