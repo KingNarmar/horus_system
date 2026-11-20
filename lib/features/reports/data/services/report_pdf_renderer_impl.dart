@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
@@ -13,9 +12,11 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/report_export_document.dart';
 import '../../domain/entities/report_export_labels.dart';
 import '../../domain/entities/report_export_table.dart';
+import '../../domain/entities/report_pdf_page_layout.dart';
 import '../../domain/failures/reports_failure_codes.dart';
 import '../../domain/services/report_pdf_renderer.dart';
 import '../constants/report_pdf_style.dart';
+import '../mappers/report_pdf_page_format_mapper.dart';
 import 'report_pdf_column_widths.dart';
 import 'report_pdf_business_timestamp_formatter.dart';
 import 'report_pdf_date_formatter.dart';
@@ -39,6 +40,7 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
     required ReportExportDocument document,
     required ReportExportTable table,
     required ReportExportLabels labels,
+    required ReportPdfPageLayout pageLayout,
   }) async {
     try {
       // Date formatting must also work outside a Flutter app bootstrap.
@@ -77,9 +79,7 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
       pdf.addPage(
         pw.MultiPage(
           maxPages: table.rowCount + ReportPdfStyle.nonTablePaginationPages,
-          pageFormat: table.columns.length > 5
-              ? PdfPageFormat.a4.landscape
-              : PdfPageFormat.a4,
+          pageFormat: ReportPdfPageFormatMapper.toPdfFormat(pageLayout),
           margin: const pw.EdgeInsets.all(ReportPdfStyle.margin),
           textDirection: labels.isRtl
               ? pw.TextDirection.rtl

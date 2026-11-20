@@ -3,13 +3,19 @@ import 'dart:typed_data';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
 import '../failures/reports_failure_codes.dart';
+import '../entities/report_pdf_page_layout.dart';
 import '../repositories/report_pdf_delivery_repository.dart';
 
 final class ReportPdfDeliveryParams {
   final Uint8List bytes;
   final String fileName;
+  final ReportPdfPageLayout? pageLayout;
 
-  const ReportPdfDeliveryParams({required this.bytes, required this.fileName});
+  const ReportPdfDeliveryParams({
+    required this.bytes,
+    required this.fileName,
+    this.pageLayout,
+  });
 }
 
 abstract final class _PdfDeliveryValidation {
@@ -47,7 +53,17 @@ final class PrintReportPdfUseCase {
     if (checked.failureOrNull != null) {
       return FailureResult(checked.failureOrNull!);
     }
-    return _repository.print(bytes: params.bytes, fileName: params.fileName);
+    final pageLayout = params.pageLayout;
+    if (pageLayout == null) {
+      return const FailureResult(
+        ValidationFailure(code: ReportsFailureCodes.pdfInvalidDocument),
+      );
+    }
+    return _repository.print(
+      bytes: params.bytes,
+      fileName: params.fileName,
+      pageLayout: pageLayout,
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import '../entities/generated_report_pdf.dart';
 import '../entities/report_export_document.dart';
 import '../failures/report_export_cancelled_failure.dart';
 import '../entities/report_export_labels.dart';
+import '../policies/report_pdf_page_layout_policy.dart';
 import '../services/report_export_projector.dart';
 import '../services/report_pdf_renderer.dart';
 import '../policies/report_export_file_name_policy.dart';
@@ -41,10 +42,13 @@ final class GenerateReportPdfUseCase {
     }
 
     final document = (prepared as Success<ReportExportDocument>).data;
+    final table = _projector.project(document);
+    final pageLayout = ReportPdfPageLayoutPolicy.forColumns(table.columns);
     final rendered = await _renderer.render(
       document: document,
-      table: _projector.project(document),
+      table: table,
       labels: params.labels,
+      pageLayout: pageLayout,
     );
     // An in-flight render cannot be interrupted; discard its output instead.
     if (params.report.cancellation?.isCancelled ?? false) {
@@ -56,6 +60,7 @@ final class GenerateReportPdfUseCase {
     return Success(
       GeneratedReportPdf(
         bytes: rendered.dataOrNull!,
+        pageLayout: pageLayout,
         fileName: ReportExportFileNamePolicy.pdf(
           kind: document.kind,
           generatedAtUtc: document.generatedAtUtc,
