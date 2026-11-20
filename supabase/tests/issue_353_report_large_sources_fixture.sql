@@ -37,6 +37,50 @@ BEGIN
 END;
 $check$;
 
+-- A disposable test-specific entitlement is required because quota triggers
+-- are intentionally active even for direct local SQL fixture inserts.
+-- Do not disable triggers: the high-volume test must honor the same gates.
+INSERT INTO public.subscription_plans (
+  code, name, monthly_price, max_users, max_vehicles, max_trips_per_month,
+  has_driver_app, has_advanced_reports, has_document_upload,
+  has_maintenance, has_whatsapp_notifications, is_active
+) VALUES (
+  'ci_report_load', 'Disposable Reports CI', 0, 100, 100, 5000,
+  false, false, true, false, false, true
+);
+
+INSERT INTO private.entitlement_policy_versions (
+  plan_id, version, limits, enabled_features
+)
+SELECT id, 1,
+  jsonb_build_object(
+    'owner_created_companies',1,
+    'company_users',100,
+    'customers',5000,
+    'drivers',5000,
+    'combined_vehicles',5000,
+    'routes',5000,
+    'lifetime_trips',5000,
+    'lifetime_invoices',5000,
+    'business_documents',5000
+  ),
+  jsonb_build_array('company_branding','report_pdf','report_xlsx')
+FROM public.subscription_plans WHERE code='ci_report_load';
+
+INSERT INTO public.company_subscriptions (
+  company_id, plan_id, policy_version, revision, status,
+  effective_at, grant_source
+)
+SELECT company_row.id, plan_row.id, 1, 1,
+  'active'::public.subscription_status, now(), 'operator'
+FROM public.companies company_row
+CROSS JOIN public.subscription_plans plan_row
+WHERE company_row.id IN (
+  '11111111-1111-4111-8111-111111111111',
+  '22222222-2222-4222-8222-222222222222'
+)
+  AND plan_row.code='ci_report_load';
+
 INSERT INTO public.customers (id, company_id, name)
 VALUES
  ('11111111-1111-4111-8111-111111111112','11111111-1111-4111-8111-111111111111','Fixture Customer A'),
