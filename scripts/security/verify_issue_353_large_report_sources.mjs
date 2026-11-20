@@ -169,34 +169,61 @@ function sumMinor(rows, property) {
 async function verifyAuthorized(tokens, companyId, count, independent) {
   const owner = tokens.get(companyId === companyA ? 'ownerA' : 'ownerB');
   const returned = {};
+  const errors = [];
   for (const [kind, name] of Object.entries(rpcNames)) {
     const start = performance.now();
     const outcome = await callRpc(name, companyId, owner);
-    assert.equal(outcome.ok, true,
-      kind + ' RPC failed (HTTP ' + outcome.status + ', code ' +
-      String(outcome.json?.code ?? '-') + ')');
-    returned[kind] = outcome.json;
     const seconds = ((performance.now() - start) / 1000).toFixed(2);
+    if (!outcome.ok) {
+      const reason = kind + ': HTTP ' + outcome.status +
+        ', PostgreSQL code ' + String(outcome.json?.code ?? '-') +
+        ', detail ' + String(outcome.json?.message ?? '-').slice(0, 110) +
+        ' (' + seconds + 's)';
+      console.log('SOURCE FAILURE ' + reason);
+      errors.push(reason);
+      continue;
+    }
+    returned[kind] = outcome.json;
     console.log(kind + ': verified signed-JWT response for ' + count +
       ' tenant-owned records (' + seconds + 's)');
   }
-  assertRows(returned.operational, 'rows', count, 'trip_id', companyId);
-  assertRows(returned.expenses, 'rows', count, 'expense_id', companyId);
-  assertRows(returned.netProfit, 'trips', count, 'trip_id', companyId);
-  assertRows(returned.netProfit, 'expenses', count, 'expense_id', companyId);
-  assertRows(returned.invoices, 'invoices', count, 'invoice_id', companyId);
-  assertRows(returned.invoices, 'payments', count, 'payment_id', companyId);
+
+  // Even when a sibling source fails, assert the completeness of every
+  // successfully returned source before failing the overall gate.
+  if (returned.operational) {
+    assertRows(returned.operational, 'rows', count, 'trip_id', companyId);
+  }
+  if (returned.expenses) {
+    assertRows(returned.expenses, 'rows', count, 'expense_id', companyId);
+  }
+  if (returned.netProfit) {
+    assertRows(returned.netProfit, 'trips', count, 'trip_id', companyId);
+    assertRows(returned.netProfit, 'expenses', count, 'expense_id', companyId);
+  }
+  if (returned.invoices) {
+    assertRows(returned.invoices, 'invoices', count, 'invoice_id', companyId);
+    assertRows(returned.invoices, 'payments', count, 'payment_id', companyId);
+  }
   if (independent) {
-    assert.equal(sumMinor(returned.expenses.rows, 'amount_minor_units'),
-      independent.expense_minor);
-    assert.equal(sumMinor(returned.netProfit.trips, 'freight_minor_units'),
-      independent.trip_freight);
-    assert.equal(sumMinor(returned.netProfit.expenses, 'amount_minor_units'),
-      independent.expense_minor);
-    assert.equal(sumMinor(returned.invoices.invoices, 'total_minor_units'),
-      independent.invoice_minor);
-    assert.equal(sumMinor(returned.invoices.payments, 'amount_minor_units'),
-      independent.payment_minor);
+    if (returned.expenses) {
+      assert.equal(sumMinor(returned.expenses.rows, 'amount_minor_units'),
+        independent.expense_minor);
+    }
+    if (returned.netProfit) {
+      assert.equal(sumMinor(returned.netProfit.trips, 'freight_minor_units'),
+        independent.trip_freight);
+      assert.equal(sumMinor(returned.netProfit.expenses, 'amount_minor_units'),
+        independent.expense_minor);
+    }
+    if (returned.invoices) {
+      assert.equal(sumMinor(returned.invoices.invoices, 'total_minor_units'),
+        independent.invoice_minor);
+      assert.equal(sumMinor(returned.invoices.payments, 'amount_minor_units'),
+        independent.payment_minor);
+    }
+  }
+  if (errors.length) {
+    throw Error('Incomplete Reports sources: ' + errors.join('; '));
   }
   return returned;
 }
