@@ -158,13 +158,17 @@ final class _ReportsPageState extends State<ReportsPage> {
         state is ReportExportPrintPreviewReady) {
       _dismissPreview();
       final printReady = state is ReportExportPrintPreviewReady;
+      final bytes = state is ReportExportPrintPreviewReady
+          ? state.document.bytes
+          : (state as ReportExportPreviewReady).bytes;
+      final pageLayout = state is ReportExportPrintPreviewReady
+          ? state.document.pageLayout
+          : null;
       final route = DialogRoute<void>(
         context: context,
         builder: (_) => ReportPdfPreviewDialog(
-          bytes: printReady
-              ? state.document.bytes
-              : (state as ReportExportPreviewReady).bytes,
-          pageLayout: printReady ? state.document.pageLayout : null,
+          bytes: bytes,
+          pageLayout: pageLayout,
           onConfirmPrint: printReady ? _confirmPrint : null,
         ),
       );

@@ -64,7 +64,7 @@ final class ReportPdfPreviewDialog extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         if (layout != null)
-                          Text(_pageLabel(strings, layout)),
+                          Text(reportPdfPaperLabel(strings, layout)),
                       ],
                     ),
                   ),
@@ -124,7 +124,3 @@ String reportPdfPaperLabel(
   ReportPdfPageLayout.a4Landscape => strings.exportPdfPaperA4Landscape,
 };
 
-String _pageLabel(
-  ReportsLocalizations strings,
-  ReportPdfPageLayout pageLayout,
-) => reportPdfPaperLabel(strings, pageLayout);

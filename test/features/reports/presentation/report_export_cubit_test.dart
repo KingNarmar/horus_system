@@ -17,6 +17,7 @@ import 'package:horus_system/features/reports/domain/entities/report_export_docu
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_labels.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_table.dart';
+import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_expenses_report.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_net_profit_report.dart';
@@ -30,6 +31,7 @@ import 'package:horus_system/features/reports/domain/usecases/get_operational_re
 import 'package:horus_system/features/reports/domain/usecases/get_trip_expenses_report_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/get_trip_net_profit_report_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/prepare_report_export_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/reauthorize_report_pdf_print_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/report_pdf_delivery_usecases.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_export_cubit.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_export_state.dart';
@@ -190,6 +192,7 @@ ReportExportCubit _createCubit(
   );
   return ReportExportCubit(
     generate: GenerateReportPdfUseCase(prepare: prepare, renderer: renderer),
+    reauthorizePrint: ReauthorizeReportPdfPrintUseCase(prepare),
     save: SaveReportPdfUseCase(delivery),
     print: PrintReportPdfUseCase(delivery),
     share: ShareReportPdfUseCase(delivery),
@@ -306,6 +309,7 @@ final class _RecordingRenderer implements ReportPdfRenderer {
     required ReportExportDocument document,
     required ReportExportTable table,
     required ReportExportLabels labels,
+    required ReportPdfPageLayout pageLayout,
   }) async {
     renderedCompanies.add(document.companyId);
     return Success(pdfBytes);
@@ -328,6 +332,7 @@ final class _RecordingDelivery implements ReportPdfDeliveryRepository {
   Future<Result<ReportPdfDeliveryOutcome>> print({
     required Uint8List bytes,
     required String fileName,
+    required ReportPdfPageLayout pageLayout,
   }) async {
     calls++;
     return const Success(ReportPdfDeliveryOutcome.completed);

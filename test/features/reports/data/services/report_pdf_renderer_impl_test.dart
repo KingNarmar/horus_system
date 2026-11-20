@@ -17,6 +17,7 @@ import 'package:horus_system/features/reports/domain/entities/report_export_docu
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_labels.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_table.dart';
+import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/domain/failures/reports_failure_codes.dart';
 
@@ -62,6 +63,7 @@ void main() {
       document: _document(),
       table: table,
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
 
     expect(result.failureOrNull, isNull);
@@ -121,6 +123,7 @@ void main() {
       document: _document(),
       table: table,
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
 
     expect(result.failureOrNull, isNull);
@@ -156,6 +159,7 @@ void main() {
         currencyFractionDigits: 0,
       ),
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
     expect(result.failureOrNull, isNull);
     final streams = _decodedStreams(result.dataOrNull!);
@@ -177,6 +181,7 @@ void main() {
         currencyFractionDigits: 0,
       ),
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
 
     expect(
@@ -197,6 +202,7 @@ void main() {
         currencyFractionDigits: 0,
       ),
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
     expect(
       result.failureOrNull?.code,
@@ -220,6 +226,7 @@ void main() {
         currencyFractionDigits: 0,
       ),
       labels: _labels,
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
     expect(
       result.failureOrNull?.code,

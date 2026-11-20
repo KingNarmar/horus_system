@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/reports/domain/failures/reports_failure_codes.dart';
+import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/domain/repositories/report_pdf_delivery_repository.dart';
 import 'package:horus_system/features/reports/domain/usecases/report_pdf_delivery_usecases.dart';
 
@@ -77,6 +78,7 @@ void main() {
     final params = ReportPdfDeliveryParams(
       bytes: validBytes,
       fileName: 'horus_report_dailyTrips.pdf',
+      pageLayout: ReportPdfPageLayout.a4Portrait,
     );
 
     final printed = await PrintReportPdfUseCase(repository)(params);
@@ -138,6 +140,7 @@ final class _DeliveryRepository implements ReportPdfDeliveryRepository {
   Future<Result<ReportPdfDeliveryOutcome>> print({
     required Uint8List bytes,
     required String fileName,
+    required ReportPdfPageLayout pageLayout,
   }) async {
     printCalls++;
     lastBytes = bytes;

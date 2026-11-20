@@ -22,6 +22,7 @@ import 'package:horus_system/features/reports/domain/entities/operational_trip_r
 import 'package:horus_system/features/reports/domain/entities/report_export_document.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_labels.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_table.dart';
+import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_expenses_report.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_net_profit_report.dart';
@@ -34,6 +35,7 @@ import 'package:horus_system/features/reports/domain/usecases/get_operational_re
 import 'package:horus_system/features/reports/domain/usecases/get_trip_expenses_report_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/get_trip_net_profit_report_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/prepare_report_export_usecase.dart';
+import 'package:horus_system/features/reports/domain/usecases/reauthorize_report_pdf_print_usecase.dart';
 import 'package:horus_system/features/reports/domain/usecases/report_pdf_delivery_usecases.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_export_cubit.dart';
 import 'package:horus_system/features/reports/presentation/cubit/reports_cubit.dart';
@@ -144,6 +146,7 @@ ReportExportCubit _exportCubit(ReportsRepository repository) {
   final delivery = _Delivery();
   return ReportExportCubit(
     generate: GenerateReportPdfUseCase(prepare: prepare, renderer: _Renderer()),
+    reauthorizePrint: ReauthorizeReportPdfPrintUseCase(prepare),
     save: SaveReportPdfUseCase(delivery),
     print: PrintReportPdfUseCase(delivery),
     share: ShareReportPdfUseCase(delivery),
@@ -254,6 +257,7 @@ final class _Renderer implements ReportPdfRenderer {
     required ReportExportDocument document,
     required ReportExportTable table,
     required ReportExportLabels labels,
+    required ReportPdfPageLayout pageLayout,
   }) async {
     final pdf = pw.Document();
     pdf.addPage(pw.Page(build: (_) => pw.Text('Report preview')));
@@ -272,6 +276,7 @@ final class _Delivery implements ReportPdfDeliveryRepository {
   Future<Result<ReportPdfDeliveryOutcome>> print({
     required Uint8List bytes,
     required String fileName,
+    required ReportPdfPageLayout pageLayout,
   }) async => const Success(ReportPdfDeliveryOutcome.completed);
 
   @override
