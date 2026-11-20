@@ -142,6 +142,52 @@ function countIndependentSources() {
   return counts;
 }
 
+// Diagnose source cost against the same disposable 1,300-row fixture.
+ // Compare a service-only SQL query with an authenticated query whose RLS
+ // policies are enforced. Never change hosted roles, GUCs, or data.
+function profileExpenseSourcePlan() {
+  const joinSql = [
+    'SELECT count(*) FROM public.expense_ledger_entries e',
+    'JOIN public.expense_types et ON et.company_id=e.company_id AND et.id=e.expense_type_id',
+    'JOIN public.trips t ON t.company_id=e.company_id AND t.id=e.trip_id',
+    'JOIN public.customers c ON c.company_id=t.company_id AND c.id=t.customer_id',
+    'JOIN public.routes r ON r.company_id=t.company_id AND r.id=t.route_id',
+    "WHERE e.company_id='" + companyA + "' AND e.trip_id IS NOT NULL AND e.is_voided=false",
+  ].join(' ');
+  function explain(mode) {
+    const withRls = mode === 'authenticated';
+    const sql = [
+      'BEGIN;',
+      "SET LOCAL statement_timeout = '45000ms';",
+      ...(withRls ? [
+        "SELECT set_config('request.jwt.claim.sub', (SELECT id::text FROM auth.users WHERE email='" +
+          roleEmails.ownerA + "'), true);",
+        'SET LOCAL ROLE authenticated;',
+      ] : []),
+      'EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ' + joinSql + ';',
+      'ROLLBACK;',
+    ].join('\n');
+    const stdout = localPsql(['-A', '-t', '-c', sql]);
+    const start = stdout.indexOf('[\n');
+    const end = stdout.lastIndexOf('\n]');
+    assert.ok(start >= 0 && end > start, 'Missing local EXPLAIN JSON');
+    const plan = JSON.parse(stdout.slice(start, end + 2))[0];
+    const nodes = [];
+    function walk(node) {
+      nodes.push({ kind: node['Node Type'], relation: node['Relation Name'],
+        totalMs: node['Actual Total Time'], loops: node['Actual Loops'],
+        rows: node['Actual Rows'] });
+      for (const child of node.Plans ?? []) walk(child);
+    }
+    walk(plan.Plan);
+    console.log('EXPLAIN ' + mode + ': ' +
+      plan['Execution Time'].toFixed(2) + 'ms, ' +
+      JSON.stringify(nodes.slice(0, 14)));
+  }
+  explain('postgres');
+  explain('authenticated');
+}
+
 async function callRpc(name, companyId, token, fromDate = null, toDate = null) {
   return request(apiUrl + '/rest/v1/rpc/' + name, {
     token,
@@ -277,6 +323,7 @@ async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
   const independent = countIndependentSources();
+  profileExpenseSourcePlan();
   const boundedFailures = await verifyBoundedRange(tokens);
   await verifyAuthorized(tokens, companyA, independent.trips, independent);
   await verifyAuthorized(tokens, companyB, independent.other_tenant_trips);
