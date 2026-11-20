@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
+import '../../domain/entities/report_pdf_page_layout.dart';
 import '../cubit/report_type.dart';
 
 final class ReportsLocalizations {
@@ -105,6 +106,11 @@ final class ReportsLocalizations {
   String get exportPdfPaperA4Portrait => _l10n.reportsExportPdfPaperA4Portrait;
   String get exportPdfPaperA4Landscape =>
       _l10n.reportsExportPdfPaperA4Landscape;
+
+  String exportPdfPaperLabel(ReportPdfPageLayout layout) => switch (layout) {
+    ReportPdfPageLayout.a4Portrait => exportPdfPaperA4Portrait,
+    ReportPdfPageLayout.a4Landscape => exportPdfPaperA4Landscape,
+  };
   String get exportPdfZoomIn => _l10n.reportsExportPdfZoomIn;
   String get exportPdfZoomOut => _l10n.reportsExportPdfZoomOut;
   String get exportPdfFitPage => _l10n.reportsExportPdfFitPage;

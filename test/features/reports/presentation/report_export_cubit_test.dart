@@ -161,7 +161,7 @@ void main() {
 
       final ready = cubit.state as ReportExportPrintPreviewReady;
       expect(ready.document.bytes, same(renderer.pdfBytes));
-      expect(ready.document.pageLayout, ReportPdfPageLayout.a4Portrait);
+      expect(ready.document.pageLayout, ReportPdfPageLayout.a4Landscape);
       expect(delivery.printCalls, 0);
 
       final confirmed = cubit.confirmPrint(

@@ -67,12 +67,10 @@ final class ReportPdfCompactPreview extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (pageLayout != null)
-                      Text(switch (pageLayout!) {
-                        ReportPdfPageLayout.a4Portrait =>
-                          strings.exportPdfPaperA4Portrait,
-                        ReportPdfPageLayout.a4Landscape =>
-                          strings.exportPdfPaperA4Landscape,
-                      }, textAlign: TextAlign.center),
+                      Text(
+                        strings.exportPdfPaperLabel(pageLayout!),
+                        textAlign: TextAlign.center,
+                      ),
                     const SizedBox(height: AppSpacing.sm),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
