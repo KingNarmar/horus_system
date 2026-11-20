@@ -162,6 +162,7 @@ ReportExportLabels _labels() => ReportExportLabels(
   localeName: 'en',
   period: 'Period',
   generatedAt: 'Generated',
+  sourceAsOf: 'Source read (server)',
   page: 'Page',
   noRows: 'No rows',
   allDates: 'All dates',
