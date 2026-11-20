@@ -7,6 +7,7 @@ final class ReportSourceMetadataModel {
   final int? baseCurrencyFractionDigits;
   final String businessTimezone;
   final BusinessDate businessDate;
+
   /// Server-side read start (UTC), when the migration is deployed.
   final DateTime? sourceAsOfUtc;
   final BusinessDate? fromDate;

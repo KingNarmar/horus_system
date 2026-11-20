@@ -7,6 +7,7 @@ final class ReportSourceMetadata {
   final int baseCurrencyFractionDigits;
   final String businessTimezone;
   final BusinessDate businessDate;
+
   /// Server source-read start, not document generation time.
   /// Null while older hosted environments await the migration.
   final DateTime? sourceAsOfUtc;
@@ -29,6 +30,7 @@ final class OperationalReportSourceMetadata {
   final String companyId;
   final String businessTimezone;
   final BusinessDate businessDate;
+
   /// Server source-read start, not document generation time.
   /// Null while older hosted environments await the migration.
   final DateTime? sourceAsOfUtc;
