@@ -70,6 +70,18 @@ void main() {
     expect(repository.shareCalls, 0);
   });
 
+  test('printing a document without a page contract is rejected', () async {
+    final repository = _DeliveryRepository();
+    final result = await PrintReportPdfUseCase(repository)(
+      ReportPdfDeliveryParams(
+        bytes: validBytes,
+        fileName: 'report.pdf',
+      ),
+    );
+    expect(result.failureOrNull?.code, ReportsFailureCodes.pdfInvalidDocument);
+    expect(repository.printCalls, 0);
+  });
+
   test('print cancellation and share initiation are preserved', () async {
     final repository = _DeliveryRepository(
       printResult: const Success(ReportPdfDeliveryOutcome.cancelled),
