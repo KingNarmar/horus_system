@@ -111,7 +111,7 @@ SELECT md5('a-trip-'||i)::uuid,
  '11111111-1111-4111-8111-111111111111'::uuid,
  '11111111-1111-4111-8111-111111111112'::uuid,
  '11111111-1111-4111-8111-111111111113'::uuid,
- date '2026-11-15','Origin A','Destination A',500.00,10,'created'::public.trip_status
+ (date '2026-11-01' + ((i - 1) % 13)),'Origin A','Destination A',500.00,10,'created'::public.trip_status
 FROM generate_series(1,1300) AS i;
 
 INSERT INTO public.trips (
@@ -122,7 +122,7 @@ SELECT md5('b-trip-'||i)::uuid,
  '22222222-2222-4222-8222-222222222222'::uuid,
  '22222222-2222-4222-8222-222222222223'::uuid,
  '22222222-2222-4222-8222-222222222224'::uuid,
- date '2026-11-15','Origin B','Destination B',500.00,10,'created'::public.trip_status
+ (date '2026-11-01' + ((i - 1) % 13)),'Origin B','Destination B',500.00,10,'created'::public.trip_status
 FROM generate_series(1,23) AS i;
 
 INSERT INTO public.expense_ledger_entries (
@@ -133,7 +133,7 @@ INSERT INTO public.expense_ledger_entries (
 SELECT md5('a-expense-'||i)::uuid,
  '11111111-1111-4111-8111-111111111111'::uuid,
  '11111111-1111-4111-8111-111111111114'::uuid,
- 12345,'AED',2,date '2026-11-15',md5('a-trip-'||i)::uuid,
+ 12345,'AED',2,(date '2026-11-01' + ((i - 1) % 13)),md5('a-trip-'||i)::uuid,
  'company','manual','Fixture expense'
 FROM generate_series(1,1300) AS i;
 
@@ -145,7 +145,7 @@ INSERT INTO public.expense_ledger_entries (
 SELECT md5('b-expense-'||i)::uuid,
  '22222222-2222-4222-8222-222222222222'::uuid,
  '22222222-2222-4222-8222-222222222225'::uuid,
- 12345,'AED',2,date '2026-11-15',md5('b-trip-'||i)::uuid,
+ 12345,'AED',2,(date '2026-11-01' + ((i - 1) % 13)),md5('b-trip-'||i)::uuid,
  'company','manual','Fixture expense'
 FROM generate_series(1,23) AS i;
 
@@ -161,7 +161,7 @@ SELECT md5('a-invoice-'||i)::uuid,
  'issued'::public.invoice_status,
  'INV-2026-'||lpad(i::text,6,'0'),
  'AED','Fixture Customer A',
- 20000,0,20000,0,0,20000,date '2026-11-15',date '2026-12-15',
+ 20000,0,20000,0,0,20000,(date '2026-11-01' + ((i - 1) % 13)),date '2026-12-15',
  timestamp with time zone '2026-11-15 12:00:00+00',
  (SELECT id FROM auth.users WHERE email='horus353.owner.a@example.invalid'),
  'Report Fixture A','issuance',timestamp with time zone '2026-11-15 12:00:00+00'
@@ -179,7 +179,7 @@ SELECT md5('b-invoice-'||i)::uuid,
  'issued'::public.invoice_status,
  'INV-2026-'||lpad(i::text,6,'0'),
  'AED','Fixture Customer B',
- 20000,0,20000,0,0,20000,date '2026-11-15',date '2026-12-15',
+ 20000,0,20000,0,0,20000,(date '2026-11-01' + ((i - 1) % 13)),date '2026-12-15',
  timestamp with time zone '2026-11-15 12:00:00+00',
  (SELECT id FROM auth.users WHERE email='horus353.owner.b@example.invalid'),
  'Report Fixture B','issuance',timestamp with time zone '2026-11-15 12:00:00+00'
