@@ -18,15 +18,19 @@ final class ReportExportDocument {
   final DateTime generatedAtUtc;
   final ReportExportContent content;
 
-  /// Source read-start time, never inferred from the device clock.
+  /// IANA timezone carried by the authorized report source metadata.
   String get businessTimezone => switch (content) {
     ReportExportOperationalContent(:final report) =>
       report.metadata.businessTimezone,
-    ReportExportExpensesContent(:final report) => report.metadata.businessTimezone,
-    ReportExportProfitContent(:final report) => report.metadata.businessTimezone,
-    ReportExportInvoicesContent(:final report) => report.metadata.businessTimezone,
+    ReportExportExpensesContent(:final report) =>
+      report.metadata.businessTimezone,
+    ReportExportProfitContent(:final report) =>
+      report.metadata.businessTimezone,
+    ReportExportInvoicesContent(:final report) =>
+      report.metadata.businessTimezone,
   };
 
+  /// Database report-read start, never inferred from the device clock.
   DateTime? get sourceAsOfUtc => switch (content) {
     ReportExportOperationalContent(:final report) =>
       report.metadata.sourceAsOfUtc,
