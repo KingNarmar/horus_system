@@ -9,12 +9,16 @@ final class CompanyTimezoneDisplayOption {
   final String localizedName;
   final String englishName;
   final String arabicName;
+  final String englishCountryName;
+  final String arabicCountryName;
 
   const CompanyTimezoneDisplayOption({
     required this.timezone,
     required this.localizedName,
     required this.englishName,
     required this.arabicName,
+    this.englishCountryName = '',
+    this.arabicCountryName = '',
   });
 
   String get value => timezone.value;
@@ -36,6 +40,8 @@ final class CompanyTimezoneDisplayOption {
       localizedName.toLowerCase(),
       englishName.toLowerCase(),
       arabicName.toLowerCase(),
+      englishCountryName.toLowerCase(),
+      arabicCountryName.toLowerCase(),
     ].join(' ');
 
     return searchIndex.contains(query);
@@ -52,6 +58,12 @@ abstract final class CompanyTimezoneDisplayResolver {
   ) {
     final englishName = _resolveEnglishName(timezone.value);
     final arabicName = _resolveArabicName(timezone.value);
+    final englishZone = _english.timeZones.get(timezone.value.toLowerCase());
+    final countryCode = englishZone?.territoryCode?.toUpperCase();
+    final englishCountryName =
+        _english.territories.territories[countryCode]?.name ?? '';
+    final arabicCountryName =
+        _arabic.territories.territories[countryCode]?.name ?? '';
     final localizedName = locale.languageCode == 'ar'
         ? arabicName
         : englishName;
@@ -61,6 +73,8 @@ abstract final class CompanyTimezoneDisplayResolver {
       localizedName: localizedName,
       englishName: englishName,
       arabicName: arabicName,
+      englishCountryName: englishCountryName,
+      arabicCountryName: arabicCountryName,
     );
   }
 
