@@ -104,24 +104,22 @@ VALUES
 -- Each company has its own sequence, identifiers, currency and money rows.
 -- Tenant A deliberately exceeds PostgREST's common 1,000-row table default.
 INSERT INTO public.trips (
- id,company_id,trip_number,customer_id,route_id,trip_date,
+ id,company_id,customer_id,route_id,trip_date,
  loading_location,unloading_location,freight_price,quantity_tons,status
 )
 SELECT md5('a-trip-'||i)::uuid,
  '11111111-1111-4111-8111-111111111111'::uuid,
- 'TRP-2026-'||lpad(i::text,6,'0'),
  '11111111-1111-4111-8111-111111111112'::uuid,
  '11111111-1111-4111-8111-111111111113'::uuid,
  date '2026-11-15','Origin A','Destination A',500.00,10,'created'::public.trip_status
 FROM generate_series(1,1300) AS i;
 
 INSERT INTO public.trips (
- id,company_id,trip_number,customer_id,route_id,trip_date,
+ id,company_id,customer_id,route_id,trip_date,
  loading_location,unloading_location,freight_price,quantity_tons,status
 )
 SELECT md5('b-trip-'||i)::uuid,
  '22222222-2222-4222-8222-222222222222'::uuid,
- 'TRP-2026-'||lpad(i::text,6,'0'),
  '22222222-2222-4222-8222-222222222223'::uuid,
  '22222222-2222-4222-8222-222222222224'::uuid,
  date '2026-11-15','Origin B','Destination B',500.00,10,'created'::public.trip_status
