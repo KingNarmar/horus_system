@@ -77,6 +77,55 @@ void main() {
     expect(streams, contains('12,345.67'));
   });
 
+  testWidgets('large report keeps all rows beyond twenty pages', (tester) async {
+    final currency = CurrencyCode.tryParse('AED')!;
+    final amount = Money(minorUnits: 1234567, currency: currency);
+    const rowCount = 1000;
+    final table = ReportExportTable(
+      columns: const [
+        ReportExportColumn.trip,
+        ReportExportColumn.date,
+        ReportExportColumn.amount,
+      ],
+      rows: List.generate(
+        rowCount,
+        (index) => [
+          ReportExportTextCell('TRIP-$index'),
+          ReportExportDateCell(BusinessDate(year: 2026, month: 11, day: 19)),
+          ReportExportMoneyCell(amount),
+        ],
+      ),
+      totals: [
+        ReportExportTotal(
+          label: ReportExportColumn.totalExpenses,
+          value: ReportExportMoneyCell(amount),
+        ),
+      ],
+      currencyFractionDigits: 2,
+    );
+
+    final result = await renderer.render(
+      document: _document(),
+      table: table,
+      labels: _labels,
+    );
+
+    expect(result.failureOrNull, isNull);
+    final bytes = result.dataOrNull!;
+    final serialized = latin1.decode(bytes);
+    final pageCount = RegExp(r'/Type\\s*/Page\\b').allMatches(serialized).length;
+    expect(pageCount, greaterThan(20));
+
+    final streams = _decodedStreams(bytes);
+    final ids = RegExp(r'\\(TRIP-(\\d+)\\)')
+        .allMatches(streams)
+        .map((match) => int.parse(match.group(1)!))
+        .toList(growable: false);
+    expect(ids, hasLength(rowCount));
+    expect(ids.toSet(), Set<int>.from(List.generate(rowCount, (i) => i)));
+    expect(streams, contains('12,345.67'));
+  });
+
   testWidgets('unreadable company logo fails with typed render error', (
     tester,
   ) async {
