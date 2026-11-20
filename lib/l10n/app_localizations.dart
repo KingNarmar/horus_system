@@ -3710,13 +3710,22 @@ abstract class AppLocalizations {
   /// **'Report PDF preview'**
   String get reportsExportPdfPreviewTitle;
 
-  /// Localized title for the explicit print confirmation preview.
+  /// No description provided for @reportsExportPdfPrintPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print preview'**
   String get reportsExportPdfPrintPreviewTitle;
 
-  /// Physical A4 portrait page description.
+  /// No description provided for @reportsExportPdfPaperA4Portrait.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 · Portrait'**
   String get reportsExportPdfPaperA4Portrait;
 
-  /// Physical A4 landscape page description.
+  /// No description provided for @reportsExportPdfPaperA4Landscape.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 · Landscape'**
   String get reportsExportPdfPaperA4Landscape;
 
   /// No description provided for @reportsExportPdfZoomIn.

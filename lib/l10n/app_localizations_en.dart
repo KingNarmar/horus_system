@@ -1995,6 +1995,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsExportPdfPreviewTitle => 'Report PDF preview';
+
   @override
   String get reportsExportPdfPrintPreviewTitle => 'Print preview';
 
@@ -2003,7 +2004,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsExportPdfPaperA4Landscape => 'A4 · Landscape';
-
 
   @override
   String get reportsExportPdfZoomIn => 'Zoom in';

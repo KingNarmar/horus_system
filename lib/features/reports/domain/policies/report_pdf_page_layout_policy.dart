@@ -7,6 +7,6 @@ abstract final class ReportPdfPageLayoutPolicy {
 
   static ReportPdfPageLayout forColumns(List<ReportExportColumn> columns) =>
       columns.length >= landscapeMinimumColumns
-          ? ReportPdfPageLayout.a4Landscape
-          : ReportPdfPageLayout.a4Portrait;
+      ? ReportPdfPageLayout.a4Landscape
+      : ReportPdfPageLayout.a4Portrait;
 }

@@ -206,9 +206,7 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
   }
 
   void clearFeedback() {
-    if (!isClosed &&
-        !isBusy &&
-        state is! ReportExportPrintPreviewReady) {
+    if (!isClosed && !isBusy && state is! ReportExportPrintPreviewReady) {
       emit(const ReportExportIdle());
     }
   }

@@ -98,7 +98,9 @@ final class ReportPdfPreviewDialog extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                      child: Text(
+                        MaterialLocalizations.of(context).cancelButtonLabel,
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     FilledButton.icon(
@@ -123,4 +125,3 @@ String reportPdfPaperLabel(
   ReportPdfPageLayout.a4Portrait => strings.exportPdfPaperA4Portrait,
   ReportPdfPageLayout.a4Landscape => strings.exportPdfPaperA4Landscape,
 };
-

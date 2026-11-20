@@ -1967,6 +1967,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportsExportPdfPreviewTitle => 'معاينة تقرير PDF';
+
   @override
   String get reportsExportPdfPrintPreviewTitle => 'معاينة الطباعة';
 
@@ -1975,7 +1976,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportsExportPdfPaperA4Landscape => 'A4 · أفقي';
-
 
   @override
   String get reportsExportPdfZoomIn => 'تكبير';

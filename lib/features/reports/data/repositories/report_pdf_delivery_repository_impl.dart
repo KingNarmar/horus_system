@@ -13,11 +13,12 @@ import '../constants/report_pdf_share_constants.dart';
 import '../mappers/report_pdf_page_format_mapper.dart';
 import '../services/report_pdf_share_service.dart';
 
-typedef ReportPdfPrintDelegate = Future<bool> Function({
-  required Uint8List bytes,
-  required String fileName,
-  required PdfPageFormat pageFormat,
-});
+typedef ReportPdfPrintDelegate =
+    Future<bool> Function({
+      required Uint8List bytes,
+      required String fileName,
+      required PdfPageFormat pageFormat,
+    });
 
 final class ReportPdfDeliveryRepositoryImpl
     implements ReportPdfDeliveryRepository {
