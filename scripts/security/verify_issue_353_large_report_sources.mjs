@@ -319,11 +319,124 @@ async function assertDenied(label, kind, companyId, token) {
   }
 }
 
+// Experimental alternatives are applied ONLY to the disposable loopback
+// database. This is not a migration and changes no hosted environments.
+// Candidate A is a planner diagnostic, NOT an approved production SQL fix.
+async function compareExpenseSourceCandidates(tokens, independent) {
+  const signature =
+    'public.get_trip_expenses_report_source(uuid, date, date)';
+  const owner = tokens.get('ownerA');
+  const current = localPsql([
+    '-A', '-t', '-c',
+    "SELECT pg_get_userbyid(p.proowner), p.prosecdef, " +
+      "array_to_string(p.proconfig, ',') " +
+      "FROM pg_proc p WHERE p.oid='" + signature + "'::regprocedure;",
+  ]).trim();
+  assert.ok(current.startsWith('postgres|f|'),
+    'Unexpected existing expense RPC ownership or security mode');
+  assert.ok(current.includes('search_path=pg_catalog'),
+    'Expense RPC must have an immutable trusted search_path');
+
+  async function measure(label, expectedRows) {
+    const start = performance.now();
+    const result = await callRpc(rpcNames.expenses, companyA, owner);
+    const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+    if (!result.ok) {
+      console.log('CANDIDATE ' + label + ': failed HTTP ' + result.status +
+        ' SQLSTATE ' + String(result.json?.code ?? '-') +
+        ' (' + elapsed + 's)');
+      return false;
+    }
+    assertRows(result.json, 'rows', expectedRows, 'expense_id', companyA);
+    assert.equal(
+      sumMinor(result.json.rows, 'amount_minor_units'),
+      independent.expense_minor,
+      label + ': expense monetary total mismatch',
+    );
+    console.log('CANDIDATE ' + label + ': PASS ' + expectedRows +
+      ' complete expense IDs and exact total (' + elapsed + 's)');
+    return true;
+  }
+
+  // Variant A: retain SECURITY INVOKER and every existing RLS policy.
+  // This run isolates the nested-loop plan from auth policy overhead.
+  localPsql(['-c', 'ALTER FUNCTION ' + signature +
+    ' SET enable_nestloop = off;']);
+  let invokerPlanSuccess = false;
+  try {
+    invokerPlanSuccess = await measure('RLS invoker/hash-join hint',
+      independent.expenses);
+  } finally {
+    localPsql(['-c', 'ALTER FUNCTION ' + signature +
+      ' RESET enable_nestloop;']);
+  }
+
+  // Variant B: only in local CI. The existing function body already checks
+  // active owner/admin/accountant membership and scopes all joined tables by
+  // p_company_id. Test denial before considering this candidate for a review.
+  localPsql(['-c', 'ALTER FUNCTION ' + signature +
+    ' SECURITY DEFINER;']);
+  let definerSuccess = false;
+  try {
+    definerSuccess = await measure('restricted definer',
+      independent.expenses);
+    if (definerSuccess) {
+      for (const [label, who, companyId] of [
+        ['foreign-tenant', 'ownerB', companyA],
+        ['deactivated', 'deactivatedA', companyA],
+        ['operations', 'operationsA', companyA],
+        ['viewer', 'viewerA', companyA],
+        ['anonymous', null, companyA],
+      ]) {
+        await assertDenied(
+          'local definer ' + label, 'expenses', companyId,
+          who === null ? undefined : tokens.get(who),
+        );
+      }
+      const accountant = await callRpc(rpcNames.expenses, companyA,
+        tokens.get('accountantA'));
+      assert.equal(accountant.ok, true, 'Definer denied active accountant');
+      assertRows(accountant.json, 'rows', independent.expenses,
+        'expense_id', companyA);
+      const otherOwner = await callRpc(rpcNames.expenses, companyB,
+        tokens.get('ownerB'));
+      assert.equal(otherOwner.ok, true, 'Definer denied tenant B owner');
+      assertRows(otherOwner.json, 'rows', independent.other_tenant_trips,
+        'expense_id', companyB);
+      const bounded = await callRpc(rpcNames.expenses, companyA, owner,
+        '2026-11-01', '2026-11-03');
+      assert.equal(bounded.ok, true);
+      assertRows(bounded.json, 'rows', 300, 'expense_id', companyA);
+      const empty = await callRpc(rpcNames.expenses, companyA, owner,
+        '2026-11-16', '2026-11-16');
+      assert.equal(empty.ok, true);
+      assertRows(empty.json, 'rows', 0, 'expense_id', companyA);
+      console.log('CANDIDATE restricted definer: PASS signed-JWT ' +
+        'foreign-tenant, inactive, operations, viewer, anonymous denials; ' +
+        'accountant, own-company, 300-row range and empty-range');
+    }
+  } finally {
+    localPsql(['-c', 'ALTER FUNCTION ' + signature +
+      ' SECURITY INVOKER;']);
+  }
+  const finalMode = localPsql([
+    '-A', '-t', '-c',
+    "SELECT p.prosecdef FROM pg_proc p WHERE p.oid='" +
+      signature + "'::regprocedure;",
+  ]).trim();
+  assert.equal(finalMode, 'f',
+    'Disposable expense RPC must be restored to SECURITY INVOKER');
+  console.log('CANDIDATE SUMMARY: invoker/hash-hint=' +
+    (invokerPlanSuccess ? 'PASS' : 'FAIL') +
+    ', restricted-definer=' + (definerSuccess ? 'PASS' : 'FAIL'));
+}
+
 async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
   const independent = countIndependentSources();
   profileExpenseSourcePlan();
+  await compareExpenseSourceCandidates(tokens, independent);
   const boundedFailures = await verifyBoundedRange(tokens);
   await verifyAuthorized(tokens, companyA, independent.trips, independent);
   await verifyAuthorized(tokens, companyB, independent.other_tenant_trips);
