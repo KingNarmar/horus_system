@@ -142,6 +142,51 @@ function countIndependentSources() {
   return counts;
 }
 
+// Fresh synthetic bulk inserts have no reliable table statistics until
+// ANALYZE. Compare the ORIGINAL security-invoker RPC before ANY function DDL
+// and after updating stats, using only the disposable local CI database.
+async function verifyFreshFixturePlannerStats(tokens, independent) {
+  const owner = tokens.get('ownerA');
+  const getPlannerRows = () => localPsql([
+    '-A', '-t', '-c',
+    "SELECT relname || '=' || reltuples::bigint FROM pg_class " +
+      "WHERE oid IN ('public.trips'::regclass, " +
+      "'public.expense_ledger_entries'::regclass, " +
+      "'public.expense_types'::regclass) ORDER BY relname;",
+  ]).trim().replace(/\\r?\\n/g, ', ');
+  console.log('FRESH FIXTURE planner reltuples: ' + getPlannerRows());
+  async function probe(label) {
+    const started = performance.now();
+    const result = await callRpc(rpcNames.expenses, companyA, owner);
+    const seconds = ((performance.now() - started) / 1000).toFixed(2);
+    if (!result.ok) {
+      console.log('FRESH FIXTURE ' + label + ': HTTP ' + result.status +
+        ' SQLSTATE ' + String(result.json?.code ?? '-') +
+        ' (' + seconds + 's)');
+      return false;
+    }
+    assertRows(result.json, 'rows', independent.expenses,
+      'expense_id', companyA);
+    assert.equal(sumMinor(result.json.rows, 'amount_minor_units'),
+      independent.expense_minor);
+    console.log('FRESH FIXTURE ' + label + ': PASS ' +
+      independent.expenses + ' rows (' + seconds + 's)');
+    return true;
+  }
+  const before = await probe('before ANALYZE');
+  // Analyze the tables only in disposable CI. The hosted databases are
+  // deliberately untouched, including their statistics and planner config.
+  localPsql(['-c', 'ANALYZE public.expense_ledger_entries; ' +
+    'ANALYZE public.expense_types; ANALYZE public.trips; ' +
+    'ANALYZE public.customers; ANALYZE public.routes;']);
+  console.log('ANALYZED FIXTURE planner reltuples: ' + getPlannerRows());
+  const after = await probe('after ANALYZE');
+  console.log('FRESH FIXTURE SUMMARY: pre-analyze=' +
+    (before ? 'PASS' : 'FAIL') + ', post-analyze=' +
+    (after ? 'PASS' : 'FAIL'));
+  assert.ok(after, 'Original security-invoker RPC failed with fresh stats');
+}
+
 // Diagnose source cost against the same disposable 1,300-row fixture.
  // Compare a service-only SQL query with an authenticated query whose RLS
  // policies are enforced. Never change hosted roles, GUCs, or data.
@@ -435,6 +480,7 @@ async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
   const independent = countIndependentSources();
+  await verifyFreshFixturePlannerStats(tokens, independent);
   profileExpenseSourcePlan();
   await compareExpenseSourceCandidates(tokens, independent);
   const boundedFailures = await verifyBoundedRange(tokens);
