@@ -113,11 +113,11 @@ void main() {
     expect(result.failureOrNull, isNull);
     final bytes = result.dataOrNull!;
     final serialized = latin1.decode(bytes);
-    final pageCount = RegExp(r'/Type\\s*/Page\\b').allMatches(serialized).length;
+    final pageCount = RegExp(r'/Type\s*/Page\b').allMatches(serialized).length;
     expect(pageCount, greaterThan(20));
 
     final streams = _decodedStreams(bytes);
-    final ids = RegExp(r'\\(TRIP-(\\d+)\\)')
+    final ids = RegExp(r'\(TRIP-(\d+)\)')
         .allMatches(streams)
         .map((match) => int.parse(match.group(1)!))
         .toList(growable: false);
