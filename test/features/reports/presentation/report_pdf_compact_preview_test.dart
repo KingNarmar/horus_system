@@ -45,7 +45,9 @@ void main() {
     );
     expect(
       tester.getSize(find.byWidget(viewer.child!)).height,
-      greaterThanOrEqualTo(tester.getSize(find.byType(InteractiveViewer)).height),
+      greaterThanOrEqualTo(
+        tester.getSize(find.byType(InteractiveViewer)).height,
+      ),
     );
     expect(_scale(tester), 1.0);
 
@@ -82,9 +84,9 @@ void main() {
       find.byType(InteractiveViewer),
     );
     final controller = viewer.transformationController!;
-    final center = tester.getSize(find.byType(InteractiveViewer)).center(
-      Offset.zero,
-    );
+    final center = tester
+        .getSize(find.byType(InteractiveViewer))
+        .center(Offset.zero);
     final before = controller.toScene(center);
 
     await tester.tap(find.byTooltip('Zoom in'));
@@ -208,7 +210,11 @@ void main() {
 
 // Rasterized page dimensions are controlled here, without a native PDF plugin.
 PdfPreviewPageData _page({required int width, required int height}) =>
-    PdfPreviewPageData(image: MemoryImage(_pixel), width: width, height: height);
+    PdfPreviewPageData(
+      image: MemoryImage(_pixel),
+      width: width,
+      height: height,
+    );
 
 final Uint8List _pixel = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVR4nGP8+vXrfwYGBgYmBigAADwYA+IEIyRGAAAAAElFTkSuQmCC',
