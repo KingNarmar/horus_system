@@ -54,6 +54,7 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
 
       pdf.addPage(
         pw.MultiPage(
+          maxPages: table.rowCount + ReportPdfStyle.nonTablePaginationPages,
           pageFormat: table.columns.length > 5
               ? PdfPageFormat.a4.landscape
               : PdfPageFormat.a4,
