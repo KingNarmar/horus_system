@@ -16,11 +16,16 @@ final class ReportPdfPreviewDialog extends StatelessWidget {
   const ReportPdfPreviewDialog({required this.bytes, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    if (MediaQuery.sizeOf(context).width < AppSizes.desktopMinWidth) {
-      return ReportPdfCompactPreview(bytes: bytes);
-    }
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      if (constraints.maxWidth < AppSizes.desktopMinWidth) {
+        return ReportPdfCompactPreview(bytes: bytes);
+      }
+      return _buildDesktop(context);
+    },
+  );
 
+  Widget _buildDesktop(BuildContext context) {
     final strings = context.reportsL10n;
     return Dialog(
       child: ConstrainedBox(
