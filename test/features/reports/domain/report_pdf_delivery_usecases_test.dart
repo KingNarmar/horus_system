@@ -73,10 +73,7 @@ void main() {
   test('printing a document without a page contract is rejected', () async {
     final repository = _DeliveryRepository();
     final result = await PrintReportPdfUseCase(repository)(
-      ReportPdfDeliveryParams(
-        bytes: validBytes,
-        fileName: 'report.pdf',
-      ),
+      ReportPdfDeliveryParams(bytes: validBytes, fileName: 'report.pdf'),
     );
     expect(result.failureOrNull?.code, ReportsFailureCodes.pdfInvalidDocument);
     expect(repository.printCalls, 0);

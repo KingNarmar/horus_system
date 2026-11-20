@@ -147,64 +147,65 @@ void main() {
     expect(streams, contains('[(Asia/Dubai)]'));
   });
 
-  testWidgets('Daily Trips landscape PDF preserves all eight columns and seven rows', (
-    tester,
-  ) async {
-    final table = ReportExportTable(
-      columns: const [
-        ReportExportColumn.trip,
-        ReportExportColumn.date,
-        ReportExportColumn.customer,
-        ReportExportColumn.driver,
-        ReportExportColumn.tractorHead,
-        ReportExportColumn.trailer,
-        ReportExportColumn.route,
-        ReportExportColumn.status,
-      ],
-      rows: List.generate(
-        7,
-        (index) => [
-          ReportExportTextCell('TRIP-$index'),
-          ReportExportDateCell(BusinessDate(year: 2026, month: 11, day: 20)),
-          ReportExportTextCell('C-$index'),
-          ReportExportTextCell('D-$index'),
-          ReportExportTextCell('T-$index'),
-          ReportExportTextCell('L-$index'),
-          ReportExportTextCell('ROUTE-$index'),
-          ReportExportTextCell('STATUS-$index'),
+  testWidgets(
+    'Daily Trips landscape PDF preserves all eight columns and seven rows',
+    (tester) async {
+      final table = ReportExportTable(
+        columns: const [
+          ReportExportColumn.trip,
+          ReportExportColumn.date,
+          ReportExportColumn.customer,
+          ReportExportColumn.driver,
+          ReportExportColumn.tractorHead,
+          ReportExportColumn.trailer,
+          ReportExportColumn.route,
+          ReportExportColumn.status,
         ],
-      ),
-      totals: const [],
-      currencyFractionDigits: 2,
-    );
+        rows: List.generate(
+          7,
+          (index) => [
+            ReportExportTextCell('TRIP-$index'),
+            ReportExportDateCell(BusinessDate(year: 2026, month: 11, day: 20)),
+            ReportExportTextCell('C-$index'),
+            ReportExportTextCell('D-$index'),
+            ReportExportTextCell('T-$index'),
+            ReportExportTextCell('L-$index'),
+            ReportExportTextCell('ROUTE-$index'),
+            ReportExportTextCell('STATUS-$index'),
+          ],
+        ),
+        totals: const [],
+        currencyFractionDigits: 2,
+      );
 
-    final result = await renderer.render(
-      document: _document(),
-      table: table,
-      labels: _labels,
-      pageLayout: ReportPdfPageLayout.a4Landscape,
-    );
+      final result = await renderer.render(
+        document: _document(),
+        table: table,
+        labels: _labels,
+        pageLayout: ReportPdfPageLayout.a4Landscape,
+      );
 
-    expect(result.failureOrNull, isNull);
-    final bytes = result.dataOrNull!;
-    final serialized = latin1.decode(bytes);
-    final mediaBox = RegExp(
-      r'/MediaBox\s*\[\s*[0-9.]+\s+[0-9.]+\s+([0-9.]+)\s+([0-9.]+)\s*\]',
-    ).firstMatch(serialized);
-    expect(mediaBox, isNotNull);
-    expect(
-      double.parse(mediaBox!.group(1)!),
-      greaterThan(double.parse(mediaBox.group(2)!)),
-    );
-    final streams = _decodedStreams(bytes);
-    expect(streams, contains('Route'));
-    expect(streams, contains('Status'));
-    for (var index = 0; index < 7; index++) {
-      expect(streams, contains('TRIP-$index'));
-      expect(streams, contains('ROUTE-$index'));
-      expect(streams, contains('STATUS-$index'));
-    }
-  });
+      expect(result.failureOrNull, isNull);
+      final bytes = result.dataOrNull!;
+      final serialized = latin1.decode(bytes);
+      final mediaBox = RegExp(
+        r'/MediaBox\s*\[\s*[0-9.]+\s+[0-9.]+\s+([0-9.]+)\s+([0-9.]+)\s*\]',
+      ).firstMatch(serialized);
+      expect(mediaBox, isNotNull);
+      expect(
+        double.parse(mediaBox!.group(1)!),
+        greaterThan(double.parse(mediaBox.group(2)!)),
+      );
+      final streams = _decodedStreams(bytes);
+      expect(streams, contains('Route'));
+      expect(streams, contains('Status'));
+      for (var index = 0; index < 7; index++) {
+        expect(streams, contains('TRIP-$index'));
+        expect(streams, contains('ROUTE-$index'));
+        expect(streams, contains('STATUS-$index'));
+      }
+    },
+  );
 
   testWidgets('legacy Egypt company renders one meaningful timestamp', (
     tester,

@@ -140,41 +140,44 @@ void main() {
     expect(renderer.renderedCompanies, ['company-a']);
   });
 
-  test('Print requires preview and fresh authorization before native delivery', () async {
-    final source = _PendingReportSource();
-    final renderer = _RecordingRenderer();
-    final delivery = _RecordingDelivery();
-    final cubit = _createCubit(source, renderer, delivery);
-    addTearDown(cubit.close);
+  test(
+    'Print requires preview and fresh authorization before native delivery',
+    () async {
+      final source = _PendingReportSource();
+      final renderer = _RecordingRenderer();
+      final delivery = _RecordingDelivery();
+      final cubit = _createCubit(source, renderer, delivery);
+      addTearDown(cubit.close);
 
-    final request = cubit.perform(
-      action: ReportPdfAction.print,
-      currentCompanyContext: _context('company-a', CompanyRole.owner),
-      kind: ReportExportKind.dailyTrips,
-      dateRange: const ReportDateRange(),
-      labels: _labels(),
-    );
-    source.complete('company-a');
-    await request;
+      final request = cubit.perform(
+        action: ReportPdfAction.print,
+        currentCompanyContext: _context('company-a', CompanyRole.owner),
+        kind: ReportExportKind.dailyTrips,
+        dateRange: const ReportDateRange(),
+        labels: _labels(),
+      );
+      source.complete('company-a');
+      await request;
 
-    final ready = cubit.state as ReportExportPrintPreviewReady;
-    expect(ready.document.bytes, same(renderer.pdfBytes));
-    expect(ready.document.pageLayout, ReportPdfPageLayout.a4Portrait);
-    expect(delivery.printCalls, 0);
+      final ready = cubit.state as ReportExportPrintPreviewReady;
+      expect(ready.document.bytes, same(renderer.pdfBytes));
+      expect(ready.document.pageLayout, ReportPdfPageLayout.a4Portrait);
+      expect(delivery.printCalls, 0);
 
-    final confirmed = cubit.confirmPrint(
-      currentCompanyContext: _context('company-a', CompanyRole.owner),
-    );
-    expect(source.requestedCompanies, ['company-a', 'company-a']);
-    expect(delivery.printCalls, 0);
-    source.complete('company-a');
-    await confirmed;
+      final confirmed = cubit.confirmPrint(
+        currentCompanyContext: _context('company-a', CompanyRole.owner),
+      );
+      expect(source.requestedCompanies, ['company-a', 'company-a']);
+      expect(delivery.printCalls, 0);
+      source.complete('company-a');
+      await confirmed;
 
-    expect(cubit.state, isA<ReportExportCompleted>());
-    expect(delivery.printCalls, 1);
-    expect(delivery.lastPrintedBytes, same(ready.document.bytes));
-    expect(delivery.lastPageLayout, ready.document.pageLayout);
-  });
+      expect(cubit.state, isA<ReportExportCompleted>());
+      expect(delivery.printCalls, 1);
+      expect(delivery.lastPrintedBytes, same(ready.document.bytes));
+      expect(delivery.lastPageLayout, ready.document.pageLayout);
+    },
+  );
 
   test('closing print preview prevents any printer invocation', () async {
     final source = _PendingReportSource();

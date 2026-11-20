@@ -195,53 +195,55 @@ void main() {
     expect(find.text('100%'), findsOneWidget);
   });
 
-  testWidgets('mobile Arabic print confirmation displays the page orientation', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+  testWidgets(
+    'mobile Arabic print confirmation displays the page orientation',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    var confirmations = 0;
-    await tester.pumpWidget(
-      _app(
-        const Locale('ar'),
-        pdfBytes,
-        pageLayout: ReportPdfPageLayout.a4Landscape,
-        onConfirmPrint: () => confirmations++,
-      ),
-    );
+      var confirmations = 0;
+      await tester.pumpWidget(
+        _app(
+          const Locale('ar'),
+          pdfBytes,
+          pageLayout: ReportPdfPageLayout.a4Landscape,
+          onConfirmPrint: () => confirmations++,
+        ),
+      );
 
-    expect(find.text('A4 · أفقي'), findsOneWidget);
-    expect(find.text('معاينة الطباعة'), findsOneWidget);
-    expect(find.text('طباعة PDF'), findsOneWidget);
-    await tester.tap(find.text('طباعة PDF'));
-    await tester.pump();
-    expect(confirmations, 1);
-  });
+      expect(find.text('A4 · أفقي'), findsOneWidget);
+      expect(find.text('معاينة الطباعة'), findsOneWidget);
+      expect(find.text('طباعة PDF'), findsOneWidget);
+      await tester.tap(find.text('طباعة PDF'));
+      await tester.pump();
+      expect(confirmations, 1);
+    },
+  );
 
-  testWidgets('desktop print preview confirms from the app and not PDF plugin', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(1200, 900));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+  testWidgets(
+    'desktop print preview confirms from the app and not PDF plugin',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1200, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    var confirmations = 0;
-    await tester.pumpWidget(
-      _app(
-        const Locale('en'),
-        pdfBytes,
-        pageLayout: ReportPdfPageLayout.a4Landscape,
-        onConfirmPrint: () => confirmations++,
-      ),
-    );
+      var confirmations = 0;
+      await tester.pumpWidget(
+        _app(
+          const Locale('en'),
+          pdfBytes,
+          pageLayout: ReportPdfPageLayout.a4Landscape,
+          onConfirmPrint: () => confirmations++,
+        ),
+      );
 
-    expect(find.byType(PdfPreview), findsOneWidget);
-    expect(find.text('Print preview'), findsOneWidget);
-    expect(find.text('A4 · Landscape'), findsOneWidget);
-    await tester.tap(find.text('Print PDF'));
-    await tester.pump();
-    expect(confirmations, 1);
-  });
+      expect(find.byType(PdfPreview), findsOneWidget);
+      expect(find.text('Print preview'), findsOneWidget);
+      expect(find.text('A4 · Landscape'), findsOneWidget);
+      await tester.tap(find.text('Print PDF'));
+      await tester.pump();
+      expect(confirmations, 1);
+    },
+  );
 
   testWidgets('desktop retains the existing dialog-based PdfPreview', (
     tester,
