@@ -228,6 +228,40 @@ async function verifyAuthorized(tokens, companyId, count, independent) {
   return returned;
 }
 
+async function verifyBoundedRange(tokens) {
+  // 100 rows per business day for tenant A; three dates -> 300 source rows.
+  // Tests whether the authoritative date filters reduce a large RPC enough.
+  const failures = [];
+  for (const [kind, name] of Object.entries(rpcNames)) {
+    const start = performance.now();
+    const outcome = await callRpc(
+      name, companyA, tokens.get('ownerA'), '2026-11-01', '2026-11-03',
+    );
+    const seconds = ((performance.now() - start) / 1000).toFixed(2);
+    if (!outcome.ok) {
+      const message = kind + ' bounded RPC failed: HTTP ' + outcome.status +
+        ', code ' + String(outcome.json?.code ?? '-');
+      console.log('SOURCE FAILURE ' + message + ' (' + seconds + 's)');
+      failures.push(message);
+      continue;
+    }
+    const result = outcome.json;
+    if (kind === 'operational' || kind === 'expenses') {
+      assertRows(result, 'rows', 300,
+        kind === 'operational' ? 'trip_id' : 'expense_id', companyA);
+    } else if (kind === 'netProfit') {
+      assertRows(result, 'trips', 300, 'trip_id', companyA);
+      assertRows(result, 'expenses', 300, 'expense_id', companyA);
+    } else {
+      assertRows(result, 'invoices', 300, 'invoice_id', companyA);
+      assertRows(result, 'payments', 300, 'payment_id', companyA);
+    }
+    console.log(kind + ': bounded date filter verified 300 rows (' +
+      seconds + 's)');
+  }
+  return failures;
+}
+
 async function assertDenied(label, kind, companyId, token) {
   const name = rpcNames[kind];
   const outcome = await callRpc(name, companyId, token);
@@ -243,6 +277,7 @@ async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
   const independent = countIndependentSources();
+  const boundedFailures = await verifyBoundedRange(tokens);
   await verifyAuthorized(tokens, companyA, independent.trips, independent);
   await verifyAuthorized(tokens, companyB, independent.other_tenant_trips);
 
@@ -272,6 +307,7 @@ async function run() {
       if (Array.isArray(root[key])) assert.equal(root[key].length, 0);
     }
   }
+  assert.deepEqual(boundedFailures, [], 'Bounded date-range source failures');
   console.log('PASS: four source RPCs, independent row/amount totals, ' +
     'signed-JWT role and tenant isolation, date filters and >1000-row responses');
 }
