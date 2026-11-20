@@ -75,8 +75,9 @@ void main() {
     expect(ids, hasLength(100));
     expect(ids.toSet(), Set<int>.from(List.generate(100, (i) => i)));
     expect(streams, contains('12,345.67'));
-    expect(streams, contains('Source read'));
-    expect(streams, contains('08:20'));
+    // The PDF text engine emits separate positioned word segments.
+    expect(streams, contains('[(Source)]'));
+    expect(streams, contains('[(08:20)]'));
   });
 
   testWidgets('large report keeps all rows beyond twenty pages', (
@@ -128,8 +129,9 @@ void main() {
     expect(ids, hasLength(rowCount));
     expect(ids.toSet(), Set<int>.from(List.generate(rowCount, (i) => i)));
     expect(streams, contains('12,345.67'));
-    expect(streams, contains('Source read'));
-    expect(streams, contains('08:20'));
+    // The PDF text engine emits separate positioned word segments.
+    expect(streams, contains('[(Source)]'));
+    expect(streams, contains('[(08:20)]'));
   });
 
   testWidgets('unreadable company logo fails with typed render error', (
