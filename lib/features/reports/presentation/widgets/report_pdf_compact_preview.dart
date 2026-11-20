@@ -123,9 +123,7 @@ final class _ReportPdfCompactPreviewState
                     tooltip: strings.exportPdfZoomOut,
                     onPressed: scale <= AppSizes.reportPdfPreviewMinZoom
                         ? null
-                        : () => _changeZoom(
-                            -AppSizes.reportPdfPreviewZoomStep,
-                          ),
+                        : () => _changeZoom(-AppSizes.reportPdfPreviewZoomStep),
                     icon: const Icon(AppIcons.reportPdfZoomOut),
                   ),
                   Padding(
@@ -138,9 +136,7 @@ final class _ReportPdfCompactPreviewState
                     tooltip: strings.exportPdfZoomIn,
                     onPressed: scale >= AppSizes.reportPdfPreviewMaxZoom
                         ? null
-                        : () => _changeZoom(
-                            AppSizes.reportPdfPreviewZoomStep,
-                          ),
+                        : () => _changeZoom(AppSizes.reportPdfPreviewZoomStep),
                     icon: const Icon(AppIcons.reportPdfZoomIn),
                   ),
                   const SizedBox(width: AppSpacing.sm),

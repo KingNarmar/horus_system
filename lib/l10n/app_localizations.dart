@@ -3779,7 +3779,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsExportPdfGeneratedAt.
   ///
   /// In en, this message translates to:
-  /// **'Generated (UTC)'**
+  /// **'Generated'**
   String get reportsExportPdfGeneratedAt;
 
   /// No description provided for @reportsExportPdfPeriod.
