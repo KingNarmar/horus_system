@@ -86,7 +86,12 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
             ),
             pw.Text(
               '${labels.generatedAt}: '
-              '${ReportPdfDateFormatter.generatedAtUtc(document.generatedAtUtc, labels.localeName)}',
+              '${ReportPdfDateFormatter.utcTimestamp(document.generatedAtUtc, labels.localeName)}',
+              style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
+            ),
+            pw.Text(
+              '${labels.sourceAsOf}: '
+              '${document.sourceAsOfUtc == null ? labels.unavailable : ReportPdfDateFormatter.utcTimestamp(document.sourceAsOfUtc!, labels.localeName)}',
               style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
             ),
             pw.SizedBox(height: ReportPdfStyle.sectionGap),

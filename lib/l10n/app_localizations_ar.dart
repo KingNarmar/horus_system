@@ -2006,6 +2006,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsExportPdfGeneratedAt => 'تاريخ الإنشاء';
 
   @override
+  String get reportsExportPdfSourceAsOf => 'وقت قراءة البيانات (الخادم)';
+
+  @override
   String get reportsExportPdfPeriod => 'الفترة';
 
   @override

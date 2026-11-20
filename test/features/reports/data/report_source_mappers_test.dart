@@ -45,6 +45,7 @@ void main() {
     );
     expect(source.rows.single.amount.minorUnits, 2500);
     expect(source.rows.single.amount.currency.value, 'AED');
+    expect(source.metadata.sourceAsOfUtc, DateTime.utc(2026, 11, 19, 8, 20));
     expect(
       source.metadata.fromDate,
       BusinessDate(year: 2026, month: 6, day: 26),
@@ -83,7 +84,32 @@ void main() {
     final source = model.toEntity();
     expect(source.metadata.companyId, 'company-1');
     expect(source.metadata.businessTimezone, 'Asia/Dubai');
+    expect(source.metadata.sourceAsOfUtc, DateTime.utc(2026, 11, 19, 8, 20));
     expect(source.rows.single.tripId, 'trip-1');
+  });
+
+  test('read time is optional before migration rollout', () {
+    final legacy = Map<String, Object?>.from(_operationalCompany)
+      ..remove('source_as_of_utc');
+    final source = OperationalReportSourceModel.fromMap({
+      'company': legacy,
+      'period': {'from_date': null, 'to_date': null},
+      'rows': const [],
+    }).toEntity();
+    expect(source.metadata.sourceAsOfUtc, isNull);
+  });
+
+  test('source read time must include an offset', () {
+    final invalid = Map<String, Object?>.from(_operationalCompany)
+      ..['source_as_of_utc'] = '2026-11-19T08:20:00';
+    expect(
+      () => OperationalReportSourceModel.fromMap({
+        'company': invalid,
+        'period': {'from_date': null, 'to_date': null},
+        'rows': const [],
+      }),
+      throwsFormatException,
+    );
   });
 
   test('financial source requires canonical currency metadata', () {
@@ -184,10 +210,12 @@ const _company = {
   'base_currency_fraction_digits': 2,
   'business_timezone': 'Asia/Dubai',
   'business_date': '2026-08-13',
+  'source_as_of_utc': '2026-11-19T12:20:00+04:00',
 };
 
 const _operationalCompany = {
   'company_id': 'company-1',
   'business_timezone': 'Asia/Dubai',
   'business_date': '2026-08-13',
+  'source_as_of_utc': '2026-11-19T12:20:00+04:00',
 };

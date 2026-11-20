@@ -75,6 +75,8 @@ void main() {
     expect(ids, hasLength(100));
     expect(ids.toSet(), Set<int>.from(List.generate(100, (i) => i)));
     expect(streams, contains('12,345.67'));
+    expect(streams, contains('Source read'));
+    expect(streams, contains('08:20'));
   });
 
   testWidgets('large report keeps all rows beyond twenty pages', (
@@ -126,6 +128,8 @@ void main() {
     expect(ids, hasLength(rowCount));
     expect(ids.toSet(), Set<int>.from(List.generate(rowCount, (i) => i)));
     expect(streams, contains('12,345.67'));
+    expect(streams, contains('Source read'));
+    expect(streams, contains('08:20'));
   });
 
   testWidgets('unreadable company logo fails with typed render error', (
@@ -183,6 +187,7 @@ ReportExportDocument _document({Uint8List? logo}) => ReportExportDocument(
         companyId: 'company-a',
         businessTimezone: 'Asia/Dubai',
         businessDate: BusinessDate(year: 2026, month: 11, day: 19),
+        sourceAsOfUtc: DateTime.utc(2026, 11, 19, 8, 20),
         fromDate: null,
         toDate: null,
       ),
@@ -197,6 +202,7 @@ final ReportExportLabels _labels = ReportExportLabels(
   localeName: 'en',
   period: 'Period',
   generatedAt: 'Generated',
+  sourceAsOf: 'Source read (server)',
   page: 'Page',
   noRows: 'No rows',
   allDates: 'All dates',

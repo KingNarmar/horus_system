@@ -10,6 +10,7 @@ final class ReportExportLabels {
   final String localeName;
   final String period;
   final String generatedAt;
+  final String sourceAsOf;
   final String page;
   final String noRows;
   final String allDates;
@@ -26,6 +27,7 @@ final class ReportExportLabels {
     required this.localeName,
     required this.period,
     required this.generatedAt,
+    required this.sourceAsOf,
     required this.page,
     required this.noRows,
     required this.allDates,

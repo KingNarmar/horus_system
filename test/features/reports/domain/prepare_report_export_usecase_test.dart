@@ -97,6 +97,7 @@ void main() {
       expect(document?.companyId, 'company-a');
       expect(document?.companyName, 'Tenant A');
       expect(document?.generatedAtUtc, clock);
+      expect(document?.sourceAsOfUtc, DateTime.utc(2026, 11, 19, 8, 20));
       expect(source.calls, 1);
       expect(branding.profileCalls, 1);
     },
@@ -119,6 +120,7 @@ final class _Source implements ReportsRepository {
           companyId: companyId,
           businessTimezone: 'Asia/Dubai',
           businessDate: BusinessDate(year: 2026, month: 11, day: 19),
+        sourceAsOfUtc: DateTime.utc(2026, 11, 19, 8, 20),
           fromDate: fromDate,
           toDate: toDate,
         ),

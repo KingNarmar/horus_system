@@ -19,6 +19,7 @@ extension ReportExportLabelsX on BuildContext {
       localeName: Localizations.localeOf(this).toLanguageTag(),
       period: strings.exportPdfPeriod,
       generatedAt: strings.exportPdfGeneratedAt,
+      sourceAsOf: strings.exportPdfSourceAsOf,
       page: strings.exportPdfPage,
       noRows: strings.noRows,
       allDates: strings.allDates,

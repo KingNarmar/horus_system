@@ -18,6 +18,14 @@ final class ReportExportDocument {
   final DateTime generatedAtUtc;
   final ReportExportContent content;
 
+  /// Source read-start time, never inferred from the device clock.
+  DateTime? get sourceAsOfUtc => switch (content) {
+    ReportExportOperationalContent(:final report) => report.metadata.sourceAsOfUtc,
+    ReportExportExpensesContent(:final report) => report.metadata.sourceAsOfUtc,
+    ReportExportProfitContent(:final report) => report.metadata.sourceAsOfUtc,
+    ReportExportInvoicesContent(:final report) => report.metadata.sourceAsOfUtc,
+  };
+
   const ReportExportDocument({
     required this.companyId,
     required this.companyName,

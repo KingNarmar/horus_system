@@ -671,6 +671,7 @@
   "reportsExportPdfShareFailure": "Could not share the report PDF.",
   "reportsExportPdfInvalidFailure": "The generated PDF is invalid.",
   "reportsExportPdfGeneratedAt": "Generated",
+  "reportsExportPdfSourceAsOf": "Source read (server)",
   "reportsExportPdfPeriod": "Period",
   "reportsExportPdfPage": "Page",
   "reportsPermissionFailure": "This role cannot view the selected report.",

@@ -26,7 +26,7 @@ void main() {
   });
 
   test('UTC generation timestamp is readable without ISO microseconds', () {
-    final result = ReportPdfDateFormatter.generatedAtUtc(
+    final result = ReportPdfDateFormatter.utcTimestamp(
       DateTime.utc(2026, 11, 19, 12, 10, 15, 630),
       'ar',
     );

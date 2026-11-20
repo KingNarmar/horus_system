@@ -7,6 +7,8 @@ final class ReportSourceMetadataModel {
   final int? baseCurrencyFractionDigits;
   final String businessTimezone;
   final BusinessDate businessDate;
+  /// Server-side read start (UTC), when the migration is deployed.
+  final DateTime? sourceAsOfUtc;
   final BusinessDate? fromDate;
   final BusinessDate? toDate;
 
@@ -16,6 +18,7 @@ final class ReportSourceMetadataModel {
     required this.baseCurrencyFractionDigits,
     required this.businessTimezone,
     required this.businessDate,
+    this.sourceAsOfUtc,
     required this.fromDate,
     required this.toDate,
   });
@@ -38,6 +41,10 @@ final class ReportSourceMetadataModel {
         'business_timezone',
       ),
       businessDate: requiredDate(company['business_date'], 'business_date'),
+      sourceAsOfUtc: optionalDateTime(
+        company['source_as_of_utc'],
+        'source_as_of_utc',
+      ),
       fromDate: optionalDate(period['from_date'], 'from_date'),
       toDate: optionalDate(period['to_date'], 'to_date'),
     );

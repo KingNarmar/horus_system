@@ -18,7 +18,7 @@ abstract final class ReportPdfDateFormatter {
         ).format(DateTime(date.year, date.month, date.day)),
       );
 
-  static String generatedAtUtc(DateTime utc, String localeName) {
+  static String utcTimestamp(DateTime utc, String localeName) {
     final display = DateFormat(
       'yyyy-MM-dd HH:mm',
       localeName,

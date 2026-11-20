@@ -2036,6 +2036,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfGeneratedAt => 'Generated';
 
   @override
+  String get reportsExportPdfSourceAsOf => 'Source read (server)';
+
+  @override
   String get reportsExportPdfPeriod => 'Period';
 
   @override

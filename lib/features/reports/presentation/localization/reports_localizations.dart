@@ -112,6 +112,7 @@ final class ReportsLocalizations {
   String get exportPdfShareFailure => _l10n.reportsExportPdfShareFailure;
   String get exportPdfInvalidFailure => _l10n.reportsExportPdfInvalidFailure;
   String get exportPdfGeneratedAt => _l10n.reportsExportPdfGeneratedAt;
+  String get exportPdfSourceAsOf => _l10n.reportsExportPdfSourceAsOf;
   String get exportPdfPeriod => _l10n.reportsExportPdfPeriod;
   String get exportPdfPage => _l10n.reportsExportPdfPage;
 

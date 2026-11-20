@@ -3782,6 +3782,12 @@ abstract class AppLocalizations {
   /// **'Generated'**
   String get reportsExportPdfGeneratedAt;
 
+  /// No description provided for @reportsExportPdfSourceAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Source read (server)'**
+  String get reportsExportPdfSourceAsOf;
+
   /// No description provided for @reportsExportPdfPeriod.
   ///
   /// In en, this message translates to:
