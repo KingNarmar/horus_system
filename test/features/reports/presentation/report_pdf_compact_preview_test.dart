@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/presentation/widgets/report_pdf_compact_preview.dart';
 import 'package:horus_system/features/reports/presentation/widgets/report_pdf_page_viewer.dart';
 import 'package:horus_system/features/reports/presentation/widgets/report_pdf_preview_dialog.dart';
@@ -194,6 +195,54 @@ void main() {
     expect(find.text('100%'), findsOneWidget);
   });
 
+  testWidgets('mobile Arabic print confirmation displays the page orientation', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    var confirmations = 0;
+    await tester.pumpWidget(
+      _app(
+        const Locale('ar'),
+        pdfBytes,
+        pageLayout: ReportPdfPageLayout.a4Landscape,
+        onConfirmPrint: () => confirmations++,
+      ),
+    );
+
+    expect(find.text('A4 · أفقي'), findsOneWidget);
+    expect(find.text('معاينة الطباعة'), findsOneWidget);
+    expect(find.text('طباعة PDF'), findsOneWidget);
+    await tester.tap(find.text('طباعة PDF'));
+    await tester.pump();
+    expect(confirmations, 1);
+  });
+
+  testWidgets('desktop print preview confirms from the app and not PDF plugin', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1200, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    var confirmations = 0;
+    await tester.pumpWidget(
+      _app(
+        const Locale('en'),
+        pdfBytes,
+        pageLayout: ReportPdfPageLayout.a4Landscape,
+        onConfirmPrint: () => confirmations++,
+      ),
+    );
+
+    expect(find.byType(PdfPreview), findsOneWidget);
+    expect(find.text('Print preview'), findsOneWidget);
+    expect(find.text('A4 · Landscape'), findsOneWidget);
+    await tester.tap(find.text('Print PDF'));
+    await tester.pump();
+    expect(confirmations, 1);
+  });
+
   testWidgets('desktop retains the existing dialog-based PdfPreview', (
     tester,
   ) async {
@@ -220,11 +269,22 @@ final Uint8List _pixel = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVR4nGP8+vXrfwYGBgYmBigAADwYA+IEIyRGAAAAAElFTkSuQmCC',
 );
 
-Widget _app(Locale locale, Uint8List bytes) => MaterialApp(
+Widget _app(
+  Locale locale,
+  Uint8List bytes, {
+  ReportPdfPageLayout? pageLayout,
+  VoidCallback? onConfirmPrint,
+}) => MaterialApp(
   locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
-  home: Scaffold(body: ReportPdfPreviewDialog(bytes: bytes)),
+  home: Scaffold(
+    body: ReportPdfPreviewDialog(
+      bytes: bytes,
+      pageLayout: pageLayout,
+      onConfirmPrint: onConfirmPrint,
+    ),
+  ),
 );
 
 Widget _viewerApp(

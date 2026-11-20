@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
+import 'package:horus_system/core/errors/common_failures.dart';
 import 'package:horus_system/core/utils/result.dart';
 import 'package:horus_system/features/company/domain/entities/company.dart';
 import 'package:horus_system/features/company/domain/entities/company_brand_logo_file.dart';
@@ -138,6 +139,112 @@ void main() {
     expect(delivery.calls, 1);
     expect(renderer.renderedCompanies, ['company-a']);
   });
+
+  test('Print requires preview and fresh authorization before native delivery', () async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    final request = cubit.perform(
+      action: ReportPdfAction.print,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    source.complete('company-a');
+    await request;
+
+    final ready = cubit.state as ReportExportPrintPreviewReady;
+    expect(ready.document.bytes, same(renderer.pdfBytes));
+    expect(ready.document.pageLayout, ReportPdfPageLayout.a4Portrait);
+    expect(delivery.printCalls, 0);
+
+    final confirmed = cubit.confirmPrint(
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+    );
+    expect(source.requestedCompanies, ['company-a', 'company-a']);
+    expect(delivery.printCalls, 0);
+    source.complete('company-a');
+    await confirmed;
+
+    expect(cubit.state, isA<ReportExportCompleted>());
+    expect(delivery.printCalls, 1);
+    expect(delivery.lastPrintedBytes, same(ready.document.bytes));
+    expect(delivery.lastPageLayout, ready.document.pageLayout);
+  });
+
+  test('closing print preview prevents any printer invocation', () async {
+    final source = _PendingReportSource();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, _RecordingRenderer(), delivery);
+    addTearDown(cubit.close);
+    final request = cubit.perform(
+      action: ReportPdfAction.print,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    source.complete('company-a');
+    await request;
+    cubit.cancelPrintPreview();
+    await cubit.confirmPrint(
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+    );
+    expect(cubit.state, isA<ReportExportIdle>());
+    expect(source.requestedCompanies, ['company-a']);
+    expect(delivery.printCalls, 0);
+  });
+
+  test('print confirmation is refused after a tenant context change', () async {
+    final source = _PendingReportSource();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, _RecordingRenderer(), delivery);
+    addTearDown(cubit.close);
+    final request = cubit.perform(
+      action: ReportPdfAction.print,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    source.complete('company-a');
+    await request;
+    await cubit.confirmPrint(
+      currentCompanyContext: _context('company-b', CompanyRole.owner),
+    );
+    expect(cubit.state, isA<ReportExportIdle>());
+    expect(source.requestedCompanies, ['company-a']);
+    expect(delivery.printCalls, 0);
+  });
+
+  test('permission revoked before confirmation blocks delivery', () async {
+    final source = _PendingReportSource();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, _RecordingRenderer(), delivery);
+    addTearDown(cubit.close);
+    final request = cubit.perform(
+      action: ReportPdfAction.print,
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+      kind: ReportExportKind.dailyTrips,
+      dateRange: const ReportDateRange(),
+      labels: _labels(),
+    );
+    source.complete('company-a');
+    await request;
+
+    final confirmed = cubit.confirmPrint(
+      currentCompanyContext: _context('company-a', CompanyRole.owner),
+    );
+    source.deny('company-a');
+    await confirmed;
+
+    expect(cubit.state, isA<ReportExportFailed>());
+    expect(delivery.printCalls, 0);
+  });
 }
 
 Future<void> _preview(ReportExportCubit cubit, String companyId) =>
@@ -215,6 +322,12 @@ final class _PendingReportSource implements ReportsRepository {
     _pending[companyId] = completer;
     return completer.future;
   }
+
+  void deny(String companyId) => _pending[companyId]!.complete(
+    const FailureResult(
+      PermissionFailure(code: ReportsFailureCodes.permissionExport),
+    ),
+  );
 
   void complete(String companyId) {
     _pending[companyId]!.complete(
@@ -318,6 +431,9 @@ final class _RecordingRenderer implements ReportPdfRenderer {
 
 final class _RecordingDelivery implements ReportPdfDeliveryRepository {
   int calls = 0;
+  int printCalls = 0;
+  Uint8List? lastPrintedBytes;
+  ReportPdfPageLayout? lastPageLayout;
 
   @override
   Future<Result<ReportPdfDeliveryOutcome>> save({
@@ -335,6 +451,9 @@ final class _RecordingDelivery implements ReportPdfDeliveryRepository {
     required ReportPdfPageLayout pageLayout,
   }) async {
     calls++;
+    printCalls++;
+    lastPrintedBytes = bytes;
+    lastPageLayout = pageLayout;
     return const Success(ReportPdfDeliveryOutcome.completed);
   }
 
