@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import '../../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
@@ -17,6 +18,7 @@ import '../../domain/failures/reports_failure_codes.dart';
 import '../../domain/services/report_pdf_renderer.dart';
 import '../constants/report_pdf_style.dart';
 import 'report_pdf_column_widths.dart';
+import 'report_pdf_business_timestamp_formatter.dart';
 import 'report_pdf_date_formatter.dart';
 
 typedef ReportPdfFontLoader =
@@ -25,9 +27,17 @@ typedef ReportPdfFontLoader =
 /// Local serialization of a pre-authorized typed Domain snapshot.
 final class ReportPdfRendererImpl implements ReportPdfRenderer {
   final ReportPdfFontLoader _loadFonts;
+  final ReportPdfBusinessTimestampFormatter _timestampFormatter;
 
-  ReportPdfRendererImpl({ReportPdfFontLoader? loadFonts})
-    : _loadFonts = loadFonts ?? _defaultFonts;
+  ReportPdfRendererImpl({
+    ReportPdfFontLoader? loadFonts,
+    ReportPdfBusinessTimestampFormatter? timestampFormatter,
+  }) : _loadFonts = loadFonts ?? _defaultFonts,
+       _timestampFormatter =
+           timestampFormatter ??
+           const ReportPdfBusinessTimestampFormatter(
+             TimezoneBusinessTimeZoneConverter(),
+           );
 
   @override
   Future<Result<Uint8List>> render({
@@ -38,6 +48,34 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
     try {
       // Date formatting must also work outside a Flutter app bootstrap.
       await initializeDateFormatting(labels.localeName);
+      final businessTimezone = document.businessTimezone;
+      final generatedAt = _timestampFormatter.format(
+        utcInstant: document.generatedAtUtc,
+        businessTimezone: businessTimezone,
+        localeName: labels.localeName,
+      );
+      if (generatedAt.failureOrNull != null) {
+        return const FailureResult(
+          ServerFailure(code: ReportsFailureCodes.pdfRenderUnavailable),
+        );
+      }
+
+      String sourceTime = labels.unavailable;
+      final sourceInstant = document.sourceAsOfUtc;
+      if (sourceInstant != null) {
+        final formatted = _timestampFormatter.format(
+          utcInstant: sourceInstant,
+          businessTimezone: businessTimezone,
+          localeName: labels.localeName,
+        );
+        if (formatted.failureOrNull != null) {
+          return const FailureResult(
+            ServerFailure(code: ReportsFailureCodes.pdfRenderUnavailable),
+          );
+        }
+        sourceTime = formatted.dataOrNull!;
+      }
+
       final fonts = await _loadFonts();
       final image = await _logo(document.logoBytes);
       final pdf = pw.Document();
@@ -86,12 +124,12 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
             ),
             pw.Text(
               '${labels.generatedAt}: '
-              '${ReportPdfDateFormatter.utcTimestamp(document.generatedAtUtc, labels.localeName)}',
+              '${generatedAt.dataOrNull!}',
               style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
             ),
             pw.Text(
               '${labels.sourceAsOf}: '
-              '${document.sourceAsOfUtc == null ? labels.unavailable : ReportPdfDateFormatter.utcTimestamp(document.sourceAsOfUtc!, labels.localeName)}',
+              '$sourceTime',
               style: const pw.TextStyle(fontSize: ReportPdfStyle.smallSize),
             ),
             pw.SizedBox(height: ReportPdfStyle.sectionGap),

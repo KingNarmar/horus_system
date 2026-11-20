@@ -19,6 +19,14 @@ final class ReportExportDocument {
   final ReportExportContent content;
 
   /// Source read-start time, never inferred from the device clock.
+  String get businessTimezone => switch (content) {
+    ReportExportOperationalContent(:final report) =>
+      report.metadata.businessTimezone,
+    ReportExportExpensesContent(:final report) => report.metadata.businessTimezone,
+    ReportExportProfitContent(:final report) => report.metadata.businessTimezone,
+    ReportExportInvoicesContent(:final report) => report.metadata.businessTimezone,
+  };
+
   DateTime? get sourceAsOfUtc => switch (content) {
     ReportExportOperationalContent(:final report) =>
       report.metadata.sourceAsOfUtc,

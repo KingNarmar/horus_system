@@ -1,6 +1,8 @@
 import 'package:intl/intl.dart';
 
 import '../../../../core/domain/value_objects/business_date.dart';
+import '../../../../core/domain/value_objects/business_local_date_time.dart';
+import '../../../../core/utils/business_local_date_time_date_time_adapter.dart';
 
 /// Presentation-only date strings for embedded PDF fonts.
 ///
@@ -18,12 +20,18 @@ abstract final class ReportPdfDateFormatter {
         ).format(DateTime(date.year, date.month, date.day)),
       );
 
-  static String utcTimestamp(DateTime utc, String localeName) {
+  /// Display business-local wall-clock components with the authoritative
+  /// company IANA timezone, independent of the viewer's device timezone.
+  static String businessTimestamp(
+    BusinessLocalDateTime localDateTime,
+    String localeName,
+    String businessTimezone,
+  ) {
     final display = DateFormat(
       'yyyy-MM-dd HH:mm',
       localeName,
-    ).format(utc.toUtc());
-    return '${_withoutControls(display)} UTC';
+    ).format(BusinessLocalDateTimeDateTimeAdapter.toDateTime(localDateTime));
+    return '${_withoutControls(display)} $businessTimezone';
   }
 
   static String _withoutControls(String value) =>

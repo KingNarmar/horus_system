@@ -77,7 +77,8 @@ void main() {
     expect(streams, contains('12,345.67'));
     // The PDF text engine emits separate positioned word segments.
     expect(streams, contains('[(Source)]'));
-    expect(streams, contains('[(08:20)]'));
+    expect(streams, contains('[(12:20)]'));
+    expect(streams, contains('[(Asia/Dubai)]'));
   });
 
   testWidgets('large report keeps all rows beyond twenty pages', (
@@ -131,7 +132,28 @@ void main() {
     expect(streams, contains('12,345.67'));
     // The PDF text engine emits separate positioned word segments.
     expect(streams, contains('[(Source)]'));
-    expect(streams, contains('[(08:20)]'));
+    expect(streams, contains('[(12:20)]'));
+    expect(streams, contains('[(Asia/Dubai)]'));
+  });
+
+  testWidgets('unknown company timezone fails rather than showing UTC', (
+    tester,
+  ) async {
+    final result = await renderer.render(
+      document: _document(businessTimezone: 'Invalid/Timezone'),
+      table: ReportExportTable(
+        columns: const [ReportExportColumn.trip],
+        rows: const [],
+        totals: const [],
+        currencyFractionDigits: 0,
+      ),
+      labels: _labels,
+    );
+
+    expect(
+      result.failureOrNull?.code,
+      ReportsFailureCodes.pdfRenderUnavailable,
+    );
   });
 
   testWidgets('unreadable company logo fails with typed render error', (
@@ -176,7 +198,10 @@ void main() {
   });
 }
 
-ReportExportDocument _document({Uint8List? logo}) => ReportExportDocument(
+ReportExportDocument _document({
+  Uint8List? logo,
+  String businessTimezone = 'Asia/Dubai',
+}) => ReportExportDocument(
   companyId: 'company-a',
   companyName: 'Tenant A',
   logoBytes: logo,
@@ -187,7 +212,7 @@ ReportExportDocument _document({Uint8List? logo}) => ReportExportDocument(
     OperationalTripReport(
       metadata: OperationalReportSourceMetadata(
         companyId: 'company-a',
-        businessTimezone: 'Asia/Dubai',
+        businessTimezone: businessTimezone,
         businessDate: BusinessDate(year: 2026, month: 11, day: 19),
         sourceAsOfUtc: DateTime.utc(2026, 11, 19, 8, 20),
         fromDate: null,
