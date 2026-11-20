@@ -7,6 +7,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../localization/reports_localizations.dart';
+import 'report_pdf_compact_preview.dart';
 
 /// Read-only PDF preview; save/share/print regenerate from current authority.
 final class ReportPdfPreviewDialog extends StatelessWidget {
@@ -16,6 +17,10 @@ final class ReportPdfPreviewDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.sizeOf(context).width < AppSizes.desktopMinWidth) {
+      return ReportPdfCompactPreview(bytes: bytes);
+    }
+
     final strings = context.reportsL10n;
     return Dialog(
       child: ConstrainedBox(

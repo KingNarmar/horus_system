@@ -1969,6 +1969,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsExportPdfPreviewTitle => 'معاينة تقرير PDF';
 
   @override
+  String get reportsExportPdfZoomIn => 'تكبير';
+
+  @override
+  String get reportsExportPdfZoomOut => 'تصغير';
+
+  @override
+  String get reportsExportPdfFitPage => 'ملاءمة الصفحة';
+
+  @override
   String get reportsExportPdfCompleted => 'اكتمل إجراء ملف PDF.';
 
   @override

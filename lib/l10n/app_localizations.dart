@@ -3710,6 +3710,24 @@ abstract class AppLocalizations {
   /// **'Report PDF preview'**
   String get reportsExportPdfPreviewTitle;
 
+  /// No description provided for @reportsExportPdfZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get reportsExportPdfZoomIn;
+
+  /// No description provided for @reportsExportPdfZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get reportsExportPdfZoomOut;
+
+  /// No description provided for @reportsExportPdfFitPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit page'**
+  String get reportsExportPdfFitPage;
+
   /// No description provided for @reportsExportPdfCompleted.
   ///
   /// In en, this message translates to:

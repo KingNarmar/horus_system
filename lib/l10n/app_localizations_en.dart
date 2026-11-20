@@ -1997,6 +1997,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfPreviewTitle => 'Report PDF preview';
 
   @override
+  String get reportsExportPdfZoomIn => 'Zoom in';
+
+  @override
+  String get reportsExportPdfZoomOut => 'Zoom out';
+
+  @override
+  String get reportsExportPdfFitPage => 'Fit page';
+
+  @override
   String get reportsExportPdfCompleted => 'PDF action completed.';
 
   @override

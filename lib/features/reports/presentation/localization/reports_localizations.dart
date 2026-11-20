@@ -100,6 +100,9 @@ final class ReportsLocalizations {
   String get exportPdfShare => _l10n.reportsExportPdfShare;
   String get exportPdfBusy => _l10n.reportsExportPdfBusy;
   String get exportPdfPreviewTitle => _l10n.reportsExportPdfPreviewTitle;
+  String get exportPdfZoomIn => _l10n.reportsExportPdfZoomIn;
+  String get exportPdfZoomOut => _l10n.reportsExportPdfZoomOut;
+  String get exportPdfFitPage => _l10n.reportsExportPdfFitPage;
   String get exportPdfCompleted => _l10n.reportsExportPdfCompleted;
   String get exportPdfShareInitiated => _l10n.reportsExportPdfShareInitiated;
   String get exportPdfCancelled => _l10n.reportsExportPdfCancelled;
