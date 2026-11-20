@@ -1,6 +1,8 @@
+import '../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../core/data/supabase/supabase_client_provider.dart';
 import '../../company/di/company_dependencies.dart';
 import '../data/repositories/report_pdf_delivery_repository_impl.dart';
+import '../data/services/report_pdf_business_timestamp_formatter.dart';
 import '../data/services/report_pdf_renderer_impl.dart';
 import '../domain/usecases/prepare_report_export_usecase.dart';
 import '../domain/usecases/generate_report_pdf_usecase.dart';
@@ -30,7 +32,11 @@ abstract final class ReportsDependencies {
     return ReportExportCubit(
       generate: GenerateReportPdfUseCase(
         prepare: prepare,
-        renderer: ReportPdfRendererImpl(),
+        renderer: ReportPdfRendererImpl(
+          timestampFormatter: const ReportPdfBusinessTimestampFormatter(
+            TimezoneBusinessTimeZoneConverter(),
+          ),
+        ),
       ),
       save: SaveReportPdfUseCase(delivery),
       print: PrintReportPdfUseCase(delivery),

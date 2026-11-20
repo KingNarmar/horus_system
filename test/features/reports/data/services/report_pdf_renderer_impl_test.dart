@@ -5,9 +5,11 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'package:horus_system/core/data/services/timezone_business_time_zone_converter.dart';
 import 'package:horus_system/core/domain/value_objects/business_date.dart';
 import 'package:horus_system/core/domain/value_objects/currency_code.dart';
 import 'package:horus_system/core/domain/value_objects/money.dart';
+import 'package:horus_system/features/reports/data/services/report_pdf_business_timestamp_formatter.dart';
 import 'package:horus_system/features/reports/data/services/report_pdf_renderer_impl.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_date_range.dart';
@@ -19,7 +21,11 @@ import 'package:horus_system/features/reports/domain/entities/report_source_meta
 import 'package:horus_system/features/reports/domain/failures/reports_failure_codes.dart';
 
 void main() {
+  const timestamps = ReportPdfBusinessTimestampFormatter(
+    TimezoneBusinessTimeZoneConverter(),
+  );
   final renderer = ReportPdfRendererImpl(
+    timestampFormatter: timestamps,
     loadFonts: () async =>
         (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
   );
@@ -179,6 +185,7 @@ void main() {
     tester,
   ) async {
     final offline = ReportPdfRendererImpl(
+      timestampFormatter: timestamps,
       loadFonts: () async => throw StateError('font unavailable'),
     );
     final result = await offline.render(

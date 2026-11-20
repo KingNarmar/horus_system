@@ -7,7 +7,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import '../../../../core/data/services/timezone_business_time_zone_converter.dart';
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/utils/result.dart';
@@ -31,13 +30,9 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
 
   ReportPdfRendererImpl({
     ReportPdfFontLoader? loadFonts,
-    ReportPdfBusinessTimestampFormatter? timestampFormatter,
+    required ReportPdfBusinessTimestampFormatter timestampFormatter,
   }) : _loadFonts = loadFonts ?? _defaultFonts,
-       _timestampFormatter =
-           timestampFormatter ??
-           const ReportPdfBusinessTimestampFormatter(
-             TimezoneBusinessTimeZoneConverter(),
-           );
+       _timestampFormatter = timestampFormatter;
 
   @override
   Future<Result<Uint8List>> render({
