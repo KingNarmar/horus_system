@@ -154,11 +154,19 @@ final class _ReportsPageState extends State<ReportsPage> {
   void _handleExportState(BuildContext context, ReportExportState state) {
     if (!context.mounted) return;
     final exportCubit = context.read<ReportExportCubit>();
-    if (state is ReportExportPreviewReady) {
+    if (state is ReportExportPreviewReady ||
+        state is ReportExportPrintPreviewReady) {
       _dismissPreview();
+      final printReady = state is ReportExportPrintPreviewReady;
       final route = DialogRoute<void>(
         context: context,
-        builder: (_) => ReportPdfPreviewDialog(bytes: state.bytes),
+        builder: (_) => ReportPdfPreviewDialog(
+          bytes: printReady
+              ? state.document.bytes
+              : (state as ReportExportPreviewReady).bytes,
+          pageLayout: printReady ? state.document.pageLayout : null,
+          onConfirmPrint: printReady ? _confirmPrint : null,
+        ),
       );
       _activePreviewRoute = route;
       unawaited(
@@ -166,9 +174,10 @@ final class _ReportsPageState extends State<ReportsPage> {
           if (identical(_activePreviewRoute, route)) {
             _activePreviewRoute = null;
           }
+          if (printReady) exportCubit.cancelPrintPreview();
         }),
       );
-      exportCubit.clearFeedback();
+      if (!printReady) exportCubit.clearFeedback();
       return;
     }
 
@@ -191,6 +200,15 @@ final class _ReportsPageState extends State<ReportsPage> {
     if (state is ReportExportFailed || state is ReportExportCompleted) {
       exportCubit.clearFeedback();
     }
+  }
+
+  void _confirmPrint() {
+    _dismissPreview();
+    unawaited(
+      context.read<ReportExportCubit>().confirmPrint(
+        currentCompanyContext: widget.currentCompanyContext,
+      ),
+    );
   }
 
   void _export(ReportsLoaded loaded, ReportPdfAction action) {

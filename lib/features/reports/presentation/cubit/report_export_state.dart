@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../../../../core/errors/failure.dart';
+import '../../domain/entities/generated_report_pdf.dart';
 import '../../domain/repositories/report_pdf_delivery_repository.dart';
 
 enum ReportPdfAction { preview, save, print, share }
@@ -21,6 +22,12 @@ final class ReportExportBusy extends ReportExportState {
 final class ReportExportPreviewReady extends ReportExportState {
   final Uint8List bytes;
   const ReportExportPreviewReady(this.bytes);
+}
+
+/// The exact authorized bytes that will be printed once reauthorized.
+final class ReportExportPrintPreviewReady extends ReportExportState {
+  final GeneratedReportPdf document;
+  const ReportExportPrintPreviewReady(this.document);
 }
 
 final class ReportExportCompleted extends ReportExportState {

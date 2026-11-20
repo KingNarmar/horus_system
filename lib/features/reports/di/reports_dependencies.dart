@@ -5,6 +5,7 @@ import '../data/repositories/report_pdf_delivery_repository_impl.dart';
 import '../data/services/report_pdf_business_timestamp_formatter.dart';
 import '../data/services/report_pdf_renderer_impl.dart';
 import '../domain/usecases/prepare_report_export_usecase.dart';
+import '../domain/usecases/reauthorize_report_pdf_print_usecase.dart';
 import '../domain/usecases/generate_report_pdf_usecase.dart';
 import '../domain/usecases/report_pdf_delivery_usecases.dart';
 import '../presentation/cubit/report_export_cubit.dart';
@@ -38,6 +39,7 @@ abstract final class ReportsDependencies {
           ),
         ),
       ),
+      reauthorizePrint: ReauthorizeReportPdfPrintUseCase(prepare),
       save: SaveReportPdfUseCase(delivery),
       print: PrintReportPdfUseCase(delivery),
       share: ShareReportPdfUseCase(delivery),

@@ -1967,6 +1967,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportsExportPdfPreviewTitle => 'معاينة تقرير PDF';
+  @override
+  String get reportsExportPdfPrintPreviewTitle => 'معاينة الطباعة';
+
+  @override
+  String get reportsExportPdfPaperA4Portrait => 'A4 · عمودي';
+
+  @override
+  String get reportsExportPdfPaperA4Landscape => 'A4 · أفقي';
+
 
   @override
   String get reportsExportPdfZoomIn => 'تكبير';
