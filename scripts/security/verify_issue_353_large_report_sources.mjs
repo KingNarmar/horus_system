@@ -156,7 +156,7 @@ async function callRpc(name, companyId, token, fromDate = null, toDate = null) {
 function assertRows(payload, key, count, idField, companyId) {
   const asOf = payload.company?.source_as_of_utc;
   assert.equal(typeof asOf, 'string', 'missing server report read time');
-  assert.ok(/(?:[zZ]|[+-]\\d{2}:?\\d{2})$/.test(asOf), 'timestamp offset missing');
+  assert.ok(/(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(asOf), 'timestamp offset missing');
   const asOfMs = Date.parse(asOf);
   assert.ok(Number.isFinite(asOfMs), 'invalid server report time');
   assert.ok(asOfMs >= Date.now() - 120000 && asOfMs <= Date.now() + 5000,
