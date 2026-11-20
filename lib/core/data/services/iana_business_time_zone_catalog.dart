@@ -1,4 +1,4 @@
-import '../constants/iana_canonical_time_zone_ids.dart';
+import '../../domain/policies/business_time_zone_selection_policy.dart';
 import '../constants/iana_time_zone_aliases.dart';
 
 /// Canonical IANA 2025c selection and legacy persisted zone resolution.
@@ -6,7 +6,7 @@ final class IanaBusinessTimeZoneCatalog {
   const IanaBusinessTimeZoneCatalog();
 
   bool isSelectable(String zone) =>
-      IanaCanonicalTimeZoneIds.values.contains(zone);
+      const BusinessTimeZoneSelectionPolicy().isSelectable(zone);
 
   /// Preserve legacy companies, without relying on a device UTC offset.
   String? canonicalForLookup(String raw) {

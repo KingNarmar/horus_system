@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-import 'package:horus_system/core/data/constants/iana_canonical_time_zone_ids.dart';
+import 'package:horus_system/core/domain/constants/iana_canonical_time_zone_ids.dart';
 import 'package:horus_system/core/data/services/iana_business_time_zone_catalog.dart';
 
 void main() {

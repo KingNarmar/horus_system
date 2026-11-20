@@ -1,3 +1,4 @@
+import '../../../../core/domain/policies/business_time_zone_selection_policy.dart';
 import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
@@ -48,7 +49,8 @@ final class UpdateCompanyBusinessTimezoneUseCase
     }
 
     final timezone = CompanyTimezone.tryParse(rawTimezone);
-    if (timezone == null) {
+    if (timezone == null ||
+        !const BusinessTimeZoneSelectionPolicy().isSelectable(timezone.value)) {
       return Future.value(
         const FailureResult<Company>(
           ValidationFailure(
