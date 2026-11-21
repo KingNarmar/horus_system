@@ -49,6 +49,7 @@ final class ReportFilters extends StatelessWidget {
             final compact = constraints.maxWidth < AppSizes.dataTableBreakpoint;
             final controls = <Widget>[
               DropdownButtonFormField<ReportType>(
+                isExpanded: true,
                 key: ValueKey(reportType),
                 initialValue: reportType,
                 decoration: InputDecoration(labelText: strings.reportLabel),
@@ -56,7 +57,10 @@ final class ReportFilters extends StatelessWidget {
                     .map(
                       (type) => DropdownMenuItem(
                         value: type,
-                        child: Text(strings.reportTypeLabel(type)),
+                        child: Text(
+                          strings.reportTypeLabel(type),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(growable: false),
