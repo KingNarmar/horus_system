@@ -7,7 +7,6 @@ abstract final class ReportsDbConstants {
   static const readSnapshotPageRpc = 'read_report_export_snapshot_page';
   static const releaseSnapshotRpc = 'release_report_export_snapshot';
 
-
   static const companyIdParam = 'p_company_id';
   static const fromDateParam = 'p_from_date';
   static const toDateParam = 'p_to_date';
@@ -16,7 +15,6 @@ abstract final class ReportsDbConstants {
   static const streamParam = 'p_stream';
   static const cursorParam = 'p_cursor';
   static const pageSizeParam = 'p_page_size';
-
 }
 
 abstract final class ReportsRpcErrorCodes {

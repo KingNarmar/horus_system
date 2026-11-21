@@ -11,6 +11,7 @@ import '../entities/report_export_kind.dart';
 import '../entities/report_export_progress.dart';
 import '../failures/reports_failure_codes.dart';
 import '../failures/report_export_cancelled_failure.dart';
+import '../repositories/report_export_sources_factory.dart';
 import 'get_open_invoices_report_usecase.dart';
 import 'get_operational_report_usecase.dart';
 import 'get_trip_expenses_report_usecase.dart';
@@ -42,6 +43,7 @@ final class PrepareReportExportUseCase {
   final GetOpenInvoicesReportUseCase _invoices;
   final CompanyBrandingRepository _branding;
   final DateTime Function() _clock;
+  final ReportExportSourcesFactory? _exportSourcesFactory;
 
   const PrepareReportExportUseCase({
     required GetOperationalReportUseCase operational,
@@ -50,12 +52,14 @@ final class PrepareReportExportUseCase {
     required GetOpenInvoicesReportUseCase invoices,
     required CompanyBrandingRepository branding,
     required DateTime Function() clock,
+    ReportExportSourcesFactory? exportSourcesFactory,
   }) : _operational = operational,
        _expenses = expenses,
        _profit = profit,
        _invoices = invoices,
        _branding = branding,
-       _clock = clock;
+       _clock = clock,
+       _exportSourcesFactory = exportSourcesFactory;
 
   Future<Result<ReportExportDocument>> call(
     PrepareReportExportParams params,
@@ -130,9 +134,26 @@ final class PrepareReportExportUseCase {
   Future<Result<ReportExportContent>> _loadAuthorizedContent(
     PrepareReportExportParams params,
   ) async {
+    final source = _exportSourcesFactory?.call(
+      cancellation: params.cancellation ?? ReportExportCancellation(),
+      onProgress: params.onProgress,
+    );
+    final operational = source == null
+        ? _operational
+        : GetOperationalReportUseCase(repository: source);
+    final expenses = source == null
+        ? _expenses
+        : GetTripExpensesReportUseCase(source);
+    final profit = source == null
+        ? _profit
+        : GetTripNetProfitReportUseCase(repository: source);
+    final invoices = source == null
+        ? _invoices
+        : GetOpenInvoicesReportUseCase(repository: source);
+
     final dimension = params.kind.operationalDimension;
     if (dimension != null) {
-      final result = await _operational(
+      final result = await operational(
         OperationalReportParams(
           currentCompanyContext: params.currentCompanyContext,
           dimension: dimension,
@@ -151,17 +172,17 @@ final class PrepareReportExportUseCase {
       dateRange: params.dateRange,
     );
     return switch (params.kind) {
-      ReportExportKind.tripExpenses => (await _expenses(request)).when(
+      ReportExportKind.tripExpenses => (await expenses(request)).when(
         success: (value) =>
             Success<ReportExportContent>(ReportExportExpensesContent(value)),
         failure: (value) => FailureResult<ReportExportContent>(value),
       ),
-      ReportExportKind.tripNetProfit => (await _profit(request)).when(
+      ReportExportKind.tripNetProfit => (await profit(request)).when(
         success: (value) =>
             Success<ReportExportContent>(ReportExportProfitContent(value)),
         failure: (value) => FailureResult<ReportExportContent>(value),
       ),
-      ReportExportKind.openInvoices => (await _invoices(request)).when(
+      ReportExportKind.openInvoices => (await invoices(request)).when(
         success: (value) =>
             Success<ReportExportContent>(ReportExportInvoicesContent(value)),
         failure: (value) => FailureResult<ReportExportContent>(value),

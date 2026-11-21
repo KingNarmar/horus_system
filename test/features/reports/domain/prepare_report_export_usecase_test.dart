@@ -12,6 +12,7 @@ import 'package:horus_system/features/company/domain/repositories/company_brandi
 import 'package:horus_system/features/reports/domain/entities/open_invoices_report.dart';
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_date_range.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_cancellation.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_expenses_report.dart';
@@ -71,6 +72,43 @@ void main() {
     expect(result.failureOrNull?.code, ReportsFailureCodes.permissionExport);
     expect(source.calls, 0);
     expect(branding.profileCalls, 0);
+  });
+
+  test('export uses paged source without changing screen reads', () async {
+    final screenSource = _Source();
+    final pagedSource = _Source();
+    final branding = _Branding();
+    final cancellation = ReportExportCancellation();
+    var factoryCalls = 0;
+    final prepare = PrepareReportExportUseCase(
+      operational: GetOperationalReportUseCase(repository: screenSource),
+      expenses: GetTripExpensesReportUseCase(screenSource),
+      profit: GetTripNetProfitReportUseCase(repository: screenSource),
+      invoices: GetOpenInvoicesReportUseCase(repository: screenSource),
+      branding: branding,
+      clock: () => clock,
+      exportSourcesFactory: ({required cancellation, onProgress}) {
+        factoryCalls++;
+        return pagedSource;
+      },
+    );
+
+    final requested = request(
+      CompanyRole.operations,
+      ReportExportKind.dailyTrips,
+    );
+    final result = await prepare(
+      PrepareReportExportParams(
+        currentCompanyContext: requested.currentCompanyContext,
+        kind: requested.kind,
+        dateRange: requested.dateRange,
+        cancellation: cancellation,
+      ),
+    );
+    expect(result.failureOrNull, isNull);
+    expect(factoryCalls, 1);
+    expect(screenSource.calls, 0);
+    expect(pagedSource.calls, 1);
   });
 
   test('foreign tenant branding identity fails closed', () async {

@@ -57,23 +57,27 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
     sourceKind: ReportExportSnapshotConstants.operational,
     permissionCode: ReportsFailureCodes.permissionOperationalView,
     assemble: (snapshot) async {
-      final empty = OperationalReportSourceModel.fromMap(
-        {...snapshot.sourceHeader, 'rows': <Object>[]},
-      ).toEntity();
+      final empty = OperationalReportSourceModel.fromMap({
+        ...snapshot.sourceHeader,
+        'rows': <Object>[],
+      }).toEntity();
       final rows = await _collect<OperationalTripReportRow>(
         snapshot: snapshot,
         stream: ReportExportSnapshotConstants.rows,
         completedBefore: 0,
         idOf: (row) => row.tripId,
-        parse: (raw) => OperationalReportSourceModel.fromMap(
-          {...snapshot.sourceHeader, 'rows': raw},
-        ).toEntity().rows,
+        parse: (raw) => OperationalReportSourceModel.fromMap({
+          ...snapshot.sourceHeader,
+          'rows': raw,
+        }).toEntity().rows,
       );
       if (rows.failureOrNull != null) return FailureResult(rows.failureOrNull!);
-      return Success(OperationalTripReportSource(
-        metadata: empty.metadata,
-        rows: rows.dataOrNull!,
-      ));
+      return Success(
+        OperationalTripReportSource(
+          metadata: empty.metadata,
+          rows: rows.dataOrNull!,
+        ),
+      );
     },
   );
 
@@ -89,26 +93,30 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
     sourceKind: ReportExportSnapshotConstants.tripExpenses,
     permissionCode: ReportsFailureCodes.permissionFinancialView,
     assemble: (snapshot) async {
-      final empty = TripExpensesReportSourceModel.fromMap(
-        {...snapshot.sourceHeader, 'rows': <Object>[]},
-      ).toEntity();
+      final empty = TripExpensesReportSourceModel.fromMap({
+        ...snapshot.sourceHeader,
+        'rows': <Object>[],
+      }).toEntity();
       final rows = await _collect<TripExpenseReportRow>(
         snapshot: snapshot,
         stream: ReportExportSnapshotConstants.rows,
         completedBefore: 0,
         idOf: (row) => row.expenseId,
-        parse: (raw) => TripExpensesReportSourceModel.fromMap(
-          {...snapshot.sourceHeader, 'rows': raw},
-        ).toEntity().rows,
+        parse: (raw) => TripExpensesReportSourceModel.fromMap({
+          ...snapshot.sourceHeader,
+          'rows': raw,
+        }).toEntity().rows,
       );
       if (rows.failureOrNull != null) return FailureResult(rows.failureOrNull!);
-      return Success(TripExpensesReportSource(
-        metadata: empty.metadata,
-        precisionLossCount: empty.precisionLossCount,
-        negativeAmountCount: empty.negativeAmountCount,
-        currencyMismatchCount: empty.currencyMismatchCount,
-        rows: rows.dataOrNull!,
-      ));
+      return Success(
+        TripExpensesReportSource(
+          metadata: empty.metadata,
+          precisionLossCount: empty.precisionLossCount,
+          negativeAmountCount: empty.negativeAmountCount,
+          currencyMismatchCount: empty.currencyMismatchCount,
+          rows: rows.dataOrNull!,
+        ),
+      );
     },
   );
 
@@ -140,7 +148,8 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
           'expenses': <Object>[],
         }).toEntity().trips,
       );
-      if (trips.failureOrNull != null) return FailureResult(trips.failureOrNull!);
+      if (trips.failureOrNull != null)
+        return FailureResult(trips.failureOrNull!);
       final expenses = await _collect<TripNetProfitSourceExpense>(
         snapshot: snapshot,
         stream: ReportExportSnapshotConstants.expenses,
@@ -155,16 +164,18 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
       if (expenses.failureOrNull != null) {
         return FailureResult(expenses.failureOrNull!);
       }
-      return Success(TripNetProfitReportSource(
-        metadata: empty.metadata,
-        freightPrecisionLossCount: empty.freightPrecisionLossCount,
-        negativeFreightCount: empty.negativeFreightCount,
-        expensePrecisionLossCount: empty.expensePrecisionLossCount,
-        negativeExpenseCount: empty.negativeExpenseCount,
-        expenseCurrencyMismatchCount: empty.expenseCurrencyMismatchCount,
-        trips: trips.dataOrNull!,
-        expenses: expenses.dataOrNull!,
-      ));
+      return Success(
+        TripNetProfitReportSource(
+          metadata: empty.metadata,
+          freightPrecisionLossCount: empty.freightPrecisionLossCount,
+          negativeFreightCount: empty.negativeFreightCount,
+          expensePrecisionLossCount: empty.expensePrecisionLossCount,
+          negativeExpenseCount: empty.negativeExpenseCount,
+          expenseCurrencyMismatchCount: empty.expenseCurrencyMismatchCount,
+          trips: trips.dataOrNull!,
+          expenses: expenses.dataOrNull!,
+        ),
+      );
     },
   );
 
@@ -213,16 +224,18 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
       if (payments.failureOrNull != null) {
         return FailureResult(payments.failureOrNull!);
       }
-      return Success(OpenInvoicesReportSource(
-        metadata: empty.metadata,
-        invoiceCurrencyMismatchCount: empty.invoiceCurrencyMismatchCount,
-        paymentCurrencyMismatchCount: empty.paymentCurrencyMismatchCount,
-        invalidInvoiceAmountCount: empty.invalidInvoiceAmountCount,
-        invalidPaymentAmountCount: empty.invalidPaymentAmountCount,
-        missingIssueDateCount: empty.missingIssueDateCount,
-        invoices: invoices.dataOrNull!,
-        payments: payments.dataOrNull!,
-      ));
+      return Success(
+        OpenInvoicesReportSource(
+          metadata: empty.metadata,
+          invoiceCurrencyMismatchCount: empty.invoiceCurrencyMismatchCount,
+          paymentCurrencyMismatchCount: empty.paymentCurrencyMismatchCount,
+          invalidInvoiceAmountCount: empty.invalidInvoiceAmountCount,
+          invalidPaymentAmountCount: empty.invalidPaymentAmountCount,
+          missingIssueDateCount: empty.missingIssueDateCount,
+          invoices: invoices.dataOrNull!,
+          payments: payments.dataOrNull!,
+        ),
+      );
     },
   );
 
@@ -235,7 +248,8 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
   }) {
     final count = snapshot.countFor(stream);
     final total = snapshot.streamCounts.values.fold<int>(
-      0, (sum, value) => sum + value,
+      0,
+      (sum, value) => sum + value,
     );
     return _collector.collect<T>(
       cancellation: _cancellation,
@@ -253,18 +267,22 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
             page.rows.length > ReportExportSnapshotConstants.pageSize) {
           throw const FormatException('Invalid frozen snapshot page.');
         }
-        return Success(ReportSourcePage<T>(
-          snapshotToken: page.snapshotToken,
-          totalRows: page.totalRows,
-          rows: parse(page.rows),
-          nextCursor: page.nextCursor,
-        ));
+        return Success(
+          ReportSourcePage<T>(
+            snapshotToken: page.snapshotToken,
+            totalRows: page.totalRows,
+            rows: parse(page.rows),
+            nextCursor: page.nextCursor,
+          ),
+        );
       },
-      onProgress: (page) => _onProgress?.call(ReportExportProgress(
-        stage: ReportExportStage.readingSource,
-        loadedRows: completedBefore + page.loadedRows!,
-        totalRows: total,
-      )),
+      onProgress: (page) => _onProgress?.call(
+        ReportExportProgress(
+          stage: ReportExportStage.readingSource,
+          loadedRows: completedBefore + page.loadedRows!,
+          totalRows: total,
+        ),
+      ),
     );
   }
 
@@ -288,7 +306,8 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
         fromDate: fromDate,
         toDate: toDate,
       );
-      if (snapshot.companyId != companyId || snapshot.sourceKind != sourceKind) {
+      if (snapshot.companyId != companyId ||
+          snapshot.sourceKind != sourceKind) {
         throw const FormatException('Report export snapshot scope mismatch.');
       }
       result = _cancellation.isCancelled
@@ -297,14 +316,13 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
     } on AuthException catch (error) {
       result = FailureResult(_failures.fromAuthException(error));
     } on PostgrestException catch (error) {
-      result = FailureResult(_failures.fromPostgrest(
-        error,
-        permissionFailureCode: permissionCode,
-      ));
+      result = FailureResult(
+        _failures.fromPostgrest(error, permissionFailureCode: permissionCode),
+      );
     } on FormatException {
-      result = const FailureResult(ConflictFailure(
-        code: ReportsFailureCodes.conflictSourceInvalid,
-      ));
+      result = const FailureResult(
+        ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
+      );
     } catch (error) {
       result = FailureResult(_failures.fromUnexpected(error));
     }
@@ -315,9 +333,9 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
       try {
         final released = await _remote.release(snapshot.snapshotId);
         if (!released && result.isSuccess) {
-          return const FailureResult(ConflictFailure(
-            code: ReportsFailureCodes.conflictSourceInvalid,
-          ));
+          return const FailureResult(
+            ConflictFailure(code: ReportsFailureCodes.conflictSourceInvalid),
+          );
         }
       } on AuthException catch (error) {
         if (result.isSuccess) {
@@ -325,10 +343,12 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
         }
       } on PostgrestException catch (error) {
         if (result.isSuccess) {
-          return FailureResult(_failures.fromPostgrest(
-            error,
-            permissionFailureCode: permissionCode,
-          ));
+          return FailureResult(
+            _failures.fromPostgrest(
+              error,
+              permissionFailureCode: permissionCode,
+            ),
+          );
         }
       } catch (error) {
         if (result.isSuccess) {

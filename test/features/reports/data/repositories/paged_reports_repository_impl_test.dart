@@ -24,10 +24,10 @@ void main() {
       toDate: null,
     );
     expect(result.failureOrNull, isNull);
-    expect(
-      result.dataOrNull!.rows.map((row) => row.tripId),
-      ['trip-a', 'trip-b'],
-    );
+    expect(result.dataOrNull!.rows.map((row) => row.tripId), [
+      'trip-a',
+      'trip-b',
+    ]);
     expect(remote.startCalls, 1);
     expect(remote.readCalls, 2);
     expect(remote.releaseCalls, 1);
