@@ -35,6 +35,34 @@ void main() {
     expect(progress.last.loadedRows, 2);
   });
 
+  test('reads 421 isolated rows in three bounded pages and releases', () async {
+    final remote = _FakeRemote(largeRowCount: 421);
+    final progress = <ReportExportProgress>[];
+    final repository = PagedReportsRepositoryImpl(
+      remote: remote,
+      cancellation: ReportExportCancellation(),
+      onProgress: progress.add,
+    );
+
+    final result = await repository.getOperationalTripSource(
+      companyId: 'company-a',
+      fromDate: null,
+      toDate: null,
+    );
+
+    expect(result.failureOrNull, isNull);
+    final rows = result.dataOrNull!.rows;
+    expect(rows, hasLength(421));
+    expect(rows.first.tripId, 'trip-0');
+    expect(rows.last.tripId, 'trip-420');
+    expect(rows.map((row) => row.tripId).toSet(), hasLength(421));
+    expect(remote.startCalls, 1);
+    expect(remote.readCalls, 3);
+    expect(remote.releaseCalls, 1);
+    expect(progress.last.loadedRows, 421);
+    expect(progress.last.totalRows, 421);
+  });
+
   test('rejects unexpected snapshot tenant without exposing rows', () async {
     final remote = _FakeRemote(companyId: 'company-b');
     final repository = PagedReportsRepositoryImpl(
@@ -115,6 +143,7 @@ final class _FakeRemote implements ReportExportSnapshotRemoteDataSource {
   final String companyId;
   final bool duplicateSecond;
   final bool financial;
+  final int? largeRowCount;
   int startCalls = 0;
   int readCalls = 0;
   int releaseCalls = 0;
@@ -123,6 +152,7 @@ final class _FakeRemote implements ReportExportSnapshotRemoteDataSource {
     this.companyId = 'company-a',
     this.duplicateSecond = false,
     this.financial = false,
+    this.largeRowCount,
   });
 
   @override
@@ -157,7 +187,7 @@ final class _FakeRemote implements ReportExportSnapshotRemoteDataSource {
             'currency_mismatch_count': 0,
           },
       },
-      'stream_counts': {'rows': financial ? 0 : 2},
+      'stream_counts': {'rows': financial ? 0 : (largeRowCount ?? 2)},
     });
   }
 
@@ -169,6 +199,23 @@ final class _FakeRemote implements ReportExportSnapshotRemoteDataSource {
     required int pageSize,
   }) async {
     readCalls++;
+    if (largeRowCount case final total?) {
+      final pageIndex = cursor == null
+          ? 0
+          : int.parse(cursor.substring('page-'.length));
+      final start = pageIndex * pageSize;
+      final end = start + pageSize > total ? total : start + pageSize;
+      return ReportExportSnapshotPageModel.fromMap({
+        'snapshot_token': snapshotId,
+        'stream': stream,
+        'total_rows': total,
+        'rows': List.generate(
+          end - start,
+          (index) => _trip('trip-${start + index}'),
+        ),
+        'next_cursor': end < total ? 'page-${pageIndex + 1}' : null,
+      });
+    }
     final first = cursor == null;
     return ReportExportSnapshotPageModel.fromMap({
       'snapshot_token': snapshotId,
