@@ -43,6 +43,29 @@ range, including server-side financial field restrictions.
   totals, bounded 200-row pages, frozen data under live writes, permission
   revocation, capacity limits and cleanup.
 
+## Zero-row export behavior (2026-11-21)
+
+An actual HONOR/Android Development empty-date-range test exposed a UX defect:
+the source returned zero records but PDF export still opened a document with
+company name, report heading and date only. **The empty-report smoke failed.**
+
+The proposed fix was approved and is being implemented in the same Draft PR:
+the authorized Domain report must contain at least one **actual business row**
+before any branding/PDF generation or native Preview/Save/Print/Share. Empty
+operational reports (all six group modes) check the true trip count, not just
+group headers; expenses, profit and open invoices check their final Domain
+rows, not whether monetary totals are nonzero. A typed no-data Failure is
+localized in English and Arabic. Server errors, auth denials, invalid payloads
+and cancellation retain their own failure codes and must not be presented as
+"no data." A valid row with a zero money amount remains exportable.
+
+**Verification required after code changes:** focused Domain empty/success
+tests for all nine kinds, Cubit no-render/no-delivery coverage for four PDF
+actions, EN/AR widget feedback, full CI, and a single Android re-check of
+the formerly failing empty-date-range scenario. Do not redo the existing
+9/9 Windows data-parity or Android preview/print/share smoke without a
+regression reason.
+
 ## Acceptance evidence by stage
 
 | Stage | Current evidence | Status |

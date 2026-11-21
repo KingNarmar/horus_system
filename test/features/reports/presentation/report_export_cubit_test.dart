@@ -37,8 +37,34 @@ import 'package:horus_system/features/reports/domain/usecases/reauthorize_report
 import 'package:horus_system/features/reports/domain/usecases/report_pdf_delivery_usecases.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_export_cubit.dart';
 import 'package:horus_system/features/reports/presentation/cubit/report_export_state.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 void main() {
+  test('empty reports block all PDF actions before rendering or delivery', () async {
+    for (final action in ReportPdfAction.values) {
+      final source = _PendingReportSource();
+      final renderer = _RecordingRenderer();
+      final delivery = _RecordingDelivery();
+      final cubit = _createCubit(source, renderer, delivery);
+
+      final request = cubit.perform(
+        action: action,
+        currentCompanyContext: _context('company-a', CompanyRole.owner),
+        kind: ReportExportKind.dailyTrips,
+        dateRange: const ReportDateRange(),
+        labels: _labels(),
+      );
+      source.complete('company-a', empty: true);
+      await request;
+
+      final failed = cubit.state as ReportExportFailed;
+      expect(failed.failure.code, ReportsFailureCodes.exportNoData);
+      expect(renderer.renderedCompanies, isEmpty);
+      expect(delivery.calls, 0);
+      await cubit.close();
+    }
+  });
+
   test('invalidating a pending export discards its PDF', () async {
     final source = _PendingReportSource();
     final renderer = _RecordingRenderer();
@@ -386,7 +412,7 @@ final class _PendingReportSource implements ReportsRepository {
     ),
   );
 
-  void complete(String companyId) {
+  void complete(String companyId, {bool empty = false}) {
     _pending[companyId]!.complete(
       Success(
         OperationalTripReportSource(
@@ -397,7 +423,30 @@ final class _PendingReportSource implements ReportsRepository {
             fromDate: null,
             toDate: null,
           ),
-          rows: [],
+          rows: [
+            if (!empty)
+              OperationalTripReportRow(
+                tripId: 'trip-a',
+                tripNumber: 'TRIP-A',
+                operationalDate: BusinessDate(year: 2026, month: 11, day: 19),
+                status: TripStatus.created,
+                customerId: 'customer-a',
+                customerName: 'Customer A',
+                driverId: null,
+                driverName: null,
+                tractorHeadId: null,
+                tractorHeadPlateNumber: null,
+                trailerId: null,
+                trailerPlateNumber: null,
+                routeId: 'route-a',
+                loadingLocation: 'Dubai',
+                unloadingLocation: 'Port',
+                loadingOrderNumber: null,
+                waybillNumber: null,
+                cargoType: null,
+                quantityTons: null,
+              ),
+          ],
         ),
       ),
     );

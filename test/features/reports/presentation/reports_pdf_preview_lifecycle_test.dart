@@ -42,8 +42,59 @@ import 'package:horus_system/features/reports/presentation/cubit/reports_cubit.d
 import 'package:horus_system/features/reports/presentation/pages/reports_page.dart';
 import 'package:horus_system/features/reports/presentation/widgets/report_pdf_preview_dialog.dart';
 import 'package:horus_system/l10n/app_localizations.dart';
+import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 void main() {
+  for (final language in ['en', 'ar']) {
+    testWidgets('empty export shows localized message without preview ($language)', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(1200, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final repository = _ReportsRepository(empty: true);
+      final reportsCubit = _reportsCubit(repository);
+      final exportCubit = _exportCubit(repository);
+      final networkRepository = _NetworkRepository();
+      final networkCubit = NetworkStatusCubit(
+        getNetworkStatusUseCase: GetNetworkStatusUseCase(networkRepository),
+        watchNetworkStatusUseCase: WatchNetworkStatusUseCase(networkRepository),
+        pollingEnabled: false,
+      );
+      addTearDown(networkCubit.close);
+      addTearDown(reportsCubit.close);
+      addTearDown(exportCubit.close);
+
+      await tester.pumpWidget(
+        _app(
+          'company-a',
+          reportsCubit: reportsCubit,
+          exportCubit: exportCubit,
+          networkCubit: networkCubit,
+          locale: Locale(language),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.text(language == 'en' ? 'Preview PDF' : 'معاينة PDF'),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(
+        find.text(
+          language == 'en'
+              ? 'No data to export for the selected period.'
+              : 'لا توجد بيانات للتصدير خلال الفترة المحددة.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(ReportPdfPreviewDialog), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('tenant change closes an already-open PDF preview route', (
     tester,
   ) async {
@@ -100,8 +151,9 @@ Widget _app(
   required ReportsCubit reportsCubit,
   required ReportExportCubit exportCubit,
   required NetworkStatusCubit networkCubit,
+  Locale locale = const Locale('en'),
 }) => MaterialApp(
-  locale: const Locale('en'),
+  locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: MultiBlocProvider(
@@ -154,6 +206,10 @@ ReportExportCubit _exportCubit(ReportsRepository repository) {
 }
 
 final class _ReportsRepository implements ReportsRepository {
+  final bool empty;
+
+  const _ReportsRepository({this.empty = false});
+
   @override
   Future<Result<OperationalTripReportSource>> getOperationalTripSource({
     required String companyId,
@@ -168,7 +224,30 @@ final class _ReportsRepository implements ReportsRepository {
         fromDate: fromDate,
         toDate: toDate,
       ),
-      rows: [],
+      rows: [
+        if (!empty)
+          OperationalTripReportRow(
+            tripId: 'trip-a',
+            tripNumber: 'TRIP-A',
+            operationalDate: BusinessDate(year: 2026, month: 11, day: 19),
+            status: TripStatus.created,
+            customerId: 'customer-a',
+            customerName: 'Customer A',
+            driverId: null,
+            driverName: null,
+            tractorHeadId: null,
+            tractorHeadPlateNumber: null,
+            trailerId: null,
+            trailerPlateNumber: null,
+            routeId: 'route-a',
+            loadingLocation: 'Dubai',
+            unloadingLocation: 'Port',
+            loadingOrderNumber: null,
+            waybillNumber: null,
+            cargoType: null,
+            quantityTons: null,
+          ),
+      ],
     ),
   );
 
