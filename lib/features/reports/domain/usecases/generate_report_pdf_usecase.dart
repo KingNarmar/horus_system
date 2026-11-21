@@ -3,6 +3,7 @@ import '../entities/generated_report_pdf.dart';
 import '../entities/report_export_document.dart';
 import '../failures/report_export_cancelled_failure.dart';
 import '../entities/report_export_labels.dart';
+import '../entities/report_export_progress.dart';
 import '../policies/report_pdf_page_layout_policy.dart';
 import '../services/report_export_projector.dart';
 import '../services/report_pdf_renderer.dart';
@@ -42,6 +43,9 @@ final class GenerateReportPdfUseCase {
     }
 
     final document = (prepared as Success<ReportExportDocument>).data;
+    params.report.onProgress?.call(
+      const ReportExportProgress(stage: ReportExportStage.renderingPdf),
+    );
     final table = _projector.project(document);
     final pageLayout = ReportPdfPageLayoutPolicy.forColumns(table.columns);
     final rendered = await _renderer.render(

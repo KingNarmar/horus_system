@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import '../../../../core/errors/failure.dart';
 import '../../domain/entities/generated_report_pdf.dart';
+import '../../domain/entities/report_export_progress.dart';
 import '../../domain/repositories/report_pdf_delivery_repository.dart';
 
 enum ReportPdfAction { preview, save, print, share }
@@ -16,7 +17,14 @@ final class ReportExportIdle extends ReportExportState {
 
 final class ReportExportBusy extends ReportExportState {
   final ReportPdfAction action;
-  const ReportExportBusy(this.action);
+  final ReportExportProgress progress;
+
+  const ReportExportBusy(
+    this.action, {
+    this.progress = const ReportExportProgress(
+      stage: ReportExportStage.readingSource,
+    ),
+  });
 }
 
 final class ReportExportPreviewReady extends ReportExportState {

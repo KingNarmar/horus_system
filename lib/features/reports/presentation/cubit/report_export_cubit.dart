@@ -7,6 +7,7 @@ import '../../domain/entities/report_date_range.dart';
 import '../../domain/entities/report_export_cancellation.dart';
 import '../../domain/entities/report_export_kind.dart';
 import '../../domain/entities/report_export_labels.dart';
+import '../../domain/entities/report_export_progress.dart';
 import '../../domain/repositories/report_pdf_delivery_repository.dart';
 import '../../domain/usecases/generate_report_pdf_usecase.dart';
 import '../../domain/usecases/prepare_report_export_usecase.dart';
@@ -65,6 +66,12 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
           kind: kind,
           dateRange: dateRange,
           cancellation: cancellation,
+          onProgress: (progress) => _updateProgress(
+            generation,
+            currentCompanyContext.companyId,
+            action,
+            progress,
+          ),
         ),
         labels: labels,
       ),
@@ -91,6 +98,14 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
       return;
     }
 
+    emit(
+      ReportExportBusy(
+        action,
+        progress: const ReportExportProgress(
+          stage: ReportExportStage.delivering,
+        ),
+      ),
+    );
     final params = ReportPdfDeliveryParams(
       bytes: generated.bytes,
       fileName: generated.fileName,
@@ -141,6 +156,12 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
         kind: pending.kind,
         dateRange: pending.dateRange,
         cancellation: cancellation,
+        onProgress: (progress) => _updateProgress(
+          generation,
+          currentCompanyContext.companyId,
+          ReportPdfAction.print,
+          progress,
+        ),
       ),
     );
     if (!_isCurrent(generation, currentCompanyContext.companyId)) return;
@@ -150,6 +171,12 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
       return;
     }
     final document = pending.document;
+    emit(
+      const ReportExportBusy(
+        ReportPdfAction.print,
+        progress: ReportExportProgress(stage: ReportExportStage.delivering),
+      ),
+    );
     final delivered = await _print(
       ReportPdfDeliveryParams(
         bytes: document.bytes,
@@ -163,6 +190,34 @@ final class ReportExportCubit extends Cubit<ReportExportState> {
       action: ReportPdfAction.print,
       result: delivered,
     );
+  }
+
+  void _updateProgress(
+    int generation,
+    String companyId,
+    ReportPdfAction action,
+    ReportExportProgress progress,
+  ) {
+    if (!_isCurrent(generation, companyId)) return;
+    final current = state;
+    if (current is! ReportExportBusy) return;
+    if (current.progress.stage == progress.stage &&
+        current.progress.loadedRows == progress.loadedRows &&
+        current.progress.totalRows == progress.totalRows) {
+      return;
+    }
+    emit(ReportExportBusy(action, progress: progress));
+  }
+
+  /// Discards a pending export result; active HTTP/render calls finish safely.
+  /// Platform file/print/share dialogs cannot be cancelled from this control.
+  void cancelActive() {
+    final current = state;
+    if (current is! ReportExportBusy ||
+        current.progress.stage == ReportExportStage.delivering) {
+      return;
+    }
+    invalidate();
   }
 
   void _finishDelivery({

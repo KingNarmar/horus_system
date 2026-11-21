@@ -17,6 +17,7 @@ import 'package:horus_system/features/reports/domain/entities/report_date_range.
 import 'package:horus_system/features/reports/domain/entities/report_export_document.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_labels.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_progress.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_table.dart';
 import 'package:horus_system/features/reports/domain/entities/report_pdf_page_layout.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
@@ -56,6 +57,59 @@ void main() {
     expect(cubit.state, isA<ReportExportIdle>());
     expect(renderer.renderedCompanies, isEmpty);
     expect(delivery.calls, 0);
+  });
+
+  test('explicit cancellation prevents late report and PDF delivery', () async {
+    final source = _PendingReportSource();
+    final renderer = _RecordingRenderer();
+    final delivery = _RecordingDelivery();
+    final cubit = _createCubit(source, renderer, delivery);
+    addTearDown(cubit.close);
+
+    final request = _preview(cubit, 'company-a');
+    expect(cubit.state, isA<ReportExportBusy>());
+
+    cubit.cancelActive();
+    expect(cubit.state, isA<ReportExportIdle>());
+
+    source.complete('company-a');
+    await request;
+
+    expect(cubit.state, isA<ReportExportIdle>());
+    expect(renderer.renderedCompanies, isEmpty);
+    expect(delivery.calls, 0);
+  });
+
+  test('reports real source, branding and render phases', () async {
+    final source = _PendingReportSource();
+    final cubit = _createCubit(
+      source,
+      _RecordingRenderer(),
+      _RecordingDelivery(),
+    );
+    addTearDown(cubit.close);
+    final stages = <ReportExportStage>[];
+    final subscription = cubit.stream.listen((state) {
+      if (state is ReportExportBusy) stages.add(state.progress.stage);
+    });
+    addTearDown(subscription.cancel);
+
+    final request = _preview(cubit, 'company-a');
+    expect(
+      (cubit.state as ReportExportBusy).progress.stage,
+      ReportExportStage.readingSource,
+    );
+    source.complete('company-a');
+    await request;
+
+    expect(
+      stages,
+      containsAllInOrder([
+        ReportExportStage.loadingBranding,
+        ReportExportStage.renderingPdf,
+      ]),
+    );
+    expect(cubit.state, isA<ReportExportPreviewReady>());
   });
 
   test('a late old-tenant response cannot overwrite new-tenant PDF', () async {

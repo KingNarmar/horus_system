@@ -141,7 +141,11 @@ final class _ReportsPageState extends State<ReportsPage> {
                       state: state,
                       onRetry: _load,
                       onExport: _export,
-                      isExportBusy: exportState is ReportExportBusy,
+                      exportBusy: exportState is ReportExportBusy
+                          ? exportState
+                          : null,
+                      onCancelExport: () =>
+                          context.read<ReportExportCubit>().cancelActive(),
                     ),
                   ),
             ),
@@ -310,13 +314,15 @@ final class _ReportsStateView extends StatelessWidget {
   final ReportsState state;
   final VoidCallback onRetry;
   final void Function(ReportsLoaded, ReportPdfAction) onExport;
-  final bool isExportBusy;
+  final ReportExportBusy? exportBusy;
+  final VoidCallback onCancelExport;
 
   const _ReportsStateView({
     required this.state,
     required this.onRetry,
     required this.onExport,
-    required this.isExportBusy,
+    required this.exportBusy,
+    required this.onCancelExport,
   });
 
   @override
@@ -353,8 +359,9 @@ final class _ReportsStateView extends StatelessWidget {
           _AppliedPeriod(dateRange: dateRange),
           const SizedBox(height: AppSpacing.md),
           ReportExportActions(
-            isBusy: isExportBusy,
+            busy: exportBusy,
             onAction: (action) => onExport(currentState, action),
+            onCancel: onCancelExport,
           ),
           const SizedBox(height: AppSpacing.md),
           switch (content) {

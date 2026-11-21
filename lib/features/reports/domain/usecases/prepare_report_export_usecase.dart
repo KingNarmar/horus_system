@@ -8,6 +8,7 @@ import '../entities/report_date_range.dart';
 import '../entities/report_export_cancellation.dart';
 import '../entities/report_export_document.dart';
 import '../entities/report_export_kind.dart';
+import '../entities/report_export_progress.dart';
 import '../failures/reports_failure_codes.dart';
 import '../failures/report_export_cancelled_failure.dart';
 import 'get_open_invoices_report_usecase.dart';
@@ -21,12 +22,14 @@ final class PrepareReportExportParams {
   final ReportExportKind kind;
   final ReportDateRange dateRange;
   final ReportExportCancellation? cancellation;
+  final ReportExportProgressCallback? onProgress;
 
   const PrepareReportExportParams({
     required this.currentCompanyContext,
     required this.kind,
     required this.dateRange,
     this.cancellation,
+    this.onProgress,
   });
 }
 
@@ -67,6 +70,9 @@ final class PrepareReportExportUseCase {
       );
     }
 
+    params.onProgress?.call(
+      const ReportExportProgress(stage: ReportExportStage.readingSource),
+    );
     final report = await _loadAuthorizedContent(params);
     if (params.cancellation?.isCancelled ?? false) {
       return const FailureResult(ReportExportCancelledFailure());
@@ -75,6 +81,9 @@ final class PrepareReportExportUseCase {
       return FailureResult(report.failure);
     }
 
+    params.onProgress?.call(
+      const ReportExportProgress(stage: ReportExportStage.loadingBranding),
+    );
     final profileResult = await _branding.getProfile(context.companyId);
     if (params.cancellation?.isCancelled ?? false) {
       return const FailureResult(ReportExportCancelledFailure());
