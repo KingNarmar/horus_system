@@ -22,8 +22,15 @@ final class SelectedCompanyPreferenceRepositoryImpl
   }) : _local = localDataSource,
        _currentUserId = currentUserId;
 
-  bool _isCurrentActor(String userId) =>
-      userId.trim().isNotEmpty && _currentUserId() == userId;
+  bool _isCurrentActor(String userId) {
+    if (userId.trim().isEmpty) return false;
+    try {
+      return _currentUserId() == userId;
+    } catch (_) {
+      // An unavailable SDK identity can never authorize a local preference.
+      return false;
+    }
+  }
 
   @override
   Future<Result<String?>> read(String userId) async {
@@ -43,6 +50,11 @@ final class SelectedCompanyPreferenceRepositoryImpl
       // will reject anything not present in a fresh server response.
       return Success(companyId);
     } catch (_) {
+      if (!_isCurrentActor(userId)) {
+        return const FailureResult(
+          AuthFailure(code: CompanyFailureCodes.authRequired),
+        );
+      }
       AppLogger.debug('selected_company_preference_read_unavailable');
       return const FailureResult(UnexpectedFailure());
     }
@@ -78,6 +90,11 @@ final class SelectedCompanyPreferenceRepositoryImpl
       }
       return const Success<void>(null);
     } catch (_) {
+      if (!_isCurrentActor(userId)) {
+        return const FailureResult(
+          AuthFailure(code: CompanyFailureCodes.authRequired),
+        );
+      }
       return const FailureResult(UnexpectedFailure());
     } finally {
       finished.complete();

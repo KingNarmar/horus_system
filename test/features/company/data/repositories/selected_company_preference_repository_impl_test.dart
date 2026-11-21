@@ -67,6 +67,48 @@ void main() {
     },
   );
 
+  test(
+    'actor change and local read failure still returns auth denial',
+    () async {
+      var actor = 'user-a';
+      final pending = Completer<String?>();
+      final repository = SelectedCompanyPreferenceRepositoryImpl(
+        localDataSource: _Local()..pendingRead = pending,
+        currentUserId: () => actor,
+      );
+
+      final read = repository.read('user-a');
+      actor = 'user-b';
+      pending.completeError(StateError('hidden storage error'));
+      final result = await read;
+      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+      expect(result.dataOrNull, isNull);
+    },
+  );
+
+  test(
+    'actor change and local write failure never returns stored success',
+    () async {
+      var actor = 'user-a';
+      final local = _Local()..delayWrites = true;
+      final repository = SelectedCompanyPreferenceRepositoryImpl(
+        localDataSource: local,
+        currentUserId: () => actor,
+      );
+
+      final write = repository.save(
+        userId: 'user-a',
+        companyId: 'company-a',
+      );
+      await Future<void>.delayed(Duration.zero);
+      actor = 'user-b';
+      local.waitingWrites.single.completeError(StateError('storage failed'));
+      final result = await write;
+      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+      expect(local.values, isEmpty);
+    },
+  );
+
   test('blank company ID is a validation failure, never auth denial', () async {
     final repository = SelectedCompanyPreferenceRepositoryImpl(
       localDataSource: _Local(),
