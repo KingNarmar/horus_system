@@ -1,9 +1,11 @@
 # Issue #353 — Large reports: bounded source paging contract
 
-Status: **Draft migration and isolated tests added, not deployed.** The
-existing Reports screen and PDF source reads still use the four original
-single-response RPCs. The new snapshot API is not yet wired into the app.
-No hosted Development/Production migration has been authorized or applied.
+Status (2026-11-21): **Development migrations applied and merged in PR #392.**
+The existing Reports screen continues to use the four canonical source RPCs.
+Draft PR #389 now wires paged snapshots into **Development PDF export only**,
+using the existing Domain use cases. Staging/Production do not call the new
+RPCs until their separate migration and release approvals. The new DI code
+still needs CI and hosted end-to-end verification before PDF PR A sign-off.
 
 ## Existing authoritative sources
 
@@ -26,7 +28,7 @@ positions, change relationship membership or alter financial totals. A client
 timestamp is not a PostgreSQL MVCC snapshot and cannot restore modified rows.
 Never claim cross-request snapshot integrity from `statement_timestamp()`.
 
-## Required backend design before wiring
+## Backend design verified before wiring
 
 Use a **server-frozen, expiring export snapshot** under a non-exposed private
 schema, with one complete, consistent set of metadata and materialized,
@@ -72,8 +74,11 @@ nonempty unique record IDs, cursor progress, and an exact final row count.
 It observes cooperative cancellation and emits **real received/expected rows**
 only when the server contract can prove them.
 
-The collector is not yet wired to `ReportsRepository` or Data: the backend
-contract is a dependency, not a reason to break existing PDF exports.
+The collector is used by `PagedReportsRepositoryImpl`, which implements
+the existing pure-Domain `ReportsRepository` interface. The request-scoped
+export factory is wired only for Development; the screen stays on the
+existing repository. No fallback to a different source occurs after a
+snapshot failure.
 
 `ReportExportProgress` exposes source / branding / render / delivery stages.
 While the source is unpaged, UI must show **indeterminate** source progress,
@@ -106,7 +111,7 @@ References:
 - [PostgREST transactions](https://docs.postgrest.org/en/stable/references/transactions.html)
 - [PostgreSQL repeatable-read MVCC](https://www.postgresql.org/docs/current/transaction-iso.html)
 
-## Draft server implementation (not yet approved for deployment)
+## Versioned server implementation (Development deployed; Production pending)
 
 Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
 
@@ -134,8 +139,11 @@ Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
   Further optimized direct `INSERT ... SELECT` snapshot materialization
   must preserve original validation/business results and one coherent source
   read, not weaken financial parity for a premature speed claim.
-- The client bridge is deliberately not enabled until disposable replay,
-  signed-JWT checks, and a **separate authorization to deploy on Development**.
+- The Development-only export bridge was enabled in the DI code after the
+  authorized 2026-11-21 Development rollout; the changes remain in Draft
+  PR #389 until CI and target-device smoke pass. Staging/Production retain
+  the existing legacy export source by explicit environment selection.
+  A failed snapshot operation has no silent retry/fallback to legacy.
 
 This design does not introduce duplicate financial formulas, client-side
 aggregation, or a permissive fallback that could export stale/partial data.
@@ -165,8 +173,22 @@ after one stale idle HTTP socket. No start/release mutation was auto-retried.
 Peak PostgreSQL memory and hosted concurrency remain unmeasured.
 
 The independent stress fixture is **not** a migration and must never be
-executed on hosted Development or Production. The client export Data adapter
-remains disabled in dependency injection pending a separately approved hosted
-Development rollout.
+executed on hosted Development or Production. The Development client export Data adapter is now selected by dependency
+injection, pending CI and hosted Windows/Android end-to-end verification.
+No Production rollout or app merge has been authorized.
 
 Size accounting reference: [PostgreSQL database size functions](https://www.postgresql.org/docs/18/functions-admin.html) and [string `octet_length`](https://www.postgresql.org/docs/18/functions-string.html).
+
+## Development rollout evidence (2026-11-21)
+
+- Original migration versions `20261120144500` and `20261121070000`
+  applied to Development in order and merged into `main` via PR #392.
+- Hosted read-only follow-up on 2026-11-21 confirmed both history versions
+  and all three snapshot RPCs. Prior recorded transaction-scoped hosted
+  role/tenant and snapshot cleanup smoke passed.
+- PR #389 rebased its merge ancestry safely onto `main` without rewriting
+  history or introducing duplicate migrations.
+- Remaining: CI for Development-only DI wiring, nine-mode screen-to-PDF
+  parity, focused Windows/Android smoke and #391 concurrency/memory gate.
+
+[Development DB rollout record](ISSUE_353_DB_DEVELOPMENT_ROLLOUT.md).

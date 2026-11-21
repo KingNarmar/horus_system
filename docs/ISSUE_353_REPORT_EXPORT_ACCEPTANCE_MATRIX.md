@@ -1,9 +1,11 @@
 # Issue #353 — Nine-report export acceptance matrix
 
-Status: **Acceptance tracking, not a release sign-off.** The current Draft PR
-implements PDF and a draft frozen snapshot data path. XLSX remains planned for
-the separate PR B. Database snapshots are not enabled in app DI until an
-independently approved Development migration deployment.
+Status (2026-11-21): **Acceptance tracking, not a release sign-off.** Draft
+PR #389 implements PDF and a frozen snapshot Data path. Development database
+migrations are already applied and merged in PR #392. The export-only
+snapshot DI bridge is now implemented for Development, but CI and real
+end-to-end verification are still pending. Screens continue using original
+authoritative source readers. XLSX remains separate PR B.
 
 This matrix ties **each of the nine approved report modes** to the actual
 authoritative source and the evidence needed before Issue #353 can close.
@@ -41,6 +43,15 @@ range, including server-side financial field restrictions.
   totals, bounded 200-row pages, frozen data under live writes, permission
   revocation, capacity limits and cleanup.
 
+## Acceptance evidence by stage
+
+| Stage | Current evidence | Status |
+| --- | --- | --- |
+| Verified done | Windows/Android pre-paging PDF smoke, Cairo/RTL renderer, Domain grouping/financial projection tests, disposable signed-JWT/12K tests, Development DB migration/RLS/role smoke | Verified for those earlier versions and scopes |
+| Partially verified | Frozen paged repository and Development-only DI bridge exist; prior source tests prove semantics, but the new wiring needs CI and hosted client smoke | Partially verified |
+| Missing tests | Screen vs PDF per-row/group/amount parity for all nine modes, long/empty/EN/AR cases after bridge enablement, updated Windows/Android cancel/progress/revocation smoke | Pending |
+| Release-only | Hosted scale/concurrency/peak memory #391, iOS signing/platform smoke, Production schema rollout and final RC #202 | Not authorized / pending |
+
 ## Gates not yet satisfied
 
 1. Record per-mode, per-filter **screen vs PDF** row/group/total parity for
@@ -49,9 +60,10 @@ range, including server-side financial field restrictions.
    hosted-load/latency remain unverified. The current start RPC materializes
    the authoritative JSON before the capacity check. Track this as an
    outstanding #391 release stress gate even though *pages* are bounded.
-3. Obtain separate owner approval for hosted Development-only migration
-   ordering/deployment, then wire the snapshot repository into export-only DI.
-   No app runtime should call unavailable new RPCs.
+3. The authorized Development migration ordering/deployment is **completed**
+   and the export-only DI bridge has been committed. Verify CI and Development
+   app smoke. Staging/Production must not call the new RPCs prior to their
+   own approved release rollout; do not silently fall back if paging fails.
 4. Run desktop/Android end-to-end tests again after the backend bridge is
    activated. iOS smoke remains at release gating. Export cancellation cannot
    interrupt native print/share dialogs and must be described accordingly.
