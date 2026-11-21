@@ -270,6 +270,54 @@ void main() {
     );
   });
 
+  testWidgets(
+    'bundled Cairo renders mixed Arabic and Latin without network fonts',
+    (tester) async {
+      final offlineRenderer = ReportPdfRendererImpl(
+        timestampFormatter: timestamps,
+      );
+      final table = ReportExportTable(
+        columns: const [ReportExportColumn.trip],
+        rows: const [
+          [ReportExportTextCell('رحلة القاهرة - Trip 001')],
+        ],
+        totals: const [],
+        currencyFractionDigits: 0,
+      );
+      final labels = ReportExportLabels(
+        isRtl: true,
+        localeName: 'ar',
+        period: 'الفترة',
+        generatedAt: 'تاريخ الإنشاء',
+        sourceAsOf: 'قراءة المصدر',
+        page: 'صفحة',
+        noRows: 'لا توجد بيانات',
+        allDates: 'جميع التواريخ',
+        unassigned: 'غير محدد',
+        unavailable: 'غير متاح',
+        titles: const {ReportExportKind.dailyTrips: 'الرحلات اليومية'},
+        columns: const {ReportExportColumn.trip: 'الرحلة'},
+        tripStatuses: const {},
+        invoiceStatuses: const {},
+        fundingSources: const {},
+      );
+
+      final result = await offlineRenderer.render(
+        document: _document(companyName: 'شركة القاهرة للنقل'),
+        table: table,
+        labels: labels,
+        pageLayout: ReportPdfPageLayout.a4Portrait,
+      );
+
+      expect(result.failureOrNull, isNull);
+      final bytes = result.dataOrNull!;
+      expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
+      // FontFile2 confirms an embedded TrueType face, not a standard Helvetica
+      // fallback. Loading from rootBundle requires no network or warm cache.
+      expect(latin1.decode(bytes), contains('/FontFile2'));
+    },
+  );
+
   testWidgets('unavailable offline fonts produce a typed failure', (
     tester,
   ) async {
@@ -298,9 +346,10 @@ void main() {
 ReportExportDocument _document({
   Uint8List? logo,
   String businessTimezone = 'Asia/Dubai',
+  String companyName = 'Tenant A',
 }) => ReportExportDocument(
   companyId: 'company-a',
-  companyName: 'Tenant A',
+  companyName: companyName,
   logoBytes: logo,
   kind: ReportExportKind.dailyTrips,
   dateRange: const ReportDateRange(),

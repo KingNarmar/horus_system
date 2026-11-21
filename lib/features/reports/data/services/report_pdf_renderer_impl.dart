@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 import '../../../../core/domain/value_objects/money.dart';
 import '../../../../core/errors/common_failures.dart';
@@ -15,6 +16,7 @@ import '../../domain/entities/report_export_table.dart';
 import '../../domain/entities/report_pdf_page_layout.dart';
 import '../../domain/failures/reports_failure_codes.dart';
 import '../../domain/services/report_pdf_renderer.dart';
+import '../constants/report_pdf_font_assets.dart';
 import '../constants/report_pdf_style.dart';
 import '../mappers/report_pdf_page_format_mapper.dart';
 import 'report_pdf_column_widths.dart';
@@ -173,10 +175,11 @@ final class ReportPdfRendererImpl implements ReportPdfRenderer {
     }
   }
 
+  /// Bundle-only font loading: no HTTP/cache dependency or silent fallback.
   static Future<({pw.Font regular, pw.Font bold})> _defaultFonts() async {
-    final regular = await PdfGoogleFonts.cairoRegular();
-    final bold = await PdfGoogleFonts.cairoBold();
-    return (regular: regular, bold: bold);
+    final regularData = await rootBundle.load(ReportPdfFontAssets.regular);
+    final boldData = await rootBundle.load(ReportPdfFontAssets.bold);
+    return (regular: pw.Font.ttf(regularData), bold: pw.Font.ttf(boldData));
   }
 
   static Future<pw.MemoryImage?> _logo(Uint8List? bytes) async {
