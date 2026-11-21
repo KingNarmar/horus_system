@@ -1,8 +1,9 @@
 # Issue #353 — Large reports: bounded source paging contract
 
-Status: **Design and pure-Domain / Presentation groundwork only.** No database
-migration for this contract has been created or applied. The existing Reports
-screen and PDF source reads still use the four original single-response RPCs.
+Status: **Draft migration and isolated tests added, not deployed.** The
+existing Reports screen and PDF source reads still use the four original
+single-response RPCs. The new snapshot API is not yet wired into the app.
+No hosted Development/Production migration has been authorized or applied.
 
 ## Existing authoritative sources
 
@@ -104,3 +105,36 @@ References:
 - [PR #389](https://github.com/KingNarmar/horus_system/pull/389)
 - [PostgREST transactions](https://docs.postgrest.org/en/stable/references/transactions.html)
 - [PostgreSQL repeatable-read MVCC](https://www.postgresql.org/docs/current/transaction-iso.html)
+
+## Draft server implementation (not yet approved for deployment)
+
+Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
+
+- Two company-scoped **private** tables with RLS and no client table grants.
+- Three authenticated public RPCs: start/read/release, each checking the actor;
+  start/read independently enforce live active-membership and report-role
+  policies. SECURITY DEFINER uses a fixed `pg_catalog` search path and no
+  anonymous execute grants.
+- Start materializes the existing trusted report RPC result **once inside
+  Postgres**. All related financial streams and validation counters originate
+  from that single source read. Follow-up read RPC calls return up to **200**
+  rows per bounded page from frozen private rows, with random opaque row cursors
+  scoped to the snapshot and stream. A cross-user cursor is rejected.
+- Resources: at most three active snapshots per user, at most 50,000 rows and
+  64 MiB serialized authoritative source per snapshot. Exceeding these bounds
+  must be an **explicit capacity error**, never silent truncation. Fifteen
+  minute expiry, release RPC, and five-minute database-only pg_cron cleanup.
+- **Capacity caveat / performance acceptance gate:** The start operation
+  currently uses the existing `jsonb_agg` source RPC once in PostgreSQL. This
+  removes unbounded HTTP response payloads, but snapshot creation still needs
+  enough server memory to calculate the full source before persisting the
+  bounded rows. This is a known limitation to measure in #391 and in the
+  required 10K+ isolated test before calling large-report acceptance complete.
+  Further optimized direct `INSERT ... SELECT` snapshot materialization
+  must preserve original validation/business results and one coherent source
+  read, not weaken financial parity for a premature speed claim.
+- The client bridge is deliberately not enabled until disposable replay,
+  signed-JWT checks, and a **separate authorization to deploy on Development**.
+
+This design does not introduce duplicate financial formulas, client-side
+aggregation, or a permissive fallback that could export stale/partial data.

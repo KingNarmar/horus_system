@@ -280,6 +280,230 @@ async function assertDenied(label, kind, companyId, token) {
   }
 }
 
+async function verifySnapshotRpc(tokens, original) {
+  // Real signed-in users, real RLS/GRANT boundaries and 1,300 seeded rows.
+  // No service-role token is used to read or create export snapshots.
+  const sources = [
+    ['operational', 'operational', [['rows', 'trip_id']]],
+    ['expenses', 'trip_expenses', [['rows', 'expense_id']]],
+    ['netProfit', 'trip_net_profit', [
+      ['trips', 'trip_id'], ['expenses', 'expense_id'],
+    ]],
+    ['invoices', 'open_invoices', [
+      ['invoices', 'invoice_id'], ['payments', 'payment_id'],
+    ]],
+  ];
+  const owner = tokens.get('ownerA');
+  for (const [key, sourceKind, streams] of sources) {
+    const started = await request(
+      apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+        token: owner,
+        body: {
+          p_company_id: companyA,
+          p_source_kind: sourceKind,
+          p_from_date: null,
+          p_to_date: null,
+        },
+      },
+    );
+    assert.equal(started.ok, true,
+      'snapshot start ' + key + ': ' + String(started.json?.code));
+    const snap = started.json.snapshot_id;
+    assert.ok(/^[0-9a-f-]{36}$/.test(snap));
+    assert.equal(started.json.source_header.company.company_id, companyA);
+    assert.equal(started.json.source_kind, sourceKind);
+    assert.ok(!('rows' in started.json.source_header));
+    assert.ok(!('trips' in started.json.source_header));
+    assert.ok(!('payments' in started.json.source_header));
+
+    for (const [stream, idField] of streams) {
+      const expected = original[key][stream];
+      assert.equal(started.json.stream_counts[stream], expected.length);
+      let cursor = null;
+      const rows = [];
+      const pageTokens = new Set();
+      for (let pageNo = 0; pageNo < 20; pageNo++) {
+        const page = await request(
+          apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+            token: owner,
+            body: {
+              p_snapshot_id: snap,
+              p_stream: stream,
+              p_cursor: cursor,
+              p_page_size: 200,
+            },
+          },
+        );
+        assert.equal(page.ok, true,
+          'read page ' + key + '/' + stream + ': ' + String(page.json?.code));
+        assert.equal(page.json.snapshot_token, snap);
+        assert.equal(page.json.total_rows, expected.length);
+        assert.ok(page.json.rows.length <= 200);
+        rows.push(...page.json.rows);
+        cursor = page.json.next_cursor;
+        if (cursor === null) break;
+        assert.ok(!pageTokens.has(cursor), 'snapshot cursor repeated');
+        pageTokens.add(cursor);
+        if (pageNo === 19) throw Error('snapshot cursor never terminated');
+      }
+      assert.equal(rows.length, expected.length);
+      assert.equal(new Set(rows.map(row => row[idField])).size, rows.length);
+      assert.deepEqual(rows, expected,
+        'Snapshot rows differ from canonical report source ' + key + '/' + stream);
+      console.log('SNAPSHOT PASS ' + key + '/' + stream +
+        ': ' + rows.length + ' rows over ' + (pageTokens.size + 1) + ' pages');
+    }
+
+    const malformedPage = await request(
+      apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+        token: owner,
+        body: {
+          p_snapshot_id: snap, p_stream: streams[0][0],
+          p_cursor: null, p_page_size: 201,
+        },
+      },
+    );
+    assert.equal(malformedPage.ok, false);
+    assert.equal(malformedPage.json.code, 'P3017');
+
+    const foreign = await request(
+      apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+        token: tokens.get('ownerB'),
+        body: {
+          p_snapshot_id: snap, p_stream: streams[0][0],
+          p_cursor: null, p_page_size: 10,
+        },
+      },
+    );
+    assert.equal(foreign.ok, false);
+    assert.equal(foreign.json.code, 'P3017');
+
+    const released = await request(
+      apiUrl + '/rest/v1/rpc/release_report_export_snapshot', {
+        token: owner, body: { p_snapshot_id: snap },
+      },
+    );
+    assert.equal(released.json, true);
+    const afterRelease = await request(
+      apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+        token: owner,
+        body: {
+          p_snapshot_id: snap, p_stream: streams[0][0],
+          p_cursor: null, p_page_size: 10,
+        },
+      },
+    );
+    assert.equal(afterRelease.ok, false);
+    assert.equal(afterRelease.json.code, 'P3017');
+  }
+
+  for (const role of ['viewerA', 'operationsA']) {
+    const denied = await request(
+      apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+        token: tokens.get(role),
+        body: {
+          p_company_id: companyA, p_source_kind: 'trip_net_profit',
+          p_from_date: null, p_to_date: null,
+        },
+      },
+    );
+    assert.equal(denied.ok, false);
+    assert.equal(denied.json.code, 'P3010',
+      role + ' was allowed to snapshot finance');
+  }
+
+  for (const role of ['ownerB', 'deactivatedA']) {
+    const denied = await request(
+      apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+        token: tokens.get(role),
+        body: {
+          p_company_id: companyA, p_source_kind: 'operational',
+          p_from_date: null, p_to_date: null,
+        },
+      },
+    );
+    assert.equal(denied.ok, false);
+    assert.equal(denied.json.code, 'P3010',
+      role + ' was allowed to snapshot a forbidden tenant');
+  }
+  const anonymous = await request(
+    apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+      body: {
+        p_company_id: companyA, p_source_kind: 'operational',
+        p_from_date: null, p_to_date: null,
+      },
+    },
+  );
+  assert.equal(anonymous.ok, false, 'anon exported a report');
+
+  const finance = await request(
+    apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+      token: tokens.get('accountantA'),
+      body: {
+        p_company_id: companyA, p_source_kind: 'trip_net_profit',
+        p_from_date: null, p_to_date: null,
+      },
+    },
+  );
+  assert.equal(finance.ok, true, 'accountant should export finance');
+  const accountantRelease = await request(
+    apiUrl + '/rest/v1/rpc/release_report_export_snapshot', {
+      token: tokens.get('accountantA'),
+      body: { p_snapshot_id: finance.json.snapshot_id },
+    },
+  );
+  assert.equal(accountantRelease.json, true);
+
+  const expiring = await request(
+    apiUrl + '/rest/v1/rpc/start_report_export_snapshot', {
+      token: owner,
+      body: {
+        p_company_id: companyA, p_source_kind: 'operational',
+        p_from_date: '2026-11-16', p_to_date: '2026-11-16',
+      },
+    },
+  );
+  assert.equal(expiring.ok, true, 'empty source snapshot failed');
+  const empty = await request(
+    apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+      token: owner,
+      body: {
+        p_snapshot_id: expiring.json.snapshot_id,
+        p_stream: 'rows', p_cursor: null, p_page_size: 200,
+      },
+    },
+  );
+  assert.equal(empty.ok, true);
+  assert.deepEqual(empty.json.rows, []);
+  assert.equal(empty.json.next_cursor, null);
+  assert.equal(empty.json.total_rows, 0);
+
+  // LOCAL fixture-only expiry simulation. Never modify a hosted database.
+  const expirationSql = "UPDATE private.report_export_snapshots SET " +
+    "created_at = now() - interval '30 minutes', " +
+    "expires_at = now() - interval '1 second' " +
+    "WHERE id = '" + expiring.json.snapshot_id + "'::uuid";
+  localPsql(['-c', expirationSql]);
+  const expired = await request(
+    apiUrl + '/rest/v1/rpc/read_report_export_snapshot_page', {
+      token: owner,
+      body: {
+        p_snapshot_id: expiring.json.snapshot_id,
+        p_stream: 'rows', p_cursor: null, p_page_size: 200,
+      },
+    },
+  );
+  assert.equal(expired.ok, false);
+  assert.equal(expired.json.code, 'P3017');
+
+  const cleaned = localPsql(['-A', '-t', '-c',
+    'SELECT private.purge_expired_report_export_snapshots()',
+  ]).trim();
+  assert.ok(Number(cleaned) >= 1);
+  console.log('PASS: bounded frozen report snapshots, JWT roles, tenants, ' +
+    'expiry, invalid-page denials, release and financial source parity');
+}
+
 async function run() {
   const tokens = await createLocalUsers();
   localPsql(['-f', 'supabase/tests/issue_353_report_large_sources_fixture.sql']);
@@ -317,7 +541,10 @@ async function run() {
     'ANALYZE public.expense_types; ANALYZE public.trips; ' +
     'ANALYZE public.customers; ANALYZE public.routes;']);
   const boundedFailures = await verifyBoundedRange(tokens);
-  await verifyAuthorized(tokens, companyA, independent.trips, independent);
+  const original = await verifyAuthorized(
+    tokens, companyA, independent.trips, independent,
+  );
+  await verifySnapshotRpc(tokens, original);
   await verifyAuthorized(tokens, companyB, independent.other_tenant_trips);
 
   for (const kind of Object.keys(rpcNames)) {
