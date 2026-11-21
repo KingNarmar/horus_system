@@ -1951,6 +1951,87 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsInvoiceStatusCancelled => 'ملغاة';
 
   @override
+  String get reportsExportPdfPreview => 'معاينة PDF';
+
+  @override
+  String get reportsExportPdfSave => 'حفظ PDF';
+
+  @override
+  String get reportsExportPdfPrint => 'طباعة PDF';
+
+  @override
+  String get reportsExportPdfShare => 'مشاركة PDF';
+
+  @override
+  String get reportsExportPdfBusy => 'جارٍ تجهيز تقرير PDF...';
+
+  @override
+  String get reportsExportPdfPreviewTitle => 'معاينة تقرير PDF';
+
+  @override
+  String get reportsExportPdfPrintPreviewTitle => 'معاينة الطباعة';
+
+  @override
+  String get reportsExportPdfPaperA4Portrait => 'A4 · عمودي';
+
+  @override
+  String get reportsExportPdfPaperA4Landscape => 'A4 · أفقي';
+
+  @override
+  String get reportsExportPdfZoomIn => 'تكبير';
+
+  @override
+  String get reportsExportPdfZoomOut => 'تصغير';
+
+  @override
+  String get reportsExportPdfFitPage => 'ملاءمة الصفحة';
+
+  @override
+  String get reportsExportPdfCompleted => 'اكتمل إجراء ملف PDF.';
+
+  @override
+  String get reportsExportPdfShareInitiated =>
+      'تم فتح خيارات المشاركة؛ لم يتم تأكيد الإرسال.';
+
+  @override
+  String get reportsExportPdfCancelled => 'تم إلغاء إجراء PDF.';
+
+  @override
+  String get reportsExportPdfRenderFailure => 'تعذّر إنشاء ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfSaveFailure => 'تعذّر حفظ ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfPrintFailure => 'تعذّر فتح الطباعة لملف PDF.';
+
+  @override
+  String get reportsExportPdfShareFailure => 'تعذّرت مشاركة ملف PDF للتقرير.';
+
+  @override
+  String get reportsExportPdfInvalidFailure => 'ملف PDF الناتج غير صالح.';
+
+  @override
+  String get reportsExportNoData =>
+      'لا توجد بيانات للتصدير خلال الفترة المحددة.';
+
+  @override
+  String get reportsExportCapacityFailure =>
+      'التقرير كبير جدًا أو توجد عمليات تصدير كثيرة قيد التنفيذ. قلّل الفترة الزمنية أو حاول مرة أخرى بعد قليل.';
+
+  @override
+  String get reportsExportPdfGeneratedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get reportsExportPdfSourceAsOf => 'وقت قراءة البيانات (الخادم)';
+
+  @override
+  String get reportsExportPdfPeriod => 'الفترة';
+
+  @override
+  String get reportsExportPdfPage => 'الصفحة';
+
+  @override
   String get reportsPermissionFailure =>
       'هذا الدور غير مسموح له بعرض التقرير المحدد.';
 

@@ -1,4 +1,13 @@
 abstract final class ReportsFailureCodes {
+  static const permissionExport = 'reports.permission.export';
+  static const exportCancelled = 'reports.export.cancelled';
+  static const exportCapacity = 'reports.export.capacity';
+  static const exportNoData = 'reports.export.no_data';
+  static const pdfRenderUnavailable = 'reports.export.pdf_render_unavailable';
+  static const pdfSaveUnavailable = 'reports.export.pdf_save_unavailable';
+  static const pdfPrintUnavailable = 'reports.export.pdf_print_unavailable';
+  static const pdfShareUnavailable = 'reports.export.pdf_share_unavailable';
+  static const pdfInvalidDocument = 'reports.export.pdf_invalid_document';
   static const permissionOperationalView =
       'reports.permission.operational_view';
   static const permissionFinancialView = 'reports.permission.financial_view';

@@ -33,6 +33,7 @@ extension ReportSourceMetadataModelMapper on ReportSourceMetadataModel {
       baseCurrencyFractionDigits: fractionDigits,
       businessTimezone: businessTimezone,
       businessDate: businessDate,
+      sourceAsOfUtc: sourceAsOfUtc,
       fromDate: fromDate,
       toDate: toDate,
     );
@@ -43,6 +44,7 @@ extension ReportSourceMetadataModelMapper on ReportSourceMetadataModel {
       companyId: companyId,
       businessTimezone: businessTimezone,
       businessDate: businessDate,
+      sourceAsOfUtc: sourceAsOfUtc,
       fromDate: fromDate,
       toDate: toDate,
     );

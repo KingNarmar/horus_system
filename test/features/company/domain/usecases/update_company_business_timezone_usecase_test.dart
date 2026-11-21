@@ -62,6 +62,24 @@ void main() {
       expect(repository.updateCallCount, 0);
     });
 
+    test('legacy Egypt alias is rejected before repository access', () async {
+      final repository = _FakeCompanyTimezoneRepository();
+      final useCase = UpdateCompanyBusinessTimezoneUseCase(repository);
+
+      final result = await useCase(
+        UpdateCompanyBusinessTimezoneParams(
+          currentCompanyContext: _context(CompanyRole.owner),
+          businessTimezone: 'Egypt',
+        ),
+      );
+
+      expect(
+        result.failureOrNull?.code,
+        CompanyFailureCodes.validationBusinessTimezoneInvalid,
+      );
+      expect(repository.updateCallCount, 0);
+    });
+
     test('blank timezone is rejected before repository access', () async {
       final repository = _FakeCompanyTimezoneRepository();
       final useCase = UpdateCompanyBusinessTimezoneUseCase(repository);

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../expenses/domain/entities/expense_funding_source.dart';
 import '../../../invoices/domain/entities/invoice_status.dart';
+import '../../domain/entities/report_pdf_page_layout.dart';
 import '../cubit/report_type.dart';
 
 final class ReportsLocalizations {
@@ -93,6 +94,41 @@ final class ReportsLocalizations {
       InvoiceStatus.cancelled => _l10n.reportsInvoiceStatusCancelled,
     };
   }
+
+  String get exportPdfPreview => _l10n.reportsExportPdfPreview;
+  String get exportPdfSave => _l10n.reportsExportPdfSave;
+  String get exportPdfPrint => _l10n.reportsExportPdfPrint;
+  String get exportPdfShare => _l10n.reportsExportPdfShare;
+  String get exportPdfBusy => _l10n.reportsExportPdfBusy;
+  String get exportNoDataFailure => _l10n.reportsExportNoData;
+  String get exportCapacityFailure => _l10n.reportsExportCapacityFailure;
+  String get cancel => _l10n.cancelButton;
+  String get exportPdfPreviewTitle => _l10n.reportsExportPdfPreviewTitle;
+  String get exportPdfPrintPreviewTitle =>
+      _l10n.reportsExportPdfPrintPreviewTitle;
+  String get exportPdfPaperA4Portrait => _l10n.reportsExportPdfPaperA4Portrait;
+  String get exportPdfPaperA4Landscape =>
+      _l10n.reportsExportPdfPaperA4Landscape;
+
+  String exportPdfPaperLabel(ReportPdfPageLayout layout) => switch (layout) {
+    ReportPdfPageLayout.a4Portrait => exportPdfPaperA4Portrait,
+    ReportPdfPageLayout.a4Landscape => exportPdfPaperA4Landscape,
+  };
+  String get exportPdfZoomIn => _l10n.reportsExportPdfZoomIn;
+  String get exportPdfZoomOut => _l10n.reportsExportPdfZoomOut;
+  String get exportPdfFitPage => _l10n.reportsExportPdfFitPage;
+  String get exportPdfCompleted => _l10n.reportsExportPdfCompleted;
+  String get exportPdfShareInitiated => _l10n.reportsExportPdfShareInitiated;
+  String get exportPdfCancelled => _l10n.reportsExportPdfCancelled;
+  String get exportPdfRenderFailure => _l10n.reportsExportPdfRenderFailure;
+  String get exportPdfSaveFailure => _l10n.reportsExportPdfSaveFailure;
+  String get exportPdfPrintFailure => _l10n.reportsExportPdfPrintFailure;
+  String get exportPdfShareFailure => _l10n.reportsExportPdfShareFailure;
+  String get exportPdfInvalidFailure => _l10n.reportsExportPdfInvalidFailure;
+  String get exportPdfGeneratedAt => _l10n.reportsExportPdfGeneratedAt;
+  String get exportPdfSourceAsOf => _l10n.reportsExportPdfSourceAsOf;
+  String get exportPdfPeriod => _l10n.reportsExportPdfPeriod;
+  String get exportPdfPage => _l10n.reportsExportPdfPage;
 
   String get permissionFailure => _l10n.reportsPermissionFailure;
   String get invalidDateRangeFailure => _l10n.reportsInvalidDateRangeFailure;

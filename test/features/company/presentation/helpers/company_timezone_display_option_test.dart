@@ -27,6 +27,18 @@ void main() {
       },
     );
 
+    test('Egypt and مصر search find canonical Africa/Cairo', () {
+      final cairo = CompanyTimezone.tryParse('Africa/Cairo')!;
+      final option = CompanyTimezoneDisplayResolver.resolve(
+        cairo,
+        const Locale('ar'),
+      );
+      expect(option.value, 'Africa/Cairo');
+      expect(option.matches('Egypt'), isTrue);
+      expect(option.matches('مصر'), isTrue);
+      expect(option.matches('Cairo'), isTrue);
+    });
+
     test('matches Arabic, English, and canonical IANA search terms', () {
       final arabic = CompanyTimezoneDisplayResolver.resolve(
         dubai,

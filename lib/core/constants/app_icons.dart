@@ -74,6 +74,9 @@ abstract final class AppIcons {
   static const IconData userAdmin = Icons.admin_panel_settings_outlined;
   static const IconData uploadFile = Icons.upload_file_outlined;
   static const IconData view = Icons.visibility_outlined;
+  static const IconData reportPdfZoomIn = Icons.zoom_in;
+  static const IconData reportPdfZoomOut = Icons.zoom_out;
+  static const IconData reportPdfFitPage = Icons.fit_screen_outlined;
   static const IconData supportedDevices = Icons.devices_outlined;
   static const IconData unavailableModule = Icons.group_outlined;
 }

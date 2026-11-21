@@ -3674,6 +3674,162 @@ abstract class AppLocalizations {
   /// **'Cancelled'**
   String get reportsInvoiceStatusCancelled;
 
+  /// No description provided for @reportsExportPdfPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview PDF'**
+  String get reportsExportPdfPreview;
+
+  /// No description provided for @reportsExportPdfSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save PDF'**
+  String get reportsExportPdfSave;
+
+  /// No description provided for @reportsExportPdfPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print PDF'**
+  String get reportsExportPdfPrint;
+
+  /// No description provided for @reportsExportPdfShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get reportsExportPdfShare;
+
+  /// No description provided for @reportsExportPdfBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing report PDF...'**
+  String get reportsExportPdfBusy;
+
+  /// No description provided for @reportsExportPdfPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report PDF preview'**
+  String get reportsExportPdfPreviewTitle;
+
+  /// No description provided for @reportsExportPdfPrintPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print preview'**
+  String get reportsExportPdfPrintPreviewTitle;
+
+  /// No description provided for @reportsExportPdfPaperA4Portrait.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 · Portrait'**
+  String get reportsExportPdfPaperA4Portrait;
+
+  /// No description provided for @reportsExportPdfPaperA4Landscape.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 · Landscape'**
+  String get reportsExportPdfPaperA4Landscape;
+
+  /// No description provided for @reportsExportPdfZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get reportsExportPdfZoomIn;
+
+  /// No description provided for @reportsExportPdfZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get reportsExportPdfZoomOut;
+
+  /// No description provided for @reportsExportPdfFitPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit page'**
+  String get reportsExportPdfFitPage;
+
+  /// No description provided for @reportsExportPdfCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF action completed.'**
+  String get reportsExportPdfCompleted;
+
+  /// No description provided for @reportsExportPdfShareInitiated.
+  ///
+  /// In en, this message translates to:
+  /// **'Share options opened; delivery is not confirmed.'**
+  String get reportsExportPdfShareInitiated;
+
+  /// No description provided for @reportsExportPdfCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF action cancelled.'**
+  String get reportsExportPdfCancelled;
+
+  /// No description provided for @reportsExportPdfRenderFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate the report PDF.'**
+  String get reportsExportPdfRenderFailure;
+
+  /// No description provided for @reportsExportPdfSaveFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the report PDF.'**
+  String get reportsExportPdfSaveFailure;
+
+  /// No description provided for @reportsExportPdfPrintFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open report PDF printing.'**
+  String get reportsExportPdfPrintFailure;
+
+  /// No description provided for @reportsExportPdfShareFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share the report PDF.'**
+  String get reportsExportPdfShareFailure;
+
+  /// No description provided for @reportsExportPdfInvalidFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The generated PDF is invalid.'**
+  String get reportsExportPdfInvalidFailure;
+
+  /// No description provided for @reportsExportNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to export for the selected period.'**
+  String get reportsExportNoData;
+
+  /// No description provided for @reportsExportCapacityFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is too large or too many exports are running. Narrow the date range or try again shortly.'**
+  String get reportsExportCapacityFailure;
+
+  /// No description provided for @reportsExportPdfGeneratedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated'**
+  String get reportsExportPdfGeneratedAt;
+
+  /// No description provided for @reportsExportPdfSourceAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Source read (server)'**
+  String get reportsExportPdfSourceAsOf;
+
+  /// No description provided for @reportsExportPdfPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get reportsExportPdfPeriod;
+
+  /// No description provided for @reportsExportPdfPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get reportsExportPdfPage;
+
   /// No description provided for @reportsPermissionFailure.
   ///
   /// In en, this message translates to:

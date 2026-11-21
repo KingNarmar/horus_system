@@ -7,6 +7,10 @@ final class ReportSourceMetadata {
   final int baseCurrencyFractionDigits;
   final String businessTimezone;
   final BusinessDate businessDate;
+
+  /// Server source-read start, not document generation time.
+  /// Null while older hosted environments await the migration.
+  final DateTime? sourceAsOfUtc;
   final BusinessDate? fromDate;
   final BusinessDate? toDate;
 
@@ -16,6 +20,7 @@ final class ReportSourceMetadata {
     required this.baseCurrencyFractionDigits,
     required this.businessTimezone,
     required this.businessDate,
+    this.sourceAsOfUtc,
     required this.fromDate,
     required this.toDate,
   });
@@ -25,6 +30,10 @@ final class OperationalReportSourceMetadata {
   final String companyId;
   final String businessTimezone;
   final BusinessDate businessDate;
+
+  /// Server source-read start, not document generation time.
+  /// Null while older hosted environments await the migration.
+  final DateTime? sourceAsOfUtc;
   final BusinessDate? fromDate;
   final BusinessDate? toDate;
 
@@ -32,6 +41,7 @@ final class OperationalReportSourceMetadata {
     required this.companyId,
     required this.businessTimezone,
     required this.businessDate,
+    this.sourceAsOfUtc,
     required this.fromDate,
     required this.toDate,
   });

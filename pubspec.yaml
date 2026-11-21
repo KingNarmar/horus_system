@@ -45,6 +45,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/fonts/pdf/Cairo-Regular.ttf
+    - assets/fonts/pdf/Cairo-Bold.ttf
+    - assets/fonts/pdf/OFL.txt
 
 
 msix_config:

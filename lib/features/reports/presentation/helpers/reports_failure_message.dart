@@ -12,8 +12,16 @@ String reportsFailureMessage(BuildContext context, Failure failure) {
   return switch (failure.code) {
     ReportsFailureCodes.permissionOperationalView ||
     ReportsFailureCodes.permissionFinancialView ||
-    ReportsFailureCodes.permissionOpenInvoicesView => strings.permissionFailure,
+    ReportsFailureCodes.permissionOpenInvoicesView ||
+    ReportsFailureCodes.permissionExport => strings.permissionFailure,
+    ReportsFailureCodes.pdfRenderUnavailable => strings.exportPdfRenderFailure,
+    ReportsFailureCodes.pdfSaveUnavailable => strings.exportPdfSaveFailure,
+    ReportsFailureCodes.pdfPrintUnavailable => strings.exportPdfPrintFailure,
+    ReportsFailureCodes.pdfShareUnavailable => strings.exportPdfShareFailure,
+    ReportsFailureCodes.pdfInvalidDocument => strings.exportPdfInvalidFailure,
     ReportsFailureCodes.validationDateRange => strings.invalidDateRangeFailure,
+    ReportsFailureCodes.exportCapacity => strings.exportCapacityFailure,
+    ReportsFailureCodes.exportNoData => strings.exportNoDataFailure,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
     CompanyFailureCodes.conflictBusinessTimezoneNotConfigured ||
