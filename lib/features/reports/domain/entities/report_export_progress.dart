@@ -21,9 +21,7 @@ final class ReportExportProgress {
   }) : assert(loadedRows == null || loadedRows >= 0),
        assert(totalRows == null || totalRows >= 0),
        assert(
-         loadedRows == null ||
-             totalRows == null ||
-             loadedRows <= totalRows,
+         loadedRows == null || totalRows == null || loadedRows <= totalRows,
        );
 
   bool get hasMeasuredRows => loadedRows != null && totalRows != null;

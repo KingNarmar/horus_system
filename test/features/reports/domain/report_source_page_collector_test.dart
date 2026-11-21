@@ -21,9 +21,7 @@ void main() {
           ReportSourcePage(
             snapshotToken: 'snapshot-a',
             totalRows: 1300,
-            rows: [
-              for (var i = offset; i < end; i++) 'record-$i',
-            ],
+            rows: [for (var i = offset; i < end; i++) 'record-$i'],
             nextCursor: end == 1300 ? null : '$end',
           ),
         );
