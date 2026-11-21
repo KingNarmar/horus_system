@@ -27,7 +27,7 @@ import 'package:horus_system/features/reports/domain/usecases/report_params.dart
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 void main() {
-  final money = (int minorUnits) =>
+  Money money(int minorUnits) =>
       Money(minorUnits: minorUnits, currency: CurrencyCode.tryParse('AED')!);
   final date = BusinessDate(year: 2026, month: 11, day: 21);
   final range = ReportDateRange(
