@@ -52,15 +52,31 @@ function aggregateStats(localPsql, companyA, companyB) {
   return stats;
 }
 
-async function rpc(request, apiUrl, name, token, body) {
-  try {
-    return await request(apiUrl + '/rest/v1/rpc/' + name, { token, body });
-  } catch (error) {
-    // Never print tokens, URLs or raw backend payloads to public CI logs.
-    const causeCode = error?.cause?.code ?? error?.code ?? error?.name;
-    throw new Error('Disposable RPC transport failure (' + name + '): ' +
-      String(causeCode ?? 'unknown'));
+async function rpc(request, apiUrl, name, token, body, {
+  retryReadAfterIdleSocket = false,
+} = {}) {
+  // The synthetic fixture can take several minutes to insert. The one
+  // explicitly read-only health check may reuse an expired HTTP keepalive
+  // socket. Retry that single safe check once; NEVER retry start/release
+  // automatically because those RPCs can have side effects.
+  const isSafeHealthCheck = retryReadAfterIdleSocket &&
+    name === 'get_operational_trip_reports_source';
+  for (let attempt = 0; attempt < (isSafeHealthCheck ? 2 : 1); attempt++) {
+    try {
+      return await request(apiUrl + '/rest/v1/rpc/' + name, { token, body });
+    } catch (error) {
+      // Never print tokens, URLs or raw backend payloads to public CI logs.
+      const causeCode = error?.cause?.code ?? error?.code ?? error?.name;
+      if (isSafeHealthCheck && attempt === 0 &&
+          causeCode === 'UND_ERR_SOCKET') {
+        console.log('STRESS reconnecting read-only health check after idle socket');
+        continue;
+      }
+      throw new Error('Disposable RPC transport failure (' + name + '): ' +
+        String(causeCode ?? 'unknown'));
+    }
   }
+  throw new Error('Disposable health check did not return.');
 }
 
 async function testFrozenRows({localPsql, request, apiUrl, token, snapshotId, page}) {
@@ -169,6 +185,8 @@ export async function verifyIssue353Stress({
     'get_operational_trip_reports_source', owner, {
       p_company_id: companyA, p_from_date: '2026-11-16',
       p_to_date: '2026-11-16',
+    }, {
+      retryReadAfterIdleSocket: true,
     });
   assert.equal(health.ok, true, 'PostgREST unavailable after stress seeding');
   console.log('STRESS local PostgREST health verified after seeding');
