@@ -6,7 +6,8 @@ import 'reports_repository.dart';
 ///
 /// Data can provide paginated snapshots without changing screen report reads
 /// or reproducing any report business logic in Presentation.
-typedef ReportExportSourcesFactory = ReportsRepository Function({
-  required ReportExportCancellation cancellation,
-  ReportExportProgressCallback? onProgress,
-});
+typedef ReportExportSourcesFactory =
+    ReportsRepository Function({
+      required ReportExportCancellation cancellation,
+      ReportExportProgressCallback? onProgress,
+    });
