@@ -163,7 +163,9 @@ BEGIN
     WHEN 'trip_net_profit' THEN ARRAY['trips','expenses']::text[]
     WHEN 'open_invoices' THEN ARRAY['invoices','payments']::text[]
   END;
-  v_bytes := pg_catalog.pg_column_size(v_payload);
+  -- Bound the UTF-8 JSON serialization, not a potentially compressed
+  -- PostgreSQL internal storage representation.
+  v_bytes := pg_catalog.octet_length(v_payload::text);
   v_header := v_payload;
   FOREACH v_stream IN ARRAY v_streams LOOP
     v_rows := v_payload -> v_stream;

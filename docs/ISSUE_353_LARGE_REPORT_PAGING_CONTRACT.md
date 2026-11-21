@@ -121,7 +121,8 @@ Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
   rows per bounded page from frozen private rows, with random opaque row cursors
   scoped to the snapshot and stream. A cross-user cursor is rejected.
 - Resources: at most three active snapshots per user, at most 50,000 rows and
-  64 MiB serialized authoritative source per snapshot. Exceeding these bounds
+  64 MiB of UTF-8 JSON text per snapshot (measured with `octet_length`,
+  not compression-dependent `pg_column_size`). Exceeding these bounds
   must be an **explicit capacity error**, never silent truncation. Fifteen
   minute expiry, release RPC, and five-minute database-only pg_cron cleanup.
 - **Capacity caveat / performance acceptance gate:** The start operation
@@ -162,3 +163,5 @@ The independent stress fixture is **not** a migration and must never be
 executed on hosted Development or Production. The client export Data adapter
 remains disabled in dependency injection pending a separately approved hosted
 Development rollout.
+
+Size accounting reference: [PostgreSQL database size functions](https://www.postgresql.org/docs/18/functions-admin.html) and [string `octet_length`](https://www.postgresql.org/docs/18/functions-string.html).

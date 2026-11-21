@@ -4,20 +4,8 @@
 \set ON_ERROR_STOP on
 BEGIN;
 
--- Preserve all real quota triggers; raise only the disposable test entitlement.
-UPDATE public.subscription_plans
-SET max_trips_per_month = 20000
-WHERE code = 'ci_report_load';
-
-UPDATE private.entitlement_policy_versions
-SET limits = pg_catalog.jsonb_set(
-    pg_catalog.jsonb_set(limits, '{lifetime_trips}', '20000'::jsonb),
-    '{lifetime_invoices}', '20000'::jsonb
-  )
-WHERE plan_id = (SELECT id FROM public.subscription_plans
-                 WHERE code = 'ci_report_load')
-  AND version = 1;
-
+-- The preceding base fixture creates a 20K test-only plan/policy atomically.
+-- Never modify immutable policy versions or disable production quota triggers.
 -- Continue the exact deterministic IDs/dates/amounts from the 1,300 fixture,
 -- keeping the second tenant's 23 records untouched. No triggers disabled.
 INSERT INTO public.trips (

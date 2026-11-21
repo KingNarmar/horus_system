@@ -37,6 +37,8 @@ BEGIN
 END;
 $check$;
 
+-- This CI-only subscription is created at a 20K capacity from the outset:
+-- entitlement_policy_versions is intentionally immutable after creation.
 -- A disposable test-specific entitlement is required because quota triggers
 -- are intentionally active even for direct local SQL fixture inserts.
 -- Do not disable triggers: the high-volume test must honor the same gates.
@@ -45,7 +47,7 @@ INSERT INTO public.subscription_plans (
   has_driver_app, has_advanced_reports, has_document_upload,
   has_maintenance, has_whatsapp_notifications, is_active
 ) VALUES (
-  'ci_report_load', 'Disposable Reports CI', 0, 100, 100, 5000,
+  'ci_report_load', 'Disposable Reports CI', 0, 100, 100, 20000,
   false, false, true, false, false, true
 );
 
@@ -60,8 +62,8 @@ SELECT id, 1,
     'drivers',5000,
     'combined_vehicles',5000,
     'routes',5000,
-    'lifetime_trips',5000,
-    'lifetime_invoices',5000,
+    'lifetime_trips',20000,
+    'lifetime_invoices',20000,
     'business_documents',5000
   ),
   jsonb_build_array('company_branding','report_pdf','report_xlsx')
