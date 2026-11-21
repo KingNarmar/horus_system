@@ -4,8 +4,10 @@ Status (2026-11-21): **Development migrations applied and merged in PR #392.**
 The existing Reports screen continues to use the four canonical source RPCs.
 Draft PR #389 now wires paged snapshots into **Development PDF export only**,
 using the existing Domain use cases. Staging/Production do not call the new
-RPCs until their separate migration and release approvals. The new DI code
-still needs CI and hosted end-to-end verification before PDF PR A sign-off.
+RPCs until their separate migration and release approvals. Baseline CI on `a9f48758` passed 15/15 workflow families, and the owner
+verified nine-mode Windows PDF parity and Android PDF delivery on Development.
+A hosted >200-row app export and long-field stress were not demonstrated by
+the small manual dataset. New focused isolated regressions await latest-head CI.
 
 ## Existing authoritative sources
 
@@ -141,7 +143,7 @@ Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
   read, not weaken financial parity for a premature speed claim.
 - The Development-only export bridge was enabled in the DI code after the
   authorized 2026-11-21 Development rollout; the changes remain in Draft
-  PR #389 until CI and target-device smoke pass. Staging/Production retain
+  PR #389 pending final acceptance and owner merge approval. Staging/Production retain
   the existing legacy export source by explicit environment selection.
   A failed snapshot operation has no silent retry/fallback to legacy.
 
@@ -173,8 +175,11 @@ after one stale idle HTTP socket. No start/release mutation was auto-retried.
 Peak PostgreSQL memory and hosted concurrency remain unmeasured.
 
 The independent stress fixture is **not** a migration and must never be
-executed on hosted Development or Production. The Development client export Data adapter is now selected by dependency
-injection, pending CI and hosted Windows/Android end-to-end verification.
+executed on hosted Development or Production. The Development client export Data adapter is selected by dependency
+injection; baseline `a9f48758` CI (15/15) and observed Windows nine-mode and
+Android PDF smoke passed. These small hosted fixtures do not demonstrate a
+hosted 200+ row client-to-PDF export. The new focused isolated test additions
+are awaiting CI on their own head.
 No Production rollout or app merge has been authorized.
 
 Size accounting reference: [PostgreSQL database size functions](https://www.postgresql.org/docs/18/functions-admin.html) and [string `octet_length`](https://www.postgresql.org/docs/18/functions-string.html).
@@ -188,7 +193,14 @@ Size accounting reference: [PostgreSQL database size functions](https://www.post
   role/tenant and snapshot cleanup smoke passed.
 - PR #389 rebased its merge ancestry safely onto `main` without rewriting
   history or introducing duplicate migrations.
-- Remaining: CI for Development-only DI wiring, nine-mode screen-to-PDF
-  parity, focused Windows/Android smoke and #391 concurrency/memory gate.
+- Completed on baseline `a9f48758`: 15/15 CI, nine-mode Windows screen–PDF
+  parity, Windows Arabic/RTL and HONOR Android Preview/Save/Share/Print-preview.
+  See [acceptance matrix](ISSUE_353_REPORT_EXPORT_ACCEPTANCE_MATRIX.md).
+- New pending current-head checks: eight-column long-text multi-page
+  English/Arabic renderer regressions, plus an isolated 421-row three-page
+  Data repository bridge regression. They are not hosted app stress tests.
+- Remaining separate release gate: #391 concurrent workload, PostgreSQL peak
+  memory, latency and recovery. No Development/Production load fixture is
+  authorized; hosted >200-row PDF was not separately demonstrated.
 
 [Development DB rollout record](ISSUE_353_DB_DEVELOPMENT_ROLLOUT.md).
