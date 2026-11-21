@@ -21,21 +21,24 @@ const _b = CurrentCompanyContext(
 );
 
 void main() {
-  test('restores last user company only when server says it is active', () async {
-    final source = _Contexts([_a, _b]);
-    final preference = _Preferences()..values['user-a'] = 'company-b';
+  test(
+    'restores last user company only when server says it is active',
+    () async {
+      final source = _Contexts([_a, _b]);
+      final preference = _Preferences()..values['user-a'] = 'company-b';
 
-    final result = await LoadCurrentCompanyContextUseCase(
-      source,
-      preferences: preference,
-    )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
+      final result = await LoadCurrentCompanyContextUseCase(
+        source,
+        preferences: preference,
+      )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
 
-    expect(result.dataOrNull, same(_b));
-    expect(source.selected, 'company-b');
-    expect(source.loads, 1);
-    expect(preference.readUsers, ['user-a']);
-    expect(preference.saved, isEmpty);
-  });
+      expect(result.dataOrNull, same(_b));
+      expect(source.selected, 'company-b');
+      expect(source.loads, 1);
+      expect(preference.readUsers, ['user-a']);
+      expect(preference.saved, isEmpty);
+    },
+  );
 
   test('revoked preference falls back to fresh eligible company', () async {
     final source = _Contexts([_a]);
@@ -93,48 +96,52 @@ void main() {
       preferences: preference,
     )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
 
-    expect(result.failureOrNull?.code,
-        CompanyFailureCodes.contextConnectionUnavailable);
+    expect(
+      result.failureOrNull?.code,
+      CompanyFailureCodes.contextConnectionUnavailable,
+    );
     expect(source.selected, isNull);
     expect(preference.readUsers, isEmpty);
   });
 
-  test('local storage failure is typed and does not pick another company',
-      () async {
-    final source = _Contexts([_a, _b]);
-    final preference = _Preferences()..readFailure = true;
+  test(
+    'local storage failure is typed and does not pick another company',
+    () async {
+      final source = _Contexts([_a, _b]);
+      final preference = _Preferences()..readFailure = true;
 
-    final result = await LoadCurrentCompanyContextUseCase(
-      source,
-      preferences: preference,
-    )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
+      final result = await LoadCurrentCompanyContextUseCase(
+        source,
+        preferences: preference,
+      )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
 
-    expect(result.failureOrNull, isA<UnexpectedFailure>());
-    expect(source.selected, isNull);
-  });
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(source.selected, isNull);
+    },
+  );
 
   test('remember validates actor and saves a verified company ID', () async {
     final preference = _Preferences();
     final useCase = RememberSelectedCompanyUseCase(preference);
 
     expect(
-      (await useCase(const RememberSelectedCompanyParams(
-        userId: '',
-        companyId: 'company-a',
-      ))).failureOrNull?.code,
+      (await useCase(
+        const RememberSelectedCompanyParams(userId: '', companyId: 'company-a'),
+      )).failureOrNull?.code,
       CompanyFailureCodes.authRequired,
     );
     expect(
-      (await useCase(const RememberSelectedCompanyParams(
-        userId: 'user-a',
-        companyId: ' ',
-      ))).failureOrNull?.code,
+      (await useCase(
+        const RememberSelectedCompanyParams(userId: 'user-a', companyId: ' '),
+      )).failureOrNull?.code,
       CompanyFailureCodes.companyNotAvailable,
     );
-    final result = await useCase(const RememberSelectedCompanyParams(
-      userId: 'user-a',
-      companyId: ' company-b ',
-    ));
+    final result = await useCase(
+      const RememberSelectedCompanyParams(
+        userId: 'user-a',
+        companyId: ' company-b ',
+      ),
+    );
     expect(result.failureOrNull, isNull);
     expect(preference.values['user-a'], 'company-b');
     expect(preference.saved, ['user-a:company-b']);

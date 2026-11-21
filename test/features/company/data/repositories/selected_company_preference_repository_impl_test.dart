@@ -16,60 +16,79 @@ void main() {
       currentUserId: () => actor,
     );
 
-    expect((await repository.save(userId: 'user-a', companyId: 'company-a'))
-        .failureOrNull, isNull);
+    expect(
+      (await repository.save(
+        userId: 'user-a',
+        companyId: 'company-a',
+      )).failureOrNull,
+      isNull,
+    );
     actor = 'user-b';
     expect((await repository.read('user-b')).dataOrNull, isNull);
-    expect((await repository.read('user-a')).failureOrNull?.code,
-        CompanyFailureCodes.authRequired);
-    expect((await repository.save(userId: 'user-b', companyId: 'company-b'))
-        .failureOrNull, isNull);
+    expect(
+      (await repository.read('user-a')).failureOrNull?.code,
+      CompanyFailureCodes.authRequired,
+    );
+    expect(
+      (await repository.save(
+        userId: 'user-b',
+        companyId: 'company-b',
+      )).failureOrNull,
+      isNull,
+    );
     expect((await repository.read('user-b')).dataOrNull, 'company-b');
 
     actor = 'user-a';
     expect((await repository.read('user-a')).dataOrNull, 'company-a');
-    expect(local.values, {
-      'user-a': 'company-a',
-      'user-b': 'company-b',
-    });
+    expect(local.values, {'user-a': 'company-a', 'user-b': 'company-b'});
   });
 
-  test('signed-out actor cannot read or write another tenant preference',
-      () async {
-    final local = _Local();
-    final repository = SelectedCompanyPreferenceRepositoryImpl(
-      localDataSource: local,
-      currentUserId: () => null,
-    );
+  test(
+    'signed-out actor cannot read or write another tenant preference',
+    () async {
+      final local = _Local();
+      final repository = SelectedCompanyPreferenceRepositoryImpl(
+        localDataSource: local,
+        currentUserId: () => null,
+      );
 
-    expect((await repository.read('user-a')).failureOrNull?.code,
-        CompanyFailureCodes.authRequired);
-    expect((await repository.save(userId: 'user-a', companyId: 'company-a'))
-        .failureOrNull?.code, CompanyFailureCodes.authRequired);
-    expect(local.values, isEmpty);
-  });
+      expect(
+        (await repository.read('user-a')).failureOrNull?.code,
+        CompanyFailureCodes.authRequired,
+      );
+      expect(
+        (await repository.save(
+          userId: 'user-a',
+          companyId: 'company-a',
+        )).failureOrNull?.code,
+        CompanyFailureCodes.authRequired,
+      );
+      expect(local.values, isEmpty);
+    },
+  );
 
-  test('account change mid-read cannot return earlier user preference',
-      () async {
-    var actor = 'user-a';
-    final pending = Completer<String?>();
-    final local = _Local()..pendingRead = pending;
-    final repository = SelectedCompanyPreferenceRepositoryImpl(
-      localDataSource: local,
-      currentUserId: () => actor,
-    );
+  test(
+    'account change mid-read cannot return earlier user preference',
+    () async {
+      var actor = 'user-a';
+      final pending = Completer<String?>();
+      final local = _Local()..pendingRead = pending;
+      final repository = SelectedCompanyPreferenceRepositoryImpl(
+        localDataSource: local,
+        currentUserId: () => actor,
+      );
 
-    final read = repository.read('user-a');
-    actor = 'user-b';
-    pending.complete('company-a');
-    final result = await read;
+      final read = repository.read('user-a');
+      actor = 'user-b';
+      pending.complete('company-a');
+      final result = await read;
 
-    expect(result.dataOrNull, isNull);
-    expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
-  });
+      expect(result.dataOrNull, isNull);
+      expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+    },
+  );
 
-  test('overlapping preference writes keep last requested selection',
-      () async {
+  test('overlapping preference writes keep last requested selection', () async {
     final local = _Local()..delayWrites = true;
     final repository = SelectedCompanyPreferenceRepositoryImpl(
       localDataSource: local,
@@ -91,26 +110,28 @@ void main() {
     expect(local.values['user-a'], 'company-b');
   });
 
-  test('secure storage failures are typed and contain no raw message',
-      () async {
-    final local = _Local()..throwOnRead = true;
-    final repository = SelectedCompanyPreferenceRepositoryImpl(
-      localDataSource: local,
-      currentUserId: () => 'user-a',
-    );
-    final read = await repository.read('user-a');
-    expect(read.failureOrNull, isA<UnexpectedFailure>());
-    expect(read.failureOrNull?.message, isNull);
+  test(
+    'secure storage failures are typed and contain no raw message',
+    () async {
+      final local = _Local()..throwOnRead = true;
+      final repository = SelectedCompanyPreferenceRepositoryImpl(
+        localDataSource: local,
+        currentUserId: () => 'user-a',
+      );
+      final read = await repository.read('user-a');
+      expect(read.failureOrNull, isA<UnexpectedFailure>());
+      expect(read.failureOrNull?.message, isNull);
 
-    local.throwOnRead = false;
-    local.throwOnWrite = true;
-    final write = await repository.save(
-      userId: 'user-a',
-      companyId: 'company-a',
-    );
-    expect(write.failureOrNull, isA<UnexpectedFailure>());
-    expect(write.failureOrNull?.message, isNull);
-  });
+      local.throwOnRead = false;
+      local.throwOnWrite = true;
+      final write = await repository.save(
+        userId: 'user-a',
+        companyId: 'company-a',
+      );
+      expect(write.failureOrNull, isA<UnexpectedFailure>());
+      expect(write.failureOrNull?.message, isNull);
+    },
+  );
 }
 
 final class _Local implements SelectedCompanyPreferenceLocalDataSource {

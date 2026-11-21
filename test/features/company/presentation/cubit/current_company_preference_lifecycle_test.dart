@@ -28,27 +28,34 @@ const _b = CurrentCompanyContext(
 );
 
 void main() {
-  test('successful server-verified switch survives a simulated cold start',
-      () async {
-    final server = _Server([_a, _b]);
-    final preference = _Preference();
-    final first = _createCubit(server, preference);
-    first.startWatchingMembership('user-a');
-    await first.loadCurrentCompanyContext();
-    expect((first.state as CurrentCompanyLoaded).context.companyId, 'company-a');
-    expect((await first.switchActiveCompany('company-b')).failureOrNull, isNull);
-    expect(preference.values['user-a'], 'company-b');
-    await first.close();
+  test(
+    'successful server-verified switch survives a simulated cold start',
+    () async {
+      final server = _Server([_a, _b]);
+      final preference = _Preference();
+      final first = _createCubit(server, preference);
+      first.startWatchingMembership('user-a');
+      await first.loadCurrentCompanyContext();
+      expect(
+        (first.state as CurrentCompanyLoaded).context.companyId,
+        'company-a',
+      );
+      expect(
+        (await first.switchActiveCompany('company-b')).failureOrNull,
+        isNull,
+      );
+      expect(preference.values['user-a'], 'company-b');
+      await first.close();
 
-    final restarted = _createCubit(_Server([_a, _b]), preference);
-    addTearDown(restarted.close);
-    restarted.startWatchingMembership('user-a');
-    await restarted.loadCurrentCompanyContext();
-    expect((restarted.state as CurrentCompanyLoaded).context, _b);
-  });
+      final restarted = _createCubit(_Server([_a, _b]), preference);
+      addTearDown(restarted.close);
+      restarted.startWatchingMembership('user-a');
+      await restarted.loadCurrentCompanyContext();
+      expect((restarted.state as CurrentCompanyLoaded).context, _b);
+    },
+  );
 
-  test('sign-out and account switch cannot borrow another selection',
-      () async {
+  test('sign-out and account switch cannot borrow another selection', () async {
     final server = _Server([_a, _b]);
     final preference = _Preference();
     final cubit = _createCubit(server, preference);
@@ -62,37 +69,45 @@ void main() {
 
     cubit.startWatchingMembership('user-b');
     await cubit.loadCurrentCompanyContext();
-    expect((cubit.state as CurrentCompanyLoaded).context.companyId, 'company-a');
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.companyId,
+      'company-a',
+    );
     expect(preference.values['user-b'], isNull);
 
     await cubit.stopWatchingMembership();
     await cubit.clearCurrentCompanyContext();
     cubit.startWatchingMembership('user-a');
     await cubit.loadCurrentCompanyContext();
-    expect((cubit.state as CurrentCompanyLoaded).context.companyId, 'company-b');
+    expect(
+      (cubit.state as CurrentCompanyLoaded).context.companyId,
+      'company-b',
+    );
   });
 
-  test('revocation falls back to remaining active company; no stale access',
-      () async {
-    final preference = _Preference()..values['user-a'] = 'company-b';
-    final server = _Server([_a]);
-    final cubit = _createCubit(server, preference);
-    addTearDown(cubit.close);
+  test(
+    'revocation falls back to remaining active company; no stale access',
+    () async {
+      final preference = _Preference()..values['user-a'] = 'company-b';
+      final server = _Server([_a]);
+      final cubit = _createCubit(server, preference);
+      addTearDown(cubit.close);
 
-    cubit.startWatchingMembership('user-a');
-    await cubit.loadCurrentCompanyContext();
-    expect((cubit.state as CurrentCompanyLoaded).context, _a);
-    expect(server.selected, 'company-a');
-    expect(server.selections, isNot(contains('company-b')));
+      cubit.startWatchingMembership('user-a');
+      await cubit.loadCurrentCompanyContext();
+      expect((cubit.state as CurrentCompanyLoaded).context, _a);
+      expect(server.selected, 'company-a');
+      expect(server.selections, isNot(contains('company-b')));
 
-    server.contexts = [];
-    await cubit.revalidateSelectedCompany();
-    expect(cubit.state, isA<CurrentCompanyEmpty>());
+      server.contexts = [];
+      await cubit.revalidateSelectedCompany();
+      expect(cubit.state, isA<CurrentCompanyEmpty>());
 
-    server.contexts = [_b];
-    await cubit.revalidateSelectedCompany();
-    expect((cubit.state as CurrentCompanyLoaded).context, _b);
-  });
+      server.contexts = [_b];
+      await cubit.revalidateSelectedCompany();
+      expect((cubit.state as CurrentCompanyLoaded).context, _b);
+    },
+  );
 
   test('offline startup does not display cached company data', () async {
     final server = _Server([_a, _b])
@@ -148,36 +163,39 @@ void main() {
     expect((cubit.state as CurrentCompanyLoaded).context, _a);
   });
 
-  test('local preference write failure does not revoke verified switch',
-      () async {
-    final server = _Server([_a, _b]);
-    final preference = _Preference()..writeFailure = true;
-    final cubit = _createCubit(server, preference);
-    addTearDown(cubit.close);
+  test(
+    'local preference write failure does not revoke verified switch',
+    () async {
+      final server = _Server([_a, _b]);
+      final preference = _Preference()..writeFailure = true;
+      final cubit = _createCubit(server, preference);
+      addTearDown(cubit.close);
 
-    cubit.startWatchingMembership('user-a');
-    await cubit.loadCurrentCompanyContext();
-    final result = await cubit.switchActiveCompany('company-b');
-    expect(result.failureOrNull, isNull);
-    expect((cubit.state as CurrentCompanyLoaded).context, _b);
-  });
+      cubit.startWatchingMembership('user-a');
+      await cubit.loadCurrentCompanyContext();
+      final result = await cubit.switchActiveCompany('company-b');
+      expect(result.failureOrNull, isNull);
+      expect((cubit.state as CurrentCompanyLoaded).context, _b);
+    },
+  );
 }
 
-CurrentCompanyCubit _createCubit(
-  _Server repository,
-  _Preference preferences,
-) => CurrentCompanyCubit(
-  loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
-    repository,
-    preferences: preferences,
-  ),
-  rememberSelectedCompanyUseCase: RememberSelectedCompanyUseCase(preferences),
-  selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
-  refreshSelectedCompanyContextUseCase:
-      RefreshSelectedCompanyContextUseCase(repository),
-  clearCurrentCompanyContextUseCase:
-      ClearCurrentCompanyContextUseCase(repository),
-);
+CurrentCompanyCubit _createCubit(_Server repository, _Preference preferences) =>
+    CurrentCompanyCubit(
+      loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
+        repository,
+        preferences: preferences,
+      ),
+      rememberSelectedCompanyUseCase: RememberSelectedCompanyUseCase(
+        preferences,
+      ),
+      selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(repository),
+      refreshSelectedCompanyContextUseCase:
+          RefreshSelectedCompanyContextUseCase(repository),
+      clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+        repository,
+      ),
+    );
 
 final class _Server implements CompanyContextRepository {
   List<CurrentCompanyContext> contexts;

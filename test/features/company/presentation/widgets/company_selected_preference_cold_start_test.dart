@@ -55,7 +55,9 @@ void main() {
       await first.close();
       final restarted = fixture.newCompanyCubit();
       addTearDown(restarted.close);
-      await tester.pumpWidget(fixture.app(restarted, locale: const Locale('ar')));
+      await tester.pumpWidget(
+        fixture.app(restarted, locale: const Locale('ar')),
+      );
       await tester.pumpAndSettle();
       expect(find.text('company-b'), findsOneWidget);
       expect(fixture.server.loads, 3);
@@ -145,10 +147,12 @@ final class _Fixture {
     ),
     rememberSelectedCompanyUseCase: RememberSelectedCompanyUseCase(preferences),
     selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(server),
-    refreshSelectedCompanyContextUseCase:
-        RefreshSelectedCompanyContextUseCase(server),
-    clearCurrentCompanyContextUseCase:
-        ClearCurrentCompanyContextUseCase(server),
+    refreshSelectedCompanyContextUseCase: RefreshSelectedCompanyContextUseCase(
+      server,
+    ),
+    clearCurrentCompanyContextUseCase: ClearCurrentCompanyContextUseCase(
+      server,
+    ),
   );
 
   Widget app(CurrentCompanyCubit company, {Locale? locale}) =>
@@ -167,8 +171,9 @@ final class _Fixture {
               body: BlocBuilder<CurrentCompanyCubit, CurrentCompanyState>(
                 builder: (_, state) => Center(
                   child: switch (state) {
-                    CurrentCompanyLoaded(:final context) =>
-                      Text(context.companyId),
+                    CurrentCompanyLoaded(:final context) => Text(
+                      context.companyId,
+                    ),
                     _ => const SizedBox.shrink(),
                   },
                 ),
