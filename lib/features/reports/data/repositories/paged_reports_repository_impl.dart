@@ -148,8 +148,9 @@ final class PagedReportsRepositoryImpl implements ReportsRepository {
           'expenses': <Object>[],
         }).toEntity().trips,
       );
-      if (trips.failureOrNull != null)
+      if (trips.failureOrNull != null) {
         return FailureResult(trips.failureOrNull!);
+      }
       final expenses = await _collect<TripNetProfitSourceExpense>(
         snapshot: snapshot,
         stream: ReportExportSnapshotConstants.expenses,
