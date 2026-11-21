@@ -143,15 +143,17 @@ void main() {
       expect(source.calls, 1);
       expect(branding.profileCalls, 1);
       if (kind == ReportExportKind.tripExpenses) {
-        final content = result.dataOrNull!.content as ReportExportExpensesContent;
-        expect(content.report.rows, hasLength(1));
+        final content = result.dataOrNull!.content;
+        expect(content, isA<ReportExportExpensesContent>());
+        final expenses = content as ReportExportExpensesContent;
+        expect(expenses.report.rows, hasLength(1));
         // A real row with zero financial amount is not an empty report.
-        expect(content.report.totalExpenses.minorUnits, 0);
+        expect(expenses.report.totalExpenses.minorUnits, 0);
       }
     });
   }
 
-  test('backend permission failures cannot be masked as empty exports', () async {
+  test('backend errors are not treated as empty reports', () async {
     final source = _Source(failFromBackend: true);
     final branding = _Branding();
     final result = await create(source, branding)(

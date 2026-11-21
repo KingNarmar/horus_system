@@ -46,9 +46,7 @@ import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 void main() {
   for (final language in ['en', 'ar']) {
-    testWidgets('empty export shows localized message without preview ($language)', (
-      tester,
-    ) async {
+    testWidgets('empty export localized ($language)', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1200, 1000));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 

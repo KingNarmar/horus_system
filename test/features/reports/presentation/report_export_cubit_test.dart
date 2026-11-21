@@ -40,7 +40,7 @@ import 'package:horus_system/features/reports/presentation/cubit/report_export_s
 import 'package:horus_system/features/trips/domain/entities/trip_status.dart';
 
 void main() {
-  test('empty reports block all PDF actions before rendering or delivery', () async {
+  test('empty export blocks every PDF action', () async {
     for (final action in ReportPdfAction.values) {
       final source = _PendingReportSource();
       final renderer = _RecordingRenderer();

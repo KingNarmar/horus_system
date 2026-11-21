@@ -49,7 +49,7 @@ An actual HONOR/Android Development empty-date-range test exposed a UX defect:
 the source returned zero records but PDF export still opened a document with
 company name, report heading and date only. **The empty-report smoke failed.**
 
-The proposed fix was approved and is being implemented in the same Draft PR:
+The approved fix is implemented in this Draft PR, pending CI and device smoke:
 the authorized Domain report must contain at least one **actual business row**
 before any branding/PDF generation or native Preview/Save/Print/Share. Empty
 operational reports (all six group modes) check the true trip count, not just
