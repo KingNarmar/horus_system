@@ -67,6 +67,15 @@ void main() {
     },
   );
 
+  test('blank company ID is a validation failure, never auth denial', () async {
+    final repository = SelectedCompanyPreferenceRepositoryImpl(
+      localDataSource: _Local(),
+      currentUserId: () => 'user-a',
+    );
+    final result = await repository.save(userId: 'user-a', companyId: ' ');
+    expect(result.failureOrNull?.code, CompanyFailureCodes.companyNotAvailable);
+  });
+
   test(
     'account change mid-read cannot return earlier user preference',
     () async {

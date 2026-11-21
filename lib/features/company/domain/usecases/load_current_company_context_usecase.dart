@@ -44,10 +44,15 @@ class LoadCurrentCompanyContextUseCase
           }
           final preferenceResult = await _preferences.read(params.userId);
           final preferenceFailure = preferenceResult.failureOrNull;
-          if (preferenceFailure != null) {
+          if (preferenceFailure is AuthFailure) {
+            // Identity mismatch cannot fall back to a different user.
             return FailureResult<CurrentCompanyContext?>(preferenceFailure);
           }
-          preferredCompanyId = preferenceResult.dataOrNull;
+          // A device preference is optional. On a local storage failure,
+          // choose only from the freshly validated server memberships.
+          if (preferenceFailure == null) {
+            preferredCompanyId = preferenceResult.dataOrNull;
+          }
         }
 
         final selectedCompanyId = CompanySelectionPolicy.chooseCompanyId(

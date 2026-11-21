@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../../../../core/errors/common_failures.dart';
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/repositories/selected_company_preference_repository.dart';
@@ -42,6 +43,7 @@ final class SelectedCompanyPreferenceRepositoryImpl
       // will reject anything not present in a fresh server response.
       return Success(companyId);
     } catch (_) {
+      AppLogger.debug('selected_company_preference_read_unavailable');
       return const FailureResult(UnexpectedFailure());
     }
   }
@@ -58,9 +60,14 @@ final class SelectedCompanyPreferenceRepositoryImpl
     _lastWrite = finished.future;
     try {
       await previousWrite;
-      if (!_isCurrentActor(userId) || companyId.trim().isEmpty) {
+      if (!_isCurrentActor(userId)) {
         return const FailureResult(
           AuthFailure(code: CompanyFailureCodes.authRequired),
+        );
+      }
+      if (companyId.trim().isEmpty) {
+        return const FailureResult(
+          ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
         );
       }
       await _local.write(userId, companyId);

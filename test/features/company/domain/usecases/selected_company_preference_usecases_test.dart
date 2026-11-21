@@ -105,7 +105,7 @@ void main() {
   });
 
   test(
-    'local storage failure is typed and does not pick another company',
+    'optional storage failure falls back to a server-verified company',
     () async {
       final source = _Contexts([_a, _b]);
       final preference = _Preferences()..readFailure = true;
@@ -115,10 +115,23 @@ void main() {
         preferences: preference,
       )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
 
-      expect(result.failureOrNull, isA<UnexpectedFailure>());
-      expect(source.selected, isNull);
+      expect(result.failureOrNull, isNull);
+      expect(result.dataOrNull, same(_a));
+      expect(source.selected, 'company-a');
     },
   );
+
+  test('identity mismatch still denies all company selection', () async {
+    final source = _Contexts([_a, _b]);
+    final preference = _Preferences()..readAuthFailure = true;
+    final result = await LoadCurrentCompanyContextUseCase(
+      source,
+      preferences: preference,
+    )(const LoadCurrentCompanyContextParams(userId: 'user-a'));
+
+    expect(result.failureOrNull?.code, CompanyFailureCodes.authRequired);
+    expect(source.selected, isNull);
+  });
 
   test('remember validates actor and saves a verified company ID', () async {
     final preference = _Preferences();
@@ -201,11 +214,17 @@ final class _Preferences implements SelectedCompanyPreferenceRepository {
   final List<String> readUsers = [];
   final List<String> saved = [];
   bool readFailure = false;
+  bool readAuthFailure = false;
   bool writeFailure = false;
 
   @override
   Future<Result<String?>> read(String userId) async {
     readUsers.add(userId);
+    if (readAuthFailure) {
+      return const FailureResult(
+        AuthFailure(code: CompanyFailureCodes.authRequired),
+      );
+    }
     if (readFailure) return const FailureResult(UnexpectedFailure());
     return Success(values[userId]);
   }
