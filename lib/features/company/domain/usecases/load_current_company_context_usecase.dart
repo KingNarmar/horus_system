@@ -1,13 +1,28 @@
+import '../../../../core/errors/common_failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/current_company_context.dart';
+import '../failures/company_failure_codes.dart';
+import '../policies/company_selection_policy.dart';
+import '../repositories/selected_company_preference_repository.dart';
 import '../repositories/company_context_repository.dart';
+
+/// Identity is supplied by the authenticated session, never by the switcher.
+final class LoadCurrentCompanyContextParams extends NoParams {
+  final String userId;
+
+  const LoadCurrentCompanyContextParams({required this.userId});
+}
 
 class LoadCurrentCompanyContextUseCase
     implements UseCase<CurrentCompanyContext?, NoParams> {
   final CompanyContextRepository _repository;
+  final SelectedCompanyPreferenceRepository? _preferences;
 
-  const LoadCurrentCompanyContextUseCase(this._repository);
+  const LoadCurrentCompanyContextUseCase(
+    this._repository, {
+    SelectedCompanyPreferenceRepository? preferences,
+  }) : _preferences = preferences;
 
   @override
   Future<Result<CurrentCompanyContext?>> call(NoParams params) async {
@@ -20,8 +35,27 @@ class LoadCurrentCompanyContextUseCase
           return const Success<CurrentCompanyContext?>(null);
         }
 
+        String? preferredCompanyId;
+        if (params is LoadCurrentCompanyContextParams && _preferences != null) {
+          if (params.userId.trim().isEmpty) {
+            return const FailureResult<CurrentCompanyContext?>(
+              AuthFailure(code: CompanyFailureCodes.authRequired),
+            );
+          }
+          final preferenceResult = await _preferences.read(params.userId);
+          final preferenceFailure = preferenceResult.failureOrNull;
+          if (preferenceFailure != null) {
+            return FailureResult<CurrentCompanyContext?>(preferenceFailure);
+          }
+          preferredCompanyId = preferenceResult.dataOrNull;
+        }
+
+        final selectedCompanyId = CompanySelectionPolicy.chooseCompanyId(
+          activeContexts: contexts,
+          preferredCompanyId: preferredCompanyId,
+        );
         final selectedResult = await _repository.selectCompany(
-          contexts.first.companyId,
+          selectedCompanyId,
         );
 
         return selectedResult.when(

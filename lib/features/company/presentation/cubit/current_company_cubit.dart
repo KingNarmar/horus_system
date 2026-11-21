@@ -10,6 +10,7 @@ import '../../domain/entities/current_company_context.dart';
 import '../../domain/failures/company_failure_codes.dart';
 import '../../domain/usecases/clear_current_company_context_usecase.dart';
 import '../../domain/usecases/load_current_company_context_usecase.dart';
+import '../../domain/usecases/remember_selected_company_usecase.dart';
 import '../../domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../domain/usecases/select_current_company_usecase.dart';
 import '../../domain/usecases/watch_company_membership_changes_usecase.dart';
@@ -18,6 +19,8 @@ import 'current_company_state.dart';
 class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   final LoadCurrentCompanyContextUseCase _loadCurrentCompanyContextUseCase;
   final SelectCurrentCompanyUseCase _selectCurrentCompanyUseCase;
+  final RememberSelectedCompanyUseCase? _rememberSelectedCompanyUseCase;
+  String? _activeUserId;
   final RefreshSelectedCompanyContextUseCase
   _refreshSelectedCompanyContextUseCase;
   final ClearCurrentCompanyContextUseCase _clearCurrentCompanyContextUseCase;
@@ -29,6 +32,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   CurrentCompanyCubit({
     required LoadCurrentCompanyContextUseCase loadCurrentCompanyContextUseCase,
     required SelectCurrentCompanyUseCase selectCurrentCompanyUseCase,
+    RememberSelectedCompanyUseCase? rememberSelectedCompanyUseCase,
     required RefreshSelectedCompanyContextUseCase
     refreshSelectedCompanyContextUseCase,
     required ClearCurrentCompanyContextUseCase
@@ -36,6 +40,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     WatchCompanyMembershipChangesUseCase? watchMembershipChangesUseCase,
   }) : _loadCurrentCompanyContextUseCase = loadCurrentCompanyContextUseCase,
        _selectCurrentCompanyUseCase = selectCurrentCompanyUseCase,
+       _rememberSelectedCompanyUseCase = rememberSelectedCompanyUseCase,
        _refreshSelectedCompanyContextUseCase =
            refreshSelectedCompanyContextUseCase,
        _clearCurrentCompanyContextUseCase = clearCurrentCompanyContextUseCase,
@@ -45,6 +50,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   /// Start the personal membership channel for this authenticated identity.
   /// Every event triggers a server re-read; client messages never grant roles.
   void startWatchingMembership(String userId) {
+    _activeUserId = userId.trim().isEmpty ? null : userId;
     if (_watchMembershipChangesUseCase == null || userId.trim().isEmpty) {
       return;
     }
@@ -90,6 +96,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
   }
 
   Future<void> stopWatchingMembership() async {
+    _activeUserId = null;
     ++_membershipGeneration;
     final subscription = _membershipSubscription;
     _membershipSubscription = null;
@@ -104,7 +111,12 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     final request = ++_requestGeneration;
     emit(const CurrentCompanyLoading());
 
-    final result = await _loadCurrentCompanyContextUseCase(const NoParams());
+    final userId = _activeUserId;
+    final result = await _loadCurrentCompanyContextUseCase(
+      userId == null
+          ? const NoParams()
+          : LoadCurrentCompanyContextParams(userId: userId),
+    );
     if (!_isCurrent(request)) return;
 
     result.when(
@@ -179,13 +191,19 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     }
 
     emit(CurrentCompanyLoaded(selected));
+    await _rememberVerifiedSelection(selected, request);
+    if (!_isCurrent(request)) {
+      return const FailureResult(
+        ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
+      );
+    }
     return Success(selected);
   }
 
   Future<void> refreshAndSelectCompany(String companyId) async {
     final request = ++_requestGeneration;
     emit(const CurrentCompanyLoading());
-    await _refreshSelected(companyId, request);
+    await _refreshSelected(companyId, request, rememberSelection: true);
   }
 
   /// Re-fetch the current company's verified membership and display details
@@ -250,6 +268,7 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     String companyId,
     int request, {
     CurrentCompanyContext? connectionFallbackContext,
+    bool rememberSelection = false,
   }) async {
     final result = await _refreshSelectedCompanyContextUseCase(
       RefreshSelectedCompanyContextParams(companyId: companyId),
@@ -289,7 +308,31 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
     }
 
     final context = result.dataOrNull;
-    if (context != null) emit(CurrentCompanyLoaded(context));
+    if (context != null) {
+      emit(CurrentCompanyLoaded(context));
+      if (rememberSelection) await _rememberVerifiedSelection(context, request);
+    }
+  }
+
+  /// A failed local preference write must not revoke a server-authorized
+  /// company switch. The result is typed and logged without backend details.
+  Future<void> _rememberVerifiedSelection(
+    CurrentCompanyContext context,
+    int request,
+  ) async {
+    final userId = _activeUserId;
+    final remember = _rememberSelectedCompanyUseCase;
+    if (userId == null || remember == null || !_isCurrent(request)) return;
+
+    final result = await remember(
+      RememberSelectedCompanyParams(
+        userId: userId,
+        companyId: context.companyId,
+      ),
+    );
+    if (_isCurrent(request) && result.failureOrNull != null) {
+      AppLogger.debug('selected_company_preference_save_failed');
+    }
   }
 
   Future<void> clearCurrentCompanyContext() async {
