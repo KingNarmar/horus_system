@@ -2042,7 +2042,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfInvalidFailure => 'The generated PDF is invalid.';
 
   @override
-  String get reportsExportNoData => 'No data to export for the selected period.';
+  String get reportsExportNoData =>
+      'No data to export for the selected period.';
 
   @override
   String get reportsExportCapacityFailure =>

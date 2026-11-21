@@ -23,39 +23,40 @@ void main() {
     TimezoneBusinessTimeZoneConverter(),
   );
 
-  testWidgets('wide PDF paginates wrapped descriptions without losing row IDs', (
-    tester,
-  ) async {
-    const rowCount = 48;
-    final renderer = ReportPdfRendererImpl(
-      timestampFormatter: timestamps,
-      loadFonts: () async =>
-          (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
-    );
+  testWidgets(
+    'wide PDF paginates wrapped descriptions without losing row IDs',
+    (tester) async {
+      const rowCount = 48;
+      final renderer = ReportPdfRendererImpl(
+        timestampFormatter: timestamps,
+        loadFonts: () async =>
+            (regular: pw.Font.helvetica(), bold: pw.Font.helveticaBold()),
+      );
 
-    final result = await renderer.render(
-      document: _document(),
-      table: _wideTable(rowCount, rtl: false),
-      labels: _labels(rtl: false),
-      pageLayout: ReportPdfPageLayout.a4Landscape,
-    );
+      final result = await renderer.render(
+        document: _document(),
+        table: _wideTable(rowCount, rtl: false),
+        labels: _labels(rtl: false),
+        pageLayout: ReportPdfPageLayout.a4Landscape,
+      );
 
-    expect(result.failureOrNull, isNull);
-    final bytes = result.dataOrNull!;
-    expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
-    expect(_pageCount(bytes), greaterThan(1));
+      expect(result.failureOrNull, isNull);
+      final bytes = result.dataOrNull!;
+      expect(bytes.sublist(0, 4), [37, 80, 68, 70]);
+      expect(_pageCount(bytes), greaterThan(1));
 
-    // Each source row has one short stable ID, even when descriptive fields
-    // wrap across lines or pages. No omitted or duplicated business rows.
-    final ids = RegExp(r'\(TRIP-(\d+)\)')
-        .allMatches(_decodedStreams(bytes))
-        .map((match) => int.parse(match.group(1)!))
-        .toList(growable: false);
-    expect(ids, hasLength(rowCount));
-    expect(ids.toSet(), Set<int>.from(List.generate(rowCount, (i) => i)));
-    expect(_decodedStreams(bytes), contains('Customer'));
-    expect(_decodedStreams(bytes), contains('Route'));
-  });
+      // Each source row has one short stable ID, even when descriptive fields
+      // wrap across lines or pages. No omitted or duplicated business rows.
+      final ids = RegExp(r'\(TRIP-(\d+)\)')
+          .allMatches(_decodedStreams(bytes))
+          .map((match) => int.parse(match.group(1)!))
+          .toList(growable: false);
+      expect(ids, hasLength(rowCount));
+      expect(ids.toSet(), Set<int>.from(List.generate(rowCount, (i) => i)));
+      expect(_decodedStreams(bytes), contains('Customer'));
+      expect(_decodedStreams(bytes), contains('Route'));
+    },
+  );
 
   testWidgets('wide multi-page Arabic RTL PDF embeds Cairo for mixed content', (
     tester,
@@ -116,9 +117,7 @@ ReportExportTable _wideTable(int count, {required bool rtl}) =>
                 : 'Route $index from industrial loading terminal to the '
                       'receiving warehouse via regional freight corridor',
           ),
-          ReportExportTextCell(
-            rtl ? 'جارٍ النقل $index' : 'In transit $index',
-          ),
+          ReportExportTextCell(rtl ? 'جارٍ النقل $index' : 'In transit $index'),
         ],
       ),
       totals: const [],
