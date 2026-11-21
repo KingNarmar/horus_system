@@ -156,8 +156,13 @@ access; and a fourth active snapshot correctly fails with the capacity code.
 The job records server payload size, maximum page response bytes, initialization
 time and total elapsed time for each source. These are **local CI diagnostic
 metrics**, not production latency guarantees or peak PostgreSQL memory
-measurements. Do not declare a pass or deployment readiness before its Actions
-run actually succeeds.
+measurements. The dedicated [run #44879958642](https://github.com/KingNarmar/horus_system/actions/runs/44879958642)
+**PASSED** (12,000 rows per stream in all four report sources): snapshot
+initialization 505–849 ms; 60 pages for single streams, 120 for paired streams;
+maximum page response 114,154 bytes; source sizes 6.74–8.12 MB.
+The 12K seed took ~275 seconds; its read-only health probe safely reconnected
+after one stale idle HTTP socket. No start/release mutation was auto-retried.
+Peak PostgreSQL memory and hosted concurrency remain unmeasured.
 
 The independent stress fixture is **not** a migration and must never be
 executed on hosted Development or Production. The client export Data adapter
