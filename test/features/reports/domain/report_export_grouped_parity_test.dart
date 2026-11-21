@@ -152,9 +152,6 @@ void main() {
       ),
     );
     expect(projected.rows, isEmpty);
-    expect(
-      (projected.totals.single.value as ReportExportCountCell).value,
-      0,
-    );
+    expect((projected.totals.single.value as ReportExportCountCell).value, 0);
   });
 }
