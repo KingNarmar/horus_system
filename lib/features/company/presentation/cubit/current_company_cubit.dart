@@ -190,13 +190,13 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
       return const FailureResult(invalid);
     }
 
-    emit(CurrentCompanyLoaded(selected));
     await _rememberVerifiedSelection(selected, request);
     if (!_isCurrent(request)) {
       return const FailureResult(
         ValidationFailure(code: CompanyFailureCodes.companyNotAvailable),
       );
     }
+    emit(CurrentCompanyLoaded(selected));
     return Success(selected);
   }
 
@@ -309,8 +309,11 @@ class CurrentCompanyCubit extends Cubit<CurrentCompanyState> {
 
     final context = result.dataOrNull;
     if (context != null) {
+      if (rememberSelection) {
+        await _rememberVerifiedSelection(context, request);
+        if (!_isCurrent(request)) return;
+      }
       emit(CurrentCompanyLoaded(context));
-      if (rememberSelection) await _rememberVerifiedSelection(context, request);
     }
   }
 

@@ -164,6 +164,35 @@ void main() {
   });
 
   test(
+    'late preference write cannot show the former shell after identity change',
+    () async {
+      final server = _Server([_a, _b]);
+      final preference = _Preference();
+      final pendingWrite = Completer<Result<void>>();
+      preference.nextSave = pendingWrite;
+      final cubit = _createCubit(server, preference);
+      addTearDown(cubit.close);
+
+      cubit.startWatchingMembership('user-a');
+      await cubit.loadCurrentCompanyContext();
+      final switchToB = cubit.switchActiveCompany('company-b');
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state, isA<CurrentCompanyLoading>());
+
+      await cubit.stopWatchingMembership();
+      await cubit.clearCurrentCompanyContext();
+      cubit.startWatchingMembership('user-b');
+      await cubit.loadCurrentCompanyContext();
+      expect((cubit.state as CurrentCompanyLoaded).context, _a);
+
+      pendingWrite.complete(const Success<void>(null));
+      await switchToB;
+      expect((cubit.state as CurrentCompanyLoaded).context, _a);
+      expect(preference.values['user-b'], isNull);
+    },
+  );
+
+  test(
     'local preference write failure does not revoke verified switch',
     () async {
       final server = _Server([_a, _b]);
@@ -240,6 +269,7 @@ final class _Server implements CompanyContextRepository {
 final class _Preference implements SelectedCompanyPreferenceRepository {
   final Map<String, String> values = {};
   Completer<Result<String?>>? nextRead;
+  Completer<Result<void>>? nextSave;
   bool writeFailure = false;
 
   @override
@@ -256,6 +286,12 @@ final class _Preference implements SelectedCompanyPreferenceRepository {
     required String companyId,
   }) async {
     if (writeFailure) return const FailureResult(UnexpectedFailure());
+    final pending = nextSave;
+    nextSave = null;
+    if (pending != null) {
+      final result = await pending.future;
+      if (result.failureOrNull != null) return result;
+    }
     values[userId] = companyId;
     return const Success<void>(null);
   }
