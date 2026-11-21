@@ -1,0 +1,70 @@
+name: Issue 353 — disposable 12K Snapshot Stress
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/security/verify_issue_353_large_report_sources.mjs'
+      - 'scripts/security/verify_issue_353_snapshot_stress.mjs'
+      - 'supabase/tests/issue_353_report_large_sources_fixture.sql'
+      - 'supabase/tests/issue_353_report_12k_stress_fixture.sql'
+      - '.github/workflows/issue-353-snapshot-12k-stress.yml'
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot-stress:
+    name: Disposable 12K frozen-source / JWT / role-recheck stress
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Ensure this environment cannot target a hosted database
+        shell: bash
+        run: |
+          test ! -e supabase/config.toml
+          test ! -e supabase/.temp/project-ref
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+
+      - name: Create disposable local Supabase
+        run: |
+          npx --yes supabase@3.0.0 init
+          test -f supabase/config.toml
+          npx --yes supabase@3.0.0 start
+
+      - name: Replay repository migrations into disposable database
+        run: npx --yes supabase@3.0.0 db reset --local --no-seed
+
+      - name: Ensure local PostgreSQL client exists
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Run signed-JWT 1,300 baseline and 12,000-row snapshot stress
+        env:
+          HORUS_353_STRESS: '1'
+        run: node scripts/security/verify_issue_353_large_report_sources.mjs
+
+      - name: Destroy disposable local Supabase
+        if: always()
+        run: |
+          if test -e supabase/config.toml; then
+            npx --yes supabase@3.0.0 stop --no-backup || true
+          fi

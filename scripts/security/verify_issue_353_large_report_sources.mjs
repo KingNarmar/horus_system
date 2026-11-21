@@ -576,6 +576,17 @@ async function run() {
   assert.deepEqual(boundedFailures, [], 'Bounded date-range source failures');
   console.log('PASS: four source RPCs, independent row/amount totals, ' +
     'signed-JWT role and tenant isolation, date filters and >1000-row responses');
+
+  // Optional independent CI job: only local loopback database and signed JWTs.
+  // Never run large synthetic fixture writes on a hosted Supabase project.
+  if (process.env.HORUS_353_STRESS === '1') {
+    const { verifyIssue353Stress } = await import(
+      './verify_issue_353_snapshot_stress.mjs'
+    );
+    await verifyIssue353Stress({
+      tokens, localPsql, request, apiUrl, companyA, companyB,
+    });
+  }
 }
 
 run().catch((error) => {

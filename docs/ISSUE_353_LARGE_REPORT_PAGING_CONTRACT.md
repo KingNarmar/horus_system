@@ -138,3 +138,27 @@ Migration: `20261121070000_issue_353_report_export_snapshot_paging.sql`.
 
 This design does not introduce duplicate financial formulas, client-side
 aggregation, or a permissive fallback that could export stale/partial data.
+
+## Independent 12K stress gate (isolated local CI)
+
+`issue-353-snapshot-12k-stress.yml` runs only in an unlinked, disposable
+Supabase stack. It extends the **existing 1,300-row fixture** to **12,000
+records per source** while preserving the original subscription/quota triggers,
+then checks all four frozen authoritative sources and their paired financial
+streams through real signed-JWT pages. Assertions include exact independent
+amount totals, stable/unique row IDs, no silent truncation, ≤200 rows/page,
+≤1 MiB serialized response/page, and release without leaked snapshots.
+
+It additionally verifies that updating a live trip does not mutate the frozen
+snapshot; downgrading a user's finance role revokes subsequent snapshot page
+access; and a fourth active snapshot correctly fails with the capacity code.
+The job records server payload size, maximum page response bytes, initialization
+time and total elapsed time for each source. These are **local CI diagnostic
+metrics**, not production latency guarantees or peak PostgreSQL memory
+measurements. Do not declare a pass or deployment readiness before its Actions
+run actually succeeds.
+
+The independent stress fixture is **not** a migration and must never be
+executed on hosted Development or Production. The client export Data adapter
+remains disabled in dependency injection pending a separately approved hosted
+Development rollout.
