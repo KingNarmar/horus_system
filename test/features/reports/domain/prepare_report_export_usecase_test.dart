@@ -18,6 +18,7 @@ import 'package:horus_system/features/reports/domain/entities/open_invoices_repo
 import 'package:horus_system/features/reports/domain/entities/operational_trip_report.dart';
 import 'package:horus_system/features/reports/domain/entities/report_date_range.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_cancellation.dart';
+import 'package:horus_system/features/reports/domain/entities/report_export_document.dart';
 import 'package:horus_system/features/reports/domain/entities/report_export_kind.dart';
 import 'package:horus_system/features/reports/domain/entities/report_source_metadata.dart';
 import 'package:horus_system/features/reports/domain/entities/trip_expenses_report.dart';
