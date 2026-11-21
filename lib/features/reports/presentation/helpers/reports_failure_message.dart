@@ -21,6 +21,7 @@ String reportsFailureMessage(BuildContext context, Failure failure) {
     ReportsFailureCodes.pdfInvalidDocument => strings.exportPdfInvalidFailure,
     ReportsFailureCodes.validationDateRange => strings.invalidDateRangeFailure,
     ReportsFailureCodes.exportCapacity => strings.exportCapacityFailure,
+    ReportsFailureCodes.exportNoData => strings.exportNoDataFailure,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
     CompanyFailureCodes.conflictBusinessTimezoneNotConfigured ||

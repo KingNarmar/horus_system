@@ -52,6 +52,14 @@ final class ReportExportDocument {
 
 sealed class ReportExportContent {
   const ReportExportContent();
+
+  /// Empty means no authoritative business rows, not a zero monetary total.
+  bool get hasExportableRows => switch (this) {
+    ReportExportOperationalContent(:final report) => report.totalTrips > 0,
+    ReportExportExpensesContent(:final report) => report.rows.isNotEmpty,
+    ReportExportProfitContent(:final report) => report.rows.isNotEmpty,
+    ReportExportInvoicesContent(:final report) => report.rows.isNotEmpty,
+  };
 }
 
 final class ReportExportOperationalContent extends ReportExportContent {

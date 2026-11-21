@@ -2,6 +2,7 @@ abstract final class ReportsFailureCodes {
   static const permissionExport = 'reports.permission.export';
   static const exportCancelled = 'reports.export.cancelled';
   static const exportCapacity = 'reports.export.capacity';
+  static const exportNoData = 'reports.export.no_data';
   static const pdfRenderUnavailable = 'reports.export.pdf_render_unavailable';
   static const pdfSaveUnavailable = 'reports.export.pdf_save_unavailable';
   static const pdfPrintUnavailable = 'reports.export.pdf_print_unavailable';

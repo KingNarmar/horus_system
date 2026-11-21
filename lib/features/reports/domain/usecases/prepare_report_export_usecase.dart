@@ -84,6 +84,12 @@ final class PrepareReportExportUseCase {
     if (report is FailureResult<ReportExportContent>) {
       return FailureResult(report.failure);
     }
+    final content = report.dataOrNull!;
+    if (!content.hasExportableRows) {
+      return const FailureResult(
+        NotFoundFailure(code: ReportsFailureCodes.exportNoData),
+      );
+    }
 
     params.onProgress?.call(
       const ReportExportProgress(stage: ReportExportStage.loadingBranding),
@@ -126,7 +132,7 @@ final class PrepareReportExportUseCase {
         kind: params.kind,
         dateRange: params.dateRange.normalized(),
         generatedAtUtc: _clock().toUtc(),
-        content: report.dataOrNull!,
+        content: content,
       ),
     );
   }

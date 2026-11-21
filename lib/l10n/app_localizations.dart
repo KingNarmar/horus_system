@@ -3794,6 +3794,12 @@ abstract class AppLocalizations {
   /// **'The generated PDF is invalid.'**
   String get reportsExportPdfInvalidFailure;
 
+  /// No description provided for @reportsExportNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data to export for the selected period.'**
+  String get reportsExportNoData;
+
   /// No description provided for @reportsExportCapacityFailure.
   ///
   /// In en, this message translates to:

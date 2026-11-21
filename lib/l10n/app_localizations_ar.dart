@@ -2012,6 +2012,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportsExportPdfInvalidFailure => 'ملف PDF الناتج غير صالح.';
 
   @override
+  String get reportsExportNoData => 'لا توجد بيانات للتصدير خلال الفترة المحددة.';
+
+  @override
   String get reportsExportCapacityFailure =>
       'التقرير كبير جدًا أو توجد عمليات تصدير كثيرة قيد التنفيذ. قلّل الفترة الزمنية أو حاول مرة أخرى بعد قليل.';
 

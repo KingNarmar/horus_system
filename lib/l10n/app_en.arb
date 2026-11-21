@@ -673,6 +673,7 @@
   "reportsExportPdfPrintFailure": "Could not open report PDF printing.",
   "reportsExportPdfShareFailure": "Could not share the report PDF.",
   "reportsExportPdfInvalidFailure": "The generated PDF is invalid.",
+  "reportsExportNoData": "No data to export for the selected period.",
   "reportsExportCapacityFailure": "This report is too large or too many exports are running. Narrow the date range or try again shortly.",
   "reportsExportPdfGeneratedAt": "Generated",
   "reportsExportPdfSourceAsOf": "Source read (server)",

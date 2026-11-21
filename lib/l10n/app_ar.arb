@@ -677,6 +677,7 @@
   "reportsExportPdfPrintFailure": "تعذّر فتح الطباعة لملف PDF.",
   "reportsExportPdfShareFailure": "تعذّرت مشاركة ملف PDF للتقرير.",
   "reportsExportPdfInvalidFailure": "ملف PDF الناتج غير صالح.",
+  "reportsExportNoData": "لا توجد بيانات للتصدير خلال الفترة المحددة.",
   "reportsExportCapacityFailure": "التقرير كبير جدًا أو توجد عمليات تصدير كثيرة قيد التنفيذ. قلّل الفترة الزمنية أو حاول مرة أخرى بعد قليل.",
   "reportsExportPdfGeneratedAt": "تاريخ الإنشاء",
   "reportsExportPdfSourceAsOf": "وقت قراءة البيانات (الخادم)",
