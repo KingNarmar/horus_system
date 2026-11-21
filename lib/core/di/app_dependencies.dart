@@ -20,10 +20,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../features/company/data/datasources/company_creation_request_local_data_source.dart';
 import '../../features/company/data/datasources/company_context_remote_data_source.dart';
+import '../../features/company/data/datasources/selected_company_preference_local_data_source.dart';
 import '../../features/company/data/datasources/company_membership_changes_remote_data_source.dart';
 import '../../features/company/data/datasources/company_remote_data_source.dart';
 import '../../features/company/data/datasources/company_users_remote_data_source.dart';
 import '../../features/company/data/repositories/company_context_repository_impl.dart';
+import '../../features/company/data/repositories/selected_company_preference_repository_impl.dart';
 import '../../features/company/data/repositories/company_membership_changes_repository_impl.dart';
 import '../../features/company/data/repositories/company_repository_impl.dart';
 import '../../features/company/data/repositories/company_users_repository_impl.dart';
@@ -35,6 +37,7 @@ import '../../features/company/domain/usecases/get_company_users_usecase.dart';
 import '../../features/company/domain/usecases/get_my_companies_usecase.dart';
 import '../../features/company/domain/usecases/get_switchable_company_contexts_usecase.dart';
 import '../../features/company/domain/usecases/load_current_company_context_usecase.dart';
+import '../../features/company/domain/usecases/remember_selected_company_usecase.dart';
 import '../../features/company/domain/usecases/refresh_selected_company_context_usecase.dart';
 import '../../features/company/domain/usecases/select_current_company_usecase.dart';
 import '../../features/company/domain/usecases/watch_company_membership_changes_usecase.dart';
@@ -140,9 +143,19 @@ abstract final class AppDependencies {
 
   static CurrentCompanyCubit createCurrentCompanyCubit() {
     final companyContextRepository = _createCompanyContextRepository();
+    final preferences = SelectedCompanyPreferenceRepositoryImpl(
+      localDataSource: SecureSelectedCompanyPreferenceLocalDataSource(
+        const FlutterSecureStorage(),
+      ),
+      currentUserId: () => SupabaseClientProvider.client.auth.currentUser?.id,
+    );
     return CurrentCompanyCubit(
       loadCurrentCompanyContextUseCase: LoadCurrentCompanyContextUseCase(
         companyContextRepository,
+        preferences: preferences,
+      ),
+      rememberSelectedCompanyUseCase: RememberSelectedCompanyUseCase(
+        preferences,
       ),
       selectCurrentCompanyUseCase: SelectCurrentCompanyUseCase(
         companyContextRepository,
