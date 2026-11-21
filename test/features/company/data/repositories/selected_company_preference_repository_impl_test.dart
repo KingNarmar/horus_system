@@ -96,10 +96,7 @@ void main() {
         currentUserId: () => actor,
       );
 
-      final write = repository.save(
-        userId: 'user-a',
-        companyId: 'company-a',
-      );
+      final write = repository.save(userId: 'user-a', companyId: 'company-a');
       await Future<void>.delayed(Duration.zero);
       actor = 'user-b';
       local.waitingWrites.single.completeError(StateError('storage failed'));
