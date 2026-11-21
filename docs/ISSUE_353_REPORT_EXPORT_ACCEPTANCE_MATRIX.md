@@ -1,11 +1,14 @@
 # Issue #353 — Nine-report export acceptance matrix
 
 Status (2026-11-21): **PDF PR A #389 remains Draft and unmerged.**
-The original `a9f48758` acceptance checkpoint completed **15/15 GitHub
-Actions workflows** and the user-confirmed Development client smoke below.
-The new focused long-field/paged-source regression tests added after that
-checkpoint are **pending their own current-head CI result**; do not count prior
-checks as results for a new commit. Native XLSX remains separate PR B.
+The original `a9f48758` checkpoint completed **15/15 GitHub Actions
+workflows** and the user-confirmed Development client smoke below. The
+approved new isolated PDF and paged-source tests passed on verified code
+head **`4f725f87`**: **15/15 GitHub workflows SUCCESS**, including Flutter
+format/architecture/analyze/full tests, Windows and Android release builds,
+signed-JWT security, migration replay and the isolated 12K snapshot stress.
+[Current code CI](https://github.com/KingNarmar/horus_system/actions/runs/44902298858).
+Native XLSX remains separate PR B.
 
 The existing Reports **screen** uses its four authoritative report readers.
 Development PDF **export** alone uses an authorized, frozen, paged snapshot
@@ -77,13 +80,13 @@ was present in the manually inspected data.
 - Renderer tests on the prior head cover 100-row and 1,000-row **short-field,
   three-column** pagination; a **seven-row eight-column** landscape PDF;
   and a **single short mixed Arabic/Latin** embedded-Cairo example.
-- **New, pending current-head CI:** `report_pdf_long_content_test.dart`
+- **New, verified on `4f725f87`:** `report_pdf_long_content_test.dart`
   combines eight wide columns, wrapped descriptive fields, multiple pages,
   and an Arabic/English RTL Cairo scenario. The English test checks that
   every stable trip ID occurs once. It is an automated layout/content check,
   not a human pixel-level clipping inspection or proof against every
   adversarial unbreakable text input.
-- **New, pending current-head CI:** a fake-source integration regression
+- **New, verified on `4f725f87`:** a fake-source integration regression
   in `paged_reports_repository_impl_test.dart` covers **421 rows in three
   200-row-bounded calls**, exact IDs/count/progress and snapshot release.
   This exercises the adapter/collector, not a hosted device or a full
@@ -100,7 +103,7 @@ was present in the manually inspected data.
 | Nine-mode Windows screen–PDF parity | User visual comparisons for the recorded company/date fixture | PASS for observed dataset |
 | Arabic and Android native delivery | Windows RTL and HONOR Preview/Save/Share/Print-preview | PASS for observed devices/actions |
 | Empty export, role visibility, company switch after preview | Focused user checks + automated failure/security/lifecycle coverage | PASS for stated scenarios |
-| Latest-head regression and CI | New isolated long-layout and >200-row adapter tests | **Pending current-head checks** |
+| Focused regression and code CI | New isolated long-layout and 421-row/three-page adapter tests | **PASS on `4f725f87` (15/15)** |
 | Hosted large multi-page app export (>200 rows) | Small Development fixture; isolated source/renderer tests are not a hosted combined flow | **Not evidenced; no shared DB fixture flood approved** |
 | High concurrency, PostgreSQL peak memory/latency and safe degradation | Explicitly tracked in [Issue #391](https://github.com/KingNarmar/horus_system/issues/391) | **Deferred pre-RC gate** |
 | iOS signed/device smoke and Production snapshot migration | Later rollout and release gates, separately authorized | Not part of PDF PR A acceptance |

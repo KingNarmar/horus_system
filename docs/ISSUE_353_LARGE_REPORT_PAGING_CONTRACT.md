@@ -7,7 +7,9 @@ using the existing Domain use cases. Staging/Production do not call the new
 RPCs until their separate migration and release approvals. Baseline CI on `a9f48758` passed 15/15 workflow families, and the owner
 verified nine-mode Windows PDF parity and Android PDF delivery on Development.
 A hosted >200-row app export and long-field stress were not demonstrated by
-the small manual dataset. New focused isolated regressions await latest-head CI.
+the small manual dataset. The newly added isolated wide long-text EN/AR PDF
+and 421-row three-page Data regressions **passed** full Flutter testing on
+`4f725f87`, with all 15 workflows successful. See [current code CI](https://github.com/KingNarmar/horus_system/actions/runs/44902298858).
 
 ## Existing authoritative sources
 
@@ -178,8 +180,8 @@ The independent stress fixture is **not** a migration and must never be
 executed on hosted Development or Production. The Development client export Data adapter is selected by dependency
 injection; baseline `a9f48758` CI (15/15) and observed Windows nine-mode and
 Android PDF smoke passed. These small hosted fixtures do not demonstrate a
-hosted 200+ row client-to-PDF export. The new focused isolated test additions
-are awaiting CI on their own head.
+hosted 200+ row client-to-PDF export. The focused isolated additions passed full testing and 15/15 workflows
+on `4f725f87` (they are still not a hosted full-client stress test).
 No Production rollout or app merge has been authorized.
 
 Size accounting reference: [PostgreSQL database size functions](https://www.postgresql.org/docs/18/functions-admin.html) and [string `octet_length`](https://www.postgresql.org/docs/18/functions-string.html).
@@ -196,9 +198,10 @@ Size accounting reference: [PostgreSQL database size functions](https://www.post
 - Completed on baseline `a9f48758`: 15/15 CI, nine-mode Windows screen–PDF
   parity, Windows Arabic/RTL and HONOR Android Preview/Save/Share/Print-preview.
   See [acceptance matrix](ISSUE_353_REPORT_EXPORT_ACCEPTANCE_MATRIX.md).
-- New pending current-head checks: eight-column long-text multi-page
-  English/Arabic renderer regressions, plus an isolated 421-row three-page
-  Data repository bridge regression. They are not hosted app stress tests.
+- Verified on `4f725f87` (15/15 workflows SUCCESS): eight-column long-text
+  multi-page English/Arabic PDF renderer regressions and an isolated 421-row
+  three-page Data repository bridge regression. They are **not** hosted
+  end-to-end app stress or arbitrary unbreakable-text clipping tests.
 - Remaining separate release gate: #391 concurrent workload, PostgreSQL peak
   memory, latency and recovery. No Development/Production load fixture is
   authorized; hosted >200-row PDF was not separately demonstrated.
