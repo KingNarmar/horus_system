@@ -59,15 +59,22 @@ void main() {
     expect(source.invoices.single.invoiceId, 'invoice-a');
     expect(source.payments.single.invoiceId, 'invoice-a');
     expect(source.payments.single.amount.minorUnits, 50000);
-    expect(source.metadata.fromDate, BusinessDate(year: 2026, month: 11, day: 21));
-    expect(source.metadata.toDate, BusinessDate(year: 2026, month: 11, day: 21));
+    expect(
+      source.metadata.fromDate,
+      BusinessDate(year: 2026, month: 11, day: 21),
+    );
+    expect(
+      source.metadata.toDate,
+      BusinessDate(year: 2026, month: 11, day: 21),
+    );
     expect(remote.startCalls, 1);
     expect(remote.readCalls, 2);
     expect(remote.releaseCalls, 1);
   });
 }
 
-final class _FinancialSnapshotRemote implements ReportExportSnapshotRemoteDataSource {
+final class _FinancialSnapshotRemote
+    implements ReportExportSnapshotRemoteDataSource {
   int startCalls = 0;
   int readCalls = 0;
   int releaseCalls = 0;
@@ -133,8 +140,16 @@ final class _FinancialSnapshotRemote implements ReportExportSnapshotRemoteDataSo
     final rows = switch (stream) {
       'trips' => [_trip()],
       'expenses' => [
-        {'expense_id': 'expense-a', 'trip_id': 'trip-a', 'amount_minor_units': 23456},
-        {'expense_id': 'expense-b', 'trip_id': 'trip-a', 'amount_minor_units': 100},
+        {
+          'expense_id': 'expense-a',
+          'trip_id': 'trip-a',
+          'amount_minor_units': 23456,
+        },
+        {
+          'expense_id': 'expense-b',
+          'trip_id': 'trip-a',
+          'amount_minor_units': 100,
+        },
       ],
       'invoices' => [_invoice()],
       'payments' => [_payment()],
