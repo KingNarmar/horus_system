@@ -102,6 +102,36 @@ void main() {
       expect(failure.message, isNull);
     });
 
+    test('maps snapshot capacity to a typed, non-leaking failure', () {
+      final failure = mapper.fromPostgrest(
+        const PostgrestException(
+          message: 'private quota implementation',
+          code: ReportsRpcErrorCodes.exportCapacity,
+        ),
+        permissionFailureCode: ReportsFailureCodes.permissionFinancialView,
+      );
+
+      expect(failure, isA<ConflictFailure>());
+      expect(failure.code, ReportsFailureCodes.exportCapacity);
+      expect(failure.message, isNull);
+    });
+
+    test('rejects corrupt or expired export snapshot pages', () {
+      for (final code in [
+        ReportsRpcErrorCodes.exportSnapshotInvalid,
+        ReportsRpcErrorCodes.exportPageInvalid,
+      ]) {
+        final failure = mapper.fromPostgrest(
+          PostgrestException(message: 'internal snapshot detail', code: code),
+          permissionFailureCode: ReportsFailureCodes.permissionOperationalView,
+        );
+
+        expect(failure, isA<ConflictFailure>());
+        expect(failure.code, ReportsFailureCodes.conflictSourceInvalid);
+        expect(failure.message, isNull);
+      }
+    });
+
     test('sanitizes unknown persistence failures', () {
       final failure = mapper.fromPostgrest(
         const PostgrestException(

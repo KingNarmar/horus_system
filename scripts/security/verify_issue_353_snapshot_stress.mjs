@@ -53,7 +53,14 @@ function aggregateStats(localPsql, companyA, companyB) {
 }
 
 async function rpc(request, apiUrl, name, token, body) {
-  return request(apiUrl + '/rest/v1/rpc/' + name, { token, body });
+  try {
+    return await request(apiUrl + '/rest/v1/rpc/' + name, { token, body });
+  } catch (error) {
+    // Never print tokens, URLs or raw backend payloads to public CI logs.
+    const causeCode = error?.cause?.code ?? error?.code ?? error?.name;
+    throw new Error('Disposable RPC transport failure (' + name + '): ' +
+      String(causeCode ?? 'unknown'));
+  }
 }
 
 async function testFrozenRows({localPsql, request, apiUrl, token, snapshotId, page}) {
@@ -147,13 +154,27 @@ export async function verifyIssue353Stress({
   tokens, localPsql, request, apiUrl, companyA, companyB,
 }) {
   // The base 1,300 case already passed before this optional workload runs.
+  const seedStartedAt = performance.now();
   localPsql(['-f', 'supabase/tests/issue_353_report_12k_stress_fixture.sql']);
+  console.log('STRESS fixture loaded in ' +
+    Math.round(performance.now() - seedStartedAt) + ' ms');
   localPsql(['-c', 'ANALYZE public.trips; ANALYZE public.expense_ledger_entries; ' +
     'ANALYZE public.invoices; ANALYZE public.payments;']);
   const stats = aggregateStats(localPsql, companyA, companyB);
+  console.log('STRESS verified 12K fixture row counts');
   const owner = tokens.get('ownerA');
 
+  // Separate a broken PostgREST socket from a snapshot initialization failure.
+  const health = await rpc(request, apiUrl,
+    'get_operational_trip_reports_source', owner, {
+      p_company_id: companyA, p_from_date: '2026-11-16',
+      p_to_date: '2026-11-16',
+    });
+  assert.equal(health.ok, true, 'PostgREST unavailable after stress seeding');
+  console.log('STRESS local PostgREST health verified after seeding');
+
   for (const [sourceKind, streams] of sourceDefinitions) {
+    console.log('STRESS starting snapshot for ' + sourceKind);
     const startMs = performance.now();
     const started = await rpc(request, apiUrl, 'start_report_export_snapshot',
       owner, {

@@ -62,6 +62,14 @@ jobs:
           HORUS_353_STRESS: '1'
         run: node scripts/security/verify_issue_353_large_report_sources.mjs
 
+      - name: Diagnose disposable container health after test failure
+        if: failure()
+        shell: bash
+        run: |
+          # Names/status/memory only; never print Docker environment or secrets.
+          docker ps -a --format '{{.Names}} | {{.Status}}' || true
+          docker stats --no-stream --format '{{.Name}} | {{.MemUsage}}' || true
+
       - name: Destroy disposable local Supabase
         if: always()
         run: |
