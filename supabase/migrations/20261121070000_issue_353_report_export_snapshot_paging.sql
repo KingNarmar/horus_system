@@ -299,7 +299,7 @@ BEGIN
 
   SELECT pg_catalog.count(*),
          pg_catalog.max(page.row_position),
-         pg_catalog.coalesce(pg_catalog.jsonb_agg(
+         coalesce(pg_catalog.jsonb_agg(
            page.row_data ORDER BY page.row_position
          ), '[]'::jsonb)
   INTO v_count, v_last_position, v_rows
