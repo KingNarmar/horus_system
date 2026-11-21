@@ -3794,6 +3794,12 @@ abstract class AppLocalizations {
   /// **'The generated PDF is invalid.'**
   String get reportsExportPdfInvalidFailure;
 
+  /// No description provided for @reportsExportCapacityFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is too large or too many exports are running. Narrow the date range or try again shortly.'**
+  String get reportsExportCapacityFailure;
+
   /// No description provided for @reportsExportPdfGeneratedAt.
   ///
   /// In en, this message translates to:

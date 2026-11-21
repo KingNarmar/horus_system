@@ -20,6 +20,7 @@ String reportsFailureMessage(BuildContext context, Failure failure) {
     ReportsFailureCodes.pdfShareUnavailable => strings.exportPdfShareFailure,
     ReportsFailureCodes.pdfInvalidDocument => strings.exportPdfInvalidFailure,
     ReportsFailureCodes.validationDateRange => strings.invalidDateRangeFailure,
+    ReportsFailureCodes.exportCapacity => strings.exportCapacityFailure,
     CompanyFailureCodes.conflictFinancialSettingsNotConfigured =>
       context.financialReadinessL10n.configurationRequired,
     CompanyFailureCodes.conflictBusinessTimezoneNotConfigured ||

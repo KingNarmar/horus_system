@@ -32,6 +32,13 @@ final class ReportsRepositoryFailureMapper {
         const ConflictFailure(
           code: CompanyFailureCodes.conflictBusinessTimezoneNotConfigured,
         ),
+      ReportsRpcErrorCodes.exportCapacity => const ConflictFailure(
+        code: ReportsFailureCodes.exportCapacity,
+      ),
+      ReportsRpcErrorCodes.exportSnapshotInvalid ||
+      ReportsRpcErrorCodes.exportPageInvalid => const ConflictFailure(
+        code: ReportsFailureCodes.conflictSourceInvalid,
+      ),
       ReportsRpcErrorCodes.financialSettingsNotConfigured =>
         const ConflictFailure(
           code: CompanyFailureCodes.conflictFinancialSettingsNotConfigured,

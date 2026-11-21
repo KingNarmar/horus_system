@@ -2042,6 +2042,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsExportPdfInvalidFailure => 'The generated PDF is invalid.';
 
   @override
+  String get reportsExportCapacityFailure =>
+      'This report is too large or too many exports are running. Narrow the date range or try again shortly.';
+
+  @override
   String get reportsExportPdfGeneratedAt => 'Generated';
 
   @override
